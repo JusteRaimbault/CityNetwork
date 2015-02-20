@@ -45,7 +45,7 @@ to go
   ; for each new center, find neighbor nodes
   ask new-centers [
      set neigh-nodes direct-neighbor-nodes
-     ;show neigh-nodes
+     show neigh-nodes
      if neigh-nodes != nobody [
        ask neigh-nodes [
          set nodes-to-connect lput self nodes-to-connect
@@ -68,8 +68,8 @@ to go
      ifelse count current-centers-to-connect = 1 [
         ask one-of current-centers-to-connect [create-road-with ? [new-road]]
      ][
-       let x-bar sum ([weight * xcor] of current-centers-to-connect)
-       let y-bar sum ([weight * ycor] of current-centers-to-connect)
+       let x-bar sum ([weight * xcor] of current-centers-to-connect) / sum ([weight] of current-centers-to-connect)
+       let y-bar sum ([weight * ycor] of current-centers-to-connect) / sum ([weight] of current-centers-to-connect)
        ;create barycenter and connects it
        create-nodes 1 [
          setxy x-bar y-bar set hidden? true
@@ -105,7 +105,7 @@ to-report new-center
     set weight random-float 1
     set neigh-nodes []
     set shape "circle" set color red
-    set size (1 + weight)/ 10
+    set size (5 + weight)/ 50
     let coords random-coords
     setxy first coords last coords
     set c self
@@ -128,23 +128,24 @@ end
 
 ; center procedure that reports network nodes in neigh with a given definition
 to-report direct-neighbor-nodes
+    report (other turtles) with-min [distance myself]
     ; do neighborhood computation by hand
-    let c self
-    let p other turtles
+    ;let c self
+    ;let p other turtles
     
-    let n []
-    ask p [
-      let p0 self
-      ; r0 = d(P_0,C)
-      let r0 distance c
-      let neigh? true
-      ask (other p)[
-        set neigh? (neigh? and (distance p0 > r0) and (distance c > r0))
-      ]
-      if neigh? [set n lput p0 n]
-    ]
+    ;let n []
+    ;ask p [
+    ;  let p0 self
+    ;  ; r0 = d(P_0,C)
+    ;  let r0 distance c
+    ;  let neigh? true
+    ;  ask (other p)[
+    ;    set neigh? (neigh? and (distance p0 > r0) and (distance c > r0))
+    ;  ]
+    ;  if neigh? [set n lput p0 n]
+    ;]
     
-    report to-agentset n
+    ;report to-agentset n
     
     ; can be a center or a node
     ;report (other turtles) with [
@@ -201,7 +202,7 @@ max-new-centers-number
 max-new-centers-number
 0
 20
-10
+1
 1
 1
 NIL
@@ -224,7 +225,7 @@ BUTTON
 274
 NIL
 go
-NIL
+T
 1
 T
 OBSERVER
@@ -250,6 +251,24 @@ NIL
 NIL
 NIL
 1
+
+PLOT
+1133
+331
+1333
+481
+Degree distrib
+NIL
+log (k)
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" "histogram [ln max (list 1 count road-neighbors)] of turtles"
+PENS
+"pen-0" 1.0 0 -7500403 true "" ""
 
 @#$#@#$#@
 ## WHAT IS IT?
