@@ -2,6 +2,7 @@ extensions[]
 
 __includes[
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls" 
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls" 
 ]
 
 globals[
@@ -18,7 +19,8 @@ breed[nodes node]
 undirected-link-breed[roads road]
 
 centers-own[
-  weight  
+  weight
+  neigh-nodes
 ]
 
 
@@ -37,6 +39,47 @@ to go
   repeat new-centers-number[
      set new-centers lput new-center new-centers
   ]
+  set new-centers to-agentset new-centers ; dirty in complexity :/
+  
+  let nodes-to-connect []
+  ; for each new center, find neighbor nodes
+  ask new-centers [
+     set neigh-nodes direct-neighbor-nodes
+     ;show neigh-nodes
+     if neigh-nodes != nobody [
+       ask neigh-nodes [
+         set nodes-to-connect lput self nodes-to-connect
+       ]
+     ]
+  ]
+  
+  ; remove duplicates from nodes to connect
+  ; then connects each to corresponding centers
+  set nodes-to-connect remove-duplicates nodes-to-connect
+  
+  show nodes-to-connect
+  
+  
+  foreach nodes-to-connect [
+     ; find centers such that ? \in neigh-nodes
+     ; connect node to weighted barycenter of these
+     ; then connect new node to each (induces local tree-like structure)
+     let current-centers-to-connect new-centers with [neigh-nodes != nobody and member? ? neigh-nodes]
+     ifelse count current-centers-to-connect = 1 [
+        ask one-of current-centers-to-connect [create-road-with ? [new-road]]
+     ][
+       let x-bar sum ([weight * xcor] of current-centers-to-connect)
+       let y-bar sum ([weight * ycor] of current-centers-to-connect)
+       ;create barycenter and connects it
+       create-nodes 1 [
+         setxy x-bar y-bar set hidden? true
+         create-road-with ? [new-road]
+         create-roads-with current-centers-to-connect [new-road]
+       ]
+     ]
+  ]
+  
+  
   
   
   
@@ -60,6 +103,7 @@ to-report new-center
   let c nobody
   create-centers 1 [
     set weight random-float 1
+    set neigh-nodes []
     set shape "circle" set color red
     set size (1 + weight)/ 10
     let coords random-coords
@@ -81,6 +125,45 @@ to-report random-coords
   
 end
 
+
+; center procedure that reports network nodes in neigh with a given definition
+to-report direct-neighbor-nodes
+    ; do neighborhood computation by hand
+    let c self
+    let p other turtles
+    
+    let n []
+    ask p [
+      let p0 self
+      ; r0 = d(P_0,C)
+      let r0 distance c
+      let neigh? true
+      ask (other p)[
+        set neigh? (neigh? and (distance p0 > r0) and (distance c > r0))
+      ]
+      if neigh? [set n lput p0 n]
+    ]
+    
+    report to-agentset n
+    
+    ; can be a center or a node
+    ;report (other turtles) with [
+    ;  (length ([distance myself] of other (turtles with [not (self = c)])) = 0 and length ([distance [myself] of myself] of other (turtles with [not (self = c)])) = 0) or
+    ;  ((gen-min ([distance myself] of other (turtles with [not (self = c)])) > distance myself) and (gen-min ([distance [myself] of myself] of other (turtles with [not (self = c)])) > distance myself))
+    ;]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; roads procedures
+;;;;;;;;;;;;;;;;;;;;;
+to new-road
+  set thickness 0.05 set color green
+end
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 19
@@ -96,8 +179,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-1
-1
+0
+0
 1
 -23
 23
