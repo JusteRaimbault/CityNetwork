@@ -1,0 +1,40 @@
+;; Network analysis function
+
+to setup-nw-analysis
+  ; set context
+  nw:set-context turtles roads
+  
+  ; reinitialize specific variables
+  ask roads [
+    set road-length link-length
+    set bw-centrality 0
+  ]
+  
+end
+
+
+
+to compute-bw-centrality
+  ; dirty, computed two times
+  
+  ; nw too big to compute on all pairs
+  ; take random samples, should be a good proxy (cv speed ?)
+  
+  ask n-of min list count centers 500 centers [
+    ask n-of min list (count centers - 1) 500 other centers [
+      let p nw:weighted-path-to myself "road-length"
+      if p != false [
+        foreach p [
+          ask ? [
+            set bw-centrality (bw-centrality + 1)
+          ]
+        ]
+      ]
+    ] 
+  ]
+  
+  ; set thicnkess
+  ask roads [
+    set thickness (bw-centrality * 10 / (count centers) ^ 2)
+  ]
+end

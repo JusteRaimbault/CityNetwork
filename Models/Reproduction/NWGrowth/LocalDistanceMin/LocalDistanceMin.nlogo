@@ -1,8 +1,15 @@
-extensions[]
+extensions[nw]
 
 __includes[
+  
+  ;;local includes
+  "NWAnalysis.nls"
+  
+  
+  ;; utils
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls" 
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls" 
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/StatisticsUtilities.nls"
 ]
 
 globals[
@@ -23,6 +30,12 @@ centers-own[
   neigh-nodes
 ]
 
+roads-own[
+  ;variable to be used by nw primitives
+  road-length 
+  bw-centrality
+]
+
 
 to setup
   ca
@@ -32,7 +45,8 @@ end
 ;; go for one time step
 to go
   ; random new centers number
-  let new-centers-number 1 + (random max-new-centers-number)
+  let new-centers-number 0
+  ifelse random-center-number?[set new-centers-number 1 + (random max-new-centers-number)][set new-centers-number max-new-centers-number]
   
   let new-centers []
   ; assume each are drawn independantly according to a given spatial proba distribution
@@ -45,7 +59,7 @@ to go
   ; for each new center, find neighbor nodes
   ask new-centers [
      set neigh-nodes direct-neighbor-nodes
-     show neigh-nodes
+     ;show neigh-nodes
      if neigh-nodes != nobody [
        ask neigh-nodes [
          set nodes-to-connect lput self nodes-to-connect
@@ -57,7 +71,7 @@ to go
   ; then connects each to corresponding centers
   set nodes-to-connect remove-duplicates nodes-to-connect
   
-  show nodes-to-connect
+  ;show nodes-to-connect
   
   
   foreach nodes-to-connect [
@@ -128,30 +142,36 @@ end
 
 ; center procedure that reports network nodes in neigh with a given definition
 to-report direct-neighbor-nodes
-    report (other turtles) with-min [distance myself]
+    if neigh-type = "closest" [
+      report (other turtles) with-min [distance myself]
+    ]
+    
+    if neigh-type = "shared" [
     ; do neighborhood computation by hand
-    ;let c self
-    ;let p other turtles
+    let c self
+    let p other turtles
     
-    ;let n []
-    ;ask p [
-    ;  let p0 self
-    ;  ; r0 = d(P_0,C)
-    ;  let r0 distance c
-    ;  let neigh? true
-    ;  ask (other p)[
-    ;    set neigh? (neigh? and (distance p0 > r0) and (distance c > r0))
-    ;  ]
-    ;  if neigh? [set n lput p0 n]
-    ;]
-    
-    ;report to-agentset n
+    let n []
+    ask p [
+      let p0 self
+      ; r0 = d(P_0,C)
+      let r0 distance c
+      let neigh? true
+      ask (other p)[
+        set neigh? (neigh? and (distance p0 > r0) and (distance c > r0))
+      ]
+      if neigh? [set n lput p0 n]
+    ]
+    show n
+    report to-agentset n
     
     ; can be a center or a node
     ;report (other turtles) with [
     ;  (length ([distance myself] of other (turtles with [not (self = c)])) = 0 and length ([distance [myself] of myself] of other (turtles with [not (self = c)])) = 0) or
     ;  ((gen-min ([distance myself] of other (turtles with [not (self = c)])) > distance myself) and (gen-min ([distance [myself] of myself] of other (turtles with [not (self = c)])) > distance myself))
     ;]
+    
+    ]
 end
 
 
@@ -161,8 +181,6 @@ end
 to new-road
   set thickness 0.05 set color green
 end
-
-
 
 
 @#$#@#$#@
@@ -202,7 +220,7 @@ max-new-centers-number
 max-new-centers-number
 0
 20
-1
+5
 1
 1
 NIL
@@ -210,9 +228,9 @@ HORIZONTAL
 
 CHOOSER
 1171
-63
+90
 1321
-108
+135
 centers-distribution
 centers-distribution
 "uniform"
@@ -253,10 +271,10 @@ NIL
 1
 
 PLOT
-1133
-331
-1333
-481
+1000
+286
+1200
+436
 Degree distrib
 NIL
 log (k)
@@ -266,9 +284,87 @@ log (k)
 10.0
 true
 false
-"" "histogram [ln max (list 1 count road-neighbors)] of turtles"
+"" "set-plot-pen-mode 1\nhistogram [ln max (list 1 count road-neighbors)] of turtles"
 PENS
 "pen-0" 1.0 0 -7500403 true "" ""
+
+MONITOR
+985
+13
+1044
+58
+centers
+count centers
+17
+1
+11
+
+MONITOR
+1047
+13
+1104
+58
+roads
+count roads
+17
+1
+11
+
+BUTTON
+1000
+474
+1113
+507
+bw-centrality
+setup-nw-analysis\ncompute-bw-centrality\nupdate-plots
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+1004
+517
+1204
+667
+bw-centrality ranking
+NIL
+NIL
+0.0
+1.0
+0.0
+1.0
+true
+false
+"" "set-plot-pen-mode 1\n;set-histogram-num-bars 20000\n;histogram [bw-centrality] of roads\n;set-plot-x-range 0 100\n;let i 1\n;let h (hist ([ln bw-centrality] of roads with [bw-centrality > 0]) 100)\n;set-plot-y-range 0 max h\n;foreach h [\n;  plotxy (ln i) ?\n;  set i i + 1\n;]"
+PENS
+"default" 1.0 0 -16777216 true "" ""
+
+SWITCH
+1173
+53
+1263
+86
+random-center-number?
+random-center-number?
+1
+1
+-1000
+
+CHOOSER
+1171
+140
+1309
+185
+neigh-type
+neigh-type
+"closest" "shared"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
