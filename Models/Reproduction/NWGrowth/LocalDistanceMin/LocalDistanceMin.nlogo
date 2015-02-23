@@ -10,10 +10,15 @@ __includes[
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls" 
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/StatisticsUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/NetworkUtilities.nls"
 ]
 
 globals[
   
+  
+  ; patches in fixed order to have rigorous drawing of proba ?
+  ; (note that shuffling in agentset should not perturbate if exactly random)
+  ;  -> test that
 ]
 
 ; centers
@@ -36,10 +41,31 @@ roads-own[
   bw-centrality
 ]
 
+patches-own [
+  exp-proba 
+]
+
 
 to setup
   ca
   reset-ticks
+  
+  ; set gaussian mixture probability distribution
+  ; start from number of centers with max proba
+  ; and diffuse around.
+  ; Not gaussian but exponential, as power decrease in radius from initial cell.
+  ask patches [set exp-proba 0]
+  ask n-of initial-centers patches [
+    set exp-proba 1
+  ]
+  repeat 100 [
+    diffuse exp-proba 0.2
+  ]
+  ; normalize proba
+  let ma sum [exp-proba] of patches
+  ask patches [set exp-proba exp-proba / ma]
+  let mi min [exp-proba] of patches set ma max [exp-proba] of patches
+  ask patches [set pcolor scale-color red exp-proba mi ma]
 end
 
 ;; go for one time step
@@ -96,9 +122,13 @@ to go
   
   
   
+  ;; supplementary connexification step
+  connexify-global-network
+  
   
   tick
 end
+
 
 
 
@@ -115,12 +145,12 @@ end
 ;;create a new center and reports it
 to-report new-center
   let c nobody
+  let coords random-coords
   create-centers 1 [
     set weight random-float 1
     set neigh-nodes []
     set shape "circle" set color red
     set size (5 + weight)/ 50
-    let coords random-coords
     setxy first coords last coords
     set c self
   ]
@@ -135,6 +165,23 @@ to-report random-coords
   if centers-distribution = "uniform"[
      ; uniform spatial distribution
      report (list random-xcor random-ycor)
+  ]
+  
+  if centers-distribution = "exp-mixture" [
+    ; use patch variable proba set at setup
+    ; as precised in globals, not directly exact
+    let s 0 let p random-float 1 let res []
+    ask patches [
+      if length res = 0 [
+        set s s + exp-proba
+        if p < s [set res (list pxcor pycor)] 
+      ]
+    ]
+    
+    ; add a random noise \in [-0.5,0.5] as generated corrdinates will only be integers
+    set res (list (first res + random-float 1 - 0.5) (last res + random-float 1 - 0.5))
+    
+    report res
   ]
   
 end
@@ -175,6 +222,10 @@ to-report direct-neighbor-nodes
 end
 
 
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;
 ;; roads procedures
 ;;;;;;;;;;;;;;;;;;;;;
@@ -187,11 +238,11 @@ end
 GRAPHICS-WINDOW
 19
 10
-975
-705
-23
-16
-20.13
+959
+671
+46
+31
+10.0
 1
 10
 1
@@ -201,10 +252,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--23
-23
--16
-16
+-46
+46
+-31
+31
 0
 0
 1
@@ -229,12 +280,12 @@ HORIZONTAL
 CHOOSER
 1171
 90
-1321
+1330
 135
 centers-distribution
 centers-distribution
-"uniform"
-0
+"uniform" "exp-mixture"
+1
 
 BUTTON
 1251
@@ -365,6 +416,21 @@ neigh-type
 neigh-type
 "closest" "shared"
 0
+
+SLIDER
+1293
+53
+1385
+86
+initial-centers
+initial-centers
+0
+10
+3
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
