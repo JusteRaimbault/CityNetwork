@@ -46,9 +46,13 @@ curl 'https://api.mendeley.com/search/catalog?query='$query'&limit=10' \
 #############
 ## Try access Cortext ?
 #############
-
-
-
+#
+# Text processing procedure given in [Chavalarias, Cointet, 2012]-S1
+# Seems to be heavy to locally extract n-grams (although Java NLP many libraries available, see e.g. Stanford-NLP )
+#
+# Cortext "API" should be handled by hand, making adapted requests and parsing http responses.
+#    -> go to Java, not possible in shell.
+#
 
 
 # back to initial dir : not necessary
