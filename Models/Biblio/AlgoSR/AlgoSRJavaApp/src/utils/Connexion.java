@@ -24,10 +24,10 @@ import org.apache.http.protocol.HttpContext;
  */
 public class Connexion {
 	
-public static HttpResponse get(String url,HttpContext context){
-	    DefaultHttpClient client = new DefaultHttpClient();	
+public static HttpResponse get(String url,HashMap<String,String> headers,DefaultHttpClient client,HttpContext context){	
 		try{
 			HttpGet httpGet = new HttpGet(url);
+			for(String k:headers.keySet()){httpGet.setHeader(k, headers.get(k));}
 			return client.execute(httpGet,context);
 		}
 		catch(Exception e){e.printStackTrace();return null;}
@@ -50,7 +50,7 @@ public static HttpResponse get(String url,HttpContext context){
 		try{
 			HttpPost httpPost = new HttpPost(url);
 			for(String k:headers.keySet()){httpPost.setHeader(k, headers.get(k));}
-			httpPost.setParams((new BasicHttpParams()).setParameter("http.protocol.handle-redirects",false));
+			//httpPost.setParams((new BasicHttpParams()).setParameter("http.protocol.handle-redirects",false));
 			List <NameValuePair> nvps = new ArrayList <NameValuePair>();
 			for(String k:data.keySet()){nvps.add(new BasicNameValuePair(k, data.get(k)));}
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));

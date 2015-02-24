@@ -4,7 +4,7 @@
 #     $1 : basedir. Should contain credential, keywords, etc
 #
 #  Requires :
-#     - jsawk
+#     - jsawk, (c) at https://github.com/micha/jsawk
 #  
 #  Created by <a href="mailto:juste.raimbault@polytechnique.edu">Juste Raimbault</a> on 24/02/15.
 #  
@@ -34,7 +34,7 @@ accessToken=$(curl -X POST -H "Content-Type: application/x-www-form-urlencoded" 
 # try a search request
 query='urban+form'
 
-curl 'https://api.mendeley.com/search/catalog?query='$query'&limit=10' \
+curl 'https://api.mendeley.com/search/catalog?query='$query'&limit=2' \
 -H 'Authorization: Bearer '$accessToken \
 -H 'Accept: application/vnd.mendeley-document.1+json' \
 #| jsawk 'out(this.abstract+"\n\n\n");return null'
