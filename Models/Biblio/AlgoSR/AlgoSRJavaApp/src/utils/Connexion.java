@@ -45,8 +45,8 @@ public static HttpResponse get(String url,HttpContext context){
 	 * @param context : context externally provided to store cookies e.g.
 	 * @return
 	 */
-	public static HttpResponse post(String url,HashMap<String,String> headers,HashMap<String,String> data,HttpContext context){
-		DefaultHttpClient client = new DefaultHttpClient();			
+	public static HttpResponse post(String url,HashMap<String,String> headers,HashMap<String,String> data,DefaultHttpClient client,HttpContext context){
+				
 		try{
 			HttpPost httpPost = new HttpPost(url);
 			for(String k:headers.keySet()){httpPost.setHeader(k, headers.get(k));}
