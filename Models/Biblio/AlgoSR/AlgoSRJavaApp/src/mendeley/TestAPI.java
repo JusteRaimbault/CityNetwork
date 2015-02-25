@@ -24,8 +24,10 @@ public class TestAPI {
 		// test token request
 		//System.out.println(MendeleyAPI.getAccessToken());
 
-		HashSet<Reference> refs = MendeleyAPI.catalogRequest("transportation+network+city+growth", 100);
+		String query = "geographically+weighted+regression";
+		HashSet<Reference> refs = MendeleyAPI.catalogRequest(query, 100);
 		
+		/*
 		for(Reference r:refs){
 			//System.out.println(r);
 		}
@@ -34,6 +36,15 @@ public class TestAPI {
 		for(Reference r:Reference.references.keySet()){
 			//System.out.println(r.resume);
 		}
+		*/
+		
+		
+		// test RIS writer
+		utils.RISWriter.write("data/test/testRISWriter_"+query+".ris", refs);
+		
+		// and Zipper
+		utils.Zipper.zip("data/test/testRISWriter_"+query+".ris");
 		
 	}
+	
 }
