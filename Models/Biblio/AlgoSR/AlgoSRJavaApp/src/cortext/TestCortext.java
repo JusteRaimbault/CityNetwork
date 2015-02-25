@@ -55,6 +55,12 @@ public class TestCortext {
 	}
 	
 	
+	public static void testParsingCorpus(){
+		CortextAPI.setupAPI();
+		CortextAPI.parseCorpus("31540");
+	}
+	
+	
 	/**
 	 * @param args
 	 */
@@ -67,7 +73,9 @@ public class TestCortext {
 		//OK finally works.
 		//needed to delete headers !
 		
-		
+		// test corpus parsing
+		//testParsingCorpus();
+		// ok works.
 		
 		
 	}

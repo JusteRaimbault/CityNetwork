@@ -4,6 +4,7 @@
 package cortext;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -151,9 +152,24 @@ public class CortextAPI {
 	 * @return
 	 */
 	public static String parseCorpus(String corpusID){
-		
+		try{
+		HashMap<String,String> headers = new HashMap<String,String>();
+		HashMap<String,String> data = new HashMap<String,String>();
+		data.put("job[id]", "");data.put("job[script_path]", "");data.put("job[result_path]", "");data.put("job[log_path]", "");data.put("job[upload_path]", "");data.put("job[state]", "");
+		data.put("job[user_id]", (new BufferedReader(new FileReader("data/cortextUserID"))).readLine());
+		data.put("job[project_id]", (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine());
+		data.put("corpusorigin", "dataset");data.put("corpustype", "ris (scopus)");
+		data.put("formatting","tab separated");data.put("yearfield","");data.put("separator", "***");data.put("yearfieldjson", "");
+		data.put("weights_tablename_json", "");data.put("weights_tablename", "");
+		data.put("output_type", "reseaulu");data.put("reinit_db", "yes");data.put("job[label]", "");
+		data.put("job[corpu_id]", corpusID);
+		data.put("job[script_id]", "8");
+		//do not need response
+		Connexion.post("http://manager.cortext.net/job", headers, data, client, context);
 		
 		return "";
+		
+		}catch(Exception e){e.printStackTrace();return null;}
 	}
 	
 	
