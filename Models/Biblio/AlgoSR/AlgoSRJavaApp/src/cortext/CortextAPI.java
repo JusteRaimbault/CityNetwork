@@ -94,9 +94,10 @@ public class CortextAPI {
 	 * Given a zipped RIS file, upload and parse it. File creation will be done externally.
 	 * 
 	 * @param corpusPath path to corpus .zip file.
+	 * @return corpus id, needed to query parsing etc
 	 */
 	@SuppressWarnings("resource")
-	public static void uploadCorpus(String corpusPath){
+	public static String uploadCorpus(String corpusPath){
 		
 		try{
 			/**
@@ -110,8 +111,53 @@ public class CortextAPI {
 			
 			System.out.println(new BufferedReader(new InputStreamReader(resp.getEntity().getContent())).readLine());
 			//System.out.println(resp.getStatusLine());
-		}catch(Exception e){e.printStackTrace();}
+			
+			return "";
+		}catch(Exception e){e.printStackTrace();return null;}
+		
+		
+		
 	}
+	
+	/**
+	 * Execute request
+	 * 
+	 * curl 'http://manager.cortext.net/job' 
+	 * HEADERS
+	 * --data
+	 *     job[id]=
+	 *     job[script_path]=
+	 *     job[result_path]=
+	 *     job[log_path]=
+	 *     job[upload_path]=
+	 *     job[state]=
+	 *     job[user_id]=$USER_ID
+	 *     job[project_id]=$PROJECT_ID
+	 *     corpusorigin=dataset
+	 *     corpustype=ris (scopus)
+	 *     formatting=tab separated
+	 *     yearfield=
+	 *     separator=***
+	 *     yearfieldjson=
+	 *     weights_tablename_json=
+	 *     weights_tablename=
+	 *     output_type=reseaulu
+	 *     reinit_db=yes
+	 *     job[label]=
+	 *     job[corpu_id]=CORPUSID === INPUT
+	 *     job[script_id]=8
+	 * 
+	 * @param corpusName
+	 * @return
+	 */
+	public static String parseCorpus(String corpusID){
+		
+		
+		return "";
+	}
+	
+	
+	
 	
 	
 }
