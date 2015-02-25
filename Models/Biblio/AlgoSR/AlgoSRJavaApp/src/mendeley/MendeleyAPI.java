@@ -5,6 +5,7 @@ package mendeley;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,6 +16,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -104,6 +106,12 @@ public class MendeleyAPI{
 			header.put("Accept", "application/vnd.mendeley-document.1+json");	
 			header.put("Authorization", "Bearer "+accessToken);
 			HttpResponse res = Connexion.get(url,header,client,context);
+			
+			//System.out.println(new BufferedReader(new InputStreamReader(res.getEntity().getContent())).readLine());
+			//rq : catalog request limited to 100 responses
+			// Check headers to see if next page available ?
+			for(Header h:res.getAllHeaders()){System.out.println(h.toString());}
+			
 			
 			JsonReader jsonReader = Json.createReader(res.getEntity().getContent());
 			JsonArray entries = jsonReader.readArray();
