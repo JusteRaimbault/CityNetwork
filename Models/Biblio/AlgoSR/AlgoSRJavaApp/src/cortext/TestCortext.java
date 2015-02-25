@@ -39,7 +39,7 @@ public class TestCortext {
 		// not connected, as expected
 		
 		//try with cookie
-		HttpResponse r = Connexion.get("http://manager.cortext.net", (new HashMap<String,String>()), CortextAPI.client,CortextAPI.context);
+		HttpResponse r = Connexion.get("http://manager.cortext.net/jupload/server/php/index.php", (new HashMap<String,String>()), CortextAPI.client,CortextAPI.context);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(r.getEntity().getContent()));
 		String currentLine = reader.readLine();System.out.println(currentLine);
 		while(currentLine != null){currentLine=reader.readLine();System.out.println(currentLine);}
@@ -63,7 +63,12 @@ public class TestCortext {
 		//testConnexion();
 		
 		//test file upload
-		testUpload();
+		//testUpload();
+		//OK finally works.
+		//needed to delete headers !
+		
+		
+		
 		
 	}
 

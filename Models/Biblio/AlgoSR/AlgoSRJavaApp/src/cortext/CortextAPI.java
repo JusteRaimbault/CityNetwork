@@ -95,30 +95,21 @@ public class CortextAPI {
 	 * 
 	 * @param corpusPath path to corpus .zip file.
 	 */
+	@SuppressWarnings("resource")
 	public static void uploadCorpus(String corpusPath){
 		
-		/**
-		 *  file is posted through post to http://manager.cortext.net/jupload/server/php/index.php
-		 *  
-		 *  --data
-		 *  projectDir : /srv/local/web/cortext/manager/projects/raimbaultjwin_gmail_com/algosrcitynetwork/corpus/
-		 */
-		HashMap<String,String> headers = new HashMap<String,String>();
-		headers.put("Content-Type", "multipart/form-data");
-		headers.put("Accept","application/json");headers.put("Accept-Encoding", "gzip, deflate");headers.put("Connection","keep-alive");
-		headers.put("X-Requested-With","XMLHttpRequest");
-		HashMap<String,String> data = new HashMap<String,String>();
-		data.put("projectDir", "/srv/local/web/cortext/manager/projects/raimbaultjwin_gmail_com/algosrcitynetwork/corpus/");
-		
-		System.out.println(((CookieStore) context.getAttribute(ClientContext.COOKIE_STORE)).getCookies().get(0));
-		System.out.println(((CookieStore) context.getAttribute(ClientContext.COOKIE_STORE)).getCookies().get(1));
-		
-		
-		HttpResponse resp = Connexion.postUpload("http://manager.cortext.net/jupload/server/php/index.php", headers, data,corpusPath, client, context);
-		for(Header h:resp.getAllHeaders()){System.out.println(h);}
 		try{
-		System.out.println(new BufferedReader(new InputStreamReader(resp.getEntity().getContent())).readLine());
-		System.out.println(resp.getStatusLine());
+			/**
+			 *  file is posted through post to http://manager.cortext.net/jupload/server/php/index.php
+			 */
+			String projectDir = (new BufferedReader(new FileReader("data/cortextCorpusPath"))).readLine();
+			
+			HashMap<String,String> data = new HashMap<String,String>();
+			data.put("projectDir",projectDir);
+			HttpResponse resp = Connexion.postUpload("http://manager.cortext.net/jupload/server/php/index.php", data,corpusPath, client, context);
+			
+			System.out.println(new BufferedReader(new InputStreamReader(resp.getEntity().getContent())).readLine());
+			//System.out.println(resp.getStatusLine());
 		}catch(Exception e){e.printStackTrace();}
 	}
 	

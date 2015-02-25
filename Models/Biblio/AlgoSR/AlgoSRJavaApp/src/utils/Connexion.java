@@ -8,14 +8,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.FormBodyPart;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -61,6 +65,7 @@ public static HttpResponse get(String url,HashMap<String,String> headers,Default
 			List <NameValuePair> nvps = new ArrayList <NameValuePair>();
 			for(String k:data.keySet()){nvps.add(new BasicNameValuePair(k, data.get(k)));}
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			
 			return client.execute(httpPost,context);
 		}
 		catch(Exception e){e.printStackTrace();return null;}
@@ -71,6 +76,8 @@ public static HttpResponse get(String url,HashMap<String,String> headers,Default
 	 * 
 	 * Post request with File Upload.
 	 * 
+	 * NO HEADERS AS MULTIPART SUBMISSION SHOULD CREATE ITSELF.
+	 * 
 	 * @param url
 	 * @param headers
 	 * @param data
@@ -80,32 +87,25 @@ public static HttpResponse get(String url,HashMap<String,String> headers,Default
 	 * 
 	 * @return
 	 */
-	public static HttpResponse postUpload(String url,HashMap<String,String> headers,HashMap<String,String> data,String filePath,DefaultHttpClient client,HttpContext context){
+	public static HttpResponse postUpload(String url,HashMap<String,String> data,String filePath,DefaultHttpClient client,HttpContext context){
 
 		try{
 			HttpPost httpPost = new HttpPost(url);
-			for(String k:headers.keySet()){httpPost.setHeader(k, headers.get(k));}
-
-		    MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		    
+			MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		    for(String k:data.keySet()){
-		    	StringBody d = new StringBody(data.get(k));
-		    	entity.addPart(k,d);
+		    	builder.addTextBody(k,data.get(k));
 			}
+		    builder.addBinaryBody("files[]", new File(filePath), ContentType.create("application/zip"), "test.zip").build();
 		    
-		    File file = new File(filePath);
-		    FileBody filebody = new FileBody(file, "application/zip");
+		    //builder.build().writeTo(System.out);
+		    //System.out.println(builder.build().getContentLength());
+		    httpPost.setEntity(builder.build());
 		    
-		    System.out.println("Uploading file of size : "+filebody.getContentLength());
+		    //httpPost.setHeader("Content-Length",Long.toString(builder.build().getContentLength()));
 		    
-		    //FormBodyPart formbodypart = new FormBodyPart();
-		    
-		    entity.addPart("files[]", filebody);
-		    
-		    
-		    httpPost.setEntity(entity);
-			
-		    
+		    //System.out.println(httpPost.getHeaders("Content-Length")[0].toString());
+		    for(Header h:httpPost.getAllHeaders()){System.out.println(h);}
 		    
 			return client.execute(httpPost,context);
 		}
