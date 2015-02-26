@@ -20,6 +20,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import utils.Connexion;
 
@@ -109,16 +111,51 @@ public class CortextAPI {
 			HashMap<String,String> data = new HashMap<String,String>();
 			data.put("projectDir",projectDir);
 			HttpResponse resp = Connexion.postUpload("http://manager.cortext.net/jupload/server/php/index.php", data,corpusPath, client, context);
+			//consume resp
+			EntityUtils.consumeQuietly(resp.getEntity());
 			
-			System.out.println(new BufferedReader(new InputStreamReader(resp.getEntity().getContent())).readLine());
+			//System.out.println(new BufferedReader(new InputStreamReader(resp.getEntity().getContent())).readLine());
 			//System.out.println(resp.getStatusLine());
 			
-			return "";
+			//retrieve project page and first element in corpus tab will be the new corpus
+			return getLastCreatedCorpusId();
+			
 		}catch(Exception e){e.printStackTrace();return null;}
 		
 		
 		
 	}
+	
+	
+	public static String getLastCreatedCorpusId(){
+		try{
+			String projectId = (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine();
+			String projectPagePath ="http://manager.cortext.net/project/"+projectId;
+			Document projectDom = Jsoup.parse(Connexion.get(projectPagePath, (new HashMap<String,String>()), client, context).getEntity().getContent(),"UTF-8",projectPagePath);
+			return projectDom.getElementsByAttributeValueStarting("href", "/corpu/download/id/").attr("href").split("/")[4];
+			
+		}catch(Exception e){e.printStackTrace();return null;}
+	}
+	
+	
+	
+	
+	public static void deleteCorpus(String corpusId){
+		
+	}
+	
+	
+	
+	/**
+	 * 
+	 */
+	public static void deleteAllCorpuses(){
+		//retrieve all corpus ids, call deleteCorpus on it
+		
+	}
+	
+	
+	
 	
 	/**
 	 * Execute request
@@ -149,7 +186,7 @@ public class CortextAPI {
 	 *     job[script_id]=8
 	 * 
 	 * @param corpusName
-	 * @return
+	 * @return id of parsed corpus as db file.
 	 */
 	public static String parseCorpus(String corpusID){
 		try{
@@ -165,14 +202,90 @@ public class CortextAPI {
 		data.put("job[corpu_id]", corpusID);
 		data.put("job[script_id]", "8");
 		//do not need response
-		Connexion.post("http://manager.cortext.net/job", headers, data, client, context);
+		HttpResponse resp = Connexion.post("http://manager.cortext.net/job", headers, data, client, context);
 		
-		return "";
+		EntityUtils.consumeQuietly(resp.getEntity());
+		return getLastCreatedCorpusId();
 		
 		}catch(Exception e){e.printStackTrace();return null;}
 	}
 	
 	
+	
+	/**
+	 * 
+	 * curl 'http://manager.cortext.net/job'
+	 *   HEADERS
+	 * --data
+	 *    job[id]=
+	 *    job[script_path]=
+	 *    job[result_path]=
+	 *    job[log_path]=
+	 *    job[upload_path]=
+	 *    job[state]=
+	 *    job[user_id]=$USER_ID
+	 *    job[project_id]=$PROJECT_ID
+	 *    fields_2_index[]=Abstract
+	 *    fields_2_index[]=Keywords
+	 *    fields_2_index[]=Title
+	 *    C_value_thres=3.
+	 *    nb_top=100
+	 *    language=en
+	 *    no_monogram=yes
+	 *    advanced_settings_main=no
+	 *    count_method=sentence+level
+	 *    specificity_mode=chi2
+	 *    method_linguistic=yes
+	 *    grammaticalcriterion=noun+phrase
+	 *    postagger=treetagger
+	 *    lemmatization=yes
+	 *    sampling=yes
+	 *    sample_size=2000
+	 *    auto_index=yes
+	 *    indexed_table_name=
+	 *    actionable=
+	 *    nb_period=1
+	 *    time_cut_type=homogeneous
+	 *    periods=Standard+Periods
+	 *    job[label]=
+	 *    job[corpu_id]= CORPUS_ID (input)
+	 *    job[script_id]=5
+	 * 
+	 */
+	public static String extractKeywords(String corpusId){
+		try{
+			HashMap<String,String> headers = new HashMap<String,String>();
+			HashMap<String,String> data = new HashMap<String,String>();
+			data.put("job[id]", "");data.put("job[script_path]", "");data.put("job[result_path]", "");data.put("job[log_path]", "");data.put("job[upload_path]", "");data.put("job[state]", "");
+			data.put("job[user_id]", (new BufferedReader(new FileReader("data/cortextUserID"))).readLine());
+			data.put("job[project_id]", (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine());
+			data.put("fields_2_index[Abstract]","");data.put("fields_2_index[Keywords]","");data.put("fields_2_index[Title]","");
+			//data.put("fields_2_index", "[\"Abstract\", \"Keywords\", \"Title\"]");
+			data.put("C_value_thres", "3.");data.put("nb_top", "100");data.put("language","en");data.put("no_monogram", "yes");data.put("advanced_settings_main", "no");
+			data.put("count_method","sentence+level");data.put("specificity_mode","chi2");data.put("method_linguistic","yes");data.put("grammaticalcriterion","noun+phrase");
+			data.put("postagger","treetagger");data.put("lemmatization","yes");data.put("sampling","yes");data.put("sample_size","2000");
+			data.put("auto_index","yes");data.put("indexed_table_name","");data.put("actionable","");data.put("nb_period","1");
+			data.put("time_cut_type","homogeneous");data.put("periods","Standard+Periods");data.put("job[label]","");
+			data.put("job[corpu_id]", corpusId);
+			data.put("job[script_id]", "5");
+			//do not need response
+			HttpResponse resp = Connexion.post("http://manager.cortext.net/job", headers, data, client, context);
+			
+			EntityUtils.consumeQuietly(resp.getEntity());
+			return getLastCreatedCorpusId();
+			
+		}catch(Exception e){e.printStackTrace();return null;}
+	}
+	
+	
+	/**
+	 * DOwnload keyword list
+	 * 
+	 * @param corpusId
+	 */
+	public static void getKeywords(String corpusId){
+		
+	}
 	
 	
 	

@@ -51,13 +51,19 @@ public class TestCortext {
 	
 	public static void testUpload(){
 		CortextAPI.setupAPI();
-		CortextAPI.uploadCorpus("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/corpus/test.zip");
+		System.out.println(CortextAPI.uploadCorpus("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/corpus/test.zip"));
 	}
 	
 	
 	public static void testParsingCorpus(){
 		CortextAPI.setupAPI();
-		CortextAPI.parseCorpus("31540");
+		CortextAPI.parseCorpus("31576");
+	}
+	
+	
+	public static void testExtractionKeywords(){
+		CortextAPI.setupAPI();
+		System.out.println(CortextAPI.extractKeywords("31577"));
 	}
 	
 	
@@ -69,6 +75,7 @@ public class TestCortext {
 		//testConnexion();
 		
 		//test file upload
+		//
 		//testUpload();
 		//OK finally works.
 		//needed to delete headers !
@@ -76,6 +83,9 @@ public class TestCortext {
 		// test corpus parsing
 		//testParsingCorpus();
 		// ok works.
+		
+		//last job
+		testExtractionKeywords();
 		
 		
 	}
