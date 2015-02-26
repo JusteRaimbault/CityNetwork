@@ -71,12 +71,15 @@ public class TestCortext {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception{
+		//connexion for single instuctions here
+		CortextAPI.setupAPI();
+		
 		//test "API" connexion
 		//testConnexion();
 		
 		//test file upload
 		//
-		//testUpload();
+		testUpload();
 		//OK finally works.
 		//needed to delete headers !
 		
@@ -85,8 +88,16 @@ public class TestCortext {
 		// ok works.
 		
 		//last job
-		testExtractionKeywords();
+		//testExtractionKeywords();
 		
+		//test job ID retrieving
+		
+		//System.out.println(CortextAPI.getLastJobId());
+		//for(String s:CortextAPI.getCorpusIds()){System.out.print(s+" , ");}
+		
+		//test delete
+		//CortextAPI.deleteAllCorpuses();
+		//deletes also jobs, no need to add delete jobs function.
 		
 	}
 

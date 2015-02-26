@@ -96,7 +96,7 @@ public static HttpResponse get(String url,HashMap<String,String> headers,Default
 		    for(String k:data.keySet()){
 		    	builder.addTextBody(k,data.get(k));
 			}
-		    builder.addBinaryBody("files[]", new File(filePath), ContentType.create("application/zip"), "test.zip").build();
+		    builder.addBinaryBody("files[]", new File(filePath), ContentType.create("application/zip"), filePath).build();
 		    
 		    //builder.build().writeTo(System.out);
 		    //System.out.println(builder.build().getContentLength());

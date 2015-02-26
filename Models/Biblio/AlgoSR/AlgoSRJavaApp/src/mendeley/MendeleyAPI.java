@@ -49,6 +49,8 @@ public class MendeleyAPI{
 	@SuppressWarnings("resource")
 	public static void setupAPI(){
 		try{
+		//System.out.println("Setting Mendeley API...");
+			
 		// simple client and context, no need for cookies
 		//credentials and client
 	    // path to appID and appSecret have to be absolute if called by jar anywhere
@@ -99,6 +101,7 @@ public class MendeleyAPI{
 	public static HashSet<Reference> catalogRequest(String query,int numResponse){
 		
 		try{
+			
 			//get an access token
 			String accessToken = getAccessToken();
 			
@@ -125,7 +128,7 @@ public class MendeleyAPI{
 			
 			for(int i=0;i<entries.size();i++){
 				JsonObject entry = entries.getJsonObject(i);
-				refs.add(Reference.construct(entry.getString("id"), entry.getString("title"), entry.getString("abstract")));
+				refs.add(Reference.construct(entry.getString("id"), entry.getString("title"), entry.getString("abstract"),Integer.toString(entry.getInt("year"))));
 			}			
 			return refs;
 			

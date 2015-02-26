@@ -52,6 +52,12 @@ public class Reference {
 	public HashSet<String> keywords;
 	
 	/**
+	 * publication year
+	 */
+	public String year;
+
+	
+	/**
 	 * Constructor
 	 * 
 	 * Authors and keywords have to be populated after (more simple ?)
@@ -59,9 +65,9 @@ public class Reference {
 	 * @param t title
 	 * @param r abstract
 	 */
-	public Reference(String i,String t,String r){
+	public Reference(String i,String t,String r,String y){
 		id=i;
-		title=t;resume=r;
+		title=t;resume=r;year=y;
 		authors = new HashSet<String>();keywords = new HashSet<String>();
 	}
 	
@@ -78,12 +84,12 @@ public class Reference {
 	 * @param i
 	 * @return
 	 */
-	public static Reference construct(String i,String t,String r){
+	public static Reference construct(String i,String t,String r,String y){
 		Reference ref = new Reference(i);
 		if(references.containsKey(ref)){
 			return references.get(ref);
 		}else{
-			Reference newRef = new Reference(i,t,r);
+			Reference newRef = new Reference(i,t,r,y);
 			//put in map
 			references.put(newRef, newRef);
 			return newRef;

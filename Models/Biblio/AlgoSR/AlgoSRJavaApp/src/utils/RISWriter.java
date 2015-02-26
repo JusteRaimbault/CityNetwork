@@ -39,7 +39,11 @@ public class RISWriter {
 				for(String k:r.keywords){
 					writer.write("AU  - "+k+"\n");
 				}
+				writer.write("KW  -\n");
+				
 				writer.write("T1  - "+r.title+"\n");
+				
+				writer.write("PY  - "+r.year+"\n");
 				
 				//do not forget the end of ref tag
 				writer.write("ER  -\n");

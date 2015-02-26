@@ -6,6 +6,8 @@ package cortext;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
@@ -22,6 +24,8 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import utils.Connexion;
 
@@ -51,6 +55,8 @@ public class CortextAPI {
 	@SuppressWarnings("resource")
 	public static void setupAPI(){
 		try{
+			System.out.println("Setting up cortext API...");
+			
 			String user = (new BufferedReader(new FileReader("data/cortextUser"))).readLine();
 			String password = (new BufferedReader(new FileReader("data/cortextPassword"))).readLine();
 		
@@ -112,10 +118,11 @@ public class CortextAPI {
 			data.put("projectDir",projectDir);
 			HttpResponse resp = Connexion.postUpload("http://manager.cortext.net/jupload/server/php/index.php", data,corpusPath, client, context);
 			//consume resp
+			
+			System.out.println(new BufferedReader(new InputStreamReader(resp.getEntity().getContent())).readLine());
+			//System.out.println(resp.getStatusLine());
 			EntityUtils.consumeQuietly(resp.getEntity());
 			
-			//System.out.println(new BufferedReader(new InputStreamReader(resp.getEntity().getContent())).readLine());
-			//System.out.println(resp.getStatusLine());
 			
 			//retrieve project page and first element in corpus tab will be the new corpus
 			return getLastCreatedCorpusId();
@@ -132,16 +139,53 @@ public class CortextAPI {
 			String projectId = (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine();
 			String projectPagePath ="http://manager.cortext.net/project/"+projectId;
 			Document projectDom = Jsoup.parse(Connexion.get(projectPagePath, (new HashMap<String,String>()), client, context).getEntity().getContent(),"UTF-8",projectPagePath);
-			return projectDom.getElementsByAttributeValueStarting("href", "/corpu/download/id/").attr("href").split("/")[4];
+			Element e1 =  projectDom.getElementsByAttributeValueStarting("href", "/corpu/download/id/").first();
+			if(e1 != null){return e1.attr("href").split("/")[4];}
+			else{return null;}
+			
+		}catch(Exception e){e.printStackTrace();return null;}
+	}
+	
+	public static String getLastJobId(){
+		try{
+			String projectId = (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine();
+			String projectPagePath ="http://manager.cortext.net/project/"+projectId;
+			Document projectDom = Jsoup.parse(Connexion.get(projectPagePath, (new HashMap<String,String>()), client, context).getEntity().getContent(),"UTF-8",projectPagePath);
+			return projectDom.getElementsByAttributeValueStarting("href", "/job/datasets/").attr("href").split("/")[3];
 			
 		}catch(Exception e){e.printStackTrace();return null;}
 	}
 	
 	
-	
-	
-	public static void deleteCorpus(String corpusId){
+	public static String[] getCorpusIds(){
+		try{
+			String projectId = (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine();
+			String projectPagePath ="http://manager.cortext.net/project/"+projectId;
+			Document projectDom = Jsoup.parse(Connexion.get(projectPagePath, (new HashMap<String,String>()), client, context).getEntity().getContent(),"UTF-8",projectPagePath);
+			Elements els = projectDom.getElementsByAttributeValueStarting("href", "/corpu/download/id/");
+			String[] res = new String[els.size()];int i=0;
+			for(Element e:els){
+				res[i]=e.attr("href").split("/")[4];i++;
+			}
+			return res;
+		}catch(Exception e){e.printStackTrace();return null;}
 		
+	}
+	
+	
+	
+	/**
+	 * Delete one given corpus.
+	 * curl
+	 *  'sf_method=delete'
+	 * 
+	 * @param corpusId
+	 */
+	public static void deleteCorpus(String corpusId){		 
+		 HashMap<String,String> data = new HashMap<String,String>();data.put("sf_method", "delete");
+		 HttpResponse resp = Connexion.post("http://manager.cortext.net/corpu/delete/id/"+corpusId, (new HashMap<String,String>()),data, client, context);
+		 //consume the entity entirely
+		 EntityUtils.consumeQuietly(resp.getEntity());
 	}
 	
 	
@@ -151,7 +195,10 @@ public class CortextAPI {
 	 */
 	public static void deleteAllCorpuses(){
 		//retrieve all corpus ids, call deleteCorpus on it
-		
+		for(String s:getCorpusIds()){
+			System.out.println("Deleting corpus "+s+"...");
+			deleteCorpus(s);
+		}
 	}
 	
 	
@@ -190,6 +237,8 @@ public class CortextAPI {
 	 */
 	public static String parseCorpus(String corpusID){
 		try{
+			String previousCorpusId = getLastCreatedCorpusId();
+			
 		HashMap<String,String> headers = new HashMap<String,String>();
 		HashMap<String,String> data = new HashMap<String,String>();
 		data.put("job[id]", "");data.put("job[script_path]", "");data.put("job[result_path]", "");data.put("job[log_path]", "");data.put("job[upload_path]", "");data.put("job[state]", "");
@@ -205,7 +254,15 @@ public class CortextAPI {
 		HttpResponse resp = Connexion.post("http://manager.cortext.net/job", headers, data, client, context);
 		
 		EntityUtils.consumeQuietly(resp.getEntity());
-		return getLastCreatedCorpusId();
+		String currentCorpusId = getLastCreatedCorpusId();
+		System.out.println("previous corpus : "+previousCorpusId+" - current : "+currentCorpusId);
+		while(previousCorpusId.equals(currentCorpusId)){
+			//sleep a little
+			System.out.println("Waiting for job to finish, sleep 5s...");
+			Thread.sleep(5000);
+			currentCorpusId = getLastCreatedCorpusId();
+		}
+		return currentCorpusId;
 		
 		}catch(Exception e){e.printStackTrace();return null;}
 	}
@@ -254,12 +311,17 @@ public class CortextAPI {
 	 */
 	public static String extractKeywords(String corpusId){
 		try{
+			//get previous corpus id to know when script finished
+			String previousCorpusId = getLastCreatedCorpusId();
+			
 			HashMap<String,String> headers = new HashMap<String,String>();
 			HashMap<String,String> data = new HashMap<String,String>();
 			data.put("job[id]", "");data.put("job[script_path]", "");data.put("job[result_path]", "");data.put("job[log_path]", "");data.put("job[upload_path]", "");data.put("job[state]", "");
 			data.put("job[user_id]", (new BufferedReader(new FileReader("data/cortextUserID"))).readLine());
 			data.put("job[project_id]", (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine());
-			data.put("fields_2_index[Abstract]","");data.put("fields_2_index[Keywords]","");data.put("fields_2_index[Title]","");
+			data.put("fields_2_index[Abstract]","");
+			//data.put("fields_2_index[Keywords]","");
+			data.put("fields_2_index[Title]","");
 			//data.put("fields_2_index", "[\"Abstract\", \"Keywords\", \"Title\"]");
 			data.put("C_value_thres", "3.");data.put("nb_top", "100");data.put("language","en");data.put("no_monogram", "yes");data.put("advanced_settings_main", "no");
 			data.put("count_method","sentence+level");data.put("specificity_mode","chi2");data.put("method_linguistic","yes");data.put("grammaticalcriterion","noun+phrase");
@@ -272,19 +334,38 @@ public class CortextAPI {
 			HttpResponse resp = Connexion.post("http://manager.cortext.net/job", headers, data, client, context);
 			
 			EntityUtils.consumeQuietly(resp.getEntity());
-			return getLastCreatedCorpusId();
+			String currentCorpusId = getLastCreatedCorpusId();
+			System.out.println("previous corpus : "+previousCorpusId+" - current : "+currentCorpusId);
+			while(previousCorpusId.equals(currentCorpusId)){
+				//sleep a little
+				System.out.println("Waiting for job to finish, sleep 5s...");
+				Thread.sleep(5000);
+				currentCorpusId = getLastCreatedCorpusId();
+			}
+			
+			return currentCorpusId;
 			
 		}catch(Exception e){e.printStackTrace();return null;}
 	}
 	
 	
 	/**
-	 * DOwnload keyword list
+	 * Download keyword list and saves it to given file.
+	 * 
+	 * Simple get.
 	 * 
 	 * @param corpusId
 	 */
-	public static void getKeywords(String corpusId){
-		
+	public static void getKeywords(String corpusId,String csvFilePath){
+		try{
+			FileWriter writer = new FileWriter(new File(csvFilePath));
+			InputStream in = Connexion.get("http://manager.cortext.net/corpu/download/id/"+corpusId, (new HashMap<String,String>()), client, context).getEntity().getContent();
+		    int currentByte = in.read();
+		    while(currentByte != -1){
+		    	writer.write(currentByte);currentByte=in.read();
+		    }
+			writer.close();
+		}catch(Exception e){e.printStackTrace();}
 	}
 	
 	
