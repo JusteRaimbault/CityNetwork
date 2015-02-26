@@ -24,8 +24,8 @@ public class TestAPI {
 		// test token request
 		//System.out.println(MendeleyAPI.getAccessToken());
 
-		String query = "geographically+weighted+regression";
-		HashSet<Reference> refs = MendeleyAPI.catalogRequest(query, 100);
+		//String query = "geographically+weighted+regression";
+		//HashSet<Reference> refs = MendeleyAPI.catalogRequest(query, 100);
 		
 		/*
 		for(Reference r:refs){
@@ -40,10 +40,16 @@ public class TestAPI {
 		
 		
 		// test RIS writer
-		utils.RISWriter.write("data/test/testRISWriter_"+query+".ris", refs);
+		//utils.RISWriter.write("data/test/testRISWriter_"+query+".ris", refs);
 		
 		// and Zipper
-		utils.Zipper.zip("data/test/testRISWriter_"+query+".ris");
+		//utils.Zipper.zip("data/test/testRISWriter_"+query+".ris");
+		
+		
+		// test of use of the catalog request to retrieve abstract
+		String title = "The polycentric metropolis: learning from mega-city regions in Europe";
+		HashSet<Reference> refs = MendeleyAPI.catalogRequest(title.replaceAll(" ","+"), 1);
+		for(Reference r:refs){System.out.println(r.resume);}
 		
 	}
 	

@@ -51,8 +51,10 @@ public class MendeleyAPI{
 		try{
 		// simple client and context, no need for cookies
 		//credentials and client
-		String appid = (new BufferedReader(new FileReader("data/appID"))).readLine();
-		String appsecret = (new BufferedReader(new FileReader("data/appSecret"))).readLine();
+	    // path to appID and appSecret have to be absolute if called by jar anywhere
+		//TODO eventually fix that by providing conf file storing paths
+		String appid = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/appID"))).readLine();
+		String appsecret = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/appSecret"))).readLine();
 		//System.out.println(appid+" : "+appsecret);
 		client = new DefaultHttpClient();
 		client.getCredentialsProvider().setCredentials(AuthScope.ANY,new UsernamePasswordCredentials(appid, appsecret));
@@ -110,7 +112,7 @@ public class MendeleyAPI{
 			//System.out.println(new BufferedReader(new InputStreamReader(res.getEntity().getContent())).readLine());
 			//rq : catalog request limited to 100 responses
 			// Check headers to see if next page available ?
-			for(Header h:res.getAllHeaders()){System.out.println(h.toString());}
+			//for(Header h:res.getAllHeaders()){System.out.println(h.toString());}
 			
 			
 			JsonReader jsonReader = Json.createReader(res.getEntity().getContent());
