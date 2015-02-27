@@ -23,9 +23,8 @@ public class TestWorkflow {
 	 * 
 	 * @param searchQuery
 	 */
-	public static void simpleWorkflow(String searchQuery){
+	public static void simpleWorkflow(String searchQuery,String filePref){
 		
-		String resFold = "data/simple_2";
 		// setup mendeley
 		System.out.println("Setting up Mendeley...");
 		MendeleyAPI.setupAPI();
@@ -35,20 +34,26 @@ public class TestWorkflow {
 		HashSet<Reference> refs = MendeleyAPI.catalogRequest(searchQuery,100);
 		
 		//export them to ris and zip
-		RISWriter.write(resFold+"/refs.ris", refs);
-		Zipper.zip(resFold+"/refs.ris");
+		RISWriter.write(filePref+".ris", refs);
+		Zipper.zip(filePref+".ris");
 		
 		//Cortext
 		CortextAPI.setupAPI();
 		CortextAPI.deleteAllCorpuses();
 		//upload corpus
-		CortextAPI.getKeywords(CortextAPI.extractKeywords(CortextAPI.parseCorpus(CortextAPI.uploadCorpus(resFold+"/refs.zip"))),resFold+"/keywords.csv");
+		CortextAPI.getKeywords(CortextAPI.extractKeywords(CortextAPI.parseCorpus(CortextAPI.uploadCorpus(filePref+".zip"))),filePref+"_keywords.csv");
 		
 	}
 	
 	
-	public static void iterativeWorkflow(String initialQuery){
-		
+	
+	public static void iterativeWorkflow(String initialQuery,String resFold,int numIteration){
+		String query = initialQuery;
+		for(int t=0;t<numIteration;t++){
+			simpleWorkflow(query,resFold+"/refs_"+t);
+			//get new query through keywords
+			
+		}
 	}
 	
 	
@@ -59,7 +64,8 @@ public class TestWorkflow {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		simpleWorkflow("urban+sprawl+transportation+network");
+		//simpleWorkflow("urban+sprawl+transportation+network","test_2");
+		iterativeWorkflow("urban+sprawl+transportation+network","testIterative",4);
 	}
 
 }
