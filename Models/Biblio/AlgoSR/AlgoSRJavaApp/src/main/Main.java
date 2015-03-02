@@ -75,7 +75,7 @@ public class Main {
 			String[] stems = new String[kwFile.length-1];
 			for(int i=1;i<kwFile.length;i++){cValues[i-1]=Double.parseDouble(kwFile[i][7].replace(",", "."));stems[i-1]=kwFile[i][0].replace(" ", "+");}
 			int[] perm = SortUtils.sortDesc(cValues);
-			for(int i=0;i<perm.length;i++){System.out.print(cValues[perm[i]]+" ; ");}
+			for(int i=0;i<perm.length;i++){System.out.print(cValues[perm[i]]+" ; ");}System.out.println();
 			
 			//construct new request
 			query="";

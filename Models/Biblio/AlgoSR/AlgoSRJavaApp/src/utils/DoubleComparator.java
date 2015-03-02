@@ -16,7 +16,8 @@ public class DoubleComparator implements Comparator<Double> {
 	 */
 	@Override
 	public int compare(Double d1, Double d2) {
-		if(d1.doubleValue()<d2.doubleValue()){return 1;}else{return 0;}
+		if(d1.doubleValue()<d2.doubleValue()){return 1;}else if(d1.doubleValue()==d2.doubleValue()){return 0;}
+		else{return -1;}
 	}
 
 }
