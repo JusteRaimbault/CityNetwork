@@ -32,12 +32,12 @@ public class Log {
 	 * 
 	 */
 	@SuppressWarnings("deprecation")
-	public static void initLog(){
+	public static void initLog(String baseDir){
 		try{
 			Date d = new Date();
 			
 			//creates log directory if doesn't exists
-			File dir = new File("log");dir.mkdir();
+			File dir = new File(baseDir);dir.mkdir();
 			
 			//open output buffer
 			f = new File("log/"+d.toGMTString().replace(' ', '_').replace('/', ':')+".txt");
@@ -47,6 +47,10 @@ public class Log {
 		catch(Exception e){System.out.println("initLog error : "+e.toString());}
 	}
 	
+	/**
+	 * Default init to log dir in current wd
+	 */
+	public static void initLog(){initLog("log");}
 	
 	/**
 	 * 

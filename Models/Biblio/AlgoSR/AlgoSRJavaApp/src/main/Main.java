@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import mendeley.MendeleyAPI;
+import utils.CSVWriter;
 import utils.Log;
 import utils.RISWriter;
 import utils.SortUtils;
@@ -55,14 +56,20 @@ public class Main {
 	
 	public static void run(String initialQuery,String resFold,int numIteration,int kwLimit){
 		//log to file
-		Log.initLog();
+		Log.initLog("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/log");
 		
 		//initial query
 		String query = initialQuery;
 		
+		// run data
+		String[][] keywords = new String[numIteration][kwLimit];
+		int[] numRefs = new int[numIteration];
+		int[][] occs = new int[numIteration][kwLimit];
+		
+		
 		for(int t=0;t<numIteration;t++){
 			//get query and extract keywords
-			Log.newLine(1);Log.output("Iteration "+t);
+			Log.newLine(1);Log.output("Iteration "+t);Log.output("===================");
 			
 			int currentRefNumber = Reference.references.size();
 			iteration(query,resFold+"/refs_"+t);
@@ -93,26 +100,39 @@ public class Main {
 				String sep = "";
 				if(k>0){sep="+";}
 				query=query+sep+stems[perm[k]];
+				keywords[t][k] = stems[perm[k]];
+				occs[t][k] =  (int)cValues[perm[k]];
 			}
 			
 			Log.output("New query is : "+query);
 			
 			//memorize stats
 			// num of refs ; num kws ; C-values (of all ?)
-			
+			numRefs[t] = Reference.references.size();
+
 			
 		}
 		
 		//write stats to result file
-		
+		String[][] stats = new String[numIteration][2*kwLimit+1];
+		for(int t=0;t<numIteration;t++){
+			stats[t][0]=new Integer(numRefs[t]).toString();
+			for(int k=1;k<kwLimit+1;k++){stats[t][k]=keywords[t][k-1];stats[t][k+kwLimit]=new Integer(occs[t][k-1]).toString();}
+		}
+		CSVWriter.write(resFold+"/stats.csv", stats, ";");
 	}
 	
 	
 	
 	/**
 	 * @param args
+	 *   * no args : query and folder provided in function
+	 *   * args.length == 2 : args[0] = query ; args[1] = folder ;
+	 *      args[2] = num iterations ; args[3] = kw limit
+	 *   
+	 * 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
 		/**
 		 * First Results and Tests on algo :
@@ -125,13 +145,22 @@ public class Main {
 		 * 
 		 * 	   - 
 		 */
+		String folder="",query="";
+		int numIterations = 0,kwLimit=0;
+		if(args.length==0){
+			// for tests : store results in runs folder in results.
+			folder="/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Biblio/AlgoSR/runs/run_0";
+			query = "urban+geography+transportation+planning";
+			numIterations = 10;kwLimit = 5;
+		}
+		else if(args.length==4){query = args[0];folder=args[1];numIterations = Integer.parseInt(args[2]);kwLimit = Integer.parseInt(args[3]);}
+		else{throw new Exception("Error : not enough args.");}
 		
 		try{
-		   //run("city+development+transportation+network","data/testRun",10,10);
-			// for tests : store results in runs folder in results.
-			String folder="/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Biblio/AlgoSR/runs/run_0";
+		   //run("city+development+transportation+network","data/testRun",10,10);			
+			//create dir if does not exists
 			(new File(folder)).mkdir();
-			run("urban+geography+transportation+planning",folder,10,5);
+			run(query,folder,numIterations,kwLimit);
 		}catch(Exception e){e.printStackTrace();Log.exception(e.getStackTrace());}
 	}
 

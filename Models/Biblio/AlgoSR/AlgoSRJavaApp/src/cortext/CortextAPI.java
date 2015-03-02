@@ -58,8 +58,8 @@ public class CortextAPI {
 		try{
 			//System.out.println("Setting up cortext API...");
 			
-			String user = (new BufferedReader(new FileReader("data/cortextUser"))).readLine();
-			String password = (new BufferedReader(new FileReader("data/cortextPassword"))).readLine();
+			String user = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextUser"))).readLine();
+			String password = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextPassword"))).readLine();
 		
 		    client = new DefaultHttpClient();
 
@@ -113,7 +113,7 @@ public class CortextAPI {
 			/**
 			 *  file is posted through post to http://manager.cortext.net/jupload/server/php/index.php
 			 */
-			String projectDir = (new BufferedReader(new FileReader("data/cortextCorpusPath"))).readLine();
+			String projectDir = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextCorpusPath"))).readLine();
 			
 			HashMap<String,String> data = new HashMap<String,String>();
 			data.put("projectDir",projectDir);
@@ -137,7 +137,7 @@ public class CortextAPI {
 	
 	public static String getLastCreatedCorpusId(){
 		try{
-			String projectId = (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine();
+			String projectId = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextProjectID"))).readLine();
 			String projectPagePath ="http://manager.cortext.net/project/"+projectId;
 			Document projectDom = Jsoup.parse(Connexion.get(projectPagePath, (new HashMap<String,String>()), client, context).getEntity().getContent(),"UTF-8",projectPagePath);
 			Element e1 =  projectDom.getElementsByAttributeValueStarting("href", "/corpu/download/id/").first();
@@ -149,7 +149,7 @@ public class CortextAPI {
 	
 	public static String getLastJobId(){
 		try{
-			String projectId = (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine();
+			String projectId = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextProjectID"))).readLine();
 			String projectPagePath ="http://manager.cortext.net/project/"+projectId;
 			Document projectDom = Jsoup.parse(Connexion.get(projectPagePath, (new HashMap<String,String>()), client, context).getEntity().getContent(),"UTF-8",projectPagePath);
 			return projectDom.getElementsByAttributeValueStarting("href", "/job/datasets/").attr("href").split("/")[3];
@@ -160,7 +160,7 @@ public class CortextAPI {
 	
 	public static String[] getCorpusIds(){
 		try{
-			String projectId = (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine();
+			String projectId = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextProjectID"))).readLine();
 			String projectPagePath ="http://manager.cortext.net/project/"+projectId;
 			Document projectDom = Jsoup.parse(Connexion.get(projectPagePath, (new HashMap<String,String>()), client, context).getEntity().getContent(),"UTF-8",projectPagePath);
 			Elements els = projectDom.getElementsByAttributeValueStarting("href", "/corpu/download/id/");
@@ -243,8 +243,8 @@ public class CortextAPI {
 		HashMap<String,String> headers = new HashMap<String,String>();
 		HashMap<String,String> data = new HashMap<String,String>();
 		data.put("job[id]", "");data.put("job[script_path]", "");data.put("job[result_path]", "");data.put("job[log_path]", "");data.put("job[upload_path]", "");data.put("job[state]", "");
-		data.put("job[user_id]", (new BufferedReader(new FileReader("data/cortextUserID"))).readLine());
-		data.put("job[project_id]", (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine());
+		data.put("job[user_id]", (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextUserID"))).readLine());
+		data.put("job[project_id]", (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextProjectID"))).readLine());
 		data.put("corpusorigin", "dataset");data.put("corpustype", "ris (scopus)");
 		data.put("formatting","tab separated");data.put("yearfield","");data.put("separator", "***");data.put("yearfieldjson", "");
 		data.put("weights_tablename_json", "");data.put("weights_tablename", "");
@@ -318,8 +318,8 @@ public class CortextAPI {
 			HashMap<String,String> headers = new HashMap<String,String>();
 			HashMap<String,String> data = new HashMap<String,String>();
 			data.put("job[id]", "");data.put("job[script_path]", "");data.put("job[result_path]", "");data.put("job[log_path]", "");data.put("job[upload_path]", "");data.put("job[state]", "");
-			data.put("job[user_id]", (new BufferedReader(new FileReader("data/cortextUserID"))).readLine());
-			data.put("job[project_id]", (new BufferedReader(new FileReader("data/cortextProjectID"))).readLine());
+			data.put("job[user_id]", (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextUserID"))).readLine());
+			data.put("job[project_id]", (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextProjectID"))).readLine());
 			data.put("fields_2_index[Abstract]","");
 			//data.put("fields_2_index[Keywords]","");
 			data.put("fields_2_index[Title]","");
