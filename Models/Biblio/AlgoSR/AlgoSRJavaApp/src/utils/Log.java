@@ -80,6 +80,24 @@ public class Log {
 		catch(Exception e){System.out.println(out);}
 	}
 	
+	/**
+	 * Print in log a stack from exception.
+	 * 
+	 */
+	public static void exception(StackTraceElement[] elements){
+		String out="";
+		for(int i=0;i<elements.length;i++){
+			out = out+elements[i].toString()+"\n";
+		}
+		try{
+			BufferedWriter w = new BufferedWriter(new FileWriter(f,true));
+			w.write(out);
+			w.newLine();w.close();}
+		catch(Exception e){System.out.println(out);}
+	}
+	
+	
+	
 	/***
 	 * 
 	 * Outprints a given message in the log file

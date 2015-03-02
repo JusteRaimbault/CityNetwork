@@ -28,6 +28,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import utils.Connexion;
+import utils.Log;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
@@ -55,7 +56,7 @@ public class CortextAPI {
 	@SuppressWarnings("resource")
 	public static void setupAPI(){
 		try{
-			System.out.println("Setting up cortext API...");
+			//System.out.println("Setting up cortext API...");
 			
 			String user = (new BufferedReader(new FileReader("data/cortextUser"))).readLine();
 			String password = (new BufferedReader(new FileReader("data/cortextPassword"))).readLine();
@@ -67,7 +68,7 @@ public class CortextAPI {
 		    //add a cookie store to context
 		    CookieStore cookieStore = new BasicCookieStore();
 			context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
-		    System.out.println(cookieStore.getCookies().size());
+		    //System.out.println(cookieStore.getCookies().size());
 			
 		    //request to login page to get connected
 			//session should been kept alive ?
@@ -119,7 +120,7 @@ public class CortextAPI {
 			HttpResponse resp = Connexion.postUpload("http://manager.cortext.net/jupload/server/php/index.php", data,corpusPath, client, context);
 			//consume resp
 			
-			System.out.println(new BufferedReader(new InputStreamReader(resp.getEntity().getContent())).readLine());
+			//Log.output(new BufferedReader(new InputStreamReader(resp.getEntity().getContent())).readLine());
 			//System.out.println(resp.getStatusLine());
 			EntityUtils.consumeQuietly(resp.getEntity());
 			
@@ -196,7 +197,7 @@ public class CortextAPI {
 	public static void deleteAllCorpuses(){
 		//retrieve all corpus ids, call deleteCorpus on it
 		for(String s:getCorpusIds()){
-			System.out.println("Deleting corpus "+s+"...");
+			Log.output("Deleting corpus "+s+"...");
 			deleteCorpus(s);
 		}
 	}
@@ -255,10 +256,10 @@ public class CortextAPI {
 		
 		EntityUtils.consumeQuietly(resp.getEntity());
 		String currentCorpusId = getLastCreatedCorpusId();
-		System.out.println("previous corpus : "+previousCorpusId+" - current : "+currentCorpusId);
+		Log.output("previous corpus : "+previousCorpusId+" - current : "+currentCorpusId);
 		while(previousCorpusId.equals(currentCorpusId)){
 			//sleep a little
-			System.out.println("Waiting for job to finish, sleep 5s...");
+			Log.output("Waiting for job to finish, sleep 5s...");
 			Thread.sleep(5000);
 			currentCorpusId = getLastCreatedCorpusId();
 		}
@@ -335,10 +336,10 @@ public class CortextAPI {
 			
 			EntityUtils.consumeQuietly(resp.getEntity());
 			String currentCorpusId = getLastCreatedCorpusId();
-			System.out.println("previous corpus : "+previousCorpusId+" - current : "+currentCorpusId);
+			Log.output("previous corpus : "+previousCorpusId+" - current : "+currentCorpusId);
 			while(previousCorpusId.equals(currentCorpusId)){
 				//sleep a little
-				System.out.println("Waiting for job to finish, sleep 5s...");
+				Log.output("Waiting for job to finish, sleep 5s...");
 				Thread.sleep(5000);
 				currentCorpusId = getLastCreatedCorpusId();
 			}
