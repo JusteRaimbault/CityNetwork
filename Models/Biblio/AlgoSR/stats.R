@@ -38,7 +38,7 @@ executeAlgo(query,resDir,defNumIt,defKwLimit)
 # CV for ≠ kw limit
 query <- 'transportation+network+urban+growth'
 resDir <- 'Results/Biblio/AlgoSR/junk'
-limits<-c(2,5,10,15,20)
+limits<-c(2)#,5,10,15,20)
 maxIt <- 5
 
 

@@ -2,6 +2,7 @@ package main;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import mendeley.MendeleyAPI;
@@ -19,6 +20,41 @@ import cortext.CortextAPI;
  */
 public class Main {
 
+	/**
+	 * Absolute path to file containing different API access ids and codes
+	 * File must ABSOLUTELY be protected (although readable by application), e.g. if in git repository, imperatively has to be put in .gitignore
+	 */
+	public static String mendeleyAppId;
+	public static String mendeleyAppSecret;
+	public static String cortextUser;
+	public static String cortextUserID;
+	public static String cortextProjectID;
+	public static String cortextCorpusPath;
+	public static String cortextPassword;
+	
+	/**
+	 * Set global variables
+	 */
+	public static void setup(String pathConfFile){
+		//read conf file of the form
+		/**
+		 * appId:id
+		 * appSecret:''
+		 * ...
+		 * 
+		 */
+		try{
+			String[][] confs = CSVReader.read(pathConfFile, ":");
+			HashMap<String,String> confsMap = new HashMap<String,String>();
+			for(int r=0;r<confs.length;r++){
+				confsMap.put(confs[r][0], confs[r][1]);
+			}
+			mendeleyAppId = confsMap.get("appIs");mendeleyAppSecret=confsMap.get("appSecret");
+			cortextUser = confsMap.get("cortextUser");cortextPassword = confsMap.get("cortextPassword");
+			cortextUserID = confsMap.get("cortextUserID");cortextProjectID = confsMap.get("cortextUserID");
+		}catch(Exception e){e.printStackTrace();}
+	}
+	
 	
 	/**
 	 * One iteration of request and extraction parts of the algo, given query.

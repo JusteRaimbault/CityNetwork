@@ -21,7 +21,8 @@ public class CSVWriter {
 					writer.write(data[i][j]);
 					if(j!=(data[i].length-1)){writer.write(delimiter);}
 				}
-				if(i!=(data.length-1)){writer.write("\n");}
+				//if(i!=(data.length-1)){writer.write("\n");} // NO, each line including last must have endline
+				writer.write("\n");
 			}
 			writer.close();
 		}catch(Exception e){e.printStackTrace();}
