@@ -1,5 +1,6 @@
 package main;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -63,7 +64,13 @@ public class Main {
 			//get query and extract keywords
 			Log.newLine(1);Log.output("Iteration "+t);
 			
+			int currentRefNumber = Reference.references.size();
 			iteration(query,resFold+"/refs_"+t);
+			if(Reference.references.size()==currentRefNumber){
+				Log.output("Convergence criteria : no new ref reached - "+Reference.references.size()+" refs.");
+				Log.output("Stopping algorithm");
+				break;
+			}
 			
 			//read kw from file, construct new query
 			String[][] kwFile = CSVReader.read(resFold+"/refs_"+t+"_keywords.csv","\t");
@@ -75,14 +82,14 @@ public class Main {
 			String[] stems = new String[kwFile.length-1];
 			for(int i=1;i<kwFile.length;i++){cValues[i-1]=Double.parseDouble(kwFile[i][7].replace(",", "."));stems[i-1]=kwFile[i][0].replace(" ", "+");}
 			int[] perm = SortUtils.sortDesc(cValues);
-			for(int i=0;i<perm.length;i++){System.out.print(cValues[perm[i]]+" ; ");}System.out.println();
+			//for(int i=0;i<perm.length;i++){System.out.print(cValues[perm[i]]+" ; ");}System.out.println();//DEBUG sorting
 			
 			//construct new request
 			query="";
 			
 			for(int k=0;k<kwLimit;k++){
-				System.out.println(cValues[perm[k]]);
-				System.out.println(stems[perm[k]]);
+				//System.out.println(cValues[perm[k]]);
+				//System.out.println(stems[perm[k]]);
 				String sep = "";
 				if(k>0){sep="+";}
 				query=query+sep+stems[perm[k]];
@@ -90,12 +97,13 @@ public class Main {
 			
 			Log.output("New query is : "+query);
 			
-			//write stats to result file
+			//memorize stats
 			// num of refs ; num kws ; C-values (of all ?)
 			
 			
 		}
 		
+		//write stats to result file
 		
 	}
 	
@@ -108,14 +116,22 @@ public class Main {
 		
 		/**
 		 * First Results and Tests on algo :
-		 *     - many duplicates, have to work more precisely on hashcode for Reference class
+		 *     - many duplicates, have to work more precisely on hashcode for Reference class : OK. (increases complexity but still ok)
+		 *     
+		 * 	   - stationarity is really unstable ? if a keyword is dominant in a large set of refs, will converge very rapidly ?
+		 * 			--> TODO study sensitivity to initial query.
 		 * 
+		 * 	   - TODO : sensitivity to request constraint ? --> requires a scholar API, not yet.
 		 * 
+		 * 	   - 
 		 */
 		
 		try{
 		   //run("city+development+transportation+network","data/testRun",10,10);
-			run("land+use+transportation+network+growth","data/run_0",10,5);
+			// for tests : store results in runs folder in results.
+			String folder="/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Biblio/AlgoSR/runs/run_0";
+			(new File(folder)).mkdir();
+			run("urban+geography+transportation+planning",folder,10,5);
 		}catch(Exception e){e.printStackTrace();Log.exception(e.getStackTrace());}
 	}
 

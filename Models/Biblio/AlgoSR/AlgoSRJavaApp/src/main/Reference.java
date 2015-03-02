@@ -6,6 +6,8 @@ package main;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Class representing references.
  * 
@@ -74,8 +76,8 @@ public class Reference {
 	/**
 	 * Ghost constructor
 	 */
-	public Reference(String i){
-		id=i;
+	public Reference(String t){
+		title=t;
 	}
 	
 	/**
@@ -85,7 +87,7 @@ public class Reference {
 	 * @return
 	 */
 	public static Reference construct(String i,String t,String r,String y){
-		Reference ref = new Reference(i);
+		Reference ref = new Reference(t);
 		if(references.containsKey(ref)){
 			return references.get(ref);
 		}else{
@@ -100,8 +102,20 @@ public class Reference {
 	 * Override hashcode to take account of only ID.
 	 */
 	public int hashCode(){
-		return this.id.hashCode();
+		//dirty, has to go through all table to find through Levenstein close ref
+		// that way hashconsing may be (is surely) suboptimal
+		// -> in O(n^2)
+		for(Reference r:references.keySet()){if(r.equals(this)){return r.title.hashCode();}}
+		return this.title.hashCode();
 	}
+	
+	/**
+	 * Idem with equals
+	 */
+	public boolean equals(Object o){
+		return (o instanceof Reference)&&(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(((Reference)o).title),StringUtils.lowerCase(this.title))<4);
+	}
+	
 	
 	/**
 	 * Override to string
