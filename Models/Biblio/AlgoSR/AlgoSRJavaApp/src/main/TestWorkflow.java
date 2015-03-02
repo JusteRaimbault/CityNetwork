@@ -65,7 +65,7 @@ public class TestWorkflow {
 	 */
 	public static void main(String[] args) {
 		//simpleWorkflow("urban+sprawl+transportation+network","test_2");
-		iterativeWorkflow("urban+sprawl+transportation+network","testIterative",4);
+		iterativeWorkflow("urban+sprawl+transportation+network","data/testIterative",4);
 	}
 
 }
