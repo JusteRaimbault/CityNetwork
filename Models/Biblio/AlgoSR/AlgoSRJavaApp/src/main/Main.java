@@ -6,6 +6,7 @@ import java.util.HashSet;
 import mendeley.MendeleyAPI;
 import utils.Log;
 import utils.RISWriter;
+import utils.SortUtils;
 import utils.Zipper;
 import utils.CSVReader;
 import cortext.CortextAPI;
@@ -67,24 +68,30 @@ public class Main {
 			//read kw from file, construct new query
 			String[][] kwFile = CSVReader.read(resFold+"/refs_"+t+"_keywords.csv","\t");
 			
+			
+			
 			//sort kw on occurences, keep most frequent.
 			double[] cValues = new double[kwFile.length-1];
 			String[] stems = new String[kwFile.length-1];
-			for(int i=1;i<kwFile.length;i++){cValues[i-1]=-Double.parseDouble(kwFile[i][5].replace(",", "."));stems[i-1]=kwFile[i][0].replace(" ", "+");}
-			double[] sortedCValues = cValues.clone();Arrays.sort(cValues);
+			for(int i=1;i<kwFile.length;i++){cValues[i-1]=Double.parseDouble(kwFile[i][7].replace(",", "."));stems[i-1]=kwFile[i][0].replace(" ", "+");}
+			int[] perm = SortUtils.sortDesc(cValues);
+			for(int i=0;i<perm.length;i++){System.out.print(cValues[perm[i]]+" ; ");}
+			
 			//construct new request
 			query="";
 			
 			for(int k=0;k<kwLimit;k++){
+				System.out.println(cValues[perm[k]]);
+				System.out.println(stems[perm[k]]);
 				String sep = "";
-				if(k<kwLimit-1){sep="+";}
-				query=query+sep+stems[Arrays.binarySearch(cValues, sortedCValues[k])];
+				if(k>0){sep="+";}
+				query=query+sep+stems[perm[k]];
 			}
 			
 			Log.output("New query is : "+query);
 			
 			//write stats to result file
-			
+			// num of refs ; num kws ; C-values (of all ?)
 			
 			
 		}
@@ -107,7 +114,8 @@ public class Main {
 		 */
 		
 		try{
-		   run("city+development+transportation+network","data/testRun",5,10);
+		   //run("city+development+transportation+network","data/testRun",10,10);
+			run("land+use+transportation+network+growth","data/run_0",10,5);
 		}catch(Exception e){e.printStackTrace();Log.exception(e.getStackTrace());}
 	}
 
