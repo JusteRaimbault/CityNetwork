@@ -45,13 +45,15 @@ public class Main {
 		 */
 		try{
 			String[][] confs = CSVReader.read(pathConfFile, ":");
+			//for(int i=0;i<confs.length;i++){for(int j=0;j<confs[i].length;j++){System.out.print(confs[i][j] + " - ");}System.out.println();}
 			HashMap<String,String> confsMap = new HashMap<String,String>();
 			for(int r=0;r<confs.length;r++){
 				confsMap.put(confs[r][0], confs[r][1]);
 			}
-			mendeleyAppId = confsMap.get("appIs");mendeleyAppSecret=confsMap.get("appSecret");
+			mendeleyAppId = confsMap.get("appID");mendeleyAppSecret=confsMap.get("appSecret");
 			cortextUser = confsMap.get("cortextUser");cortextPassword = confsMap.get("cortextPassword");
-			cortextUserID = confsMap.get("cortextUserID");cortextProjectID = confsMap.get("cortextUserID");
+			cortextUserID = confsMap.get("cortextUserID");cortextProjectID = confsMap.get("cortextProjectID");
+			cortextCorpusPath = confsMap.get("cortextCorpusPath");
 		}catch(Exception e){e.printStackTrace();}
 	}
 	
@@ -90,9 +92,12 @@ public class Main {
 	
 	
 	
-	public static void run(String initialQuery,String resFold,int numIteration,int kwLimit){
+	public static void run(String confFile,String initialQuery,String resFold,int numIteration,int kwLimit){
 		//log to file
 		Log.initLog("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/log");
+		
+		// setup configuration
+		setup(confFile);
 		
 		//initial query
 		String query = initialQuery;
@@ -181,7 +186,7 @@ public class Main {
 		 * 
 		 * 	   - 
 		 */
-		String folder="",query="";
+		String folder="",query="",confFile="";
 		int numIterations = 0,kwLimit=0;
 		if(args.length==0){
 			// for tests : store results in runs folder in results.
@@ -189,14 +194,24 @@ public class Main {
 			query = "urban+geography+transportation+planning";
 			numIterations = 10;kwLimit = 5;
 		}
-		else if(args.length==4){query = args[0];folder=args[1];numIterations = Integer.parseInt(args[2]);kwLimit = Integer.parseInt(args[3]);}
+		else if(args.length>=4){
+			query = args[0];
+			folder=args[1];
+			numIterations = Integer.parseInt(args[2]);
+			kwLimit = Integer.parseInt(args[3]);
+			if(args.length==5){
+				confFile = args[4];
+			}else{//default conf file
+				confFile = "/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/conf/default.conf";
+			}
+		}
 		else{throw new Exception("Error : not enough args.");}
 		
 		try{
 		   //run("city+development+transportation+network","data/testRun",10,10);			
 			//create dir if does not exists
 			(new File(folder)).mkdir();
-			run(query,folder,numIterations,kwLimit);
+			run(confFile,query,folder,numIterations,kwLimit);
 		}catch(Exception e){e.printStackTrace();Log.exception(e.getStackTrace());}
 	}
 

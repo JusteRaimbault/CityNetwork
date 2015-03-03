@@ -21,6 +21,9 @@ import java.util.Date;
  */
 public class Log {
 	
+	private static String logLevel;
+	
+	
 	/** BufferedWriter to write */
 	private static File f;
 	
@@ -43,9 +46,19 @@ public class Log {
 			f = new File("log/"+d.toGMTString().replace(' ', '_').replace('/', ':')+".txt");
 			f.setWritable(true,false);
 			
+			// default log level
+			logLevel="default";
+			
 		}
 		catch(Exception e){System.out.println("initLog error : "+e.toString());}
 	}
+	
+	public static void setLogLevel(String newLevel){
+		if(newLevel.equals("default")||newLevel.equals("verbose")||newLevel.equals("debug")){logLevel = newLevel;}
+		else{logLevel="default";}
+	}
+	
+	public static String getLogLevel(){return logLevel;}
 	
 	/**
 	 * Default init to log dir in current wd
@@ -108,13 +121,16 @@ public class Log {
 	 * 
 	 * @param message
 	 */
-	public static void output(String message){
-		try{
-			BufferedWriter w = new BufferedWriter(new FileWriter(f,true));
-			w.write(message);w.newLine();w.close();}
-		catch(Exception e){System.out.println(message);}
+	public static void output(String message,String level){
+		if(logLevel.equals("debug")||(logLevel.equals("verbose")&&(level.equals("verbose")||level.equals("default"))||(logLevel.equals("default")&&level.equals("default")))){
+			try{
+				BufferedWriter w = new BufferedWriter(new FileWriter(f,true));
+				w.write(message);w.newLine();w.close();}
+			catch(Exception e){System.out.println(message);}
+		}
 	}
 	
+	public static void output(String message){output(message,"default");}
 	
 	
 	/**

@@ -55,11 +55,13 @@ public class MendeleyAPI{
 		//credentials and client
 	    // path to appID and appSecret have to be absolute if called by jar anywhere
 		//TODO eventually fix that by providing conf file storing paths
-		String appid = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/appID"))).readLine();
-		String appsecret = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/appSecret"))).readLine();
+		//String appid = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/appID"))).readLine();
+		// Replaced by global variable appid
+		//String appsecret = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/appSecret"))).readLine();
+		//idem
 		//System.out.println(appid+" : "+appsecret);
 		client = new DefaultHttpClient();
-		client.getCredentialsProvider().setCredentials(AuthScope.ANY,new UsernamePasswordCredentials(appid, appsecret));
+		client.getCredentialsProvider().setCredentials(AuthScope.ANY,new UsernamePasswordCredentials(main.Main.mendeleyAppId, main.Main.mendeleyAppSecret));
 
 		//context
 		context = new BasicHttpContext();

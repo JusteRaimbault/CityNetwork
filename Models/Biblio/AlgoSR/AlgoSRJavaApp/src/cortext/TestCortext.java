@@ -50,6 +50,7 @@ public class TestCortext {
 	}
 	
 	public static void testUpload(){
+		
 		CortextAPI.setupAPI();
 		System.out.println(CortextAPI.uploadCorpus("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/corpus/test.zip"));
 	}

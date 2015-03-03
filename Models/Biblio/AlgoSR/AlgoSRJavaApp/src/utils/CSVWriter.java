@@ -20,6 +20,7 @@ public class CSVWriter {
 			for(int i=0;i<data.length;i++){
 				//same row size requirement not checked
 				for(int j=0;j<data[i].length;j++){
+					Log.output(data[i][j]);
 					writer.write(data[i][j]);
 					if(j!=(data[i].length-1)){writer.write(delimiter);}
 				}
