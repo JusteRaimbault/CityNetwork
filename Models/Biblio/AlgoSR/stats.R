@@ -22,14 +22,14 @@ executeAlgo <- function(query,resDir,numIteration,kwLimit){
 
 ################
 # initial query
-query <- 'transportation+network+city+growth'
-resDir <- paste0('Results/Biblio/AlgoSR/runs/run_1_',query)
-defNumIt = '2'
-defKwLimit = '10'
+#query <- 'transportation+network+city+growth'
+#resDir <- paste0('Results/Biblio/AlgoSR/runs/run_1_',query)
+#defNumIt = '2'
+#defKwLimit = '10'
 
 
 # test algo function
-executeAlgo(query,resDir,defNumIt,defKwLimit)
+#executeAlgo(query,resDir,defNumIt,defKwLimit)
 
 
 ################
@@ -39,14 +39,14 @@ executeAlgo(query,resDir,defNumIt,defKwLimit)
 query <- 'transportation+network+urban+growth'
 resDir <- 'Results/Biblio/AlgoSR/junk'
 limits<-c(2)#,5,10,15,20)
-maxIt <- 5
+maxIt <- 20
 
 
 nrefs = matrix(data=rep(0,maxIt*length(limits)),nrow=maxIt)
 for(l in 1:length(limits)){
   res = executeAlgo(query,resDir,maxIt,limits[l])
   for(k in 1:length(res[,1])){nrefs[k,l]=res[k,1]}
-  for(k in length(res[,1]):20){nrefs[k,l]=nrefs[length(res[,1]),l]}
+  for(k in length(res[,1]):maxIt){nrefs[k,l]=nrefs[length(res[,1]),l]}
 }
 
 
