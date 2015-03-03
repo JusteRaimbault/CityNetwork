@@ -276,7 +276,9 @@ public class CortextAPI {
 		EntityUtils.consumeQuietly(resp.getEntity());
 		String currentCorpusId = getLastCreatedCorpusId();
 		Log.output("previous corpus : "+previousCorpusId+" - current : "+currentCorpusId);
-		while(previousCorpusId.equals(currentCorpusId)){
+		long startTime = System.currentTimeMillis();// - 1000;//add one sec security to be sure one run in loop ?
+		//not necessary, no need to go into loop in that case.
+		while(previousCorpusId.equals(currentCorpusId)&&(System.currentTimeMillis() - startTime)<1000*60){//1min timeout
 			//sleep a little
 			Log.output("Waiting for job to finish, sleep 5s...");
 			Thread.sleep(5000);
@@ -284,7 +286,7 @@ public class CortextAPI {
 		}
 		return currentCorpusId;
 		
-		}catch(Exception e){e.printStackTrace();return null;}
+		}catch(Exception e){e.printStackTrace();Log.exception(e.getStackTrace());return null;}
 	}
 	
 	
@@ -359,7 +361,8 @@ public class CortextAPI {
 			EntityUtils.consumeQuietly(resp.getEntity());
 			String currentCorpusId = getLastCreatedCorpusId();
 			Log.output("previous corpus : "+previousCorpusId+" - current : "+currentCorpusId);
-			while(previousCorpusId.equals(currentCorpusId)){
+			long startTime = System.currentTimeMillis();
+			while(previousCorpusId.equals(currentCorpusId)&&(System.currentTimeMillis()-startTime)<1000*60){
 				//sleep a little
 				Log.output("Waiting for job to finish, sleep 5s...");
 				Thread.sleep(5000);
@@ -368,7 +371,7 @@ public class CortextAPI {
 			
 			return currentCorpusId;
 			
-		}catch(Exception e){e.printStackTrace();return null;}
+		}catch(Exception e){e.printStackTrace();Log.exception(e.getStackTrace());return null;}
 	}
 	
 	
@@ -388,7 +391,7 @@ public class CortextAPI {
 		    	writer.write(currentByte);currentByte=in.read();
 		    }
 			writer.close();
-		}catch(Exception e){e.printStackTrace();}
+		}catch(Exception e){e.printStackTrace();Log.exception(e.getStackTrace());}
 	}
 	
 	

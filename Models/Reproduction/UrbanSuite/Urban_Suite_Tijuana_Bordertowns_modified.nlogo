@@ -1,192 +1,68 @@
+
+
+__includes[
+  
+   "main.nls"  
+   "setup.nls"
+  
+]
+
+
+
+globals [
+  values
+  weights
+  marginal-value
+  marginal-weight
+  crossed
+  third-phase
+  max-cost
+]
+
+
+
 breed [ employment-centers employment-center ]
+
+;; city centers === centers in R&al. model
 breed [ service-centers service-center ]
+
+;; agents constructing primary roads
 breed [ builders builder ]
+
+
 breed [ second-order-builders second-order-builder ]
+
+
 breed [ third-order-builders third-order-builder ]
+
+;; residential dynamics agents
 breed [ migrants migrant ]
+
 breed [ rings ring ]
+
 breed [ nodes node ]
 
 
+
+
 migrants-own [ income savings works origin resident-since living-expenses ]
-patches-own [ land-value water electricity occupied transport ctr elevation colonia]
-builders-own [ too-close energy weight block-size origin]
+
+
+builders-own [
+  too-close
+  energy
+  weight
+  block-size
+  origin
+]
+
 second-order-builders-own [ energy weight origin]
 third-order-builders-own [ energy weight origin ]
 
-globals [ values weights marginal-value marginal-weight crossed third-phase max-cost]
 
-to setup
-  tick
-
-  generate-cityscape
-
-  if count employment-centers > 0 and count migrants = 0
-     [ initial-condition ]
-
-  if count migrants > 0 and count migrants with [ size = .65 ] > 0
-     [ ask patches [ set land-value precision (land-value) 2 ] initial-condition-2 ]
-
-  if third-phase = "go"
-     [ economics ]
-
-  if third-phase = "stop"
-     [ ask patches [ set land-value precision (land-value) 2 ]
-       reset-ticks stop ]
-end
-
-to generate-cityscape
-
-    if ticks = 1
-      [ generate-topography
-        let center-region n-of #-service-centers patches with
-           [abs pxcor < ( max-pxcor - 20 ) and
-            abs pycor < ( max-pycor - 20 ) ]
-         ask patches [ set water 10.0 set electricity 1.0 set occupied "no" set transport 1.5 ]
-         ask center-region
-            [ set land-value 35 ask neighbors [ set land-value 35 ]
-              ask patches in-radius-nowrap 20 [ set elevation 9.9 ]
-              set water 2.0 set electricity 3.0 set transport 1.0 ask neighbors [set water 2.0 set electricity 3.0 set transport 1.0]
-              sprout-service-centers 1 [set shape "eyeball" set size 5 set color 4 ]
-              sprout-builders round (random-normal 4 1)
-            [ set label (who + 1)
-              set heading random-normal (label * (360 / count builders )) 20
-              set energy random-normal 75 15
-              set block-size round (random-normal 2 .15)
-              set weight .9
-              set pen-size 1.5 pd ] ]
-
-    ask service-centers [ let my-roads builders with [ xcor = [xcor] of myself and ycor = [ycor] of myself ]
-                          ask my-roads [ set origin (list myself) ] ]
-
-    towards-other-centers ]
-
-    ask builders
-      [set too-close []
-       fd 1
-       set color 6
-       if ( ticks mod 20 = 0 ) [ set heading random-normal heading 3 ]
-       set weight weight - .02
-       set weight precision weight 3
-       set land-value (weight * 12)
-       set transport .75
-       set ctr "+"
-       ask patches in-radius-nowrap 8 [ set ctr "+" ] ]
-
-     ask builders [if ticks = block-size [ generate-second-order ]
-                   if ticks = 3 * block-size [ generate-second-order ]
-                   if ticks = 7 * block-size [ generate-second-order ]
-                   if ticks = 10 * block-size [ generate-second-order ]
-                   if [transport] of (patch-ahead 2 ) = .75
-                        or [transport] of (patch-right-and-ahead 1 2) = .75
-                        or [transport] of (patch-left-and-ahead 1 2) = .75
-                        [fd 2 die]    ]
-
-     let first-phase-limit round (random-normal 100 10)
+patches-own [ land-value water electricity occupied transport ctr elevation colonia]
 
 
-     ask second-order-builders [
-               set label ""
-               if energy != 0 [ fd .5 ]
-               pd
-               set color 7
-               set pen-size 1
-               set weight weight - .001
-               set weight precision weight 3
-               set land-value (weight * 7)
-               set water 2.0 set electricity 3.0 set transport 1.0
-               if weight < 0 [ set weight 0 ]
-               if round heading mod 15 < 5 or round heading mod 15 > 10
-                   [ set heading heading + round (random-normal 5 10) ]
-
-               if ( ctr = "+" ) and (distance-nowrap one-of service-centers) < 60
-                   [ set energy energy - .5 ]
-               if ctr != "+"
-                   [ set energy energy - 1 ]
-               if ctr != "+" and (distance-nowrap one-of service-centers) > 60
-                   [ set energy energy - 2 ]
-               if energy < .5 [ set energy 0 ]
-
-               if energy = 0 [ die ]
-
-               if [elevation] of (patch-ahead 1 ) < 9.9
-                        [fd .5 die]
-
-               if [land-value] of (patch-ahead 1 ) != 0
-                        or [land-value] of (patch-right-and-ahead 1 1) != 0
-                        or [land-value] of (patch-left-and-ahead 1 1) != 0
-                        [fd .5 die]
-
-               if [transport] of (patch-ahead 1 ) = .75
-                        or [transport] of (patch-right-and-ahead 1 1) = .75
-                        or [transport] of (patch-left-and-ahead 1 1) = .75
-                        [fd 1 die]
-
-               if ticks < first-phase-limit [ if energy = 0 [ die ] ]
-
-               if ticks mod round (random-normal 5 1) = 0 and energy != 0
-                 [ hatch-third-order-builders 1 [set heading ([heading] of myself + 90) set energy (random-normal [energy] of myself 2) + 2]
-                   hatch-third-order-builders 1 [set heading ([heading] of myself - 90) set energy (random-normal [energy] of myself 2) + 2] ] ]
-
-
-    ask third-order-builders [
-               set label ""
-               if energy != 0 [ fd .5 ]
-               pd
-               set color 7
-               set pen-size 1
-               set weight weight - .0007
-               set weight precision weight 3
-               set land-value (weight * 7)
-
-               ifelse weight > .3
-                   [ set water 2.0 set electricity 3.0 set transport 1.0 ask patches in-radius 2 [ set electricity 3.0 ] ]
-                   [ set water 2.0 set electricity 3.0 set transport 1.0 ]
-
-               if weight < 0 [ set weight 0 ]
-               if round heading mod 15 < 5 or round heading mod 15 > 10
-                   [ set heading heading + round (random-normal 5 10) ]
-
-               if ctr = "+" and (distance-nowrap one-of service-centers) < 60
-                   [ set energy energy - .5 ]
-               if ctr != "+"
-                   [ set energy energy - 1 ]
-               if (distance-nowrap one-of service-centers) > 60
-                   [ set energy energy - 2 ]
-               if energy < .5 [ set energy 0 ]
-
-               if ticks mod round (random-normal 3.75 .25) = 0 and energy != 0
-                  [ hatch 1 [set heading ([heading] of myself + 90) set energy (random-normal [energy] of myself 2) + 2 ]
-                    hatch 1 [set heading ([heading] of myself - 90) set energy (random-normal [energy] of myself 2) + 2 ] ]
-
-                      if [elevation] of (patch-ahead 1 ) < 9.9
-                      [die]
-
-                      if [transport] of (patch-ahead 1 ) = .75
-                        or [transport] of (patch-right-and-ahead 1 1) = .75
-                        or [transport] of (patch-left-and-ahead 1 1) = .75
-                        [fd .5 die]
-
-                      if [land-value] of (patch-ahead 1 ) != 0
-                        or [land-value] of (patch-right-and-ahead 1 1) != 0
-                        or [land-value] of (patch-left-and-ahead 1 1) != 0
-                        [fd 1 die]    ]
-
-    ask builders with [ round abs xcor = max-pxcor or round abs ycor = max-pycor] [die]
-    ask second-order-builders with [ round abs xcor = max-pxcor or round abs ycor = max-pycor] [die]
-    ask third-order-builders with [ round abs xcor = max-pxcor or round abs ycor = max-pycor] [die]
-
-    if ticks > 10 and count third-order-builders != 0 [
-    set values ( mean [ land-value ] of third-order-builders  )
-    set weights ( mean [ weight ] of third-order-builders ) ]
-
-    if count builders = 0 and ( count third-order-builders with [ energy != 0 ] ) = 0 and count third-order-builders != 0
-      [ no-display
-        adjust
-        display ]
-
-    if count employment-centers > 0 [ stop ]
-end
 
 
 to adjust
@@ -205,19 +81,6 @@ to adjust
 end
 
 
-to generate-topography
-    ask patches [ set elevation 9.9 ]
-    let topography n-of ((random 4) + 2) patches with
-            [abs pxcor < ( max-pxcor - 20 ) and
-             abs pycor < ( max-pycor - 20 ) ]
-    repeat 3 [ ask topography [ set elevation 8 ask n-of 15 patches in-radius-nowrap (random-normal 15 3)
-                  [ set elevation 8 ] ask one-of neighbors
-                  [ set elevation 8 ask n-of 13 patches in-radius-nowrap (random-normal 8 2)
-                  [ set elevation 8 ] ] ] ]
-    repeat 2 [ ask patches with [ (count neighbors with [ elevation = 8 ]) > 2 ] [ set elevation 8 ] ]
-    ask patches with [ elevation = 8 and (count neighbors with [ elevation = 8 ]) < 2 ] [ set elevation 9.9 ]
-    repeat 1 [ diffuse elevation 1 ]
-end
 
 
  to towards-other-centers
