@@ -19,6 +19,8 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
@@ -71,6 +73,11 @@ public class CortextAPI {
 			context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
 		    //System.out.println(cookieStore.getCookies().size());
 			
+			//set timeout
+			 HttpParams params = client.getParams();
+			 HttpConnectionParams.setConnectionTimeout(params, 10000);
+			 HttpConnectionParams.setSoTimeout(params, 10000);
+			
 		    //request to login page to get connected
 			//session should been kept alive ?
 			HashMap<String,String> headers = new HashMap<String,String>();
@@ -115,12 +122,12 @@ public class CortextAPI {
 			/**
 			 *  file is posted through post to http://manager.cortext.net/jupload/server/php/index.php
 			 */
-			String projectDir = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextCorpusPath"))).readLine();
+			//String projectDir = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextCorpusPath"))).readLine();
 			
 			Log.output("Uploading corpus to path "+main.Main.cortextCorpusPath,"verbose");
 			HashMap<String,String> data = new HashMap<String,String>();
-			data.put("projectDir", projectDir);
-			//data.put("projectDir",main.Main.cortextCorpusPath);
+			//data.put("projectDir", projectDir);
+			data.put("projectDir",main.Main.cortextCorpusPath);
 			HttpResponse resp = Connexion.postUpload("http://manager.cortext.net/jupload/server/php/index.php", data,corpusPath, client, context);
 			//consume resp
 			
@@ -145,7 +152,7 @@ public class CortextAPI {
 		try{
 			//String projectId = (new BufferedReader(new FileReader("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/data/cortextProjectID"))).readLine();
 			
-			String projectPagePath ="http://manager.cortext.net/project/"+main.Main.cortextCorpusPath;
+			String projectPagePath ="http://manager.cortext.net/project/"+main.Main.cortextProjectID;
 			Log.output(projectPagePath,"debug");
 			Document projectDom = Jsoup.parse(Connexion.get(projectPagePath, (new HashMap<String,String>()), client, context).getEntity().getContent(),"UTF-8",projectPagePath);
 			Element e1 =  projectDom.getElementsByAttributeValueStarting("href", "/corpu/download/id/").first();

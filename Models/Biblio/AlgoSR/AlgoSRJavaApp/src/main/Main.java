@@ -114,11 +114,6 @@ public class Main {
 			
 			int currentRefNumber = Reference.references.size();
 			iteration(query,resFold+"/refs_"+t);
-			if(Reference.references.size()==currentRefNumber){
-				Log.output("Convergence criteria : no new ref reached - "+Reference.references.size()+" refs.");
-				Log.output("Stopping algorithm");
-				break;
-			}
 			
 			//read kw from file, construct new query
 			String[][] kwFile = CSVReader.read(resFold+"/refs_"+t+"_keywords.csv","\t");
@@ -150,12 +145,21 @@ public class Main {
 			//memorize stats
 			// num of refs ; num kws ; C-values (of all ?)
 			numRefs[t] = Reference.references.size();
-
+						
+			for(int k=0;k<kwLimit;k++){Log.output(keywords[t][k]+" : "+occs[t][k]);}
+			
+			// check stopping condition AFTER storing kws
+			if(Reference.references.size()==currentRefNumber){
+				Log.output("Convergence criteria : no new ref reached - "+Reference.references.size()+" refs.");
+				Log.output("Stopping algorithm");
+				break;
+			}
+			
 			
 		}
 		
 		//write stats to result file
-		String[][] stats = new String[numIteration][2*kwLimit+1];
+		String[][] stats = new String[numIteration][(2*kwLimit)+1];
 		for(int t=0;t<numIteration;t++){
 			stats[t][0]=new Integer(numRefs[t]).toString();
 			for(int k=1;k<kwLimit+1;k++){stats[t][k]=keywords[t][k-1];stats[t][k+kwLimit]=new Integer(occs[t][k-1]).toString();}

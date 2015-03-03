@@ -2,6 +2,9 @@
 ## Systematic Review Algo study
 #################
 
+# directory must contain confRScript.conf file
+# and called by source(...,chdir=TRUE)
+
 #################
 ## Utils functions
 
@@ -9,7 +12,8 @@
 executeAlgo <- function(query,resDir,numIteration,kwLimit){
   #java command to execute algo from jar
   # providing query and result directory
-  command <- paste0('java -jar /Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/algosr.jar ',query,' ',resDir,' ',numIteration,' ',kwLimit)
+  conf <- read.table('confRScript.conf',sep=";",header=TRUE)
+  command <- paste0('java -jar ',conf$jar,' ',query,' ',resDir,' ',numIteration,' ',kwLimit,' ',conf$conf)
   show(paste('Executing ',command))
   system(command)
   res = read.table(paste0(resDir,"/stats.csv"),header=FALSE,sep=";")
@@ -37,7 +41,7 @@ executeAlgo <- function(query,resDir,numIteration,kwLimit){
 
 # CV for ≠ kw limit
 query <- 'transportation+network+urban+growth'
-resDir <- 'Results/Biblio/AlgoSR/junk'
+resDir <- 'junk'
 limits<-c(2)#,5,10,15,20)
 maxIt <- 20
 
