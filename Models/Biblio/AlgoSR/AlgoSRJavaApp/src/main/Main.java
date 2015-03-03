@@ -107,7 +107,7 @@ public class Main {
 		int[] numRefs = new int[numIteration];
 		int[][] occs = new int[numIteration][kwLimit];
 		
-		
+		int iterationMax = numIteration-1;
 		for(int t=0;t<numIteration;t++){
 			//get query and extract keywords
 			Log.newLine(1);Log.output("Iteration "+t);Log.output("===================");
@@ -152,6 +152,7 @@ public class Main {
 			if(Reference.references.size()==currentRefNumber){
 				Log.output("Convergence criteria : no new ref reached - "+Reference.references.size()+" refs.");
 				Log.output("Stopping algorithm");
+				iterationMax = t;
 				break;
 			}
 			
@@ -160,10 +161,12 @@ public class Main {
 		
 		//write stats to result file
 		String[][] stats = new String[numIteration][(2*kwLimit)+1];
-		for(int t=0;t<numIteration;t++){
+		for(int t=0;t<=iterationMax;t++){
 			stats[t][0]=new Integer(numRefs[t]).toString();
 			for(int k=1;k<kwLimit+1;k++){stats[t][k]=keywords[t][k-1];stats[t][k+kwLimit]=new Integer(occs[t][k-1]).toString();}
+			
 		}
+		for(int t=iterationMax+1;t<numIteration;t++){for(int k=0;k<(2*kwLimit+1);k++){stats[t][k]=stats[iterationMax][k];}}
 		CSVWriter.write(resFold+"/stats.csv", stats, ";");
 	}
 	

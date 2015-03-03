@@ -39,25 +39,30 @@ executeAlgo <- function(query,resDir,numIteration,kwLimit){
 ################
 # Exploration of algo behavior
 
+#########
+# Systematic explo in grid (some kws,limits)
+#    Q : what max limit ? try to find convergence step as a function of kw num ?
+#
+
 # CV for ≠ kw limit
-query <- 'transportation+network+urban+growth'
+queries <- c('transportation+network+urban+growth')
 resDir <- 'junk'
 limits<-c(2)#,5,10,15,20)
 maxIt <- 20
 
 
-nrefs = matrix(data=rep(0,maxIt*length(limits)),nrow=maxIt)
-for(l in 1:length(limits)){
-  res = executeAlgo(query,resDir,maxIt,limits[l])
-  for(k in 1:length(res[,1])){nrefs[k,l]=res[k,1]}
-  for(k in length(res[,1]):maxIt){nrefs[k,l]=nrefs[length(res[,1]),l]}
+for(query in queries){
+
+  nrefs = matrix(data=rep(0,maxIt*length(limits)),nrow=maxIt)
+  for(l in 1:length(limits)){
+     res = executeAlgo(query,resDir,maxIt,limits[l])
+     for(k in 1:maxIt){nrefs[k,l]=res[k,1]}
+     #for(k in length(res[,1]):maxIt){nrefs[k,l]=nrefs[length(res[,1]),l]}
+  }
+  show(nrefs)
 }
 
 
-#########
-# Systematic explo in grid (some kws,limits)
-#    Q : what max limit ?
-#
 
 
 
