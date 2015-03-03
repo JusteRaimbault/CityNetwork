@@ -55,8 +55,8 @@ queries <- c('transportation+network+urban+growth',
              'network+urban+modeling'
              )
 resDir <- 'junk'
-limits<-c(2,5)#,7,10,15,20,25,30)
-maxIt <- 2
+limits<-c(2,5,7,10,15,20,25,30)
+maxIt <- 20
 
 res=pairlist()
 for(query in queries){
@@ -69,7 +69,7 @@ for(query in queries){
   res[[query]]=resIt
 }
 
-
+save(res,file = 'res.rdata');
 
 
 
