@@ -94,7 +94,9 @@ public class Main {
 	
 	public static void run(String confFile,String initialQuery,String resFold,int numIteration,int kwLimit){
 		//log to file
-		Log.initLog("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/log");
+		//Log.initLog("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/log");
+		//log to a default dir log, from where jar is called
+		Log.initLog();
 		
 		// setup configuration
 		setup(confFile);
@@ -116,7 +118,7 @@ public class Main {
 			iteration(query,resFold+"/refs_"+initialQuery+"_"+t);
 			
 			//read kw from file, construct new query
-			String[][] kwFile = CSVReader.read(resFold+"/refs_"+t+"_keywords.csv","\t");
+			String[][] kwFile = CSVReader.read(resFold+"/refs_"+initialQuery+"_"+t+"_keywords.csv","\t");
 			
 			
 			
@@ -146,7 +148,7 @@ public class Main {
 			// num of refs ; num kws ; C-values (of all ?)
 			numRefs[t] = Reference.references.size();
 						
-			for(int k=0;k<kwLimit;k++){Log.output(keywords[t][k]+" : "+occs[t][k]);}
+			for(int k=0;k<kwLimit;k++){Log.output(keywords[t][k]+" : "+occs[t][k],"debug");}
 			
 			// check stopping condition AFTER storing kws
 			if(Reference.references.size()==currentRefNumber){
