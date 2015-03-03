@@ -45,22 +45,32 @@ executeAlgo <- function(query,resDir,numIteration,kwLimit){
 #
 
 # CV for ≠ kw limit
-queries <- c('transportation+network+urban+growth')
+queries <- c('transportation+network+urban+growth',
+             'city+system+network',
+             'land+use+transport+interaction',
+             'population+density+transport',
+             'urban+structure+traffic',
+             'urban+flow+development',
+             'urban+morphogenesis+network',
+             'network+urban+modeling'
+             )
 resDir <- 'junk'
-limits<-c(2)#,5,10,15,20)
-maxIt <- 20
+limits<-c(2,5)#,7,10,15,20,25,30)
+maxIt <- 2
 
-
+res=pairlist()
 for(query in queries){
 
   nrefs = matrix(data=rep(0,maxIt*length(limits)),nrow=maxIt)
+  resIt = pairlist();
   for(l in 1:length(limits)){
-     res = executeAlgo(query,resDir,maxIt,limits[l])
-     for(k in 1:maxIt){nrefs[k,l]=res[k,1]}
-     #for(k in length(res[,1]):maxIt){nrefs[k,l]=nrefs[length(res[,1]),l]}
+     resIt[[l]] = executeAlgo(query,resDir,maxIt,limits[l])
   }
-  show(nrefs)
+  res[[query]]=resIt
 }
+
+
+
 
 
 

@@ -113,7 +113,7 @@ public class Main {
 			Log.newLine(1);Log.output("Iteration "+t);Log.output("===================");
 			
 			int currentRefNumber = Reference.references.size();
-			iteration(query,resFold+"/refs_"+t);
+			iteration(query,resFold+"/refs_"+initialQuery+"_"+t);
 			
 			//read kw from file, construct new query
 			String[][] kwFile = CSVReader.read(resFold+"/refs_"+t+"_keywords.csv","\t");
