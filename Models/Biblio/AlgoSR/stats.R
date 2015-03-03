@@ -45,7 +45,7 @@ executeAlgo <- function(query,resDir,numIteration,kwLimit){
 #
 
 # CV for ≠ kw limit
-queries <- c('transportation+network+urban+growth'),
+queries <- c('transportation+network+urban+growth',
              'city+system+network',
              'land+use+transport+interaction',
              'population+density+transport',
