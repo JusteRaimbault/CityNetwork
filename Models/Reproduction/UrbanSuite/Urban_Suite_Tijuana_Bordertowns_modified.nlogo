@@ -2,25 +2,32 @@
 
 __includes[
   
-   "main.nls"  
+   "main.nls" 
    "setup.nls"
-  
+   "display.nls"
+   
+   
 ]
 
 
 
 globals [
+  ; mean land values
   values
+  
   weights
   marginal-value
   marginal-weight
   crossed
   third-phase
   max-cost
+  
+  ;; each n ticks new migrants arrive
+  ;migration-ticks
 ]
 
 
-
+;; factories
 breed [ employment-centers employment-center ]
 
 ;; city centers === centers in R&al. model
@@ -38,303 +45,132 @@ breed [ third-order-builders third-order-builder ]
 ;; residential dynamics agents
 breed [ migrants migrant ]
 
+;; ?
 breed [ rings ring ]
 
+;; special places that can attract migrants ?
 breed [ nodes node ]
 
 
 
 
-migrants-own [ income savings works origin resident-since living-expenses ]
+migrants-own [
+  income
+  savings
+  works
+  origin
+  resident-since
+  living-expenses
+]
 
 
 builders-own [
   too-close
   energy
   weight
+  
+  ;; local size of road grid
   block-size
+  
+  
   origin
 ]
 
-second-order-builders-own [ energy weight origin]
-third-order-builders-own [ energy weight origin ]
 
 
-patches-own [ land-value water electricity occupied transport ctr elevation colonia]
+second-order-builders-own [
+  energy
+  weight
+  origin
+]
+
+
+
+third-order-builders-own [
+  energy
+  weight
+  origin
+]
+
+
+patches-own [
+  ; land value
+  land-value
+  ; water availibility
+  water
+  ; electricity availibility
+  electricity
+  
+  ; type of occupation of patch
+  ; can be "no", "maquiladoras", or name of original city of migrants occupying patch
+  occupied
+  
+  ; transportation infrastructure ( distance to infra)
+  ;   0.75 : road
+  ;   1 : secondary road
+  ;   1.5 : nothing
+  ;
+  transport
+  
+  
+  ctr
+  
+  ; elevation of the patch
+  elevation
+  
+  
+  colonia
+]
 
 
 
 
-to adjust
-    repeat 7 [diffuse land-value 1]
-    ask patches with [ land-value < 0 ] [ set land-value 0 ]
-    ask patches [ set land-value precision ( land-value ) 2 ]
-    set values ( mean [ land-value ] of third-order-builders )
-    set marginal-value ( mean [ land-value ] of third-order-builders )
-    set weights ( mean [ weight ] of third-order-builders )
-    set marginal-weight ( mean [ weight ] of third-order-builders )
-    ask third-order-builders [ die ]
-    if #-service-centers > 1 [ ask service-centers [ set size round (land-value - 3)
-        if size < 2 [ set size 2 ] ] ]
-    maquiladoras
-    stop
+to add-node
+  if mouse-down? 
+    [  ask patch mouse-xcor mouse-ycor [
+       sprout-nodes 1 [ set size 3 set shape "loop" 
+       set color red
+       set water 2.0 set electricity 3.0 set transport 1.0
+       set land-value (weights)
+       ask patches in-radius-nowrap carrying-capacity with
+     [ occupied != "maquiladora" and land-value < marginal-value ]
+        [ set water 2.0 set electricity 3.0 set transport 1.0
+          set land-value (weights) 
+          - (((distance-nowrap min-one-of nodes [ 
+           distance-nowrap myself ]) / carrying-capacity) * .15) 
+           ] ] ]
+       display ]
 end
+
 
 
 
 
  to towards-other-centers
-     if #-service-centers > 1 [ ask service-centers
-                        [ let my-roads builders with [ (member? myself ([origin] of self)) = true ]
-                          ask one-of my-roads
-                               [ set heading towards-nowrap one-of service-centers with
-                               [ (member? self ( [origin] of myself )) = false ] ] ] ]
+     if #-service-centers > 1 [
+       ask service-centers[
+         ; for each center, find builders originating from it
+         ; head one towards one other center.
+         let my-roads builders with [ (member? myself ([origin] of self)) = true ]
+         ask one-of my-roads[
+              set heading towards-nowrap one-of service-centers with[ (member? self ( [origin] of myself )) = false ]
+           ]
+         ]
+       ]
  end
 
 
 
 
- to generate-second-order
-     hatch-second-order-builders 1 [set heading heading + 90 set energy (random [energy] of myself) ]
-     hatch-second-order-builders 1 [set heading heading - 90 set energy (random [energy] of myself) ]
- end
 
 
 
 
 
-to maquiladoras
-    let roads patches with [ transport = .75 ]
-    let industrial-candidate patches with
-                    [ land-value < .75 and land-value > .05
-                      and abs pycor < (max-pycor - 5)
-                      and abs pxcor < (max-pxcor - 5)
-                      and [land-value] of (max-one-of neighbors [land-value]) < .6 and land-value > .015
-                      and transport != .75
-                      and elevation = 9.9
-                      and ( count roads with [ distance-nowrap myself < 6 ] > 0 )
-                      and ( count roads with [ distance-nowrap myself < 3 ] = 0 )
-                      and transport != .75
-                      ]
-
-    if ( count industrial-candidate < #-maquiladoras )
-       [ user-message "Warning: unable to create all employment centers, insufficient candidate patches." ]
-
-    create-employment-centers #-maquiladoras [ set shape "factory"
-                    set label ""
-                    set color 95
-                    set size 7
-                    let industrial-site one-of industrial-candidate
-                        with [ count employment-centers with [ distance-nowrap myself < 5 ] = 0 ]
-                    if industrial-site != nobody
-                    [ setxy ( [pxcor] of industrial-site ) ( [pycor] of industrial-site ) ]
-                    set water "0.0"
-                    set electricity "0.0"
-                    set transport "0.0" ]
-
-    ask employment-centers [ ask employment-centers with
-                    [ self != myself and xcor = [xcor] of myself and ycor = [ycor] of myself ] [ die ] ]
-
-    ;ask employment-centers with [ count roads with [ distance-nowrap myself < 6 ] = 0 ] [ die ]
-
-    ask industrial-candidate
-                    with [ ( any? employment-centers-here ) = true ]
-                   [set occupied "maquiladora" ask neighbors [ set occupied "maquiladora"
-                    ask neighbors [ set occupied "maquiladora" ] ] ]
-
-end
 
 
 
 
-
- to initial-condition
-      let potential-irregular-lots patches with
-          [occupied = "no" and occupied != "maquiladora" and transport != .75 and not any? employment-centers in-radius 10
-            and elevation > 8.5
-            and land-value <= ( values - .35  )
-            and land-value > ( values ) / 45
-            and (count patches with [ water = 2 and (distance-nowrap myself) < 6 ]) > 0 ]
-      ask potential-irregular-lots [ set ctr "p-i-lots" ]
-
-      let floating-population ( round (((count patches with [ water = 2 and electricity = 3]) * init-density) / 6) )
-
-      ask n-of ( floating-population / 5 ) potential-irregular-lots
-          [sprout-migrants 1
-                [ set size .65
-                  set shape "circle"
-                  set origin one-of ["oaxaca" "jalisco" "zacatecas" "mexico"]
-                  set occupied [origin] of self
-                  set works [] set (works) lput (min-one-of employment-centers [ distance-nowrap myself ]) (works)
-                  set resident-since round (random-normal 8 2)
-                  ]]
-      stop
-end
-
-
-
-
-to initial-condition-2
-      if count migrants with [ size = .65 ] != 0 [
-      ask one-of migrants with [ size = .65 ]
-                  [ set size .6
-                    repeat 4 [ ask one-of patches in-radius-nowrap 3 with [ occupied = "no" and occupied != "maquiladora"
-                    and elevation > 8.5 ]
-                    [ sprout-migrants 1 [
-                    set shape "circle"
-                    set size .6
-                    set color red
-                    set origin one-of [ "oaxaca" "jalisco" "zacatecas" "mexico"]
-                    set occupied [origin] of self
-                    set color red
-                    set works [] set (works) lput (min-one-of employment-centers [ distance-nowrap myself ]) (works)
-                    set resident-since round (random-normal 8 2)
-                    get-costs ] ] ] ] ]
-
-      ask migrants [ ifelse color-code? = true
-      [ if origin = "oaxaca" [set color pink]
-        if origin = "jalisco" [set color orange]
-        if origin = "zacatecas" [set color blue]
-        if origin = "mexico" [set color green] ]
-        [ set color black ] ]
-
-      ask migrants [ set occupied [origin] of self ]
-      if (count migrants with [ size = .65 ]) = 0 [ set third-phase "go" stop ]
-end
-
-to economics
-   ask migrants [ ask patches in-radius-nowrap (4 - (colonia-size) / 2) [ set colonia colonia - .5 ]
-   get-costs
-   set max-cost max [ living-expenses ] of migrants
-   set income precision (random-normal max-cost 3) 2
-   set income precision (income) 2 set living-expenses precision (living-expenses) 2 ]
-   ask migrants with [ income < living-expenses ] [ while [ income < living-expenses ] [set living-expenses living-expenses - 1 ] ]
-   if (count migrants with [ income < living-expenses ]) = 0
-   [ set third-phase "stop" stop ]
-end
-
-to update-display
-     if visual-update = "off" [ ask patches [set pcolor white] ]
-     if visual-update = "land value gradient" [ ask patches [set pcolor land-value] ]
-     if visual-update = "units with no water" [ ask patches with [ water = 10 and (any? migrants-here) = true ]
-                                        [ set pcolor 67 ] ]
-     if visual-update = "units with no electricity" [ ask patches with [ electricity = 1 and (any? migrants-here) = true ]
-                                              [ set pcolor 127 ] ]
-     if visual-update = "elevation" [ask patches [ set pcolor elevation + 50 ] ]
-     if visual-update = "colonias" [ ask patches with [ colonia = 0 ] [ set colonia 9.9 ]
-                          ask patches with [ colonia != 0 and colonia > -10 ] [set pcolor colonia + 10]
-                          ask patches with [ colonia < -9.9 ] [ set pcolor 0 ] ]
-
-  ifelse color-code? = true
-  [ ask migrants [
-      if origin = "oaxaca" [set color pink]
-      if origin = "jalisco" [set color orange]
-      if origin = "zacatecas" [set color blue]
-      if origin = "mexico" [set color green] ] ]
-  [ ifelse visual-update = "land value gradient"
-      [ ask migrants with [ shape = "circle" ] [ set color white ] ]
-      [ ask migrants with [ shape = "circle" ] [ set color black ] ] ]
-
-end
-
-
-
-
-to go
-    tick
-    if count third-order-builders != 0 [
-      set values ( mean [ land-value ] of third-order-builders )
-      set weights ( mean [ weight ] of third-order-builders ) ]
-    set max-cost max [ living-expenses ] of migrants
-
-    update-display
-    ask migrants [set savings precision (savings) 2 set living-expenses precision (living-expenses) 2 ]
-    ;ask migrants [ set size (size + 1 / (savings + 1)) ]
-
-    ;show "About to migrate"
-    if ( ticks mod migration-ticks = 0 ) [migrate-static]
-
-
-    ask migrants [ set occupied [origin] of self ]
-
-
-    if ( ticks mod 15 = 0 )
-        [ ask migrants [set resident-since resident-since + 1 set resident-since round resident-since ] ]
-
-
-
-    ;show "About to grow the city"
-    ifelse city-growth? = true [ ask third-order-builders [ set hidden? false ] ]
-                              [ ask third-order-builders [ set hidden? true ] ]
-
-    ;show "About to regulate"
-    if city-growth? = true [ regulate ]
-
-    ;show "About to call grow-city"
-    if city-growth? = true [ if ( ticks mod building-ticks = 0  ) [ grow-city ] ]
-
-    ;show "About to call on third-order builders"
-    if ( city-growth? = true and ticks mod ( building-ticks * 2 ) = 0 ) [ ask third-order-builders [
-                hatch 1 [set heading ([heading] of myself + 90) set weight marginal-weight ]
-                hatch 1 [set heading ([heading] of myself - 90) set weight marginal-weight ] ] ]
-    ;show "About to update patch values"
-    ask patches [
-      if ( land-value < 0 ) [ set land-value 0 ]
-      if ( not any? migrants-here and occupied != "maquiladora" ) [ set occupied "no" ]
-      if ( colonia > -.1 ) [ set colonia 9.9 ]
-    ]
-
-    ask turtles with [ round abs xcor = max-pxcor or round abs ycor = max-pycor] [die]
-
-    ;show "About to regularize"
-    regularize
-
-    ;show "About to cross borders"
-    cross
-
-    ;show "About to earn and spend"
-    ask migrants [ earn-spend ]
-
-    ;show "About to move"
-    move
-end
-
-
-
-
-to migrate-static
-    ask one-of migrants
-        [ let mypatch patch-here
-          let newcomer one-of patches in-radius-nowrap 1.5 with
-            [ occupied = "no"
-              and elevation > 8.5
-              and land-value <= [land-value] of mypatch ]
-          if newcomer != nobody
-          [ hatch 1 [ setxy ( [pxcor] of newcomer ) ( [pycor] of newcomer ) ]
-            set occupied [origin] of self
-            set shape "circle"
-            set resident-since 0
-            get-costs
-            set income precision (random-normal 55 3) 2
-            set savings precision (random-normal 15 5) 2
-            get-costs
-            ask patches in-radius-nowrap (4 - colonia-size) [ set colonia colonia - .5 ] ] ]
-end
-
-
-to move
-    ask migrants with [ resident-since > 5  ]
-    [ if water = 10.0 and savings > required-capital
-    [ let somewhere-nice one-of patches in-radius-nowrap 50 with
-        [ water = 2.0 and electricity = 3.0
-          and land-value < ([savings] of myself * 0.0010) ]
-      if somewhere-nice != nobody [
-          face-nowrap somewhere-nice
-          jump distance-nowrap somewhere-nice
-          set color red set size .8
-          set savings ( savings - ( land-value / 0.0010) )
-          get-costs ] ] ]
-end
 
 
 
@@ -443,7 +279,7 @@ to get-costs
        set living-expenses ( land-value + electricity + water + food + transport-costs + other-utilities )
 end
 
-
+;;;;;;;; MODIFIED ;;;;;;;;;;;;;;
 ; Copyright 2007 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
@@ -475,30 +311,30 @@ ticks
 30.0
 
 SLIDER
-5
-150
-170
-183
+4
+110
+143
+143
 #-maquiladoras
 #-maquiladoras
 1
 8
-8
+2
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-5
-185
-170
-218
+4
+145
+143
+178
 #-service-centers
 #-service-centers
 1
 3
-3
+2
 1
 1
 NIL
@@ -527,7 +363,7 @@ BUTTON
 170
 43
 2  cityscape
-setup
+setup\n;update-display
 T
 1
 T
@@ -556,10 +392,10 @@ NIL
 1
 
 SLIDER
-5
-80
-170
-113
+1043
+354
+1183
+387
 migration-ticks
 migration-ticks
 1
@@ -572,19 +408,19 @@ HORIZONTAL
 
 CHOOSER
 5
-410
+517
 145
-455
+562
 visual-update
 visual-update
 "off" "elevation" "land value gradient" "colonias" "units with no water" "units with no electricity"
-0
+2
 
 SWITCH
-150
-418
-265
-451
+154
+525
+269
+558
 color-code?
 color-code?
 0
@@ -592,13 +428,13 @@ color-code?
 -1000
 
 SWITCH
-5
-460
-145
-493
+7
+263
+147
+296
 city-growth?
 city-growth?
-1
+0
 1
 -1000
 
@@ -625,10 +461,10 @@ values
 11
 
 SLIDER
-5
-360
-170
-393
+1043
+634
+1179
+667
 building-ticks
 building-ticks
 0.5
@@ -640,10 +476,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-5
-220
-170
-253
+4
+180
+142
+213
 init-density
 init-density
 0.5
@@ -688,10 +524,10 @@ count migrants
 11
 
 SLIDER
-5
-290
-170
-323
+1043
+564
+1181
+597
 colonia-size
 colonia-size
 0
@@ -703,10 +539,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-5
-115
-170
-148
+1043
+389
+1183
+422
 crossing-ticks
 crossing-ticks
 1
@@ -768,10 +604,10 @@ NIL
 1
 
 SLIDER
-5
-255
-170
-288
+1043
+529
+1181
+562
 required-capital
 required-capital
 150
@@ -788,7 +624,7 @@ BUTTON
 170
 78
 add node
-if mouse-down? \n    [  ask patch mouse-xcor mouse-ycor [\n       sprout-nodes 1 [ set size 3 set shape \"loop\" \n       set color red\n       set water 2.0 set electricity 3.0 set transport 1.0\n       set land-value (weights)\n       ask patches in-radius-nowrap carrying-capacity with\n     [ occupied != \"maquiladora\" and land-value < marginal-value ]\n        [ set water 2.0 set electricity 3.0 set transport 1.0\n          set land-value (weights) \n          - (((distance-nowrap min-one-of nodes [ \n           distance-nowrap myself ]) / carrying-capacity) * .15) \n           ] ] ]\n       display ]
+add-node
 T
 1
 T
@@ -800,10 +636,10 @@ NIL
 1
 
 SLIDER
-5
-325
-170
-358
+1043
+599
+1180
+632
 carrying-capacity
 carrying-capacity
 1
@@ -815,10 +651,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-5
-506
-115
-551
+276
+554
+386
+599
 savings
 mean [ savings  ] of migrants with [ size = .6 ]
 0
@@ -826,10 +662,10 @@ mean [ savings  ] of migrants with [ size = .6 ]
 11
 
 MONITOR
-121
-506
-238
-551
+392
+554
+509
+599
 savings node
 mean [ savings  ] of migrants with [ size = .8 ]
 3
@@ -837,12 +673,179 @@ mean [ savings  ] of migrants with [ size = .8 ]
 11
 
 BUTTON
-150
-460
-241
-493
+154
+567
+245
+600
 update-now
 update-display
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+989
+13
+1149
+133
+migrants
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count migrants"
+
+PLOT
+1155
+13
+1315
+133
+builders (1st and 2nd)
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count builders"
+"pen-1" 1.0 0 -10022847 true "" "plot count second-order-builders"
+
+PLOT
+989
+137
+1149
+257
+builders (3rd)
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count third-order-builders"
+
+BUTTON
+75
+568
+150
+601
+show roads
+ask patches with [transport = 0.75] [set pcolor blue]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+6
+568
+71
+601
+reset pcol
+ask patches [set pcolor white]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SWITCH
+145
+110
+271
+143
+with-elevation?
+with-elevation?
+1
+1
+-1000
+
+TEXTBOX
+9
+92
+159
+110
+Setup
+11
+0.0
+1
+
+TEXTBOX
+17
+243
+167
+261
+Runtime
+11
+0.0
+1
+
+TEXTBOX
+7
+489
+157
+507
+Visualization
+11
+0.0
+1
+
+PLOT
+1154
+136
+1314
+256
+land values
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean [land-value] of patches"
+"pen-1" 1.0 0 -7500403 true "" "plot min [land-value] of patches"
+"pen-2" 1.0 0 -2674135 true "" "plot max [land-value] of patches"
+
+BUTTON
+5
+603
+71
+636
+transport
+ask patches [set pcolor 10 * transport]
 NIL
 1
 T
@@ -971,7 +974,10 @@ If you mention this model in a publication, we ask that you include these citati
 
 ## COPYRIGHT AND LICENSE
 
+Adapted from original model (cited above) and cop :
 Copyright 2007 Uri Wilensky.
+
+Under CC terms, same licence as original ::
 
 ![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)
 

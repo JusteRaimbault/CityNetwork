@@ -1,3 +1,126 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main procedures
 ;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+
+
+
+to go
+  
+    tick
+    if count third-order-builders != 0 [
+      set values ( mean [ land-value ] of third-order-builders )
+      set weights ( mean [ weight ] of third-order-builders ) ]
+    set max-cost max [ living-expenses ] of migrants
+
+    update-display
+    ask migrants [set savings precision (savings) 2 set living-expenses precision (living-expenses) 2 ]
+    ;ask migrants [ set size (size + 1 / (savings + 1)) ]
+
+    ;show "About to migrate"
+    if ( ticks mod migration-ticks = 0 ) [migrate-static]
+
+
+    ask migrants [ set occupied [origin] of self ]
+
+
+    if ( ticks mod 15 = 0 )
+        [ ask migrants [set resident-since resident-since + 1 set resident-since round resident-since ] ]
+
+
+
+    ;show "About to grow the city"
+    ifelse city-growth? = true [ ask third-order-builders [ set hidden? false ] ]
+                              [ ask third-order-builders [ set hidden? true ] ]
+
+    ;show "About to regulate"
+    if city-growth? = true [ regulate ]
+
+    ;show "About to call grow-city"
+    ;; new infrastructure constructed if option selected
+    if city-growth? = true [ if ( ticks mod building-ticks = 0  ) [ grow-city ] ]
+
+    ;show "About to call on third-order builders"
+    if ( city-growth? = true and ticks mod ( building-ticks * 2 ) = 0 ) [ ask third-order-builders [
+                hatch 1 [set heading ([heading] of myself + 90) set weight marginal-weight ]
+                hatch 1 [set heading ([heading] of myself - 90) set weight marginal-weight ] ] ]
+    ;show "About to update patch values"
+    ask patches [
+      if ( land-value < 0 ) [ set land-value 0 ]
+      if ( not any? migrants-here and occupied != "maquiladora" ) [ set occupied "no" ]
+      if ( colonia > -.1 ) [ set colonia 9.9 ]
+    ]
+
+    ; kill agents going outside the world
+    ask turtles with [ round abs xcor = max-pxcor or round abs ycor = max-pycor] [die]
+
+    ;show "About to regularize"
+    regularize
+
+    ;show "About to cross borders"
+    cross
+
+    ;show "About to earn and spend"
+    ask migrants [ earn-spend ]
+
+    ;show "About to move"
+    move
+end
+
+
+
+
+
+
+;; residential dynamics in itself
+to move
+    ask migrants with [ resident-since > 5  ]
+    [ if water = 10.0 and savings > required-capital
+    [ let somewhere-nice one-of patches in-radius-nowrap 50 with
+        [ water = 2.0 and electricity = 3.0
+          and land-value < ([savings] of myself * 0.0010) ]
+      if somewhere-nice != nobody [
+          face-nowrap somewhere-nice
+          jump distance-nowrap somewhere-nice
+          set color red set size .8
+          set savings ( savings - ( land-value / 0.0010) )
+          get-costs ] ] ]
+end
+
+
+;;;;;;;;;;;;;;;;;
+;; add new migrants
+;; come close to existing ones
+;;
+;;   procedure called each migration-ticks
+to migrate-static
+    ask one-of migrants
+        [ let mypatch patch-here
+          let newcomer one-of patches in-radius-nowrap 1.5 with
+            [ occupied = "no"
+              and elevation > 8.5
+              and land-value <= [land-value] of mypatch ]
+          if newcomer != nobody
+          [ hatch 1 [ setxy ( [pxcor] of newcomer ) ( [pycor] of newcomer ) ]
+            set occupied [origin] of self
+            set shape "circle"
+            set resident-since 0
+            get-costs
+            set income precision (random-normal 55 3) 2
+            set savings precision (random-normal 15 5) 2
+            get-costs
+            ask patches in-radius-nowrap (4 - colonia-size) [ set colonia colonia - .5 ] ] ]
+end
+
+
+
+
+
+
+
+
+
+

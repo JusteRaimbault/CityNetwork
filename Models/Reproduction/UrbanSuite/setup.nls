@@ -19,9 +19,27 @@ to setup
   if third-phase = "stop"
      [ ask patches [ set land-value precision (land-value) 2 ]
        reset-ticks stop ]
+     
+     
+  ;; additional visual feature : land value viz at each step
+  let mi min [land-value] of patches let ma max [land-value] of patches
+  ask patches [set pcolor scale-color yellow land-value mi ma ]
+     
 end
 
 
+
+
+to economics
+   ask migrants [ ask patches in-radius-nowrap (4 - (colonia-size) / 2) [ set colonia colonia - .5 ]
+   get-costs
+   set max-cost max [ living-expenses ] of migrants
+   set income precision (random-normal max-cost 3) 2
+   set income precision (income) 2 set living-expenses precision (living-expenses) 2 ]
+   ask migrants with [ income < living-expenses ] [ while [ income < living-expenses ] [set living-expenses living-expenses - 1 ] ]
+   if (count migrants with [ income < living-expenses ]) = 0
+   [ set third-phase "stop" stop ]
+end
 
 
 
@@ -39,23 +57,48 @@ to generate-cityscape
     ;; 'initial' setup, i.e. first step of city growth
     
     if ticks = 1  [
+      
+        ; generate mountains
         generate-topography
+        
+        
         let center-region n-of #-service-centers patches with
            [abs pxcor < ( max-pxcor - 20 ) and
             abs pycor < ( max-pycor - 20 ) ]
+        
+        ; initial values for patches
          ask patches [ set water 10.0 set electricity 1.0 set occupied "no" set transport 1.5 ]
+        
+        ;setup centers
          ask center-region
-            [ set land-value 35 ask neighbors [ set land-value 35 ]
+            [
+              ; high value for centers
+              set land-value 35 ask neighbors [ set land-value 35 ] 
+              
+              ; flat around
               ask patches in-radius-nowrap 20 [ set elevation 9.9 ]
+              
               set water 2.0 set electricity 3.0 set transport 1.0 ask neighbors [set water 2.0 set electricity 3.0 set transport 1.0]
+              
+              ; create service center here
               sprout-service-centers 1 [set shape "eyeball" set size 5 set color 4 ]
-              sprout-builders round (random-normal 4 1)
-            [ set label (who + 1)
-              set heading random-normal (label * (360 / count builders )) 20
-              set energy random-normal 75 15
-              set block-size round (random-normal 2 .15)
-              set weight .9
-              set pen-size 1.5 pd ] ]
+              
+              ;random number of main roads
+              sprout-builders round (random-normal 4 1)[ 
+                  set label (who + 1)
+                  set heading random-normal (label * (360 / count builders )) 20
+                  set energy random-normal 75 15
+                  
+                  ; random local block size
+                  set block-size round (random-normal 2 .15)
+                  set weight .9
+                  set pen-size 1.5 pd
+                  
+                  ;; test
+                  set color red set hidden? false set size 10
+                  
+              ]
+            ]
 
     ask service-centers [ let my-roads builders with [ xcor = [xcor] of myself and ycor = [ycor] of myself ]
                           ask my-roads [ set origin (list myself) ] ]
@@ -69,19 +112,31 @@ to generate-cityscape
     ask builders
       [set too-close []
        fd 1
-       set color 6
+       
+       ; test : do not re set color each tick
+       ;set color 6
+       
+       ; deviate a little sometimes ? -> artificial ?
        if ( ticks mod 20 = 0 ) [ set heading random-normal heading 3 ]
+       
+       ; decrease weights
        set weight weight - .02
+       
        set weight precision weight 3
+       
        set land-value (weight * 12)
        set transport .75
        set ctr "+"
        ask patches in-radius-nowrap 8 [ set ctr "+" ] ]
 
-     ask builders [if ticks = block-size [ generate-second-order ]
+     ask builders [
+        ;; why not use mod ???
+       if ticks = block-size [ generate-second-order ]
                    if ticks = 3 * block-size [ generate-second-order ]
                    if ticks = 7 * block-size [ generate-second-order ]
                    if ticks = 10 * block-size [ generate-second-order ]
+                   
+                   ;; stop if encounters another road
                    if [transport] of (patch-ahead 2 ) = .75
                         or [transport] of (patch-right-and-ahead 1 2) = .75
                         or [transport] of (patch-left-and-ahead 1 2) = .75
@@ -94,7 +149,11 @@ to generate-cityscape
                set label ""
                if energy != 0 [ fd .5 ]
                pd
-               set color 7
+               
+               ; idem
+               ;set color 7
+               set color orange
+               
                set pen-size 1
                set weight weight - .001
                set weight precision weight 3
@@ -138,12 +197,18 @@ to generate-cityscape
                set label ""
                if energy != 0 [ fd .5 ]
                pd
+               
                set color 7
+               
+               
                set pen-size 1
                set weight weight - .0007
                set weight precision weight 3
+               
+               ; land value proportional to weight, decresing with distance -- nothing more than a diffusion model (different shape of value profile, but still)
                set land-value (weight * 7)
 
+               ; decreasing city quality with weight, ie distance to origin
                ifelse weight > .3
                    [ set water 2.0 set electricity 3.0 set transport 1.0 ask patches in-radius 2 [ set electricity 3.0 ] ]
                    [ set water 2.0 set electricity 3.0 set transport 1.0 ]
@@ -156,6 +221,7 @@ to generate-cityscape
                    [ set energy energy - .5 ]
                if ctr != "+"
                    [ set energy energy - 1 ]
+                   
                if (distance-nowrap one-of service-centers) > 60
                    [ set energy energy - 2 ]
                if energy < .5 [ set energy 0 ]
@@ -164,19 +230,25 @@ to generate-cityscape
                   [ hatch 1 [set heading ([heading] of myself + 90) set energy (random-normal [energy] of myself 2) + 2 ]
                     hatch 1 [set heading ([heading] of myself - 90) set energy (random-normal [energy] of myself 2) + 2 ] ]
 
+
+                      ; stop building when encounters mountains
                       if [elevation] of (patch-ahead 1 ) < 9.9
                       [die]
 
+                      ; stop buidling when encounter roads
                       if [transport] of (patch-ahead 1 ) = .75
                         or [transport] of (patch-right-and-ahead 1 1) = .75
                         or [transport] of (patch-left-and-ahead 1 1) = .75
                         [fd .5 die]
-
+                      
+                      ; if in a already valued zone, die.
                       if [land-value] of (patch-ahead 1 ) != 0
                         or [land-value] of (patch-right-and-ahead 1 1) != 0
                         or [land-value] of (patch-left-and-ahead 1 1) != 0
                         [fd 1 die]    ]
 
+
+    ; kill agents getting out of the map
     ask builders with [ round abs xcor = max-pxcor or round abs ycor = max-pycor] [die]
     ask second-order-builders with [ round abs xcor = max-pxcor or round abs ycor = max-pycor] [die]
     ask third-order-builders with [ round abs xcor = max-pxcor or round abs ycor = max-pycor] [die]
@@ -185,6 +257,7 @@ to generate-cityscape
     set values ( mean [ land-value ] of third-order-builders  )
     set weights ( mean [ weight ] of third-order-builders ) ]
 
+    ; no more builders and 3rd order builders but no more energy --> adjust
     if count builders = 0 and ( count third-order-builders with [ energy != 0 ] ) = 0 and count third-order-builders != 0
       [ no-display
         adjust
@@ -192,6 +265,178 @@ to generate-cityscape
 
     if count employment-centers > 0 [ stop ]
 end
+
+
+
+
+ to generate-second-order
+     hatch-second-order-builders 1 [set heading heading + 90 set energy (random [energy] of myself) ]
+     hatch-second-order-builders 1 [set heading heading - 90 set energy (random [energy] of myself) ]
+ end
+
+
+
+
+
+
+;; procedure called at setup
+to adjust
+    ; diffuse land value :: smoothing ?
+    repeat 7 [diffuse land-value 1]
+    
+    ; delete eventual negative land values (again spec pb ?)
+    ask patches with [ land-value < 0 ] [ set land-value 0 ]
+    
+    ; round land values to 2 decimals --> really needed ?
+    ask patches [ set land-value precision ( land-value ) 2 ]
+    
+    ;third order builders build grid nw ?
+    set values ( mean [ land-value ] of third-order-builders )
+    
+    set marginal-value ( mean [ land-value ] of third-order-builders )
+    
+    set weights ( mean [ weight ] of third-order-builders )
+    
+    set marginal-weight ( mean [ weight ] of third-order-builders )
+    
+    ask third-order-builders [ die ]
+    
+    if #-service-centers > 1 [ ask service-centers [ set size round (land-value - 3)
+        if size < 2 [ set size 2 ] ] ]
+    maquiladoras
+    stop
+end
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Setup factories
+;;
+to maquiladoras
+  
+    
+    let roads patches with [ transport = .75 ]
+    
+    let industrial-candidate patches with
+                    [ land-value < .75 and land-value > .05                                                  ; middle land value
+                      and abs pycor < (max-pycor - 5)                                                        ; not on borders
+                      and abs pxcor < (max-pxcor - 5)
+                      and [land-value] of (max-one-of neighbors [land-value]) < .6 and land-value > .015     ; not alone in middle value
+                      and transport != .75                                                                   ; no transport ?
+                      and elevation = 9.9                                                                    ; flat area
+                      and ( count roads with [ distance-nowrap myself < 6 ] > 0 )                            ; close to roads
+                      and ( count roads with [ distance-nowrap myself < 3 ] = 0 )                            ; but not on a road
+                      ]
+
+    if ( count industrial-candidate < #-maquiladoras )[
+         user-message "Warning: unable to create all employment centers, insufficient candidate patches."
+    ]
+
+    ; maquiladoras are factories == employment center
+    create-employment-centers #-maquiladoras [ set shape "factory"
+                    set label ""
+                    set color 95
+                    set size 7
+                    ; find site for the new factory
+                    let industrial-site one-of industrial-candidate
+                        ; not too close from each other
+                        with [ count employment-centers with [ distance-nowrap myself < 5 ] = 0 ]
+                    ; Q : what if no location possible for the new factory ?
+                    if industrial-site != nobody
+                    [ setxy ( [pxcor] of industrial-site ) ( [pycor] of industrial-site ) ]
+                    set water 0.0
+                    set electricity 0.0
+                    set transport 0.0 ]
+
+    ; only one employment center per location
+    ;  -> why is it needed ? bad spec at employment-center creation
+    ask employment-centers [
+      ask other employment-centers with
+                    [xcor = [xcor] of myself and ycor = [ycor] of myself ] [ die ] ]
+
+    ;ask employment-centers with [ count roads with [ distance-nowrap myself < 6 ] = 0 ] [ die ]
+
+    ; possible settlements with employment are occupied by maquiladoras, and 2nd order neighbors too
+    ask industrial-candidate with [ ( any? employment-centers-here ) = true ]
+                   [set occupied "maquiladora" ask neighbors [ set occupied "maquiladora"
+                    ask neighbors [ set occupied "maquiladora" ] ] ]
+
+end
+
+
+
+
+
+
+ to initial-condition
+      ; conditions for irregluar settlement
+      let potential-irregular-lots patches with
+          [occupied = "no"                       ; inoccupied
+            and occupied != "maquiladora"        ; no factory
+            and transport != .75
+            and not any? employment-centers in-radius 10 ; far from center
+            and elevation > 8.5                          ; flat (relatively)
+            and land-value <= ( values - .35  )          ; bad value
+            and land-value > ( values ) / 45             ; but non null ----> EXPLAINS the use of diffuse
+            and (count patches with [ water = 2 and (distance-nowrap myself) < 6 ]) > 0 ]  ; water at proximity
+          
+      ask potential-irregular-lots [
+        set ctr "p-i-lots" ; variable for next land use ?
+      ]
+
+      ; number of people that can move
+      let floating-population ( round (((count patches with [ water = 2 and electricity = 3]) * init-density) / 6) )
+
+      ; put 5th if that number on potential irregular lots
+      ask n-of ( floating-population / 5 ) potential-irregular-lots
+          [sprout-migrants 1
+                [ set size .65
+                  set shape "circle"
+                  set origin one-of ["oaxaca" "jalisco" "zacatecas" "mexico"]  ; random migrants origin
+                  set occupied [origin] of self
+                  set works [] set (works) lput (min-one-of employment-centers [ distance-nowrap myself ]) (works)  ; works at closest factpry
+                  set resident-since round (random-normal 8 2)
+                  ]]
+      stop
+end
+
+
+
+
+to initial-condition-2
+      if count migrants with [ size = .65 ] != 0 [
+      ask one-of migrants with [ size = .65 ]
+                  [ set size .6
+                    repeat 4 [ ask one-of patches in-radius-nowrap 3 with [ occupied = "no" and occupied != "maquiladora"
+                    and elevation > 8.5 ]
+                    [ sprout-migrants 1 [
+                    set shape "circle"
+                    set size .6
+                    set color red
+                    set origin one-of [ "oaxaca" "jalisco" "zacatecas" "mexico"]
+                    set occupied [origin] of self
+                    set color red
+                    set works [] set (works) lput (min-one-of employment-centers [ distance-nowrap myself ]) (works)
+                    set resident-since round (random-normal 8 2)
+                    get-costs ] ] ] ] ]
+
+      ask migrants [ ifelse color-code? = true
+      [ if origin = "oaxaca" [set color pink]
+        if origin = "jalisco" [set color orange]
+        if origin = "zacatecas" [set color blue]
+        if origin = "mexico" [set color green] ]
+        [ set color black ] ]
+
+      ask migrants [ set occupied [origin] of self ]
+      if (count migrants with [ size = .65 ]) = 0 [ set third-phase "go" stop ]
+end
+
+
 
 
 
@@ -208,6 +453,7 @@ to generate-topography
   
     ask patches [ set elevation 9.9 ]
     
+    if with-elevation? [
     ;; take [2 5] random patches not too close from bord
     let topography n-of ((random 4) + 2) patches with[abs pxcor < ( max-pxcor - 20 ) and abs pycor < ( max-pycor - 20 ) ]
     
@@ -223,5 +469,7 @@ to generate-topography
     ask patches with [ elevation = 8 and (count neighbors with [ elevation = 8 ]) < 2 ] [ set elevation 9.9 ]
     ;; diffuse a little to smooth
     repeat 1 [ diffuse elevation 1 ]
+    
+    ]
 end
 
