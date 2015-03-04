@@ -73,10 +73,33 @@ save(res,file = 'res.rdata');
 
 
 
+#################
+## Result vizualisation
+#
+library(ggplot2)
+library(grid)
+vplayout <- function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
 
+time = 1:maxIt
+#kwIndex = 1
 
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(2, 4)))
 
+for(kwIndex in 1:length(queries)){
+show(queries[kwIndex])
+kwLimit = c();refs=c()
+for(i in 1:length(res[[kwIndex]])){
+  for(t in 1:maxIt){
+    refs = append(refs,res[[kwIndex]][[i]][t,1]);
+    kwLimit = append(kwLimit,limits[i])
+  }
+}
 
+#show(floor(kwIndex/4)+1);show((kwIndex%%4))
+dat = data.frame(refs,kwLimit,time)
+print(ggplot(dat, aes(colour=kwLimit, y= refs, x= time))+ geom_line(aes(group=kwLimit)) + ggtitle(queries[kwIndex]), vp = vplayout(floor((kwIndex-1)/4)+1,kwIndex-(floor((kwIndex-1)/4))*4))
+}
 
 
 

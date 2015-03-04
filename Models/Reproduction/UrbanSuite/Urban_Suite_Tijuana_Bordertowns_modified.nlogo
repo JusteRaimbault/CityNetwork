@@ -15,6 +15,7 @@ globals [
   ; mean land values
   values
   
+  ;mean weight
   weights
   marginal-value
   marginal-weight
@@ -392,10 +393,10 @@ NIL
 1
 
 SLIDER
-1043
-354
-1183
-387
+130
+260
+270
+293
 migration-ticks
 migration-ticks
 1
@@ -430,7 +431,7 @@ color-code?
 SWITCH
 7
 263
-147
+128
 296
 city-growth?
 city-growth?
@@ -461,10 +462,10 @@ values
 11
 
 SLIDER
-1043
-634
-1179
-667
+4
+407
+140
+440
 building-ticks
 building-ticks
 0.5
@@ -524,10 +525,10 @@ count migrants
 11
 
 SLIDER
-1043
-564
-1181
-597
+4
+337
+142
+370
 colonia-size
 colonia-size
 0
@@ -539,10 +540,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1043
-389
-1183
-422
+130
+295
+270
+328
 crossing-ticks
 crossing-ticks
 1
@@ -604,10 +605,10 @@ NIL
 1
 
 SLIDER
-1043
-529
-1181
-562
+4
+302
+129
+335
 required-capital
 required-capital
 150
@@ -636,10 +637,10 @@ NIL
 1
 
 SLIDER
-1043
-599
-1180
-632
+4
+372
+141
+405
 carrying-capacity
 carrying-capacity
 1
