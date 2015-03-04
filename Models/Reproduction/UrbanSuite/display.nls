@@ -1,0 +1,28 @@
+;;;;;;;;;;;;;;;;;;
+;; display functions
+;;;;;;;;;;;;;;;;;;
+
+
+to update-display
+     if visual-update = "off" [ ask patches [set pcolor white] ]
+     if visual-update = "land value gradient" [ ask patches [set pcolor land-value] ]
+     if visual-update = "units with no water" [ ask patches with [ water = 10 and (any? migrants-here) = true ]
+                                        [ set pcolor 67 ] ]
+     if visual-update = "units with no electricity" [ ask patches with [ electricity = 1 and (any? migrants-here) = true ]
+                                              [ set pcolor 127 ] ]
+     if visual-update = "elevation" [ask patches [ set pcolor elevation + 50 ] ]
+     if visual-update = "colonias" [ ask patches with [ colonia = 0 ] [ set colonia 9.9 ]
+                          ask patches with [ colonia != 0 and colonia > -10 ] [set pcolor colonia + 10]
+                          ask patches with [ colonia < -9.9 ] [ set pcolor 0 ] ]
+
+  ifelse color-code? = true
+  [ ask migrants [
+      if origin = "oaxaca" [set color pink]
+      if origin = "jalisco" [set color orange]
+      if origin = "zacatecas" [set color blue]
+      if origin = "mexico" [set color green] ] ]
+  [ ifelse visual-update = "land value gradient"
+      [ ask migrants with [ shape = "circle" ] [ set color white ] ]
+      [ ask migrants with [ shape = "circle" ] [ set color black ] ] ]
+
+end
