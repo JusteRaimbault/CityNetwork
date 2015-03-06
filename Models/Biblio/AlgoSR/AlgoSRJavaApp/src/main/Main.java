@@ -131,7 +131,7 @@ public class Main {
 			int[] perm = SortUtils.sortDesc(cValues);
 			//for(int i=0;i<perm.length;i++){System.out.print(cValues[perm[i]]+" ; ");}System.out.println();//DEBUG sorting
 			
-			for(int i=1;i<101;i++){cOccValues[i-1]=Double.parseDouble(kwFile[i][8]);}
+			for(int i=1;i<101;i++){cOccValues[i-1]=Double.parseDouble(kwFile[i][8].replace(",", "."));}
 			
 			//construct new request
 			query="";
