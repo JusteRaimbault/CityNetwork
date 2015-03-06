@@ -48,7 +48,7 @@ executeAlgo <- function(query,resDir,numIteration,kwLimit){
 queries <- c('transportation+network+urban+growth',
              'city+system+network',
              'land+use+transport+interaction',
-             'land+use+transport+interaction+network'
+             'land+use+transport+interaction+network',
              'population+density+transport',
              'urban+structure+traffic',
              'urban+flow+development',
