@@ -116,8 +116,11 @@ print(ggplot(dat, aes(colour=kwLimit, y= refs, x= time))+ geom_line(aes(group=kw
 
 bars <- function(qIndex,lIndex){
   # need to normalize !
-  m = as.matrix(res[[queries[qIndex]]][[4]][1:10,17:31])
-  
+  m = as.matrix(res[[queries[qIndex]]][[lIndex]][1:limits[lIndex],(limits[lIndex]+2):(2*limits[lIndex]+1)])
+  for(i in 1:length(m[,1])){
+    m[i,] <- m[i,] / m[i,1] 
+  }
+  show(m)
   barplot(
     m
     ,beside=TRUE
@@ -125,8 +128,7 @@ bars <- function(qIndex,lIndex){
 }
 
 par(mfrow=c(2,2))
-bars(1);
-bars(2);bars(3);bars(4)
+bars(1,4);bars(2,4);bars(3,4);bars(4,4)
 
 
 
