@@ -108,6 +108,7 @@ public class Main {
 		String[][] keywords = new String[numIteration][kwLimit];
 		int[] numRefs = new int[numIteration];
 		int[][] occs = new int[numIteration][kwLimit];
+		int[][] coOccs = new int[numIteration][100];
 		
 		int iterationMax = numIteration-1;
 		for(int t=0;t<numIteration;t++){
@@ -124,10 +125,13 @@ public class Main {
 			
 			//sort kw on occurences, keep most frequent.
 			double[] cValues = new double[kwFile.length-1];
+			double[] cOccValues = new double[100];//cooccs for all kw, to have full lexical coherence
 			String[] stems = new String[kwFile.length-1];
 			for(int i=1;i<kwFile.length;i++){cValues[i-1]=Double.parseDouble(kwFile[i][7].replace(",", "."));stems[i-1]=kwFile[i][0].replace(" ", "+");}
 			int[] perm = SortUtils.sortDesc(cValues);
 			//for(int i=0;i<perm.length;i++){System.out.print(cValues[perm[i]]+" ; ");}System.out.println();//DEBUG sorting
+			
+			for(int i=1;i<101;i++){cOccValues[i-1]=Double.parseDouble(kwFile[i][8]);}
 			
 			//construct new request
 			query="";
@@ -141,6 +145,7 @@ public class Main {
 				keywords[t][k] = stems[perm[k]];
 				occs[t][k] =  (int)cValues[perm[k]];
 			}
+			for(int k=0;k<100;k++){coOccs[t][k]=(int)cOccValues[k];}
 			
 			Log.output("New query is : "+query);
 			
@@ -162,13 +167,13 @@ public class Main {
 		}
 		
 		//write stats to result file
-		String[][] stats = new String[numIteration][(2*kwLimit)+1];
+		String[][] stats = new String[numIteration][(2*kwLimit)+101];
 		for(int t=0;t<=iterationMax;t++){
 			stats[t][0]=new Integer(numRefs[t]).toString();
 			for(int k=1;k<kwLimit+1;k++){stats[t][k]=keywords[t][k-1];stats[t][k+kwLimit]=new Integer(occs[t][k-1]).toString();}
-			
+			for(int k=0;k<100;k++){stats[t][k+(2*kwLimit+1)]=new Integer(coOccs[t][k]).toString();}
 		}
-		for(int t=iterationMax+1;t<numIteration;t++){for(int k=0;k<(2*kwLimit+1);k++){stats[t][k]=stats[iterationMax][k];}}
+		for(int t=iterationMax+1;t<numIteration;t++){for(int k=0;k<stats[0].length;k++){stats[t][k]=stats[iterationMax][k];}}
 		CSVWriter.write(resFold+"/stats.csv", stats, ";");
 	}
 	
