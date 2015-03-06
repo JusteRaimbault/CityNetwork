@@ -116,19 +116,38 @@ print(ggplot(dat, aes(colour=kwLimit, y= refs, x= time))+ geom_line(aes(group=kw
 
 bars <- function(qIndex,lIndex){
   # need to normalize !
-  m = as.matrix(res[[queries[qIndex]]][[lIndex]][1:limits[lIndex],(limits[lIndex]+2):(2*limits[lIndex]+1)])
+  m = as.matrix(res[[queries[qIndex]]][[lIndex]][,(limits[lIndex]+2):(2*limits[lIndex]+1)],)
   for(i in 1:length(m[,1])){
-    m[i,] <- m[i,] / m[i,1] 
+    m[i,] <- m[i,] / res[[queries[qIndex]]][[lIndex]][i,1]
   }
-  show(m)
+  
+  colnames(m) <- (1:length(m[1,]))
+  show(colnames(m))
   barplot(
     m
     ,beside=TRUE
-    ,main=queries[qIndex])
+    ,main=queries[qIndex]
+    #,names.arg=
+    )
 }
 
 par(mfrow=c(2,2))
-bars(1,4);bars(2,4);bars(3,4);bars(4,4)
+bars(5,2);bars(6,2);bars(7,2);bars(8,2)
+par(mfrow=c(2,2))
+bars(1,2);bars(2,2);bars(3,2);bars(4,2)
+
+
+################
+## Lexical proximity
+#  -> cooccurrences can give a relatively good proxy
+#  by taking mean(d(i,j)) where d(i,j)=abs(coocc(i)-coocc(j))
+#   with normalized coocc.
+#  totally equal cooccs give zeros, best coherence possible.
+#
+#   ADD Coccs fields in java app.
+
+
+
 
 
 
