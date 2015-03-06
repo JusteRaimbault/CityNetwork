@@ -48,14 +48,20 @@ executeAlgo <- function(query,resDir,numIteration,kwLimit){
 queries <- c('transportation+network+urban+growth',
              'city+system+network',
              'land+use+transport+interaction',
+             'land+use+transport+interaction+network'
              'population+density+transport',
              'urban+structure+traffic',
              'urban+flow+development',
              'urban+morphogenesis+network',
-             'network+urban+modeling'
+             'network+urban+modeling',
+             'transfer+theorem+probability',
+             'bike+sharing+transportation+system',
+             'bike+sharing',
+             'urban',
+             'city'
              )
 resDir <- 'junk'
-limits<-c(2,5,7,10,15,20,25,30)
+limits<-c(1,2,3,4,5,6,7,8,9,10,15,20,25,30)
 maxIt <- 20
 
 res=pairlist()
@@ -76,66 +82,66 @@ save(res,file = 'res.rdata');
 #################
 ## Result vizualisation
 #
-
-load("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/res.rdata")
-
-library(ggplot2)
-library(grid)
-vplayout <- function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
-
-time = 1:maxIt
-#kwIndex = 1
-
-grid.newpage()
-pushViewport(viewport(layout = grid.layout(2, 4)))
-
-for(kwIndex in 1:length(queries)){
-show(queries[kwIndex])
-kwLimit = c();refs=c()
-for(i in 1:length(res[[kwIndex]])){
-  for(t in 1:maxIt){
-    refs = append(refs,res[[kwIndex]][[i]][t,1]);
-    kwLimit = append(kwLimit,limits[i])
-  }
-}
-
-#show(floor(kwIndex/4)+1);show((kwIndex%%4))
-dat = data.frame(refs,kwLimit,time)
-print(ggplot(dat, aes(colour=kwLimit, y= refs, x= time))+ geom_line(aes(group=kwLimit)) + ggtitle(queries[kwIndex]), vp = vplayout(floor((kwIndex-1)/4)+1,kwIndex-(floor((kwIndex-1)/4))*4))
-}
-
-
-
-
-################
-## Measure of "coherence" of final reference set ?
-##   --> sort of semantic distance between all references ? Ok but hard to compute.
-##     Skewness of distrib should do the trick ?
-
-# tests
-
-bars <- function(qIndex,lIndex){
-  # need to normalize !
-  m = as.matrix(res[[queries[qIndex]]][[lIndex]][,(limits[lIndex]+2):(2*limits[lIndex]+1)],)
-  for(i in 1:length(m[,1])){
-    m[i,] <- m[i,] / res[[queries[qIndex]]][[lIndex]][i,1]
-  }
-  
-  colnames(m) <- (1:length(m[1,]))
-  show(colnames(m))
-  barplot(
-    m
-    ,beside=TRUE
-    ,main=queries[qIndex]
-    #,names.arg=
-    )
-}
-
-par(mfrow=c(2,2))
-bars(5,2);bars(6,2);bars(7,2);bars(8,2)
-par(mfrow=c(2,2))
-bars(1,2);bars(2,2);bars(3,2);bars(4,2)
-
+# 
+# load("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/res.rdata")
+# 
+# library(ggplot2)
+# library(grid)
+# vplayout <- function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
+# 
+# time = 1:maxIt
+# #kwIndex = 1
+# 
+# grid.newpage()
+# pushViewport(viewport(layout = grid.layout(2, 4)))
+# 
+# for(kwIndex in 1:length(queries)){
+# show(queries[kwIndex])
+# kwLimit = c();refs=c()
+# for(i in 1:length(res[[kwIndex]])){
+#   for(t in 1:maxIt){
+#     refs = append(refs,res[[kwIndex]][[i]][t,1]);
+#     kwLimit = append(kwLimit,limits[i])
+#   }
+# }
+# 
+# #show(floor(kwIndex/4)+1);show((kwIndex%%4))
+# dat = data.frame(refs,kwLimit,time)
+# print(ggplot(dat, aes(colour=kwLimit, y= refs, x= time))+ geom_line(aes(group=kwLimit)) + ggtitle(queries[kwIndex]), vp = vplayout(floor((kwIndex-1)/4)+1,kwIndex-(floor((kwIndex-1)/4))*4))
+# }
+# 
+# 
+# 
+# 
+# ################
+# ## Measure of "coherence" of final reference set ?
+# ##   --> sort of semantic distance between all references ? Ok but hard to compute.
+# ##     Skewness of distrib should do the trick ?
+# 
+# # tests
+# 
+# bars <- function(qIndex,lIndex){
+#   # need to normalize !
+#   m = as.matrix(res[[queries[qIndex]]][[lIndex]][,(limits[lIndex]+2):(2*limits[lIndex]+1)],)
+#   for(i in 1:length(m[,1])){
+#     m[i,] <- m[i,] / res[[queries[qIndex]]][[lIndex]][i,1]
+#   }
+#   
+#   colnames(m) <- (1:length(m[1,]))
+#   show(colnames(m))
+#   barplot(
+#     m
+#     ,beside=TRUE
+#     ,main=queries[qIndex]
+#     #,names.arg=
+#     )
+# }
+# 
+# par(mfrow=c(2,2))
+# bars(5,2);bars(6,2);bars(7,2);bars(8,2)
+# par(mfrow=c(2,2))
+# bars(1,2);bars(2,2);bars(3,2);bars(4,2)
+# 
 
 ################
 ## Lexical proximity
