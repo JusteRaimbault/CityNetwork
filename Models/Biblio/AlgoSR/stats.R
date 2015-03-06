@@ -76,6 +76,9 @@ save(res,file = 'res.rdata');
 #################
 ## Result vizualisation
 #
+
+load("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/res.rdata")
+
 library(ggplot2)
 library(grid)
 vplayout <- function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
@@ -100,6 +103,32 @@ for(i in 1:length(res[[kwIndex]])){
 dat = data.frame(refs,kwLimit,time)
 print(ggplot(dat, aes(colour=kwLimit, y= refs, x= time))+ geom_line(aes(group=kwLimit)) + ggtitle(queries[kwIndex]), vp = vplayout(floor((kwIndex-1)/4)+1,kwIndex-(floor((kwIndex-1)/4))*4))
 }
+
+
+
+
+################
+## Measure of "coherence" of final reference set ?
+##   --> sort of semantic distance between all references ? Ok but hard to compute.
+##     Skewness of distrib should do the trick ?
+
+# tests
+
+bars <- function(qIndex,lIndex){
+  # need to normalize !
+  m = as.matrix(res[[queries[qIndex]]][[4]][1:10,17:31])
+  
+  barplot(
+    m
+    ,beside=TRUE
+    ,main=queries[qIndex])
+}
+
+par(mfrow=c(2,2))
+bars(1);
+bars(2);bars(3);bars(4)
+
+
 
 
 
