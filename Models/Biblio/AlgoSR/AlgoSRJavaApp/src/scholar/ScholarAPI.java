@@ -29,7 +29,7 @@ public class ScholarAPI {
 	public static HttpContext context;
 	
 	
-	public static void setup(){
+	public static void setup(String query){
 		try{
 			
 		    client = new DefaultHttpClient();
@@ -46,7 +46,7 @@ public class ScholarAPI {
 			 HttpConnectionParams.setConnectionTimeout(params, 10000);
 			 HttpConnectionParams.setSoTimeout(params, 10000);
 			 
-			 HttpGet httpGet = new HttpGet("https://scholar.google.fr");
+			 HttpGet httpGet = new HttpGet("http://scholar.google.com");
 			 //for(String k:headers.keySet()){httpGet.setHeader(k, headers.get(k));}
 			 HttpResponse resp = client.execute(httpGet,context);
 			 
@@ -59,7 +59,7 @@ public class ScholarAPI {
 			 // try successive requests without sleeping
 			 for(int l=10;l<100;l=l+10){
 			 
-			 httpGet = new HttpGet("https://scholar.google.fr/scholar?q=Co-evolution+of+density+and+topology+in+a+simple+model+of+city+formation&&lookup=0&start="+l);
+			 httpGet = new HttpGet("http://scholar.google.fr/scholar?q="+query+"&lookup=0&start="+l);
 			 //for(String k:headers.keySet()){httpGet.setHeader(k, headers.get(k));}
 			 resp = client.execute(httpGet,context);
 			 
@@ -85,7 +85,7 @@ public class ScholarAPI {
 	 */
 	public static void main(String[] args) {
 		// test setup
-		setup();
+		setup("transfer+theorem+probability");
 
 	}
 
