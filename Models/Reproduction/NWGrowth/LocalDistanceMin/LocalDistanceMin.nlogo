@@ -3,6 +3,8 @@ extensions[nw]
 __includes[
   
   ;;local includes
+  "setup.nls"
+  
   "NWAnalysis.nls"
   
   
@@ -46,27 +48,6 @@ patches-own [
 ]
 
 
-to setup
-  ca
-  reset-ticks
-  
-  ; set gaussian mixture probability distribution
-  ; start from number of centers with max proba
-  ; and diffuse around.
-  ; Not gaussian but exponential, as power decrease in radius from initial cell.
-  ask patches [set exp-proba 0]
-  ask n-of initial-centers patches [
-    set exp-proba 1
-  ]
-  repeat 100 [
-    diffuse exp-proba 0.2
-  ]
-  ; normalize proba
-  let ma sum [exp-proba] of patches
-  ask patches [set exp-proba exp-proba / ma]
-  let mi min [exp-proba] of patches set ma max [exp-proba] of patches
-  ask patches [set pcolor scale-color red exp-proba mi ma]
-end
 
 ;; go for one time step
 to go
@@ -205,11 +186,12 @@ to-report direct-neighbor-nodes
       let r0 distance c
       let neigh? true
       ask (other p)[
-        set neigh? (neigh? and (distance p0 > r0) and (distance c > r0))
+        set neigh? (neigh? and ((distance p0 > r0) or (distance c > r0)))
       ]
       if neigh? [set n lput p0 n]
     ]
-    show n
+    ;show n
+    show length n
     report to-agentset n
     
     ; can be a center or a node
@@ -232,7 +214,6 @@ end
 to new-road
   set thickness 0.05 set color green
 end
-
 
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -271,17 +252,17 @@ max-new-centers-number
 max-new-centers-number
 0
 20
-5
+11
 1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-1171
-90
-1330
-135
+1130
+91
+1289
+136
 centers-distribution
 centers-distribution
 "uniform" "exp-mixture"
@@ -397,10 +378,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 SWITCH
-1173
-53
-1263
-86
+1133
+52
+1289
+85
 random-center-number?
 random-center-number?
 1
@@ -408,26 +389,58 @@ random-center-number?
 -1000
 
 CHOOSER
-1171
-140
-1309
-185
+1130
+141
+1268
+186
 neigh-type
 neigh-type
 "closest" "shared"
-0
+1
 
 SLIDER
 1293
 53
-1385
+1392
 86
 initial-centers
 initial-centers
 0
 10
-3
+10
 1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+994
+244
+1057
+277
+NIL
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+1297
+92
+1389
+125
+mixture-proba-diffusion
+mixture-proba-diffusion
+0
+1
+0.9
+0.1
 1
 NIL
 HORIZONTAL

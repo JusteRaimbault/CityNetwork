@@ -1,0 +1,32 @@
+;;;;;;;;;;;;;;;;
+;; setup
+;;;;;;;;;;;;;;;;
+
+
+
+
+to setup
+  ca
+  reset-ticks
+  
+  if centers-distribution = "exp-mixture" [
+    
+    ; set gaussian mixture probability distribution
+    ; start from number of centers with max proba
+    ; and diffuse around.
+    ; Not gaussian but exponential, as power decrease in radius from initial cell.
+    ask patches [set exp-proba 0]
+    ask n-of initial-centers patches [
+      set exp-proba 1
+    ]
+    repeat 100 [
+      diffuse exp-proba mixture-proba-diffusion
+    ]
+    ; normalize proba
+    let ma sum [exp-proba] of patches
+    ask patches [set exp-proba exp-proba / ma]
+    let mi min [exp-proba] of patches set ma max [exp-proba] of patches
+    ask patches [set pcolor scale-color red exp-proba mi ma]
+    
+  ]
+end
