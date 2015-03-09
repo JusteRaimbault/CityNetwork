@@ -9,7 +9,7 @@ __includes[
   
   
   ;; utils
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls" 
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/StatisticsUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/NetworkUtilities.nls"
@@ -126,8 +126,12 @@ end
 ;;create a new center and reports it
 to-report new-center
   let c nobody
+  
+  ;; random drawing procedure is selected in subproc
   let coords random-coords
+  
   create-centers 1 [
+    ; random weight \in [0,1]
     set weight random-float 1
     set neigh-nodes []
     set shape "circle" set color red
