@@ -4,7 +4,7 @@ __includes[
   
   ;;local includes
   "setup.nls"
-  
+  "main.nls"
   "NWAnalysis.nls"
   
   
@@ -218,7 +218,6 @@ end
 to new-road
   set thickness 0.05 set color green
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 19
@@ -256,7 +255,7 @@ max-new-centers-number
 max-new-centers-number
 0
 20
-11
+4
 1
 1
 NIL

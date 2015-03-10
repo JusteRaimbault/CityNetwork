@@ -95,7 +95,7 @@ time = 1:maxIt
 grid.newpage()
 pushViewport(viewport(layout = grid.layout(3, 4)))
 
-kwIndexes = c(1:7,9,11:14)
+kwIndexes = c(1:7,9,11:13)
 
 for(kwIndex in 1:length(kwIndexes)){
 show(queries[kwIndexes[kwIndex]])
@@ -157,10 +157,62 @@ bars(1,2);bars(2,2);bars(3,2);bars(4,2)
 #
 #   ADD Coccs fields in java app.
 
+n = length(res[[queries[1]]][[1]][,1])
+p = length(res[[queries[1]]][[1]][1,])
 
 
 
+lexicalConsistence <- function(qIndex,lIndex){
+  n = length(res[[queries[qIndex]]][[lIndex]][,1])
+  p = length(res[[queries[qIndex]]][[lIndex]][1,])
+  m = as.matrix(res[[queries[qIndex]]][[lIndex]][n,(2*limits[lIndex]+2):p])
+  m <- m / res[[queries[qIndex]]][[lIndex]][n,1]
+  
+  # compute indicator
+  N = length(m)
+  s=0
+  for(i in 1:(N-1)){for(j in (i+1):N){
+    s = s + abs(m[i]-m[j])
+  }}
+  
+  return(2/(N*(N-1))*s)
+  
+}
+
+#lexicalConsistence(1,1)
+
+#kwIndexes = c(1:7,9,11:13)
+kwIndexes = c(1,3,5,7,9)
+
+query=c();cons=c();lims=c()
+for(kwIndex in 1:length(kwIndexes)){
+  show(kwIndexes[kwIndex])
+  
+  for(l in 1:length(limits)){
+    query=append(kwIndex,query);
+    cons=append(lexicalConsistence(kwIndexes[kwIndex],l),cons);
+    lims = append(limits[l],lims);
+  }
+}
+
+d = data.frame(query,cons,lims)
+ggplot(d, aes(colour=query, y= cons, x= lims))+ geom_line(aes(group=query))
 
 
+
+## same with mean and std
+kwIndexes = c(1:7,9,11:13)
+
+meanCons=c();sdCons=c();lims=c()
+for(l in 1:length(limits)){
+  localCons = c()
+  for(kwIndex in 1:length(kwIndexes)){localCons=append(lexicalConsistence(kwIndexes[kwIndex],l),localCons)}
+  meanCons=append(mean(localCons),meanCons);
+  sdCons = append(sd(localCons),sdCons);
+  lims = append(limits[l],lims);
+}
+
+d = data.frame(meanCons,sdCons,lims)
+ggplot(d, aes(colour=1, y= meanCons, x= lims))+ geom_line() + geom_points() + geom_errorbar(aes(ymin=meanCons-sdCons, ymax=meanCons+sdCons), width=.1)
 
 
