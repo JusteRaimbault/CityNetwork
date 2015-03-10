@@ -5,6 +5,8 @@ __includes[
   ;;local includes
   "setup.nls"
   "main.nls"
+  "centers.nls"
+  "roads.nls"
   "NWAnalysis.nls"
   
   
@@ -13,6 +15,7 @@ __includes[
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/StatisticsUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/NetworkUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LinkUtilities.nls"
 ]
 
 globals[
@@ -49,175 +52,6 @@ patches-own [
 
 
 
-;; go for one time step
-to go
-  ; random new centers number
-  let new-centers-number 0
-  ifelse random-center-number?[set new-centers-number 1 + (random max-new-centers-number)][set new-centers-number max-new-centers-number]
-  
-  let new-centers []
-  ; assume each are drawn independantly according to a given spatial proba distribution
-  repeat new-centers-number[
-     set new-centers lput new-center new-centers
-  ]
-  set new-centers to-agentset new-centers ; dirty in complexity :/
-  
-  let nodes-to-connect []
-  ; for each new center, find neighbor nodes
-  ask new-centers [
-     set neigh-nodes direct-neighbor-nodes
-     ;show neigh-nodes
-     if neigh-nodes != nobody [
-       ask neigh-nodes [
-         set nodes-to-connect lput self nodes-to-connect
-       ]
-     ]
-  ]
-  
-  ; remove duplicates from nodes to connect
-  ; then connects each to corresponding centers
-  set nodes-to-connect remove-duplicates nodes-to-connect
-  
-  ;show nodes-to-connect
-  
-  
-  foreach nodes-to-connect [
-     ; find centers such that ? \in neigh-nodes
-     ; connect node to weighted barycenter of these
-     ; then connect new node to each (induces local tree-like structure)
-     let current-centers-to-connect new-centers with [neigh-nodes != nobody and member? ? neigh-nodes]
-     ifelse count current-centers-to-connect = 1 [
-        ask one-of current-centers-to-connect [create-road-with ? [new-road]]
-     ][
-       let x-bar sum ([weight * xcor] of current-centers-to-connect) / sum ([weight] of current-centers-to-connect)
-       let y-bar sum ([weight * ycor] of current-centers-to-connect) / sum ([weight] of current-centers-to-connect)
-       ;create barycenter and connects it
-       create-nodes 1 [
-         setxy x-bar y-bar set hidden? true
-         create-road-with ? [new-road]
-         create-roads-with current-centers-to-connect [new-road]
-       ]
-     ]
-  ]
-  
-  
-  
-  
-  ;; supplementary connexification step
-  connexify-global-network
-  
-  
-  tick
-end
-
-
-
-
-
-
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;
-;; center procedures
-;;;;;;;;;;;;;;;;;;;;
-
-;;create a new center and reports it
-to-report new-center
-  let c nobody
-  
-  ;; random drawing procedure is selected in subproc
-  let coords random-coords
-  
-  create-centers 1 [
-    ; random weight \in [0,1]
-    set weight random-float 1
-    set neigh-nodes []
-    set shape "circle" set color red
-    set size (5 + weight)/ 50
-    setxy first coords last coords
-    set c self
-  ]
-  report c
-end
-
-
-to-report random-coords
-  ; draws random coordinates
-  ; according to a given proba distrib
-  
-  if centers-distribution = "uniform"[
-     ; uniform spatial distribution
-     report (list random-xcor random-ycor)
-  ]
-  
-  if centers-distribution = "exp-mixture" [
-    ; use patch variable proba set at setup
-    ; as precised in globals, not directly exact
-    let s 0 let p random-float 1 let res []
-    ask patches [
-      if length res = 0 [
-        set s s + exp-proba
-        if p < s [set res (list pxcor pycor)] 
-      ]
-    ]
-    
-    ; add a random noise \in [-0.5,0.5] as generated corrdinates will only be integers
-    set res (list (first res + random-float 1 - 0.5) (last res + random-float 1 - 0.5))
-    
-    report res
-  ]
-  
-end
-
-
-; center procedure that reports network nodes in neigh with a given definition
-to-report direct-neighbor-nodes
-    if neigh-type = "closest" [
-      report (other turtles) with-min [distance myself]
-    ]
-    
-    if neigh-type = "shared" [
-    ; do neighborhood computation by hand
-    let c self
-    let p other turtles
-    
-    let n []
-    ask p [
-      let p0 self
-      ; r0 = d(P_0,C)
-      let r0 distance c
-      let neigh? true
-      ask (other p)[
-        set neigh? (neigh? and ((distance p0 > r0) or (distance c > r0)))
-      ]
-      if neigh? [set n lput p0 n]
-    ]
-    ;show n
-    show length n
-    report to-agentset n
-    
-    ; can be a center or a node
-    ;report (other turtles) with [
-    ;  (length ([distance myself] of other (turtles with [not (self = c)])) = 0 and length ([distance [myself] of myself] of other (turtles with [not (self = c)])) = 0) or
-    ;  ((gen-min ([distance myself] of other (turtles with [not (self = c)])) > distance myself) and (gen-min ([distance [myself] of myself] of other (turtles with [not (self = c)])) > distance myself))
-    ;]
-    
-    ]
-end
-
-
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;
-;; roads procedures
-;;;;;;;;;;;;;;;;;;;;;
-to new-road
-  set thickness 0.05 set color green
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
 19
@@ -255,7 +89,7 @@ max-new-centers-number
 max-new-centers-number
 0
 20
-4
+2
 1
 1
 NIL
@@ -410,7 +244,7 @@ initial-centers
 initial-centers
 0
 10
-10
+1
 1
 1
 NIL
@@ -442,7 +276,7 @@ mixture-proba-diffusion
 mixture-proba-diffusion
 0
 1
-0.9
+1
 0.1
 1
 NIL

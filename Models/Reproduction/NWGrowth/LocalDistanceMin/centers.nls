@@ -1,0 +1,129 @@
+
+
+;;;;;;;;;;;;;;;;;;;;
+;; center procedures
+;;;;;;;;;;;;;;;;;;;;
+
+;;create a new center and reports it
+to-report new-center
+  let c nobody
+  
+  ;; random drawing procedure is selected in subproc
+  let coords random-coords
+  
+  create-centers 1 [
+    ; random weight \in [0,1]
+    set weight random-float 1
+    set neigh-nodes []
+    set shape "circle" set color red
+    set size (5 + weight)/ 50
+    setxy first coords last coords
+    set c self
+  ]
+  report c
+end
+
+
+to-report random-coords
+  ; draws random coordinates
+  ; according to a given proba distrib
+  
+  if centers-distribution = "uniform"[
+     ; uniform spatial distribution
+     report (list random-xcor random-ycor)
+  ]
+  
+  if centers-distribution = "exp-mixture" [
+    ; use patch variable proba set at setup
+    ; as precised in globals, not directly exact
+    let s 0 let p random-float 1 let res []
+    ask patches [
+      if length res = 0 [
+        set s s + exp-proba
+        if p < s [set res (list pxcor pycor)] 
+      ]
+    ]
+    
+    ; add a random noise \in [-0.5,0.5] as generated corrdinates will only be integers
+    set res (list (first res + random-float 1 - 0.5) (last res + random-float 1 - 0.5))
+    
+    report res
+  ]
+  
+end
+
+
+; center procedure that reports network nodes in neigh with a given definition
+to-report direct-neighbor-nodes
+    if neigh-type = "closest" [
+      report (other turtles) with-min [distance myself]
+    ]
+    
+    if neigh-type = "shared" [
+    ; do neighborhood computation by hand
+    let c self
+    ; search only on links not already linked.
+    let p other turtles with [not link-neighbor? myself]
+    
+    let n []
+    ask p [
+      let p0 self
+      ; r0 = d(P_0,C)
+      let r0 distance c
+      let neigh? true
+      ask (other p)[
+        set neigh? (neigh? and ((distance p0 > r0) or (distance c > r0)))
+      ]
+      if neigh? [set n lput p0 n]
+    ]
+    
+    ; report as agentset
+    report to-agentset n
+    ]
+end
+
+
+; procedure called at the creation of new centers,
+; but before applying barycenter/neighborhood algorithm
+;    -> additional rule not developed in initial reference ; but at least a similar one has been implemented to obtain such shapes.
+to connect-to-network
+  ; to be exact, has to check all links as criteria an nodes is not enough to determine closest links (can be arbitrary close to a link with arbitrary far extremities, even in "regular" nw ? )
+  let r0 distance one-of (other turtles) with-min [distance myself] ; dirty in O(n2)
+  
+  ; coord list of closest projection on a link if exists
+  ; if empty, used as boolean marker
+  let c []
+  ; potential new extremities in the case of connection to network
+  let pot-extremities []
+  let closest-link one-of links with-min [distance-to-point ([xcor] of myself) ([ycor] of myself)] ; can be nobody
+  if closest-link != nobody [
+    ask closest-link [
+      if distance-to-point ([xcor] of myself) ([ycor] of myself) < r0 [
+         ; in that case a new node will be created, coords can be memorized to hatch later (link cannot create turtle)
+         ; and ask current link to DIE
+         set c coord-of-projection-of ([xcor] of myself) ([ycor] of myself)
+         set pot-extremities (list end1 end2)
+         die
+      ]
+    ]
+  ]
+  
+  
+  ; if projection was found to exist (== corrds are not empty), link center to the network
+  if length c > 0 [
+     ; new intersection
+     hatch 1 [
+       ; make it move to good location
+       setxy first c last c
+       ;linked by new road
+       create-road-with myself [new-road]
+       ; and extremities of old link
+       create-road-with first pot-extremities [new-road]
+       create-road-with last pot-extremities [new-road]
+     ]
+  ]
+  
+  
+end
+
+
