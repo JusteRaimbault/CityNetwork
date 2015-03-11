@@ -213,6 +213,17 @@ for(l in 1:length(limits)){
 }
 
 d = data.frame(meanCons,sdCons,lims)
-ggplot(d, aes(colour=1, y= meanCons, x= lims))+ geom_line() + geom_points() + geom_errorbar(aes(ymin=meanCons-sdCons, ymax=meanCons+sdCons), width=.1)
+ggplot(d, aes( y= meanCons, x= lims))+
+   geom_line() +
+   geom_point() +
+   geom_errorbar(aes(ymin=meanCons-sdCons, ymax=meanCons+sdCons), width=.2) + 
+   ggtitle("Lexical consistence = f(keyword limit)") +
+   xlab("keyword limit") + ylab("mean consistence")
+
+
+
+
+
+
 
 
