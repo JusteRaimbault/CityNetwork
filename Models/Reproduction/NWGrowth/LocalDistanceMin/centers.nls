@@ -16,7 +16,7 @@ to-report new-center
     set weight random-float 1
     set neigh-nodes []
     set shape "circle" set color red
-    set size (5 + weight)/ 50
+    set size (5 + weight)/ 10 set hidden? false
     setxy first coords last coords
     set c self
   ]
@@ -86,7 +86,9 @@ end
 ; procedure called at the creation of new centers,
 ; but before applying barycenter/neighborhood algorithm
 ;    -> additional rule not developed in initial reference ; but at least a similar one has been implemented to obtain such shapes.
-to connect-to-network
+to-report connect-to-network
+  let res []
+  
   ; to be exact, has to check all links as criteria an nodes is not enough to determine closest links (can be arbitrary close to a link with arbitrary far extremities, even in "regular" nw ? )
   let r0 distance one-of (other turtles) with-min [distance myself] ; dirty in O(n2)
   
@@ -108,6 +110,7 @@ to connect-to-network
     ]
   ]
   
+  set res pot-extremities
   
   ; if projection was found to exist (== corrds are not empty), link center to the network
   if length c > 0 [
@@ -120,9 +123,12 @@ to connect-to-network
        ; and extremities of old link
        create-road-with first pot-extremities [new-road]
        create-road-with last pot-extremities [new-road]
+       
      ]
   ]
   
+  
+  report res
   
 end
 

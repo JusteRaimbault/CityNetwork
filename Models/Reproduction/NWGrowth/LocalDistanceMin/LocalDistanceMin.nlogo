@@ -51,7 +51,6 @@ patches-own [
 ]
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 19
@@ -103,7 +102,7 @@ CHOOSER
 centers-distribution
 centers-distribution
 "uniform" "exp-mixture"
-1
+0
 
 BUTTON
 1251

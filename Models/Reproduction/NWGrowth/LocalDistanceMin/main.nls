@@ -7,6 +7,9 @@
 
 ;; go for one time step
 to go
+  ; hide centers (to hightlight new after)
+  ask centers [set hidden? true]
+  
   ; random new centers number
   let new-centers-number 0
   ifelse random-center-number?[set new-centers-number 1 + (random max-new-centers-number)][set new-centers-number max-new-centers-number]
@@ -23,11 +26,14 @@ to go
   ask new-centers [
     
      ; supplementary rule : if new center is closer from nw than another node, connects it perpendicularly
-     ; complexity 
-     connect-to-network
+     ; complexity
+     ;  -> returns nodes that are indeed neighs but that should not be connected because center perp. connected to the network
+     let not-neighs connect-to-network
     
-     ;
+     ; find neighbors 
      set neigh-nodes direct-neighbor-nodes
+     ; remove potential extremities of old link
+     foreach not-neighs [set neigh-nodes remove ? neigh-nodes]
      ;show neigh-nodes
      if neigh-nodes != nobody [
        ask neigh-nodes [
