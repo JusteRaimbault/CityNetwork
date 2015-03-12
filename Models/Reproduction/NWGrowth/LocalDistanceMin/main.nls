@@ -30,10 +30,10 @@ to go
      ;  -> returns nodes that are indeed neighs but that should not be connected because center perp. connected to the network
      let not-neighs connect-to-network
     
-     ; find neighbors 
-     set neigh-nodes direct-neighbor-nodes
+     ; find neighbors ; checking of neigh condition here is detailed in direct-neighbor-nodes function
+     set neigh-nodes direct-neighbor-nodes with [not link-neighbor? myself]
      ; remove potential extremities of old link
-     foreach not-neighs [set neigh-nodes remove ? neigh-nodes]
+     foreach not-neighs [set neigh-nodes remove-from-agentset ? neigh-nodes]
      ;show neigh-nodes
      if neigh-nodes != nobody [
        ask neigh-nodes [

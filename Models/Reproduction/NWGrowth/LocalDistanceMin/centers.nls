@@ -15,7 +15,7 @@ to-report new-center
     ; random weight \in [0,1]
     set weight random-float 1
     set neigh-nodes []
-    set shape "circle" set color red
+    set shape "circle" set color blue
     set size (5 + weight)/ 10 set hidden? false
     setxy first coords last coords
     set c self
@@ -62,8 +62,11 @@ to-report direct-neighbor-nodes
     if neigh-type = "shared" [
     ; do neighborhood computation by hand
     let c self
-    ; search only on links not already linked.
-    let p other turtles with [not link-neighbor? myself]
+    
+    ; search only on links not already linked ?
+    ;  -> no because leads to crossing roads as a point on the other side of the road may be considered as neighbor
+    ;     better report real neighs and not link later 
+    let p other turtles ; with [not link-neighbor? myself]
     
     let n []
     ask p [

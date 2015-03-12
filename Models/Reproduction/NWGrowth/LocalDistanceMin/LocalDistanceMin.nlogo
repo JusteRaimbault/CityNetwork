@@ -16,6 +16,7 @@ __includes[
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/StatisticsUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/NetworkUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LinkUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/AgentSetUtilities.nls"
 ]
 
 globals[
@@ -102,7 +103,7 @@ CHOOSER
 centers-distribution
 centers-distribution
 "uniform" "exp-mixture"
-0
+1
 
 BUTTON
 1251
@@ -243,7 +244,7 @@ initial-centers
 initial-centers
 0
 10
-1
+2
 1
 1
 NIL
@@ -280,6 +281,23 @@ mixture-proba-diffusion
 1
 NIL
 HORIZONTAL
+
+BUTTON
+1122
+474
+1192
+507
+crossings
+show length crossing-roads?
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
