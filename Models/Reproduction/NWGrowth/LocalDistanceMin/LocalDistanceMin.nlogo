@@ -1,4 +1,4 @@
-extensions[nw]
+extensions[nw table]
 
 __includes[
   
@@ -8,7 +8,8 @@ __includes[
   "centers.nls"
   "roads.nls"
   "NWAnalysis.nls"
-  
+  "indicators.nls"
+  "pavage.nls"
   
   ;; utils
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls"
@@ -45,12 +46,14 @@ roads-own[
   ;variable to be used by nw primitives
   road-length 
   bw-centrality
+  ; same for more generic link procedure
+  edge-length
+  
 ]
 
 patches-own [
   exp-proba 
 ]
-
 
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -103,7 +106,7 @@ CHOOSER
 centers-distribution
 centers-distribution
 "uniform" "exp-mixture"
-1
+0
 
 BUTTON
 1251
@@ -140,10 +143,10 @@ NIL
 1
 
 PLOT
-1000
-286
-1200
-436
+967
+283
+1127
+403
 Degree distrib
 NIL
 log (k)
@@ -244,7 +247,7 @@ initial-centers
 initial-centers
 0
 10
-2
+1
 1
 1
 NIL
@@ -276,7 +279,7 @@ mixture-proba-diffusion
 mixture-proba-diffusion
 0
 1
-1
+0.8
 0.1
 1
 NIL
@@ -298,6 +301,24 @@ NIL
 NIL
 NIL
 1
+
+PLOT
+1131
+282
+1291
+402
+l(N)
+nodes
+nw length
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plotxy (count turtles) (network-length)"
 
 @#$#@#$#@
 ## WHAT IS IT?
