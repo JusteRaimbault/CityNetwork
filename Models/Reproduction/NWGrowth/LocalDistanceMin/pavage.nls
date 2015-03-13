@@ -71,11 +71,54 @@ to-report barycenters [polygons]
   report res
 end
 
-to test-pavage
-  let coords barycenters pavage turtles links
-  foreach coords [
-    crt 1 [setxy first ? last ? set color yellow set size 2] 
+
+
+to-report interior-patches [polygon]
+  let res []
+  ; first recreates polygons as agentsets
+  let l-vertices [] let l-edges [] foreach polygon [ set l-vertices lput (turtle last ?) (lput turtle (first ?) l-vertices) set l-edges lput (road first ? last ?) l-edges]
+  let vertices to-agentset remove-duplicates l-vertices
+  let edges to-agentset l-edges
+  let barycenter nobody crt 1 [setxy sum [xcor] of vertices / count vertices sum [ycor] of vertices / count vertices set barycenter self]
+  let l-interior []
+  ask patches [
+    let p self
+    sprout 1 [
+        create-road-with barycenter [
+          let inside? true
+          ask edges [
+            set inside? (inside? and intersection self myself = [])
+          ]
+          if inside? [set l-interior lput p l-interior]
+          die
+        ]
+        die
+      ]
   ]
+  
+  ask barycenter  [die]
+  show l-interior
+  report to-agentset l-interior
 end
+
+
+to test-pavage
+;  let coords barycenters pavage turtles links
+;  foreach coords [
+;    crt 1 [setxy first ? last ? set color yellow set size 2] 
+;  ]
+
+  ;; test interiors and overall accuracity
+  foreach pavage turtles links [
+    let i interior-patches ?
+    if i != nobody [ask i [ 
+      set pcolor red
+    ]
+    ]
+  ]
+
+end
+
+
 
 
