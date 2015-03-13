@@ -34,22 +34,25 @@ to-report pavage [vertices edges]
   
   
   ask edges [
-    ; reinitialize edge-length
-    ask other edges [set edge-length link-length]
-    ; and "supress" itself
-    set edge-length 100 * diameter
+;    ; reinitialize edge-length
+;    ask other edges [set edge-length link-length]
+;    ; and "supress" itself
+;    set edge-length 100 * diameter
+;    
+;    ; try with one single shortest path (not exact)
+;    let e2 end2 ask end1 [let p nw:weighted-path-to e2 "edge-length" if not member? myself p [
+;        set p lput myself p
+;        let r []
+;        foreach p [set r lput (list ([[who] of end1] of ? ) ([[who] of end2] of ? ) ) r]
+;        set r sort-by [(first ?1 < first ?2) or (first ?1 = first ?2 and last ?1 < last ?2)] r
+;        table:put polygons r r
+;        
+;        ]
+;    ]
     
-    ; try with one single shortest path (not exact)
-    let e2 end2 ask end1 [let p nw:weighted-path-to e2 "edge-length" if not member? myself p [
-        set p lput myself p
-        let r []
-        foreach p [set r lput (list ([[who] of end1] of ? ) ([[who] of end2] of ? ) ) r]
-        set r sort-by [(first ?1 < first ?2) or (first ?1 = first ?2 and last ?1 < last ?2)] r
-        table:put polygons r r
-        
-        ]
-    ]
-    
+    ;; exact algo : use marker to set context of network (reset for each edge ? at each internal iteration !) ; and ask both edges to consume links putting iteratively markers on each
+
+;    
   ]
   
   ;; we return keys of hashtable, corresponding exactly to found polygons
