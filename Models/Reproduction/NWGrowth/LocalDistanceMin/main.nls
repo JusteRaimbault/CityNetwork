@@ -7,6 +7,52 @@
 
 ;; go for one time step
 to go
+  
+  ; first update land values variables
+  evolve-land-values
+  
+  ; construct new centers
+  construct-new-centers
+  
+  ; evolve network
+  evolve-network
+  
+  ; update viz
+  update-visualization
+  
+  tick
+end
+
+
+
+to evolve-land-values
+  ;output-print "updating land values"
+  
+  
+  ; other cases : value proportional to proba, does not evolve
+  if centers-distribution = "luti" [
+  
+    ;; update land value vars : density and accessibility
+    ;; grid is given by patches
+    
+    ;; density
+    ;;  note : patch size is arbitrary, normalize var after
+    ask patches [set density count centers-here] let ma max [density] of patches ask patches [set density density / ma]
+  
+  
+    ;; accessibility
+    ;; need to update bw centralities
+    setup-nw-analysis
+    compute-node-bw-centrality
+    set ma max [node-bw-centrality] of turtles
+    ask patches [set accessibility mean [node-bw-centrality] of turtles-here / ma]
+  ]
+
+end
+
+
+to construct-new-centers
+  
   ; hide centers (to hightlight new after)
   ask centers [set hidden? true]
   
@@ -14,12 +60,19 @@ to go
   let new-centers-number 0
   ifelse random-center-number?[set new-centers-number 1 + (random max-new-centers-number)][set new-centers-number max-new-centers-number]
   
-  let new-centers []
+  set new-centers []
   ; assume each are drawn independantly according to a given spatial proba distribution
   repeat new-centers-number[
      set new-centers lput new-center new-centers
   ]
   set new-centers to-agentset new-centers ; dirty in complexity :/
+  
+  
+  
+end
+
+to evolve-network
+  ;output-print "evolving nw"
   
   let nodes-to-connect []
   ; for each new center, find neighbor nodes
@@ -75,8 +128,7 @@ to go
   connexify-global-network
   
   
-  tick
 end
-
+  
 
 

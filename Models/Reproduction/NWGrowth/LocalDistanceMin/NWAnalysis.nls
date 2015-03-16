@@ -10,18 +10,20 @@ to setup-nw-analysis
     set bw-centrality 0
   ]
   
+  ask turtles [set node-bw-centrality 0]
+  
 end
 
 
 
-to compute-bw-centrality
+to compute-road-bw-centrality
   ; dirty, computed two times
   
   ; nw too big to compute on all pairs
   ; take random samples, should be a good proxy (cv speed ?)
   
-  ask n-of min list count centers 500 centers [
-    ask n-of min list (count centers - 1) 500 other centers [
+  ask n-of min list count centers max-sampling-bw-centrality centers [
+    ask n-of min list (count centers - 1) max-sampling-bw-centrality other centers [
       let p nw:weighted-path-to myself "road-length"
       if p != false [
         foreach p [
@@ -35,9 +37,31 @@ to compute-bw-centrality
   
   ; set thicnkess
   ask roads [
-    set thickness (bw-centrality * 10 / (count centers) ^ 2)
+    set thickness (bw-centrality * 5 / (count centers) ^ 2)
   ]
 end
+
+
+to compute-node-bw-centrality
+  ; dirty, computed two times
+  
+  ; nw too big to compute on all pairs
+  ; take random samples, should be a good proxy (cv speed ?)
+  
+  ask n-of min list count centers max-sampling-bw-centrality centers [
+    ask n-of min list (count centers - 1) max-sampling-bw-centrality other centers [
+      let p nw:turtles-on-weighted-path-to myself "road-length"
+      if p != false [
+        foreach p [
+          ask ? [
+            set node-bw-centrality (node-bw-centrality + 1)
+          ]
+        ]
+      ]
+    ] 
+  ]
+end
+
 
 
 

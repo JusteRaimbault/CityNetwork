@@ -7,9 +7,10 @@ __includes[
   "main.nls"
   "centers.nls"
   "roads.nls"
-  "NWAnalysis.nls"
+  "nwanalysis.nls"
   "indicators.nls"
   "pavage.nls"
+  "visualization.nls"
   
   ;; utils
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls"
@@ -22,10 +23,15 @@ __includes[
 
 globals[
   
+  ;; new centers at current step
+  new-centers
   
+  ;; note : random spatial distrib :
   ; patches in fixed order to have rigorous drawing of proba ?
   ; (note that shuffling in agentset should not perturbate if exactly random)
-  ;  -> test that
+  ;  -> test that ... OK
+  
+  
 ]
 
 ; centers
@@ -36,6 +42,11 @@ breed[nodes node]
 
 ;roads
 undirected-link-breed[roads road]
+
+turtles-own [
+  node-bw-centrality 
+]
+
 
 centers-own[
   weight
@@ -52,6 +63,9 @@ roads-own[
 ]
 
 patches-own [
+  ;; land-value :  general variable common to all models
+  land-value
+  
   ; proba for distrib of centers in case of single nw evol ; exponential proba distrib
   exp-proba
   
@@ -60,11 +74,12 @@ patches-own [
   ;;;;;;;
   
   ; proba for distrib of centers in case of co-development ("luti")
-  ;   simple discrete choice model : P(i) = exp(\beta)/exp(sum(...))
-  ; 
+  ;   --> simple discrete choice model : P(i) = exp(\beta (\lanbda * access - density))/exp(sum(...))
+  ;        with params : \beta : DC dispersion param ; \lambda : compromise density / transportation
   luti-proba
   
   ;; accessibility
+  ;;  --> defined as betw-centrality, but can be distance to centers or to nw (Alsonso model)
   accessibility
   
   ;;density : N-centers / S
@@ -124,7 +139,7 @@ CHOOSER
 centers-distribution
 centers-distribution
 "uniform" "exp-mixture" "luti"
-1
+2
 
 BUTTON
 1157
@@ -201,12 +216,12 @@ count roads
 11
 
 BUTTON
-905
-474
-1018
-507
+855
+462
+968
+495
 bw-centrality
-setup-nw-analysis\ncompute-bw-centrality\nupdate-plots
+setup-nw-analysis\ncompute-road-bw-centrality\nupdate-plots
 NIL
 1
 T
@@ -218,10 +233,10 @@ NIL
 1
 
 PLOT
-909
-517
-1109
-667
+859
+505
+1019
+625
 bw-centrality ranking
 NIL
 NIL
@@ -304,10 +319,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-1027
-474
-1097
-507
+977
+462
+1047
+495
 crossings
 show length crossing-roads?
 NIL
@@ -372,6 +387,78 @@ grid-size
 1
 NIL
 HORIZONTAL
+
+SLIDER
+1206
+24
+1398
+57
+max-sampling-bw-centrality
+max-sampling-bw-centrality
+0
+500
+300
+1
+1
+NIL
+HORIZONTAL
+
+OUTPUT
+1166
+548
+1392
+669
+10
+
+SLIDER
+1158
+185
+1250
+218
+lambda
+lambda
+0
+1
+0.5
+0.05
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1253
+185
+1345
+218
+beta
+beta
+0
+10
+5
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+1158
+171
+1308
+189
+Luti-params
+11
+0.0
+1
+
+TEXTBOX
+1206
+6
+1356
+24
+Indicators
+11
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
