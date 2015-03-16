@@ -1,0 +1,50 @@
+
+// basic openmole workflow with netlogo model
+
+// varying parameters
+
+val beta = Val[Double]
+val lambda = Val[Double]
+val replication = Val[Int]
+
+
+// exploration task
+
+val exploration =
+  ExplorationTask(
+    (beta in (10.0 to 100.0 by 10.0)) x
+    (lambda in (0.0 to 1.0 by 0.1)) x
+    (replication in (UniformDistribution[Int]() take 10))
+  )
+
+
+//define netlogo task
+
+val res=Val[Double]
+
+val cmds = List(
+  "setup-exp ${lambda} ${beta}",
+  "go-exp")
+
+val model = NetLogo5Task("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/OpenMole/Test/test.nlogo",cmds) set (
+  inputs += (lambda, beta),
+  netLogoOutputs += ("res", res)
+)
+
+// output
+val h = ToStringHook()
+
+
+// environement
+//val env = LocalEnvironment(3)
+SSHAuthentication += LoginPassword("login", encrypted, "")
+
+val env =SSHEnvironment("login","",2)
+
+
+val exec = exploration -< (model on env hook h) start
+
+exec.waitUntilEnded
+
+
+
