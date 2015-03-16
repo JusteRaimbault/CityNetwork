@@ -52,18 +52,36 @@ roads-own[
 ]
 
 patches-own [
-  exp-proba 
+  ; proba for distrib of centers in case of single nw evol ; exponential proba distrib
+  exp-proba
+  
+  ;;;;;;;
+  ;; co-dev model variables
+  ;;;;;;;
+  
+  ; proba for distrib of centers in case of co-development ("luti")
+  ;   simple discrete choice model : P(i) = exp(\beta)/exp(sum(...))
+  ; 
+  luti-proba
+  
+  ;; accessibility
+  accessibility
+  
+  ;;density : N-centers / S
+  density
+  
+  
+  
 ]
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 19
 10
-959
-671
-46
-31
-10.0
+848
+650
+-1
+-1
+21.0
 1
 10
 1
@@ -73,10 +91,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--46
-46
--31
-31
+0
+38
+0
+28
 0
 0
 1
@@ -84,10 +102,10 @@ ticks
 30.0
 
 SLIDER
-1172
-15
-1391
-48
+882
+132
+1101
+165
 max-new-centers-number
 max-new-centers-number
 0
@@ -99,20 +117,20 @@ NIL
 HORIZONTAL
 
 CHOOSER
-1130
-91
-1289
-136
+978
+19
+1102
+64
 centers-distribution
 centers-distribution
-"uniform" "exp-mixture"
-0
+"uniform" "exp-mixture" "luti"
+1
 
 BUTTON
-1251
-241
-1314
-274
+1157
+240
+1220
+273
 NIL
 go
 T
@@ -126,9 +144,9 @@ NIL
 1
 
 BUTTON
-1178
+1083
 241
-1244
+1149
 274
 NIL
 setup
@@ -143,10 +161,10 @@ NIL
 1
 
 PLOT
-967
-283
-1127
-403
+882
+281
+1042
+401
 Degree distrib
 NIL
 log (k)
@@ -161,10 +179,10 @@ PENS
 "pen-0" 1.0 0 -7500403 true "" ""
 
 MONITOR
-985
-13
-1044
-58
+886
+411
+945
+456
 centers
 count centers
 17
@@ -172,10 +190,10 @@ count centers
 11
 
 MONITOR
-1047
-13
-1104
-58
+949
+411
+1006
+456
 roads
 count roads
 17
@@ -183,9 +201,9 @@ count roads
 11
 
 BUTTON
-1000
+905
 474
-1113
+1018
 507
 bw-centrality
 setup-nw-analysis\ncompute-bw-centrality\nupdate-plots
@@ -200,9 +218,9 @@ NIL
 1
 
 PLOT
-1004
+909
 517
-1204
+1109
 667
 bw-centrality ranking
 NIL
@@ -218,10 +236,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 SWITCH
-1133
-52
-1289
-85
+1026
+169
+1116
+202
 random-center-number?
 random-center-number?
 1
@@ -229,20 +247,20 @@ random-center-number?
 -1000
 
 CHOOSER
-1130
-141
-1268
-186
+884
+168
+1022
+213
 neigh-type
 neigh-type
 "closest" "shared"
 1
 
 SLIDER
-1293
-53
-1392
-86
+875
+29
+974
+62
 initial-centers
 initial-centers
 0
@@ -254,9 +272,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-994
+899
 244
-1057
+962
 277
 NIL
 go
@@ -271,10 +289,10 @@ NIL
 1
 
 SLIDER
-1297
-92
-1389
-125
+879
+68
+971
+101
 mixture-proba-diffusion
 mixture-proba-diffusion
 0
@@ -286,9 +304,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-1122
+1027
 474
-1192
+1097
 507
 crossings
 show length crossing-roads?
@@ -303,10 +321,10 @@ NIL
 1
 
 PLOT
-1131
-282
-1291
-402
+1046
+280
+1206
+400
 l(N)
 nodes
 nw length
@@ -319,6 +337,41 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plotxy (count turtles) (network-length)"
+
+TEXTBOX
+880
+10
+1030
+28
+Setup\n
+11
+0.0
+1
+
+TEXTBOX
+883
+113
+947
+131
+Runtime
+11
+0.0
+1
+
+SLIDER
+976
+68
+1068
+101
+grid-size
+grid-size
+0
+10
+3.5
+0.1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
