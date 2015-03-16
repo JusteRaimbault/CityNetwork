@@ -45,7 +45,14 @@ to evolve-land-values
     setup-nw-analysis
     compute-node-bw-centrality
     set ma max [node-bw-centrality] of turtles
-    ask patches [set accessibility mean [node-bw-centrality] of turtles-here / ma]
+    ask patches [set accessibility gen-mean [node-bw-centrality] of turtles-here / (max list ma 1)]
+    
+    ;; update value
+    ask patches [set land-value lambda * accessibility + (1 - lambda) * (1 - density)]
+    
+    ;; diffuse land value to obtain sort of smoothing
+    repeat 10 [diffuse land-value 0.5]
+    
   ]
 
 end

@@ -16,7 +16,7 @@ to-report new-center
     set weight random-float 1
     set neigh-nodes []
     set shape "circle" set color blue
-    set size (5 + weight)/ 10 set hidden? false
+    set size (5 + weight) * 2 / patch-size set hidden? false
     setxy first coords last coords
     set c self
   ]
@@ -54,8 +54,22 @@ to-report random-coords
   if centers-distribution = "luti" [
      ; co-evolution of land-use and network
      ; here proba depend on local patch values, computed before as a feedback from network and previous land values
-     
-     report (list random-xcor random-ycor)
+     ; DEBUG ;report (list random-xcor random-ycor)
+      
+     ; P(i) = exp(\beta * land-value)/ sum (exp(\beta * land-value))  for each patch
+      let s 0 let p random-float 1 let res []
+      let K  sum [exp (beta * land-value)] of patches
+      ask patches [
+       if length res = 0 [
+        set s s + (exp (beta * land-value) / K)
+        if p < s [set res (list pxcor pycor)] 
+      ]
+    ]
+    
+    ; add a random noise \in [-0.5,0.5] as generated corrdinates will only be integers
+    set res (list (first res + random-float 1 - 0.5) (last res + random-float 1 - 0.5))
+    
+    report res
       
   ]
   

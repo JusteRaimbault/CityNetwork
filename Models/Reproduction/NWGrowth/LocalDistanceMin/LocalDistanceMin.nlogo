@@ -92,11 +92,11 @@ patches-own [
 GRAPHICS-WINDOW
 19
 10
-848
+829
 650
 -1
 -1
-21.0
+17.4
 1
 10
 1
@@ -107,9 +107,9 @@ GRAPHICS-WINDOW
 0
 1
 0
-38
+45
 0
-28
+34
 0
 0
 1
@@ -117,10 +117,10 @@ ticks
 30.0
 
 SLIDER
-882
-132
-1101
-165
+905
+136
+1124
+169
 max-new-centers-number
 max-new-centers-number
 0
@@ -132,20 +132,20 @@ NIL
 HORIZONTAL
 
 CHOOSER
-978
-19
-1102
-64
+1001
+23
+1125
+68
 centers-distribution
 centers-distribution
 "uniform" "exp-mixture" "luti"
 2
 
 BUTTON
-1157
-240
-1220
-273
+1180
+244
+1243
+277
 NIL
 go
 T
@@ -159,10 +159,10 @@ NIL
 1
 
 BUTTON
-1083
-241
-1149
-274
+1106
+245
+1172
+278
 NIL
 setup
 NIL
@@ -176,10 +176,10 @@ NIL
 1
 
 PLOT
-882
-281
-1042
-401
+905
+285
+1065
+405
 Degree distrib
 NIL
 log (k)
@@ -194,10 +194,10 @@ PENS
 "pen-0" 1.0 0 -7500403 true "" ""
 
 MONITOR
-886
-411
-945
-456
+908
+415
+967
+460
 centers
 count centers
 17
@@ -205,10 +205,10 @@ count centers
 11
 
 MONITOR
-949
-411
-1006
-456
+972
+415
+1029
+460
 roads
 count roads
 17
@@ -216,10 +216,10 @@ count roads
 11
 
 BUTTON
-855
-462
-968
-495
+909
+472
+1022
+505
 bw-centrality
 setup-nw-analysis\ncompute-road-bw-centrality\nupdate-plots
 NIL
@@ -233,10 +233,10 @@ NIL
 1
 
 PLOT
-859
-505
-1019
-625
+913
+515
+1073
+635
 bw-centrality ranking
 NIL
 NIL
@@ -251,10 +251,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 SWITCH
-1026
-169
-1116
-202
+1049
+173
+1139
+206
 random-center-number?
 random-center-number?
 1
@@ -262,35 +262,35 @@ random-center-number?
 -1000
 
 CHOOSER
-884
-168
-1022
-213
+907
+172
+1045
+217
 neigh-type
 neigh-type
 "closest" "shared"
 1
 
 SLIDER
-875
-29
-974
-62
+898
+33
+997
+66
 initial-centers
 initial-centers
 0
 10
-1
+2
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-899
-244
-962
-277
+922
+248
+985
+281
 NIL
 go
 NIL
@@ -304,10 +304,10 @@ NIL
 1
 
 SLIDER
-879
-68
-971
-101
+902
+72
+994
+105
 mixture-proba-diffusion
 mixture-proba-diffusion
 0
@@ -319,10 +319,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-977
-462
-1047
-495
+1031
+472
+1101
+505
 crossings
 show length crossing-roads?
 NIL
@@ -336,10 +336,10 @@ NIL
 1
 
 PLOT
-1046
-280
-1206
-400
+1069
+284
+1229
+404
 l(N)
 nodes
 nw length
@@ -354,19 +354,19 @@ PENS
 "default" 1.0 0 -16777216 true "" "plotxy (count turtles) (network-length)"
 
 TEXTBOX
-880
-10
-1030
-28
+903
+14
+1053
+32
 Setup\n
 11
 0.0
 1
 
 TEXTBOX
-883
+904
 113
-947
+968
 131
 Runtime
 11
@@ -374,25 +374,25 @@ Runtime
 1
 
 SLIDER
-976
-68
-1068
-101
+999
+72
+1091
+105
 grid-size
 grid-size
 0
-10
-3.5
+20
+2.9
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1206
-24
-1398
-57
+1229
+28
+1421
+61
 max-sampling-bw-centrality
 max-sampling-bw-centrality
 0
@@ -404,57 +404,57 @@ NIL
 HORIZONTAL
 
 OUTPUT
-1166
-548
-1392
-669
+1189
+552
+1415
+673
 10
 
 SLIDER
-1158
-185
-1250
-218
+1181
+189
+1273
+222
 lambda
 lambda
 0
 1
-0.5
+0.9
 0.05
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1253
-185
-1345
-218
+1276
+189
+1368
+222
 beta
 beta
 0
-10
-5
+100
+75
 1
 1
 NIL
 HORIZONTAL
 
 TEXTBOX
-1158
-171
-1308
-189
+1181
+175
+1331
+193
 Luti-params
 11
 0.0
 1
 
 TEXTBOX
-1206
-6
-1356
-24
+1229
+10
+1379
+28
 Indicators
 11
 0.0
