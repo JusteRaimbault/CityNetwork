@@ -803,7 +803,8 @@ Circle -16777216 true false 30 30 240
 Line -7500403 true 150 285 150 15
 Line -7500403 true 15 150 285 150
 Circle -7500403 true true 120 120 60
-Line -7500403 true 216 40 79 269FLine -7500403 true 40 84 269 221
+Line -7500403 true 216 40 79 269
+Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
@@ -821,7 +822,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
