@@ -1,0 +1,184 @@
+;;;;;;;;;;;;;;;;
+;; Evaluation functions
+;;;;;;;;;;;;;;;;
+
+
+;;output value of reporters.
+;;not done in monitors to avoid calculation at each step.
+to calculate-reporters
+  let line ""
+  foreach output-reporter-names [
+    let val (runresult ?)
+    output-print word word ? " = " val
+    set line word line val if ? != last output-reporter-names [set line word line ";"]
+  ]
+  if output-file? [print-in-file output-file-name line]
+end
+
+
+
+;;speed in network
+to-report eval-speed
+  report ((sum [pspeed-from-patch ^ p-speed] of patches with [constructed?]) /(count patches with [constructed?])) ^ (1 / p-speed )
+end
+
+
+;;intergated local density
+to-report eval-density
+  ;local density with certain norm on all cells
+  let res 0
+  carefully[
+    set res ((sum [pdensity ^ p-density] of patches with [constructed?]) /(count patches with [constructed?])) ^ (1 / p-density )
+  ][output-print error-message]
+  report res
+end
+
+to-report eval-activities
+  ;;beware, need to report a relative accessibility -> normalise by max !
+  let m max [pdistance-to-activities ] of patches with [constructed?]
+  report ((sum [(pdistance-to-activities / m) ^ p-activities] of patches with [constructed?]) /(count patches with [constructed?])) ^ (1 / p-activities )
+end
+
+to-report global-eval [varname]
+  ;;generic function for integration of a local field through p-norm
+  report norm-p (runresult (word "p-" varname)) (runresult (word word "[p" varname "] of patches with [constructed?]"))
+end
+
+
+;;global density
+;;calculated on square enveloppe
+to-report global-density
+  let xmin min [pxcor] of patches with [constructed?]
+  let xmax max [pxcor] of patches with [constructed?]
+  let ymin min [pycor] of patches with [constructed?]
+  let ymax max [pycor] of patches with [constructed?]
+  let ntot count patches with [pxcor >= xmin and pxcor <= xmax and pycor >= ymin and pycor <= ymax]
+  let nc count patches with [pxcor >= xmin and pxcor <= xmax and pycor >= ymin and pycor <= ymax and constructed?]
+  report nc / ntot
+end
+
+
+to-report global-constructible-density
+  report count patches with [constructed?] / count patches with [constructible?]
+end
+
+
+
+;;;;;;;;;;;;;;;;
+;;Moran index for population
+;;;;;;;;;;;;;;;
+;; Note: recuperation of old code
+to-report spatial-autocorrelation-index
+  ;;dirty but try to be efficient : sort agents lexically on coordinates
+  ;;would be more efficient with single pass on patches for all species, but function would be totally unreadable
+  clear-table-moran
+  let ag sort-by [lexcomp ?1 ?2 (list task [floor (xcor / moran-grid-size)] task [floor (ycor / moran-grid-size)])] houses
+  let min-ag first ag
+  let pop-count length ag
+  ;;let cut the space in subregions, 50*50 should be enough precise
+  ;;count are held in a table: for square x=i*step,y=j*step : (i,j) -> agents_count
+  ;;table initialised with plots
+  let i 0 let j 0 let xmax moran-grid-size let ymax moran-grid-size let ended? false
+  repeat floor (world-width / moran-grid-size) [
+     repeat floor (world-height / moran-grid-size) [
+       while [not ended? and [xcor] of first ag < xmax and [ycor] of first ag < ymax] [
+         table:put moran-populations (list i j) (table:get moran-populations (list i j) + 1)
+         set ag but-first ag
+         if length ag = 0 [set ended? true]        
+       ]
+       set ymax ymax + moran-grid-size
+       set j j + 1
+     ]
+     set xmax xmax + moran-grid-size set ymax moran-grid-size
+     set i i + 1 set j 0
+  ]
+  
+  let N length table:keys moran-populations
+  let d-mean pop-count / N
+  let W 0 let S 0 let norm-factor 0
+  foreach table:keys moran-populations [
+    let site-i ? foreach table:keys moran-populations [
+      let site-j ?
+      if site-j != site-i [
+        let weight  1 / (sqrt ((first site-i - first site-j) ^ 2 + (last site-i - last site-j) ^ 2 ))
+        set W W + weight
+        set S S + weight * (table:get moran-populations site-i - d-mean) * (table:get moran-populations site-j - d-mean)
+      ]
+    ]
+    set norm-factor norm-factor + ((table:get moran-populations site-i - d-mean) ^ 2 )
+  ]
+  report N * S / (W * norm-factor)
+end
+
+to clear-table-moran
+  
+  ;;we set the size of the grid here, since we would like to make some tests regarding size of the grid
+  set moran-grid-size floor (world-width / moran-grid-factor) ;;good compromise regarding complexity ?
+  
+  ;;don't forget to clear the table?
+  ;;-> useful if come from greater num of cells, but not dangerous
+  ;;do it anyway for coding spirit
+  set moran-populations table:make
+  
+  let i 0 let j 0
+  repeat floor (world-width / moran-grid-size) [
+     repeat floor (world-height / moran-grid-size) [
+       table:put moran-populations (list i j) 0 set j j + 1
+     ] set j 0 set i i + 1
+  ]
+  
+end
+
+
+
+;;;;;;;;;;;
+;; economic eval
+;;;;;;;;;;;
+
+;;launches economic ABM and reports segregation index
+;;would need several repetitions to be more exact !
+to-report eval-economic
+  output-print "Launching economic ABM for segregation index calculation"
+  output-print word n-repets-eco " repetitions"
+  let res 0
+  repeat n-repets-eco [
+    setup-ABM
+    repeat max-ticks-economic [go-one-step-ABM]
+  ]
+  report economic-segregation
+end
+
+
+;;;;;;;;;;;
+;; Spatialised diversity of activities in centers
+;;;;;;;;;;;
+
+to-report activity-diversity
+  let s 0 let w 0
+  ask centres [
+    ask other centres [
+      set w w + (1 / distance myself)
+      if [activity] of self != [activity] of myself [set s s + (1 / distance myself)]
+    ] 
+  ]
+  ;;don't normalize by 2 since couples are double counted
+  report s / w
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

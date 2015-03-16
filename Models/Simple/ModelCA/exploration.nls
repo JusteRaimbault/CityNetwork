@@ -1,0 +1,371 @@
+;;;;;;;;;;;;;;;;;;
+;; Exploration of the model
+;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;
+;; Need generic functions
+;;  - different function to generate experience plans as list (standardised format)
+;;  - also generic export to scilab and/or R from a generic format of results
+;;
+;; Format will be the simple: list of execs. Exec = list of attribution. Attribution = couple (param_name,param_value)
+;;     Q : Does a std XML spec exists for description of such experience plans ??? That should also be something to put in Todos
+;;
+;;;;;;;;;;;;;;;;
+
+
+
+
+;;;;;;;;;;;;
+;; Test of distribution of outputs regarding
+;; random positions of centers
+;; (for robustness)
+;; -> do repetitions in same configuration
+;;;;;;;;;;;;
+to repet-same-conf [n-repets parameters reporter-names output-file]
+  let res []
+  repeat n-repets [
+    let conf parameters
+    carefully [
+      setup repeat max-ticks [go]
+      foreach reporter-names [set conf lput (list ? (runresult ?)) conf]
+    ][
+      foreach reporter-names [set conf lput (list ? 0) conf]
+    ]
+    set res lput conf res
+  ]
+  csv-export res ";" output-file
+end
+
+to robustness-center-positions
+  repet-same-conf 400 [["distance-to-activities-coefficient" 1]["distance-to-centre-coefficient" 1]["density-coefficient" 1]["distance-to-roads-coefficient" 1]] 
+    ["eval-density" "spatial-autocorrelation-index" "eval-speed" "eval-density" "eval-activities"] "../Results/Robustness/400repets.csv"
+end
+
+
+
+
+;;;;;;
+;; Basic grid exploration of the parameter space
+;; given param names and wanted reporters
+;; should be used wisely since the complexity is exponential in the
+;; number of parameters
+to grid-exploration [n-repets param-names-and-bounds reporter-names output-file]
+  let plan grid-experience-plan param-names-and-bounds
+  let res []
+  let i 0
+  foreach plan [
+    ;;we insert in res for each repet, stat treatment will be done in external app
+    let j 0
+    repeat n-repets [
+      let conf ?
+      carefully [
+        ;;sets vars
+        foreach ? [run (word word word "set " (first ?) " " (last ?))]
+        setup repeat max-ticks [go]
+        ;foreach param-names-and-bounds [let name first ? set conf lput (list name (runresult name)) conf]
+        foreach reporter-names [set conf lput (list ? (runresult ?)) conf]
+      ][
+        foreach reporter-names [set conf lput (list ? 0) conf]
+      ]
+      set res lput conf res
+      
+      show word "Completed " (100 * ((i + (j / n-repets) )/ length plan))
+      set j j + 1
+    ]
+    show word "Completed " (100 * i / length plan)
+    set i i + 1
+  ]
+  csv-export res ";" output-file
+end
+
+to launch-grid
+  grid-exploration 500 [["distance-to-activities-coefficient" 0 1 1]["density-coefficient" 0 1 1]["distance-to-center-coefficient" 0 1 1]["distance-to-roads-coefficient" 0 1 1]] ["eval-density" "spatial-autocorrelation-index" "eval-speed" "eval-density" "eval-activities" "eval-economic"] "../Results/Robustness/500manyparams.csv"
+  ;grid-exploration 5 [["distance-to-activities-coefficient" 1 1 1]] ["eval-density" "spatial-autocorrelation-index"] "../Results/GridExploration/testRepets.csv"
+end
+
+
+
+
+
+;;;;;;;;;;;;
+;;; simple exploration of influence of continuous / sequential update
+;;;
+;;; houses-number has to be a multiple of number-per-tick in seq update
+to explore-update-type [n-repets houses-number seq-houses-per-tick param-names-and-bounds reporter-names output-file]
+  ;;for many values of the parameter space,
+  ;;generate shape with two extreme cases (continuous and sequential updates)
+  ;;evaluate differences quantitatively -> how ?
+  ;; -> symmetric difference to quantify, should be reasonable
+  ;;shall we look at all reporters ? no real sense for a difference !
+  ;; output : (density_local,Moran,number==density_global)
+  let plan grid-experience-plan param-names-and-bounds
+  let res []
+  let i 0
+  foreach plan [
+    repeat n-repets [
+      ;;export of 2 different confs for both values
+      ;;repetition in values for difference, but better that way !
+      let confcont lput (list "built-cells-per-tick" 1) ? let confseq lput (list "built-cells-per-tick" seq-houses-per-tick) ?
+      carefully [
+        foreach ? [run (word word word "set " (first ?) " " (last ?))]
+        
+        ;;one run for continuous update == 1 built-cell-per-ticks
+        set built-cells-per-tick 1
+        setup repeat houses-number [go]
+        ;;memorise the morphology before second run
+        let continuous-built-patches patches with [constructed?]
+        ;;export reporters also
+        foreach reporter-names [set confcont lput (list ? (runresult ?)) confcont]
+        ;;run for "sequential" update
+        ;;which number of houses ? 20 should be good for first tests ?
+        set built-cells-per-tick seq-houses-per-tick
+        clear repeat houses-number / seq-houses-per-tick [go]
+        ;;export "classic" reporters
+        foreach reporter-names [set confseq lput (list ? (runresult ?)) confseq]
+        
+        ;;make symmetric difference
+        ;;should we blur it to avoid bord effects ?
+        
+        ;;YES good idea : make gaussian Kernel estimator from built patches
+        ;; (with sigma neighradius eg)
+        ;;and make stats on the FINAL DISTRIBUTION !!!
+        ;;TODO
+        ;;should also export std reporters !
+        ask continuous-built-patches [set constructed? not constructed?]
+
+
+        ;;yes it has a sense to measure global density
+        ;;since we are looking to the difference of the two configurations
+        set confcont lput (list "eval-density-diff" eval-density) confcont
+        set confcont lput (list "moran-diff" spatial-autocorrelation-index) confcont    
+        set confcont lput (list "global-density-diff" global-density) confcont
+        set confseq lput (list "eval-density-diff" eval-density) confseq
+        set confseq lput (list "moran-diff" spatial-autocorrelation-index) confseq    
+        set confseq lput (list "global-density-diff" global-density) confseq      
+        
+      ][
+        set confcont lput (list "eval-density-diff" 0) confcont
+        set confcont lput (list "moran-diff" 0) confcont 
+        set confcont lput (list "global-density-diff" 0) confcont
+        set confseq lput (list "eval-density-diff" 0) confseq
+        set confseq lput (list "moran-diff" 0) confseq 
+        set confseq lput (list "global-density-diff" 0) confseq
+        foreach reporter-names [set confcont lput (list ? 0) confcont]
+        foreach reporter-names [set confseq lput (list ? 0) confseq]    
+                
+        show error-message                                  
+      ]
+      set res lput confseq (lput confcont res)
+
+    ]
+    show word (100 * i / length plan) "%" set i i + 1
+  ]
+  csv-export res ";" output-file 
+end
+
+to launch-explore-update-type
+  explore-update-type 3 100 20
+ [["distance-to-activities-coefficient" 0 1 0.2]["distance-to-center-coefficient" 0 1 0.2]["density-coefficient" 0 1 0.2]["distance-to-roads-coefficient" 0 1 0.2]] 
+    ["eval-density" "spatial-autocorrelation-index" "eval-speed" "eval-density" "eval-activities"] "../Results/UpdateType/100houses.csv"
+;    explore-update-type 3 100 20
+; [["distance-to-activities-coefficient" 1 1 1]] 
+;    ["eval-density" "spatial-autocorrelation-index" "eval-speed" "eval-density" "eval-activities"] "../Results/UpdateType/test.csv"
+end
+
+
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;
+;; Creation of experience plans
+;;;;;;;;;;;;;;
+
+;;from variables names, bounds and steps, reports experience plan under std format
+to-report grid-experience-plan [variables]
+  ;;[name,min,max,step]
+  ;;let do it the "recursive-look-like" way, will be simpler to write ?
+  ;;beware, need to iterate on sg, so double list here ! (logical regarding homogeneity!)
+  let experience-plan [[]]
+  foreach variables [
+    set experience-plan extend-plan ? experience-plan
+  ]
+  
+  ;;remove null plan !
+  foreach experience-plan [if null-plan? ? [set experience-plan remove ? experience-plan]]
+  
+  report experience-plan
+end
+
+;;"recursive-look-like" aux -> makes product of existing plan with new variable
+to-report extend-plan [variable old-plan]
+   let name item 0 variable let mi item 1 variable let ma item 2 variable let step item 3 variable
+   let res []
+   foreach old-plan [
+      let curval mi
+      repeat floor ((ma - mi)/ step) + 1 [
+         set res lput (sentence ? (list (list name curval))) res
+         set curval curval + step
+      ]
+   ]
+   report res
+end
+
+to-report null-plan? [conf]
+  let res true foreach conf [set res (res and (last ? = 0))] report res
+end
+
+
+;;;;;;;;;;;;;;;;
+;; export
+;;;;;;;;;;;;;;;
+
+;;format for values of outputs and params will be the same as for only params !
+to csv-export [config separator filename]
+  ;;first get name of vars to write first line
+  ;;rq: we suppose that export is done in same order !!!
+  let first-line ""
+  foreach first config [set first-line word first-line first ? if ? != last first config [set first-line word first-line separator]]
+  print-in-file filename first-line
+  foreach config [
+    let line ""
+    let lst last ?
+    foreach ? [set line word line last ? if ? != lst [set line word line separator]]
+    print-in-file filename line
+  ] 
+end
+
+
+
+
+;;;;;;;;;;;;;;;
+;; Study of the Moran -> what is the optimal size ?
+;; let try different confs and plot moran(grid-size)
+;;;;;;;;;;;;;;;
+
+
+to plot-moran [n-repets param-names-and-bounds output-file]
+  let plan grid-experience-plan param-names-and-bounds
+  let res []
+  let i 0
+  foreach plan [
+    ;;we insert in res for each repet, stat treatment will be done in external app
+    let j 0
+    repeat n-repets [
+      let conf ?
+      carefully [
+        ;;sets vars
+        foreach ? [run (word word word "set " (first ?) " " (last ?))]
+        setup repeat max-ticks [go]
+        set moran-grid-factor 2
+        repeat (floor (world-width / 2)) - 1 [set conf ? set conf lput (list "moran" spatial-autocorrelation-index) conf set res lput conf res set moran-grid-factor moran-grid-factor + 1]
+      ][
+        set conf lput (list "moran" 0) conf
+        set res lput conf res
+      ]
+
+      
+      show word "Completed " (100 * ((i + (j / n-repets) )/ length plan))
+      set j j + 1
+    ]
+    show word "Completed " (100 * i / length plan)
+    set i i + 1
+  ]
+  csv-export res ";" output-file
+end
+
+to launch-moran-study
+  plot-moran 20 [["distance-to-activities-coefficient" 0 1 1]["density-coefficient" 0 1 1]["distance-to-center-coefficient" 0 1 1]["distance-to-roads-coefficient" 0 1 1]] "../Results/Moran/moran.csv"
+end
+
+
+
+
+;;;;;;;;;;;;;;
+;; Extraction of many time series for assessment of economic ABM convergence
+;; Indicators -> total wealth, mean rent, segregation index ?
+;;
+;; Exploration done on a classic grid ?
+;;
+;;;;;;;;;;;;;;
+
+to plot-economic-time-series [n-repets n-repetseco param-names-and-bounds reporter-names output-file]
+  ;;do we output also classic indicators ? Y not, does not cost so much
+  
+  ;;don't forget to set utility vars
+  set monitor-economic? true
+  set current-output-conf-economic []
+  let res []
+  
+  let plan grid-experience-plan param-names-and-bounds
+
+  let i 0
+  foreach plan [
+    ;;we insert in res for each repet, stat treatment will be done in external app
+    let j 0
+    repeat n-repets [
+      carefully [
+        ;;sets vars
+        foreach ? [run (word word word "set " (first ?) " " (last ?))]
+        
+        ;;generate conf
+        ;;beware of value of max-ticks vars !
+        setup repeat max-ticks [go]
+        
+        repeat n-repetseco [
+          ;do here because of ca in setup
+          set current-output-conf-economic ?
+          
+          ;;run ABM on top of the generated morphological structure
+          ;;monitoring of vars is done inside !
+          setup-ABM
+          repeat max-ticks-economic [go-one-step-ABM]
+          
+          foreach reporter-names [set current-output-conf-economic lput (list ? (runresult ?)) current-output-conf-economic]
+          
+          set res lput current-output-conf-economic res
+        ]
+      ][
+        output-print error-message
+        foreach reporter-names [set current-output-conf-economic lput (list ? 0) current-output-conf-economic]
+        set res lput current-output-conf-economic res
+      ]
+
+      
+      show word "Completed " (100 * ((i + (j / n-repets) )/ length plan))
+      set j j + 1
+    ]
+    show word "Completed " (100 * i / length plan)
+    set i i + 1
+  ]
+  csv-export res ";" output-file
+  
+end
+
+
+to launch-economic-monitoring
+  ;;do not put econ segreg inside reporters !
+  plot-economic-time-series 200 10 [["density-coefficient" 0 1 1]["distance-to-center-coefficient" 0 1 1]] ["eval-density" "spatial-autocorrelation-index" "eval-speed" "eval-activities" ] "../Results/Economic/200repets10eco.csv"
+
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

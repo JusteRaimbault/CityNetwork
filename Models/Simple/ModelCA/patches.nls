@@ -1,0 +1,192 @@
+
+;;descriptives variables : cells variables
+  
+to-report density
+  ;;two calls to in-radius, may not be so efficient ?
+  report count (patches in-radius neighborhood-radius) with [constructed?] / count (patches in-radius neighborhood-radius)
+end
+
+
+to-report distance-to-roads
+  ;find the nearest road and calculate the distance to it
+  ifelse count paths = 0 [
+    ;no roads, report nearest center (always one)
+    report distance first sort-on [distance myself] centres
+  ]
+  [
+    let mx pxcor
+    let my pycor
+    let nearest-path first sort-on [distance-to-point mx my] paths 
+    let inter one-of turtles let e1 0 let e2 0
+    ask nearest-path [
+      set inter intersection-with mx my
+      set e1 end1 set e2 end2
+    ]
+
+    let d distance inter
+    if inter != e1 and inter != e2 [ask inter [die]]
+    report d
+  ]
+end
+
+
+
+
+
+
+to-report distance-to-centre
+  ;;find the nearest road 
+  ; add an intersection at the connection point 
+  ; take snapshot and make djikstra 
+  ; reput the old configuration
+  
+  ;; Warning : needs a weighted distance !!
+  
+  ifelse count paths = 0 [
+    ;no roads, report nearest center (always one)
+    report distance first sort-on [distance myself] centres
+  ]
+  [
+   let mx pxcor
+   let my pycor
+   let d2 0
+   let nearest-path first sort-on [distance-to-point mx my] paths
+   
+   let inter one-of turtles
+    ask nearest-path [
+      set inter intersection-with mx my
+    ]
+   
+   let e1 one-of intersections let e2 one-of intersections
+   ask nearest-path [
+     set d2 distance-to-point mx my
+     set e1 end1
+     set e2 end2
+     die
+   ]
+   ask inter [if inter != e1 [create-path-with e1 [new-path]] if inter != e2 [ create-path-with e2 [new-path]]]
+   
+   let d3 0
+   ask inter [
+     set d3 min list ([net-d-to-centre] of e1 + distance e1) ([net-d-to-centre] of e2 + distance e2)
+   ]
+   if inter != e1 and inter != e2 [
+     ask inter [ask my-paths [die] die]
+     ask e1 [create-path-with e2 [new-path]]
+   ]
+   report d2 + d3
+  ]
+   
+end
+
+;behavior of that function? always connex! so for the center to have distance to itself zero!
+to-report intvalue [n]
+  ifelse is-number? n [report n][report 0]
+end
+
+
+
+
+
+to-report distance-to-activity [a]
+  let t timer
+  ;;find the nearest road 
+  ; add an intersection at the connection point 
+  ; take snapshot and make djikstra 
+  ; reput the old configuration
+  
+  ;; Warning : needs a weighted distance !!
+  
+  ifelse count paths = 0 [
+    ;no roads, report nearest center (always one)
+    report distance first sort-on [distance myself] centres
+  ]
+  [
+   let mx pxcor
+   let my pycor
+   let d2 0
+   let nearest-path first sort-on [distance-to-point mx my] paths
+   
+   let inter one-of turtles
+    ask nearest-path [
+      set inter intersection-with mx my
+    ]
+   
+   let e1 one-of intersections let e2 one-of intersections
+   ask nearest-path [
+     set d2 distance-to-point mx my
+     set e1 end1
+     set e2 end2
+     die
+   ]
+   ask inter [if inter != e1 [create-path-with e1 [new-path]] if inter != e2 [ create-path-with e2 [new-path]]]
+   let d3 0
+   ask inter [
+     set d3 min list ([item a net-d-to-activities] of e1 + distance e1) ([item a net-d-to-activities] of e2 + distance e2)
+   ]
+   if inter != e1 and inter != e2 [
+     ask inter [ask my-paths [die] die]
+     ask e1 [create-path-with e2 [new-path]]
+   ]
+       set tracker-time tracker-time + (timer - t)
+   report d2 + d3
+  ]
+   
+end
+
+
+;;test
+to test-distance-to-activity
+  let a 0
+  repeat activities-number [
+    ask patch 0 0 [show distance-to-activity a]
+    set a a + 1 
+  ]
+end
+
+
+;;integrated accessibility
+to-report distance-to-activities
+  let a 0
+  let s 0
+  repeat activities-number [ifelse activities-norma = -1 [set s max (list s distance-to-activity a)] [set s s + ( (distance-to-activity a) ^ activities-norma)] set a a + 1]
+  ifelse activities-norma = -1 [report  s] [report s ^ (1 / activities-norma)]
+end
+
+
+
+
+;calculate the patch value thanks to the 4 variables
+to-report patch-value
+  let c1 density-coefficient let c2 distance-to-roads-coefficient let c3 distance-to-center-coefficient let c4 distance-to-activities-coefficient
+  let c c1 + c2 + c3 + c4
+  let d1 pdensity let d2 pdistance-to-roads let d3 pdistance-to-centre let d4 pdistance-to-activities
+
+  let dd1 density-max - density-min
+  let dd2 distance-to-roads-max - distance-to-roads-min
+  let dd3 distance-to-centre-max - distance-to-centre-min
+  let dd4 distance-to-activities-max - distance-to-activities-min
+  if dd1 = 0 [set c1 0 set dd1 1]
+  if dd2 = 0 [set c2 0 set dd2 1]
+  if dd3 = 0 [set c3 0 set dd3 1]
+  if dd4 = 0 [set c4 0 set dd4 1]
+  
+  let s (c1 * (density-max - d1) / dd1) + (c2 * (distance-to-roads-max - d2 ) / dd2) + (c3 * (distance-to-centre-max - d3 ) / dd3) + (c4 * (distance-to-activities-max - d4 ) / dd4) 
+
+  report 100 * s / c
+  
+end
+
+
+
+;;local reporter used for integrated speed of the network
+to-report speed-from-patch
+  let eucli distance first sort-on [distance myself] centres
+  ifelse eucli = 0 [report 1]
+  [report pdistance-to-centre / (eucli)]
+end
+
+
+
+
+

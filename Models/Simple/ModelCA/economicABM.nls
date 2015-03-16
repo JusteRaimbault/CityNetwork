@@ -1,0 +1,218 @@
+;;;;;;;;;;;;;;;;;;;;
+;;; Core for economic dynamical ABM
+;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;
+;;
+;; Distinction between intrinsic value and economic value ?
+;;   -> in that case, make them independant, would have no sense the other case
+;;   -> agents search to maximize intrinsic value but minimize economic (ie minimize rent), should work that way ?
+;;
+;;
+;;;;;;;;;;;;;;;;;;;;
+
+
+
+;;;;;;;;;;;;;;
+;; globals:
+;;  
+;; rent-update-radius
+;   mean-economic-value
+;   sigma-wealth
+;;  max-ticks-economic
+;;
+;;
+;;
+;;
+;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;
+;; breeds and owned:
+;;;;;;;;;;;
+
+breed[households household]
+
+households-own [
+      ;;no need for pointer to the occupied place ?
+      ;;wealth of same unit and scale than rent (to simplify)
+       wealth 
+]
+
+
+
+
+
+
+
+
+;;setup for one single run (simple coupling)
+to setup-ABM
+  ;;;;;;;;
+  ;;requires:
+  ;;  - a distribution of values
+  ;;  - corresponding network (i.e. the CA model has already run)
+  ;;;;;;;
+  
+  reset-ticks
+  
+  ask households [die]
+  
+  setup-rents
+  
+  setup-vars-ABM
+  
+
+  display-ABM
+  
+end
+
+to setup-rents
+  ;;uniform distribution of rents at the beginning ?
+  ;; -> could be interesting to already associate rents to absolute values
+  
+  ;;beware, mean-ec-value has to be initialized here !
+  set mean-economic-value 1
+  ask patches with [constructed?][
+    set rent mean-economic-value 
+  ]
+end
+
+to setup-vars-ABM
+  ;;for now vars are fixed to avoid overparam
+  ;;after brief exploration, should determine which vars have influence on qualitative difference in the outcome
+  ;;and set them as sliders ?
+  ;set rent-update-radius 5
+  set sigma-wealth 0.3
+  ;set move-threshold 0.5
+  set new-incomers-number (count houses / 10)
+  
+  ;;set lists of houses
+  set available-houses sort-on [[value / rent] of patch-here] (houses)  
+  
+  set max-ticks-economic 150
+  
+end
+
+
+;;go for one step (simple coupling)
+to go-one-step-ABM
+  ;;mobility for existing actors
+  move-existing-actors
+  
+  ;;new immigrants
+  add-incoming-actors
+  
+  ;;update rents
+  update-rents
+  
+  ;;update wealths? Q of the time scale
+  ;;do evolve at same speed than rents ?
+  update-wealth
+  
+  ;;display
+  display-ABM
+  
+  ;;monitor functions if needed
+  monitor-functions
+  
+  tick
+end
+
+to move-existing-actors
+  if (count households > 0)[
+    ;;update sorted list of houses
+    set available-houses sort-on [[value / rent] of patch-here] (houses with [count households-here = 0])  
+    
+    ;;household decide if moves
+    ;;maximize value and maximize (wealth - rent)
+    ;;moves are done in random order, should not have influence
+    
+    ;;rule for movement: economic balance / value > threshold
+    let vmax max [value] of patches
+    let bmax max [(wealth - [rent] of patch-here)] of households
+    let movers households with [100 * (wealth - [rent] of patch-here) / bmax * ([value] of patch-here) / vmax < move-threshold]
+    ask movers [find-house-or-leave]
+  ]
+end
+
+to add-incoming-actors
+  set available-houses sort-on [[value / rent] of patch-here] (houses with [count households-here = 0])  
+  
+  create-households new-incomers-number [
+     set wealth random-normal mean-economic-value sigma-wealth
+     set color red set size (1 + wealth) set shape "person" set hidden? false
+     find-house-or-leave
+  ]
+end
+
+
+to update-wealth
+  ;;no wealth-update, not the good time scale ?
+end
+
+
+
+to update-rents
+  ;;update rule: mean of wealth and rents in radius (same as Moore neigh)
+  
+  ;;beware, need an intermediate var!
+  ask patches with [constructed?][
+    let neighborhood-inhabitants (households in-radius rent-update-radius)
+    let neighborhood-patches (patches in-radius rent-update-radius) with [constructed?]
+    ;;calculation of mean of wealth of neighbors and rents of neighbors patches by hand since it is mixed agentset
+    ;;DIRTY
+    let s 0 let n 0
+    if neighborhood-inhabitants != nobody [ask neighborhood-inhabitants [set s s + wealth set n n + 1]]
+    if neighborhood-patches != nobody [ask neighborhood-patches [set s s + rent set n n + 1]]
+    set next-rent s / n
+  ]
+  ask patches with [constructed?][set rent next-rent]
+end
+
+
+;;household procedure
+;;finds a new house.
+to find-house-or-leave
+  ;;simplified assumption:
+  ;;if does not find a new place, leaves (die)
+  ;;function is used the same way for new incomers or former inhabitants
+  ifelse (length available-houses > 0)[
+    let newhouse first available-houses
+    set available-houses but-first available-houses
+    ;beware, need to update again available houses in next step for incomers !
+    move-to newhouse
+  ][
+    if (count houses-here > 0)[
+        set available-houses lput one-of houses-here available-houses
+    ]
+    die
+  ]
+  
+end
+
+
+;;reporting of economic segregation index
+to-report economic-segregation
+   let totw 0
+   ask households [ask other households [set totw totw + (1 / distance myself)]]
+   let s 0
+   ask households [ ask other households[set s s + (abs ([wealth] of self - [wealth] of myself) / distance myself)]]
+   report 1 / (2 * max [wealth] of households ) * s / totw
+end
+
+
+
+to monitor-functions
+  if monitor-economic? [
+    set current-output-conf-economic lput (list (word "totalwealth-" ticks) (sum [wealth] of households)) current-output-conf-economic 
+    set current-output-conf-economic lput (list (word "meanrent-" ticks) (mean [rent] of (patches with [constructed?]))) current-output-conf-economic
+    set current-output-conf-economic lput (list (word "segregation-" ticks) (economic-segregation)) current-output-conf-economic  
+  ]
+end
+
+
+
+
+
+

@@ -1,0 +1,73 @@
+to display-CA
+  color-patches
+  color-paths
+  color-centres
+end
+
+
+to color-patches
+  let mi min [value] of patches
+  let ma max [value] of patches
+  if mi = ma [set ma ma + 1]
+  ask patches[set pcolor scale-color yellow  value mi ma]
+end
+
+to color-paths
+  ask paths [set color red set thickness 0.3]
+  ask houses [set hidden? false]
+end
+
+to color-centres
+  ask centres [
+    set hidden? false set color center-color
+  ]
+end
+
+to-report center-color
+  let c activity * 130 / activities-number
+  if c mod 10 < 2 [
+    set c c + 5 
+  ]
+  report c
+end
+
+
+
+;;;;;;;;;;;
+;; display functions for dynamic ABM
+;;;;;;;;;;
+
+
+to display-ABM
+  ;;colors of houses according to rents
+  let mir min [rent] of patches
+  let mar max [rent] of patches
+  ask houses [set color scale-color blue ([rent] of patch-here) mir mar]
+  
+  ;;size of people according to wealth
+  ;;Ok already done in creation
+  
+end
+
+
+
+;;;;;;;;;;;;
+;; display plot in the case of an exploration
+;;;;;;;
+
+to plot-pareto-exploration
+  ;;only called from application, so config-comparison always true, no need to check!
+  ;;however, better in the mood of a flexible and multiple coders context !
+  
+  if config-comparison?[ 
+    set-current-plot "pareto"
+    clear-plot
+    set-current-plot-pen "pen"
+    set-plot-pen-mode 2
+    
+    foreach pareto-points [
+      plotxy first ? last ? 
+    ]
+  ]
+  
+end

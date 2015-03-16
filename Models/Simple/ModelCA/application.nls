@@ -1,0 +1,85 @@
+
+;;;;;;;;;;;;;;;;;;;
+;; Concrete application of the model
+;;
+;; 1 fixed activity to fixed centers, 2 other activities that we must optimise in the repartition
+;; between other centers
+;;
+;; Uses GIS File
+;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+to compare-activities-configurations [n-repets reporter-names output-file]
+  ;;an empty setup first for generation of config-list to work
+  setup
+  
+  ;;set boolean vars
+  set config-from-file? true
+  set config-comparison? true
+  let res []
+  let i 0
+  let configs generate-configs-list
+  foreach configs [   
+      let conf []
+      let eco-mean 0 let access-mean 0
+      ;;since position does not change, repet will not really be needed
+      repeat n-repets [
+        carefully [
+          ;setup         
+          ;;DO NOT SETUP to keep pareto values !
+          clear-but-globals
+          
+          let n 1
+          let id 0
+          foreach ? [ask centres with [number = n] [set activity ? set color 130 * ? / activities-number] set n n + 1 set id ? + (10 * id)]
+          repeat max-ticks[ go ]
+          ;;dont forget to incr means for pareto plot
+          foreach reporter-names [let r (runresult ?) set conf lput (list ? r) conf
+            if ? = "eval-economic"[set eco-mean eco-mean + r]
+            if ? = "eval-activities"[set access-mean access-mean + r]            
+          ]
+          set conf lput (list "id" id) conf
+          
+         ][
+           output-print word "ERROR: " error-message
+           foreach reporter-names [set conf lput (list ? 0) conf]
+           set conf lput (list "id" 0) conf
+          ]
+          set res lput conf res
+      ]
+      
+      ;;quite shitty because values are not calculated before put in output
+      ;;need to keep means in order to plot pareto
+      set pareto-points lput (list (eco-mean / n-repets) (access-mean / n-repets)) pareto-points
+      show pareto-points
+      plot-pareto-exploration
+      
+      show word word "Completed " (100 * i / length configs) " %"
+      set i i + 1 
+    ]
+    csv-export res ";" output-file
+end
+
+to launch-activities-comparison
+    ;compare-activities-configurations 1 ["eval-density" "spatial-autocorrelation-index" "eval-speed" "eval-activities" "eval-economic"] "../Results/Application/atlantis.csv"
+    ;compare-activities-configurations 1 ["eval-density" "spatial-autocorrelation-index" "eval-speed" "eval-activities" "eval-economic"] "../Results/Application/atlantiscorrect.csv"
+    compare-activities-configurations 1 ["eval-density" "spatial-autocorrelation-index" "eval-speed" "eval-activities" "eval-economic"] "../Results/Application/testpareto.csv"
+end
+
+
+;;generates possibles configurations for centres with not fixed activity, ie with activity != 0
+;;configuration will apply corresponding to numerotation
+to-report generate-configs-list
+  let res aux-arborescent [[]]
+  foreach res [
+    if not member? 1 ? or not member? 2 ? [set res remove ? res] 
+  ]
+  report res
+end
+
+;;auxiliary recursive function
+to-report aux-arborescent [lists]
+  ifelse length first lists = (count centres) - (count centres with [activity = 0]) [report lists]
+  [report sentence aux-arborescent map [lput 1 ?] lists aux-arborescent map [lput 2 ?] lists]
+end

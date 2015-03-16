@@ -1,0 +1,498 @@
+
+
+;;;;;;;;;;;;;;;
+;; Source file for genetic crossing of configurations
+;;
+;; -> shp already represents fixed centers and area bounds
+;; 
+;; Crossing heuristic ?
+;;  -> config == [[center-positions,center-activities by lists],[network by point couples]]_i
+;;     ~ [centers == [ area0 == [[x_c0,y_c0],...,[x_cn,y_cn]], network == [l0 == [[xa_0,ya_0],[xb_0,yb_0]],..., lp == [[xa_p,ya_p],[xb_p,yb_p]]]], ... , areaN = " ]
+;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;
+;;Specific globals
+;;;;;;;;;;;;;;;
+
+;;area-number
+
+to setup-globals-ga
+  setup
+  ;;additional gis features -> area layer
+  
+  set area-layer gis:load-dataset "../Data/Algo/areas.shp"
+  ;gis:set-drawing-color pink
+  ;gis:fill area-layer 1
+  
+  
+  
+  
+  ;;setup config table
+  set evaluation-table table:make
+  
+  
+  ;;graph ?
+end
+
+
+to setup-genetic-algo [config]
+  ;;classic setup
+  ;setup
+  clear-but-globals
+  
+  ;;display gis shapes and creates abstract associated breeds.
+  ;;also fixed network; redone at each crossing ?
+  
+  ;;vars
+  ;dmin as a parameter
+  ;set dmin-centers 2
+  ;set max-n-out-links 6 ;fixed by "experience" -> "design part" of the job !
+  
+  ;;make patches only under areas constructible
+  ask patches [
+    if constructible? [
+      let cons false
+      foreach gis:feature-list-of area-layer [
+        if gis:contains? ? self [set cons true]
+      ]
+      set constructible? cons
+    ] 
+  ]
+  
+  ;;test
+  ;setup-configuration random-initial-configuration
+  setup-configuration config
+  
+  
+  
+end
+
+
+to run-algo
+  let config []
+  ifelse length table:keys evaluation-table < n-random-conf [
+    set config random-initial-configuration
+  ]
+  [
+    ;;let take confs from best Pareto ones
+    let e1 one-of table:keys evaluation-table
+    let e2 one-of remove e1 table:keys evaluation-table
+    set config cross-configurations table:get evaluation-table e1 table:get evaluation-table e1
+  ]
+  
+  evaluate-config config
+  
+  calculate-best-confs
+  
+  plot-pareto
+end
+
+
+
+to evaluate-config [config]
+  setup-genetic-algo config
+  
+  ;;run models
+  while [global-constructible-density < max-global-density][go]
+  let eval (list eval-activities eval-economic)
+  
+  ;;put in table
+  table:put evaluation-table (list random-float 1 random-float 1)config;eval config
+  
+end
+
+to calculate-best-confs
+  set best-confs []
+  ;;one conf is best iff for all others xb < xi or yb < yi
+  foreach table:keys evaluation-table [
+     let best? true let c ? let x first ? let y last ?
+     foreach table:keys evaluation-table [
+       if ? != c [
+         set best? best? and (first ? > x or last ? > y) 
+       ]
+     ]
+     if best? [set best-confs lput c best-confs]
+  ]
+end
+
+to print-one-conf [x y]
+  let res first table:keys evaluation-table
+  let m abs (x - first res) + abs (y - last res)
+  foreach table:keys evaluation-table [
+     if abs (x - first ?) + abs (y - last ?) < m [
+       set m abs (x - first ?) + abs (y - last ?)
+       set res ?
+     ]
+  ]
+  let conf table:get evaluation-table res
+  setup-genetic-algo conf
+  
+  ask patches with [constructible?] [
+    set pcolor [color] of (one-of centres with-min [distance myself]) 
+  ]
+  
+  
+end
+
+to export-pareto-plot
+  let outfile word word "../Results/Algo/Pareto/pareto-" date-and-time ".csv"
+  print-in-file outfile "x;y;d"
+  foreach table:keys evaluation-table [
+    setup-genetic-algo table:get evaluation-table ?
+    print-in-file outfile word word word word first ? ";" last ? ";" activity-diversity
+  ]
+end
+
+to plot-pareto
+  set-current-plot "pareto"
+  set-current-plot-pen "pen"
+  set-plot-pen-mode 2
+  foreach table:keys evaluation-table [
+    ifelse member? ? best-confs [set-plot-pen-color 15][set-plot-pen-color 0]
+    plotxy first ? last ? 
+  ]
+end
+
+;does not work
+to draw-cross [x y]
+  plotxy x y plotxy x + 1 y plotxy x - 1 y plotxy x y + 1 plotxy x y - 1
+end
+
+
+;;random initial configuration
+;; no args : density is fixed as well as activities distribution rate? -> set them as global params
+to-report random-initial-configuration
+  let configuration []
+  ;;foreach gis-area -> create corresponding config
+  let i 0
+  foreach gis:feature-list-of area-layer [
+    let loc-patches patches with [gis:contains? ? self]
+    let area count loc-patches
+    let n-centers area / ( 2 * pi * (dmin-centers ^ 2))
+    repeat n-centers [
+      ask one-of loc-patches [sprout-crossing-centres 1 [
+          set xcor xcor - 0.49 + random-float 0.99 set ycor ycor - 0.49 + random-float 0.99
+          if count other crossing-centres in-radius dmin-centers > 0 [
+            ;no real effect to take the min since distribution is uniform. One could show that resulting space is the same in law. ?
+            ask other crossing-centres in-radius dmin-centers [die]
+          ]
+      ]] 
+    ]
+    ;;creates nw
+    create-prov-network
+    
+    ;;export center coordinates ¡ before ! connecting to roads in order not to have intersections as centers
+    let c []
+    ask crossing-centres [set c lput (list xcor ycor (floor (random-float 1 - initial-act-share) + 2)) c]
+    
+    ;;connects to roads
+    ;;connect-to-roads
+    ;; -> not now, see coments in crossing function !
+    
+    let n []
+    ask crossing-paths [
+      let coo []
+      ask end1 [set coo lput (list xcor ycor) coo]
+      ask end2 [set coo lput (list xcor ycor) coo]
+      set n lput coo n
+      die
+    ]
+    ask crossing-centres [die]
+    
+    ;output-print word word word "Conf for area " i "is " (list c n) ;debug
+    set configuration lput (list c n) configuration
+    set i i + 1
+  ]
+  report configuration
+end
+
+
+;;given an abstract conf, setup world according to it
+;;
+;; ¡¡ this fucking function is biased, as abstract positions ar enot changed when paths are changed !!
+;;  SOLUTION :: connect to paths AT THIS POINT, since anyway it has nothing to do woth the mutation.
+;;
+to setup-configuration [configuration]
+  ;;iterate on areas
+  foreach configuration [
+    ;;create centers
+    let centers []
+    foreach first ? [
+      create-centres 1 [setxy first ? first but-first ? set activity last ? set shape "circle" set size 1 set centers lput self centers ] 
+    ]
+    ;;create paths
+    foreach last ? [
+      let e1-loc first ? let e2-loc last ? let e1 nobody let e2 nobody
+      
+      
+      
+      ;;no connectors in config -> this code, that bugged anyway, is not useful anymore
+;      ifelse count centres with [abs (xcor - first e1-loc) < 0.01 and abs (ycor - last e1-loc) < 0.01] > 0 [
+;        set e1 one-of centres with [abs (xcor - first e1-loc) < 0.01 and abs (ycor - last e1-loc) < 0.01]
+;      ][
+;        ifelse count intersections with [abs (xcor - first e1-loc) < 0.1 and abs (ycor - last e1-loc) < 0.1] = 0 [
+;          create-intersections 1 [
+;            setxy first e1-loc last e1-loc
+;            set hidden? true
+;            set e1 self let l nearest-link let new-end1 [end1] of l let new-end2 [end2] of l 
+;            ask l [die]
+;            create-path-with new-end1 [new-path] create-path-with new-end2 [new-path]
+;          ]
+;        ][
+;          set e1 one-of intersections with [abs (xcor - first e1-loc) < 0.1 and abs (ycor - last e1-loc) < 0.1]
+;          ;output-print sentence "e1 is " e1
+;          ;output-print (sentence "Coords : " [xcor] of e1 first e1-loc [ycor] of e1 last e1-loc)
+;        ]
+;      ]
+      
+      set e1 one-of centres with [abs (xcor - first e1-loc) < 0.01 and abs (ycor - last e1-loc) < 0.01]
+      set e2 one-of centres with [abs (xcor - first e2-loc) < 0.01 and abs (ycor - last e2-loc) < 0.01]
+      
+      ;output-print (sentence "Linking " e1 " to " e2 e1-loc e2-loc)
+      if e1 != e2 [ask e1 [create-path-with e2 [new-path set internal? true]]]
+    ]
+    
+    ;;connect to roads at this point
+    connect-to-roads centers
+    
+  ]
+  
+  color-centres
+end
+
+
+
+;;observer procedure to cross configurations
+to-report cross-configurations [config1 config2]
+  ;;beware, crossing has to be possible inside an area !
+  
+  let res []
+  
+  ;;let say minimum exchange rate is 1/4
+  ;; Q : is center number fixed ?
+  ;let n-from-c1 random round (length table:keys config1 * 3 / 4) + round (length table:keys config2 / 4)
+  ;;same proc for c2
+  ;let n-from-c2 random round (length table:keys config2 * 3 / 4) + round (length table:keys config1 / 4)
+  
+  ;;iterate on areas
+  let i 0
+  foreach config1 [
+    ;;centers
+    let c1 first ? let c2 first item i config2
+    ;;networks
+    let n1 last ? let n2 last item i config2
+    ;random proportion of each is selected at this point
+    let p random-float 1
+    let n-from-c1 n-of round (p * length c1 ) c1
+    let n-from-c2 n-of round ((1 - p) * length c2 ) c2
+    let new-centers sentence n-from-c1 n-from-c2
+    
+    ;;delete too close centers. fusion -> proceed to a kind of mutation ? bof, complicated for the activity
+    ;;let keep only one
+    let remaining-centers new-centers set new-centers []
+    while [length remaining-centers > 0][
+      let c one-of remaining-centers set remaining-centers remove c remaining-centers set new-centers lput c new-centers
+      let to-remove []
+      foreach remaining-centers [
+        if sqrt ((first c - first ?) ^ 2 + (first but-first c - first but-first ?) ^ 2) < dmin-centers [set to-remove lput ? to-remove]
+      ]
+      foreach to-remove [set remaining-centers remove ? remaining-centers]
+    ]
+    
+    ;;;;;;;;;;
+    ;;build the network
+    ;;;;;;;;;;
+    
+    let new-links []
+    
+    ;;keep non-broken nodes
+    ;;    -> check for each original network if both ends of each node is member of the new-centers list !
+    foreach n1 [if center-member? first ? new-centers and center-member? last ? new-centers [set new-links lput ? new-links]]
+    foreach n2 [if center-member? first ? new-centers and center-member? last ? new-centers [set new-links lput ? new-links]]
+    
+    ;;connexifies and connects to roads
+    ;;  -> procedures takes config (provisory) and connexifies it. (returns network)
+    set new-links connexify-config new-centers new-links
+    
+    ;; now newcentres, newlinks are new config for area i
+    ;;add it to res
+    set res lput (list new-centers new-links) res
+    
+    set i i + 1
+  ]
+  
+  report res
+  
+end
+
+
+;;dirty procedure to couple network with centers list
+;;given a couple of coordinates [x,y] and a list of centers -- a list of couples of coordinates of other centers [[x0,y0],...,[x_n,y_n]]
+to-report center-member? [coord l]
+  foreach l [
+    if abs (first coord - first ?) < 0.01 and abs (last coord - first but-first ?) < 0.01 [report true]
+  ]
+  report false
+end
+
+
+;;  !!! NOT NEEDED ??? !!!
+;;same procedure but for network (data structure different, one deep more in nested list because links ~ couples of points)
+;; quite shitty way of working, could it be more efficient ?
+;; sg like abstract classes/ data structure ?
+to-report center-in-network? [coord n]
+  foreach n [
+    if abs (first coord - first first ?) < 0.01 and abs (last coord - first but-first first ?) < 0.01 [report true]
+    if abs (first coord - first last ?) < 0.01 and abs (last coord - first but-first last ?) < 0.01 [report true]
+  ]
+  report false
+end
+
+
+;;hand primitive for surface of a gis feature
+to-report surface-of [feature]
+  ;;surface of feature given in patches
+  let s 0
+  ask patches [if gis:contains? feature self [set s s + 1]]
+  report s
+end
+
+
+
+
+;;needs a "network creation" procedure
+;;called on abstract confs, not on agents. need to create them ?
+
+to-report connexify-config [centers current-links]
+  ;;creates agents
+  foreach centers [create-crossing-centres 1 [setxy first ? first but-first ?]]
+  foreach current-links [
+    ;;all centers already created - beware of out-links
+    let e1 get-crossing-centre first ? let e2 get-crossing-centre last ?
+    if e1 != nobody and e2 != nobody and e1 != e2 [
+      ask e1 [create-crossing-path-with e2] 
+    ]
+  ]
+  
+  ;;proceed to connexification
+  ;;same code as for random init for CA model
+  ;; but different breeds !
+  ;; NOTE : isnt that code quite shitty, man?
+  create-prov-network
+  
+  
+  ;;
+  ;; Connnection of the internal network to neighbor paths ?
+  ;;
+  ;;keep external links (all? -> pb, after a fixed amount of time, all peripheric centers (or even all) will be linked to the outside.
+    ;;            so fix a max number of outside links; creates a local mutation )
+    ;;     Done arbitrary on n1 then n2: selection bias ? Not necessary because of symmetric role: symmetric situation will come one day. !! depends on exploration space size.
+    ;;
+    ;;    -> check links with only one end in new-centers
+    ;;   ! dirty complexity but should be okay since config cards are bounded.
+    ;let n-out-links 0
+    ;foreach n1 [if (center-member? first ? new-centers and not center-member? last ? new-centers) or (not center-member? first ? new-centers and center-member? last ? new-centers) [if n-out-links < max-n-out-links [set new-links lput ? new-links set n-out-links n-out-links + 1]]]
+    ;foreach n2 [if (center-member? first ? new-centers and not center-member? last ? new-centers) or (not center-member? first ? new-centers and center-member? last ? new-centers) [if n-out-links < max-n-out-links [set new-links lput ? new-links set n-out-links n-out-links + 1]]]
+    ;
+    ;;in fact pb here :: will keep unneccessary links since centers closer to roads could not be linked
+    ;;   solution -> procedure linking a connex network (in breeds) to roads around
+  ;;connect-to-roads 
+  ;;
+  ;; FINALLY : connection done during config setup !!
+  ;;
+  
+  ;;extract abstract representation and kills nice helping agents
+  ;;centres unmodified, only extract coordinates of links
+  let res current-links
+  ask crossing-paths [
+    let c []
+    ask end1 [set c lput (list xcor ycor) c]
+    ask end2 [set c lput (list xcor ycor) c]
+    set res lput c res
+    die
+  ]
+  
+ ;;kill prov centers
+ ask crossing-centres [die]
+  
+ report res
+end
+
+;;util to get real agent from coord (when exact !)
+to-report get-crossing-centre [coord]
+  let x first coord let y last coord let p patch x y
+  report one-of (crossing-centres-on p) with [abs (x - xcor) < 0.01 and abs (y - ycor) < 0.01]
+end
+
+to create-prov-network
+  ask crossing-centres [create-crossing-paths-with ((other crossing-centres) with-min [distance myself]) with [not crossing-path-neighbor? myself]]
+  nw:set-context crossing-centres crossing-paths
+  let clusters nw:weak-component-clusters
+  while [length clusters > 1] [
+    
+    ;take one cluster, connects with the closest
+    let c1 first sort-by [([pxcor] of first ?1 < [pxcor] of first ?2) or (([pxcor] of first ?1 = [pxcor] of first ?2) and ([pycor] of first ?1 < [pycor] of first ?2))] (map [sort-by [([pxcor] of ?1 < [pxcor] of ?2) or (([pxcor] of ?1 = [pxcor] of ?2) and ([pycor] of ?1 < [pycor] of ?2))] ?] clusters)
+    let dmin dmax let tmin1 one-of turtles let tmin2 one-of turtles
+    foreach clusters[
+      let aux remove 0 c1
+      foreach ? [set aux remove ? aux]
+      if  not empty? aux [
+        let d dmax let t1 one-of c1 let t2 one-of ?
+        foreach ? [
+          let t ?
+          foreach c1 [
+            ask ? [if distance t < d [set d distance t set t1 self set t2 t]] 
+          ]
+        ]
+        if d < dmin [set dmin d set tmin1 t1 set tmin2 t2]
+      ]
+    ]
+    
+    if tmin1 != tmin2 [
+      ask tmin1 [create-crossing-path-with tmin2]
+    ]
+    
+    nw:set-context crossing-centres crossing-paths
+    set clusters nw:weak-component-clusters
+  ]
+end
+
+;;connects a network to surrounding roads
+;;supposes to have the nw as breeds on the worls
+to connect-to-roads [centers]
+  ;;  -> creates set of boundaries roads
+  ;;  -> creates connections using this set
+  let boundary-roads []
+  let connected-centers []
+  foreach centers[
+    ask ? [
+      let closest-road first sort-on [distance-to-point [xcor] of myself [ycor] of myself] (paths with [not internal?]);;note : nearest-link acts on paths
+      if not member? closest-road boundary-roads [set boundary-roads lput closest-road boundary-roads]
+    ]
+  ]
+  ;output-print word "bound roads : " length boundary-roads
+  foreach boundary-roads [
+    ask ? [
+        let closest-center one-of ((to-agentset centers) with [not member? self connected-centers]) with-min [distance-to-link myself]
+        ;output-print word self closest-center
+        let inter projection-of [xcor] of closest-center [ycor] of closest-center
+        let e1 end1 let e2 end2
+        let must-die? false
+        if inter != nobody [ask inter [set hidden? true if inter != e1 and inter != e2 [create-path-with e1 [new-path] create-path-with e2 [new-path] set must-die? true] if inter != closest-center [create-path-with closest-center [new-path set internal? true]]]]
+        set connected-centers lput closest-center connected-centers
+        if must-die? [die]
+        ;set color blue
+    ]
+  ]
+  
+end
+
+
+
+
+
+
+
+
+

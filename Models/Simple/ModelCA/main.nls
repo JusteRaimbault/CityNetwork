@@ -1,0 +1,253 @@
+
+
+
+
+
+
+
+;; go : one iteration
+; cell by cell : need to be constructed? evolve network if needed
+to go
+
+  ;;calculate new patches values  
+  update-patches-values
+  
+  ;;build new houses and roads
+  sprawl  
+
+  ;;display
+  display-CA
+  
+  ;;tick
+  tick
+end
+
+
+to sprawl
+  
+  ask max-n-of built-cells-per-tick (patches with [not constructed? and constructible?]) [value] [
+    set constructed? true
+    sprout-houses 1 [new-house]
+    if distance-to-roads > distance-road-needed [ ;; construct a new road !! not "static var here" (iterative construction of the network -> random effects)
+      let nearest-centre first sort-on [distance myself] centres
+      let nearest-centre-distance distance nearest-centre
+      ifelse count paths = 0 or distance-to-roads > nearest-centre-distance [
+        sprout-intersections 1 [create-path-with nearest-centre [new-path]]
+      ]
+      [
+        
+        let mx pxcor let my pycor
+        let nearest-path nearest-link
+        
+        let inter one-of turtles
+        ask nearest-path [
+          set inter intersection-with mx my
+        ]
+   
+        let e1 one-of intersections let e2 one-of intersections
+        ask nearest-path [
+          set e1 end1 set e2 end2
+          die
+          ;;RQ : here not useful to make footprint constructible again
+          ;;since new path will be exactly over !
+        ]
+        ask inter [hide-turtle if inter != e1 [create-path-with e1 [new-path]] if inter != e2 [ create-path-with e2 [new-path]]]
+
+        sprout-intersections 1 [
+          hide-turtle
+          create-path-with inter [
+            new-path
+            ;;destroy old houses and set not constructible!
+            ;;only line where we kill houses !
+            foreach footprint [ask ? [set constructible? false set constructed? false ask houses-here[die]]]
+          ]
+        ]
+      ]
+    ]
+  ]
+  
+end
+
+
+
+
+to update-patches-values
+  ;;to avoid multiple calculations (could happen ?)(yes with reporters)
+  ;;we update vars in one single time
+  
+  ;;other point: many vars involve distance in network calculation
+  ;; since fast every intersection will be called, we cache the distances in owned
+  ;; var of the intersection, so Dijkstra (even small) is call one time instead of
+  ;; number of houses
+  update-network-distances
+  
+  ;;update owned vars of patches
+  update-vars
+  
+  ;;update values
+  ask patches [set value patch-value]
+end
+
+
+
+
+to update-vars
+    ask patches [
+      set pdensity density set pdistance-to-roads distance-to-roads
+      set pdistance-to-centre distance-to-centre set pdistance-to-activities distance-to-activities
+      set pspeed-from-patch speed-from-patch
+    ]
+    set density-max max [pdensity] of patches
+    set density-min min [pdensity] of patches
+    set distance-to-roads-max max [pdistance-to-roads] of patches
+    set distance-to-roads-min min [pdistance-to-roads] of patches
+    set distance-to-centre-max max [pdistance-to-centre] of patches
+    set distance-to-centre-min min [pdistance-to-centre] of patches
+    set distance-to-activities-max max [pdistance-to-activities] of patches
+    set distance-to-activities-min min [pdistance-to-activities] of patches
+end
+
+
+to update-network-distances
+  ;snapshot of the network
+  nw:set-context turtles paths
+  ask paths [set path-length link-length]
+  ask intersections [
+     set net-d-to-centre intvalue nw:weighted-distance-to first sort-on [intvalue nw:weighted-distance-to myself "path-length"] centres "path-length"
+     let a 0 set net-d-to-activities [] repeat activities-number [set net-d-to-activities lput 0 net-d-to-activities ]
+     repeat activities-number [
+       set net-d-to-activities replace-item a net-d-to-activities (intvalue nw:weighted-distance-to first sort-on [intvalue nw:weighted-distance-to myself "path-length"] (centres with [activity = a]) "path-length")
+       set a a + 1
+     ]
+   ]
+  ;;dont forget centres
+  ask centres [
+    set net-d-to-centre 0
+    let a 0 set net-d-to-activities [] repeat activities-number [set net-d-to-activities lput 0 net-d-to-activities ]
+    repeat activities-number [
+       ifelse activity != a [
+         set net-d-to-activities replace-item a net-d-to-activities (intvalue nw:weighted-distance-to first sort-on [intvalue nw:weighted-distance-to myself "path-length"] (centres with [activity = a]) "path-length")
+       ][set net-d-to-activities replace-item a net-d-to-activities 0]
+       set a a + 1
+    ]
+  ]
+end
+
+
+
+
+
+
+
+;common function to both second variables : return turtle at the junction of the nearest road
+; maybe exists a mor efficient method, but now test all roads
+to-report intersection-with-nearest-road
+  ifelse count paths = 0 [
+    ;no roads, report nearest center (always one)
+    report first sort-on [distance myself] centres
+  ]
+  [
+    let mx pxcor
+    let my pycor
+    let nearest-path nearest-link
+    let inter one-of turtles
+    ask nearest-path [
+      set inter intersection-with mx my
+    ]
+    report inter
+  ]
+  
+end
+
+
+
+
+to-report nearest-link
+  ;;many implementation are possible, influence strongly speed of the model ?
+   ;let mx pxcor let my pycor
+   ;report first sort-on [distance-to-point mx my] paths
+   ;report one-of (paths with-min [distance-to-point mx my])
+   ;;these two first are equivalent
+   ;;lets try an heuristic
+   ;let m self
+   ;report one-of (paths with-min [[distance m] of end1 + [distance m] of end2])
+   ;;;;;;
+   ;; CL : exactly same computational time ! (as expected ~ )
+   ;;;;;;
+   
+   let mx pxcor let my pycor
+   report first sort-on [distance-to-point mx my] paths
+end
+
+
+
+
+;;
+;; NEED MORE DEBUGGING -> PB WHEN GETS OUT OF THE WORLD?
+;;
+
+to-report intersection-with [x y]
+  let x1 0 let y1 0 let x2 0 let y2 0
+  ask end1[set x1 xcor
+  set y1 ycor]
+  ask end2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m1m2 = 0 [report end1]
+  if m2m = 0 [report end2]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+    
+  let mq 0 let xx 0 let yy 0 let m1q 0
+  
+  ifelse cost1 < 0 [
+     report end1
+  ]
+  [
+  ifelse cost2 < 0 [
+     report end2
+  ]
+  [set mq m1m * sqrt abs (1 - (cost1 ^ 2))
+   set m1q sqrt ((m1m ^ 2) - (mq ^ 2))  
+   set xx x1 + m1q * (x2 - x1) / m1m2
+   set yy y1 + m1q * (y2 - y1) / m1m2
+   
+   ifelse count centres-on patch xx yy = 0 [
+     if count intersections-on patch xx yy = 0 [
+       ask patch xx yy [sprout-intersections 1]
+     ]
+     report one-of intersections-on patch xx yy
+   ][
+     report one-of centres-on patch xx yy
+   ]
+   ]
+  ]
+  
+end
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;
+;; Constructors for main agents
+;;;;;;;;;;;;;;;;;;;
+
+;;path
+to new-path
+  set color red set thickness 0.3
+  set path-length path-length
+  set internal? false
+end
+
+;;house
+to new-house set shape "house" set size 1 set color blue end
+
+
+
+
+
+
