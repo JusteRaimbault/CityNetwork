@@ -4,6 +4,7 @@ __includes[
   
   ;;local includes
   "setup.nls"
+  "setup-aux.nls" ; additional file to be shared by model and headless
   "main.nls"
   "centers.nls"
   "roads.nls"
@@ -19,6 +20,7 @@ __includes[
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/NetworkUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LinkUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/AgentSetUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/AgentUtilities.nls"
 ]
 
 globals[
@@ -92,11 +94,11 @@ patches-own [
 GRAPHICS-WINDOW
 19
 10
-829
-650
+839
+653
 -1
 -1
-17.4
+18.0
 1
 10
 1
@@ -107,9 +109,9 @@ GRAPHICS-WINDOW
 0
 1
 0
-45
+44
 0
-34
+33
 0
 0
 1
@@ -382,7 +384,7 @@ grid-size
 grid-size
 0
 20
-2.9
+3
 0.1
 1
 NIL
@@ -397,7 +399,7 @@ max-sampling-bw-centrality
 max-sampling-bw-centrality
 0
 500
-300
+200
 1
 1
 NIL
@@ -434,7 +436,7 @@ beta
 beta
 0
 100
-75
+100
 1
 1
 NIL

@@ -3,7 +3,10 @@ extensions[nw table]
 __includes[
   
   ;;local includes
-  "setup.nls"
+  ;; headless mode
+  "setup-headless.nls"
+  
+  ;; common files
   "main.nls"
   "centers.nls"
   "roads.nls"
@@ -276,7 +279,7 @@ SWITCH
 162
 _random-center-number?
 _random-center-number?
-1
+0
 1
 -1000
 

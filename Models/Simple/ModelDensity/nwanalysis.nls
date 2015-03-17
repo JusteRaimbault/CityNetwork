@@ -15,6 +15,21 @@ to setup-nw-analysis
 end
 
 
+;;;
+;; Gets proxy of nw diameter
+to-report get-approximate-diameter
+  let res 0
+  ask n-of min list count centers max-sampling-bw-centrality centers [
+    ask n-of min list (count centers - 1) max-sampling-bw-centrality other centers [
+      let d nw:weighted-distance-to myself "road-length"
+      if d != false [
+        set res max list res d 
+      ]
+    ]
+  ]
+  report res
+end
+
 
 to compute-road-bw-centrality
   ; dirty, computed two times
