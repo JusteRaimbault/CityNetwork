@@ -1,0 +1,814 @@
+breed [ buildings building ]
+breed [ parcel-builders parcel-builder]
+
+buildings-own
+[ ; already has 'who' by virtue of being a turtle
+  building-class
+  population
+  population-density
+  parcel
+  year-founded
+  last-year-updated
+  building-neighbors
+  radius-of-influence
+  surrounding-area
+  temporary-info
+
+  old-B-elevation-average
+  old-B-elevation-variance
+  ; old-b-surrounding-area
+  old-B-surrounding-density
+  old-B-density-difference
+  old-B-commercial-elevation
+  old-B-residential-elevation
+  old-B-industrial-elevation
+  old-B-commercial-terrain
+  old-B-residential-terrain
+  old-B-industrial-terrain
+  old-B-residential-density
+  old-B-commercial-density
+  old-B-industrial-density
+  old-B-commercial-primary-road-constraint
+
+  dirty-B-elevation-average      ; T/F
+  dirty-B-elevation-variance     ; T/F
+  dirty-B-surrounding-density    ; T/F
+;  dirty-B-density-difference     ; T/F
+  dirty-B-commercial-primary-road-constraint ; T/F
+  dirty-B-density-difference     ; T/F
+  dirty-B-surrounding-area       ; T/F
+  dirty-B-elevation-value        ; MULTI
+  dirty-B-terrain-value          ; MULTI
+  dirty-B-density-value          ; MULTI
+  dirty-B-worth-value            ; MULTI
+
+  building-seen-before           ; MULTI
+
+]
+
+patches-own
+[  parcel-boundary
+]
+
+to clear-all-buildings
+	ask buildings
+	[	destroy-existing-building self ]
+	ask parks
+	[ destroy-existing-building self ]
+	ask patches [
+		set owner nobody
+		set parcel-boundary false
+	]
+end
+
+to Show-Owners
+  let color-list [red blue green yellow white gray]
+  let temp 0
+  let pset patches with [ is-building? owner ]
+
+  ask pset
+  [ set pcolor black
+  ]
+  ask pset
+  [ 
+      if (pcolor = black)
+      [ set temp remove-duplicates [ pcolor ] of ( patch-set [ neighbors4 ] of ( [parcel] of owner ) )
+        set temp filter [not member? ? temp] color-list
+        ifelse (empty? temp)
+        [ set pcolor orange
+        ]
+        [ set pcolor first temp
+        ]
+        ask [parcel] of owner
+        [ set pcolor [pcolor] of myself
+        ]
+      ]
+  ]
+end
+
+to-report has-honey? [ class a ]
+  report ( curry-reporter [get-honey-func] of class a ) > 0
+end
+
+to-report can-build-here [ p ]
+  report ( (not [road] of p ) and
+           ( not [reserved] of p ) and
+           [owner] of p = nobody and
+           [terrain] of p = "land" )
+end
+
+;; only call this when you're still building a building
+to destroy-building [ bldng ]
+  if ( is-building? bldng )
+  [ ask [building-neighbors] of bldng
+    [ set building-neighbors (remove-from-agentset bldng building-neighbors)
+    ]
+  ]
+  ask [parcel] of bldng
+  [ set parcel-boundary false
+    set owner nobody
+    set patch-seen-before 0
+  ]
+  ask bldng [ die ]
+end
+
+; only to be used when a building's population has gone to or below 0
+to collapse-building [ bldng ]
+  let class [building-class] of bldng
+  dirty-all-dependencies! bldng
+  set ( [global-land-cover] of class ) ( ( [global-land-cover] of class ) - ( count [parcel] of bldng ) )
+  set city-land-cover ( city-land-cover - ( count [parcel] of bldng ) )
+  set total-elevation-from-land-coverage ( total-elevation-from-land-coverage
+                                         - sum [ elevation ] of ( [parcel] of bldng ) )
+  disable-road-area bldng
+  destroy-building bldng
+end
+
+to destroy-existing-building [ bldng ]
+  if ( is-building? bldng )
+  [ let class [building-class] of bldng
+    set ( [global-population] of class ) ( ( [global-population] of class ) - ( [population] of bldng ) )
+    set city-population ( city-population - ( [population] of bldng ) )
+    take-from-center-of-density ( [parcel] of bldng )
+  ]
+  collapse-building bldng
+end
+
+to-report building-elevation
+  if (dirty-B-elevation-average)
+  [ set old-B-elevation-average safe-mean [ elevation ] of parcel 
+    set dirty-B-elevation-average false
+  ]
+  report old-B-elevation-average
+end
+
+to-report building-elevation-variance
+  if (dirty-B-elevation-variance)
+  [ set old-B-elevation-variance variance [ elevation ] of parcel 
+    set dirty-B-elevation-variance false
+  ]
+  report old-B-elevation-variance
+end
+
+to-report building-surrounding-density [ b ]
+  if ( [dirty-B-surrounding-density] of b )
+  [ set [old-B-surrounding-density] of b ifelse-value ( any? [building-neighbors] of b )
+                                     [ min [ population-density ] of ( [building-neighbors] of b ) ]
+                                     [ [initial-density] of ( [building-class] of b ) ]
+    set [dirty-B-surrounding-density] of b false
+  ]
+  report [old-B-surrounding-density] of b
+end
+
+to-report building-density-difference [ b ]
+  if ( [dirty-B-density-difference] of b )
+  [ set ( [old-B-density-difference] of b ) ( ( [population-density] of b ) / ( building-surrounding-density b ) )
+    set ( [old-B-density-difference] of b ) ifelse-value ( [old-B-density-difference] of b < 1.2 )
+                                          [ 1 ]
+                                          [ ifelse-value ( [old-B-density-difference] of b >= ( smoothness-constraint + 0.2 ) )
+                                            [ 0 ]
+                                            [ ( log ( 1.2 + smoothness-constraint - [old-B-density-difference] of b ) smoothness-constraint ) ]
+                                          ]
+    set [dirty-B-density-difference] of b false
+  ]
+  report [old-B-density-difference] of b
+end
+
+to find-parcel-boundaries [plots]
+  let boundaries edge-patches plots
+  ask boundaries
+  [ set parcel-boundary true ]
+  ask ( remove-from-agentset boundaries plots )
+  [ set parcel-boundary false ]
+end
+
+; this function will map the sizes given by the regular model into the dimensions needed by SimCity
+; it will return a list.  The first is the larger dimension, the second is the smaller dimension
+to-report map-to-simcity-dimensions [ class ]
+  let parcel-list [ [ 1 1 ] [ 2 1 ] [ 3 1 ] ;[ 4 1 ]
+                    [ 2 2 ] [ 3 2 ] [ 4 2 ]
+                    [ 3 3 ] [ 4 3 ] ]
+  let diff ( [max-parcel-size] of class - [min-parcel-size] of class )
+  let percentile ( ( random diff ) / diff ) * ( length parcel-list - 1 )
+  report item ( round percentile ) parcel-list
+end
+
+to-report grow-simcity-parcel [ b origin ]
+  let x-dir 0
+  let y-dir 0
+  let x-dim 0
+  let y-dim 0
+  let mapped-size map-to-simcity-dimensions [building-class] of b
+  let is-valid-func ( [validity-func] of [building-class] of b )
+  ; make-mutable edit  ~Forrest 6/17/07
+  let road-patches make-mutable [ neighbors with [ not [road] of self and count neighbors with [ road ] > 0 ] ]
+  				    of origin
+
+  repeat 3
+  [ add-to-mutable-agentset (patch-set [ neighbors with [ not [road] of self and count neighbors with [ road ] > 0] ] of road-patches ) road-patches
+  ]
+  if ( not any? road-patches )
+  [ debug-print "Couldn't find slope to road when trying to build a building."
+    report nobody
+  ]
+  set [heading] of b ( patch-slope road-patches + 90 )
+  if ( any? ( ( [ [local-area] of patch-here ] of b ) in-frustum-of b 10 3 ) with [ road ] )
+  [ set heading heading + 180 ]
+  ifelse ( abs dx > abs dy )
+  [ set x-dir sign dx
+    set x-dim first mapped-size
+    set y-dim last mapped-size
+  ]
+  [ set y-dir sign dy
+    set x-dim last mapped-size
+    set y-dim first mapped-size
+  ]
+  ; note: make-mutable edit ~Forrest (6/17/07)
+  let result make-mutable no-patches
+  let temp-origin origin
+  let temp-patches [pathxy (x-dir * (x-dim - 1))
+                           (y-dir * (y-dim - 1))]
+                   of temp-origin 
+  while [ count result < ( x-dim * y-dim ) and
+          temp-origin != nobody and
+          not (any? temp-patches with [ ( not can-build-here self) or not ( curry-reporter is-valid-func self ) ] ) ]
+  [ add-to-mutable-agentset temp-patches result
+    set temp-origin ( [ patch-at y-dir x-dir ] of temp-origin )
+    if temp-origin != nobody [
+      set temp-patches [pathxy ( x-dir *( x-dim - 1 ) ) ( y-dir * ( y-dim - 1 ) ) ] of temp-origin
+    ]
+  ]
+  set temp-origin [ patch-at ( - y-dir ) ( - x-dir ) ] of origin
+  if temp-origin != nobody [
+    set temp-patches [pathxy ( x-dir *( x-dim - 1 ) ) ( y-dir * ( y-dim - 1 ) ) ] of temp-origin
+    while [ count result < ( x-dim * y-dim ) and
+            temp-origin != nobody and
+            not ( any? temp-patches with [ ( not can-build-here self ) or not ( curry-reporter is-valid-func self ) ] ) ]
+    [ add-to-mutable-agentset temp-patches result
+      set temp-origin ( [ patch-at ( - y-dir ) ( - x-dir ) ] of temp-origin)
+      if temp-origin != nobody [
+        set temp-patches [pathxy ( x-dir *( x-dim - 1 ) ) ( y-dir * ( y-dim - 1 ) ) ] of temp-origin
+      ]
+    ]
+  ]
+  set [heading] of b ifelse-value ( y-dir = 1 )
+                   [ 0 ]
+                   [ ifelse-value ( y-dir = -1 )
+                     [ 180 ]
+                     [ ifelse-value ( x-dir = 1 )
+                       [ 90 ]
+                       [ 270 ]
+                     ]
+                   ]
+  report result
+end
+
+;; helper procedure -- do patches-between self and given
+;; x and y offsets, but handle world edge correctly
+to-report pathxy [x-offset y-offset]  ;; patch procedure
+  let p patch-at x-offset y-offset
+  if p != nobody [ report patches-between self p ]
+  ;; we're off the edge of the world, so back up one patch and try again
+  let angle atan x-offset y-offset
+  report pathxy (x-offset - sin angle)
+                (y-offset - cos angle)
+end
+
+to-report create-building [ class origin ]
+  let bldng nobody
+  ask origin
+  [ sprout 1
+    [ set breed buildings
+      set building-class class
+      set parcel ifelse-value ( SimCity? )
+                 [ grow-simcity-parcel self origin ]
+                 [ grow-parcel self origin ]
+      ifelse ( any? parcel )
+      [ ask parcel
+        [ set owner myself
+        ]
+        set surrounding-area no-patches
+        set hidden? true
+        find-building-neighbors self
+        find-parcel-boundaries parcel
+        set bldng min-one-of parcel [ dist-to-road ]
+        move-to bldng
+        set bldng self
+      ]
+      [ die ]
+    ]
+  ]
+
+  report bldng
+end
+
+to find-building-neighbors [ b ]
+  set ( [building-neighbors] of b ) ( turtle-set [ owner ] of ( remove-from-agentset ( [parcel] of b )
+                                                                      ( patch-set [ local-area ] of ( [parcel] of b ) ) ) ) 
+                                                                   with [ is-building? self ]
+  ask ( [building-neighbors] of b )
+  [ set building-neighbors add-to-agentset b building-neighbors
+  ]
+end
+
+to add-to-center-of-density [ pz ]
+  ask pz
+  [ set CENTER-X ( CENTER-X + ( parcel-density * pxcor ) )
+    set CENTER-Y ( CENTER-Y + ( parcel-density * pycor ) )
+  ]
+end
+
+to take-from-center-of-density [ pz ]
+  ask pz
+  [ set CENTER-X ( CENTER-X - ( parcel-density * pxcor ) )
+    set CENTER-Y ( CENTER-Y - ( parcel-density * pycor ) )
+  ]
+end
+
+to-report parcel-density
+	report ifelse-value (owner = nobody)
+	       [ 0 ]
+	       [ [population-density] of owner ]
+end
+
+to-report patch-class-density [ class ]
+  let other-owners ( turtle-set [ owner ] of local-area ) with [ building-class = class ]
+  report ( sum [ population ] of other-owners ) / ( count add-to-agentset ( patch-set [ parcel ] of other-owners ) local-area )
+end
+
+to-report building-class-density [ class ]
+  let other-owners building-neighbors with [ building-class = class ]
+  report ( ifelse-value ( building-class = class ) [ population ] [ 0 ] + sum [ population ] of other-owners ) /
+         ( count add-to-agentset ( patch-set [ parcel ] of other-owners ) ( patch-set [ local-area ] of parcel ) )
+end
+
+to-report parcel-density-from [ p ]
+  if ( is-building? ( [owner] of p ) )
+  [ report ( [population-density] of ( [owner] of p ) ) ]
+  report 0
+end
+
+to-report parcel-orientation [ origin ]
+  let road-patch one-of ( ( [ neighbors4 with [ road ] ] of origin ) with-min [ count neighbors with [ road ] ] )
+  if ( road-patch = nobody )
+  [ set road-patch one-of ([ neighbors with [ road ] ] of origin)
+    if ( road-patch = nobody )
+    [ report no-patches ]
+  ]
+  let slope-patches intersection ( [ neighbors with [ not road and any? neighbors4 with [ road ] ] ] of origin )
+                                 ( [ neighbors with [ not road and any? neighbors4 with [ road ] ] ] of road-patch  )
+  let direction ( patch-slope slope-patches )
+  report direction + ifelse-value ( ( subtract-headings direction ([ towards origin ] of road-patch) ) > 0 ) [ -90 ] [ 90 ]
+  
+end
+
+to-report grow-parcel [ b origin ]
+  let area [ random ( max-parcel-size - min-parcel-size ) + min-parcel-size ] of ([building-class] of b)
+    let direction 0
+    carefully
+    [ set direction ( parcel-orientation origin ) ]
+    [ report no-patches ]
+    if ( not is-number? direction )
+    [ report direction ]
+    let max-dist ( my-min-dist / 2.0 ) 
+    let sliver filter [ can-build-here ? ] ( patches-from-to origin [ patch-at-heading-and-distance direction max-dist ] of origin )
+    let i 1
+    let flag true
+    ; note: make-mutable edit ~Forrest (6/17/07)
+    let pcl make-mutable (patch-set sliver)
+    let temp nobody
+    while [ flag and i < length sliver ]
+    [ if ( not member? ( item i sliver ) ( [ neighbors4 ] of ( item ( i - 1 ) sliver ) ) )
+      [ set temp ( ( intersection   [ neighbors ] of ( item i sliver ) 
+                                    [ neighbors ] of ( item ( i - 1 ) sliver ))
+                   with [ can-build-here self and
+                          not member? self pcl ] )
+        ifelse ( any? temp )
+        [ set temp max-one-of temp [ count neighbors with [ member? self pcl ] ]
+          add-to-mutable-agentset temp pcl
+        ]
+        [ set flag false ]
+      ]
+      set i ( i + 1 )
+    ]
+    if ( not flag or count pcl < max-dist )
+    [ report no-patches ]
+  
+    set sliver pcl
+    let road-patches no-patches
+    while [ count pcl < area and any? sliver ]
+    [ set temp bordering-patches4 pcl
+      set sliver ( temp with [ can-build-here self and dist-to-road <= max-dist ] )
+      ask temp with [ road and connectivity = 1 and self != origin ]
+      [ 
+          set [xcor] of b pxcor
+          set [ycor] of b pycor
+          set [heading] of b direction + ifelse-value ( ( subtract-headings direction ( towards origin ) ) > 0 ) [ -90 ] [ 90 ]
+          set sliver ( sliver in-front-of b )        
+      ]
+      add-to-mutable-agentset sliver pcl
+    ]
+    set [heading] of b direction
+    report pcl
+end
+
+to add-patches-to-parcel [ new-patches b ]
+  ifelse ( is-agentset? new-patches )
+  [ set ( [global-land-cover] of [building-class] of b ) ( ( [global-land-cover] of [building-class] of b ) + count new-patches )
+    set city-land-cover ( city-land-cover + count new-patches )
+  ]
+  [ set ( [global-land-cover] of [building-class] of b ) ( ( [global-land-cover] of [building-class] of b ) + 1 )
+    set city-land-cover ( city-land-cover + 1 )
+  ]
+
+  if ( is-building? b )
+  [ take-from-center-of-density ( [parcel] of b ) ]
+  
+  ask new-patches
+  [ set owner b ]
+  set ( [parcel] of b ) ( add-to-agentset new-patches ( [parcel] of b ) )
+  find-parcel-boundaries ( [parcel] of b )
+  
+  if ( is-building? b )
+  [ find-building-neighbors b
+    enable-road-area new-patches b
+    set ( [population-density] of b ) ( ( [population] of b ) / ( count ( [parcel] of b ) ) )
+    add-to-center-of-density ( [parcel] of b )
+    set ( [building-seen-before] of b ) 0
+    dirty-parcel-dependancies! b
+  ]
+end
+
+to fill-remaining-holes [ bldng ]
+  if ( not SimCity? )
+  [ 
+      let remaining-patches make-mutable ( bordering-patches [parcel] of bldng ) with [ can-build-here self ]
+      let test-set remaining-patches
+      let to-be-filled make-mutable no-patches
+      while [ any? remaining-patches and any? test-set ]
+      [ set test-set flood-fill4 ( one-of remaining-patches ) "can-build-here" 20
+        ;set temp ( count ( bordering-patches4 test-set ) with [ road ] )
+        if ( ;( ( count test-set - temp ) < 5 ) or 
+                 ;( temp = 0 and count test-set < 20 )
+                 count test-set < 20 or
+                 ( not ( force-build-tertiary-road test-set ) and
+                   ( ( count test-set + count to-be-filled ) <= safe-sum [ [max-parcel-size] of building-class - count parcel ] of ( turtle-set [ owner ] of ( bordering-patches4 test-set ) ) ) ) ) 
+        [ add-to-mutable-agentset test-set to-be-filled ]
+        remove-from-mutable-agentset test-set remaining-patches 
+      ]
+      set to-be-filled make-mutable (to-be-filled with [ not road ])
+        let surrounding-buildings ( turtle-set [ owner ] of ( bordering-patches4 to-be-filled ) )
+        ask surrounding-buildings
+        [ set temporary-info parcel ]
+        let dirty-buildings make-mutable no-turtles
+        let b nobody
+        let temp 0
+        while [ any? to-be-filled ]
+        [ set b max-one-of ( surrounding-buildings with [ any? intersection to-be-filled ( bordering-patches4 temporary-info ) ] )
+                           [ ( [max-parcel-size] of building-class - count temporary-info ) / [max-parcel-size] of building-class ]
+          ifelse ( b = nobody )
+          [ set to-be-filled make-mutable no-patches
+          ]
+          [ set temp ( intersection to-be-filled ( bordering-patches4 [temporary-info] of b ) )
+            set [temporary-info] of b ( add-to-agentset temp [temporary-info] of b )
+            add-to-mutable-agentset b dirty-buildings
+            remove-from-mutable-agentset temp to-be-filled
+          ]
+        ]
+        ask dirty-buildings
+        [ add-patches-to-parcel ( remove-from-agentset parcel temporary-info ) self
+          set temporary-info no-patches
+        ]
+  ]
+end
+
+
+;to fill-remaining-holes [ bldng ]
+;  let empty-patches make-mutable ( bordering-patches parcel-of bldng ) with [ can-build-here self ]
+;  let temp empty-patches
+;  while [ any? temp ]
+;  [ set temp ( bordering-patches empty-patches ) with [ can-build-here self and
+;                                                        dist-to-road <= my-max-dist ]
+;    output-print "finding empty patches?"
+;    add-to-mutable-agentset temp empty-patches
+;  ]
+;  let patches-by-road make-mutable empty-patches with [ any? ( neighbors4 with [ road ] ) ]
+;  set empty-patches empty-patches with [ dist-to-road <= ( my-min-dist / 2 ) ]
+;  set temp patches-by-road
+;  while [ any? temp ]
+;  [ set temp ( bordering-patches4 patches-by-road ) with [ can-build-here self and
+;                                                           dist-to-road <= my-max-dist ]
+;    add-to-mutable-agentset temp patches-by-road
+;    output-print "finding patches by the road?"
+;  ]
+;  set empty-patches make-mutable ( remove-from-agentset patches-by-road empty-patches )
+;  let surrounding-buildings turtle-set [ owner ] of ( bordering-patches4 empty-patches ) 
+;  let b nobody
+;  set temp empty-patches
+;  while [ any? empty-patches and any? temp ]
+;  [ set b max-one-of ( surrounding-buildings with [ any? intersection empty-patches bordering-patches4 parcel ] )
+;                        [ max-parcel-size-of building-class - count parcel ]
+;    ifelse ( b = nobody )
+;    [ set empty-patches no-patches ]
+;    [ set temp ( intersection empty-patches bordering-patches4 parcel-of b )
+;      add-patches-to-parcel temp b
+;      set empty-patches remove-from-mutable-agentset temp empty-patches
+;    ]
+;    output-print "stuck?"
+;  ]
+;end
+
+to fill-remaining-holes-old [ bldng ]
+  let to-be-filled make-mutable ( bordering-patches4 [parcel] of bldng ) with [ can-build-here self and
+                                                     count neighbors4 with [ is-building? owner or member? self [parcel] of bldng ] > 2 ]
+  let temp 0
+  let new-owner nobody
+  while [ any? to-be-filled ]
+  [ set temp count to-be-filled
+    ask to-be-filled
+    [ 
+        ifelse ( count [parcel] of bldng < ( [max-parcel-size] of [building-class] of bldng ) )
+        [ add-patches-to-parcel self bldng
+          remove-from-mutable-agentset self to-be-filled
+        ]
+        [ set new-owner min-one-of ( ( turtle-set [ owner ] of neighbors4  ) with [ count parcel < [max-parcel-size] of building-class ] )
+                                   [ count parcel ]
+          if ( is-building? new-owner )
+          [ add-patches-to-parcel self new-owner
+            remove-from-mutable-agentset self to-be-filled
+          ]
+        ]      
+    ]
+    ifelse ( count to-be-filled = temp )
+    [ set to-be-filled no-patches ]
+    [ set to-be-filled ( bordering-patches4 [parcel] of bldng ) with [ can-build-here self and
+                                                     count neighbors4 with [ is-building? owner or member? self [parcel] of bldng ] > 2 ]
+    ]
+  ]
+end
+
+to-report patch-with-wrap [ x y ]
+  let wrap-x x
+  let wrap-y y
+  ifelse ( x > max-pxcor )
+  [ set wrap-x ( remainder x world-width )
+    if ( wrap-x > max-pxcor )
+    [ set wrap-x ( wrap-x - world-width ) ]
+  ]
+  [ if ( x < min-pxcor )
+    [ set wrap-x ( remainder x world-width )
+      if ( wrap-x < min-pxcor )
+      [ set wrap-x wrap-x + world-width ]
+    ]
+  ]
+  ifelse ( y > max-pycor )
+  [ set wrap-y ( remainder y world-height )
+    if ( wrap-y > max-pycor )
+    [ set wrap-y ( wrap-y - world-height ) ]
+  ]
+  [ if ( y < min-pycor )
+    [ set wrap-y ( remainder y world-height )
+      if ( wrap-y < min-pycor )
+      [ set wrap-y wrap-y + world-height ]
+    ]
+  ]
+  report patch wrap-x wrap-y
+end
+
+to-report percent-road-patches-can-reach [ pset num-steps ]
+  let start-patch one-of pset with [ any? neighbors4 with [ is-building? owner ] ]
+  if ( start-patch = nobody ) [ report 0 ]
+  let start-direction [towards one-of neighbors4 with [ is-building? owner ] ] of start-patch 
+  let p nobody
+  let num-road-patches 0
+  let num-patches 0
+
+  ; look to the right
+  let direction start-direction - 90
+  let x ( [pxcor] of start-patch )
+  let y ( [pycor] of start-patch )
+  let moved false
+  repeat num-steps
+  [ set p patch-with-wrap ( x + round sin ( direction + 90 ) ) ( y + round cos ( direction + 90 ) )
+    ifelse ( can-build-here p )
+    [ set direction ( direction + 90 )
+      set x ( x + round sin direction )
+      set y ( y + round cos direction )
+      set moved true
+    ]
+    [ if ( moved and patch-with-wrap x y = start-patch and direction = ( start-direction - 90 ) )
+      [ report num-road-patches / num-patches ]
+      if ( [road] of p )
+      [ set num-road-patches ( num-road-patches + 1 ) ]
+      set num-patches ( num-patches + 1 )
+      
+      ifelse ( not can-build-here patch-with-wrap ( x + round sin direction ) ( y + round cos direction ) )
+      [ set direction ( direction - 90 )
+      ]
+      [ set x ( x + round sin direction )
+        set y ( y + round cos direction )
+        set moved true
+      ]
+    ]
+  ]
+  
+  ; then to the left
+  set direction start-direction + 90
+  set x ( [pxcor] of start-patch )
+  set y ( [pycor] of start-patch )
+  set moved false
+  repeat num-steps
+  [ set p patch-with-wrap ( x + round sin ( direction - 90 ) ) ( y + round cos ( direction - 90 ) )
+    ifelse ( can-build-here p )
+    [ set direction ( direction - 90 )
+      set x ( x + round sin direction )
+      set y ( y + round cos direction )
+      set moved true
+    ]
+    [ if ( moved and patch-with-wrap x y = start-patch and direction = ( start-direction + 90 ) )
+      [ report num-road-patches / num-patches ]
+      if ( [road] of p )
+      [ set num-road-patches ( num-road-patches + 1 ) ]
+      set num-patches ( num-patches + 1 )
+      
+      ifelse ( not can-build-here patch-with-wrap ( x + round sin direction ) ( y + round cos direction ) )
+      [ set direction ( direction + 90 )
+      ]
+      [ set x ( x + round sin direction )
+        set y ( y + round cos direction )
+        set moved true
+      ]
+    ]
+  ]
+  report ifelse-value ( num-patches = 0 ) [ 1 ] [ num-road-patches / num-patches ]
+end
+
+to-report force-build-tertiary-road [ pset ]
+  if ( percent-road-patches-can-reach pset world-width <= 0.1 )
+  [ set pset flood-fill4 one-of pset "can-build-here" world-width
+    ask one-of road-extenders
+    [ set xcor mean [ pxcor ] of pset 
+      set ycor mean [ pycor ] of pset 
+      set pset ( pset with [ is-valid-tertiary-patch? self ] )
+      if ( any? pset )
+      [ ask min-one-of pset [ distance myself ]
+        [ set [xcor] of myself pxcor
+          set [ycor] of myself pycor
+        ]
+        Build-Tertiary-Extension
+      ]
+    ]
+    report true
+  ]
+  report false
+end
+
+to-report flood-fill-parcel [ p limit ]
+  let result make-mutable ( patch-set p )
+  let edges result
+  while [ any? edges and count result < limit ]
+  [ set edges ( remove-from-agentset result
+                                     ( ( patch-set [ neighbors4 ] of edges ) with [ owner = [owner] of p ] ) )
+    add-to-mutable-agentset edges result
+  ]
+  report result
+end
+
+to split-building [ b ]
+  ; remove road patches from parcel
+  let temp ( [parcel] of b ) with [ road ]
+  ifelse ( count temp = count [parcel] of b )
+  [ destroy-existing-building b ]
+  [ let original-density ifelse-value ( is-building? b ) [ [population-density] of b ] [ 0 ]
+    ask temp
+    [ set owner nobody
+      set parcel-boundary false
+    ]
+    set ( [global-land-cover] of [building-class] of b ) ( ( [global-land-cover] of [building-class] of b ) - count temp )
+    set city-land-cover ( city-land-cover - count temp )
+    disable-road-area b
+    set [parcel] of b ( remove-from-agentset temp [parcel] of b )
+
+    ; split up the parcel if it's no longer 4-connected
+    let sub-parcels []
+    set temp make-mutable no-patches
+    add-to-mutable-agentset ([parcel] of b) temp
+    while [ any? temp ]
+    [ set sub-parcels ( lput ( flood-fill-parcel one-of temp count temp ) sub-parcels )
+      remove-from-mutable-agentset ( last sub-parcels ) temp
+    ]
+  
+    ; the largest sub-parcel remains the original building.  Other ones get partitioned away.
+    set sub-parcels ( but-first sort-by [ count ?1 > count ?2 ] sub-parcels )
+    if ( not empty? sub-parcels )
+    [ let surrounding-buildings 0
+      foreach sub-parcels
+      [ ifelse ( count ? > [min-parcel-size] of [building-class] of b )
+        [ ; if this is the case, the subsection is large enough for a new building
+          ask b
+          [ hatch 1
+            [ if ( is-building? self )
+              [ set population ( population * ( count ? / count parcel ) )
+                set population-density ( population / count ? )
+                set [population] of b ( [population] of b - population )
+                set year-founded ticks
+              ]
+              set parcel ?
+              ask parcel
+              [ set owner myself
+               ]
+              set temp min-one-of parcel [ dist-to-road ]
+              move-to temp
+              if ( is-building? self )
+              [ find-building-neighbors self
+                find-parcel-boundaries parcel
+                enable-road-area parcel self
+                dirty-all-dependencies! self
+              ]
+            ]
+          ]
+        ]
+        [ ; otherwise, see if we can add it to an existing building
+          set temp ( turtle-set [ owner ] of ( bordering-patches4 ? ) )
+          ifelse ( any? temp )
+          [ set surrounding-buildings temp with [ building-class = [building-class] of b ]
+            if ( not any? surrounding-buildings )
+            [ set surrounding-buildings temp ]
+            set temp max-one-of surrounding-buildings [ ( [max-parcel-size] of building-class - count parcel - count ? ) / [max-parcel-size] of building-class ]
+            if ( [building-class] of temp != [building-class] of b )
+            [ set ( [global-land-cover] of [building-class] of temp ) ( ( [global-land-cover] of [building-class] of temp ) + count ? )
+              set ( [global-land-cover] of [building-class] of b ) ( ( [global-land-cover] of [building-class] of b ) - count ? )
+            ]
+            ask ?
+            [ set owner temp ]
+            if ( is-building? temp )
+            [ set [population-density] of temp ( [population] of temp / count [parcel] of temp )
+              dirty-parcel-dependancies! temp
+            ]
+          ]
+          [ ; but if all alse fails, just set it back to the wild
+            ask ?
+            [ set owner nobody
+              set parcel-boundary false
+              set patch-seen-before 0
+            ]
+            set ( [global-land-cover] of [building-class] of b ) ( ( [global-land-cover] of [building-class] of b ) - count ? )
+            set city-land-cover ( city-land-cover - count ? )
+          ]
+        ]
+        set [parcel] of b ( remove-from-agentset ? [parcel] of b )
+      ]
+      set temp min-one-of parcel [ dist-to-road ]
+      set [xcor] of b [pxcor] of temp
+      set [ycor] of b [pycor] of temp
+      if ( is-building? b )
+      [ set [population-density] of b ( [population] of b / count [parcel] of b )
+        set last-year-updated ticks
+        
+        dirty-all-dependencies! b
+      ]
+    ]
+    if ( is-building? b )
+    [ if ( [population-density] of b > original-density )
+      [ take-from-center-of-density ( [parcel] of b )
+        set temp ( [population-density] of b - original-density ) * count parcel
+        set [global-population] of [building-class] of b ( [global-population] of [building-class] of b - temp )
+        set city-population ( city-population - temp )
+        set [population-density] of b ( original-density )
+        set [population] of b ( original-density * count parcel )
+        add-to-center-of-density ( [parcel] of b )
+      ]
+      find-building-neighbors b
+      find-parcel-boundaries [parcel] of b
+      enable-road-area [parcel] of b b
+    ]
+  ]
+end
+
+to-report patch-slope [patchz]
+  let n count patchz
+  let xlist [pxcor + max-pxcor + 1] of patchz
+  let ylist [pycor + max-pycor + 1] of patchz
+  let meanX mean xlist
+  let meanY mean ylist
+  let ssxx (sum (map [? * ?] xlist) - n * meanX * meanX)
+  let ssxy (sum (map [?1 * ?2] xlist ylist) - n * meanX * meanY)
+  ifelse ( ssxx = 0 )
+  [ report 0 ]
+  [ report atan ssxx ssxy
+  ]
+end
+
+to-report flood-fill4 [ p condition limit ]
+  let result make-mutable no-patches
+  if ( curry-reporter condition p )
+  [ add-to-mutable-agentset p result
+    let edges result
+    while [ any? edges and count result < limit ]
+    [ set edges ( remove-from-agentset result
+                                       ( ( patch-set [ neighbors4 ] of edges) with [ ( curry-reporter condition self ) ] ) )
+      add-to-mutable-agentset edges result
+    ]
+  ]
+  report result
+end

@@ -1,0 +1,335 @@
+globals
+[ average-commercial-terrain
+  average-commercial-elevation
+ 	average-commercial-density
+ 	average-commercial-primary-road-constraint
+ 	average-commercial-honey
+  average-distance-to-commercial-building
+ 	COMMERCIAL
+]
+
+breed [ commercial-developers commercial-developer ]
+
+
+commercial-developers-own
+[ developer-class
+  patience
+  best-empty-patches
+]
+
+patches-own
+[ old-P-commercial-terrain
+  old-P-commercial-elevation
+  old-P-commercial-density
+  old-P-commercial-primary-road-constraint
+  old-P-distance-to-commercial-building
+  commercial-honey
+]
+
+
+to create-commercial-class
+  create-developer-classes 1
+  [ set name "commercial"
+    set global-population 0
+    set desired-population desired-commercial-population
+    set global-land-cover 0
+    set desired-land-cover desired-commercial-land-cover
+    
+    set gis-code 12
+    set min-parcel-size min-commercial-parcel-size
+    set max-parcel-size max-commercial-parcel-size
+    set initial-density initial-commercial-building-density
+    set max-density 1000
+    set max-patience 10
+    set bit-flag 2
+    set ALL-DIRTY-FLAGS ( ALL-DIRTY-FLAGS b-or bit-flag )
+        
+    set value-weight-vector [ 0.15 0.20 0.15 .10 0.20 1.00 ]
+    set patch-vector-func "commercial-patch-vector"
+    set patch-constraint-func "commercial-patch-constraint"
+    set building-vector-func "commercial-building-vector"
+    set building-constraint-func "commercial-building-constraint"
+    
+    set validity-func "valid-commercial-zone"
+    set set-color-func "set-commercial-color"
+    set get-frequency-func "get-commercial-frequency"
+    set add-frequency-func "add-commercial-frequency"
+    set get-honey-func "get-commercial-honey"
+    set surrounding-area-func "commercial-surrounding-area"
+
+    set COMMERCIAL self
+  ]
+end
+
+to init-commercial-developers
+
+  set average-commercial-density 0
+  set average-commercial-honey 0
+ 	
+  create-commercial-developers number-of-commercial-developers
+  [ ;setxy START-X  START-Y
+    set developer-class COMMERCIAL
+    set patience [max-patience] of developer-class
+    ( curry [set-color-func] of developer-class self )
+    set best-empty-patches no-patches
+    set size 1.5
+    set shape "circle"
+  ]
+
+  ask patches
+  [ set old-P-commercial-density 0
+    set dirty-P-commercial-primary-road-constraint true
+    set old-P-distance-to-commercial-building world-width
+    set commercial-honey 0
+  ]
+  
+  set average-commercial-terrain mean [ patch-commercial-terrain ] of patches 
+  set average-commercial-elevation mean [ patch-commercial-elevation ] of patches 
+  set average-commercial-primary-road-constraint mean [ patch-commercial-primary-road-constraint ] of patches 
+end
+
+to set-commercial-color [ a ]
+  ifelse ( is-patch? a and ( [owner] of a ) != nobody )
+  [ set [pcolor] of a scale-color red ( [population-density] of ( [owner] of a ) ) -25 50 ]
+  [ if ( is-turtle? a )
+    [ set [color] of a red ]
+  ]
+end
+
+to add-commercial-frequency
+  set commercial-frequency commercial-frequency + 1
+end
+
+to-report get-commercial-frequency
+  report commercial-frequency
+end
+
+to-report get-commercial-honey [ a ]
+  ifelse ( is-patch? a and ( [owner] of a = nobody ) )
+  [ report commercial-honey ]
+  [ if ( is-turtle? a )
+    [ report mean [ commercial-honey ] of ( [parcel] of a ) ]
+    report 0
+  ]
+end
+
+to-report valid-commercial-zone [ a ]
+  ifelse ( is-patch? a )
+  [ report [ terrain = "land" and not road ] of a  ]
+  [ report true ]
+end
+
+; we may, with time, want to change this surrounding area ...
+to-report commercial-surrounding-area [ b ]
+  report [ remove-from-agentset self ( turtle-set [ owner ] of ( patch-set [ local-area ] of parcel ) ) ]
+  			of b
+
+;  if ( dirty-B-surrounding-area )
+;  [ set old-B-surrounding-area ( remove-from-agentset self ( ( turtle-set [ buildings in-radius 10 ] of parcel )
+;                                                             with [ building-class = RESIDENTIAL ] ) )
+;    set dirty-B-surrounding-area false
+;  ]
+;  report old-B-surrounding-area
+end
+
+to-report commercial-surrounding-density
+  let surrounding-bldgs ( commercial-surrounding-area self )
+  report ( ( safe-sum [ population ] of ( surrounding-bldgs with [ building-class = RESIDENTIAL ] ) )
+         - ( safe-sum [ population ] of ( surrounding-bldgs with [ building-class = COMMERCIAL ] ) ) )
+;  output-print commercial-surrounding-area
+;  if ( dirty-B-surrounding-density or dirty-B-surrounding-area )
+;  [ set old-B-surrounding-density safe-sum [ population ] of commercial-surrounding-area 
+;    set dirty-B-surrounding-density false
+;  ]
+;  report old-B-surrounding-density
+end
+
+;to-report commercial-density-difference
+;  if ( dirty-B-density-difference or dirty-B-surrounding-density or dirty-B-surrounding-area )
+;  [ let surrounding-pop commercial-surrounding-density
+;    ifelse ( surrounding-pop <= 0 )
+;    [ set old-B-density-difference 0 ]
+;    [ ; the target is 1 ... place any new target as quotient, and change offset in gaussian
+;      let factor -4 * square ( 1 / 1 )
+;      set old-B-density-difference exp ( factor * square ( safe-divide population-density surrounding-pop - 1 ) )
+;    ]
+;    set dirty-B-density-difference false
+;  ]
+;  report old-B-density-difference
+;end
+
+to-report commercial-density-difference
+  if ( dirty-B-surrounding-area or dirty-B-surrounding-density or dirty-B-density-difference )
+  [ let density-diff population-density / commercial-surrounding-density
+    ifelse ( density-diff < 1.5 )
+    [ set old-B-density-difference 1 ]
+    [ ifelse ( density-diff >= 2.5 )
+      [ set old-B-density-difference 0 ]
+      [ set old-B-density-difference ( log ( 1.5 + 2 - density-diff ) 2 ) ]
+    ]
+    set dirty-B-density-difference false
+  ]
+  report old-B-density-difference
+end
+
+;; Patch values and value functions
+
+to-report patch-commercial-terrain
+  if ( Is-Dirty? dirty-P-terrain-value ( [bit-flag] of COMMERCIAL ) )
+  [ set old-P-commercial-terrain 1.0 / sqrt ( 1 + dist-to-water )
+    set dirty-P-terrain-value ( Clear dirty-P-terrain-value ( [bit-flag] of COMMERCIAL ) )
+  ]
+  report old-P-commercial-terrain
+end
+
+to-report patch-commercial-elevation
+  if ( Is-Dirty? dirty-P-elevation-value ( [bit-flag] of COMMERCIAL ) )
+  [ let temp [ elevation ] of local-area 
+    set old-P-commercial-elevation exp ( - ( variance temp ) )
+
+;    set old-P-commercial-elevation 0.5 * ( exp ( - ( variance temp ) ) +
+;                                           exp ( - ( abs ( max temp - min temp ) ) ) )
+    set dirty-P-elevation-value ( Clear dirty-P-elevation-value ( [bit-flag] of COMMERCIAL ) )
+  ]
+  report old-P-commercial-elevation
+end
+
+to-report patch-commercial-primary-road-constraint
+  if ( dirty-P-commercial-primary-road-constraint )
+  [ set average-commercial-primary-road-constraint ( average-commercial-primary-road-constraint - old-P-commercial-primary-road-constraint / count patches )
+    set old-P-commercial-primary-road-constraint ifelse-value ( road ) [ 0 ] [ exp ( - dist-to-primary-road ) ]
+    set average-commercial-primary-road-constraint ( average-commercial-primary-road-constraint + old-P-commercial-primary-road-constraint / count patches )
+    set dirty-P-commercial-primary-road-constraint false
+  ]
+  report old-P-commercial-primary-road-constraint
+end
+
+;to-report patch-commercial-density
+;  if ( Is-Dirty? dirty-P-density-value ( bit-flag-of COMMERCIAL ) )
+;  [ set average-commercial-density ( average-commercial-density - old-P-commercial-density / count patches )
+;    set old-P-commercial-density safe-max [ parcel-density ] of ( local-area with [ is-building? owner and building-class-of owner = COMMERCIAL ] ) 
+;    set average-commercial-density ( average-commercial-density + old-P-commercial-density / count patches )
+;    set dirty-P-density-value ( Clear dirty-P-density-value ( bit-flag-of COMMERCIAL ) )
+;  ]
+;  report old-P-commercial-density
+;end
+
+to-report patch-commercial-density
+  if ( Is-Dirty? dirty-P-density-value ( [bit-flag] of COMMERCIAL ) )
+  [ ;set old-P-commercial-density mean [ class-parcel-density COMMERCIAL ] of local-area 
+    set old-P-commercial-density patch-class-density COMMERCIAL
+    set dirty-P-density-value ( Clear dirty-P-density-value ( [bit-flag] of COMMERCIAL ) )
+  ]
+  report old-P-commercial-density
+end
+
+to-report patch-commercial-clustering
+  let temp ( turtle-set [ owner ] of local-area ) with [ is-building? self and building-class = COMMERCIAL ]
+  let commercial-buildings make-mutable temp
+  while [ any? temp ]
+  [ set temp  ( turtle-set [ building-neighbors ] of temp ) with [ building-class = COMMERCIAL and ( not member? self commercial-buildings ) ]
+    add-to-mutable-agentset temp commercial-buildings
+  ]
+  report safe-divide-default 1.0 1.0 count patch-set [ parcel ] of commercial-buildings 
+end
+
+to-report patch-min-distance-from-commercial-buildings
+  if ( dirty-P-distance-to-commercial-building )
+  [ set average-distance-to-commercial-building ( average-distance-to-commercial-building - old-P-distance-to-commercial-building / count patches )
+    let temp ( buildings with [ building-class = COMMERCIAL ] )
+    set old-P-distance-to-commercial-building ifelse-value ( any? temp )
+                                              [ min [ distance myself ] of temp ]
+                                              [ world-width ]
+    set average-distance-to-commercial-building ( average-distance-to-commercial-building + old-P-distance-to-commercial-building / count patches )
+    set dirty-P-distance-to-commercial-building false
+  ]
+  report old-P-distance-to-commercial-building
+end
+
+to-report commercial-patch-constraint [ p ]
+  report [ .80 + 0.20 * ( 10 ^ ( - ( safe-divide ( ULTIMATE-DISTANCE - park-proximity ) average-park-proximity ) ) ) ]
+           of p
+end
+
+to-report commercial-patch-vector [ p ]
+  report [ ( list ( normalize-value-around-mean patch-commercial-terrain average-commercial-terrain )
+                  ( normalize-value-around-mean patch-commercial-elevation average-commercial-elevation )
+                  ( normalize-value-around-mean patch-residential-density ( average-density RESIDENTIAL ) )
+                  ( normalize-value-around-mean patch-min-distance-from-commercial-buildings average-distance-to-commercial-building )
+                  ( ( 1 + ( normalize-value-around-mean patch-commercial-primary-road-constraint average-commercial-primary-road-constraint ) ) *
+                    patch-commercial-clustering * ( normalize-value-around-mean patch-commercial-density ( average-density COMMERCIAL ) ) )
+                  ( normalize-value-around-mean commercial-honey average-commercial-honey ) ) ]
+           of p
+end
+
+;; building values and value functions
+
+to-report building-commercial-terrain
+  if ( Is-Dirty? dirty-B-terrain-value ( [bit-flag] of COMMERCIAL ) )
+  [ set old-B-commercial-terrain safe-mean [ patch-commercial-terrain ] of parcel 
+    set dirty-B-terrain-value ( Clear dirty-B-terrain-value ( [bit-flag] of COMMERCIAL ) )
+  ]
+  report old-B-commercial-terrain
+end
+
+to-report building-commercial-elevation
+  if ( Is-Dirty? dirty-B-elevation-value ( [bit-flag] of COMMERCIAL ) )
+  [ set old-B-commercial-elevation safe-mean [ patch-commercial-elevation ] of parcel 
+    set dirty-B-elevation-value ( Clear dirty-B-elevation-value ( [bit-flag] of COMMERCIAL ) )
+  ]
+  report old-B-commercial-elevation
+end
+
+to-report building-commercial-density
+  if ( Is-Dirty? dirty-B-density-value ( [bit-flag] of COMMERCIAL ) )
+  [ ; set old-B-commercial-density safe-mean [ patch-commercial-density ] of parcel 
+    set old-B-commercial-density building-class-density COMMERCIAL
+    set dirty-B-density-value ( Clear dirty-B-density-value ( [bit-flag] of COMMERCIAL ) )
+  ]
+  report old-B-commercial-density
+end
+
+;to-report building-commercial-density
+;  if ( Is-Dirty? dirty-B-density-value ( bit-flag-of COMMERCIAL ) )
+;  [ set old-B-commercial-density safe-mean [ class-parcel-density COMMERCIAL ] of ( patch-set [ local-area ] of parcel )
+;    set dirty-B-density-value ( Clear dirty-B-density-value ( bit-flag-of COMMERCIAL ) )
+;  ]
+;  report old-B-commercial-density
+;end
+
+to-report building-commercial-primary-road-constraint
+  if ( dirty-B-commercial-primary-road-constraint )
+  [ set old-B-commercial-primary-road-constraint mean [ patch-commercial-primary-road-constraint ] of parcel 
+    set dirty-B-commercial-primary-road-constraint false
+  ]
+  report old-B-commercial-primary-road-constraint  
+  
+end
+
+;; FIXME  This could be sped up I think, lots of consing up agentsets!  -CLB
+to-report building-commercial-clustering
+  let temp building-neighbors with [ is-building? self and building-class = COMMERCIAL ]
+  let commercial-buildings make-mutable temp
+  while [ any? temp ]
+  [ set temp ( turtle-set [ building-neighbors ] of temp ) with [ building-class = COMMERCIAL and ( not member? self commercial-buildings ) ]
+    add-to-mutable-agentset temp commercial-buildings
+  ]
+  report safe-divide-default 1.0 1.0 count patch-set [ parcel ] of commercial-buildings 
+end
+
+to-report commercial-building-constraint [ b ]
+  report [ .80 + 0.20 * ( 10 ^ ( - mean [ safe-divide ( ULTIMATE-DISTANCE - park-proximity ) average-park-proximity ] of parcel ) ) ]
+  	         of b
+end
+
+to-report commercial-building-vector [ b ]
+  report [ ( list ( normalize-value-around-mean building-commercial-terrain average-commercial-terrain )
+                  ( normalize-value-around-mean building-commercial-elevation average-commercial-elevation )
+                  ( normalize-value-around-mean building-residential-density ( average-density RESIDENTIAL ) )
+                  1.0
+                  ( ( 1 + ( normalize-value-around-mean building-commercial-primary-road-constraint average-commercial-primary-road-constraint ) ) *
+                    ( building-commercial-clustering ) *
+                    ( normalize-value-around-mean building-commercial-density ( average-density COMMERCIAL ) ) )
+                  ( normalize-value-around-mean ( mean [ commercial-honey ] of parcel ) average-commercial-honey ) ) ]
+             of b
+end

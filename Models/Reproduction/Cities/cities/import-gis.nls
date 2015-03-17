@@ -1,0 +1,75 @@
+patches-own
+[ gis-type ]
+
+to import-gis [ filename ]
+  let ncols 0
+  let nrows 0
+  let NODATA 0
+  
+  file-open filename
+  ifelse ( file-read-characters 5 = "ncols" )
+  [ set ncols file-read ]
+  [ output-print "Error reading file."
+    stop
+  ]
+  ifelse ( file-read-characters 5 = "nrows" )
+  [ set nrows file-read ]
+  [ output-print "Error reading file."
+    stop
+  ]
+  
+  if ( ncols > world-width )
+  [ output-print "The file describes a world too big for the current model."
+    output-print (word "The world dimensions are " ncols "x" nrows ".")
+    output-print (word "The model dimensions are " world-width "x" world-height ".")
+    stop
+  ]
+  
+  let trash file-read-line ; xllcorner value
+  set trash file-read-line ; yllcorner value
+  set trash file-read-line ; cellsize value
+  ifelse ( file-read-characters 12 = "NODATA_value" )
+  [ set NODATA file-read ]
+  [ output-print "Error reading file."
+    stop
+  ]
+  ask patches
+  [ set gis-type NODATA ]
+  
+  let x 0
+  let y 0
+  let min-x round ( ncols / -2 )
+  let max-y round ( nrows / 2 )
+  repeat nrows
+  [ set x 0
+    repeat ncols
+    [ set [gis-type] of ( patch ( min-x + x ) ( max-y - y ) ) file-read
+      set x ( x + 1 )
+    ]
+    set y ( y + 1 )
+  ]
+  file-close
+  convert-gis-data-to-model
+end
+
+to convert-gis-data-to-model
+  ask patches
+  [ set elevation GROUND-LEVEL ]
+  ask patches with [ gis-type = 50 ]
+  [ set elevation WATER-LEVEL
+    set terrain "water"
+  ]
+  Show-Terrain
+  ask patches with [ gis-type = 14 ]
+  [ BuildRoad self 1
+  ]
+  ask patches with [ gis-type = [gis-code] of RESIDENTIAL ]
+  [ set pcolor yellow
+  ]
+  ask patches with [ gis-type = [gis-code] of COMMERCIAL ]
+  [ set pcolor red
+  ]
+  ask patches with [ gis-type = [gis-code] of INDUSTRIAL ]
+  [ set pcolor blue
+  ]
+end

@@ -1,0 +1,715 @@
+breed [mice mouse]
+
+globals
+[ road-painting-buffer
+]
+
+;; generic brush functions
+
+to-report Get-Brush
+    if (BRUSH-TYPE = "Round")
+        [report (patches in-radius-nowrap BRUSH-RADIUS)]
+    if (BRUSH-TYPE = "Square")
+        [report (patches in-rectangle-nowrap BRUSH-RADIUS BRUSH-RADIUS)]
+end
+
+to-report Inc-Feather [center var const]
+    if (BRUSH-TYPE = "Round")
+        [report (var + (BRUSH-RADIUS - distance center) / (BRUSH-RADIUS * const))]
+    if (BRUSH-TYPE = "Square")
+        [report (var + (BRUSH-RADIUS - max-patch-dimension center) / (BRUSH-RADIUS * const))]
+end
+
+to-report Dec-Feather [center var const]
+    if (BRUSH-TYPE = "Round")
+        [report (var - (BRUSH-RADIUS - distance center) / (BRUSH-RADIUS * const))]
+    if (BRUSH-TYPE = "Square")
+        [report (var - (BRUSH-RADIUS - max-patch-dimension center) / (BRUSH-RADIUS * const))]
+end
+
+to-report max-patch-dimension [p]
+  let x abs([pxcor] of p - pxcor)
+  let y abs([pycor] of p - pycor)
+  if (x > max-pxcor) [set x (max-pxcor + max-pxcor - x)]
+  if (y > max-pycor) [set y (max-pycor + max-pycor - y)]
+  if (x > y) [report x]
+  report y
+end
+
+;; Increasing Attribute Brushes
+
+to Inc-X-SCALE
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-xscale < ULTIMATE-DISTANCE ]
+    [ set my-xscale Inc-Feather p my-xscale 1.0
+      set pcolor scale-color red my-xscale 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Inc-Y-SCALE
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-yscale < ULTIMATE-DISTANCE ]
+    [ set my-yscale Inc-Feather p my-yscale 1.0
+      set pcolor scale-color red my-yscale 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Inc-GRID-ANGLE
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-grid-angle < 45 ]
+    [ set my-grid-angle Inc-Feather p my-grid-angle 1.0
+      set pcolor scale-color red my-grid-angle -45 45
+    ]
+    display
+  ]
+end
+
+to Inc-MIN-DISTANCE
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-min-dist < my-max-dist ]
+    [ set my-min-dist Inc-Feather p my-min-dist 1.0
+      set pcolor scale-color red my-min-dist 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Inc-MAX-DISTANCE
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-max-dist < ULTIMATE-DISTANCE ]
+    [ set my-max-dist Inc-Feather p my-max-dist 1.0
+      set pcolor scale-color red my-max-dist 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Inc-DEV-X
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-devx < ( ULTIMATE-DISTANCE * 2.0 ) ]
+    [ set my-devx Inc-Feather p my-devx 1.0
+      set pcolor scale-color red my-devx 0 ( ULTIMATE-DISTANCE * 2.0 )
+    ]
+    display
+  ]
+end
+
+to Inc-DEV-Y
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-devy < ( ULTIMATE-DISTANCE * 2.0 ) ]
+    [ set my-devy Inc-Feather p my-devy 1.0
+      set pcolor scale-color red my-devy 0 (ULTIMATE-DISTANCE * 2.0)
+    ]
+    display
+  ]
+end
+
+to Inc-RATIO
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-ratio < ( ULTIMATE-DISTANCE / 2.0 ) ]
+    [ set my-ratio Inc-Feather p my-ratio 10.0
+      set pcolor scale-color red my-ratio 0 (ULTIMATE-DISTANCE / 2.0)
+    ]
+    display
+  ]
+end
+
+to Inc-CONCENTRATION
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-ctrn < 1.0 ]
+    [ set my-ctrn Inc-Feather p my-ctrn 100.0
+      set pcolor scale-color red my-ctrn 0.0 1.0
+    ]
+    display
+  ]
+end
+
+to Inc-ELEVATION
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ elevation < 255 ]
+    [ set elevation Inc-Feather p elevation 1.0
+      if (elevation > WATER-LEVEL and terrain = "water")
+      [ set terrain "land"
+      ]
+      Set-Color-Of-Terrain
+    ]
+    display
+  ]
+end
+
+to Inc-Residential-Honey
+  if ( mouse-down? and Mouse-Moved? )
+  [ let p ( patch mouse-xcor mouse-ycor )
+    let new-hue 0
+    let original-hue 0
+    let temp 0
+    let hue 0
+    ask ( [ Get-Brush ] of p )
+    [ set residential-honey min-of-2 ( Inc-Feather p residential-honey 50 ) 1.0
+      Set-Color-Of-Terrain
+      set new-hue 360.0 * first extract-hsb yellow
+        set temp extract-hsb pcolor
+        set original-hue 360.0 * first temp
+        let temp2 ( map [ ?1 + .25 * ( 1 - residential-honey ) * ?2 ] ( list ( cos new-hue ) ( sin new-hue ) ) ( list ( cos original-hue ) ( sin original-hue ) ) )
+        set hue (atan (item 1 temp2) (item 0 temp2)) / 360.0
+        if ( residential-honey > 0 )
+        [ set pcolor approximate-hsb hue
+                         ( residential-honey * ( 1 - ( item 1 temp ) ) + ( item 1 temp ) )
+                         ( residential-honey * ( 1 - ( item 2 temp ) ) + ( item 2 temp ) )
+        ]
+    ]
+    set average-residential-honey mean [ residential-honey ] of patches 
+    display
+  ]
+end
+
+to Inc-Commercial-Honey
+  if ( mouse-down? and Mouse-Moved? )
+  [ let p ( patch mouse-xcor mouse-ycor )
+    let new-hue 0
+    let original-hue 0
+    let temp 0
+    let hue 0
+    ask ( [ Get-Brush ] of p )
+    [ set commercial-honey min-of-2 ( Inc-Feather p commercial-honey 50 ) 1.0
+      Set-Color-Of-Terrain
+        set new-hue 360.0 * first extract-hsb red
+        set temp extract-hsb pcolor
+        set original-hue 360.0 * first temp
+        let temp2 ( map [ ?1 + .25 * ( 1 - commercial-honey ) * ?2 ] ( list ( cos new-hue ) ( sin new-hue ) )
+                       ( list ( cos original-hue ) ( sin original-hue ) ) )
+        set hue ( atan (item 1 temp2) (item 0 temp2)) / 360.0 
+        if ( commercial-honey > 0 )
+        [ set pcolor approximate-hsb hue
+                         ( commercial-honey * ( 1 - ( item 1 temp ) ) + ( item 1 temp ) )
+                         ( commercial-honey * ( 1 - ( item 2 temp ) ) + ( item 2 temp ) )
+        ]      
+    ]
+    set average-commercial-honey mean [ commercial-honey ] of patches 
+    display
+  ]
+end
+
+to Inc-Industrial-Honey
+  if ( mouse-down? and Mouse-Moved? )
+  [ let p ( patch mouse-xcor mouse-ycor )
+    let new-hue 0
+    let original-hue 0
+    let temp 0
+    let hue 0
+    ask ( [ Get-Brush ] of p )
+    [ set industrial-honey min-of-2 ( Inc-Feather p industrial-honey 50 ) 1.0
+      Set-Color-Of-Terrain
+        set new-hue 360.0 * first extract-hsb blue
+        set temp extract-hsb pcolor
+        set original-hue 360.0 * first temp
+        let temp2 ( map [ ?1 + .25 * ( 1 - industrial-honey ) * ?2 ] ( list ( cos new-hue ) ( sin new-hue ) )
+                             ( list ( cos original-hue ) ( sin original-hue ) ) )
+        set hue ( atan (item 1 temp2) (item 0 temp2) ) / 360.0 
+        if ( industrial-honey > 0 )
+        [ set pcolor approximate-hsb hue
+                         ( industrial-honey * ( 1 - ( item 1 temp ) ) + ( item 1 temp ) )
+                         ( industrial-honey * ( 1 - ( item 2 temp ) ) + ( item 2 temp ) )
+        ]
+    ]
+    set average-industrial-honey mean [ industrial-honey ] of patches 
+    display
+  ]
+end
+
+;; Decreasing Attribute Brushes
+
+to Dec-X-SCALE
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-xscale > 0 ]
+    [ set my-xscale Dec-Feather p my-xscale 1.0
+      set pcolor scale-color red my-xscale 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Dec-Y-SCALE
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-yscale > 0 ]
+    [ set my-yscale Dec-Feather p my-yscale 1.0
+      set pcolor scale-color red my-yscale 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Dec-GRID-ANGLE
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-grid-angle > -45 ]
+    [ set my-grid-angle Dec-Feather p my-grid-angle 1.0
+      set pcolor scale-color red my-grid-angle -45 45
+    ]
+    display
+  ]
+end
+
+to Dec-MIN-DISTANCE
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-min-dist > 0 ]
+    [ set my-min-dist Dec-Feather p my-min-dist 1.0
+      set pcolor scale-color red my-min-dist 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Dec-MAX-DISTANCE
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-max-dist > my-min-dist ]
+    [ set my-max-dist Dec-Feather p my-max-dist 1.0
+      set pcolor scale-color red my-max-dist 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Dec-DEV-X
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-devx > 0 ]
+    [ set my-devx Dec-Feather p my-devx 1.0
+      set pcolor scale-color red my-devx 0 (ULTIMATE-DISTANCE * 2.0)
+    ]
+    display
+  ]
+end
+
+to Dec-DEV-Y
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-devy > 0 ]
+    [ set my-devy Dec-Feather p my-devy 1.0
+      set pcolor scale-color red my-devy 0 (ULTIMATE-DISTANCE * 2.0)
+    ]
+    display
+  ]
+end
+
+to Dec-RATIO
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-ratio > 0 ]
+    [ set my-ratio Dec-Feather p my-ratio 10.0
+      set pcolor scale-color red my-ratio 0 (ULTIMATE-DISTANCE / 2.0)
+    ]
+    display
+  ]
+end
+
+to Dec-CONCENTRATION
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ my-ctrn > 0.0 ]
+    [ set my-ctrn Dec-Feather p my-ctrn 100.0
+      set pcolor scale-color red my-ctrn 0.0 1.0
+    ]
+    display
+  ]
+end
+
+to Dec-ELEVATION
+  if (mouse-down? and Mouse-Moved?)
+  [ let p ( patch mouse-xcor mouse-ycor )
+    ask ( [ Get-Brush ] of p )
+    with [ elevation > 0 ]
+    [ set elevation Dec-Feather p elevation 1.0
+      if (elevation <= WATER-LEVEL and terrain = "land")
+      [ set terrain "water"
+      ]
+      Set-Color-Of-Terrain
+    ]
+    display
+  ]
+end
+
+to Dec-Residential-Honey
+  if ( mouse-down? and Mouse-Moved? )
+  [ let p ( patch mouse-xcor mouse-ycor )
+    let new-hue 0
+    let original-hue 0
+    let temp 0
+    let hue 0
+    ask ( [ Get-Brush ] of p )
+    [ set residential-honey max-of-2 ( Dec-Feather p residential-honey 50 ) 0.0
+      Set-Color-Of-Terrain
+        set new-hue 360.0 * first extract-hsb yellow
+        set temp extract-hsb pcolor
+        set original-hue 360.0 * first temp
+        let temp2 ( map [ ?1 + .25 * ( 1 - residential-honey ) * ?2 ] ( list ( cos new-hue ) ( sin new-hue ) )
+                                   ( list ( cos original-hue ) ( sin original-hue ) ) )
+        set hue ( atan (item 1 temp2) (item 0 temp2) ) / 360.0 
+        if ( residential-honey > 0 )
+        [ set pcolor approximate-hsb hue
+                         ( residential-honey * ( 1 - ( item 1 temp ) ) + ( item 1 temp ) )
+                         ( residential-honey * ( 1 - ( item 2 temp ) ) + ( item 2 temp ) )
+        ]     
+    ]
+    set average-residential-honey mean [ residential-honey ] of patches 
+    display
+  ]
+end
+
+to Dec-Commercial-Honey
+  if ( mouse-down? and Mouse-Moved? )
+  [ let p ( patch mouse-xcor mouse-ycor )
+    let new-hue 0
+    let original-hue 0
+    let temp 0
+    let hue 0
+    ask ( [ Get-Brush ] of p )
+    [ set commercial-honey max-of-2 ( Dec-Feather p commercial-honey 50 ) 0.0
+      Set-Color-Of-Terrain
+        set new-hue 360.0 * first extract-hsb red
+        set temp extract-hsb pcolor
+        set original-hue 360.0 * first temp
+        let temp2 ( map [ ?1 + .25 * ( 1 - commercial-honey ) * ?2 ] ( list ( cos new-hue ) ( sin new-hue ) )
+                                   ( list ( cos original-hue ) ( sin original-hue ) ) )
+        set hue ( atan (item 1 temp2) (item 0 temp2) ) / 360.0 
+        if ( commercial-honey > 0 )
+        [ set pcolor approximate-hsb hue
+                         ( commercial-honey * ( 1 - ( item 1 temp ) ) + ( item 1 temp ) )
+                         ( commercial-honey * ( 1 - ( item 2 temp ) ) + ( item 2 temp ) )
+        ]
+    ]
+    set average-commercial-honey mean [ commercial-honey ] of patches 
+    display
+  ]
+end
+
+to Dec-Industrial-Honey
+  if ( mouse-down? and Mouse-Moved? )
+  [ let p ( patch mouse-xcor mouse-ycor )
+    let new-hue 0
+    let original-hue 0
+    let temp 0
+    let hue 0
+    ask ( [ Get-Brush ] of p )
+    [ set industrial-honey max-of-2 ( Dec-Feather p industrial-honey 50 ) 0.0
+      Set-Color-Of-Terrain
+        set new-hue 360.0 * first extract-hsb blue
+        set temp extract-hsb pcolor
+        set original-hue 360.0 * first temp
+        let temp2 ( map [ ?1 + .25 * ( 1 - industrial-honey ) * ?2 ] ( list ( cos new-hue ) ( sin new-hue ) )
+                               ( list ( cos original-hue ) ( sin original-hue ) ) )
+        set hue ( atan (item 1 temp2) (item 0 temp2) ) / 360.0 
+        
+        if ( industrial-honey > 0 )
+        [ set pcolor approximate-hsb hue
+                         ( industrial-honey * ( 1 - ( item 1 temp ) ) + ( item 1 temp ) )
+                         ( industrial-honey * ( 1 - ( item 2 temp ) ) + ( item 2 temp ) )
+        ]
+    ]
+    set average-industrial-honey mean [ industrial-honey ] of patches 
+    display
+  ]
+end
+
+;; set to fixed value
+
+to Set-X-SCALE
+  if (mouse-down? and Mouse-Moved?)
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    [ set my-xscale X-SCALE
+      set pcolor scale-color red my-xscale 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Set-Y-SCALE
+  if (mouse-down? and Mouse-Moved?)
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    [ set my-yscale Y-SCALE
+      set pcolor scale-color red my-yscale 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Set-GRID-ANGLE
+  if (mouse-down? and Mouse-Moved?)
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    [ set my-grid-angle GRID-ANGLE
+      set pcolor scale-color red my-grid-angle -45 45
+    ]
+    display
+  ]
+end
+
+to Set-MIN-DISTANCE
+  if (mouse-down? and Mouse-Moved?)
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    with [ my-max-dist > MIN-DISTANCE ]
+    [ set my-min-dist MIN-DISTANCE
+      set pcolor scale-color red my-min-dist 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Set-MAX-DISTANCE
+  if (mouse-down? and Mouse-Moved?)
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    with [ my-min-dist < MAX-DISTANCE ]
+    [ set my-max-dist MAX-DISTANCE
+      set pcolor scale-color red my-max-dist 0 ULTIMATE-DISTANCE
+    ]
+    display
+  ]
+end
+
+to Set-DEV-X
+  if (mouse-down? and Mouse-Moved?)
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    [ set my-devx DEV-X
+      set pcolor scale-color red my-devx 0 ( ULTIMATE-DISTANCE * 2 )
+    ]
+    display
+  ]
+end
+
+to Set-DEV-Y
+  if (mouse-down? and Mouse-Moved?)
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    [ set my-devy DEV-Y
+      set pcolor scale-color red my-devy 0 ( ULTIMATE-DISTANCE * 2 )
+    ]
+    display
+  ]
+end
+
+to Set-RATIO
+  if (mouse-down? and Mouse-Moved?)
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    [ set my-ratio MANHATTAN-RATIO
+      set pcolor scale-color red my-ratio 0 (ULTIMATE-DISTANCE / 2)
+    ]
+    display
+  ]
+end
+
+to Set-CONCENTRATION
+  if (mouse-down? and Mouse-Moved?)
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    [ set my-ctrn MAX-ROAD-CONCENTRATION
+      set pcolor scale-color red my-ctrn 0 1.0
+    ]
+    display
+  ]
+end
+
+to Set-ELEVATION
+  if (mouse-down? and Mouse-Moved?)
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    [ set elevation GROUND-LEVEL
+      ifelse (GROUND-LEVEL > WATER-LEVEL)
+      [ set terrain "land" ]
+      [ set terrain "water" ]
+      Set-Color-Of-Terrain
+    ]
+    display
+  ]
+end
+
+to user-reserve-terrain
+  if ( mouse-down? and Mouse-Moved? )
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    [ set reserved true
+      Set-Color-Of-Terrain
+      let oldhsb extract-hsb pcolor
+      set pcolor approximate-hsb (item 0 oldhsb) (item 1 oldhsb) ( 0.5 * (item 2 oldhsb) )
+    ]
+    display
+  ]
+end
+
+to user-free-terrain
+  if ( mouse-down? and Mouse-Moved? )
+  [ ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    [ set reserved false
+      Set-Color-Of-Terrain
+    ]
+    display
+  ]
+end
+
+;; drawing functions
+
+to Draw-Primary
+  ifelse (mouse-down? and Mouse-Moved?)
+  [ if (not any? mice)
+    [ create-mice 1
+      [ set xcor mouse-xcor
+        set ycor mouse-ycor
+      ]
+      set road-painting-buffer []
+    ]
+    ask mice
+    [ while [ xcor != mouse-xcor and ycor != mouse-ycor and mouse-down? ]
+      [ set heading towardsxy mouse-xcor mouse-ycor            
+        ask patch-here
+        [ set pcolor yellow
+          set road-painting-buffer ( lput self road-painting-buffer )
+          set primary-road-orientation [heading] of myself
+        ]
+        jump ( min-of-2 1 (sqrt ( ( ( xcor - mouse-xcor ) * ( xcor - mouse-xcor ) ) + ( ( ycor - mouse-ycor ) * ( ycor - mouse-ycor ) ) ) ) )
+      ]
+    ]
+  ]
+  [ if (not mouse-down? and any? mice)
+    [ ask mice [ die ]
+      commit-primary-road-segment road-painting-buffer
+      set average-commercial-primary-road-constraint mean [ patch-commercial-primary-road-constraint ] of patches 
+      Show-Running-Display
+    ]
+  ]
+  display
+end
+
+to Erase-Buildings
+  if ( mouse-down? and Mouse-Moved? )
+  [ ask turtle-set [owner] of [ Get-Brush ] of patch mouse-xcor mouse-ycor
+    [ destroy-existing-building self ]
+    Show-Running-Display
+    update-plots
+  ]
+end
+
+to Erase-Roads
+  if ( mouse-down? and Mouse-Moved? )
+  [ let dirty-patches make-mutable no-patches
+    let large-area no-patches
+    let temp 0
+    ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+    with [ road ]
+    [ set temp ifelse-value ( road-type < 3 ) [ ROAD-DENSITY-INC / 2 ] [ ROAD-DENSITY ]
+	  ask ultimate-area
+      [ set road-density ( road-density - temp )
+        if ( road-density < ROAD-DENSITY-INC )
+        [ set road-density 0 ]
+      ]
+      set road false
+      set road-type 0
+      set connectivity 0
+      set is-corner false
+      set dist-to-primary-road-along-road -1
+      add-to-mutable-agentset ultimate-area dirty-patches
+    ]
+    set average-road-density mean [ road-density ] of patches 
+    ask dirty-patches
+    [ dirty-road-dependancies! self
+      set large-area ultimate-area with [ road ]
+      carefully
+      [ set dist-to-road min [ distance myself ] of large-area ]
+      [ set dist-to-road ULTIMATE-DISTANCE + 1 ]
+      carefully
+      [ set dist-to-primary-road min [ distance myself ] of ( large-area with [ road-type = 1 ] ) ]
+      [ set dist-to-primary-road ULTIMATE-DISTANCE + 1 ]
+    ]
+    Show-Running-Display
+  ]
+end
+
+to Erase-Primary-Roads
+  if ( mouse-down? and Mouse-Moved? )
+  [ let dirty-patches make-mutable no-patches
+    let large-area no-patches
+    ask ( [ Get-Brush ] of ( patch mouse-xcor mouse-ycor ) )
+	with [ road-type = 1 ]
+    [ set road false
+      set road-type 0
+      set connectivity 0
+      set is-corner false
+      set dist-to-primary-road-along-road -1
+      ask ultimate-area
+      [ set road-density ( road-density - ROAD-DENSITY-INC )
+        if ( road-density < ROAD-DENSITY-INC )
+        [ set road-density 0 ]
+      ]
+      add-to-mutable-agentset ultimate-area dirty-patches
+	  
+    ]
+	set average-road-density mean [ road-density ] of patches 
+    ask dirty-patches
+    [ dirty-road-dependancies! self
+        set large-area ultimate-area with [ road ]
+        carefully
+        [ set dist-to-road min [ distance myself ] of large-area ]
+        [ set dist-to-road ULTIMATE-DISTANCE + 1 ]
+        carefully
+        [ set dist-to-primary-road min [ distance myself ] of ( large-area with [ road-type = 1 ] ) ]
+        [ set dist-to-primary-road ULTIMATE-DISTANCE + 1 ]      
+    ]
+    Show-Running-Display
+  ]
+end
+
+to Erase-All-Development
+  ask buildings
+  [ destroy-existing-building self ]
+  ask parks
+  [ destroy-existing-building self ]
+  ask patches
+  [ set road false
+    set road-type 0
+    set connectivity 0
+    set is-corner false
+    set road-density 0
+    set dist-to-primary-road-along-road -1
+    set dist-to-road ULTIMATE-DISTANCE + 1
+    set dist-to-primary-road ULTIMATE-DISTANCE + 1
+    set building-in-range 0
+  ]
+  set AVG-ELEVATION WATER-LEVEL
+
+  init-dirty-bits
+  set average-residential-elevation mean [ patch-residential-elevation ] of patches 
+  ask start-seeds
+  [ setup-seed self ]
+  clear-all-plots
+  Show-Running-Display
+end

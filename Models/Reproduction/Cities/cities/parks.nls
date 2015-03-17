@@ -1,0 +1,303 @@
+breed [ parks _park ]
+breed [ park-developers park-developer ]
+breed [ park-class a-park-class ]
+
+
+globals
+[ average-park-elevation
+  average-park-elevation-variance
+  average-park-terrain
+  average-park-proximity
+  PARK
+  park-sizes
+]
+
+patches-own
+[ old-P-park-elevation
+  old-P-park-elevation-variance
+  old-P-park-terrain
+  park-frequency
+  park-proximity
+]
+
+parks-own
+[ building-class
+  parcel
+  year-founded
+  surrounding-area
+  temporary-info
+]
+
+park-class-own
+[ bit-flag
+  name
+  global-land-cover
+  desired-land-cover
+  
+  gis-code
+  max-patience
+  min-parcel-size
+  max-parcel-size
+  value-weight-vector
+
+  set-color-func
+  get-frequency-func
+  add-frequency-func
+]
+
+park-developers-own
+[ developer-class
+  patience
+  history
+]
+
+to make-park-class
+  crt 1
+  [ set breed park-class
+    set PARK self
+    set bit-flag 8
+    set ALL-DIRTY-FLAGS ( ALL-DIRTY-FLAGS b-or bit-flag )
+    set name "park"
+    set max-patience 30
+    set min-parcel-size min-park-parcel-size
+    set max-parcel-size max-park-parcel-size
+    set desired-land-cover desired-park-land-cover
+    set value-weight-vector [ .10 .10 .10 .10 .40 .20 ]
+    set set-color-func "set-park-color"
+  ]
+end
+
+to init-park-developers
+  create-park-developers number-of-park-developers
+  [ set patience [max-patience] of PARK
+    set developer-class PARK
+    set color green
+    set size 1.5
+    set shape "circle"    
+    set history []
+  ]
+  ask patches
+  [ set park-frequency 0
+    set park-proximity ULTIMATE-DISTANCE
+  ]
+  set average-park-terrain mean [ patch-park-terrain ] of patches 
+  set average-park-elevation mean [ patch-park-elevation ] of patches 
+  set average-park-elevation-variance mean [ patch-park-elevation ] of patches 
+  set average-park-proximity ULTIMATE-DISTANCE
+  set park-sizes create-park-sizes
+end
+
+to-report create-park-sizes
+  let result []
+  let max-coverage ( [desired-land-cover] of PARK * count patches )
+  let num-added 0
+  while [ num-added < .15 * max-coverage ]
+  [ set result lput ( [max-parcel-size] of PARK * ( 0.66 + random-float 0.33 ) ) result
+    set num-added ( num-added + ( last result ) )
+  ]
+  while [ num-added < .45 * max-coverage ]
+  [ set result lput ( [max-parcel-size] of PARK * ( .33 + random-float 0.33 ) ) result
+    set num-added ( num-added + ( last result ) )
+  ]
+  while [ num-added < max-coverage ]
+  [ set result lput ( [min-parcel-size] of PARK + random-float ( 0.33 * [max-parcel-size] of PARK - [min-parcel-size] of PARK ) ) result
+    set num-added ( num-added + ( last result ) )
+  ]
+  report result
+end
+
+to develop-parks
+  park-developer-wander
+  if ( should-build-park )
+  [ build-park
+  ]
+  set patience ( patience + 1 )
+end
+
+to set-park-color [ p ]
+  ifelse ( is-patch? p and ( [owner] of p ) != nobody )
+  [ set [pcolor] of p green
+  ]
+  [ set [color] of p green ]
+end
+
+to add-park-frequency
+  set park-frequency park-frequency + 1
+end
+
+to-report get-park-frequency
+  report park-frequency
+end
+
+to-report valid-park-zone [ p ]
+  report ( [terrain] of p = "land" and
+           not [road] of p and
+           ( [owner] of p = nobody ) and
+           not [reserved] of p )
+end
+
+to-report patch-park-elevation
+  if ( Is-Dirty? dirty-P-elevation-value ( [bit-flag] of PARK ) )
+  [ set old-P-park-elevation-variance ifelse-value ( elevation <= WATER-LEVEL ) [ 0 ] [ variance [ elevation ] of local-area ]
+    set old-P-park-elevation ifelse-value ( elevation <= WATER-LEVEL ) [ 0 ] [ sqrt ( 1 / ( elevation - WATER-LEVEL ) ) ]
+    set dirty-P-elevation-value ( Clear dirty-P-elevation-value ( [bit-flag] of PARK ) )
+  ]
+  report old-P-park-elevation
+end
+
+to-report patch-park-elevation-variance
+  if ( Is-Dirty? dirty-P-elevation-value ( [bit-flag] of PARK ) )
+  [ set old-P-park-elevation ifelse-value ( elevation <= WATER-LEVEL ) [ 0 ] [ sqrt ( 1 / ( elevation - WATER-LEVEL ) ) ]
+    set old-P-park-elevation-variance ifelse-value ( elevation <= WATER-LEVEL ) [ 0 ] [ variance [ elevation ] of local-area ]
+    set dirty-P-elevation-value ( Clear dirty-P-elevation-value ( [bit-flag] of PARK ) )
+  ]
+  report old-P-park-elevation-variance
+end
+
+to-report patch-park-terrain
+  if ( Is-Dirty? dirty-P-terrain-value ( [bit-flag] of PARK ) )
+  [ set old-P-park-terrain ifelse-value ( terrain = "water" ) [ 0 ] [ ( 1.0 / sqrt ( 1 + dist-to-water ) ) ]
+    set dirty-P-terrain-value ( Clear dirty-P-elevation-value ( [bit-flag] of PARK ) )
+  ]
+  report old-P-park-terrain
+end
+
+to-report park-patch-constraint [ p ]
+  report [ 0.70 * ( 10 ^ ( - ( safe-divide patch-industrial-density (average-density INDUSTRIAL ) ) ) ) +
+           0.30 * ( 10 ^ ( - ( safe-divide patch-industrial-density (average-density COMMERCIAL ) ) ) )
+         ] 
+         of p
+end
+
+to-report park-patch-vector [ p ]
+  report [ ifelse-value ( [elevation] of p <= WATER-LEVEL or is-building? owner )
+           [ [ 0 0 0 0 0 0 ] ]
+           [ ( list ( normalize-value-around-mean patch-park-elevation average-park-elevation )
+                    ( normalize-value-around-mean patch-park-elevation-variance average-park-elevation-variance )
+                    ( normalize-value-around-mean patch-park-terrain average-park-terrain )
+                    ( normalize-value-around-mean patch-residential-density average-density RESIDENTIAL )
+                    ( normalize-value-around-mean park-proximity average-park-proximity )
+                    ( normalize-value-around-mean ( ( ( safe-divide 1 ( site-worth RESIDENTIAL p ) ) +
+                                          ( safe-divide 1 ( site-worth INDUSTRIAL p ) ) +
+                                          ( safe-divide 1 ( site-worth COMMERCIAL p ) ) ) / 3 ) 1 ) )
+           ]
+         ]
+         of p
+end
+
+to-report should-build-park
+  report ( ( city-population > 200 ) and
+           ( ( safe-divide [global-land-cover] of PARK city-land-cover ) < [desired-land-cover] of PARK ) and
+           ( safe-divide-default ( POPULATION-VS-PARK + 1 ) city-population [global-land-cover] of PARK > POPULATION-VS-PARK ) )
+end
+
+to-report park-worth [ p ]
+  report ( park-patch-constraint p ) * ( ( [value-weight-vector] of PARK ) dot park-patch-vector p )
+end
+
+to park-developer-wander
+  set history ( lput patch-here history )
+  if ( length history > 10 )
+  [ set history but-first history ]
+  
+  let temp ( should-build-park and patience > [max-patience] of PARK )
+  ifelse ( temp )
+  [ set temp patches
+    set patience 0
+  ]
+  [ set temp [local-area] of patch-here ]
+  
+  
+  let valid-area temp with [ dist-to-road <= 1 ]
+  if ( not any? valid-area )
+  [ set valid-area temp ]
+  set temp valid-area with [ valid-park-zone self and building-in-range > 0 ]
+  if ( any? temp )
+  [ set valid-area temp ]
+  let dest one-of upper-percent-of ( valid-area with [ not member? self [history] of myself and 
+                                                              ( patch-seen-before b-and [bit-flag] of PARK != [bit-flag] of PARK ) ] )
+                                          .80
+                                          [ park-worth self ]
+  if ( dest != nobody )
+  [ face dest
+    move-to dest
+  ]
+end
+
+to build-park
+  if ( member? patch-here ( upper-percent-of ( ( [local-area] of patch-here ) with [ valid-park-zone self and
+                                                                                   dist-to-road <= 1 and
+                                                                                   building-in-range > 0 and
+                                                                                   ( patch-seen-before b-and [bit-flag] of PARK != [bit-flag] of PARK ) ] )
+                                             .95
+                                             [ park-worth self ] ) )
+  [ if ( create-park patch-here )
+    [ set patience 0
+    ]
+  ]
+end
+
+to-report create-park [ origin ]
+  let selected-patches make-mutable no-patches
+  add-to-mutable-agentset ( patch-set origin ) selected-patches
+  ;let index random length park-sizes
+  ;let park-size item index park-sizes
+  let park-size determine-park-size origin
+  let temp selected-patches
+  while [ any? temp and
+          count selected-patches < park-size
+        ]
+  [ set temp upper-percent-of ( ( bordering-patches4 selected-patches ) with [ valid-park-zone self ] ) .5 [ park-worth self ]
+    add-to-mutable-agentset temp selected-patches
+  ]
+  ifelse ( count selected-patches > [min-parcel-size] of PARK )
+  [ ask one-of selected-patches
+    [ sprout 1
+      [ set breed parks
+        set building-class PARK
+        ;; need to get copy here, so parcel doesn't get changed when
+        ;; the mutable agentsets selected-patches gets changed!
+        set parcel ( selected-patches with [ true ] ) 
+        set year-founded ticks
+        ask parcel
+        [ set owner myself
+          set average-park-proximity ( average-park-proximity - park-proximity / count patches )
+          set park-proximity 0
+        ]
+        let i 1
+        repeat ULTIMATE-DISTANCE
+        [ set temp ( bordering-patches4 selected-patches )
+          ask temp with [ park-proximity > i ]
+          [ set average-park-proximity ( average-park-proximity + ( i - park-proximity ) / count patches )
+            set park-proximity i
+          ]
+          set i ( i + 1 )
+          add-to-mutable-agentset temp selected-patches
+        ]
+        set ( [global-land-cover] of PARK ) ( [global-land-cover] of PARK + count parcel )
+        set city-land-cover ( city-land-cover + count parcel )
+        set surrounding-area no-patches
+        find-parcel-boundaries parcel
+        dirty-parcel-dependancies! self
+        fill-remaining-holes self
+        hide-turtle
+      ]
+    ]
+    ;set park-sizes ( remove-item index park-sizes )
+    report true
+  ]
+  [ ask selected-patches
+    [ set patch-seen-before ( patch-seen-before b-or [bit-flag] of PARK ) ]
+  ]
+  report false
+end
+
+to-report determine-park-size [ p ]
+  report ( min ( list ( [max-parcel-size] of PARK )
+                      ( [min-parcel-size] of PARK + random-exponential ( 0.5 * ( square-it park-worth p ) * ( [max-parcel-size] of PARK - [min-parcel-size] of PARK ) ) ) ) ) *
+         ( min-of-2 1 ( 10 * city-land-cover / count patches ) )
+;  let i random length park-sizes
+;  let result item i park-sizes
+;  set park-sizes ( remove-item i park-sizes )
+;  report result
+end

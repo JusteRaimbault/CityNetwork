@@ -1,0 +1,348 @@
+breed [ road-connectors road-connector ]
+breed [ road-linkers road-linker ]
+
+
+road-connectors-own [
+  time-done-nothing
+]
+
+road-linkers-own [
+  distance-traveled
+  active
+]
+
+patches-own [
+  other-neighbors
+  road-crowdedness
+]
+
+;to road-connect-thyself
+;  let viable-patches patches with [ Is-Possible-Connection? self and
+;                                    Patch-on-Grid? self and
+;                                    mean [ dist-to-road ] of ( patches in-radius my-min-dist ) > ( my-min-dist / 2 ) ]
+;
+;  let the-chosen-one random-one-of viable-patches
+;  set viable-patches remove-from-agentset the-chosen-one viable-patches
+;  if ( the-chosen-one != nobody )
+;  [ ask the-chosen-one
+;    [ let targets __agentset-to-list ( remove-from-agentset neighbors4 ( viable-patches in-radius CONNECTION-RADIUS ) )
+;      set targets sort-by [ distance ?1 < distance ?2 ] targets
+;      let flag true
+;	  let target-patch nobody
+;	  let distance-on-road 0
+;	  let start-patch nobody
+;      let existing-distance 0
+;
+;      while [ flag and 
+;              not ( empty? targets ) ]
+;      [ set target-patch ( first targets )
+;        ask target-patch [ output-print mean [ dist-to-road ] of ( patches in-radius my-min-dist ) ]
+;      
+;        set targets ( remove target-patch targets )
+;        set distance-on-road ( distance-to-patch-along-road self target-patch )
+;        if ( distance-on-road > 0 and ( distance-on-road / ( manhattan-distance self target-patch ) > my-ratio ) )
+;        [ sprout 1
+;          [ set breed road-connectors
+;            set road-segment []
+;            set start-patch Grow-Road-Segment target-patch
+;            ifelse (not empty? road-segment)
+;            [ set existing-distance ( distance-to-patch-along-road ( first road-segment ) ( last road-segment ) )
+;              ifelse ( ( distance-on-road > 0 and length road-segment > distance-on-road ) or
+;                       length road-segment < ( manhattan-distance start-patch target-patch ) or
+;                       ( existing-distance > 0 and length road-segment > existing-distance ) or
+;                       ( length road-segment = 1 and ( count [ neighbors with [ road ] ] of ( first road-segment ) ) > 2 ) )
+;              [ debug-print "tertiary road connection was aborted."
+;                Abort-Road-Segment
+;              ]
+;              [ Submit-Road-Segment
+;                set flag false
+;              ]
+;            ]
+;            [ debug-print "failed to find a connection."
+;            ]
+;            die
+;          ]
+;        ]
+;      ]
+;    ]
+;  ]
+;end
+
+to Connect-Roads
+  Wander-On-Roads
+  let target-patch ifelse-value ( any? neighbors with [ not road and is-valid-tertiary-patch? self ] )
+                   [ connect-to-random-patch? patch-here ]
+                   [ nobody ]
+  if ( target-patch != nobody )
+  [ Build-Tertiary-Connection target-patch ]
+end
+
+to Wander-On-Roads
+  let temp patch-ahead 1
+  ifelse ( [road] of patch-here )
+  [ let possibilities filter [ ? != nobody and [road] of ? ] ( list temp ( patch-left-and-ahead 90 1 ) ( patch-right-and-ahead 90 1 ) )
+    ifelse ( time-done-nothing >= 30 or empty? possibilities )
+    [ set temp one-of ( upper-percent-of ( lower-percent-of ( patches with [ road and
+                                                                                    any? neighbors4 with [ not road and
+                                                                                                           is-valid-tertiary-patch? self] ] )
+                                                                    0.80
+                                                                    [ road-density ] )
+                                                0.75
+                                                [ road-density ] )
+      set time-done-nothing 0
+      move-to temp
+      set possibilities neighbors with [ road ]
+      ifelse ( any? possibilities )
+      [ set temp one-of possibilities ]
+      [ set temp min-one-of neighbors [ dist-to-road ] ]
+    ]
+    [ set temp one-of possibilities
+    ]
+  ]
+  [ set temp min-one-of neighbors [ dist-to-road ]
+  ]
+  
+  set time-done-nothing ( time-done-nothing + ifelse-value ( [road-type] of patch-here = 1 ) [ 3 ] [ 1 ] )
+  set heading towards temp
+  jump 1  
+end
+
+to Build-Tertiary-Connection [ target-patch ]
+  let actual-distance [temp-dist] of target-patch
+  if ( count tertiary-road-patches-in-range actual-distance target-patch patch-here = 0 )
+  [ let old-heading heading
+    let old-pos patch-here
+    let road-segment Grow-Road-Segment old-pos target-patch
+    move-to old-pos
+    set heading old-heading
+    if ( not empty? road-segment )
+    [ let existing-distance ( distance-to-patch-along-road ( first road-segment ) ( last road-segment ) )
+      ifelse ( existing-distance > 0 and
+               ( ( length road-segment > existing-distance ) or
+                 ( ( existing-distance / manhattan-distance ( first road-segment )
+                                                            ( last road-segment ) )
+                    < ( max-of-2 1 ( min-of-2 ( [my-ratio] of ( first road-segment ) )
+                                              ( [my-ratio] of ( last road-segment ) ) ) ) ) ) )
+      [ Abort-Road-Segment road-segment
+      ]
+      [ Submit-Road-Segment road-segment
+        set time-done-nothing 0
+      ]
+    ]
+  ]
+end
+
+
+;to Wander-On-Roads
+;  let mx nobody
+;  ifelse ( time-done-nothing >= 30 )
+;  [ set mx random-one-of ( upper-percent-of ( lower-percent-of ( patches with [ road and any? neighbors4 with [ not road and is-valid-tertiary-patch? self] ] ) 0.80 [ road-density ] ) 0.75 [ road-density ] )
+;    set time-done-nothing 0
+;    setxy pxcor-of mx pycor-of mx
+;    set mx random-one-of neighbors4 with [ road ]
+;  ]
+;  [ ifelse ( road-of patch-here )
+;    [ set mx patch-ahead 1
+;      if ( not road-of mx )
+;      [ let possibilities filter [ road-of ? ] ( list ( patch-left-and-ahead 90 1 ) ( patch-right-and-ahead 90 1 ) )
+;        ifelse ( empty? possibilities )
+;        [ set mx random-one-of ( upper-percent-of ( lower-percent-of ( patches with [ road and any? neighbors4 with [ not road and is-valid-tertiary-patch? self] ] ) 0.80 [ road-density ] ) 0.75 [ road-density ] )
+;          set time-done-nothing 0
+;          setxy pxcor-of mx pycor-of mx
+;          set mx random-one-of neighbors4 with [ road ]
+;        ]
+;        [ set mx random-one-of possibilities
+;        ]
+;      ]
+;    ]
+;    [ set mx min-one-of neighbors4 [ dist-to-road ]
+;    ]
+;  ]
+;  if ( mx != nobody )
+;  [ set heading towards mx ]
+;  ifelse ( road-type-of patch-here = 1 )
+;  [ set time-done-nothing ( time-done-nothing + 3 ) ]
+;  [ set time-done-nothing ( time-done-nothing + 1 ) ]
+;  jump 1
+;end
+
+to-report get-valid-patch [ start-p end-p ]
+  let valid-neighbors ( neighbors in-front-of self ) with [ is-valid-tertiary-patch? self and
+                                                            self != start-p ]
+  set other-neighbors make-mutable valid-neighbors
+  ifelse (any? valid-neighbors)
+  [
+    let result choose-best-patch end-p valid-neighbors
+    remove-from-mutable-agentset result other-neighbors
+    report result
+  ]
+  [ report nobody
+  ]
+end
+
+to-report choose-best-patch [ end-p nbrs ]
+  let temp [elevation] of patch-here
+  let max-dist max [ distance end-p ] of nbrs 
+  let max-dens max [ road-density ] of nbrs 
+  let max-dr max [ dist-to-road ] of nbrs 
+  let max-ef max [ elevation-factor ( temp - elevation ) ] of nbrs 
+  let valid-neighbors nbrs with [ road ]
+  if ( not any? valid-neighbors )
+  [ set valid-neighbors nbrs with-min [ safe-divide distance end-p max-dist + 
+                                          0.1 * ( 1 - safe-divide dist-to-road max-dr ) +
+                                          0.1 * safe-divide elevation-factor (temp - elevation) max-ef +
+                                          0.2 * safe-divide road-density max-dens ]
+  ]
+
+  ifelse (count valid-neighbors > 1)
+  [ set valid-neighbors valid-neighbors with-min [ dist-to-road ]
+    ifelse (count valid-neighbors > 1)
+    [
+      ifelse (any? valid-neighbors with [road])
+      [ report min-one-of valid-neighbors with [road] [distance end-p] ]
+      [ report min-one-of valid-neighbors [distance end-p] ]
+    ]
+    [ report one-of valid-neighbors]
+  ]
+  [ report one-of valid-neighbors]
+end
+
+to-report Grow-Road-Segment [ start-p end-p ]
+  let temp no-patches
+  ifelse ( start-p = end-p )
+  [ report [] ]
+  [ set heading towards end-p
+    while [ [road-type] of patch-here = 1 and
+            not ( any? ( neighbors in-front-of self ) with [ not road ] ) ]
+    [ jump 1 ]
+    set temp ( neighbors in-front-of self ) with [ not road and is-valid-tertiary-patch? self ]
+  ]
+  if (not any? temp )
+  [ report [] ]
+  let dest choose-best-patch end-p temp
+  let mhdr ( manhattan-distance start-p end-p ) * ( max-of-2 1 ( min-of-2 ( [my-ratio] of start-p ) ( [my-ratio] of end-p ) ) )
+
+  ; trying to resolve "curling" issue for Pin ...
+  if ( not ( member? dest [ neighbors4 ] of patch-here ) )
+  [ set temp one-of [ neighbors4 with [ road and member? self [ neighbors4 ] of dest ] ] of patch-here 
+    if ( temp != nobody )
+    [ move-to temp ]
+  ]
+  
+  set [selected] of patch-here true
+  set [other-neighbors] of patch-here (make-mutable no-patches)
+  let road-segment (list patch-here )
+
+  let flag false
+  let i 0
+  while [ not flag and
+          not [road] of dest ]
+  [ set heading towards dest
+    set [selected] of dest true
+    set road-segment (lput dest road-segment)    
+    move-to dest
+
+    set dest get-valid-patch ( first road-segment ) end-p
+    if ( dest = nobody or length road-segment > mhdr )
+    [ set i ( i + 1 )
+      while [ not empty? road-segment and
+              not any? [other-neighbors] of last road-segment ]
+      [ set [selected] of last road-segment false
+        ask [other-neighbors] of last road-segment
+        [ set selected false
+        ]
+        set road-segment but-last road-segment
+      ]
+      ifelse (empty? road-segment or i > 5 )
+      [ set flag true
+      ]
+      [ set xcor [pxcor] of last road-segment
+        set ycor [pycor] of last road-segment
+        set dest choose-best-patch end-p ([other-neighbors] of last road-segment)
+        remove-from-mutable-agentset temp ([other-neighbors] of last road-segment)
+      ]
+    ]
+  ]
+  if ( flag )
+  [ Abort-Road-Segment road-segment
+    report []
+  ]
+  
+  ; trying to resolve "curling" issue for Pin ...
+  set temp patch-ahead 1
+  set road-segment lput ( ifelse-value ( [road] of temp ) [ temp ] [ dest ] ) road-segment
+  set ( [selected] of ( last road-segment ) ) true
+  report road-segment
+end
+
+to-report connect-to-random-patch? [ origin ]
+  if ([road] of origin = false) [report nobody]                 ; origin must be a part of the road
+  if ([connectivity] of origin = 4) [report nobody]
+
+  let rps road-patches-I-can-reach origin my-min-dist
+  let area [ ( patches in-radius CONNECTION-RADIUS ) with [ road and
+                                                                              self != origin and
+                                                                              connectivity < 4 and
+                                                                              not ( member? self rps ) and
+                                                                              Patch-On-Grid? self ] ] of origin 
+  let target one-of area
+
+  if ( target = nobody or target = origin )
+  [ report nobody ]
+  let actual-distance ( distance-to-patch-along-road origin target )
+  ifelse ( ( actual-distance < 0 ) or
+         ( ( actual-distance / ( manhattan-distance origin target ) > [my-ratio] of target ) ) )
+  [ report target ]
+  [ report nobody ]
+end
+
+to-report area-between-endpoints [ p1 p2 width ]
+  let t1 nobody
+  let t2 nobody
+  let line no-patches
+  let d [ distance p2 ] of p1 
+
+  if ( width <= d )
+  [ ask p1
+    [ sprout 1
+      [ set heading towards p2
+        jump ( d / 2 )
+        set line patches in-radius ( d / 2 )
+        die
+      ]
+    ]
+    report line
+  ]
+  ask p1
+  [ sprout 1
+    [ set heading towards p2
+      jump width / 2
+      set t1 self
+    ]
+  ]
+  ask p2
+  [ sprout 1
+    [ set heading towards p1
+      jump width / 2
+      set t2 self
+    ]
+  ]
+  set line patches-between t1 t2
+  ask t1 [ die ]
+  ask t2 [ die ]
+  report patch-set [ patches in-radius ( width / 2 ) ] of line 
+end
+
+to-report tertiary-road-patches-in-range [ act-d p1 p2 ]
+  let dist ( max-of-2 ( [my-min-dist] of p1 ) ( [my-min-dist] of p2 ) )
+  let area ( area-between-endpoints p1 p2 ( dist / 3 ) )
+           with [ road ]
+  if ( act-d > 0 and  dist > [ distance p2 ] of p1 )
+  [ report area with [ not ( member? self [ neighbors ] of p1 or
+                             member? self [ neighbors ] of p2 ) ] ]
+
+  let set1 road-patches-I-can-reach p1 ( [my-min-dist] of p1 / 2 )
+  let set2 road-patches-I-can-reach p2 ( [my-min-dist] of p2 / 2 )
+  report area with [ not ( member? self set1 or
+                           member? self set2 ) ]
+end

@@ -1,0 +1,87 @@
+patches-own [
+  reserved
+  terrain
+  elevation
+  dist-to-water
+  water-orientation
+  local-area
+]
+
+globals [
+	AVG-ELEVATION
+	WATER-VALUE-CONST
+	ELEVATION-VALUE-CONST
+	ULTIMATE-DISTANCE
+	
+	pins-water-boundaries
+]
+
+
+to find-water-gradient
+  ask patches [ set water-orientation prewitt [dist-to-water] ]
+end
+
+to SET-TERRAIN-GLOBALS
+  set AVG-ELEVATION WATER-LEVEL
+  set WATER-VALUE-CONST 120
+  set ELEVATION-VALUE-CONST 10
+  set ULTIMATE-DISTANCE 20
+end
+
+to-report ultimate-area
+  report patches in-radius ULTIMATE-DISTANCE
+end
+
+to level-terrain
+    ask patches [
+        set elevation GROUND-LEVEL
+        ifelse(GROUND-LEVEL > WATER-LEVEL) [
+            set terrain "land"
+        ]
+        [
+            set terrain "water"
+        ]
+        set local-area (patches in-radius 5)
+;        set ultimate-area (patches in-radius ULTIMATE-DISTANCE)
+    ]
+end
+
+to find-dist-to-water
+  ask patches
+  [ ifelse (terrain = "water")
+    [ set dist-to-water -1 ]
+    [ set dist-to-water 0 ]
+  ]
+  let water-patches ( patches with [ terrain = "water" ] )
+  let boundaries bordering-patches-nowrap water-patches
+  let i 1
+  while [ any? boundaries ]
+  [ ask boundaries
+    [ set dist-to-water i ]
+  set boundaries ( bordering-patches-nowrap boundaries ) with [ dist-to-water = 0 ]
+  set i ( i + 1 )
+  ]
+  ask water-patches
+  [ set dist-to-water 0 ]
+end
+
+to get-pins-water-boundaries
+  let water-boundary-set make-mutable bordering-patches4 patches with [ terrain = "land" ]
+  let seed nobody
+  let boundary []
+  let p nobody
+  set pins-water-boundaries []
+  while [ any? water-boundary-set ]
+  [ set seed one-of water-boundary-set
+    set boundary ( list seed )
+    remove-from-mutable-agentset seed water-boundary-set
+    set p one-of [ neighbors with [ member? self water-boundary-set ] ] of seed
+    while [ p != nobody ]
+    [ set boundary lput p boundary
+      remove-from-mutable-agentset p water-boundary-set
+      set p one-of [ neighbors with [ member? self water-boundary-set ] ] of p
+    ]
+    set boundary lput ( first boundary ) boundary
+    set pins-water-boundaries lput boundary pins-water-boundaries
+  ]
+end

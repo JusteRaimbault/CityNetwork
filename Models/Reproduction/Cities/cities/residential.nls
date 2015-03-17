@@ -1,0 +1,315 @@
+globals
+[ average-residential-terrain
+  average-residential-elevation
+  average-residential-density
+  average-residential-honey
+
+  HUARE-dirty?
+  total-elevation-from-land-coverage
+
+  RESIDENTIAL
+]
+
+breed [ residential-developers residential-developer ]
+
+
+residential-developers-own
+[ developer-class
+  patience
+  best-empty-patches
+]
+
+patches-own
+[ old-P-residential-terrain
+  old-P-residential-elevation
+  old-P-residential-density
+  residential-honey
+]
+
+
+to create-residential-class
+  crt 1
+  [ set breed developer-classes
+    set name "residential"
+    set global-population 0
+    set desired-population desired-residential-population
+    set global-land-cover 0
+    set desired-land-cover desired-residential-land-cover
+
+    set total-elevation-from-land-coverage 0
+
+    ;; what does this variable do? -- CLB
+    set gis-code 11
+
+    set min-parcel-size min-residential-parcel-size
+    set max-parcel-size max-residential-parcel-size
+    set initial-density initial-residential-building-density
+
+    ;; what are possible values for these variables? -- CLB
+    set max-density 1000
+    set max-patience 10
+
+    set bit-flag 1
+
+    set ALL-DIRTY-FLAGS ( ALL-DIRTY-FLAGS b-or bit-flag )
+    
+    set value-weight-vector [ 0.25 0.25 0.15 0.35 1.00 ]
+    set patch-vector-func "residential-patch-vector"
+    set patch-constraint-func "residential-patch-constraint"
+    set building-vector-func "residential-building-vector"
+    set building-constraint-func "residential-building-constraint"
+    set validity-func "valid-residential-zone"
+    set set-color-func "set-residential-color"
+    set get-frequency-func "get-residential-frequency"
+    set add-frequency-func "add-residential-frequency"
+    set get-honey-func "get-residential-honey"
+    set surrounding-area-func "residential-surrounding-area"
+
+    set RESIDENTIAL self
+    set HUARE-dirty? true
+  ]
+end
+
+to init-residential-developers
+
+  set average-residential-density 0
+  set average-residential-honey 0
+
+  create-residential-developers number-of-residential-developers
+  [ ;setxy START-X  START-Y
+    set developer-class RESIDENTIAL
+    set patience [max-patience] of developer-class
+    ( curry [set-color-func] of developer-class self )
+    set best-empty-patches no-patches
+    set size 1.5
+    set shape "circle"    
+  ]
+
+  ask patches
+  [ set old-P-residential-density 0
+    set residential-honey 0
+  ]
+  
+  set average-residential-terrain mean [ patch-residential-terrain ] of patches 
+  set average-residential-elevation mean [ patch-residential-elevation ] of patches 
+end
+
+;; this procedure is definitely a problem -- constituting perhaps roughly 20%
+;; of the time taken per tick, because for some reason it is called multiple times
+;; (e.g. 4) per tick, and it runs code for every patch.
+to HACK-update-average-residential-elevation
+  set AVG-ELEVATION safe-divide-default WATER-LEVEL total-elevation-from-land-coverage city-land-cover
+  set HUARE-dirty? true
+  set average-residential-elevation mean [ patch-residential-elevation ] of patches 
+  set HUARE-dirty? false
+end
+
+to set-residential-color [ a ]
+  ifelse ( is-patch? a and ( ( [owner] of a ) != nobody ) )
+  [ set [pcolor] of a scale-color yellow ( [population-density] of ( [owner] of a ) ) -25 50 ]
+  [ if ( is-turtle? a )
+    [ set [color] of a yellow ]
+  ]
+end
+
+to add-residential-frequency
+  set residential-frequency residential-frequency + 1
+end
+
+to-report get-residential-frequency
+  report residential-frequency
+end
+
+to-report get-residential-honey [ a ]
+  ifelse ( is-patch? a and ( [owner] of a = nobody ) )
+  [ report residential-honey ]
+  [ if ( is-turtle? a )
+    [ report mean [ residential-honey ] of ( [parcel] of a ) ]
+    report 0
+  ]
+end
+
+to-report  valid-residential-zone [ a ]
+  ifelse ( is-patch? a )
+  [ report [ terrain = "land" and
+             not road and
+             ( owner = nobody or
+               [building-class] of owner != INDUSTRIAL or
+               ( get-residential-honey owner ) > 0 )
+           ] of a
+  ]
+  [ report [ building-class != INDUSTRIAL or
+             ( get-residential-honey a ) > 0 ] of a
+  ]
+end
+
+to-report residential-surrounding-area [ b ]
+  report [ ( remove-from-agentset parcel ( patch-set [ local-area ] of parcel ) ) ] of b 
+;  if ( dirty-B-surrounding-area )
+;  [ set old-B-surrounding-area ( remove-from-agentset parcel ( patch-set [ local-area ] of parcel ) )
+;    set dirty-B-surrounding-area false
+;  ]
+;  report old-B-surrounding-area
+end
+
+to-report residential-surrounding-density
+  let surrounding-patches ( residential-surrounding-area self ) with [ is-building? owner ]
+  ifelse ( not any? surrounding-patches )
+  [ report ( [initial-density] of RESIDENTIAL )
+  ]
+  [ report ( safe-min [ parcel-density ] of surrounding-patches ) ]
+;  if ( dirty-B-surrounding-area or dirty-B-surrounding-density )
+;  [ let surrounding-patches residential-surrounding-area with [ is-building? owner ]
+;    ifelse ( not any? surrounding-patches )
+;    [ set old-B-surrounding-density ( initial-density-of RESIDENTIAL )
+;    ]
+;    [ set old-B-surrounding-density ( safe-min [ parcel-density ] of surrounding-patches ) ]
+;    set dirty-B-surrounding-density false
+;  ]
+;  report old-B-surrounding-density
+end
+
+to-report residential-density-difference
+  if ( dirty-B-surrounding-area or dirty-B-surrounding-density or dirty-B-density-difference )
+  [ let density-diff population-density / residential-surrounding-density
+    ifelse ( density-diff < 1.5 )
+    [ set old-B-density-difference 1 ]
+    [ ifelse ( density-diff >= 2.5 )
+      [ set old-B-density-difference 0 ]
+      [ set old-B-density-difference ( log ( 1.5 + 2 - density-diff ) 2 ) ]
+    ]
+    set dirty-B-density-difference false
+  ]
+  report old-B-density-difference
+;  if ( dirty-B-surrounding-area or dirty-B-surrounding-density or dirty-B-density-difference )
+;  [ ifelse (residential-surrounding-density != 0)
+;    [ set old-B-density-difference population-density / residential-surrounding-density
+;      ifelse (old-B-density-difference < 1.5)
+;      [ set old-B-density-difference 1 ]
+;      [ ifelse (old-B-density-difference >= 2.5)
+;        [ set old-B-density-difference 0 ]
+;        [ set old-B-density-difference (log (1.5 + 2 - old-B-density-difference) 2) ]
+;      ]
+;    ]
+;    [ set old-B-density-difference 0 ]
+;    set dirty-B-density-difference false
+;  ]
+;  report old-B-density-difference
+end
+
+
+
+
+
+
+;; Patch values and value functions
+
+to-report patch-residential-terrain
+  if ( Is-Dirty? dirty-P-terrain-value ( [bit-flag] of RESIDENTIAL ) )
+  [ set old-P-residential-terrain 1.0 / sqrt ( 1 + dist-to-water )
+    set dirty-P-terrain-value ( Clear dirty-P-terrain-value ( [bit-flag] of RESIDENTIAL ) )
+  ]
+  report old-P-residential-terrain
+end
+
+to-report patch-residential-elevation
+  if ( HUARE-dirty? ) ; or Is-Dirty? dirty-P-elevation-value ( bit-flag-of RESIDENTIAL ) )
+  [ if ( is-building? owner )
+    [ set [dirty-B-elevation-value] of owner ( Dirty [dirty-B-elevation-value] of owner ( [bit-flag] of RESIDENTIAL ) ) ]
+    set old-P-residential-elevation exp ( ( ( elevation - AVG-ELEVATION - DESIRED-ELEVATION ) 
+                                             * ( elevation - AVG-ELEVATION - DESIRED-ELEVATION ) ) / -128 )
+   ; set dirty-P-elevation-value ( Clear dirty-P-elevation-value ( bit-flag-of RESIDENTIAL ) )
+  ]
+  report old-P-residential-elevation
+end
+;
+;to-report patch-residential-density
+;  if ( Is-Dirty? dirty-P-density-value ( bit-flag-of RESIDENTIAL ) )
+;  [ set average-residential-density ( average-residential-density - old-P-residential-density / count patches )
+;    set old-P-residential-density safe-max [ parcel-density ] of ( local-area with [ is-building? owner and building-class-of owner = RESIDENTIAL ] ) 
+;    set average-residential-density ( average-residential-density + old-P-residential-density / count patches )
+;    set dirty-P-density-value ( Clear dirty-P-density-value ( bit-flag-of RESIDENTIAL ) ) 
+;  ]
+;  report old-P-residential-density
+;end
+
+to-report patch-residential-density
+  if ( Is-Dirty? dirty-P-density-value ( [bit-flag] of RESIDENTIAL ) )
+  [ ;set old-P-residential-density mean [ class-parcel-density RESIDENTIAL ] of local-area 
+    set old-P-residential-density patch-class-density RESIDENTIAL
+    set dirty-P-density-value ( Clear dirty-P-density-value ( [bit-flag] of RESIDENTIAL ) ) 
+  ]
+  report old-P-residential-density
+end
+
+;; This is refering to industrial densities, should it be residential instead? -- CLB
+to-report residential-patch-constraint [ p ]
+  report [ 0.80 +
+           ; ifelse-value ( building-in-range > 0 ) [ 0.10 ] [ 0 ] + 
+           0.20 * ( 10 ^ ( - ( safe-divide patch-industrial-density (average-density INDUSTRIAL ) ) ) ) ]
+        of p
+end
+
+to-report residential-patch-vector [ p ]
+  report [ ( list ( normalize-value-around-mean patch-residential-terrain average-residential-terrain )
+                  ;( normalize-value-around-mean patch-residential-elevation average-residential-elevation )
+                  ( normalize-value-around-mean old-P-residential-elevation average-residential-elevation )
+                  ;( normalize-value-around-mean patch-residential-density average-residential-density )
+                  ( normalize-value-around-mean park-proximity average-park-proximity )
+                  ( normalize-value-around-mean patch-residential-density ( average-density RESIDENTIAL ) )
+                  ( normalize-value-around-mean residential-honey average-residential-honey ) ) ]
+           of p
+end
+
+;; building values and value functions
+
+to-report building-residential-elevation
+  if ( Is-Dirty? dirty-B-elevation-value ( [bit-flag] of RESIDENTIAL ) )
+  [ ; set old-B-residential-elevation safe-mean [ patch-residential-elevation ] of parcel 
+    set old-B-residential-elevation safe-mean [ old-P-residential-elevation ] of parcel 
+    set dirty-B-elevation-value (Clear dirty-B-elevation-value ( [bit-flag] of RESIDENTIAL ) )
+  ]
+  report old-B-residential-elevation
+end
+
+to-report building-residential-terrain
+  if ( Is-Dirty? dirty-B-terrain-value ( [bit-flag] of RESIDENTIAL ) )
+  [ set old-B-residential-terrain safe-mean [ patch-residential-terrain ] of parcel 
+    set dirty-B-terrain-value ( Clear dirty-B-terrain-value ( [bit-flag] of RESIDENTIAL ) )
+  ]
+  report old-B-residential-terrain
+end
+
+to-report building-residential-density
+  if ( Is-Dirty? dirty-B-density-value ( [bit-flag] of RESIDENTIAL ) )
+  [ ;set old-B-residential-density safe-mean [ patch-residential-density ] of parcel 
+    set old-B-residential-density building-class-density RESIDENTIAL
+    set dirty-B-density-value ( Clear dirty-B-density-value ( [bit-flag] of RESIDENTIAL ) )
+  ]
+  report old-B-residential-density
+end
+
+;to-report building-residential-density
+;  if ( Is-Dirty? dirty-B-density-value ( bit-flag-of RESIDENTIAL ) )
+;  [ set old-B-residential-density mean [ class-parcel-density RESIDENTIAL ] of ( patch-set [ local-area ] of parcel ) 
+;    set dirty-B-density-value ( Clear dirty-B-density-value ( bit-flag-of RESIDENTIAL ) )
+;  ]
+;  report old-B-residential-density
+;end
+
+to-report residential-building-constraint [ b ]
+  report [ ; residential-density-difference * 
+                        ( 0.8 + 0.20 * ( 10 ^ ( - ( safe-divide building-industrial-density ( average-density INDUSTRIAL ) ) ) ) ) ]
+             of b 
+end
+
+to-report residential-building-vector [ b ]
+  report [ ( list ( normalize-value-around-mean building-residential-terrain average-residential-terrain )
+                  ( normalize-value-around-mean building-residential-elevation average-residential-elevation )
+                  ; ( building-density-difference * ( normalize-value-around-mean building-residential-density average-residential-density ) )
+                  ; ( residential-density-difference * ( normalize-value-around-mean building-residential-density ( average-density RESIDENTIAL ) ) )
+                  ( normalize-value-around-mean park-proximity average-park-proximity )
+                  ( normalize-value-around-mean building-residential-density ( average-density RESIDENTIAL ) )
+                  ( normalize-value-around-mean ( mean [ residential-honey ] of parcel ) average-residential-honey ) ) ]
+           of b
+end

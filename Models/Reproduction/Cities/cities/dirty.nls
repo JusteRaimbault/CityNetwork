@@ -1,0 +1,307 @@
+patches-own
+[
+  dirty-P-surrounding-density    ; T/F
+  dirty-P-distance-to-commercial-building ; T/F
+  dirty-P-commercial-primary-road-constraint ; T/F
+  dirty-P-elevation-value        ; MULTI
+  dirty-P-terrain-value          ; MULTI
+  dirty-P-density-value          ; MULTI
+  dirty-P-worth-value            ; MULTI
+
+  patch-seen-before              ; MULTI
+
+  residential-frequency
+  commercial-frequency
+  industrial-frequency
+]
+
+globals
+[ DEBUG
+]
+
+to init-dirty-bits
+  ask patches [
+    set dirty-P-worth-value ALL-DIRTY-FLAGS
+    set dirty-P-terrain-value ALL-DIRTY-FLAGS
+    set dirty-P-elevation-value ALL-DIRTY-FLAGS
+    set dirty-P-density-value ALL-DIRTY-FLAGS
+    set dirty-P-surrounding-density true
+    set dirty-P-commercial-primary-road-constraint true
+    set dirty-P-distance-to-commercial-building false
+    set patch-seen-before 0
+    set selected false
+  ]
+end
+
+to-report Dirty [ variable tag ]
+  report (variable b-and tag)
+end
+
+to-report Clear [ variable tag ]
+  report (variable b-and (b-not tag))
+end
+
+to-report Is-Dirty? [ variable tag ]
+  report (variable b-and tag) != 0
+end
+
+to dirty-density-dependancies! [ b ]
+;  DEBUG-PRINT "Dirtying Density Dependencies: " + ( name-of building-class-of b ) + " " + ( who-of b )
+  let surrounding-patches patch-set [ local-area ] of ( [parcel] of b ) 
+  ask surrounding-patches
+  [ set dirty-P-density-value ALL-DIRTY-FLAGS
+    set dirty-P-worth-value ALL-DIRTY-FLAGS
+    set dirty-P-surrounding-density true
+    set patch-seen-before 0
+  ]
+  ask ( turtle-set [ owner ] of surrounding-patches ) with [ is-building? self ] ; surrounding-owners
+  [ set dirty-B-surrounding-density true
+    set dirty-B-density-value ALL-DIRTY-FLAGS
+    set dirty-B-density-difference true
+    set dirty-B-worth-value ALL-DIRTY-FLAGS
+    set building-seen-before 0
+  ]
+end
+
+to dirty-just-my-density-dependancies! [ b ]
+;  DEBUG-PRINT "Dirtying just MY Density Dependencies: " + ( name-of building-class-of b ) + " " + ( who-of b )
+  ask ( [parcel] of b )
+  [ set dirty-P-density-value ALL-DIRTY-FLAGS
+    set dirty-P-worth-value ALL-DIRTY-FLAGS
+    set dirty-P-surrounding-density true
+    set patch-seen-before 0
+  ]
+  if ( is-building? b )
+  [ set ( [dirty-B-surrounding-density] of b ) true
+    set ( [dirty-B-density-value] of b ) ALL-DIRTY-FLAGS
+    set ( [dirty-B-density-difference] of b ) true
+    set ( [dirty-B-worth-value] of b ) ALL-DIRTY-FLAGS
+    set ( [building-seen-before] of b ) 0
+  ]
+end
+
+to dirty-just-others-density-dependancies! [ b ]
+;  DEBUG-PRINT "Dirtying just OTHERS Density Dependencies: " + ( name-of building-class-of b ) + " " + ( who-of b )
+  let surrounding-patches remove-from-agentset ( [parcel] of b ) ( patch-set [ local-area ] of ( [parcel] of b ) )
+  ask surrounding-patches
+  [ set dirty-P-density-value ALL-DIRTY-FLAGS
+    set dirty-P-worth-value ALL-DIRTY-FLAGS
+    set dirty-P-surrounding-density true
+    set patch-seen-before 0
+  ]
+  ask ( turtle-set [ owner ] of surrounding-patches ) with [ is-building? self ] ; surrounding-owners
+  [ set dirty-B-surrounding-density true
+    set dirty-B-density-value ALL-DIRTY-FLAGS
+    set dirty-B-density-difference true
+    set dirty-B-worth-value ALL-DIRTY-FLAGS
+    set building-seen-before 0
+  ]
+end
+
+to dirty-parcel-dependancies! [ b ]
+;  DEBUG-PRINT "Dirtying Parcel Dependencies: " + ( name-of building-class-of b ) + " " + ( who-of b )
+  dirty-density-dependancies! b
+  if ( is-building? b )
+  [ set ( [dirty-B-elevation-average] of b ) true
+    set ( [dirty-B-elevation-variance] of b ) true
+    set ( [dirty-B-commercial-primary-road-constraint] of b ) true
+    set ( [dirty-B-elevation-value] of b ) ALL-DIRTY-FLAGS
+    set ( [dirty-B-terrain-value] of b ) ALL-DIRTY-FLAGS
+    set ( [dirty-B-surrounding-area] of b ) true
+  ]
+  if ( [building-class] of b = COMMERCIAL )
+  [ ask patches with [ not dirty-P-distance-to-commercial-building ]
+    [ set dirty-P-distance-to-commercial-building true ]
+  ]
+end
+
+to dirty-just-my-parcel-dependancies! [ b ]
+;  DEBUG-PRINT "Dirtying just MY Parcel Dependencies: " + ( name-of building-class-of b ) + " " + ( who-of b )
+  dirty-just-my-density-dependancies! b
+  if ( is-building? b )
+  [ set ( [dirty-B-elevation-average] of b ) true
+    set ( [dirty-B-elevation-variance] of b ) true
+    set ( [dirty-B-commercial-primary-road-constraint] of b ) true
+    set ( [dirty-B-elevation-value] of b ) ALL-DIRTY-FLAGS
+    set ( [dirty-B-terrain-value] of b ) ALL-DIRTY-FLAGS
+    set ( [dirty-B-surrounding-area] of b ) true
+  ]
+  if ( [building-class] of b = COMMERCIAL )
+  [ ask patches with [ not dirty-P-distance-to-commercial-building ]
+    [ set dirty-P-distance-to-commercial-building true ]
+  ]
+end
+
+to dirty-just-others-parcel-dependancies! [ b ]
+;  DEBUG-PRINT "Dirtying just OTHERS Parcel Dependencies: " + ( name-of building-class-of b ) + " " + ( who-of b )
+  dirty-just-others-density-dependancies! b
+  if ( [building-class] of b = COMMERCIAL )
+  [ ask patches with [ not dirty-P-distance-to-commercial-building ]
+    [ set dirty-P-distance-to-commercial-building true ]
+  ]
+end
+
+to dirty-zone-dependancies! [ b ]
+;  DEBUG-PRINT "Dirtying Zone Dependencies: " + ( name-of building-class-of b ) + " " + who-of b
+  let surrounding-patches remove-from-agentset ( [parcel] of b ) ( patch-set [ local-area ] of ( [parcel] of b ) )
+  ask surrounding-patches
+  [ set dirty-P-density-value ALL-DIRTY-FLAGS
+    set dirty-P-worth-value ALL-DIRTY-FLAGS
+    set patch-seen-before 0
+  ]
+  ask ( turtle-set [ owner ] of surrounding-patches ) with [ is-building? self ] ; surrounding-owners
+  [ set dirty-B-density-value ALL-DIRTY-FLAGS
+    set dirty-B-worth-value ALL-DIRTY-FLAGS
+    set building-seen-before 0
+  ]
+  set ( [dirty-B-surrounding-area] of b ) true
+  if ( [building-class] of b = COMMERCIAL )
+  [ ask patches with [ not dirty-P-distance-to-commercial-building ]
+    [ set dirty-P-distance-to-commercial-building true ]
+  ]
+end
+
+to dirty-just-my-zone-dependancies! [ b ]
+;  DEBUG-PRINT "Dirtying just MY Zone Dependencies: " + ( name-of building-class-of b ) + " " + who-of b
+  ask ( [parcel] of b )
+  [ set dirty-P-density-value ALL-DIRTY-FLAGS
+    set dirty-P-worth-value ALL-DIRTY-FLAGS
+    set patch-seen-before 0
+  ]
+  if ( is-building? b )
+  [ set ( [dirty-B-density-value] of b ) ALL-DIRTY-FLAGS
+    set ( [dirty-B-worth-value] of b ) ALL-DIRTY-FLAGS
+    set ( [building-seen-before] of b ) 0
+    set ( [dirty-B-surrounding-area] of b ) true
+  ]
+  if ( [building-class] of b = COMMERCIAL )
+  [ ask patches with [ not dirty-P-distance-to-commercial-building ]
+    [ set dirty-P-distance-to-commercial-building true ]
+  ]
+end
+
+to dirty-just-others-zone-dependancies! [ b ]
+;  DEBUG-PRINT "Dirtying just OTHERS Zone Dependencies: " + ( name-of building-class-of b ) + " " + ( who-of b )
+  let surrounding-patches remove-from-agentset ( [parcel] of b ) ( patch-set [ local-area ] of ( [parcel] of b ) )
+  ask surrounding-patches
+  [ set dirty-P-density-value ALL-DIRTY-FLAGS
+    set dirty-P-worth-value ALL-DIRTY-FLAGS
+    set patch-seen-before 0
+  ]
+  ask ( turtle-set [ owner ] of surrounding-patches ) with [ is-building? self ] ; surrounding-owners
+  [ set dirty-B-density-value ALL-DIRTY-FLAGS
+    set dirty-B-worth-value ALL-DIRTY-FLAGS
+    set building-seen-before 0
+  ]
+  if ( [building-class] of b = COMMERCIAL )
+  [ ask patches with [ not dirty-P-distance-to-commercial-building ]
+    [ set dirty-P-distance-to-commercial-building true ]
+  ]
+end
+
+to dirty-elevation-dependancies! [ b ]
+;  DEBUG-PRINT "Dirtying Elevation Dependencies: " + ( name-of building-class-of b ) + " " + ( who-of b )
+  ask ( [parcel] of b )
+  [ set dirty-P-elevation-value ALL-DIRTY-FLAGS
+    set dirty-P-worth-value ALL-DIRTY-FLAGS
+    set patch-seen-before 0
+  ]
+  if ( is-building? b )
+  [ set ( [dirty-B-elevation-average] of b ) true
+    set ( [dirty-B-elevation-variance] of b ) true
+    set ( [dirty-B-elevation-value] of b ) ALL-DIRTY-FLAGS
+    set ( [dirty-B-worth-value] of b ) ALL-DIRTY-FLAGS
+    set ( [building-seen-before] of b ) 0
+  ]
+end
+
+to dirty-terrain-dependancies! [ b ]
+;  DEBUG-PRINT "Dirtying Terrain Dependencies: " + ( name-of building-class-of b ) + " " + ( who-of b )
+  ask ( [parcel] of b )
+  [ set dirty-P-terrain-value ALL-DIRTY-FLAGS
+    set dirty-P-worth-value ALL-DIRTY-FLAGS
+    set patch-seen-before 0
+  ]
+  if ( is-building? b )
+  [ set ( [dirty-B-terrain-value] of b ) ALL-DIRTY-FLAGS
+    set ( [dirty-B-worth-value] of b ) ALL-DIRTY-FLAGS
+    set ( [building-seen-before] of b ) 0
+  ]
+end
+
+to dirty-road-dependancies! [ p ]
+  ; DEBUG-PRINT "Dirtying Road Dependencies"
+  if ( is-building? [owner] of p )
+  [ set ( [dirty-B-worth-value] of [owner] of p ) ALL-DIRTY-FLAGS
+    set ( [dirty-B-commercial-primary-road-constraint] of [owner] of p ) true
+    set ( [building-seen-before] of [owner] of p ) 0
+  ]
+  set [dirty-P-worth-value] of p ALL-DIRTY-FLAGS
+  set [dirty-P-commercial-primary-road-constraint] of p true
+  set [patch-seen-before] of p 0
+end
+
+to dirty-all-dependencies! [ b ]
+  dirty-parcel-dependancies! b
+  ask ( [parcel] of b )
+  [ dirty-road-dependancies! self  
+  ]
+end
+
+;;;;;;;;;
+
+to Show-Seen-Before
+  ask patches with [ ( patch-seen-before != 0 ) or
+                     ( is-building? owner and [building-seen-before] of owner != 0 ) ]
+  [ set pcolor black]
+end
+
+to Show-Class-Seen-Before [ class ]
+  ask patches with [ ( ( patch-seen-before b-and [bit-flag] of class ) != 0 ) or
+                     ( is-building? owner and ( [building-seen-before] of owner b-and [bit-flag] of class ) != 0 ) ]
+  [ set pcolor black]
+end
+
+to Show-Developer-Frequencies
+;  locals [lst mx]
+;  ask patches
+;  [ set lst (map [?1 + ?2 + ?3] (extract-hsb (scale-color yellow (residential-frequency) 0 50))
+;                                (extract-hsb (scale-color red (commercial-frequency) 0 50))
+;                                (extract-hsb (scale-color blue (industrial-frequency) 0 50)))
+;    set pcolor hsb (first lst) (item 1 lst) (item 2 lst)
+;  ]
+;  locals [lst total vector]
+;  ask patches
+;  [ set total (residential-frequency + commercial-frequency + industrial-frequency)
+;    ifelse (total = 0)
+;    [ set pcolor black ]
+;    [ set vector map [? / total] (list residential-frequency commercial-frequency industrial-frequency)
+;      set lst (map [?1 * ?4 + ?2 * ?4 + ?3 * ?4] (extract-hsb (scale-color yellow (residential-frequency) 0 50))
+;                                       (extract-hsb (scale-color red (commercial-frequency) 0 50))
+;                                       (extract-hsb (scale-color blue (industrial-frequency) 0 50))
+;                                       vector)
+;      set pcolor hsb (first lst) (item 1 lst) (item 2 lst)
+;    ]
+;  ]
+  let total 0
+  let vector []
+  ask patches
+  [ 
+    set total (residential-frequency + commercial-frequency + industrial-frequency)
+      ifelse (total = 0)
+      [ set pcolor black ]
+      [ set vector map [? / total] (list commercial-frequency residential-frequency industrial-frequency)
+        set pcolor scale-color (approximate-rgb (first vector) (item 1 vector) (item 2 vector)) total 0 100
+      ]
+  ]
+end
+
+to DEBUG-PRINT [ string ]
+  if (DEBUG)
+  [output-print string]
+end
+
+to DEBUG-HALT [ string ]
+  if (DEBUG)
+  [ user-message string ]
+end

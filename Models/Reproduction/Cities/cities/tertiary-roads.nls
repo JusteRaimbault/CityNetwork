@@ -1,0 +1,64 @@
+to generate-tertiary-roads
+    ask road-extenders [ Extend-Roads ]
+    ask road-connectors [ Connect-Roads ]
+    ; road-connect-thyself
+end
+
+to-report elevation-factor [ x ]
+    report (abs x) * ELEVATION-ROAD-CONST
+end
+
+to-report is-parcel-boundary [ p ]
+  report [ ( my-devx < 3 and my-devy < 3 ) or
+                        ( owner = nobody or parcel-boundary ) ] of p 
+end
+
+to-report is-valid-tertiary-patch? [ p ]
+  report [ road-enabled? self and
+                        ( not reserved ) and
+                        is-parcel-boundary self and
+                        Patch-on-Grid? self and
+                        (road-density + ROAD-DENSITY-INC) < my-ctrn and
+                        dist-to-road < ULTIMATE-DISTANCE and
+                        count neighbors with [selected] <= 1 and
+                        terrain != "water" ] of p 
+end
+
+to Abort-Road-Segment [ road-segment ]
+  foreach road-segment
+  [ set [selected] of ? false ]
+end
+
+to Submit-Road-Segment [ road-segment ]
+  if ( length road-segment > 0 )
+  [ ifelse ( empty? filter [ [road-density] of ? > [my-ctrn] of ? ] road-segment and
+             ( length filter [ not [road] of ? and [dist-to-road] of ? <= 1 ] road-segment ) <= 2 )
+    [ ifelse ( On-Grid? road-segment ) ;and Is-Possible-Connection? last road-segment)
+      [ let temp four-connect road-segment
+        update-distance-to-primary-road-along-road temp
+        foreach temp
+        [ if ( not [road] of ? )
+          [ BuildRoad ? 3 ]
+          set [selected] of ? false
+        ]
+        foreach temp
+        [ find-connectivity ?
+          ask [ neighbors4 ] of ? 
+          [ find-connectivity self ]
+        ]
+        ask ( turtle-set [owner] of (patch-set temp) )
+        [ split-building self ]
+;        set pins-tertiaries ( lput ( filter [ member? ? road-segment or
+;                                              connectivity-of ? > 2 ]
+;                                            temp )
+;                                   pins-tertiaries )
+      ]
+      [ Abort-Road-Segment road-segment
+        ;output-print "Road segment not on grid"
+      ]
+    ]
+    [ Abort-Road-Segment road-segment
+      ;output-print "Road segment too dense"
+    ]
+  ]
+end

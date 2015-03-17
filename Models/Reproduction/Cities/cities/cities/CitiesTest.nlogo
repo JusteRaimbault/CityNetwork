@@ -1,526 +1,104 @@
-extensions[nw table]
+extensions [ cities ]
+globals [ mut1 mut2 mut3 ]
 
-__includes[
-  
-  ;;local includes
-  ;; headless mode
-  "setup-headless.nls"
-  "setup-aux.nls"
-  
-  ;; common files
-  "main.nls"
-  "main-experiment.nls"
-  
-  "centers.nls"
-  "roads.nls"
-  "nwanalysis.nls"
-  "indicators.nls"
-  "pavage.nls"
-  "visualization.nls"
-  
-  ;; utils
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/StatisticsUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/NetworkUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LinkUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/AgentSetUtilities.nls"
-]
-
-globals[
-  
-  ;;;;;;;;;;;;;;
-  ;; Headless vars (widgets in non-headless mode)
-  ;;;;;;;;;;;;;;
-  
-  ;; setup
-  initial-centers
-  mixture-proba-diffusion
-  centers-distribution
-  max-sampling-bw-centrality
-  grid-size
-  
-  ;;runtime
-  max-new-centers-number
-  neigh-type
-  random-center-number?
-  lambda
-  beta
-  
-  
-  ;; new centers at current step
-  new-centers
-  
-  ;; note : random spatial distrib :
-  ; patches in fixed order to have rigorous drawing of proba ?
-  ; (note that shuffling in agentset should not perturbate if exactly random)
-  ;  -> test that ... OK
-  
-  
-]
-
-; centers
-breed[centers center]
-
-;nw nodes
-breed[nodes node]
-
-;roads
-undirected-link-breed[roads road]
-
-turtles-own [
-  node-bw-centrality 
-]
+to test-mutable1
+  ca
+  let muturtles make-mutable turtles with [ color = red ] 
+  set mut1 muturtles
+  if ( count muturtles != 0 ) [ __error "Muturtles was not created empty!" ]
+  crt 100 [ setxy random-xcor random-ycor add-to-mutable-agentset self muturtles ]
+  set mut2 muturtles
+  if ( count muturtles != 100 ) [ __error "Muturtles was not added too!" ]
+  remove-from-mutable-agentset ( turtles with [ xcor > 0 ]) muturtles
+  set mut3 muturtles
+  if ( count muturtles = 100 ) [ __error "Muturtles was not removed from!" ]
+end
 
 
-centers-own[
-  weight
-  neigh-nodes
-]
-
-roads-own[
-  ;variable to be used by nw primitives
-  road-length 
-  bw-centrality
-  ; same for more generic link procedure
-  edge-length
-  
-]
-
-patches-own [
-  ;; land-value :  general variable common to all models
-  land-value
-  
-  ; proba for distrib of centers in case of single nw evol ; exponential proba distrib
-  exp-proba
-  
-  ;;;;;;;
-  ;; co-dev model variables
-  ;;;;;;;
-  
-  ; proba for distrib of centers in case of co-development ("luti")
-  ;   --> simple discrete choice model : P(i) = exp(\beta (\lanbda * access - density))/exp(sum(...))
-  ;        with params : \beta : DC dispersion param ; \lambda : compromise density / transportation
-  luti-proba
-  
-  ;; accessibility
-  ;;  --> defined as betw-centrality, but can be distance to centers or to nw (Alsonso model)
-  accessibility
-  
-  ;;density : N-centers / S
-  density
-  
-  
-  
-]
 @#$#@#$#@
 GRAPHICS-WINDOW
-19
+265
 10
-839
-653
--1
--1
-18.0
+704
+470
+16
+16
+13.0
 1
 10
 1
 1
 1
 0
-0
+1
+1
+1
+-16
+16
+-16
+16
 0
 1
-0
-44
-0
-33
-0
-0
 1
 ticks
-30.0
 
-SLIDER
-905
-136
-1124
-169
-_max-new-centers-number
-_max-new-centers-number
+CC-WINDOW
+5
+484
+713
+579
+Command Center
 0
-20
-2
-1
-1
-NIL
-HORIZONTAL
-
-CHOOSER
-1001
-23
-1158
-68
-_centers-distribution
-_centers-distribution
-"uniform" "exp-mixture" "luti"
-2
-
-BUTTON
-1180
-244
-1243
-277
-NIL
-go
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1106
-245
-1172
-278
-NIL
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-PLOT
-905
-285
-1065
-405
-Degree distrib
-NIL
-log (k)
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" "set-plot-pen-mode 1\nhistogram [ln max (list 1 count road-neighbors)] of turtles"
-PENS
-"pen-0" 1.0 0 -7500403 true "" ""
-
-MONITOR
-908
-415
-967
-460
-centers
-count centers
-17
-1
-11
-
-MONITOR
-972
-415
-1029
-460
-roads
-count roads
-17
-1
-11
-
-BUTTON
-909
-472
-1022
-505
-bw-centrality
-setup-nw-analysis\ncompute-road-bw-centrality\nupdate-plots
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-PLOT
-913
-515
-1073
-635
-bw-centrality ranking
-NIL
-NIL
-0.0
-1.0
-0.0
-1.0
-true
-false
-"" "set-plot-pen-mode 1\n;set-histogram-num-bars 20000\n;histogram [bw-centrality] of roads\n;set-plot-x-range 0 100\n;let i 1\n;let h (hist ([ln bw-centrality] of roads with [bw-centrality > 0]) 100)\n;set-plot-y-range 0 max h\n;foreach h [\n;  plotxy (ln i) ?\n;  set i i + 1\n;]"
-PENS
-"default" 1.0 0 -16777216 true "" ""
-
-SWITCH
-1132
-129
-1351
-162
-_random-center-number?
-_random-center-number?
-0
-1
--1000
-
-CHOOSER
-907
-172
-1045
-217
-_neigh-type
-_neigh-type
-"closest" "shared"
-1
-
-SLIDER
-898
-33
-997
-66
-_initial-centers
-_initial-centers
-0
-10
-2
-1
-1
-NIL
-HORIZONTAL
-
-BUTTON
-922
-248
-985
-281
-NIL
-go
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-783
-76
-993
-109
-_mixture-proba-diffusion
-_mixture-proba-diffusion
-0
-1
-0.8
-0.1
-1
-NIL
-HORIZONTAL
-
-BUTTON
-1031
-472
-1101
-505
-crossings
-show length crossing-roads?
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-PLOT
-1069
-284
-1229
-404
-l(N)
-nodes
-nw length
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plotxy (count turtles) (network-length)"
-
-TEXTBOX
-903
-14
-1053
-32
-Setup\n
-11
-0.0
-1
-
-TEXTBOX
-904
-113
-968
-131
-Runtime
-11
-0.0
-1
-
-SLIDER
-999
-72
-1091
-105
-_grid-size
-_grid-size
-0
-20
-2.9
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1229
-28
-1468
-61
-_max-sampling-bw-centrality
-_max-sampling-bw-centrality
-0
-500
-300
-1
-1
-NIL
-HORIZONTAL
-
-OUTPUT
-1189
-552
-1415
-673
-10
-
-SLIDER
-1181
-189
-1273
-222
-_lambda
-_lambda
-0
-1
-0.9
-0.05
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1276
-189
-1368
-222
-_beta
-_beta
-0
-100
-75
-1
-1
-NIL
-HORIZONTAL
-
-TEXTBOX
-1181
-175
-1331
-193
-Luti-params
-11
-0.0
-1
-
-TEXTBOX
-1229
-10
-1379
-28
-Indicators
-11
-0.0
-1
 
 @#$#@#$#@
-## WHAT IS IT?
+VERSION
+-------
+$Header: /home/cvs/netlogo/extensions/cities/CitiesTest.nlogo,v 1.2 2007-07-10 22:40:24 craig Exp $
 
-Street NW growth geometrical model, from [Barthelemy, Flammini 2008],[Barthelemy, Flammini 2009].
 
-## HOW IT WORKS
+WHAT IS IT?
+-----------
+This section could give a general understanding of what the model is trying to show or explain.
 
-See paper.
 
-## HOW TO USE IT
+HOW IT WORKS
+------------
+This section could explain what rules the agents use to create the overall behavior of the model.
 
-(how to use the model, including a description of each of the items in the Interface tab)
 
-## THINGS TO NOTICE
+HOW TO USE IT
+-------------
+This section could explain how to use the model, including a description of each of the items in the interface tab.
 
-(suggested things for the user to notice while running the model)
 
-## THINGS TO TRY
+THINGS TO NOTICE
+----------------
+This section could give some ideas of things for the user to notice while running the model.
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
 
-## EXTENDING THE MODEL
+THINGS TO TRY
+-------------
+This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
 
-## NETLOGO FEATURES
+EXTENDING THE MODEL
+-------------------
+This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
 
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
 
-## RELATED MODELS
+NETLOGO FEATURES
+----------------
+This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
 
-(models in the NetLogo Models Library and elsewhere which are of related interest)
 
-## CREDITS AND REFERENCES
+RELATED MODELS
+--------------
+This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+
+CREDITS AND REFERENCES
+----------------------
+This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 @#$#@#$#@
 default
 true
@@ -688,6 +266,17 @@ true
 0
 Line -7500403 true 150 0 150 150
 
+link
+true
+0
+Line -7500403 true 150 0 150 300
+
+link direction
+true
+0
+Line -7500403 true 150 150 30 225
+Line -7500403 true 150 150 270 225
+
 pentagon
 false
 0
@@ -713,22 +302,6 @@ Polygon -7500403 true true 165 180 165 210 225 180 255 120 210 135
 Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
-
-sheep
-false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
 
 square
 false
@@ -814,13 +387,6 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
-
 x
 false
 0
@@ -828,7 +394,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 4.0beta3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -845,6 +411,4 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
-@#$#@#$#@
-0
 @#$#@#$#@

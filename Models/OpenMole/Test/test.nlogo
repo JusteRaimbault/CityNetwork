@@ -1,3 +1,4 @@
+extensions [array]
 
 globals [
   coef

@@ -1,0 +1,285 @@
+globals
+[	average-industrial-terrain
+  average-industrial-elevation
+ 	average-industrial-density
+ 	average-industrial-honey
+ 	
+ 	INDUSTRIAL
+]
+
+breed [ industrial-developers industrial-developer ]
+
+
+industrial-developers-own
+[ developer-class
+  patience
+  best-empty-patches
+]
+
+patches-own
+[ old-P-industrial-terrain
+  old-P-industrial-elevation
+  old-P-industrial-density
+  industrial-honey
+]
+
+
+to create-industrial-class
+  crt 1
+  [ set breed developer-classes
+    set name "industrial"
+    set global-population 0
+    set desired-population desired-industrial-population
+    set global-land-cover 0
+    set desired-land-cover desired-industrial-land-cover
+    
+    set gis-code 13
+    set min-parcel-size min-industrial-parcel-size
+    set max-parcel-size max-industrial-parcel-size
+    set initial-density initial-industrial-building-density
+    set max-density 1000
+    set max-patience 10
+    set bit-flag 4
+    set ALL-DIRTY-FLAGS ( ALL-DIRTY-FLAGS b-or bit-flag )
+    
+    set value-weight-vector [ 0.30 0.50 0.10 0.10 1.00 ]
+    set patch-vector-func "industrial-patch-vector"
+    set patch-constraint-func "industrial-patch-constraint"
+    set building-vector-func "industrial-building-vector"
+    set building-constraint-func "industrial-building-constraint"
+    
+    set validity-func "valid-industrial-zone"
+    set set-color-func "set-industrial-color"
+    set get-frequency-func "get-industrial-frequency"
+    set add-frequency-func "add-industrial-frequency"
+    set get-honey-func "get-industrial-honey"
+    set surrounding-area-func "industrial-surrounding-area"
+
+    set INDUSTRIAL self
+  ]
+end
+
+to init-industrial-developers
+
+ 	set average-industrial-density 0
+  set average-industrial-honey 0
+ 	
+  create-industrial-developers number-of-industrial-developers
+  [ ;setxy START-X START-Y
+    set developer-class INDUSTRIAL
+    set patience [max-patience] of developer-class
+    ( curry [set-color-func] of developer-class self )
+    set best-empty-patches no-patches
+    set size 1.5
+    set shape "circle"    
+  ]
+ 	
+  ask patches
+  [ set old-P-industrial-density 0
+    set industrial-honey 0
+  ]
+ 	
+  set average-industrial-terrain mean [ patch-industrial-terrain ] of patches 
+  set average-industrial-elevation mean [ patch-industrial-elevation ] of patches 
+
+end
+
+to set-industrial-color [ a ]
+  ifelse ( is-patch? a and ( [owner] of a ) != nobody )
+  [ set [pcolor] of a scale-color blue ( [population-density] of [owner] of a ) -25 50 ]
+  [ if ( is-turtle? a )
+    [ set [color] of a blue ]
+  ]
+end
+
+to add-industrial-frequency
+  set industrial-frequency industrial-frequency + 1
+end
+
+to-report get-industrial-frequency
+  report industrial-frequency
+end
+
+to-report get-industrial-honey [ a ]
+  ifelse ( is-patch? a and ( [owner] of a = nobody ) )
+  [ report industrial-honey ]
+  [ if ( is-turtle? a )
+    [ report mean [ industrial-honey ] of ( [parcel] of a ) ]
+    report 0
+  ]
+end
+
+to-report valid-industrial-zone [ a ]
+  ifelse ( is-patch? a )
+  [ report [ terrain = "land" and
+             not road and
+            ( owner = nobody or
+              [building-class] of owner != RESIDENTIAL or
+              ( get-industrial-honey owner ) > 0 )
+           ]
+           of a
+  ]
+  [ report [ building-class != RESIDENTIAL or
+             ( get-industrial-honey a ) > 0 ] 
+             of a
+  ]
+end
+
+; we may, with time, want to change this surrounding area ...
+to-report industrial-surrounding-area [ b ]
+  report [ remove-from-agentset self ( turtle-set [ owner ] of ( patch-set [ patches in-radius 20 ] of parcel ) ) ] of b
+
+;  if ( dirty-B-surrounding-area )
+;  [ set old-B-surrounding-area ( remove-from-agentset self ( ( turtle-set [ buildings in-radius 20 ] of parcel )
+;                                                             with [ building-class != INDUSTRIAL ] ) )
+;    set dirty-B-surrounding-area false
+;  ]
+;  report old-B-surrounding-area
+end
+
+to-report industrial-surrounding-density
+  let surrounding-bldgs ( industrial-surrounding-area self )
+  report ( ( safe-sum [ population ] of ( surrounding-bldgs with [ building-class != INDUSTRIAL ] ) )
+         - ( safe-sum [ population ] of ( surrounding-bldgs with [ building-class = INDUSTRIAL ] ) ) )
+;  if ( dirty-B-surrounding-density or dirty-B-surrounding-area )
+;  [ set old-B-surrounding-density safe-sum [ population ] of industrial-surrounding-area 
+;    set dirty-B-surrounding-density false
+;  ]
+;  report old-B-surrounding-density
+end
+
+;to-report industrial-density-difference
+;  if ( dirty-B-density-difference ) ;or dirty-B-surrounding-density or dirty-B-surrounding-area )
+;  [ let surrounding-pop industrial-surrounding-density
+;    ifelse ( surrounding-pop <= 0 )
+;    [ set old-B-density-difference 0 ]
+;    [ ; the target is 1 ... place any new target as quotient, and change offset in gaussian
+;      let factor -4 * square ( 1 / 1 )
+;      set old-B-density-difference exp ( factor * square ( safe-divide population surrounding-pop - 1 ) )
+;    ]
+;    set dirty-B-density-difference false
+;  ]
+;  report old-B-density-difference
+;end
+
+to-report industrial-density-difference
+  if ( dirty-B-surrounding-area or dirty-B-surrounding-density or dirty-B-density-difference )
+  [ let density-diff population-density / industrial-surrounding-density
+    ifelse ( density-diff < 1.5 )
+    [ set old-B-density-difference 1 ]
+    [ ifelse ( density-diff >= 2.5 )
+      [ set old-B-density-difference 0 ]
+      [ set old-B-density-difference ( log ( 1.5 + 2 - density-diff ) 2 ) ]
+    ]
+    set dirty-B-density-difference false
+  ]
+  report old-B-density-difference
+end
+
+
+;; Patch values and value functions
+
+to-report patch-industrial-terrain
+  if ( Is-Dirty? dirty-P-terrain-value ( [bit-flag] of INDUSTRIAL ) )
+  [ set old-P-industrial-terrain 1.0 / sqrt ( 1 + dist-to-water )
+    set dirty-P-terrain-value ( Clear dirty-P-terrain-value ( [bit-flag] of INDUSTRIAL ) )
+  ]
+  report old-P-industrial-terrain
+end
+
+to-report patch-industrial-elevation
+  if ( Is-Dirty? dirty-P-elevation-value ( [bit-flag] of INDUSTRIAL ) )
+  [ let temp [ elevation ] of local-area 
+    set old-P-industrial-elevation exp ( - ( variance temp ) )
+;    set old-P-industrial-elevation 0.5 * ( exp ( - ( variance temp ) ) +
+;                                           exp ( - ( abs ( max temp - min temp ) ) ) )
+    set dirty-P-elevation-value ( Clear dirty-P-elevation-value ( [bit-flag] of INDUSTRIAL ) )
+  ]
+  report old-P-industrial-elevation
+end
+
+;to-report patch-industrial-density
+;  if ( Is-Dirty? dirty-P-density-value ( bit-flag-of INDUSTRIAL ) )
+;  [ set average-industrial-density ( average-industrial-density - old-P-industrial-density / count patches )
+;    set old-P-industrial-density safe-max [ parcel-density ] of ( local-area with [ is-building? owner and building-class-of owner = INDUSTRIAL ] )
+;    set average-industrial-density ( average-industrial-density + old-P-industrial-density / count patches )
+;    set dirty-P-density-value ( Clear dirty-P-density-value ( bit-flag-of INDUSTRIAL ) )
+;  ]
+;  report old-P-industrial-density
+;end
+
+to-report patch-industrial-density
+  if ( Is-Dirty? dirty-P-density-value ( [bit-flag] of INDUSTRIAL ) )
+  [ ; set old-P-industrial-density mean [ class-parcel-density INDUSTRIAL ] of local-area 
+    set old-P-industrial-density patch-class-density INDUSTRIAL
+    set dirty-P-density-value ( Clear dirty-P-density-value ( [bit-flag] of INDUSTRIAL ) )
+  ]
+  report old-P-industrial-density
+end
+
+to-report industrial-patch-constraint [ p ]
+  report [ 0.40 + 0.20 * ( 10 ^ ( - ( safe-divide patch-residential-density ( average-density RESIDENTIAL ) ) ) )
+                + 0.40 * ( 10 ^ ( - ( safe-divide ( ULTIMATE-DISTANCE - park-proximity ) average-park-proximity ) ) ) ]
+           of p
+end
+
+to-report industrial-patch-vector [ p ]
+  report [ ( list ( normalize-value-around-mean patch-industrial-terrain average-industrial-terrain )
+                  ( normalize-value-around-mean patch-industrial-elevation average-industrial-elevation )
+                  ( normalize-value-around-mean patch-commercial-primary-road-constraint average-commercial-primary-road-constraint )
+                  ( normalize-value-around-mean patch-industrial-density ( average-density INDUSTRIAL ) )
+                  ( normalize-value-around-mean industrial-honey average-industrial-honey ) ) ]
+           of p
+end
+
+;; building values and value functions
+
+to-report building-industrial-terrain
+  if ( Is-Dirty? dirty-B-terrain-value ( [bit-flag] of INDUSTRIAL ) )
+  [ set old-B-industrial-terrain safe-mean [ patch-industrial-terrain ] of parcel 
+    set dirty-B-terrain-value ( Clear dirty-B-terrain-value ( [bit-flag] of INDUSTRIAL ) )
+  ]
+  report old-B-industrial-terrain
+end
+
+to-report building-industrial-elevation
+  if ( Is-Dirty? dirty-B-elevation-value ( [bit-flag] of INDUSTRIAL ) )
+  [ set old-B-industrial-elevation safe-mean [ patch-industrial-elevation ] of parcel 
+    set dirty-B-elevation-value ( Clear dirty-B-elevation-value ( [bit-flag] of INDUSTRIAL ) )
+  ]
+  report old-B-industrial-elevation
+end
+
+to-report building-industrial-density
+  if ( Is-Dirty? dirty-B-density-value ( [bit-flag] of INDUSTRIAL ) )
+  [ ; set old-B-industrial-density safe-mean [ patch-industrial-density ] of parcel 
+    set old-B-industrial-density building-class-density INDUSTRIAL
+    set dirty-B-density-value ( Clear dirty-B-density-value ( [bit-flag] of INDUSTRIAL ) )
+  ]
+  report old-B-industrial-density
+end
+
+;to-report building-industrial-density
+;  if ( Is-Dirty? dirty-B-density-value ( bit-flag-of INDUSTRIAL ) )
+;  [ set old-B-industrial-density mean [ class-parcel-density INDUSTRIAL ] of ( patch-set [ local-area ] of parcel )
+;    set dirty-B-density-value ( Clear dirty-B-density-value ( bit-flag-of INDUSTRIAL ) )
+;  ]
+;  report old-B-industrial-density
+;end
+
+to-report industrial-building-constraint [ b ]
+  report [ ; industrial-density-difference *
+                        ( 0.40 + 0.20 * ( 10 ^ ( - ( safe-divide building-residential-density ( average-density RESIDENTIAL ) ) ) )
+                               + 0.40 * ( 10 ^ ( - mean [ safe-divide ( ULTIMATE-DISTANCE - park-proximity ) average-park-proximity ] of parcel ) ) ) ]
+          of b
+end
+
+to-report industrial-building-vector [ b ]
+  report [ ( list ( normalize-value-around-mean building-industrial-terrain average-industrial-terrain )
+                  ( normalize-value-around-mean building-industrial-elevation average-industrial-elevation )
+                  ( normalize-value-around-mean building-commercial-primary-road-constraint average-commercial-primary-road-constraint )
+                  ; ( industrial-density-difference * ( normalize-value-around-mean building-industrial-density ( average-density INDUSTRIAL ) ) )
+                  ( normalize-value-around-mean building-industrial-density ( average-density INDUSTRIAL ) )
+                  ( normalize-value-around-mean ( mean [ industrial-honey ] of parcel ) average-industrial-honey ) ) ]
+          of b
+end

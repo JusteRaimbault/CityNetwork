@@ -1,0 +1,558 @@
+globals [
+  MOUSE-CLICKED
+  average-road-density
+  ROAD-DENSITY-INC
+]
+
+patches-own [
+    road
+    road-type
+    dist-to-road
+    road-density
+    temp-dist
+    connectivity
+    is-corner
+    my-max-dist
+    my-min-dist
+    my-xscale
+    my-yscale
+    my-devx
+    my-devy
+    my-ctrn
+    my-ratio
+    building-in-range
+]
+
+to-report road-enabled? [ p ]
+  report ( Independent-Tertiary-Roads or building-in-range > 0 )
+end
+
+to enable-road-area [ patchset ownr ]
+  let enabled-patches ( remove-from-agentset ( ifelse-value ( ownr = nobody ) [ no-patches ] [ [surrounding-area] of ownr ] )
+                                             ( patch-set [ patches in-radius my-min-dist ] of patchset) )
+  ask enabled-patches
+  [ set building-in-range (building-in-range + 1)
+  ]
+  if ( ownr != nobody )
+  [ set [surrounding-area] of ownr ( add-to-agentset enabled-patches ( [surrounding-area] of ownr ) ) ]
+end
+
+to disable-road-area [ ownr ]
+  ask ( [surrounding-area] of ownr ) with [ building-in-range > 0 ]
+  [ set building-in-range (building-in-range - 1)
+  ]
+  set [surrounding-area] of ownr no-patches
+end
+
+;to disable-road-area [ patchset ownr ]
+;  if ( ownr != nobody )
+;  [ set surrounding-area-of ownr ( remove-from-agentset patchset ( surrounding-area-of ownr ) ) ]
+;
+;  ask ( remove-from-agentset ( ifelse-value ( ownr = nobody ) [ no-patches ] [ surrounding-area-of ownr ] )
+;                             ( patch-set [ patches in-radius my-min-dist ] of patchset ) )
+;  with [ building-in-range > 0 ]
+;  [ set building-in-range (building-in-range - 1)
+;  ]
+;end
+
+;to enable-road-area
+;	ask patches in-radius my-min-dist [
+;		set building-in-range (building-in-range + 1)
+;	]
+;end
+
+;to disable-road-area
+;	ask patches in-radius my-min-dist [
+;		if (building-in-range > 0) [
+;			set building-in-range (building-in-range - 1)
+;		]
+;	]
+;end
+
+;to Set-Seed
+;  if (mouse-down? and not MOUSE-CLICKED)
+;  [ let chosen (patch mouse-xcor mouse-ycor)
+;    if (terrain-of chosen != "water" and Patch-On-Grid? chosen)
+;    [ set START-X pxcor-of chosen
+;      set START-Y pycor-of chosen
+;      ;;Clear-Roads
+;      ask patches
+;	  [ set road false
+;        set road-type 0
+;        set is-corner false
+;        set dist-to-road (ULTIMATE-DISTANCE + 1)
+;        set dist-to-primary-road (ULTIMATE-DISTANCE + 1)
+;		set dist-to-primary-road-along-road 0
+;        set road-density 0
+;        set connectivity 0
+;        set building-in-range 0
+;      ]
+;      ask road-extenders
+;	  [ set xcor START-X
+;        set ycor START-Y
+;        set heading (90 * random(4))
+;        set color orange
+;        set history []
+;        set road-segment []
+;        set time-done-nothing 0
+;      ]
+;      ask road-connectors
+;	  [ set xcor START-X
+;        set ycor START-Y
+;        set heading (90 * random(4))
+;        set color orange
+;        set road-segment []
+;        set time-done-nothing 0
+;      ]
+;      kill road-linkers
+;
+;      ask primary-road-extenders
+;      [ set xcor START-X
+;        set ycor START-Y
+;        set heading (90 * random(4))
+;        set color yellow
+;        set history []
+;      ]
+;      ask turtles
+;	  [ set xcor START-X
+;        set ycor START-Y
+;      ]
+;    
+;      ask patch START-X START-Y
+;	  [ enable-road-area
+;        BuildRoad self 3
+;      ]
+;    ]
+;    set MOUSE-CLICKED true
+;  ]
+;  if (not mouse-down?)
+;  [ set MOUSE-CLICKED false
+;  ]
+;end
+
+to Clear-Roads
+    ask patches [
+        set road false
+        set road-type 0
+        set is-corner false
+        set dist-to-road (ULTIMATE-DISTANCE + 1)
+        set dist-to-primary-road (ULTIMATE-DISTANCE + 1)
+        set dist-to-primary-road-along-road -1
+        set road-density 0
+        set connectivity 0
+        set my-max-dist MAX-DISTANCE
+        set my-min-dist MIN-DISTANCE
+        set my-xscale X-SCALE
+        set my-yscale Y-SCALE
+        set my-devx DEV-X
+        set my-devy DEV-Y
+        set my-ctrn MAX-ROAD-CONCENTRATION
+        set my-ratio MANHATTAN-RATIO
+        set building-in-range 0
+        set my-primary-road-piece nobody
+    ]
+    clear-grids
+    ; make-new-grid START-X START-Y X-SCALE Y-SCALE GRID-ANGLE
+	make-new-grid ( [xcor] of world-reference-seed ) ( [ycor] of world-reference-seed ) X-SCALE Y-SCALE GRID-ANGLE
+    set MAIN-GRID item 0 GRIDS
+    
+    set PR-MAX-ANGLE-OF-CURVATURE 90
+    set PR-MIN-THRUST 10
+    set average-road-density 0
+    set ROAD-DENSITY-INC 1.0 / (count [ [ ultimate-area ] of patch-here ] of world-reference-seed)
+
+    ;set start random-one-of patches with [terrain != "water" and Is-Hot-Spot? self]
+    create-road-extenders number-of-tertiary-road-extenders [
+;        set xcor START-X
+;        set ycor START-Y
+        set heading (90 * random(4))
+        set color orange
+        set size 2
+		set shape "triangle"        
+        set history []
+    ]
+    create-road-connectors number-of-tertiary-road-connectors [
+;        set xcor START-X
+;        set ycor START-Y
+        set heading (90 * random(4))
+        set color orange
+        set size 2
+		set shape "triangle"        
+    ]
+    ask road-linkers [ die ]
+
+    generate-primary-road-agents
+    
+;    ask patch START-X START-Y [
+;      enable-road-area
+;      BuildRoad self 3
+;    ]
+    set pulse .75
+    set pulse-inc 0.05
+    Show-Running-Display
+end
+
+;to BuildRoad [a-patch new-type]
+;  locals [i j p x y newdist]
+;  ask a-patch
+;  [ if (not road or road-type > new-type)
+;    [ set x pxcor
+;      set y pycor
+;      set road true
+;      set road-type new-type
+;      set i (- ULTIMATE-DISTANCE)
+;      while [i <= ULTIMATE-DISTANCE]
+;      [ set j ( - ULTIMATE-DISTANCE)
+;        while [j <= ULTIMATE-DISTANCE]
+;        [ if (abs(x + i) <= screen-edge-x and abs (y + j) <= screen-edge-y)
+;          [ set p (patch-at i j)
+;            ifelse (p != myself)
+;            [ set newdist distance p ]
+;            [ set newdist 0 ]
+;            if (newdist <= ULTIMATE-DISTANCE)
+;            [ if (newdist < dist-to-road-of p)
+;              [ set dist-to-road-of p newdist ]
+;              if (new-type < 3 and newdist < dist-to-primary-road-of p)
+;              [ set dist-to-primary-road-of p newdist ]
+;              set average-road-density (average-road-density - road-density-of p / count patches)
+;              set road-density-of p (road-density-of p + ROAD-DENSITY-INC)
+;              set average-road-density (average-road-density + road-density-of p / count patches)
+;              dirty-road-dependancies! p
+;            ]
+;          ]
+;          set j (j + 1)
+;        ]
+;        set i (i + 1)
+;      ]
+;    ]
+;  ]
+;end
+
+to BuildRoadSegment [ segment new-type ]
+  let influenced-patches make-mutable no-patches
+  if ( new-type = 1 )
+  [ let sub-segment segment with [ road-type != 1 ]
+    ask sub-segment
+    [ if ( not road )
+      [ set temp-dist ultimate-area
+        ask temp-dist
+        [ set road-density ( road-density + ROAD-DENSITY-INC / 2 )
+        ]
+        set road true
+        set dist-to-road 0
+	add-to-mutable-agentset temp-dist influenced-patches
+      ]
+      set road-type new-type
+      set dist-to-primary-road 0
+      dirty-road-dependancies! self
+    ]
+    ask ( remove-from-agentset sub-segment influenced-patches )
+    [ set dist-to-primary-road ( min-of-2 dist-to-primary-road
+                                          min [ distance myself ] of sub-segment )
+      set dist-to-road min-of-2 dist-to-road dist-to-primary-road
+      dirty-road-dependancies! self
+      set temp-dist 0
+    ]
+  ]
+  if ( new-type = 3 )
+  [ let sub-segment segment with [ not road ]
+    ask sub-segment
+    [ set temp-dist ultimate-area
+      ask temp-dist
+      [ set road-density ( road-density + ROAD-DENSITY-INC ) ]
+      set road true
+      set dist-to-road 0
+      set road-type new-type
+      dirty-road-dependancies! self
+      add-to-mutable-agentset temp-dist influenced-patches
+    ]
+    ask ( remove-from-agentset sub-segment influenced-patches)
+    [ set dist-to-road ( min-of-2 dist-to-primary-road
+                                          min [ distance myself ] of sub-segment )
+      dirty-road-dependancies! self
+    ]
+  ]
+  set average-road-density mean [ road-density ] of patches with [ terrain = "land" ] 
+end
+
+to BuildRoad [ p new-type]
+  if ( not ( [road] of p ) or 
+       ( [road-type] of p ) > new-type )
+  [ let newdist 0
+    ask [ ultimate-area ] of p 
+    [  
+        set newdist distance p
+        if (newdist < dist-to-road)
+        [ set dist-to-road newdist ]
+        if (new-type < 3 and newdist < dist-to-primary-road )
+        [ set dist-to-primary-road newdist ]
+              
+      if ( not [road] of p )
+      [ set average-road-density (average-road-density - road-density / count patches)
+        set road-density ( road-density + ifelse-value ( new-type < 3 ) [ ROAD-DENSITY-INC / 2 ] [ ROAD-DENSITY-INC ] )
+        set average-road-density (average-road-density + road-density / count patches)
+      ]
+      dirty-road-dependancies! self
+    ]
+    set [road] of p true
+    set [road-type] of p new-type
+  ]
+end
+
+;to-report Get-Road-Concentration [road-set]
+;    ;locals [road-neighbors num-roads]
+;    ;set road-neighbors []
+;    ;foreach patch-list [
+;    ;    ask ? [
+;    ;        ask patches __in-rectangle (my-min-dist) (my-min-dist) [ set road-neighbors lput self road-neighbors ]
+;    ;    ]
+;    ;    set road-neighbors remove-duplicates road-neighbors
+;    ;]
+;
+;    ;set num-roads 0
+;    ;foreach road-neighbors [
+;    ;    if (road-of ? = true) [
+;    ;        set num-roads num-roads + 1
+;    ;    ]
+;    ;]
+;    ;report ((num-roads + length patch-list)/ length road-neighbors)
+;    ;output-print ( mean [ road-density ] of (patch-set patch-list))
+;    report ( mean [ road-density ] of road-set )
+;end
+
+;to-report Get-Road-Concentration [ patchset ]
+;	locals [road-neighbors num-roads]
+;	set road-neighbors empty-set
+;	ask patchset [
+;		ask patches __in-rectangle (my-min-dist) (my-min-dist) [ set road-neighbors (add-to-agentset self road-neighbors) ]
+;	]
+;	set num-roads 0
+;	ask road-neighbors [
+;		if (road = true)
+;		[
+;			set num-roads (num-roads + 1)
+;		]
+;	]
+;	report ((num-roads + count patch-list)/ count road-neighbors)
+;end
+
+to-report Any-Over-Water? [lst]
+    foreach lst [
+        if ([terrain] of ? = "water") [report true]
+    ]
+    report false
+end
+
+to-report is-road? [ p ]
+  report ( is-patch? p and [road] of p )
+end
+
+to-report Is-Possible-Connection? [ p ]
+    report ( [road] of p and
+             ( [connectivity] of p != 2 or        ; is an intersection or dead-end
+               [is-corner] of p = true or         ; is a corner
+               ( [connectivity] of p = 2 and       ; or is a piece of road with no other good connection options around
+                 count ( road-patches-I-can-reach self ( my-min-dist / 2 ) ) with [road and ( connectivity != 2 or is-corner = true ) ] = 0 ) ) )
+end
+
+;to-report Is-Hot-Spot? [ p ]
+;    locals [test]
+;    ask p [
+;        set test (pxcor mod my-xscale <= my-devx or pycor mod my-yscale <= my-devy)
+;    ]
+;    report test
+;end
+
+to-report Is-Hot-Spot? [ p ]
+  report hotspot-of-grid? p 0
+end
+
+;to-report On-Grid? [start-p end-p]
+;    report ((abs(pxcor-of start-p - pxcor-of end-p) <= (max-of-2 my-devx-of start-p my-devx-of end-p) and
+;             (pxcor-of start-p mod my-xscale) <= my-devx-of start-p and
+;             (pxcor-of end-p mod my-xscale) <= my-devx-of end-p) or
+;            (abs(pycor-of start-p - pycor-of end-p) <= (max-of-2 my-devy-of start-p my-devy-of end-p)  and
+;             (pycor-of start-p mod my-yscale) <= my-devy-of start-p and
+;             (pycor-of end-p mod my-yscale) <= my-devy-of end-p))
+;end
+
+to-report On-Grid? [ segment ]
+  report empty? filter [ ( not ( patch-on-grid-x? ? 0 or patch-on-grid-y? ? 0 ) and ( not [road] of ? ) ) ] segment
+end
+
+;to-report Patch-On-Grid? [p]
+;    report ((pxcor-of p mod my-xscale-of p <= my-devx-of p) or
+;            (pycor-of p mod my-yscale-of p <= my-devy-of p))
+;end
+
+to-report Patch-On-Grid? [p]
+    report ( patch-on-grid-x? p 0 or patch-on-grid-y? p 0 )
+end
+
+;to-report On-Y-Axis? [start-p end-p]
+;    report (abs(pxcor-of start-p - pxcor-of end-p) <= (max-of-2 my-devx-of start-p my-devx-of end-p) and
+;             (pxcor-of start-p mod my-xscale) <= my-devx-of start-p and
+;             (pxcor-of end-p mod my-xscale) <= my-devx-of end-p)
+;end
+
+to-report On-Y-Axis? [ segment ]
+  report length segment = length filter [ patch-on-grid-y? ? 0 ] segment
+end
+
+;to-report On-X-Axis? [start-p end-p]
+;    report (abs(pycor-of start-p - pycor-of end-p) <= (max-of-2 my-devy-of start-p my-devy-of end-p)  and
+;             (pycor-of start-p mod my-yscale) <= my-devy-of start-p and
+;             (pycor-of end-p mod my-yscale) <= my-devy-of end-p)
+;end
+
+to-report On-X-Axis? [ segment ]
+  report length segment = length filter [ patch-on-grid-x? ? 0 ] segment
+end
+
+to find-connectivity [ p ]
+  if ( [road] of p = true and
+       [road-type] of p = 3)
+  [ set ( [connectivity] of p ) count [ neighbors4
+    ask subs]te-area ] of ; oadck[ p ; is a cornk pat      [is-corner       ( [connectivity] of p ry-road
+                  [ reporort isset p (pa0 1? ? 0porort isset p (pa1id-y?oa corner
+                                reporort isset p (pa1id- ? 0porort isset p (pa0 -1-y?oa corner
+                                reporort isset p (pa0 -1- ? 0porort isset p (pa-1id-y?oa corner
+                                reporort isset p (pa-1id- ? 0porort isset p (pa0 1 of ?[road] of] of p )
+end
+
+to-ount ( road-patches-I-can[?oaigin new-type ]quelse- patcoaigin )  ]
+  ][entset teng-areaigin 0-type ]resultpatches make-mutable no-pat)
+;  [ildd-piece no       0 ) andreport quelse)nge > 0 ]
+  [ildd(endrs ]quelse)wdist 0
+   ount [ neighbors4
+    a-down? arepotors?gentsetesultp)s]te-are [ildd] of p INC ] )
+     entset tem(][entset teng-ar [ildd+-type =======
+      add-to-mutable-agentsetesulth lst [
+      entset tem< nry-road )
+       quelseghbors lpuquelse]ad )
+ s! self
+    ]
+ quelse- but-ndrs ]quelse)wdilf
+ gment ]
+  tesulthof p )
+end
+
+to-ewdist det diet p (-road-alon[?oaigin vy-getew-type ]quelse- patcoaigin )  ]
+  ][entset teng-areaigin 0-ty
+  ][entset teng-arvy-geteg-roape ]timatatches make-m(a
+;	ask patches in-CONNECNCEN-RADIUSof ownr )  [ not ro)
+;  [ildd-piece no       0 ) andreport quelse)n ? 0 ) andpotors?gvy-getequelse)nge > 0 ]
+  [ildd(endrs ]quelse)wdist ]
+ quelse- but-ndrs ]quelse)wdist 0
+   ount [ neighbors4
+potors?gentsetimate-e-are [ildd] of p 
+     entset tem(][entset teng-ar [ildd+-type =======    quelseghbors lpuquelse ======= ask ( removadd-to-mutable-agentsetimatd )
+ s! self
+ lf
+ gment ]
+  [entset teng-arvy-getsegment
+end
+
+;to-fourto find-X-Axis? [ seg;type ]resultp(  patcndrs ]of sub-seg;  ret]
+    f- but-las ]of sub-see- but-ndrs ]of sub-seg;  type )
+ ents   ount [ neigt [roa1t-p and
+ype]
+  if (potors?g?2 ents ) ownr ] )
+-dist) esultpghborroad andom-(-(-(-  ount [ neigt [roa2of ownr ) potors?gentseents f ownr ] )
+;                              ownr )        count [ neighbors4
+potors?gentsexis? [ seof w-tyf ownr ] )
+;                            [ rep-GRID  <=-x removke-ne)d+-rep-GRID  <=-y removke-ne)dewdist ]
+;       ===== asulthory []
+;      ]
+ist) esultpghbora2o asulthory [;    ownr nt ]
+  tesulthend-p)
+;end
+
+to-porjitgtheds4
+po prevcouxtad? [ p ]
+  re  ifany?   ount [ neighbors4
+entnd-edse-e-aremef p ry-road
+    (- prid ( [xcprevc=- prid ( [xcouxtaoa corner
+      [pyid ( [xcprevc=- pyid ( [xcouxta)d] of p )
+end
+
+to-pordiags4
+po prevcouxtad? [ p ]
+  re  ifany?   ount [ neighbors4
+entnd-edse-e-aremef p ry-road
+    (--x an- prid ( [xcprevc-- prid ( [xcouxta)y] of p ry-road
+      -x an- pyid ( [xcprevc-- pyid ( [xcouxta)d=-dist  of p )
+end
+
+to-unrjitgths4
+po prevcouxtad? [
+  ][entnd-ede-aremefcorner f       i- prid ( [xcprevc=- prid ( [xcouxtaf p = nd
+
+to-oad [a prid ( [xcprevc pyid ( [xcmenge > 0nd
+
+to-oad [a prid ( [xcmen pyid ( [xcprevc] of p )
+end
+
+to-oask ( jitgths4
+xis? [ segmet]
+    fsk sub-seg[[
+  ][entnd-ede-are?fcornes [ di )
+ limi  report length y [ p ]
+limi  <-type = 3nd
+
+to-xis? [ segme di )
+ prevcp-GRID length y [ )
+ menp-GRI1 length y [ )
+ ouxtap-GRI2 length y [y [ p]
+limi  = 4ype = 3 p ]
+porjitgthedspo prevcouxtapatches) p ]
+  re patcprev corner
+             (-unrjitgthspo prevcouxtapatcheeeeeeeeeeeeeeeeeouxtapatcherid? [p]
+    length y [w-type ]
+ 3
+type ]resultp(  patcprevc) di )
+ prevrdiag?fcorner f )
+ ouxt-upd-piece no )
+ ouxt-diag?fcorner f       0i <-limi  ge > 0 ]
+ ouxt-updp-GRIi sk sub-segmes)
+ ouxt-diag?f(-pordiagsouxtame ouxt-updpatcheype]
+  if (prevrdiag?fpe < 3xt-diag?f)n ? 0 )porjitgthedspo prevcouxtappatches )
+   me (-unrjitgthspo prevcouxtapatche3
+;    ]
+  revrdiag?f(-pordiagspo prevcouxtapatcheist) esultpghborreetesulth lst ]
+  revrreh lst ]
+ me ouxtsegmes)
+ ouxt ouxt-upsegmes)
+ if(-pd+-type =d? [
+  ]resultp( sub-t inetesulth lst [
+                 sity + ifelse-vporjitgthedspo prevcouxtapp[-unrjitgthspo prevcouxta]s4
+po ewdist ]
+       eeeeeeeeeeouxtapatc
+;    ;foesulth l[[
+  ][entnd-ede-are?f subs]f
+ gment ]
+  tesulthof p )
+end
+
+to-fourto find-X-Axis? [ seg
+      is? [ soask ( jitgthsghbors remove-duplsk sub-s
+type ]resultp(  patcndrs ]of sub-seg e )
+ ents utable no-patret]
+    f- but-las ]of sub-see- but-ndrs ]of sub-segches )
+   ents   ount [ neigt [roa1        
+      if (potors?g?2 ents ) ow       )
+   ents road andom-(-  ount [ neighbors4
+potors?gentseents  p ry-road
+                                                                count [ neighbors4
+entnd-edse-f w-tyf t [roa2of ry-road
+                     [  <=-x removke-ne+  <=-y removke-neewdist ]
+     eents  ownr != nobo      [ 
+;    ;foesultg[[
+  ][entnd-ede-are?fcornes [          t]
+    fsk sub-g[[
+  ][entnd-ede-are?fcornes [          nt ]
+  [ [               ]
+     [entnd-ede-areents t road true
+      esultpghborents tesulth lst [-INC ) ]
+    esultpghbora2o asulthst [-INC)gment ]
+  tesulthof p 

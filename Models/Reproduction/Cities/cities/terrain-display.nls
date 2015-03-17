@@ -1,0 +1,62 @@
+globals [
+  spin
+]
+
+to Set-Color-Of-Terrain
+    ifelse (road)
+    [
+      ifelse (road-type = 3)
+      [ set pcolor gray ]
+      [ if (road-type = 1 or road-type = 2)
+        [ set pcolor 4 ]
+      ]
+    ]
+    [ifelse (owner != nobody)
+      [ ( curry [set-color-func] of [building-class] of owner self ) ]
+      [ ifelse (terrain = "water")
+        [ set pcolor scale-color blue elevation -20 (WATER-LEVEL * 1.1) ]
+        [if (terrain = "land")
+          [ set pcolor scale-color green elevation (WATER-LEVEL * .9) 120 ]
+        ]
+      ]
+    ]
+end
+
+to Show-Terrain
+  ask patches
+  [ ifelse (elevation > WATER-LEVEL)
+    [ set terrain "land"
+      ifelse (road)
+      [ set pcolor black ] 
+      [ ifelse ( owner = nobody )
+        [ set pcolor ( scale-color green elevation (WATER-LEVEL * .9) 120 ) + 2 ]
+        [ set pcolor approximate-rgb .900 .900 .900 ]
+      ]
+    ]
+    [ set terrain "water"
+      set pcolor scale-color blue elevation 0 (WATER-LEVEL * 3)
+    ]
+  ]
+end
+
+to Show-Default
+    ask patches [
+        ifelse (elevation > WATER-LEVEL)
+        [set terrain "land"]
+        [set terrain "water"]
+        Set-Color-Of-Terrain
+    ]
+end
+
+to show-derivative
+  set spin (spin + 45)
+  if (spin >= 360) [
+    set spin 0
+  ]
+  let c cos spin
+  let s sin spin
+  ask patches [
+    set pcolor scale-color black (([elevation] of patch-at c s) - elevation) -10 10
+;        set pcolor scale-color red (elevation - (nsum4 elevation / 4)) 0 3
+  ]
+end

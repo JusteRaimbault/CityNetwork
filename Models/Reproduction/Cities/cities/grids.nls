@@ -1,0 +1,164 @@
+breed [ grid a-grid ]
+
+
+globals
+[ GRIDS
+  MAIN-GRID
+  temp-angle
+]
+
+grid-own
+[ grid-x
+  grid-y
+  ; the heading is the angle of the grid
+  ; has xcor and ycor since it's a turtle
+]
+
+patches-own
+[ my-grid           ; list of grids that the patch belongs to
+  dev-x-from-grid ; list of how deviant in the x direction from the corresponding grid
+  dev-y-from-grid ; list of how deviant in the y direction from the corresponding grid
+  my-grid-angle
+]
+
+;; well, I'm implementing a quick hack to make this go faster; but I have a better idea of how to encorporate multiple grids below
+
+to-report patch-on-grid-x? [ p index ]
+  report ( [dev-x-from-grid] of p <= [my-devx] of p )
+end
+
+to-report patch-on-grid-y? [ p index ]
+  report ( [dev-y-from-grid] of p <= [my-devy] of p )
+end
+
+to-report hotspot-of-grid? [ p index ]
+  report ( [dev-x-from-grid] of p <= [my-devx] of p ) and
+         ( [dev-y-from-grid] of p <= [my-devy] of p )
+end
+
+to clear-grids
+
+end
+
+to make-new-grid [ x y xscale yscale orientation ]
+  if (not is-list? GRIDS)
+  [ set GRIDS [ nobody ] ]
+  
+  ask patches
+  [ set my-grid-angle GRID-ANGLE ]
+end
+
+to find-dev-from-grid
+  let x 0
+  let y 0
+  let c 0
+  let s 0
+  let new-x 0
+  let new-y 0
+  ask patches
+  [ 
+      set x pxcor - int ( [xcor] of world-reference-seed )
+      set y pycor - int ( [ycor] of world-reference-seed )
+      set c cos my-grid-angle
+      set s sin my-grid-angle
+      set new-x ( c * x - s * y )
+      set new-y ( s * x + c * y )
+      set x ( 0.5 * my-xscale )
+      set dev-x-from-grid max-of-2 0 ( x - ( abs ( new-x mod my-xscale - x ) ) - 0.5 )
+      set y ( 0.5 * my-yscale )
+      set dev-y-from-grid max-of-2 0 ( y - ( abs ( new-y mod my-yscale - y ) ) - 0.5 )    
+  ]
+end
+
+
+
+;; DO NOT DELETE any of the following procedures - they are a better way of doing the grid.  But doing the simple version first.
+;
+;
+;to make-new-grid [ x y xscale yscale orientation ]
+;  locals [ temp ]
+;  if (not is-list? GRIDS)
+;  [ set GRIDS [] ]
+;  
+;  create-custom-turtles 1
+;  [ set breed grid
+;    setxy x y
+;    set grid-x xscale
+;    set grid-y yscale
+;    set heading orientation
+;    set GRIDS lput self GRIDS
+;    set temp self
+;  ]
+;  ask patches
+;  [ find-dev-from-grid self temp ]
+;end
+;
+;to destroy-grid [ index ]
+;  let g item index GRIDS
+;  set GRIDS remove-item index GRIDS
+;  ask patches
+;  [ if ( my-grid = g )
+;    [ set my-grid nobody ]
+;    set dev-x-from-grid remove-item index dev-x-from-grid
+;    set dev-y-from-grid remove-item index dev-y-from-grid
+;  ]
+;  kill g
+;end
+;
+;to find-dev-from-grid [ p g ]
+;  ask p
+;  [ let x pxcor - xcor-of g
+;    let y pycor - ycor-of g
+;    let c cos heading-of g
+;    let s sin heading-of g
+;    let new-x ( c * x - s * y )
+;    let new-y ( s * x + c * y )
+;    if ( not is-list? dev-x-from-grid )
+;    [ set dev-x-from-grid [] ]
+;    set x floor ( 0.5 * grid-x-of g )
+;    set dev-x-from-grid lput max-of-2 0 ( x - ( abs ( new-x mod grid-x-of g - x ) ) - .5 )
+;                             dev-x-from-grid
+;    if ( not is-list? dev-y-from-grid )
+;    [ set dev-y-from-grid [] ]
+;    set y floor ( 0.5 * grid-y-of g )
+;    set dev-y-from-grid lput max-of-2 0 ( y - ( abs ( new-y mod grid-y-of g - y ) ) - .5 )
+;                             dev-y-from-grid
+;  ]
+;end
+;
+;to-report patch-on-grid-x? [ p index ]
+;  report ( ( item index dev-x-from-grid-of p ) <= my-devx-of p )
+;end
+;
+;to-report patch-on-grid-y? [ p index ]
+;  report ( ( item index dev-y-from-grid-of p ) <= my-devy-of p )
+;end
+;
+;to-report hotspot-of-grid? [ p index ]
+;  report ( ( item index dev-x-from-grid-of p ) <= my-devx-of p ) and
+;         ( ( item index dev-y-from-grid-of p ) <= my-devy-of p )
+;end
+;
+;to clear-grids
+;  kill grid
+;  set GRIDS []
+;  ask patches
+;  [ set dev-x-from-grid []
+;    set dev-y-from-grid []
+;    set my-grid nobody
+;  ]
+;end
+;
+;to test-grids
+;  locals [ g ]
+;  clear-grids
+;  make-new-grid 1 4 20 10 temp-angle
+;  ask patches
+;  [ ifelse (item 0 dev-x-from-grid <= my-devx or item 0 dev-y-from-grid <= my-devy )
+;    [ set pcolor yellow ]
+;    [ set pcolor scale-color blue (item 0 dev-x-from-grid + item 0 dev-y-from-grid) 0 31 ]
+;  ]
+;  ifelse (temp-angle >= 259.0)
+;  [ set temp-angle 0 ]
+;  [ set temp-angle temp-angle + 1 ]
+;end

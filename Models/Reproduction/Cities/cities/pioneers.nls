@@ -1,0 +1,41 @@
+
+to link-primary-road-to-world-edge [ origin ]
+  let world-edge patches with [ abs pxcor = max-pxcor or abs pycor = max-pxcor and terrain = "land" ]
+  ask origin
+  [ sprout 1
+    [ set heading towards-nowrap max-one-of ( patches on-radius ULTIMATE-DISTANCE ) [ dist-to-primary-road ]
+      let destination max-one-of world-edge [ abs ( subtract-headings [heading] of myself towards-nowrap origin ) ]
+      let prim-road-segment get-mixed-primary-road-segment self origin destination world-edge
+      commit-primary-road-segment prim-road-segment
+      die
+    ]
+  ]
+end
+
+to Grow-Primary-Road [ prim-road-seg dest-p ]
+  let origin [front-patch] of ( last my-pieces )
+  let front nobody
+  let chosen-dest nobody
+  let added-patches no-patches
+
+  ask prim-road-seg
+  [ while [ patch-here != dest-p ]
+    [ set front [front-patch] of ( last my-pieces )
+      set chosen-dest ifelse-value ( distance dest-p <= PR-MIN-THRUST )
+                      [ dest-p ]
+                      [ best-primary-road-choice ( ( patches on-radius PR-MIN-THRUST ) in-frustum-of self PR-MAX-ANGLE-OF-CURVATURE ( 1.5 * PR-MIN-THRUST ) )
+						                         front origin dest-p
+                      ]
+      set added-patches patches-between front chosen-dest
+
+      hatch-primary-road-pieces 1
+      [ init-primary-road-piece front myself
+        set front-patch chosen-dest
+        set my-patches added-patches
+        set [my-pieces] of myself ( lput self [my-pieces] of myself )
+      ]
+      face chosen-dest
+      move-to chosen-dest
+    ]
+  ]
+end

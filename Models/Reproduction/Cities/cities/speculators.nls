@@ -1,0 +1,112 @@
+breed [speculators speculator]
+breed [helpers helper]
+
+speculators-own [
+  parcel
+]
+
+patches-own [
+  speculator-boundary
+  terrain-boundary
+  canny-visited
+  elevation-mag
+  elevation-tangent
+  canny-temp
+]
+
+to show-terrain-boundaries
+  ask patches with [terrain-boundary]
+  [ set pcolor white
+  ]
+end
+
+to find-speculator-terrain-boundaries
+  canny-edge-detect
+  ask patches with [canny-visited]
+  [ set terrain-boundary true
+    set canny-visited false
+  ]
+
+end
+
+to-report generic-terrain-value
+  report WATER-VALUE-CONST / sqrt (1 + dist-to-water)
+end
+
+to-report generic-elevation-value
+  report ELEVATION-VALUE-CONST * exp (((elevation - AVG-ELEVATION) * (elevation - AVG-ELEVATION)) / -128)
+end
+
+to-report generic-value
+  report generic-terrain-value + generic-elevation-value
+end
+
+to-report is-speculator-boundary
+  report ( (any? neighbors4 with [terrain = "water"] and terrain = "land") or
+           speculator-boundary )
+end
+
+to-report grow-speculatory-parcel [origin dir]
+  let lots no-patches
+  hatch-helpers 1 [
+    move-to origin
+    set heading dir
+    hatch 1 [
+      right 90
+      jump 1
+    ]
+    hatch 1 [
+      left 90
+      jump 1
+    ]
+  ]
+end
+
+to canny-edge-detect
+  ; initialize the patches, find the magnitude and tangential components
+  ask patches
+  [ set canny-visited false
+    set canny-temp robinson [ elevation ]
+    ;set canny-temp __roberts [ elevation ]
+    set elevation-mag (sqrt (first canny-temp * first canny-temp) + (last canny-temp * last canny-temp))
+    ;set elevation-mag (abs first canny-temp) + (abs last canny-temp)
+    ;set elevation-mag (abs __laplacian [elevation])
+    ifelse (elevation-mag = 0)
+    ;ifelse (first canny-temp = 0 and last canny-temp = 0)
+    [
+      set elevation-tangent 0
+    ]
+    [
+      set elevation-tangent atan first canny-temp last canny-temp
+    ]
+  ]
+  ; non-maxima supression
+  ;diffuse elevation-mag 1
+  ;ask patches [
+  ;  if (elevation-mag != 0) [
+  ;    ifelse (elevation-mag < elevation-mag-of (patch-at-heading-and-distance elevation-tangent 1))
+  ;    [
+  ;      set elevation-mag 0
+  ;    ]
+  ;    [
+  ;      if (elevation-mag < elevation-mag-of (patch-at-heading-and-distance elevation-tangent -1))
+  ;      [
+  ;        set elevation-mag 0
+  ;      ]
+  ;    ]
+  ;  ]
+  ;]
+  let temp max [elevation-mag] of patches 
+  let queue min [elevation-mag] of patches 
+  ask helpers [ die ]
+  ask patches [
+    sprout-helpers 1 [
+      set shape "line"
+      set heading [elevation-tangent] of myself
+      set color white
+    ]
+    set pcolor scale-color grey elevation-mag queue temp
+    ;set pcolor black
+  ]
+          
+end

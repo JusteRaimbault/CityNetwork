@@ -1,0 +1,251 @@
+globals [ old-building-neighbors ]
+
+to Show-Running-Display
+  if ( RUNNING-DISPLAY != "None" )
+  [ ifelse (RUNNING-DISPLAY = "Default") [ Show-Default ] [
+    ifelse (RUNNING-DISPLAY = "Terrain") [ Show-Terrain ] [
+    ifelse (RUNNING-DISPLAY = "Roads") [ Show-Roads ] [
+    ifelse (RUNNING-DISPLAY = "Density") [Show-Density] [
+    ifelse (RUNNING-DISPLAY = "Density Histogram") [Show-Density-Histogram] [
+    ifelse (RUNNING-DISPLAY = "Zoned Density" ) [ Show-Zoned-Density ] [
+    ifelse (RUNNING-DISPLAY = "Age")[Show-Age] [
+    ifelse (RUNNING-DISPLAY = "Last Updated")[Show-Last-Updated] [
+    ifelse (RUNNING-DISPLAY = "Residential Worth") [ show-site-worth RESIDENTIAL ] [
+    ifelse (RUNNING-DISPLAY = "Commercial Worth") [ show-site-worth COMMERCIAL ] [
+    ifelse (RUNNING-DISPLAY = "Industrial Worth") [ show-site-worth INDUSTRIAL ] [
+    if (RUNNING-DISPLAY = "Developer Frequencies") [Show-Developer-Frequencies]
+    ] ] ] ] ] ] ] ] ] ] ]
+    ifelse (OVERLAY-DISPLAY = "Terrain Boundaries") [show-terrain-boundaries] [
+    ifelse (OVERLAY-DISPLAY = "Owners") [Show-Owners] [
+    ifelse (OVERLAY-DISPLAY = "Seen Before") [Show-Seen-Before] [
+    ifelse ( OVERLAY-DISPLAY = "Show Reserved" ) [ show-reserved-land ] [
+    if ( OVERLAY-DISPLAY = "Show Grid" ) [ show-grid ]
+    ] ] ] ]
+    display
+  ]
+end
+
+to Show-Last-Updated
+  ask patches
+  [ ifelse ( not is-building? owner )
+    [ Set-Color-Of-Terrain ]
+    [ set pcolor scale-color black [last-year-updated] of owner 0 ( max-of-2 ticks 1 ) ]
+  ]
+end
+
+to Show-Age
+  ask patches
+  [ ifelse (not is-building? owner )
+    [ Set-Color-Of-Terrain ]
+    [ set pcolor scale-color black [year-founded] of owner 0 ( max-of-2 ticks 1 ) ]
+  ]
+end
+
+to Show-Density
+  let temp 0.5 * safe-max [ population-density ] of buildings 
+  ask patches [
+    ifelse ( not is-building? owner or road = true)
+    [
+      Set-Color-Of-Terrain
+    ]
+    [
+      set pcolor scale-color blue ([population-density] of owner) -5 temp
+; ( max-density-of building-class-of owner )
+    ]
+  ]
+end
+
+to Show-Density-Histogram
+  let b-list sort-by [ [population-density] of ?1 < [population-density] of ?2 ] ( [self] of buildings )  ;; UPGRADE NOTE: WAS __agentset-to-list ... NOW [ self ] of ...
+  let num ( min-of-2 ( length b-list ) 20 )
+  let sz ceiling ( safe-divide ( length b-list ) ( num ) )
+  foreach n-values num [ ? ]
+  [ ask patch-set [parcel] of ( turtle-set ( sublist b-list ( ? * sz ) ( ( min-of-2 ( length b-list ) ( ? * sz + sz ) ) ) ) )
+    [ set pcolor scale-color blue ? -5 ( num + 5 )
+    ]
+  ]
+  ask patches with [ owner = nobody ]
+  [ Set-Color-Of-Terrain ]
+end
+
+to Show-Zoned-Density
+  let temp 0.5 * safe-max [ population-density ] of buildings 
+  ask patches [
+    ifelse ( not is-building? owner or road = true )
+    [ Set-Color-Of-Terrain
+    ]
+    [ ( curry [set-color-func] of [building-class] of owner self )
+      set pcolor scale-color pcolor ( [population-density] of owner ) -5 temp
+    ]
+  ]
+end
+
+to Show-X-SCALE
+    ask patches [
+        set pcolor scale-color red my-xscale 0 ULTIMATE-DISTANCE
+    ]
+end
+
+to Show-Y-SCALE
+    ask patches [
+        set pcolor scale-color red my-yscale 0 ULTIMATE-DISTANCE
+    ]
+end
+
+to Show-GRID-ANGLE
+  ask patches [
+    set pcolor scale-color red my-grid-angle -45 45
+  ]
+end
+
+to Show-MIN-DISTANCE
+    ask patches [
+        set pcolor scale-color red my-min-dist 0 ULTIMATE-DISTANCE
+    ]
+end
+
+to Show-MAX-DISTANCE
+    ask patches [
+        set pcolor scale-color red my-max-dist 0 ULTIMATE-DISTANCE
+    ]
+end
+
+to Show-DEV-X
+    ask patches [
+        set pcolor scale-color red my-devx 0 (ULTIMATE-DISTANCE * 2.0)
+    ]
+end
+
+to Show-DEV-Y
+    ask patches [
+        set pcolor scale-color red my-devy 0 (ULTIMATE-DISTANCE * 2.0)
+    ]
+end
+
+to Show-RATIO
+    ask patches [
+        set pcolor scale-color red my-ratio 0 (ULTIMATE-DISTANCE / 2.0)
+    ]
+end
+
+to Show-CONCENTRATION
+    ask patches [
+        set pcolor scale-color red my-ctrn 0.0 1.0
+    ]
+end
+
+to Show-Residential-Honey
+  Show-Default
+  let new-hue 0
+  let original-hue 0
+  let temp 0
+  let hue 0
+  ask patches
+  [ set new-hue 360.0 * first extract-hsb yellow
+	  set temp extract-hsb pcolor
+      set original-hue 360.0 * first temp
+      let temp2 ( map [ ?1 + .25 * ( 1 - residential-honey ) * ?2 ] ( list ( cos new-hue ) ( sin new-hue ) )
+                               ( list ( cos original-hue ) ( sin original-hue ) ) )
+      set hue ( atan (item 1 temp2) (item 0 temp2)) / 360.0 
+      if ( residential-honey > 0 )
+      [ set pcolor approximate-hsb hue
+                       ( residential-honey * ( 1 - ( item 1 temp ) ) + ( item 1 temp ) )
+                       ( residential-honey * ( 1 - ( item 2 temp ) ) + ( item 2 temp ) )
+      ]    
+  ]
+end
+
+to Show-Commercial-Honey
+  Show-Default
+  let new-hue 0
+  let original-hue 0
+  let temp 0
+  let hue 0
+  ask patches
+  [
+;    set temp ( map [ ? * .5 ] extract-rgb pcolor )
+;    if ( commercial-honey > 0 )
+;    [ set temp ( map [ ?1 + ?2 ] temp
+;                                 ( list ( commercial-honey / 2 ) 0 0 ) )
+;    ]
+;    set pcolor __apply [ rgb ?1 ?2 ?3 ] temp
+      set new-hue 360.0 * first extract-hsb red
+      set temp extract-hsb pcolor
+      set original-hue 360.0 * first temp
+      let temp2 ( map [ ?1 + .25 * ( 1 - commercial-honey ) * ?2 ] ( list ( cos new-hue ) ( sin new-hue ) )
+                        ( list ( cos original-hue ) ( sin original-hue ) ) )
+      set hue ( atan (item 1 temp2) (item 0 temp2) ) / 360.0
+      if ( commercial-honey > 0 )
+      [ set pcolor approximate-hsb hue
+                       ( commercial-honey * ( 1 - ( item 1 temp ) ) + ( item 1 temp ) )
+                       ( commercial-honey * ( 1 - ( item 2 temp ) ) + ( item 2 temp ) )
+      ]    
+  ]
+end
+
+to Show-Industrial-Honey
+  Show-Default
+  let new-hue 0
+  let original-hue 0
+  let temp 0
+  let hue 0
+  ask patches
+  [
+      set new-hue 360.0 * first extract-hsb blue
+      set temp extract-hsb pcolor
+      set original-hue 360.0 * first temp
+      let temp2 ( map [ ?1 + .25 * ( 1 - industrial-honey ) * ?2 ] ( list ( cos new-hue ) ( sin new-hue ) )
+                           ( list ( cos original-hue ) ( sin original-hue ) ) )
+      set hue ( atan (item 1 temp2) (item 0 temp2) ) / 360.0 
+      if ( industrial-honey > 0 )
+      [ set pcolor approximate-hsb hue
+                       ( industrial-honey * ( 1 - ( item 1 temp ) ) + ( item 1 temp ) )
+                       ( industrial-honey * ( 1 - ( item 2 temp ) ) + ( item 2 temp ) )
+      ]
+  ]
+end
+
+to show-reserved-land
+  ask patches
+  [ if ( reserved )
+    [ 
+      let oldhsb extract-hsb pcolor
+      set pcolor approximate-hsb (item 0 oldhsb) (item 1 oldhsb) ( 0.5 * (item 2 oldhsb))
+    ]
+  ]
+end
+
+to show-grid
+  ask patches
+  [ 
+    let oldhsb extract-hsb pcolor
+    ifelse (dev-x-from-grid <= my-devx or dev-y-from-grid <= my-devy )
+    [ set pcolor approximate-hsb (item 0 oldhsb) (item 1 oldhsb) ( (item 2 oldhsb) + .25 ) ]
+    [ set pcolor approximate-hsb (item 0 oldhsb) (item 1 oldhsb) ( 0.125 - 0.125 * ( safe-divide dev-x-from-grid my-xscale + safe-divide dev-y-from-grid my-yscale ) + (item 2 oldhsb) ) ]
+  ]
+end
+
+to show-building-neighbors
+  ifelse ( mouse-down? )
+  [ ask patch mouse-xcor mouse-ycor
+    [ ask old-building-neighbors
+      [ Set-Color-of-Terrain ]
+      ifelse ( is-building? owner )
+      [ ask [parcel] of owner
+        [ set pcolor white ]
+        set old-building-neighbors make-mutable patch-set [parcel] of [building-neighbors] of owner
+        ask old-building-neighbors
+        [ 
+          let oldhsb extract-hsb pcolor 
+          set pcolor approximate-hsb (item 0 oldhsb) (item 1 oldhsb) ( 1.5 * (item 2 oldhsb)) 
+        ]
+        add-to-mutable-agentset [parcel] of owner old-building-neighbors
+      ]
+      [ set old-building-neighbors no-patches
+      ]
+    ]
+    display
+  ]
+  [ set old-building-neighbors no-patches
+  ]
+end

@@ -1,0 +1,546 @@
+globals [
+  ALL-DIRTY-FLAGS
+]
+
+patches-own
+[ owner
+]
+
+breed [ developer-classes _developer-class ]
+
+developer-classes-own
+[ name
+  global-population
+  desired-population
+  global-land-cover
+  desired-land-cover
+  
+  gis-code
+  min-parcel-size
+  max-parcel-size
+  initial-density
+  max-density
+  max-patience
+  bit-flag
+  
+  value-weight-vector
+  patch-vector-func
+  patch-constraint-func
+  building-vector-func
+  building-constraint-func
+  validity-func
+  surrounding-area-func
+  
+  set-color-func
+  get-frequency-func
+  add-frequency-func
+  get-honey-func
+]
+
+to-report average-density [ developer ]
+  report ifelse-value ( [global-land-cover] of developer = 0 )
+         [ 0 ]
+         [ [global-population] of developer / [global-land-cover] of developer ]
+end
+
+to-report safe-divide-default [ def n1 n2 ]
+  report ifelse-value ( n2 = 0 )
+         [ def ]
+         [ n1 / n2 ]
+end
+
+to-report quint-root [ x ]
+  report ifelse-value ( x < 0 )
+         [ ( - ( ( - x ) ^ 0.2 ) ) ]
+         [ x ^ 0.2 ]
+end
+
+to-report population-constraint [ class b ]
+  let class-pop 0
+  let city-pop 0
+  ifelse ( is-patch? b or [radius-of-influence] of b = 0 )
+  [ set class-pop [global-population] of class
+    set city-pop city-population
+  ]
+  [ let area-of-inf turtle-set [owner] of [ patches in-radius radius-of-influence ] of b
+    set class-pop sum [ population ] of ( area-of-inf with [ building-class = class ] ) 
+    set city-pop sum [ population ] of area-of-inf 
+  ]
+  let x ( safe-divide class-pop ( city-pop * [desired-population] of class ) )
+  ;report exp ( - square ( x - 1 ) )
+  report max-of-2 ( 1 - square-it ( .9 * ( x - 1 ) ) ) 0
+end
+
+to-report land-cover-constraint [ class b ]
+  let class-land-cov 0
+  let city-land-cov 0
+
+  ;if ( class = RESIDENTIAL ) [ report 1 ]
+  ifelse ( is-patch? b or [radius-of-influence] of b = 0 )
+  [ set class-land-cov [global-land-cover] of class
+    set city-land-cov city-land-cover
+  ]
+  [ let area-of-inf turtle-set [owner] of [ patches in-radius radius-of-influence ] of b
+    set class-land-cov sum [ count parcel ] of ( area-of-inf with [ building-class = class ] ) 
+    set city-land-cov sum [ count parcel ] of area-of-inf 
+  ]
+  let x ( safe-divide class-land-cov ( city-land-cov * [desired-land-cover] of class ) )
+  ; report exp ( - square ( x - 1 ) )
+  report max-of-2 ( 1 - square-it ( .9 * ( x - 1 ) ) ) 0
+end
+
+to-report patch-worth [ class p ]
+  report ( curry-reporter ( [patch-constraint-func] of class ) p ) *
+         ( ( [value-weight-vector] of class ) dot
+           ( curry-reporter ( [patch-vector-func] of class ) p ) )
+end
+
+to-report weighted-honey [ class b ]
+  report ( land-cover-constraint class b ) *
+         ( population-constraint class b ) *
+         ( curry-reporter [get-honey-func] of class b )
+end
+
+to-report building-worth [ class b ]
+  report ifelse-value ( not is-building? b or [population-density] of b > [max-density] of [building-class] of b )
+         [ 0 ]
+         [ ( curry-reporter ( [building-constraint-func] of class ) b ) *
+           ( building-density-difference b ) *
+           ( ( [value-weight-vector] of class ) dot
+             ( curry-reporter ( [building-vector-func] of class ) b ) )
+         ]
+end
+
+to-report site-worth [ class a ]
+  if ( [terrain] of a = "water" or [reserved] of a ) [ report 0 ]
+  report ( curry-reporter [get-honey-func] of class a ) +
+         ( land-cover-constraint class a ) * ( population-constraint class a ) *
+         ifelse-value ( is-patch? a )
+         [ ifelse-value ( is-building? [owner] of a )
+           [ building-worth class [owner] of a ]
+           [ patch-worth class a ]
+         ]
+         [ building-worth class a ]
+end
+
+to show-site-worth [ class ]
+  ask patches [ set pcolor scale-color black ( site-worth class self ) 0 2 ]
+end
+
+to site-seen-before [ class a ]
+  ifelse ( is-patch? a )
+  [ ifelse ( is-building? owner )
+    [ set ( [building-seen-before] of [owner] of a ) ( ( [building-seen-before] of [owner] of a ) b-or ( [bit-flag] of class ) ) ]
+    [ set [patch-seen-before] of a ( ( [patch-seen-before] of a ) b-or ( [bit-flag] of class ) ) ]
+  ]
+  [ set ( [building-seen-before] of a ) ( ( [building-seen-before] of a ) b-or ( [bit-flag] of class ) )
+  ]
+end
+
+to-report site-seen-before? [ class a ]
+  report ifelse-value ( is-patch? a )
+  [ ( ( is-building? [owner] of a ) and
+      ( ( ( [building-seen-before] of ( [owner] of a ) ) b-and ( [bit-flag] of class ) ) = ( [bit-flag] of class ) ) ) or
+    ( ( ( [patch-seen-before] of a ) b-and ( [bit-flag] of class ) ) = ( [bit-flag] of class ) )
+  ]
+  [ ( is-building? a ) and
+    ( ( ( [building-seen-before] of a ) b-and ( [bit-flag] of class ) ) = ( [bit-flag] of class ) ) ]
+end
+
+to-report try-to-add-density [ b ]
+  let class [building-class] of b
+  
+  if ( [population-density] of b >= [max-density] of class )
+  [ report nobody
+  ]
+  
+  let prev-value ( site-worth class b )
+  take-from-center-of-density ( [parcel] of b )
+  set ( [population] of b ) ( ( [population] of b ) + 1 )
+  set ( [population-density] of b ) ( ( [population] of b ) / count ( [parcel] of b ) )
+  set city-population ( city-population + 1 )
+  set ( [global-population] of class ) ( ( [global-population] of class ) + 1 )
+  dirty-just-my-density-dependancies! b
+  
+  if-else ( ( ( site-worth class b ) - prev-value ) > MIN-CHANGE-IN-WORTH )
+  [ add-to-center-of-density ( [parcel] of b )
+    dirty-just-others-density-dependancies! b
+    report b
+  ]
+  [ ; we failed to make enough profit
+    set ( [population] of b ) ( max-of-2 ( ( [population] of b ) - 1 ) 0 )
+    let reduce-amt ( min-of-2 ( [population] of b ) 1 )
+    set ( [population-density] of b ) ( ( [population] of b ) / count ( [parcel] of b ) )
+    set city-population ( city-population - reduce-amt )
+    set ( [global-population] of class ) ( ( [global-population] of class ) - reduce-amt )
+    
+    ifelse ( [population] of b > 0 )
+    [ add-to-center-of-density ( [parcel] of b )
+      dirty-just-my-density-dependancies! b
+    ]
+    [ collapse-building b ]
+    report nobody
+  ]
+end
+
+to-report try-to-change-zoning [ new-class b ]
+  let prev-class ( [building-class] of b )
+  let prev-class-prev-value ( site-worth prev-class b )
+  let new-class-prev-value ( site-worth new-class b )
+  let prev-constraints ( population-constraint new-class b ) * ( land-cover-constraint new-class b )
+  ;let prev-area surrounding-area-of b
+  set ( [global-population] of prev-class ) ( ( [global-population] of prev-class ) - [population] of b )
+  set ( [global-land-cover] of prev-class ) ( ( [global-land-cover] of prev-class ) - count [parcel] of b )
+  set ( [global-population] of new-class ) ( ( [global-population] of new-class ) + [population] of b )
+  set ( [global-land-cover] of new-class ) ( ( [global-land-cover] of new-class ) + count [parcel] of b ) 
+  ; set surrounding-area-of b ( curry-reporter surrounding-area-func-of new-class b )
+  dirty-just-my-zone-dependancies! b
+  
+  let prev-class-value-change ( ( site-worth prev-class b ) - prev-class-prev-value )
+  let new-class-value-change ( ( site-worth new-class b ) - new-class-prev-value )
+  
+  ifelse ( ( new-class-value-change > MIN-CHANGE-IN-WORTH ) and
+           ( ( prev-class-value-change > MIN-CHANGE-IN-WORTH ) or
+             ( ( new-class-value-change + 1 ) * ( ( curry-reporter [get-honey-func] of new-class b ) + 1 ) >
+               ( abs prev-class-value-change + 1 ) * ( ( curry-reporter [get-honey-func] of prev-class b ) + 1 ) ) ) )
+  [ set [building-class] of b new-class
+    dirty-just-others-zone-dependancies! b
+    ( curry [set-color-func] of new-class b )
+    report b
+  ]
+  [ if ( has-honey? new-class b )
+    [ let temp min-one-of ( lower-percent-of ( buildings with [ building-class = new-class and
+                                                                self != b and
+                                                                any? building-neighbors with [ building-class != new-class ] ] )
+                                             .20
+                                             [ count ( building-neighbors with [ building-class = new-class ] ) ] )
+                          [ building-worth new-class self + ( curry-reporter [get-honey-func] of new-class self ) ]
+      if ( temp != nobody )
+      [ let added-pop 0
+        let added-parcels make-mutable ( [parcel] of b )
+        let buildings-added make-mutable ( turtle-set b )
+        let current-building b
+        
+        ;; The second part of this IF used to be "and ( added-parcels < count [parcel] of temp)", but this was 
+        ;; comparing an agentset to a number, which caused errors.  I changed it to "count added-parcels", presuming
+        ;; that's what the original author desired.  ~Forrest (7/2/2007)
+        while [ ( current-building != nobody )
+                and ( count added-parcels < count [parcel] of temp )  ]
+        [ set current-building min-one-of ( ( remove-from-agentset buildings-added
+                                                                   turtle-set [owner] of ( bordering-patches4 added-parcels ) )
+                                            with [ [building-class] of self != PARK and [building-class] of self != new-class ] )
+                                          [ count parcel ]
+          if ( current-building != nobody )
+          [ add-to-mutable-agentset [parcel] of current-building added-parcels
+            set added-pop ( [population] of current-building + added-pop )
+            add-to-mutable-agentset current-building buildings-added
+          ]
+        ]
+    remove-from-mutable-agentset ( [parcel] of b ) added-parcels
+    set [parcel] of b ( add-to-agentset added-parcels ( [parcel] of b ) )
+    set [population] of b ( added-pop + ( [population] of b ) )
+        dirty-just-my-density-dependancies! b
+        let b-worth ( ( building-worth new-class b ) + ( curry-reporter [get-honey-func] of new-class b ) )
+        ifelse ( ( ( population-constraint new-class b ) * ( land-cover-constraint new-class b ) < prev-constraints ) and
+                 ( b-worth > ( ( building-worth prev-class b ) + ( curry-reporter [get-honey-func] of prev-class b ) ) ) and
+                 ( b-worth > ( ( building-worth new-class temp ) + ( curry-reporter [get-honey-func] of new-class temp ) ) ) )
+        [ ask ( remove-from-agentset b buildings-added )
+          [ destroy-existing-building self
+          ]
+          set [building-class] of b new-class
+          ( curry [set-color-func] of new-class b )
+          add-patches-to-parcel added-parcels b
+          dirty-just-others-zone-dependancies! b
+          ask one-of residential-developers
+          [ move-to temp ]
+          destroy-existing-building temp
+          report b
+        ]
+        [ set [parcel] of b ( remove-from-agentset added-parcels [parcel] of b )
+          set [population] of b ( [population] of b - added-pop )
+        ]
+      ]
+    ]
+    ; we failed to make enough profit
+    set ( [global-population] of prev-class ) ( ( [global-population] of prev-class ) + [population] of b )
+    set ( [global-land-cover] of prev-class ) ( ( [global-land-cover] of prev-class ) + count [parcel] of b )
+    set ( [global-population] of new-class ) ( ( [global-population] of new-class ) - [population] of b )
+    set ( [global-land-cover] of new-class ) ( ( [global-land-cover] of new-class ) - count [parcel] of b )
+    ;set surrounding-area-of b prev-area
+    dirty-just-my-zone-dependancies! b
+    report nobody
+  ]
+
+end
+
+to-report try-to-build-building [ class origin ]
+  let b ( create-building class
+                          origin )
+  if ( b = nobody ) [ report nobody ]
+  ;; if the building is too small, add the parcel to an existing building
+  if ( not SimCity? and count ( [parcel] of b ) < [min-parcel-size] of class )
+  [ let temp [parcel] of b
+    destroy-building b
+    set b one-of ( ( turtle-set [owner] of ( bordering-patches4 temp ) )
+                          with [ building-class = class and ( count temp + count parcel ) <= [max-parcel-size] of class ] )
+    if ( b != nobody )
+    [ add-patches-to-parcel temp b
+      fill-remaining-holes b
+      set total-elevation-from-land-coverage ( total-elevation-from-land-coverage + sum [ elevation ] of temp )
+      ;set surrounding-area-of b ( curry-reporter surrounding-area-func-of class b )
+    ]
+    report b
+  ]
+  ;; else the building is large enough on it's own
+  ;set surrounding-area-of b ( curry-reporter surrounding-area-func-of class b )
+  dirty-all-dependencies! b
+  ;let prev-value ( land-cover-constraint class b ) * ( site-worth class b )
+  let prev-value ( site-worth class b )
+  let prev-constraints ( population-constraint class b ) * ( land-cover-constraint class b )
+  
+  set ( [population-density] of b ) ( [initial-density] of class )
+  if ( ( [population-density] of b ) > ( [max-density] of class ) )
+  [ set ( [population-density] of b ) ( [max-density] of class )
+  ]
+  set ( [population] of b ) ( ( [population-density] of b ) * count ( [parcel] of b ) )
+  set ( [year-founded] of b) ticks
+  
+  set ( [global-population] of class ) ( ( [global-population] of class ) + [population] of b )
+  set ( [global-land-cover] of class ) ( ( [global-land-cover] of class ) + count [parcel] of b )
+  set city-population ( city-population + [population] of b )
+  set city-land-cover ( city-land-cover + count [parcel] of b )    
+  dirty-just-my-parcel-dependancies! b
+
+  ;ifelse ( ( ( land-cover-constraint class b ) * ( site-worth class b ) - ( prev-value ) ) > MIN-CHANGE-IN-WORTH )
+  ifelse ( ( ( site-worth class b ) - prev-value ) > MIN-CHANGE-IN-WORTH )
+  [ dirty-just-others-parcel-dependancies! b
+    add-to-center-of-density ( [parcel] of b )
+    enable-road-area ( [parcel] of b ) b
+    fill-remaining-holes b
+    set total-elevation-from-land-coverage ( total-elevation-from-land-coverage + sum [ elevation ] of [parcel] of b )
+    ( curry ( [set-color-func] of class ) b )
+    report b
+  ]
+  [ if ( has-honey? class b )
+    [ let temp min-one-of ( lower-percent-of ( buildings with [ building-class = class and
+                                                                b != self and
+                                                                population-density / [population-density] of b < 1.1 and
+                                                                any? building-neighbors with [ building-class != class ] ] )
+                                             .20
+                                             [ count ( building-neighbors with [ building-class = class ] ) ] )
+                          [ building-worth class self + ( curry-reporter [get-honey-func] of class self ) ]
+      if ( temp != nobody )
+      [ if ( ( ( population-constraint class b ) * ( land-cover-constraint class b ) < prev-constraints ) and
+             ( ( building-worth class b + ( curry-reporter [get-honey-func] of class b ) ) >
+               ( building-worth class temp + ( curry-reporter [get-honey-func] of class b ) ) ) )
+        [ 
+          dirty-just-others-parcel-dependancies! temp
+          ask one-of residential-developers
+          [ 
+            move-to temp 
+          ]
+          destroy-existing-building temp
+          dirty-just-others-parcel-dependancies! b
+          add-to-center-of-density ( [parcel] of b )
+          enable-road-area ( [parcel] of b ) b
+          fill-remaining-holes b
+          set total-elevation-from-land-coverage ( total-elevation-from-land-coverage + sum [ elevation ] of [parcel] of b )
+          ( curry ( [set-color-func] of class ) b )
+          report b
+        ]
+      ]
+    ]
+    ; we failed to make enough profit
+    ;output-print foo + " - " + prev-value + " = " + ( foo - prev-value )
+    dirty-just-my-parcel-dependancies! b
+    set ( [global-population] of class ) ( ( [global-population] of class ) - [population] of b )
+    set ( [global-land-cover] of class ) ( ( [global-land-cover] of class ) - count [parcel] of b )
+    set city-population ( city-population - [population] of b )
+    set city-land-cover ( city-land-cover - count [parcel] of b )
+    destroy-building b
+    report nobody
+  ]
+
+end
+
+to-report do-development [ class potential-site ]
+  let potential-owner [owner] of potential-site
+
+  ifelse ( is-building? potential-owner )
+  [ ifelse ( [building-class] of potential-owner = class )
+    [ report ( try-to-add-density potential-owner ) ]
+    [ ifelse ( [building-class] of potential-owner != class and
+               ( curry-reporter [validity-func] of class potential-owner ) )
+      [ report ( try-to-change-zoning class potential-owner ) ]
+      [ report nobody
+      ]
+    ]
+  ]
+  [ ifelse ( potential-owner = nobody ) ; else we're looking at an empty patch
+    [ let b try-to-build-building class potential-site
+      if ( b != nobody )
+      [ dirty-parcel-dependancies! b ]
+      report b
+    ]
+    [ report nobody ]
+  ]
+  ;; FIXME: as i read this code, this should not be required, but it is -- CLB
+  report nobody
+end
+
+to-report density-options [ class valid-locations ]
+  if ( ( safe-divide [global-population] of class city-population ) < [desired-population] of class )
+  [ report valid-locations with [ dist-to-road <= 1 and
+                                  is-building? owner and
+                                  [building-class] of owner = class ]
+  ]
+  report no-patches
+end
+
+to-report land-options [ class valid-locations ]
+  if ( ( safe-divide [global-land-cover] of class city-land-cover ) < [desired-land-cover] of class )
+  [ report valid-locations with [ dist-to-road <= 1 and
+                                  ( owner = nobody or
+                                    [building-class] of owner != class ) ]
+  ]
+  report no-patches
+end
+
+to-report general-area [ p ]
+  let ga ifelse-value ( ( [owner] of p ) = nobody )
+         [ remove-from-agentset p
+           ( patch-set [local-area] of ( [local-area] of p ) )
+         ]
+         [ remove-from-agentset ( [parcel] of ( [owner] of p ) )
+                                ( patch-set [local-area] of ( [parcel] of ( [owner] of p ) ) )
+         ]
+  report add-to-agentset ( ga with [ owner = nobody and
+                                     not reserved
+                                   ] )
+                         ( patch-set [ one-of parcel with [ not reserved ] ] 
+                                        of ( ( turtle-set [ owner ] of ga) with [ is-building? self ] ) )
+end
+
+to-report global-area
+  report add-to-agentset ( patches with [ not ( is-building? owner or
+                                                reserved or
+                                                road ) and
+                                          dist-to-road <= 1
+                                        ] )
+                         ( patch-set [ one-of parcel with [ not reserved ] ] of buildings )
+end
+
+to developmental-search [ class ]
+  start-timing
+  let valid-locations ( general-area patch-here ) with [ not ( site-seen-before? class self ) and
+                                                         ( curry-reporter [validity-func] of class self ) ]
+
+  let empty-patches ( ( valid-locations with [ not road and
+                                               dist-to-road <= 1 and
+                                               owner = nobody and
+                                               ( ( count neighbors with [ road ] - 1 ) mod 7 ) != 0] ) )
+  set best-empty-patches best-empty-patches with [ not road and
+                                                   owner = nobody and
+                                                   not ( site-seen-before? class self ) and
+                                                   ( curry-reporter [validity-func] of class self )
+                                                 ]
+  let temp ( intersection best-empty-patches empty-patches )
+  let best-options add-to-agentset temp
+                                   ( valid-locations with [ is-building? owner ] )
+
+  set best-empty-patches ( upper-percent-of ( add-to-agentset best-empty-patches empty-patches )
+                                            .90
+                                            [ site-worth class self ] )
+
+  if ( not ( member? patch-here best-options ) or
+       not ( member? patch-here best-empty-patches ) )
+  [ site-seen-before class patch-here
+    curry [add-frequency-func] of class
+  ]
+  let did-nothing-here 0
+  let b nobody
+
+  report-timing (word ([name] of class) " finding best options")  
+
+
+  if ( any? best-options ) [  start-timing
+  ;set best-options best-options with-max [ site-worth class self ]
+  ask best-options ; - try to see if development increases if we don't keep it to the max sites ...
+  [ 
+      set b ( do-development class self )
+      ifelse ( b != nobody )
+      [ set [last-year-updated] of b ticks
+        curry [add-frequency-func] of class
+      ]
+      [ ; if we didn't do anything here, then mark the patch or its owner as having been seen
+        ;site-seen-before class self
+        set did-nothing-here ( did-nothing-here + 1 )
+        site-seen-before class self
+      ]    
+    ;site-seen-before class self
+  ]
+
+  report-timing (word ([name] of class) " trying to build" )]
+
+  start-timing
+  ; see if we wasted our time, and if so, then we become more impatient
+  ifelse ( did-nothing-here = count best-options )
+  [ set patience patience - 1 ]
+  [ set patience patience + 1 ]
+  
+  ; with that out of the way, find another place to go
+  ;set best-options max-set-of best-options [ site-worth class self ]
+  ; if we ran out of patience, then do a global search, else search locally
+  set valid-locations valid-locations with [ not ( site-seen-before? class self ) ]
+  ifelse ( patience > 0 and any? valid-locations )
+  [ set best-options valid-locations with [ owner = nobody or dist-to-road <= 1 ]
+    if ( any? best-options )
+    [ set valid-locations best-options ]
+    ;set best-options ( lower-percent-of valid-locations CONSIDER-LOWER-FREQ [ ( curry-reporter get-frequency-func-of class ) ] )
+    ;ifelse ( any? best-options )
+    ;[ set b max-one-of best-options [ site-worth class self ] ]
+    ;[ 
+    set b max-one-of valid-locations [ site-worth class self ]
+    ;]
+  ]
+  [ set b breed
+    ;output-print "Doing a " + name-of class + " search."
+    set valid-locations ( global-area with [ ( owner = nobody or [building-class] of owner != PARK ) and
+                                             not ( site-seen-before? class self ) and
+                                             ( curry-reporter [validity-func] of class self ) and
+                                             not any? ( ( turtle-set [ turtles-here ] of local-area ) with [ breed = b ] )
+                                           ] )
+                                           
+    ifelse ( any? valid-locations )
+    [ 
+      set best-options upper-percent-of valid-locations .80 [ site-worth class self ]
+      ifelse ( any? best-options )
+      [ set b one-of best-options ]
+      [ set b one-of valid-locations ]
+    ]
+    [ 
+      ;; this seems to happen for most of the agents 
+      ;; after about 10 ticks or so, when you
+      ;; start with a blank world with only a seed. 
+      ;; In general, it really shouldn't happen after that
+      set b patch-here 
+    ]
+    set patience [max-patience] of class
+    set best-empty-patches no-patches
+  ]
+  move-to b
+  report-timing (word ([name] of class) " moving to new location")  
+end
+
+to fill-parcel-holes
+  let patches-to-fill patches with [ owner = nobody and count neighbors4 with [ owner != nobody ] >= 3 ]
+  let b nobody
+  while [ any? patches-to-fill ]
+  [ ask patches-to-fill
+    [ 
+        set b min-one-of ( turtle-set [owner] of neighbors4 ) [ count parcel ]
+        add-patches-to-parcel self b
+    ]
+    set patches-to-fill patches with [ owner = nobody and count neighbors4 with [ owner != nobody ] >= 3 ]
+  ]
+end

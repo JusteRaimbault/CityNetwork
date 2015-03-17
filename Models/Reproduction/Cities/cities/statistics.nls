@@ -1,0 +1,482 @@
+;; R C I Rd W O
+;; C
+;; I
+;; Rd
+;; W
+;; O
+
+to Save-Statistics [ filename ]
+  export-probability-grid-1 word filename "-1.png"
+  export-probability-grid-2 word filename "-4.png"
+  export-probability-grid-8 word filename "-16.png"
+  export-probability-grid-16 word filename "-32.png"
+  
+  let temp patches
+  let selected-patches temp with [ owner != nobody and [building-class] of owner = RESIDENTIAL ]
+  output-print (word "% residential: " (count selected-patches / count patches))
+  set temp ( remove-from-agentset selected-patches temp )
+  set selected-patches temp with [ owner != nobody and [building-class] of owner = COMMERCIAL ]
+  output-print (word "% commercial: " (count selected-patches / count patches))
+  set temp ( remove-from-agentset selected-patches temp )
+  set selected-patches temp with [ owner != nobody and [building-class] of owner = INDUSTRIAL ]
+  output-print (word "% industrial: " (count selected-patches / count patches))
+  set temp ( remove-from-agentset selected-patches temp )
+  set selected-patches temp with [ owner != nobody and [building-class] of owner = PARK ]
+  output-print (word "% park: " (count selected-patches / count patches))
+  set temp ( remove-from-agentset selected-patches temp )
+  set selected-patches temp with [ owner = nobody and road ]
+  output-print (word "% road: " (count selected-patches / count patches))
+  set temp ( remove-from-agentset selected-patches temp )
+  set selected-patches temp with [ owner = nobody and terrain = "water" ]
+  output-print (word "% water: " (count selected-patches / count patches))
+  output-print (word "% empty: " (count ( remove-from-agentset selected-patches temp ) / count patches))
+end
+
+
+
+to-report map-probability-type [ p ]
+  ifelse ( [terrain] of p = "water" )
+  [ report 4 ]
+  [ ifelse ( ( [owner] of p = nobody and not [road] of p ) or
+             ( [owner] of p != nobody and [breed] of [owner] of p = parks ) )
+    [ report 5 ]
+    [ ifelse ( [road] of p )
+      [ report 3 ]
+      [ ifelse ( [building-class] of owner = RESIDENTIAL )
+        [ report 0 ]
+        [ ifelse ( [building-class] of owner = COMMERCIAL )
+          [ report 1 ]
+          [ ifelse ( [building-class] of owner = INDUSTRIAL )
+            [ report 2 ]
+            [ output-print __boom ]
+          ]
+        ]
+      ]
+    ]
+  ]
+end
+
+to test-colormap [ i j ]
+  ask item j ( item i generate-statistics-colormap 6 )
+  [ set pcolor yellow 
+  ]
+end
+
+to-report generate-statistics-colormap [ num ]
+  let x-coord-list n-values num [ ( ? + 1 ) * ( world-width / num ) + min-pxcor ]
+  let y-coord-list reverse n-values num [ ? * ( world-height / num ) + min-pycor ]
+  let pset patches
+  let colormap []
+  let i 0
+  let j 0
+  let temp-list []
+  let temp no-patches
+
+  repeat num
+  [ set temp-list []
+    set j 0
+    repeat num
+    [ set temp pset with [ pxcor < ( item i x-coord-list ) and
+                           pycor >= ( item j y-coord-list ) ]
+      set temp-list ( lput temp temp-list )
+      set pset remove-from-agentset temp pset
+      set j ( j + 1 )
+    ]
+    set colormap lput temp-list colormap
+    set i ( i + 1 )
+  ]
+  report colormap
+end
+
+to-report collect-statistical-analysis [ dim disp? ]
+  let count-list [ 0 0 0 0 0 0 ]
+  let water-probability map [ 0 ] count-list
+  let other-probability map [ 0 ] count-list
+  let road-probability map [ 0 ] count-list
+  let residential-probability map [ 0 ] count-list
+  let commercial-probability map [ 0 ] count-list
+  let industrial-probability map [ 0 ] count-list
+  
+  ask patches
+  [ let area patches in-rectangle-nowrap dim dim
+    let sz count area
+    let id map-probability-type self
+    
+    set count-list replace-item id count-list ( ( item id count-list ) + 1 )
+    
+    let temp-area area with [ terrain = "water" ]
+    if ( any? temp-area )
+    [ set water-probability replace-item id water-probability
+                                         ( ( item id water-probability ) + count temp-area / sz )
+      set area remove-from-agentset temp-area area
+    ]
+    
+    set temp-area area with [ owner = nobody and not road ]
+    if ( any? temp-area )
+    [ set other-probability replace-item id other-probability
+                                         ( ( item id other-probability ) + count temp-area / sz )
+      set area remove-from-agentset temp-area area
+    ]
+    
+    set temp-area area with [ road ]
+    if ( any? temp-area )
+    [ set road-probability replace-item id road-probability
+                                        ( ( item id road-probability ) + count temp-area / sz )
+      set area remove-from-agentset temp-area area
+    ]
+    
+    set temp-area area with [ [building-class] of owner = RESIDENTIAL ]
+    if ( any? temp-area )
+    [ set residential-probability replace-item id residential-probability
+                                               ( ( item id residential-probability ) + count temp-area / sz )
+      set area remove-from-agentset temp-area area 
+    ]
+    
+    set temp-area area with [ [building-class] of owner = COMMERCIAL ]
+    if ( any? temp-area )
+    [ set commercial-probability replace-item id commercial-probability
+                                              ( ( item id commercial-probability ) + count temp-area / sz )
+      set area remove-from-agentset temp-area area
+    ]
+    
+    set temp-area area with [ [building-class] of owner = INDUSTRIAL ]
+    if ( any? temp-area )
+    [ set industrial-probability replace-item id industrial-probability
+                                              ( ( item id industrial-probability ) + count temp-area / sz )
+      set area remove-from-agentset temp-area area
+    ]
+  ]
+
+  if ( item 0 count-list != 0 )
+  [ set residential-probability replace-item 0 residential-probability
+                                             ( ( item 0 residential-probability ) / item 0 count-list )
+    set commercial-probability replace-item 0 commercial-probability
+                                            ( ( item 0 commercial-probability ) / item 0 count-list )
+    set industrial-probability replace-item 0 industrial-probability
+                                            ( ( item 0 industrial-probability ) / item 0 count-list )
+    set road-probability replace-item 0 road-probability
+                                      ( ( item 0 road-probability ) / item 0 count-list )
+    set water-probability replace-item 0 water-probability
+                                       ( ( item 0 water-probability ) / item 0 count-list )
+    set other-probability replace-item 0 other-probability
+                                       ( ( item 0 other-probability ) / item 0 count-list )
+  ]
+  
+  if ( item 1 count-list != 0 )
+  [ set residential-probability replace-item 1 residential-probability
+                                             ( ( item 1 residential-probability ) / item 1 count-list )
+    set commercial-probability replace-item 1 commercial-probability
+                                            ( ( item 1 commercial-probability ) / item 1 count-list )
+    set industrial-probability replace-item 1 industrial-probability
+                                            ( ( item 1 industrial-probability ) / item 1 count-list )
+    set road-probability replace-item 1 road-probability
+                                      ( ( item 1 road-probability ) / item 1 count-list )
+    set water-probability replace-item 1 water-probability
+                                       ( ( item 1 water-probability ) / item 1 count-list )
+    set other-probability replace-item 1 other-probability
+                                       ( ( item 1 other-probability ) / item 1 count-list )
+  ]
+
+  
+  if ( item 2 count-list != 0 )
+  [ set residential-probability replace-item 2 residential-probability
+                                             ( ( item 2 residential-probability ) / item 2 count-list )
+    set commercial-probability replace-item 2 commercial-probability
+                                            ( ( item 2 commercial-probability ) / item 2 count-list )
+    set industrial-probability replace-item 2 industrial-probability
+                                            ( ( item 2 industrial-probability ) / item 2 count-list )
+    set road-probability replace-item 2 road-probability
+                                      ( ( item 2 road-probability ) / item 2 count-list )
+    set water-probability replace-item 2 water-probability
+                                       ( ( item 2 water-probability ) / item 2 count-list )
+    set other-probability replace-item 2 other-probability
+                                       ( ( item 2 other-probability ) / item 2 count-list )
+  ]
+
+  if ( item 3 count-list != 0 )
+  [ set residential-probability replace-item 3 residential-probability
+                                             ( ( item 3 residential-probability ) / item 3 count-list )
+    set commercial-probability replace-item 3 commercial-probability
+                                            ( ( item 3 commercial-probability ) / item 3 count-list )
+    set industrial-probability replace-item 3 industrial-probability
+                                            ( ( item 3 industrial-probability ) / item 3 count-list )
+    set road-probability replace-item 3 road-probability
+                                      ( ( item 3 road-probability ) / item 3 count-list )
+    set water-probability replace-item 3 water-probability
+                                       ( ( item 3 water-probability ) / item 3 count-list )
+    set other-probability replace-item 3 other-probability
+                                       ( ( item 3 other-probability ) / item 3 count-list )
+  ]
+
+  if ( item 4 count-list != 0 )
+  [ set residential-probability replace-item 4 residential-probability
+                                             ( ( item 4 residential-probability ) / item 4 count-list )
+    set commercial-probability replace-item 4 commercial-probability
+                                            ( ( item 4 commercial-probability ) / item 4 count-list  )
+    set industrial-probability replace-item 4 industrial-probability
+                                            ( ( item 4 industrial-probability ) / item 4 count-list  )
+    set road-probability replace-item 4 road-probability
+                                      ( ( item 4 road-probability ) / item 4 count-list  )
+    set water-probability replace-item 4 water-probability
+                                       ( ( item 4 water-probability ) / item 4 count-list  )
+    set other-probability replace-item 4 other-probability
+                                       ( ( item 4 other-probability ) / item 4 count-list )
+  ]
+  
+  if ( item 5 count-list != 0 )
+  [ set residential-probability replace-item 5 residential-probability
+                                             ( ( item 5 residential-probability ) / item 5 count-list )
+    set commercial-probability replace-item 5 commercial-probability
+                                            ( ( item 5 commercial-probability ) / item 5 count-list)
+    set industrial-probability replace-item 5 industrial-probability
+                                            ( ( item 5 industrial-probability ) / item 5 count-list )
+    set road-probability replace-item 5 road-probability
+                                      ( ( item 5 road-probability ) / item 5 count-list )
+    set water-probability replace-item 5 water-probability
+                                       ( ( item 5 water-probability ) / item 5 count-list )
+    set other-probability replace-item 5 other-probability
+                                       ( ( item 5 other-probability ) / item 5 count-list )
+  ]
+
+  if ( disp? )
+  [ output-print "\t\t\tMyself"
+    output-print "\tR\tC\tI\tRd\tW\tO"
+    output-type "R\t"
+    foreach residential-probability [ output-type (word (precision ? 4) "\t") ]
+    output-type "\nC\t"
+    foreach commercial-probability [ output-type (word (precision ? 4) "\t") ]
+    output-type "\nI\t"
+    foreach industrial-probability [ output-type (word (precision ? 4) "\t") ]
+    output-type "\nRd\t"
+    foreach road-probability [ output-type (word (precision ? 4) "\t") ]
+    output-type "\nW\t"
+    foreach water-probability [ output-type (word (precision ? 4) "\t") ]
+    output-type "\nO\t"
+    foreach other-probability [ output-type (word (precision ? 4) "\t") ]
+    output-type "\n"
+  
+    let i 0
+    foreach ( generate-statistics-colormap 6 )
+    [ ask item 0 ?
+      [ set pcolor scale-color black ( item i residential-probability ) 0 1 ]
+      ask item 1 ?
+      [ set pcolor scale-color black ( item i commercial-probability ) 0 1 ]
+      ask item 2 ?
+      [ set pcolor scale-color black ( item i industrial-probability ) 0 1 ]
+      ask item 3 ?
+      [ set pcolor scale-color black ( item i road-probability ) 0 1 ]
+      ask item 4 ?
+      [ set pcolor scale-color black ( item i water-probability ) 0 1 ]
+      ask item 5 ?
+      [ set pcolor scale-color black ( item i other-probability ) 0 1 ]
+      set i ( i + 1 )
+    ]
+  ]
+  report ( list residential-probability
+                commercial-probability
+                industrial-probability
+                road-probability
+                water-probability
+                other-probability )
+end
+
+to show-land-coverage-percentages
+  output-print "==========================="
+  output-print (word "Residential land coverage: " (( [global-land-cover] of RESIDENTIAL ) / city-land-cover))
+  output-print (word "Commercial land coverage: " (( [global-land-cover] of COMMERCIAL ) / city-land-cover))
+  output-print (word "Industrial land coverage: " (( [global-land-cover] of INDUSTRIAL ) / city-land-cover))
+  output-print (word "Park land coverage: " (( [global-land-cover] of PARK ) / city-land-cover))
+  output-print "---------------------------"
+  output-print (word "Residential population: " (( [global-population] of RESIDENTIAL ) / city-population))
+  output-print (word "Commercial population: " (( [global-population] of COMMERCIAL ) / city-population))
+  output-print (word "Industrial population: " (( [global-population] of INDUSTRIAL ) / city-population))
+  output-print "==========================="
+end
+
+;; Stats.procedures for Craig
+
+to-report Stats.probability-statistics-1
+  report collect-statistical-analysis 1 false
+end
+to-report Stats.probability-statistics-2
+  report collect-statistical-analysis 2 false
+end
+to-report Stats.probability-statistics-8
+  report collect-statistical-analysis 8 false
+end
+to-report Stats.probability-statistics-16
+  report collect-statistical-analysis 16 false
+end
+
+to export-probability-grid-1 [ fname ]
+  output-print "Probability grid 1"
+  let stats collect-statistical-analysis 1 true
+  ask turtles [ ht ]
+  export-view fname
+  ask turtles [ st ]
+  ask buildings [ ht ]
+end
+
+to export-probability-grid-2 [ fname ]
+  output-print "Probability grid 4"
+  let stats collect-statistical-analysis 2 true
+  ask turtles [ ht ]
+  export-view fname
+  ask turtles [ st ]
+  ask buildings [ ht ]
+end
+
+to export-probability-grid-8 [ fname ]
+  output-print "Probability grid 16"
+  let stats collect-statistical-analysis 8 true
+  ask turtles [ ht ]
+  export-view fname
+  ask turtles [ st ]
+  ask buildings [ ht ]
+end
+
+to export-probability-grid-16 [ fname ]
+  output-print "Probability grid 32"
+  let stats collect-statistical-analysis 16 true
+  ask turtles [ ht ]
+  export-view fname
+  ask turtles [ st ]
+  ask buildings [ ht ]
+end
+
+to-report Stats.residential-land-coverage%
+  report safe-divide ( [global-land-cover] of RESIDENTIAL ) city-land-cover
+end
+to-report Stats.commercial-land-coverage%
+  report safe-divide ( [global-land-cover] of COMMERCIAL ) city-land-cover
+end
+to-report Stats.industrial-land-coverage%
+  report safe-divide ( [global-land-cover] of INDUSTRIAL ) city-land-cover
+end
+
+to-report Stats.residential-population%
+  report safe-divide ( [global-population] of RESIDENTIAL ) city-population
+end
+to-report Stats.commercial-population%
+  report safe-divide ( [global-population] of COMMERCIAL ) city-population
+end
+to-report Stats.industrial-population%
+  report safe-divide ( [global-population] of INDUSTRIAL ) city-population
+end
+
+to-report Stats.average-residential-density
+  report safe-divide ( [global-population] of RESIDENTIAL ) ( [global-land-cover] of RESIDENTIAL )
+end
+to-report Stats.average-commercial-density
+  report safe-divide ( [global-population] of COMMERCIAL ) ( [global-land-cover] of COMMERCIAL  )
+end
+to-report Stats.average-industrial-density
+  report safe-divide ( [global-population] of INDUSTRIAL ) ( [global-land-cover] of INDUSTRIAL )
+end
+to-report Stats.average-density
+  report safe-divide city-population city-land-cover
+end
+
+to-report Stats.number-of-residential-buildings
+  report count buildings with [ building-class = RESIDENTIAL ]
+end
+to-report Stats.number-of-commercial-buildings
+  report count buildings with [ building-class = COMMERCIAL ]
+end
+to-report Stats.number-of-industrial-buildings
+  report count buildings with [ building-class = INDUSTRIAL ]
+end
+to-report Stats.number-of-buildings
+  report count buildings
+end
+
+to-report Stats.mean-residential-building-population
+  report safe-mean [ population ] of buildings with [ building-class = RESIDENTIAL ] 
+end
+to-report Stats.mean-commercial-building-population
+  report safe-mean [ population ] of buildings with [ building-class = COMMERCIAL ] 
+end
+to-report Stats.mean-industrial-building-population
+  report safe-mean [ population ] of buildings with [ building-class = INDUSTRIAL ] 
+end
+to-report Stats.max-residential-building-population
+  report safe-max [ population ] of buildings with [ building-class = RESIDENTIAL ] 
+end
+to-report Stats.max-commercial-building-population
+  report safe-max [ population ] of buildings with [ building-class = COMMERCIAL ] 
+end
+to-report Stats.max-industrial-building-population
+  report safe-max [ population ] of buildings with [ building-class = INDUSTRIAL ] 
+end
+to-report Stats.min-residential-building-population
+  report safe-min [ population ] of buildings with [ building-class = RESIDENTIAL ] 
+end
+to-report Stats.min-commercial-building-population
+  report safe-min [ population ] of buildings with [ building-class = COMMERCIAL ] 
+end
+to-report Stats.min-industrial-building-population
+  report safe-min [ population ] of buildings with [ building-class = INDUSTRIAL ] 
+end
+to-report Stats.modes-residential-building-population
+  report safe-modes [ population ] of buildings with [ building-class = RESIDENTIAL ] 
+end
+to-report Stats.modes-commercial-building-population
+  report safe-modes [ population ] of buildings with [ building-class = COMMERCIAL ] 
+end
+to-report Stats.modes-industrial-building-population
+  report safe-modes [ population ] of buildings with [ building-class = INDUSTRIAL ] 
+end
+
+to-report Stats.mean-residential-building-parcel-size
+  report safe-mean [ count parcel ] of buildings with [ building-class = RESIDENTIAL ] 
+end
+to-report Stats.mean-commercial-building-parcel-size
+  report safe-mean [ count parcel ] of buildings with [ building-class = COMMERCIAL ] 
+end
+to-report Stats.mean-industrial-building-parcel-size
+  report safe-mean [ count parcel ] of buildings with [ building-class = INDUSTRIAL ] 
+end
+to-report Stats.max-residential-building-parcel-size
+  report safe-max [ count parcel ] of buildings with [ building-class = RESIDENTIAL ] 
+end
+to-report Stats.max-commercial-building-parcel-size
+  report safe-max [ count parcel ] of buildings with [ building-class = COMMERCIAL ] 
+end
+to-report Stats.max-industrial-building-parcel-size
+  report safe-max [ count parcel ] of buildings with [ building-class = INDUSTRIAL ] 
+end
+to-report Stats.min-residential-building-parcel-size
+  report safe-min [ count parcel ] of buildings with [ building-class = RESIDENTIAL ] 
+end
+to-report Stats.min-commercial-building-parcel-size
+  report safe-min [ count parcel ] of buildings with [ building-class = COMMERCIAL ] 
+end
+to-report Stats.min-industrial-building-parcel-size
+  report safe-min [ count parcel ] of buildings with [ building-class = INDUSTRIAL ] 
+end
+to-report Stats.modes-residential-building-parcel-size
+  report safe-modes [ count parcel ] of buildings with [ building-class = RESIDENTIAL ] 
+end
+to-report Stats.modes-commercial-building-parcel-size
+  report safe-modes [ count parcel ] of buildings with [ building-class = COMMERCIAL ] 
+end
+to-report Stats.modes-industrial-building-parcel-size
+  report safe-modes [ count parcel ] of buildings with [ building-class = INDUSTRIAL ] 
+end
+
+to-report Stats.%-road-patches
+  report count patches with [ road ] / count patches
+end
+to-report Stats.%-primary-road-patches
+  report count patches with [ road and road-type = 1 ] / count patches
+end
+to-report Stats.%-tertiary-road-patches
+  report count patches with [ road and road-type = 3 ] / count patches
+end
+
+to-report Stats.%-water-patches
+  report count patches with [ terrain = "water" ] / count patches
+end
+to-report Stats.%-land-patches
+  report count patches with [ terrain = "water" ] / count patches
+end

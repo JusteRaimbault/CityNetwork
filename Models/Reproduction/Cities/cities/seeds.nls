@@ -1,0 +1,171 @@
+breed [ start-seeds start-seed ]
+
+
+globals
+[ selected-seed
+  world-reference-seed
+]
+
+start-seeds-own
+[ starting-turtles
+]
+
+to make-seed [ t ]
+  set [breed] of t start-seeds
+  set [shape] of t "star"
+  set [size] of t 4
+  ifelse ( count start-seeds = 1 )
+  [ set world-reference-seed self
+    set color white
+  ]
+  [ set color 8.5
+  ]
+end
+
+to make-default-seed
+  let p ( patch-set patch 0 0 ) with [ Patch-On-Grid? self and
+                                                             [terrain] of self != "water" ]
+  let i 1
+  while [ not any? p ]
+  [ set p [ patches on-radius i with [ Patch-On-Grid? self and [terrain] of self != "water" ]
+                                   ] of ( patch 0 0 )
+    set i ( i + 1 )
+  ]
+  if ( any? p )
+  [ set p one-of p
+    crt 1
+    [ make-seed self
+      move-to p
+    ]
+  ]
+  set selected-seed nobody
+end
+
+to user-create-seed
+  if ( mouse-down? )
+  [ let p ( patch mouse-xcor mouse-ycor ) 
+    if ( not any? [ turtles-here with [ breed = start-seeds ] ] of p and
+         Patch-on-Grid? p and
+         [terrain] of p != "water" )
+    [ crt 1
+      [ make-seed self
+        move-to p
+      ]
+      find-dev-from-grid
+      divy-turtles-among-seeds
+    ]
+    display
+  ]
+end
+
+to user-move-seed
+  ifelse ( mouse-down? )
+  [ ifelse ( selected-seed = nobody )
+    [ set selected-seed one-of [ turtles-here with [ breed = start-seeds ] ] of ( patch mouse-xcor mouse-ycor ) 
+    ]
+    [ let p ( patch mouse-xcor mouse-ycor )
+      if ( not any? [ turtles-here with [ breed = start-seeds ] ] of p and
+           Patch-On-Grid? p and
+           [terrain] of p != "water" )
+      [ set [xcor] of selected-seed [pxcor] of p
+        set [ycor] of selected-seed [pycor] of p
+      ]
+    ]
+  ]
+  [ setup-seed selected-seed
+    if ( selected-seed = world-reference-seed )
+    [ find-dev-from-grid ]
+    set selected-seed nobody
+  ]
+  display
+end
+
+to user-select-reference-seed
+  if ( mouse-down? )
+  [ let t one-of [ turtles-here with [ breed = start-seeds ] ] of ( patch mouse-xcor mouse-ycor ) 
+    if ( t != nobody )
+    [ set [color] of world-reference-seed 8.5
+      set world-reference-seed t
+      set [color] of world-reference-seed white
+      find-dev-from-grid
+    ]
+    display
+  ]
+end
+
+to user-delete-seed
+  if ( mouse-down? )
+  [ let p ( patch mouse-xcor mouse-ycor )
+    if ( Patch-on-Grid? p and
+         [terrain] of p != "water" )
+    [ let t one-of [ turtles-here with [ breed = start-seeds ] ] of p 
+      ifelse ( t != nobody and count start-seeds = 1 )
+      [ user-message "You cannot delete all the seeds!  If you don't like where this one is, why don't you just move it?"
+      ]
+      [ ifelse ( t = world-reference-seed )
+        [ ask t [ die ]
+          set world-reference-seed one-of start-seeds
+          set [color] of world-reference-seed white
+          find-dev-from-grid
+        ]
+        [ ask t [ die ]
+        ]
+        divy-turtles-among-seeds
+      ]
+    ]
+    display
+  ]
+end
+
+to hide-seeds
+  ask start-seeds
+  [ hide-turtle ]
+end
+
+to show-seeds
+  ask start-seeds
+  [ show-turtle ]
+end
+
+to enable-seeds
+  let ps ( patch-set [ patch-here ] of (start-seeds with [ building-in-range = 0 ] ) )
+  enable-road-area ps nobody
+  ask ps with [ not road ]
+  [ BuildRoad self 3
+  ]
+end
+
+to divy-turtles-among-seeds
+  let other-turtles turtles with [ breed != buildings and breed != start-seeds ]
+  let num-turtles 0
+  let remaining-turtles 0
+  let t nobody
+  let i 0
+  let seed-list [self] of start-seeds
+  
+  foreach seed-list
+  [ set [starting-turtles] of ? (make-mutable no-turtles) ]
+  foreach [ breed ] of other-turtles 
+  [ set other-turtles make-mutable (turtles with [ breed = ? ])
+    set remaining-turtles ( count other-turtles mod count start-seeds )
+    set num-turtles ( count other-turtles - remaining-turtles ) / count start-seeds
+    foreach seed-list
+    [ set i remaining-turtles
+      repeat ( num-turtles + ifelse-value ( i > 0 ) [ 1 ] [ 0 ] )
+      [ set t one-of other-turtles
+        add-to-mutable-agentset t [starting-turtles] of ?
+        remove-from-mutable-agentset t other-turtles
+        set i ( i - 1 )
+      ]
+    ]
+  ]
+  foreach seed-list
+  [ setup-seed ? ]
+end
+
+to setup-seed [ s ]
+  if ( s != nobody )
+  [ ask [starting-turtles] of s
+    [ move-to s ]
+  ]
+end

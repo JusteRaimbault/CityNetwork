@@ -1,0 +1,101 @@
+breed [ road-extenders road-extender ]
+
+
+road-extenders-own [
+	history
+	time-done-nothing
+]
+
+to Wander-Off-Roads
+  if (length history > MAX-DISTANCE)
+  [ set history (but-first history)
+  ]
+  set history (lput patch-here history)
+  let temp [elevation] of patch-here
+  let valid-neighbors (neighbors with [ terrain = "land" and
+                                        ( not reserved )  and
+                                        road-enabled? self and
+                                        not member? self ( [history] of myself ) and
+                                        dist-to-road < ( my-max-dist + 1 ) ])
+                      with-max [dist-to-road - elevation-factor (temp - elevation)]
+  ifelse ( time-done-nothing < 30 and any? valid-neighbors )
+  [ set temp min-one-of ( ( remove-from-agentset patch-here ( patch-set [ local-area ] of valid-neighbors ) )
+                          with [ not road and
+                                 dist-to-road > my-min-dist and
+                                 dist-to-road < my-max-dist + 1 and
+                                 is-valid-tertiary-patch? self
+                               ] )
+                        [ distance myself ]
+    if ( temp = nobody)
+    [ set temp one-of valid-neighbors ]
+    set heading towards temp
+    jump 1 
+  ]
+  [ set temp one-of ( lower-percent-of ( patches with [ dist-to-road > my-min-dist and
+                                                               is-valid-tertiary-patch? self ] )
+                                              0.20
+                                              [ road-density ] )
+    set time-done-nothing 0
+    if ( temp != nobody )
+    [ move-to temp ]
+  ]
+end
+
+to Extend-Roads
+  Wander-Off-Roads
+  set time-done-nothing ( time-done-nothing + 1 )
+  if ( not [road] of patch-here and
+       is-valid-tertiary-patch? patch-here and
+       [dist-to-road] of patch-here >= [my-min-dist] of patch-here and
+       [dist-to-road] of patch-here < ( [my-max-dist] of patch-here + 1 ) )
+  [ Build-Tertiary-Extension
+  ]
+end
+
+to Build-Tertiary-Extension
+  let road-segment ( list patch-here )
+  set [selected] of patch-here true
+  let temp-elevation [elevation] of patch-here
+  let dest nobody
+  let valid-neighbors neighbors with [ is-valid-tertiary-patch? self]
+  let flag ( not any? valid-neighbors )
+  if ( not flag )
+  [ set heading towards min-one-of valid-neighbors [ dist-to-road + elevation-factor (temp-elevation - elevation) ] ]
+  while [ not [road] of patch-here and
+	        not flag ]
+  [ set dest valid-neighbors with [ road ]
+    ifelse ( any? dest )
+    [ set dest dest with-min [ distance myself ] ]
+    [ set dest valid-neighbors with [ dist-to-road <= 3 ]
+      ifelse ( any? dest )
+      [ set dest dest with-min [ dist-to-road ] ]
+      [ set temp-elevation ([elevation] of patch-here)
+        set dest valid-neighbors with-min [dist-to-road + elevation-factor (temp-elevation - elevation) ]
+      ]
+    ]
+    ifelse ( patch-ahead 1 != nobody and member? patch-ahead 1 dest )
+    [ set dest patch-ahead 1 ]
+    [ set dest min-one-of dest [ road-density ] ]
+    
+    set heading towards dest
+    move-to dest
+    set [selected] of dest true
+    set road-segment (lput dest road-segment)
+    ifelse ( [dist-to-road] of patch-here <= 3 )
+    [ set valid-neighbors neighbors with [ is-valid-tertiary-patch? self ]
+    ]
+    [ set valid-neighbors ( neighbors in-frustum-of self 60 2 ) with [ is-valid-tertiary-patch? self ] ]
+    set flag ( not any? valid-neighbors or
+               length road-segment > [my-max-dist] of ( first road-segment ) )
+  ]
+  set dest first road-segment
+  ifelse ( flag )
+  [ Abort-Road-Segment road-segment
+  ]
+  [ ; note that this includes the road patch you connect to ...
+    Submit-Road-Segment road-segment
+    set time-done-nothing 0
+  ]
+  set xcor [pxcor] of dest
+  set ycor [pycor] of dest
+end

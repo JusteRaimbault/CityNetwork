@@ -1,0 +1,527 @@
+globals
+[ PR-MAX-ANGLE-OF-CURVATURE
+  PR-MIN-THRUST
+  pins-primaries
+]
+
+breed [ primary-road-pieces primary-road-piece ]
+breed [ primary-road-segments primary-road-segment ]
+
+
+primary-road-pieces-own
+[ front-patch             ; end patch that is lower in y dimension
+  back-patch              ; end patch that is higher in y dimension
+  my-patches              ; patches that lie beneath me
+  my-primary-road-segment ; the primary road segment that owns me
+]
+
+patches-own [
+  my-primary-road-piece
+  dist-to-primary-road
+  dist-to-primary-road-along-road
+  primary-road-orientation
+]
+
+to find-distance-to-primary-road-along-road
+  let queue []
+  let roads patches with [ road ]
+  let prim-roads roads with [ road-type = 1 ]
+  let tert-roads make-mutable (remove-from-agentset prim-roads roads)
+  ask prim-roads
+  [  set dist-to-primary-road-along-road 0
+      ask neighbors4-nowrap with [ road and road-type != 1 ]
+      [  set dist-to-primary-road-along-road 1
+          set queue lput self queue
+          remove-from-mutable-agentset self tert-roads        
+      ]   
+  ]
+  while [ not empty? queue and any? tert-roads ]
+  [ ask ( [ neighbors4-nowrap with [ member? self tert-roads ] ] of ( first queue ) )
+    [  
+        set dist-to-primary-road-along-road ( [dist-to-primary-road-along-road] of first queue + 1 )
+        set queue lput self queue
+        remove-from-mutable-agentset self tert-roads      
+    ]
+    set queue but-first queue
+  ]
+  ask tert-roads [ set dist-to-primary-road-along-road 1000 ]
+end
+
+to update-distance-to-primary-road-along-road [ r-segment ]
+  let queue []
+  let new-roads make-mutable (patch-set r-segment) with [ not road ]
+  let temp 0
+  ask patch-set [ neighbors4-nowrap with [ road ] ] of new-roads 
+  [ 
+      ask ( intersection neighbors4-nowrap new-roads )
+      [ 
+          set temp ( [dist-to-primary-road-along-road] of myself + 1 )
+          if ( dist-to-primary-road-along-road < 0 or temp < dist-to-primary-road-along-road )
+          [ set dist-to-primary-road-along-road temp
+            if ( not member? self queue )
+            [ set queue lput self queue
+            ]
+          ]
+          remove-from-mutable-agentset self new-roads        
+      ]    
+  ]
+  while [ not empty? queue ]
+  [ ask [ neighbors4-nowrap with [ road or selected ] ] of ( first queue )  ;[ intersection neighbors4-nowrap new-roads ]
+    [  set temp ( [dist-to-primary-road-along-road] of first queue + 1 )
+        ifelse ( dist-to-primary-road-along-road < 0 or temp < dist-to-primary-road-along-road )
+        [ set dist-to-primary-road-along-road temp
+          set queue lput self queue
+          remove-from-mutable-agentset self new-roads
+        ]
+        [ if ( temp - dist-to-primary-road-along-road > 2 )
+          [ set ( [dist-to-primary-road-along-road] of first queue ) ( dist-to-primary-road-along-road + 1 )
+            set queue lput ( first queue ) queue
+            remove-from-mutable-agentset self new-roads
+          ]
+        ]
+    ]
+    set queue but-first queue
+  ]
+  ask new-roads [ set dist-to-primary-road-along-road 1000 ]
+end
+
+to-report best-primary-road-choice [ options front origin destination ]
+  let angle [ towards-nowrap destination ] of origin
+  set options [ self ] of options   ;; UPGRADE NOTE: WAS __agentset-to-list ... NOW [ self ] of ...
+  
+  let options-list filter [ ( abs subtract-headings ( [ towards-nowrap ? ] of front ) angle ) <= 90 ] options
+  if ( empty? options-list )
+  [ set options-list filter [ ( abs subtract-headings ( [ towards-nowrap ? ] of front ) angle ) <= 135 ] options
+    if ( empty? options-list )
+    [ report nobody ]
+  ]
+  set options options-list
+  
+  set options-list filter [ [terrain] of ? = "land" and [dist-to-water] of ? > 0 and ( not [reserved] of ? ) ] options
+  if ( empty? options-list )
+  [ set options-list options ]
+  
+  let minor-path-list map [ patches-between ? front ] options-list
+
+  let a [pxcor] of destination - [pxcor] of origin
+  let b [pycor] of destination - [pycor] of origin
+  let c sqrt ( a * a + b * b )
+  let dev-list map [ abs ( a * ( [pycor] of origin - [pycor] of ? ) - b * ( [pxcor] of origin - [pxcor] of ? ) ) / c ] options-list
+
+  let water-dist-list map [ [dist-to-water] of ? ] options-list
+  let water-orientations map [ ? with [ first water-orientation != 0 and last water-orientation != 0 ] ] minor-path-list
+  let water-heading-list ( map [ ifelse-value ( any? ?2 )
+                                 [ abs ( subtract-headings [ towards-nowrap ?1 ] of front 
+                                                           mean [ (towardsxy ( pxcor + (item 0 water-orientation)) ( pycor + (item 1 water-orientation) ) ) ] of ?2 ) ]
+                                 [ 0 ]
+                               ]
+                               options-list
+                               water-orientations )
+  set water-heading-list map [ 90 - ifelse-value ( ? > 90 ) [ 180 - ? ] [ ? ] ] water-heading-list
+
+  let variance-list map [ variance [ elevation ] of ? ] minor-path-list
+  let road-list map [ count ? with [ not road ] ] minor-path-list
+  let distance-list map [ [ distance-nowrap destination ] of ? ] options-list
+  let dist-to-prim-list map [ [ dist-to-primary-road ] of ? ] options-list
+  
+  let max-var max variance-list
+  let max-road max road-list
+  let max-dist max distance-list
+  let max-water-heading max water-heading-list
+  let max-dev max dev-list
+  let max-dist-to-prim mean dist-to-prim-list
+  
+  let value-list ( map [ .3 * ( safe-divide ?1 max-var ) +
+                         .5 * ( safe-divide ?2 max-road ) + 
+                         .1 * ( safe-divide ?3 max-dist ) +
+                         .2 * ( safe-divide ?4 max-dev ) +
+                              ( safe-divide ?5 max-dist-to-prim ) +
+                         3 * square-it ( safe-divide ?7 ( max-water-heading * ( min-of-2 [dist-to-water] of origin ?6 ) ) )
+                       ]
+                       variance-list
+                       road-list
+                       distance-list
+                       dev-list
+                       dist-to-prim-list
+                       water-dist-list
+                       water-heading-list )
+  foreach options [ set [pcolor] of ? blue ]
+  report item (position ( min value-list ) value-list ) options-list
+end
+
+; grows a primary road segment - including the origin, and terminating either at the destination, or on a patch in the alternative-region
+to-report get-unfettered-primary-road-segment [ t origin destination alternative-region ]
+  let prim-road-segment ( list origin )
+  let chosen-dest nobody
+  let options no-patches
+  let frustum no-patches
+  
+  ask t
+  [ move-to origin
+    set [selected] of origin true
+    set heading towards-nowrap destination
+    while [ patch-here != destination and not ( member? patch-here alternative-region ) ]
+    [ ifelse ( distance-nowrap destination <= PR-MIN-THRUST )
+      [ set chosen-dest destination ]
+      [ set frustum patches in-frustum-of self PR-MAX-ANGLE-OF-CURVATURE ( PR-MIN-THRUST + 1 )
+        set options add-to-agentset ( ( frustum in-radius-nowrap PR-MIN-THRUST ) with [ member? self alternative-region ] )
+                                    ( ( frustum on-radius-nowrap PR-MIN-THRUST ) with [ terrain != "water" and ( not reserved ) ] )
+        if ( not any? options )
+        [ set options patches on-radius-nowrap PR-MIN-THRUST
+        ]
+        set chosen-dest best-primary-road-choice options patch-here origin destination
+        if ( chosen-dest = nobody )
+        [ set chosen-dest best-primary-road-choice ( patches on-radius-nowrap PR-MIN-THRUST ) patch-here origin destination
+        ]
+      ]
+      set heading towards-nowrap chosen-dest
+      while [ patch-here != chosen-dest ]
+      [ set [primary-road-orientation] of patch-here heading
+        ifelse ( member? chosen-dest neighbors )
+        [ move-to chosen-dest ]
+        [ jump 1 ]
+        set [selected] of patch-here true
+        set prim-road-segment lput patch-here prim-road-segment
+      ]
+    ]
+    set [primary-road-orientation] of patch-here heading
+  ]
+  report prim-road-segment
+end
+
+;to-report angle-between-3-points [ p1 v p2 ]
+;  locals [ux uy vx vy u-length v-length]
+;  set ux (pxcor-of p1 - pxcor-of v)
+;  set uy (pycor-of p1 - pycor-of v)
+;  set vx (pxcor-of p2 - pxcor-of v)
+;  set vy (pycor-of p2 - pycor-of v)
+;  set u-length sqrt (ux * ux + uy * uy)
+;  set v-length sqrt (vx * vx + vy * vy)
+;  ifelse (u-length > 0)
+;  [ set ux (ux / u-length)
+;    set uy (uy / u-length)
+;  ]
+;  [ report 0 ]
+;  
+;  ifelse (v-length > 0)
+;  [ set vx (vx / v-length)
+;    set vy (vy / v-length)
+;  ]
+;  [ report 0 ]
+;  report (ux * vx + uy * vy)
+;end
+
+to-report best-fettered-primary-road-choice [ options origin start-p end-p ]
+  let angle [ towards-nowrap end-p ] of start-p
+  set options [self] of options ;; UPGRADE NOTE: WAS __agentset-to-list ... NOW [ self ] of ...
+  
+  let options-list ( filter [ ( abs subtract-headings ( [ towards-nowrap ? ] of origin ) angle ) <= 90 ] options )
+  if ( not empty? options-list )
+  [ set options options-list ]
+  
+  set options-list filter [ [terrain] of ? = "land" and [dist-to-water] of ? > 0 and ( not reserved ) ] options
+  if ( empty? options-list )
+  [ set options-list options
+  ]
+  
+  let water-list map [ [ dist-to-water ] of ? ] options-list
+  
+  let distance-list map [ [ distance-nowrap end-p ] of ? ] options-list
+  let max-dist [ distance-nowrap end-p ] of origin 
+
+  let road-list ( map [ ifelse-value ( [road] of ?1 and ?2 <= max-dist )
+                                     [ 0 ] [ 1 ] ] options-list distance-list )
+
+  let a [pxcor] of end-p - [pxcor] of start-p
+  let b [pycor] of end-p - [pycor] of start-p
+  let c sqrt ( a * a + b * b )
+  let dev-list map [ abs ( a * ( [pycor] of start-p - [pycor] of ? ) - b * ( [pxcor] of start-p - [pxcor] of ? ) ) / c ] options-list
+
+  let boundary-list map [ ifelse-value ( is-parcel-boundary ? or [road] of ? ) [ 0 ] [ 1 ] ] options-list
+
+  let water-heading-list map [ ifelse-value ( [ first water-orientation != 0 and last water-orientation != 0 ] of ? )
+                               [ abs ( subtract-headings [ towards-nowrap ? ] of origin 
+                                                         [ towardsxy ( pxcor + (item 0 water-orientation) ) ( pycor + (item 1 water-orientation) ) ] of ? )
+                               ]
+                               [ 0 ]
+                             ]
+                             options-list
+  set water-heading-list map [ 90 - ifelse-value ( ? > 90 ) [ 180 - ? ] [ ? ] ] water-heading-list
+  let dist-to-prim-list map [ [ dist-to-primary-road ] of ? ] options-list
+
+  let max-dev mean dev-list
+  let max-water max water-list
+  let max-water-heading max water-heading-list
+  let max-dist-to-prim mean dist-to-prim-list
+  
+  let value-list ( map [ .3 * ( safe-divide ?1 max-dist ) +
+                         .2 * ( safe-divide ?2 max-dev ) +
+                          ?3 +
+                         .1 * ?4 +
+                          ( safe-divide ?5 max-dist-to-prim ) +
+                        3 * square-it ( safe-divide ?7 ( max-water-heading * ?6 ) )
+                       ]
+                       distance-list
+                       dev-list
+                       road-list
+                       boundary-list
+                       dist-to-prim-list
+                       water-list
+                       water-heading-list )
+  report item ( position ( min value-list ) value-list ) options-list
+end
+
+;to-report primary-road-worth [ p start-p end-p ]
+;  locals [result]
+;
+;  ask p [
+;    set result ([ distance-nowrap end-p ] of start-p) - distance-nowrap end-p
+;    if (road)
+;    [ set result ( result + 1 )
+;    ]
+;    set result ( result + ( angle-between-3-points self end-p start-p - 1 ) )
+;    if ( (count turtle-set [owner] of (add-to-agentset self neighbors)) > 1 )
+;    [ set result ( result + 1 )
+;    ]
+;  ]
+;  report result
+;end
+
+to-report get-fettered-primary-road-segment [ t origin destination ]
+  let prim-road-segment ( list origin )
+  let flag false
+  let options no-patches
+  let chosen-dest nobody
+
+  ask t
+  [ move-to origin
+    set [selected] of origin true
+    set heading towards-nowrap destination
+    while [ destination != patch-here and
+            [road-type] of patch-here != 1 and
+            not flag ]
+    [ set options ( neighbors in-frustum-of self 60 2) with [ not selected and
+                                                              ( count neighbors with [ selected ] <= 1 ) ]
+      ifelse ( not any? options )
+      [ set flag true ]
+      [ ;set chosen-dest max-one-of options [ primary-road-worth self origin destination ]
+        set chosen-dest ( best-fettered-primary-road-choice options patch-here origin destination )
+        set heading towards-nowrap chosen-dest
+        set [primary-road-orientation] of patch-here heading
+        move-to chosen-dest
+        set [selected] of patch-here true
+        set prim-road-segment lput patch-here prim-road-segment
+      ]
+    ]
+    set [primary-road-orientation] of patch-here heading
+  ]
+  if ( flag ) [ report [] ]
+  report prim-road-segment
+end
+
+; this function incorporates both fettered and unfettered primary road building behaviors
+; it stops when it hits a primary-road,
+;       or when it reaches its destination,
+;       or when it reaches the alternative region
+; it returns an empty list, if the fettered version cannot find anywhere to connect to ...
+to-report get-mixed-primary-road-segment [ t origin destination alternative-region ]
+  let prim-road-segment ( list origin )
+  let flag false
+  if ( origin = destination ) [ report [] ]
+  ask t
+  [ move-to origin
+    set [selected] of origin true
+    set heading towards-nowrap destination
+    let fettered false
+    let chosen-dest nobody
+    let frustum no-patches
+    let options no-patches
+
+    while [ not flag and
+            destination != patch-here and
+            ( manhattan-distance origin patch-here < 4 or [road-type] of patch-here != 1 ) and
+            not ( member? patch-here alternative-region ) ]
+    [ ; set frustum patches in-frustum-of self PR-MAX-ANGLE-OF-CURVATURE ( PR-MIN-THRUST + 1 )
+      ifelse ( [terrain] of patch-here = "land" and ( not [reserved] of patch-here ) and any? turtle-set [ owner ] of neighbors )
+      [ set fettered true
+        set options ( ( neighbors in-frustum-of self 60 2 ) with [ not selected and ( count neighbors with [ selected ] <= 1 ) ] )
+        set chosen-dest ifelse-value ( any? options )
+                        [ best-fettered-primary-road-choice options patch-here origin destination ]
+                        [ nobody ]
+      ]
+      [ set fettered false
+        ifelse ( distance-nowrap destination <= PR-MIN-THRUST )
+        [ set chosen-dest destination ]
+        [ set frustum patches in-frustum-of self PR-MAX-ANGLE-OF-CURVATURE ( PR-MIN-THRUST + 1 )
+          set options add-to-agentset ( ( frustum in-radius-nowrap PR-MIN-THRUST ) with [ member? self alternative-region ] )
+                                      ( ( frustum on-radius-nowrap PR-MIN-THRUST ) with [ ( not reserved ) and terrain != "water" ] )
+          if ( not any? options )
+          [ set options patches on-radius-nowrap PR-MIN-THRUST
+          ]
+          set chosen-dest ifelse-value ( any? options )
+                          [ best-primary-road-choice options patch-here origin destination ]
+                          [ nobody ]
+        ]
+      ]
+      ifelse ( chosen-dest = nobody )
+      [ set flag true ]
+      [ set heading towards-nowrap chosen-dest
+        while [ patch-here != chosen-dest and
+                ( fettered or [owner] of patch-here = nobody ) and
+                ( manhattan-distance origin patch-here < 4 or [road-type] of patch-here != 1 ) ]
+        [ set [primary-road-orientation] of patch-here heading
+          ifelse ( member? chosen-dest neighbors )
+          [ move-to chosen-dest ]
+          [ jump 1 ]
+          set [selected] of patch-here true
+          set prim-road-segment lput patch-here prim-road-segment
+        ]
+      ]
+    ]
+  ]
+  if ( flag ) [ report [] ]
+  set [selected] of patch-here true
+  set prim-road-segment lput patch-here prim-road-segment
+  report prim-road-segment
+end
+
+to-report clip-if-too-much-water [ segment ]
+  let last-land -1
+  let last-water -1
+  let i 0
+  let p nobody
+
+  while [ i < length segment and
+          ( last-land < 0 or
+            last-water - last-land < ULTIMATE-DISTANCE )
+        ]
+  [ set p item i segment
+    ifelse ( ( not [reserved] of p ) and [terrain] of p = "land" )
+    [ set last-land i
+      set last-water i
+    ]
+    [ set last-water i ]
+    set i ( i + 1 )
+  ]
+  ifelse ( i < length segment or ( [terrain] of last segment = "water" ) or ( [reserved] of last segment ) )
+  [ foreach sublist segment ( last-land + 1 ) length segment
+    [ set [selected] of ? false ]
+    report sublist segment 0 ( last-land + 1 )
+  ] 
+  [ report segment
+  ]
+end
+
+; build the primary road segment, taking care of any simcity stuff and connectivity
+to commit-primary-road-segment [ prim-road-segment ]
+  if ( not empty? prim-road-segment )
+  [ set prim-road-segment clip-if-too-much-water prim-road-segment
+    set pins-primaries ( lput prim-road-segment pins-primaries )
+    
+    let road-set make-mutable no-patches
+    set prim-road-segment four-connect ( smooth-primary-road prim-road-segment 10 .8 )
+    foreach prim-road-segment [ set [selected] of ? false ]
+    ifelse ( SimCity? )
+    [ set road-set make-mutable patch-set prim-road-segment ]
+    [ set road-set make-mutable no-patches
+      let temp-set no-patches
+      foreach prim-road-segment
+      [ set temp-set ( [ neighbors-nowrap with [ pxcor >= [pxcor] of ? and pycor >= [pycor] of ? ] ] of ? )
+        ask temp-set
+        [ set primary-road-orientation [primary-road-orientation] of ?
+        ]
+        add-to-mutable-agentset (add-to-agentset ? temp-set ) road-set
+      ]
+    ]
+    ask road-set
+    [ set terrain "land" ]
+    BuildRoadSegment road-set 1
+    ask turtle-set [ owner ] of road-set 
+    [ split-building self ]
+    find-distance-to-primary-road-along-road
+  ]
+end
+
+
+to init-primary-road-piece [ start-p prs ]
+  set xcor [pxcor] of start-p
+  set ycor [pycor] of start-p
+  set front-patch start-p
+  set back-patch start-p
+  set my-patches ( patch-set start-p )
+  set my-primary-road-segment prs
+end
+
+primary-road-segments-own
+[ my-pieces               ; a list of all the primary-road pieces that I comprise of
+  front-neighbors         ; the neighbors that connect to my front piece
+  back-neighbors          ; the neighbors that connect to my back piece
+]
+
+to init-primary-road-segment [ start-p ]
+  set xcor [pxcor] of start-p
+  set ycor [pycor] of start-p
+  hatch 1
+  [ set breed primary-road-pieces
+    init-primary-road-piece start-p myself
+    set [my-pieces] of myself ( list self )
+  ]
+  set back-neighbors ( turtle-set [ my-primary-road-segment ] of ( turtle-set [ my-primary-road-piece ] of neighbors ) )
+  set front-neighbors no-turtles
+end
+
+to build-primary-road [ a-patch ]
+  BuildRoad a-patch 1
+end
+
+to generate-primary-road-agents
+  generate-primary-road-extenders number-of-primary-road-extenders
+end
+
+to create-primary-roads
+  ask primary-road-extenders [
+    extend-primary-roads 
+  ]
+end
+
+to-report smooth-primary-road [ segment filter-size smoothness ]
+  let front ( filter-size - 1 )
+  let rear 0
+  let new-list []
+  while [ front < length segment ]
+  [ ifelse ( ( [ distance ( item rear segment ) ] of ( item front segment ) ) < smoothness * filter-size )
+    [ set new-list patches-from-to ( item rear segment ) ( item front segment )
+      foreach sublist segment rear ( front + 1 )
+	  [ set [selected] of ? false ]
+
+	  set segment (sentence ( sublist segment 0 rear )
+                  new-list
+                  ( sublist segment front ( length segment ) ) )
+      set rear max-of-2 0 ( rear - length new-list )
+      set front max-of-2 filter-size ( front - length new-list )
+    ]
+    [ set front ( front + 1 )
+      set rear ( rear + 1 )
+    ]
+  ]
+  report segment
+end
+
+to-report patches-from-to [ p1 p2 ]
+  let result []
+  let help nobody
+  ask p1
+  [ sprout 1
+    [ set help self
+      set heading towards p2
+    ]
+  ]
+  ask help
+  [ while [ patch-here != p2 ]
+    [ set result ( lput patch-here result )
+      jump 1
+    ]
+    die
+  ]
+  report result
+end

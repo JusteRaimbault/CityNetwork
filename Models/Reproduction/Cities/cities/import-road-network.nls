@@ -1,0 +1,107 @@
+breed [road-intersections road-intersection ]
+road-intersections-own [ temp-id ]
+
+to import-road-network-from-file [ filename ]
+  if (filename = false)
+    [ stop ]
+  let old-plabel [ plabel ] of patch 30 20
+  ask patch 30 20 [ set plabel "LOADING ROAD NETWORK!  " ]
+  display
+  Clear-Roads ; remove whatever roads currently exist
+
+  ; if we don't switch this option, then sometimes we get errors when trying to run the model...
+  set Independent-Tertiary-Roads true
+  
+  ask road-intersections [ die ] ; there shouldn't be any alive, but just to be safe
+  file-close ; just in case any are open!
+  
+  file-open filename
+  let num-intersections file-read
+  let num-links file-read
+  let ignore-read file-read
+  
+  let id-counter 0  
+  repeat num-intersections
+  [ 
+    create-road-intersections 1 [
+      set temp-id id-counter
+      set id-counter id-counter + 1
+      set xcor (file-read + 16.5) / 33 * world-width + min-pxcor - 0.5
+      set ycor (file-read + 16.5) / 33 * world-height + min-pycor - 0.5
+      update-road-node-visual
+    ]
+  ]
+  let counter 0
+  repeat num-links
+  [
+    let id1 file-read
+    let id2 file-read
+    let primary? file-read
+    let my-road-type 3
+    if (primary?) [ set my-road-type 1 ]
+    let my-end1 one-of road-intersections with [ temp-id = id1 ]
+    let my-end2 one-of road-intersections with [ temp-id = id2 ]
+
+    ask my-end1 [ 
+      hatch 1 [
+        BuildRoad patch-here my-road-type
+        while [ distance my-end2 > 0.15 ] 
+        [ 
+          face my-end2 
+          fd 0.15
+          BuildRoad patch-here my-road-type
+          set pcolor gray
+        ]
+        die 
+      ]
+    ]
+    set counter counter + 1
+    if (counter mod 20 = 0)
+      [ display ]
+
+;    ask road-intersections with [ temp-id = id1 ]
+;    [ 
+;      create-links-with road-intersections with [ temp-id = id2 ]
+;      [
+;        update-road-link-visual
+;      ]
+;    ]
+  ]
+  file-close  
+;  stamp-road-network-to-patches
+  ask road-intersections [ die ]
+  ask patch 30 20 [ set plabel old-plabel ]
+  
+  Show-Running-Display    
+  display  
+end
+ 
+to update-road-link-visual
+  set color white
+  set thickness 0
+end
+
+to update-road-node-visual
+    set shape "square"
+    set color gray + 2
+    set size 1
+end
+ 
+to stamp-road-network-to-patches
+  ask links [ 
+    let my-end2 end2 
+
+    ask end1 [ 
+      hatch 1 [
+        BuildRoad patch-here 3
+        while [ distance my-end2 > 0.25 ] 
+        [ 
+          face my-end2 
+          fd 0.25 
+          BuildRoad patch-here 3
+        ]
+        die 
+      ]
+    ]
+  ]
+end

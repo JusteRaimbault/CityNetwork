@@ -12,9 +12,10 @@ val replication = Val[Int]
 
 val exploration =
   ExplorationTask(
-    (beta in (10.0 to 100.0 by 10.0)) x
-    (lambda in (0.0 to 1.0 by 0.1)) x
-    (replication in (UniformDistribution[Int]() take 10))
+    (beta in (10.0 to 20.0 by 10.0)) x
+    
+    (lambda in (0.0 to 1.0 by 0.5)) x
+    (replication in (UniformDistribution[Int]() take 2))
   )
 
 
@@ -36,10 +37,11 @@ val h = ToStringHook()
 
 
 // environement
-//val env = LocalEnvironment(3)
-SSHAuthentication += LoginPassword("login", encrypted, "")
+val env = LocalEnvironment(3)
+//SSHAuthentication += LoginPassword("login", encrypted, "")
 
-val env =SSHEnvironment("login","",2)
+//val env =SSHEnvironment("","",2)
+//val conn = env.connect
 
 
 val exec = exploration -< (model on env hook h) start

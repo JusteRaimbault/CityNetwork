@@ -1,0 +1,206 @@
+breed [ primary-road-extenders primary-road-extender ]
+
+globals
+[ min-dist-to-primary-road
+]
+
+primary-road-extenders-own
+[ history
+  time-done-nothing
+]
+
+to generate-primary-road-extenders [ number ]
+  create-turtles number [
+    set breed primary-road-extenders
+;    set xcor START-X
+;    set ycor START-Y
+    set heading (90 * random(4))
+    set color yellow
+    set size 2
+    set shape "triangle"
+    set history []
+    set time-done-nothing 0
+  ]
+  set min-dist-to-primary-road 10
+end
+
+to-report patches-in-line
+  let d-x dx
+  let d-y dy
+  let x xcor
+  let y ycor
+  report patches with [ round ( d-x * ( pycor - y ) ) = round ( d-y * ( pxcor - x ) ) ]
+end
+
+to-report nearest-primary-road-to [ t ]
+  let result no-patches
+  let i 1
+  while [ not ( any? result ) and
+          i < max-pxcor ]
+  [ set result [ ( ( patches on-radius i ) in-view-of self 60 ) with [ road-type = 1 ] ] of t 
+    set i ( i + 1 )
+  ]
+  if (not any? result)
+  [ set i 1
+    while [ not ( any? result ) and
+	        i < max-pxcor ]
+    [ set result [ ( patches on-radius i ) with [ road-type = 1 ] ] of t
+      set i ( i + 1 )
+    ]
+    if ( not any? result )
+    [ report nobody ]
+  ]
+  report one-of result
+end
+
+to-report nearest-road
+  let result no-patches
+  let i 1
+  while [not any? result and i < max-pxcor]
+  [
+    set result patches on-radius i
+    set result (result with [road])
+    set i (i + 1)
+  ]
+  if (not any? result) [report nobody]
+  report one-of result
+end
+
+to extend-primary-road-to-world-edge [ origin direction ]
+  ask origin
+  [ sprout 1
+    [ set heading direction
+      let world-edge patches with [ abs pxcor = max-pxcor or abs pycor = max-pxcor and terrain = "land" and ( not reserved ) ]
+      carefully
+      [ face max-one-of ( ( ( patches on-radius ULTIMATE-DISTANCE ) in-front-of self ) with [ terrain = "land" and ( not reserved ) ] ) [ dist-to-primary-road ] ]
+      [ die ]
+      let destination max-one-of world-edge [ abs ( subtract-headings [heading] of myself towards-nowrap origin ) ]
+      let prim-road-segment get-mixed-primary-road-segment self origin destination world-edge
+
+      commit-primary-road-segment prim-road-segment
+      die
+    ]
+  ]
+end
+
+to primary-extender-wander
+  set history ( lput patch-here history )
+  if ( length history > 30 )
+  [ set history ( but-first history ) ]
+  
+  let dest nobody
+  if ( count buildings > 0 and min [distance myself] of (primary-road-extenders with [self != myself]) < 10 )
+  [ set dest one-of buildings
+    move-to dest
+  ]
+  ;; We take advantage of the fact that patch-set recursively processes/flattens lists ~Forrest(5/7/2007)
+  let other-histories patch-set [ history ] of primary-road-extenders 
+  let valid-area ( [local-area] of patch-here ) with [ count primary-road-extenders-here = 0 and
+                                                     not ( member? self other-histories ) ]
+  ifelse (not any? valid-area or time-done-nothing > 30 )
+  [ set dest one-of buildings with [ [dist-to-primary-road] of patch-here > ULTIMATE-DISTANCE ]
+    ifelse ( dest = nobody )
+    [ set valid-area patches with [ dist-to-primary-road > ULTIMATE-DISTANCE ]
+      set dest valid-area with [ road-enabled? self ]
+      set dest one-of ifelse-value ( any? dest ) [ dest ] [ valid-area ]
+      if ( dest != nobody )
+      [ move-to dest ]
+    ]
+    [ move-to dest ]
+    set time-done-nothing 0
+  ]
+  [ set time-done-nothing ( time-done-nothing + 1 )
+    set dest valid-area with [ road and road-type != 1 ]
+    ifelse ( any? dest )
+    [ set dest max-one-of dest [ dist-to-primary-road-along-road ]
+    ]
+    [ set dest max-one-of ( valid-area with-max [ dist-to-primary-road ] ) [ road-density ]
+    ]
+    move-to dest
+  ]
+end
+
+to extend-primary-roads
+  primary-extender-wander
+  if ( road-enabled? patch-here and
+       dist-to-primary-road-along-road > MAX-DIST-ALONG-P.R. and
+       dist-to-primary-road > ULTIMATE-DISTANCE and
+       road and
+       abs pxcor != max-pxcor and
+       abs pycor != max-pycor )
+  [ build-a-primary-road ]
+end
+
+to build-a-primary-road
+  let world-edge remove-from-agentset patch-here
+                                      ( patches with [ abs pxcor = max-pxcor or
+                                                       abs pycor = max-pxcor and
+                                                       terrain = "land" and
+                                                       ( not reserved ) ] )
+
+  let front-q ( list patch-here )
+  while [ last front-q != nobody and
+          [road-type] of last front-q != 1 ]
+  [ set front-q lput ( min-one-of ( [ neighbors4-nowrap with [ road and not member? self front-q ] ] of ( last front-q ) )
+                                  [ dist-to-primary-road-along-road ] )
+                     front-q
+  ]
+
+  let center [ nearest-road ] of ( patch ( round ( safe-divide-default CENTER-X CENTER-X CITY-POPULATION ) ) ( round ( safe-divide-default CENTER-Y CENTER-Y CITY-POPULATION ) ) )
+  face center
+  let pset make-mutable patch-set [ patches in-radius my-min-dist ] of ( patches-between self center ) 
+  let temp nobody
+  let edges no-patches
+  while [temp = nobody and any? pset]
+  [ set edges ( edge-patches pset )
+    set temp min-one-of edges with [ road-type = 1 ] [ distance myself ]
+    remove-from-mutable-agentset edges pset
+  ]
+  if (temp != nobody and patch-here != temp)
+  [ set center temp
+  ]
+
+  if ( ( last front-q != nobody ) and
+       ( ( random-float 1.0 <= 0.5 ) or
+         ( any? ( patches-between ( first front-q ) center ) with [ terrain = "water" ] ) ) )
+  [ set center ( last front-q )
+  ]
+  
+  face center
+  let r-segment ( get-mixed-primary-road-segment self patch-here center world-edge )
+  
+  if ( not empty? r-segment )
+  [ if ( not member? ( first r-segment ) world-edge )
+    [ set front-q but-first r-segment
+      let back-q lput ( min-one-of [ neighbors4-nowrap with [ road and not member? self front-q ] ] of ( first r-segment )
+                                   [ dist-to-primary-road-along-road ] )
+                      ( list first r-segment )
+      let destination nobody
+  
+      while [ last back-q != nobody and
+              [road-type] of last back-q != 1 and
+              not member? last back-q front-q ]
+      [ set back-q lput ( min-one-of [ neighbors4-nowrap with [ road and not member? self back-q ] ] of ( last back-q )
+                                     [ dist-to-primary-road-along-road ] )
+                        back-q
+      ]
+      ifelse ( last back-q = nobody or [road-type] of last back-q != 1 or [ abs ( subtract-headings towards last r-segment towards last back-q ) < 90 ] of (first back-q) )
+      [ setxy ( [pxcor] of last r-segment ) ( [pycor] of last r-segment )
+        set heading ( towards-nowrap first back-q )
+        setxy ( [pxcor] of first back-q ) ( [pycor] of first back-q )
+        set destination one-of world-edge in-view-of self 2
+      ]
+      [ setxy ( [pxcor] of first back-q ) ( [pycor] of first back-q )
+        set destination last back-q
+      ]
+      if ( destination != nobody )
+      [ face destination
+        set r-segment (sentence ( reverse ( get-mixed-primary-road-segment self patch-here destination world-edge ) ) r-segment)
+      ]
+    ]
+    if ( length r-segment > 1 )
+    [ commit-primary-road-segment r-segment
+    ]
+    set [pcolor] of first front-q yellow
+  ]
+end
