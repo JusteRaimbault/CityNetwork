@@ -1,4 +1,4 @@
-extensions [array]
+extensions [nw]
 
 globals [
   coef
@@ -11,7 +11,7 @@ globals [
   
 ]
 
-
+links-own[l-length]
 
 to setup
   set coef random 10
@@ -27,7 +27,10 @@ end
 
 
 to go-exp
-  set res (random-normal (lambda + beta) 1) * (coef + 1)
+  crt 10 [create-links-with other turtles setxy random-xcor random-ycor show self]
+  nw:set-context turtles links ask links [set l-length link-length]
+  set res sum [nw:weighted-distance-to one-of other turtles "l-length"] of turtles
+  ;;set res (random-normal (lambda + beta) 1) * (coef + 1)
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
