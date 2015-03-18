@@ -1,0 +1,61 @@
+
+// basic openmole workflow with netlogo model
+//
+// Test on elaborated model with external sources
+
+
+// varying parameters
+
+val beta = Val[Double]
+val lambda = Val[Double]
+val replication = Val[Int]
+
+
+// exploration task
+
+val exploration =
+  ExplorationTask(
+    (beta in (10.0 to 100.0 by 20.0)) x
+    (lambda in (0.0 to 1.0 by 0.5)) x
+    (replication in (UniformDistribution[Int]() take 2))
+  )
+
+
+//define netlogo task
+
+
+// reporters
+val length=Val[Double]
+val diameter=Val[Double]
+
+
+val cmds = List(
+  "setup-experiment ${lambda} ${beta}",
+  "go-experiment")
+
+val model = NetLogo5Task("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Simple/ModelDensity/Headless_LocalDistanceMin.nlogo",cmds) set (
+  inputs += (lambda, beta),
+  netLogoOutputs += ("network-length", length),
+  netLogoOutputs += ("network-diameter", diameter)
+)
+
+// output
+val h = ToStringHook()
+
+val startTime = System.currentTimeMillis
+
+// environement
+val env = LocalEnvironment(3)
+//SSHAuthentication += LoginPassword("login", encrypted, "")
+
+//val env =SSHEnvironment("LOGIN","",2)
+//val conn = env.connect
+
+logger.level("DEBUG")
+
+val exec = exploration -< (model on env hook h) start
+
+exec.waitUntilEnded
+
+println((System.currentTimeMillis - startTime) / 1000.0)
+
