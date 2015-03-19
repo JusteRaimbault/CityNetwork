@@ -1,3 +1,4 @@
+
 extensions[nw table]
 
 __includes[
@@ -6,20 +7,20 @@ __includes[
   ;; headless mode
   ;;
   ;;   Note : external sources ?
-  "setup-aux.nls"
-  "setup-headless.nls"
+  "includes/setup-aux.nls"
+  "includes/setup-headless.nls"
   
   
   ;; common files
-  "main.nls"
-  "main-experiment.nls"
+  "includes/main.nls"
+  "includes/main-experiment.nls"
   
-  "centers.nls"
-  "roads.nls"
-  "nwanalysis.nls"
-  "indicators.nls"
-  "pavage.nls"
-  "visualization.nls"
+  "includes/centers.nls"
+  "includes/roads.nls"
+  "includes/nwanalysis.nls"
+  "includes/indicators.nls"
+  "includes/pavage.nls"
+  "includes/visualization.nls"
   
   ;; utils
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls"

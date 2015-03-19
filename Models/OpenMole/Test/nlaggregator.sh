@@ -9,6 +9,8 @@
 #    wrapping all code, to be used by openmole, as "WRAPPED_"modelname.nlogo
 #
 #  args : $1 .nlogo model , $2 folder containing sources
+#
+#  NOTE : first line  of model MUST be empty (issue with read ?)
 
 MODEL=$1
 SOURCE_DIR=$2
@@ -21,6 +23,9 @@ fi
 
 touch "WRAPPED_"$MODEL
 
+# number of lines in original file
+LINES=`cat $MODEL | wc | awk '{print $1}'`
+
 # output source ; taken from nl latex script
 # pb with first line : why ?
 while read line
@@ -30,29 +35,56 @@ do
 #  head -n $LN $model > $queue
 done < $MODEL
 
+LN="$((LN + 1))"
 #echo $LN
 
+# needs to find line beginning includes
+#__includes
+
+while read line
+do
+LN_INCLUDES=`grep -n "__includes" $line| head -n 1 | awk -F ':' '{print $1}'`
+done < $MODEL
+
+# then first closing bracket is end of includes
+printf "\n" > tmp
+tail -n $((LINES - LN_INCLUDES)) $MODEL >> tmp
+#head -n 30 tmp
+
+while read line
+do
+LN_END_INCLUDES=`grep -n "\]" $line| head -n 1 | awk -F ':' '{print $1}'`
+done < tmp
+#echo $LN_END_INCLUDES
+rm tmp
+
 # echoes base code in wrapped file
-head -n $LN $MODEL >> "WRAPPED_"$MODEL
+head -n $LN_INCLUDES $MODEL >> "WRAPPED_"$MODEL
+
+tail -n $((LINES - LN_INCLUDES - LN_END_INCLUDES)) $MODEL | head -n $((LN  - LN_END_INCLUDES - LN_INCLUDES - 1)) >> "WRAPPED_"$MODEL
+
 
 # echo external sources
 # include only *.nls files
 ORIG=`pwd`
 cd $SOURCE_DIR
 touch tmp
-ls | grep .nls | awk '{print "cat "$1" > tmp"}' | sh
+ls | grep .nls | awk '{print "cat "$1" >> tmp"}' | sh
 
 # back
 cd $ORIG
+#cat $SOURCE_DIR"/tmp"
 cat $SOURCE_DIR"/tmp" >> "WRAPPED_"$MODEL
+rm $SOURCE_DIR"/tmp"
 
 # echo end of model
 # first additional lines for security
 echo "\n\n" >> "WRAPPED_"$MODEL
 
-LINES=`cat $MODEL | wc | awk '{print $1}'`
+#cat "WRAPPED_"$MODEL
+
 #echo $((LINES - LN))
-tail -n $((LINES - LN)) $MODEL >> "WRAPPED_"$MODEL
+tail -n $((LINES - LN + 1)) $MODEL >> "WRAPPED_"$MODEL
 
 # OK
 
