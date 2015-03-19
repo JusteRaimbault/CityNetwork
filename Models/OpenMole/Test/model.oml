@@ -1,6 +1,7 @@
 //import java.io._
 //import java.lang.Process
 import sys.process._
+import java.util.Date
 
 // basic openmole workflow with netlogo model
 //
@@ -18,9 +19,9 @@ val replication = Val[Int]
 
 val exploration =
   ExplorationTask(
-    (beta in (10.0 to 20.0 by 10.0)) x
-    (lambda in (0.0 to 1.0 by 0.5)) x
-    (replication in (UniformDistribution[Int]() take 2))
+    (beta in (10.0 to 100.0 by 10.0)) x
+    (lambda in (0.0 to 1.0 by 0.1)) x
+    (replication in (UniformDistribution[Int]() take 30))
   )
 
 
@@ -64,12 +65,15 @@ val s = ListFilesSource("includes", files)
 
 
 // output
-val h = ToStringHook()
+//val h = ToStringHook()
+val h = AppendToCSVFileHook("res/model_"+(new java.util.Date()).toString().replace(" ","_")+".csv")
+
+
 
 val startTime = System.currentTimeMillis
 
 // environement
-val env = LocalEnvironment(3)
+val env = LocalEnvironment(2)
 
 
 logger.level("DEBUG")

@@ -1185,7 +1185,7 @@ end
 
 ;; setup parameters during openmole experiments
 to setup-experiment [l b]
-  show (word "Running with params " l b)
+  show (word "Running with params : lambda = " l " - beta = " b)
   reset-ticks
   setup-globals setup-config
   set lambda l set beta b
