@@ -1,3 +1,6 @@
+//import java.io._
+//import java.lang.Process
+import sys.process._
 
 // basic openmole workflow with netlogo model
 //
@@ -33,11 +36,33 @@ val cmds = List(
   "setup-experiment ${lambda} ${beta}",
   "go-experiment")
 
-val model = NetLogo5Task(("Headless_LocalDistanceMin.nlogo","setup-aux.nls"),cmds) set (
+
+
+// Call external deamon converting NL multiple sources into single file model
+// using java Runtime call - is it optimal here in scala ?
+/*val p = Val[java.lang.Process];val reader = Val[java.io.BufferedReader];val line = Val[String]
+p=java.lang.Runtime.getRuntime().exec("ls")
+p.waitFor()
+reader=new BufferedReader(new InputStreamReader(p.getInputStream()))
+line=reader.readLine()
+while(line!=null) {println(line);line=reader.readLine();}
+*/
+"ls" !
+
+
+/*
+
+val model = NetLogo5Task("Headless_LocalDistanceMin.nlogo",cmds) set (
   inputs += (lambda, beta),
   netLogoOutputs += ("network-length", length),
   netLogoOutputs += ("network-diameter", diameter)
 )
+
+// try adding external nls source
+
+val files = Val[Array[File]]
+val s = ListFilesSource("includes", files)
+
 
 // output
 val h = ToStringHook()
@@ -50,9 +75,10 @@ val env = LocalEnvironment(3)
 
 logger.level("DEBUG")
 
-val exec = exploration -< (model on env hook h) start
+val exec = exploration -< (model source s on env hook h) start
 
 exec.waitUntilEnded
 
 println((System.currentTimeMillis - startTime) / 1000.0)
 
+*/
