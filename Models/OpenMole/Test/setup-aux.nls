@@ -1,0 +1,76 @@
+
+
+
+
+
+;; partial setup procedure for openmole call
+;;  (agents are killed anyway ?)
+to setup-config
+  if centers-distribution = "exp-mixture" [
+    setup-exp-mixture
+  ]
+  
+  if centers-distribution = "luti" [
+    setup-luti 
+  ]
+  
+end
+;;;;;;;;;;;;
+;; setup functions
+;;;;;;;;;;;;
+
+
+
+;; setup world size and grid (patch size etc)
+to setup-world
+  ; constant values : patch-size * npatches-y = 600 ; patch-size * npatches-x = 800 [change hardcoded values to change fixed width and height]
+  set-patch-size 600 * grid-size / 100
+  resize-world 0 (800 / patch-size) 0 (600 / patch-size)
+
+end
+
+
+to setup-exp-mixture
+  
+    ; set gaussian mixture probability distribution
+    ; start from number of centers with max proba
+    ; and diffuse around.
+    ; Not gaussian but exponential, as power decrease in radius from initial cell.
+    ask patches [set exp-proba 0]
+    ask n-of initial-centers patches [
+      set exp-proba 1
+    ]
+    repeat 100 [
+      diffuse exp-proba mixture-proba-diffusion
+    ]
+    ; normalize proba
+    let ma sum [exp-proba] of patches
+    ask patches [set exp-proba exp-proba / ma]
+    
+    ; color patches following proba
+    let mi min [exp-proba] of patches set ma max [exp-proba] of patches
+    ask patches [set pcolor scale-color red exp-proba mi ma]
+    
+    ; setup land-values
+    ask patches [set land-value exp-proba]
+    
+end
+
+
+;; setup for the luti model
+;;  ; Q : option for gis-based initial config ?
+to setup-luti
+  
+  ; uniform initial land values
+  ask patches [set land-value 0]
+  
+  ; random initial config -> use initial centers var
+  repeat initial-centers [
+     let c new-center
+  ]
+  
+  ;; connect them by connexifying
+  connexify-global-network
+  
+end
+  
