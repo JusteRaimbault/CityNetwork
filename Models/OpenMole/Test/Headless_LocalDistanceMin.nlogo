@@ -23,12 +23,12 @@ __includes[
   "includes/visualization.nls"
   
   ;; utils
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/StatisticsUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/NetworkUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LinkUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/AgentSetUtilities.nls"
+  "includes/EuclidianDistanceUtilities.nls"
+  "includes/ListUtilities.nls"
+  "includes/StatisticsUtilities.nls"
+  "includes/NetworkUtilities.nls"
+  "includes/LinkUtilities.nls"
+  "includes/AgentSetUtilities.nls"
 ]
 
 globals[

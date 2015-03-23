@@ -88,6 +88,8 @@ patches-own [
   
   
 ]
+
+
 ;;;;;;;;;;;;;;;;;;;
 ;; additional agentset function
 ;;;;;;;;;;;;;;;;;;;
@@ -100,6 +102,416 @@ patches-own [
 to-report remove-from-agentset [agent agentset]
   if agentset = nobody [report nobody]
   report agentset with [self != agent]
+end
+
+;;Euclidian distance calculation utilities functions
+
+
+
+;turtle or patch procedure reporting the distance to a given link
+to-report distance-to-link [l]
+  let x1 0 let y1 0 let x2 0 let y2 0 let e1 0 let e2 0 let x 0 let y 0
+  ask l [set e1 end1 set e2 end2]
+  ifelse is-turtle? self [set x xcor set y ycor][set x pxcor set y pycor]
+  ask e1[set x1 xcor
+  set y1 ycor]
+  ask e2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m2m = 0 [report 0]
+  if m1m2 = 0 [report m1m]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+  
+  if cost1 < 0 [report m1m]
+  if cost2 < 0 [report m2m]
+  report m1m * sqrt abs (1 - (cost1 ^ 2))
+end
+
+
+
+
+
+;link procedure which calculates the distance to a given point
+to-report distance-to-point [x y]
+  let x1 0 let y1 0 let x2 0 let y2 0
+  ask end1[set x1 xcor
+  set y1 ycor]
+  ask end2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m2m = 0 [report 0]
+  if m1m2 = 0 [report m1m]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+  
+  if cost1 < 0 [report m1m]
+  if cost2 < 0 [report m2m]
+  report m1m * sqrt abs (1 - (cost1 ^ 2))
+end
+
+
+;report a turtle on the projection of point x y on the calling link
+to-report projection-of [x y]
+  let x1 0 let y1 0 let x2 0 let y2 0
+  ask end1[set x1 xcor
+  set y1 ycor]
+  ask end2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m1m2 = 0 [report end1]
+  if m2m = 0 [report end2]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+    
+  let mq 0 let xx 0 let yy 0 let m1q 0
+  
+  ifelse cost1 < 0 [
+     report end1
+
+  ]
+  [
+  ifelse cost2 < 0 [
+     report end2
+
+  ]
+  [set mq m1m * sqrt abs (1 - (cost1 ^ 2))
+   set m1q sqrt ((m1m ^ 2) - (mq ^ 2))  
+   set xx x1 + m1q * (x2 - x1) / m1m2
+   set yy y1 + m1q * (y2 - y1) / m1m2
+   
+   if count turtles-on patch xx yy = 0 [
+     ask patch xx yy [sprout 1 [
+       setxy xx yy
+       ]
+     ]
+   ]
+  report one-of turtles-on patch xx yy
+   ]
+  ]
+  
+end
+
+
+
+;;same as projection but doesn't pose the problem of killing the turtle or not (which survived sometimes anyway, why? -> because internally created? lost the pointer? :(...)
+to-report coord-of-projection-of [x y]
+  let x1 0 let y1 0 let x2 0 let y2 0
+  ask end1[set x1 xcor
+  set y1 ycor]
+  ask end2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m1m2 = 0 [report end1]
+  if m2m = 0 [report end2]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+    
+  let mq 0 let xx 0 let yy 0 let m1q 0
+  
+  ifelse cost1 < 0 [
+     report list [xcor] of end1 [ycor] of end1
+
+  ]
+  [
+  ifelse cost2 < 0 [
+     report list [xcor] of end2 [ycor] of end2
+
+  ]
+  [set mq m1m * sqrt abs (1 - (cost1 ^ 2))
+   set m1q sqrt ((m1m ^ 2) - (mq ^ 2))  
+   set xx x1 + m1q * (x2 - x1) / m1m2
+   set yy y1 + m1q * (y2 - y1) / m1m2
+   
+   report list xx yy
+   ]
+  ]
+  
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;
+;; Utilities "specific" to CA sprawl model, rather generic however
+;;;;;;;;;;;;;;;;;;;
+
+;;  Issues with breeds --> again in specific model
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Link Utilities
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+;;Get the "print" of a link
+;;ie the patches he intersects
+;; @reports list of patches intersecting link
+to-report footprint
+  ;;difficult, because can intersect small pieces of patch
+  ;;and therefore "jump" over one if makes regular jumps
+  ;;why not make very small regarding patch-size
+  ;;pb: will it not be to long to compute ?
+  ;;ok, take compromise, function will not be "exact"
+  let e2 end2 let res []
+  ask end1 [
+    let obj [patch-here] of e2
+    hatch 1 [
+      set heading towards e2
+      let current-patch patch-here
+      while [current-patch != obj][
+        ;;can't be blocked at one side of the world
+        ;;because would be on finish !
+        fd 0.05
+        if patch-here != current-patch [set res lput current-patch res set current-patch patch-here]
+      ]
+      die
+    ]
+  ]
+  report res
+end
+
+
+;;;;;;;;
+;; reports a two-item list of x and y coordinates, or an empty
+;; list if no intersection is found
+;; © Code copied from NL examples
+to-report intersection-with-link [t1 t2]
+  if [xcor] of [end1] of t1 = [xcor] of [end2] of t1 and [ycor] of [end1] of t1 = [ycor] of [end2] of t1 [report []]
+  if [xcor] of [end1] of t2 = [xcor] of [end2] of t2 and [ycor] of [end1] of t2 = [ycor] of [end2] of t2 [report []]
+  let m1 [tan (90 - link-heading)] of t1
+  let m2 [tan (90 - link-heading)] of t2
+  ;; treat parallel/collinear lines as non-intersecting
+  if m1 = m2 [ report [] ]
+  ;; is t1 vertical? if so, swap the two turtles
+  if abs m1 = tan 90
+  [
+    ifelse abs m2 = tan 90
+      [ report [] ]
+      [ report intersection-with-link t2 t1 ]
+  ]
+  ;; is t2 vertical? if so, handle specially
+  if abs m2 = tan 90 [
+     ;; represent t1 line in slope-intercept form (y=mx+c)
+      let c1 [link-ycor - link-xcor * m1] of t1
+      ;; t2 is vertical so we know x already
+      let x [link-xcor] of t2
+      ;; solve for y
+      let y m1 * x + c1
+      ;; check if intersection point lies on both segments
+      if not [x-within? x] of t1 [ report [] ]
+      if not [y-within? y] of t2 [ report [] ]
+      report list x y
+  ]
+  ;; now handle the normal case where neither turtle is vertical;
+  ;; start by representing lines in slope-intercept form (y=mx+c)
+  let c1 [link-ycor - link-xcor * m1] of t1
+  let c2 [link-ycor - link-xcor * m2] of t2
+  ;; now solve for x
+  let x (c2 - c1) / (m1 - m2)
+  ;; check if intersection point lies on both segments
+  if not [x-within? x] of t1 [ report [] ]
+  if not [x-within? x] of t2 [ report [] ]
+  report list x (m1 * x + c1)
+end
+
+;;© NL Examples
+to-report x-within? [x]  ;; turtle procedure
+  report abs (link-xcor - x) <= abs (link-length / 2 * sin link-heading)
+end
+
+;;© NL Examples
+to-report y-within? [y]  ;; turtle procedure
+  report abs (link-ycor - y) <= abs (link-length / 2 * cos link-heading)
+end
+
+;;© NL Examples
+to-report link-xcor
+  report ([xcor] of end1 + [xcor] of end2) / 2
+end
+
+;;© NL Examples
+to-report link-ycor
+  report ([ycor] of end1 + [ycor] of end2) / 2
+end
+
+;;agentset/list functions
+
+to-report to-list [agentset]
+  let res []
+  ask agentset [
+    set res lput self res 
+  ]
+  report res
+end
+
+
+;;list to agentset - beware, O(n_agents*length(list))
+;;ok
+;;should it be in TypeUtilities.nls ?
+to-report to-agentset [l]
+  if length l = 0 [report nobody]
+  if is-turtle? first l [report turtles with [member? self l]]
+  if is-patch? first l [report patches with [member? self l]]
+  if is-link? first l [report links with [member? self l]]
+end
+
+
+
+;; normalised norm-p of a vector
+;; in this file because applies on a list
+
+to-report norm-p [p l]
+  let res 0
+  let n length l
+  foreach l [set res res + (? ^ p)]
+  report (res / n) ^ (1 / p)
+end
+
+
+;;sequence function
+to-report seq [from t by]
+  let res [] let current-val from let n 0
+  ifelse by = 0 [set n t][set n (floor ((t - from)/ by) + 1)]
+  repeat n [
+     set res lput current-val res
+     set current-val current-val + by
+  ]
+  report res
+end
+
+to-report rep [element times]
+  let res [] repeat times [set res lput element res] report res
+end
+
+to-report incr-item [i l val]
+  report replace-item i l (item i l + val)
+end
+
+
+to-report concatenate [lists]
+  let res []
+  foreach lists [
+    foreach ? [
+      set res lput ? res 
+    ] 
+  ]  
+  report res
+end
+
+
+
+;;;;;;;;;;
+;; generalized min,max,sum
+;;;;;;;;;;
+
+; note : would be better to report \infty for gen-min (generally used for comparisons) but does not exists
+to-report gen-min [l]
+  ifelse length l = 0 [
+    report 0
+  ][
+     report min l
+  ]
+end
+
+to-report gen-max [l]
+  ifelse length l = 0 [
+    report 0
+  ][
+     report max l
+  ]
+end
+
+to-report gen-sum [l]
+  ifelse length l = 0 [
+    report 0
+  ][
+     report sum l
+  ]
+end
+
+to-report gen-mean [l]
+  ifelse length l = 0 [
+    report 0
+  ][
+     report mean l
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;
+;; Generic NW functions
+;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;
+;; Connexify nw following std algo 
+;;
+;; Uses all turtles and links
+;;;;;;;;;;;;
+to connexify-global-network
+  nw:set-context turtles roads
+  let clusters nw:weak-component-clusters
+  
+  while [length clusters > 1] [
+    let c1 first clusters
+    let mi sqrt (world-width ^ 2 + world-height ^ 2) ;biggest possible distance
+    ; rq : obliged to go through all pairs in nw. the same as merging clusters and taking closest point
+    ; second alternative is less dirty in writing but as merging is O(n^2), should be longer.
+    let mc1 nobody let mc2 nobody
+    foreach but-first clusters [
+       let c2 ?
+       ask c1 [ask c2 [let d distance myself if d < mi [set mi d set mc1 myself set mc2 self]]]
+    ]
+    ask mc1 [create-road-with mc2 [new-road]]
+    set clusters nw:weak-component-clusters
+  ]
+  
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Basic Stat functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; histogram retrieving count list
+; nbreaks = number of segments
+; reports counts
+to-report hist [x nbreaks]
+  ifelse x != [] [
+  let counts rep 0 nbreaks
+  let m min x let ma max x
+  foreach x [
+    let index floor ((? - m)/(ma - m)*(nbreaks - 1))
+    set counts replace-item index counts (item index counts + 1)
+  ]
+  
+  report counts
+  ][
+    report []
+  ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -261,158 +673,6 @@ to-report connect-to-network
 end
 
 
-;;Euclidian distance calculation utilities functions
-
-
-
-;turtle or patch procedure reporting the distance to a given link
-to-report distance-to-link [l]
-  let x1 0 let y1 0 let x2 0 let y2 0 let e1 0 let e2 0 let x 0 let y 0
-  ask l [set e1 end1 set e2 end2]
-  ifelse is-turtle? self [set x xcor set y ycor][set x pxcor set y pycor]
-  ask e1[set x1 xcor
-  set y1 ycor]
-  ask e2 [set x2 xcor
-  set y2 ycor]
-  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
-  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
-  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
-  if m1m = 0 or m2m = 0 [report 0]
-  if m1m2 = 0 [report m1m]
-  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
-  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
-  
-  if cost1 < 0 [report m1m]
-  if cost2 < 0 [report m2m]
-  report m1m * sqrt abs (1 - (cost1 ^ 2))
-end
-
-
-
-
-
-;link procedure which calculates the distance to a given point
-to-report distance-to-point [x y]
-  let x1 0 let y1 0 let x2 0 let y2 0
-  ask end1[set x1 xcor
-  set y1 ycor]
-  ask end2 [set x2 xcor
-  set y2 ycor]
-  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
-  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
-  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
-  if m1m = 0 or m2m = 0 [report 0]
-  if m1m2 = 0 [report m1m]
-  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
-  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
-  
-  if cost1 < 0 [report m1m]
-  if cost2 < 0 [report m2m]
-  report m1m * sqrt abs (1 - (cost1 ^ 2))
-end
-
-
-;report a turtle on the projection of point x y on the calling link
-to-report projection-of [x y]
-  let x1 0 let y1 0 let x2 0 let y2 0
-  ask end1[set x1 xcor
-  set y1 ycor]
-  ask end2 [set x2 xcor
-  set y2 ycor]
-  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
-  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
-  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
-  if m1m = 0 or m1m2 = 0 [report end1]
-  if m2m = 0 [report end2]
-  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
-  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
-    
-  let mq 0 let xx 0 let yy 0 let m1q 0
-  
-  ifelse cost1 < 0 [
-     report end1
-
-  ]
-  [
-  ifelse cost2 < 0 [
-     report end2
-
-  ]
-  [set mq m1m * sqrt abs (1 - (cost1 ^ 2))
-   set m1q sqrt ((m1m ^ 2) - (mq ^ 2))  
-   set xx x1 + m1q * (x2 - x1) / m1m2
-   set yy y1 + m1q * (y2 - y1) / m1m2
-   
-   if count turtles-on patch xx yy = 0 [
-     ask patch xx yy [sprout 1 [
-       setxy xx yy
-       ]
-     ]
-   ]
-  report one-of turtles-on patch xx yy
-   ]
-  ]
-  
-end
-
-
-
-;;same as projection but doesn't pose the problem of killing the turtle or not (which survived sometimes anyway, why? -> because internally created? lost the pointer? :(...)
-to-report coord-of-projection-of [x y]
-  let x1 0 let y1 0 let x2 0 let y2 0
-  ask end1[set x1 xcor
-  set y1 ycor]
-  ask end2 [set x2 xcor
-  set y2 ycor]
-  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
-  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
-  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
-  if m1m = 0 or m1m2 = 0 [report end1]
-  if m2m = 0 [report end2]
-  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
-  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
-    
-  let mq 0 let xx 0 let yy 0 let m1q 0
-  
-  ifelse cost1 < 0 [
-     report list [xcor] of end1 [ycor] of end1
-
-  ]
-  [
-  ifelse cost2 < 0 [
-     report list [xcor] of end2 [ycor] of end2
-
-  ]
-  [set mq m1m * sqrt abs (1 - (cost1 ^ 2))
-   set m1q sqrt ((m1m ^ 2) - (mq ^ 2))  
-   set xx x1 + m1q * (x2 - x1) / m1m2
-   set yy y1 + m1q * (y2 - y1) / m1m2
-   
-   report list xx yy
-   ]
-  ]
-  
-end
-
-
-
-;;;;;;;;;;;;;;;;;;;
-;; Utilities "specific" to CA sprawl model, rather generic however
-;;;;;;;;;;;;;;;;;;;
-
-;;  Issues with breeds --> again in specific model
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -432,204 +692,10 @@ to-report network-diameter
   report get-approximate-diameter
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Link Utilities
-;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
-
-;;Get the "print" of a link
-;;ie the patches he intersects
-;; @reports list of patches intersecting link
-to-report footprint
-  ;;difficult, because can intersect small pieces of patch
-  ;;and therefore "jump" over one if makes regular jumps
-  ;;why not make very small regarding patch-size
-  ;;pb: will it not be to long to compute ?
-  ;;ok, take compromise, function will not be "exact"
-  let e2 end2 let res []
-  ask end1 [
-    let obj [patch-here] of e2
-    hatch 1 [
-      set heading towards e2
-      let current-patch patch-here
-      while [current-patch != obj][
-        ;;can't be blocked at one side of the world
-        ;;because would be on finish !
-        fd 0.05
-        if patch-here != current-patch [set res lput current-patch res set current-patch patch-here]
-      ]
-      die
-    ]
-  ]
-  report res
-end
-
-
-;;;;;;;;
-;; reports a two-item list of x and y coordinates, or an empty
-;; list if no intersection is found
-;; © Code copied from NL examples
-to-report intersection-with-link [t1 t2]
-  if [xcor] of [end1] of t1 = [xcor] of [end2] of t1 and [ycor] of [end1] of t1 = [ycor] of [end2] of t1 [report []]
-  if [xcor] of [end1] of t2 = [xcor] of [end2] of t2 and [ycor] of [end1] of t2 = [ycor] of [end2] of t2 [report []]
-  let m1 [tan (90 - link-heading)] of t1
-  let m2 [tan (90 - link-heading)] of t2
-  ;; treat parallel/collinear lines as non-intersecting
-  if m1 = m2 [ report [] ]
-  ;; is t1 vertical? if so, swap the two turtles
-  if abs m1 = tan 90
-  [
-    ifelse abs m2 = tan 90
-      [ report [] ]
-      [ report intersection-with-link t2 t1 ]
-  ]
-  ;; is t2 vertical? if so, handle specially
-  if abs m2 = tan 90 [
-     ;; represent t1 line in slope-intercept form (y=mx+c)
-      let c1 [link-ycor - link-xcor * m1] of t1
-      ;; t2 is vertical so we know x already
-      let x [link-xcor] of t2
-      ;; solve for y
-      let y m1 * x + c1
-      ;; check if intersection point lies on both segments
-      if not [x-within? x] of t1 [ report [] ]
-      if not [y-within? y] of t2 [ report [] ]
-      report list x y
-  ]
-  ;; now handle the normal case where neither turtle is vertical;
-  ;; start by representing lines in slope-intercept form (y=mx+c)
-  let c1 [link-ycor - link-xcor * m1] of t1
-  let c2 [link-ycor - link-xcor * m2] of t2
-  ;; now solve for x
-  let x (c2 - c1) / (m1 - m2)
-  ;; check if intersection point lies on both segments
-  if not [x-within? x] of t1 [ report [] ]
-  if not [x-within? x] of t2 [ report [] ]
-  report list x (m1 * x + c1)
-end
-
-;;© NL Examples
-to-report x-within? [x]  ;; turtle procedure
-  report abs (link-xcor - x) <= abs (link-length / 2 * sin link-heading)
-end
-
-;;© NL Examples
-to-report y-within? [y]  ;; turtle procedure
-  report abs (link-ycor - y) <= abs (link-length / 2 * cos link-heading)
-end
-
-;;© NL Examples
-to-report link-xcor
-  report ([xcor] of end1 + [xcor] of end2) / 2
-end
-
-;;© NL Examples
-to-report link-ycor
-  report ([ycor] of end1 + [ycor] of end2) / 2
-end;;agentset/list functions
-
-to-report to-list [agentset]
-  let res []
-  ask agentset [
-    set res lput self res 
-  ]
-  report res
-end
-
-
-;;list to agentset - beware, O(n_agents*length(list))
-;;ok
-;;should it be in TypeUtilities.nls ?
-to-report to-agentset [l]
-  if length l = 0 [report nobody]
-  if is-turtle? first l [report turtles with [member? self l]]
-  if is-patch? first l [report patches with [member? self l]]
-  if is-link? first l [report links with [member? self l]]
-end
-
-
-
-;; normalised norm-p of a vector
-;; in this file because applies on a list
-
-to-report norm-p [p l]
-  let res 0
-  let n length l
-  foreach l [set res res + (? ^ p)]
-  report (res / n) ^ (1 / p)
-end
-
-
-;;sequence function
-to-report seq [from t by]
-  let res [] let current-val from let n 0
-  ifelse by = 0 [set n t][set n (floor ((t - from)/ by) + 1)]
-  repeat n [
-     set res lput current-val res
-     set current-val current-val + by
-  ]
-  report res
-end
-
-to-report rep [element times]
-  let res [] repeat times [set res lput element res] report res
-end
-
-to-report incr-item [i l val]
-  report replace-item i l (item i l + val)
-end
-
-
-to-report concatenate [lists]
-  let res []
-  foreach lists [
-    foreach ? [
-      set res lput ? res 
-    ] 
-  ]  
-  report res
-end
-
-
-
-;;;;;;;;;;
-;; generalized min,max,sum
-;;;;;;;;;;
-
-; note : would be better to report \infty for gen-min (generally used for comparisons) but does not exists
-to-report gen-min [l]
-  ifelse length l = 0 [
-    report 0
-  ][
-     report min l
-  ]
-end
-
-to-report gen-max [l]
-  ifelse length l = 0 [
-    report 0
-  ][
-     report max l
-  ]
-end
-
-to-report gen-sum [l]
-  ifelse length l = 0 [
-    report 0
-  ][
-     report sum l
-  ]
-end
-
-to-report gen-mean [l]
-  ifelse length l = 0 [
-    report 0
-  ][
-     report mean l
-  ]
-end;; single run for experiment
+;; single run for experiment
 ;;
 
 to go-experiment
@@ -642,7 +708,10 @@ to go-experiment
   ;; then reporters called from OMole
   
   
-end;;;;;;;;;;;;;;;;;;
+end
+
+
+;;;;;;;;;;;;;;;;;;
 ;; main
 ;;;;;;;;;;;;;;;;;;
 
@@ -783,35 +852,9 @@ end
   
 
 
-;;;;;;;;;;;;;;;;;;;;;;
-;; Generic NW functions
-;;;;;;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;
-;; Connexify nw following std algo 
-;;
-;; Uses all turtles and links
-;;;;;;;;;;;;
-to connexify-global-network
-  nw:set-context turtles roads
-  let clusters nw:weak-component-clusters
-  
-  while [length clusters > 1] [
-    let c1 first clusters
-    let mi sqrt (world-width ^ 2 + world-height ^ 2) ;biggest possible distance
-    ; rq : obliged to go through all pairs in nw. the same as merging clusters and taking closest point
-    ; second alternative is less dirty in writing but as merging is O(n^2), should be longer.
-    let mc1 nobody let mc2 nobody
-    foreach but-first clusters [
-       let c2 ?
-       ask c1 [ask c2 [let d distance myself if d < mi [set mi d set mc1 myself set mc2 self]]]
-    ]
-    ask mc1 [create-road-with mc2 [new-road]]
-    set clusters nw:weak-component-clusters
-  ]
-  
-end;; Network analysis function
+;; Network analysis function
 
 to setup-nw-analysis
   ; set context
@@ -908,6 +951,9 @@ to-report crossing-roads?
   report res
   
 end
+
+
+
 
 
 
@@ -1043,6 +1089,8 @@ end
 
 
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;
 ;; roads procedures
 ;;;;;;;;;;;;;;;;;;;;;
@@ -1124,7 +1172,10 @@ to setup-luti
   connexify-global-network
   
 end
-  ;;;;;;;;;;
+  
+
+
+;;;;;;;;;;
 ;; specific setup procedure
 ;;;;;;;;;;
 
@@ -1170,27 +1221,10 @@ to setup-experiment [l b]
   setup-globals setup-config
   set lambda l set beta b
 end
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic Stat functions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; histogram retrieving count list
-; nbreaks = number of segments
-; reports counts
-to-report hist [x nbreaks]
-  ifelse x != [] [
-  let counts rep 0 nbreaks
-  let m min x let ma max x
-  foreach x [
-    let index floor ((? - m)/(ma - m)*(nbreaks - 1))
-    set counts replace-item index counts (item index counts + 1)
-  ]
-  
-  report counts
-  ][
-    report []
-  ]
-end;;;;;;;;;;;
+
+
+;;;;;;;;;;;
 ;; Visualization functions
 ;;;;;;;;;;;
 
@@ -1208,7 +1242,6 @@ to update-visualization
   
 end
 
-\n\n
 @#$#@#$#@
 GRAPHICS-WINDOW
 19
