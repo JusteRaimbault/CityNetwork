@@ -26,7 +26,7 @@ val cmds = List(
   "setup-exp ${lambda} ${beta}",
   "go-exp")
 
-val model = NetLogo5Task("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/OpenMole/Test/test.nlogo",cmds) set (
+val model = NetLogo5Task("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/OpenMole/Test/test.nlogo",cmds,true) set (
   inputs += (lambda, beta),
   netLogoOutputs += ("res", res)
 )
@@ -35,13 +35,25 @@ val model = NetLogo5Task("/Users/Juste/Documents/ComplexSystems/CityNetwork/Mode
 val h = ToStringHook()
 
 
-// environement
+logger.level("FINE")
+
+// environment
 //val env = LocalEnvironment(3)
-SSHAuthentication += LoginPassword("", encrypted, "")
 
-val env =SSHEnvironment("","",2)
-//val conn = env.connect
+//private key auth
+val auth =
+  PrivateKey(
+    "",
+    "",
+    encrypted,
+    "")
 
+println(auth.toString())
+
+val env =SSHEnvironment("","",2,22)
+println(env.credential)
+env.credential = auth
+val conn = env.connect
 
 val exec = exploration -< (model on env hook h) start
 
