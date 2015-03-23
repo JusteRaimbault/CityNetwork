@@ -100,7 +100,168 @@ patches-own [
 to-report remove-from-agentset [agent agentset]
   if agentset = nobody [report nobody]
   report agentset with [self != agent]
-end;;Euclidian distance calculation utilities functions
+end
+
+;;;;;;;;;;;;;;;;;;;;
+;; center procedures
+;;;;;;;;;;;;;;;;;;;;
+
+;;create a new center and reports it
+to-report new-center
+  let c nobody
+  
+  ;; random drawing procedure is selected in subproc
+  let coords random-coords
+  
+  create-centers 1 [
+    ; random weight \in [0,1]
+    set weight random-float 1
+    set neigh-nodes []
+    set shape "circle" set color blue
+    set size (5 + weight) * 2 / patch-size set hidden? false
+    setxy first coords last coords
+    set c self
+  ]
+  report c
+end
+
+
+to-report random-coords
+  ; draws random coordinates
+  ; according to a given proba distrib
+  
+  if centers-distribution = "uniform"[
+     ; uniform spatial distribution
+     report (list random-xcor random-ycor)
+  ]
+  
+  if centers-distribution = "exp-mixture" [
+    ; use patch variable proba set at setup
+    ; as precised in globals, not directly exact
+    let s 0 let p random-float 1 let res []
+    ask patches [
+      if length res = 0 [
+        set s s + exp-proba
+        if p < s [set res (list pxcor pycor)] 
+      ]
+    ]
+    
+    ; add a random noise \in [-0.5,0.5] as generated corrdinates will only be integers
+    set res (list (first res + random-float 1 - 0.5) (last res + random-float 1 - 0.5))
+    
+    report res
+  ]
+  
+  
+  if centers-distribution = "luti" [
+     ; co-evolution of land-use and network
+     ; here proba depend on local patch values, computed before as a feedback from network and previous land values
+     ; DEBUG ;report (list random-xcor random-ycor)
+      
+     ; P(i) = exp(\beta * land-value)/ sum (exp(\beta * land-value))  for each patch
+      let s 0 let p random-float 1 let res []
+      let K  sum [exp (beta * land-value)] of patches
+      ask patches [
+       if length res = 0 [
+        set s s + (exp (beta * land-value) / K)
+        if p < s [set res (list pxcor pycor)] 
+      ]
+    ]
+    
+    ; add a random noise \in [-0.5,0.5] as generated corrdinates will only be integers
+    set res (list (first res + random-float 1 - 0.5) (last res + random-float 1 - 0.5))
+    
+    report res
+      
+  ]
+  
+end
+
+
+; center procedure that reports network nodes in neigh with a given definition
+to-report direct-neighbor-nodes
+    if neigh-type = "closest" [
+      report (other turtles) with-min [distance myself]
+    ]
+    
+    if neigh-type = "shared" [
+    ; do neighborhood computation by hand
+    let c self
+    
+    ; search only on links not already linked ?
+    ;  -> no because leads to crossing roads as a point on the other side of the road may be considered as neighbor
+    ;     better report real neighs and not link later 
+    let p other turtles ; with [not link-neighbor? myself]
+    
+    let n []
+    ask p [
+      let p0 self
+      ; r0 = d(P_0,C)
+      let r0 distance c
+      let neigh? true
+      ask (other p)[
+        set neigh? (neigh? and ((distance p0 > r0) or (distance c > r0)))
+      ]
+      if neigh? [set n lput p0 n]
+    ]
+    
+    ; report as agentset
+    report to-agentset n
+    ]
+end
+
+
+; procedure called at the creation of new centers,
+; but before applying barycenter/neighborhood algorithm
+;    -> additional rule not developed in initial reference ; but at least a similar one has been implemented to obtain such shapes.
+to-report connect-to-network
+  let res []
+  
+  ; to be exact, has to check all links as criteria an nodes is not enough to determine closest links (can be arbitrary close to a link with arbitrary far extremities, even in "regular" nw ? )
+  let r0 distance one-of (other turtles) with-min [distance myself] ; dirty in O(n2)
+  
+  ; coord list of closest projection on a link if exists
+  ; if empty, used as boolean marker
+  let c []
+  ; potential new extremities in the case of connection to network
+  let pot-extremities []
+  let closest-link one-of links with-min [distance-to-point ([xcor] of myself) ([ycor] of myself)] ; can be nobody
+  if closest-link != nobody [
+    ask closest-link [
+      if distance-to-point ([xcor] of myself) ([ycor] of myself) < r0 [
+         ; in that case a new node will be created, coords can be memorized to hatch later (link cannot create turtle)
+         ; and ask current link to DIE
+         set c coord-of-projection-of ([xcor] of myself) ([ycor] of myself)
+         set pot-extremities (list end1 end2)
+         die
+      ]
+    ]
+  ]
+  
+  set res pot-extremities
+  
+  ; if projection was found to exist (== corrds are not empty), link center to the network
+  if length c > 0 [
+     ; new intersection
+     hatch 1 [
+       ; make it move to good location
+       setxy first c last c
+       ;linked by new road
+       create-road-with myself [new-road]
+       ; and extremities of old link
+       create-road-with first pot-extremities [new-road]
+       create-road-with last pot-extremities [new-road]
+       
+     ]
+  ]
+  
+  
+  report res
+  
+end
+
+
+;;Euclidian distance calculation utilities functions
 
 
 
@@ -253,6 +414,23 @@ end
 
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;; indicator functions
+;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;; total nw length
+to-report network-length
+  report sum [link-length] of roads
+end
+
+;; approx nw diameter
+;;  ( computed on random fraction of nw, for computational reasons with large nw)
+to-report network-diameter
+  report get-approximate-diameter
+end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Link Utilities
@@ -451,233 +629,7 @@ to-report gen-mean [l]
   ][
      report mean l
   ]
-end;;;;;;;;;;;;;;;;;;;;;;
-;; Generic NW functions
-;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;
-;; Connexify nw following std algo 
-;;
-;; Uses all turtles and links
-;;;;;;;;;;;;
-to connexify-global-network
-  nw:set-context turtles roads
-  let clusters nw:weak-component-clusters
-  
-  while [length clusters > 1] [
-    let c1 first clusters
-    let mi sqrt (world-width ^ 2 + world-height ^ 2) ;biggest possible distance
-    ; rq : obliged to go through all pairs in nw. the same as merging clusters and taking closest point
-    ; second alternative is less dirty in writing but as merging is O(n^2), should be longer.
-    let mc1 nobody let mc2 nobody
-    foreach but-first clusters [
-       let c2 ?
-       ask c1 [ask c2 [let d distance myself if d < mi [set mi d set mc1 myself set mc2 self]]]
-    ]
-    ask mc1 [create-road-with mc2 [new-road]]
-    set clusters nw:weak-component-clusters
-  ]
-  
-end;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic Stat functions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; histogram retrieving count list
-; nbreaks = number of segments
-; reports counts
-to-report hist [x nbreaks]
-  ifelse x != [] [
-  let counts rep 0 nbreaks
-  let m min x let ma max x
-  foreach x [
-    let index floor ((? - m)/(ma - m)*(nbreaks - 1))
-    set counts replace-item index counts (item index counts + 1)
-  ]
-  
-  report counts
-  ][
-    report []
-  ]
-end
-
-;;;;;;;;;;;;;;;;;;;;
-;; center procedures
-;;;;;;;;;;;;;;;;;;;;
-
-;;create a new center and reports it
-to-report new-center
-  let c nobody
-  
-  ;; random drawing procedure is selected in subproc
-  let coords random-coords
-  
-  create-centers 1 [
-    ; random weight \in [0,1]
-    set weight random-float 1
-    set neigh-nodes []
-    set shape "circle" set color blue
-    set size (5 + weight) * 2 / patch-size set hidden? false
-    setxy first coords last coords
-    set c self
-  ]
-  report c
-end
-
-
-to-report random-coords
-  ; draws random coordinates
-  ; according to a given proba distrib
-  
-  if centers-distribution = "uniform"[
-     ; uniform spatial distribution
-     report (list random-xcor random-ycor)
-  ]
-  
-  if centers-distribution = "exp-mixture" [
-    ; use patch variable proba set at setup
-    ; as precised in globals, not directly exact
-    let s 0 let p random-float 1 let res []
-    ask patches [
-      if length res = 0 [
-        set s s + exp-proba
-        if p < s [set res (list pxcor pycor)] 
-      ]
-    ]
-    
-    ; add a random noise \in [-0.5,0.5] as generated corrdinates will only be integers
-    set res (list (first res + random-float 1 - 0.5) (last res + random-float 1 - 0.5))
-    
-    report res
-  ]
-  
-  
-  if centers-distribution = "luti" [
-     ; co-evolution of land-use and network
-     ; here proba depend on local patch values, computed before as a feedback from network and previous land values
-     ; DEBUG ;report (list random-xcor random-ycor)
-      
-     ; P(i) = exp(\beta * land-value)/ sum (exp(\beta * land-value))  for each patch
-      let s 0 let p random-float 1 let res []
-      let K  sum [exp (beta * land-value)] of patches
-      ask patches [
-       if length res = 0 [
-        set s s + (exp (beta * land-value) / K)
-        if p < s [set res (list pxcor pycor)] 
-      ]
-    ]
-    
-    ; add a random noise \in [-0.5,0.5] as generated corrdinates will only be integers
-    set res (list (first res + random-float 1 - 0.5) (last res + random-float 1 - 0.5))
-    
-    report res
-      
-  ]
-  
-end
-
-
-; center procedure that reports network nodes in neigh with a given definition
-to-report direct-neighbor-nodes
-    if neigh-type = "closest" [
-      report (other turtles) with-min [distance myself]
-    ]
-    
-    if neigh-type = "shared" [
-    ; do neighborhood computation by hand
-    let c self
-    
-    ; search only on links not already linked ?
-    ;  -> no because leads to crossing roads as a point on the other side of the road may be considered as neighbor
-    ;     better report real neighs and not link later 
-    let p other turtles ; with [not link-neighbor? myself]
-    
-    let n []
-    ask p [
-      let p0 self
-      ; r0 = d(P_0,C)
-      let r0 distance c
-      let neigh? true
-      ask (other p)[
-        set neigh? (neigh? and ((distance p0 > r0) or (distance c > r0)))
-      ]
-      if neigh? [set n lput p0 n]
-    ]
-    
-    ; report as agentset
-    report to-agentset n
-    ]
-end
-
-
-; procedure called at the creation of new centers,
-; but before applying barycenter/neighborhood algorithm
-;    -> additional rule not developed in initial reference ; but at least a similar one has been implemented to obtain such shapes.
-to-report connect-to-network
-  let res []
-  
-  ; to be exact, has to check all links as criteria an nodes is not enough to determine closest links (can be arbitrary close to a link with arbitrary far extremities, even in "regular" nw ? )
-  let r0 distance one-of (other turtles) with-min [distance myself] ; dirty in O(n2)
-  
-  ; coord list of closest projection on a link if exists
-  ; if empty, used as boolean marker
-  let c []
-  ; potential new extremities in the case of connection to network
-  let pot-extremities []
-  let closest-link one-of links with-min [distance-to-point ([xcor] of myself) ([ycor] of myself)] ; can be nobody
-  if closest-link != nobody [
-    ask closest-link [
-      if distance-to-point ([xcor] of myself) ([ycor] of myself) < r0 [
-         ; in that case a new node will be created, coords can be memorized to hatch later (link cannot create turtle)
-         ; and ask current link to DIE
-         set c coord-of-projection-of ([xcor] of myself) ([ycor] of myself)
-         set pot-extremities (list end1 end2)
-         die
-      ]
-    ]
-  ]
-  
-  set res pot-extremities
-  
-  ; if projection was found to exist (== corrds are not empty), link center to the network
-  if length c > 0 [
-     ; new intersection
-     hatch 1 [
-       ; make it move to good location
-       setxy first c last c
-       ;linked by new road
-       create-road-with myself [new-road]
-       ; and extremities of old link
-       create-road-with first pot-extremities [new-road]
-       create-road-with last pot-extremities [new-road]
-       
-     ]
-  ]
-  
-  
-  report res
-  
-end
-
-
-;;;;;;;;;;;;;;;;;;;;;;;
-;; indicator functions
-;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-;; total nw length
-to-report network-length
-  report sum [link-length] of roads
-end
-
-;; approx nw diameter
-;;  ( computed on random fraction of nw, for computational reasons with large nw)
-to-report network-diameter
-  report get-approximate-diameter
-end
-
-;; single run for experiment
+end;; single run for experiment
 ;;
 
 to go-experiment
@@ -831,7 +783,35 @@ end
   
 
 
-;; Network analysis function
+;;;;;;;;;;;;;;;;;;;;;;
+;; Generic NW functions
+;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;
+;; Connexify nw following std algo 
+;;
+;; Uses all turtles and links
+;;;;;;;;;;;;
+to connexify-global-network
+  nw:set-context turtles roads
+  let clusters nw:weak-component-clusters
+  
+  while [length clusters > 1] [
+    let c1 first clusters
+    let mi sqrt (world-width ^ 2 + world-height ^ 2) ;biggest possible distance
+    ; rq : obliged to go through all pairs in nw. the same as merging clusters and taking closest point
+    ; second alternative is less dirty in writing but as merging is O(n^2), should be longer.
+    let mc1 nobody let mc2 nobody
+    foreach but-first clusters [
+       let c2 ?
+       ask c1 [ask c2 [let d distance myself if d < mi [set mi d set mc1 myself set mc2 self]]]
+    ]
+    ask mc1 [create-road-with mc2 [new-road]]
+    set clusters nw:weak-component-clusters
+  ]
+  
+end;; Network analysis function
 
 to setup-nw-analysis
   ; set context
@@ -1190,7 +1170,27 @@ to setup-experiment [l b]
   setup-globals setup-config
   set lambda l set beta b
 end
-;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Basic Stat functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; histogram retrieving count list
+; nbreaks = number of segments
+; reports counts
+to-report hist [x nbreaks]
+  ifelse x != [] [
+  let counts rep 0 nbreaks
+  let m min x let ma max x
+  foreach x [
+    let index floor ((? - m)/(ma - m)*(nbreaks - 1))
+    set counts replace-item index counts (item index counts + 1)
+  ]
+  
+  report counts
+  ][
+    report []
+  ]
+end;;;;;;;;;;;
 ;; Visualization functions
 ;;;;;;;;;;;
 
@@ -1208,9 +1208,7 @@ to update-visualization
   
 end
 
-
-
-
+\n\n
 @#$#@#$#@
 GRAPHICS-WINDOW
 19
