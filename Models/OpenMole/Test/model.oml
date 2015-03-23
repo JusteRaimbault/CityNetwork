@@ -1,4 +1,4 @@
-//import java.io._
+import java.io._
 //import java.lang.Process
 import sys.process._
 import java.util.Date
@@ -17,22 +17,23 @@ val replication = Val[Int]
 
 // exploration task
 
-/*
+
 val exploration =
   ExplorationTask(
     (beta in (10.0 to 20.0 by 10.0)) x
     (lambda in (0.0 to 1.0 by 0.5)) x
     (replication in (UniformDistribution[Int]() take 1))
   )
-*/
 
+
+/*
 val exploration =
   ExplorationTask(
     (beta in (10.0 to 100.0 by 10.0)) x
     (lambda in (0.0 to 1.0 by 0.1)) x
     (replication in (UniformDistribution[Int]() take 30))
   )
-
+*/
 
 
 
@@ -61,12 +62,19 @@ line=reader.readLine()
 while(line!=null) {println(line);line=reader.readLine();}
 */
 "./nlaggregator.sh Headless_LocalDistanceMin.nlogo includes" !
-"cat Headless_LocalDistanceMin.nlogo | wc" !
+
+//"cat Headless_LocalDistanceMin.nlogo | wc" !
 
 
 //val model = NetLogo5Task("WRAPPED_Headless_LocalDistanceMin.nlogo",cmds) set (
 
-val model = NetLogo5Task("WRAPPED_Headless_LocalDistanceMin.nlogo",cmds) set (
+val workspace = org.openmole.misc.workspace.Workspace()
+println(workspace.location)
+val embedWorkspace = true
+val scriptPath = "./Headless_LocalDistanceMin.nlogo"
+
+
+val model = NetLogo5Task(scriptPath,cmds,true) set (
   inputs += (lambda, beta),
   netLogoOutputs += ("network-length", length),
   netLogoOutputs += ("network-diameter", diameter),
