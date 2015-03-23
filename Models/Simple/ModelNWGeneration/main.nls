@@ -1,0 +1,161 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; GO
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  ;;memorize pipes
+  let old-pipes paths with [D > Df]
+  
+  reset-numbers                          ;; redéfinir les numéros des vertices
+  choose-OD                         ;; choisir deux poles au hasard
+  let Pm p-system current-implantation
+  
+  ask vertices[reset-p Pm]
+  
+  set Dmax max [D] of paths
+  set total-diameter-variation 0
+  ask paths[
+    reset-Q
+    reset-D
+  ]
+
+  ;;reporter for convergence tests
+  set new-links-number count paths with [D > Df and not member? self old-pipes]
+
+  ;;display
+  color-paths-and-nodes
+
+
+  tick
+end
+
+
+to go-for-one-time-step
+  go
+end
+
+
+to reset-numbers
+  let n1 count vertices
+  if nodes-number = n1 [stop]
+  set nodes-number n1
+  let j 0
+  foreach sort vertices[
+    ask ? [
+      set number j                         ;; actualiser la valeur de number
+      set j j + 1
+    ]
+  ]
+end
+
+to choose-OD
+  ask center1 [color-patch]
+  ask center2 [color-patch]
+  ;;randomly choose origin and destination according to the densities
+  let s sum [density] of patches
+  let r random-float s
+  let sacc 0
+  let found? false
+  ask patches [if not found? [set sacc sacc + density if sacc >= r [set center1 self set found? true]]]
+  set r random-float s
+  set sacc 0 set found? false
+  ask patches [if not found? [set sacc sacc + density if sacc >= r [set center2 self set found? true]]]
+  
+  ask center1 [set pcolor green set n-times n-times + 1]
+  ask center2 [set pcolor green set n-times n-times + 1]
+end
+
+to-report p-system [implantation]
+  let M setup-M
+  let Vm setup-V implantation
+  report matrix:solve M Vm
+end
+
+to-report setup-M
+  set nodes-number count vertices
+  let M matrix:make-constant (nodes-number - 1) (nodes-number - 1) 0 ;; n-1 x n-1 Matrice
+  ask vertices[
+    if number = nodes-number - 1 [stop]
+    let kll 0
+    ask my-paths[
+      let s D / arete-length
+      set kll kll + s
+      if [number] of other-end != nodes-number - 1 [
+      matrix:set M [number] of myself [number] of other-end (- s) ]          ;; éléments hors la diagonale
+    ]
+    ;;counter matrix singularity : quantity that stays on the node -- note : not conservative ?
+    ;if kll < 0.1 [set kll 0.1]
+    matrix:set M number number kll                      ;; éléments sur la diagonale
+  ]
+
+  report M
+end
+
+to-report setup-V [implantation]
+  let Vm matrix:make-constant (nodes-number - 1) 1 0 ;; n-1 x 1 Matrice
+  let aux [number] of one-of (vertices with-min [distance center1])
+  if aux != nodes-number - 1 [
+  matrix:set Vm aux 0 I0]                  ;; élément différent de 0
+  set aux [number] of one-of (vertices with-min [distance center2])
+  if aux != nodes-number - 1 [
+  matrix:set Vm aux 0 (- I0)]              ;; élément différent de 0
+  
+  ;;add constants flux coming from the implantation
+  foreach implantation [
+     ask ?[
+        let num [number] of one-of (vertices with-min [distance myself])
+        if num != nodes-number - 1 [matrix:set Vm num 0 ((matrix:get Vm num 0) + (incoming-fraction * I0))]
+        let dest one-of patches with [density > 0]
+        set num [number] of one-of (vertices with-min [distance dest])   ;;random destination
+        if num != nodes-number - 1 [matrix:set Vm num 0 ((matrix:get Vm num 0) -(incoming-fraction * I0))]
+     ] 
+  ]
+  
+  
+  
+  report Vm
+end
+
+
+; vertices procedure
+;;reset pression matrix
+to reset-p [Pm]
+  set k sum [D / arete-length] of my-paths
+  ifelse number = nodes-number - 1
+  [ set pressure 0 ]
+  [ set pressure matrix:get Pm number 0 ]                 ;; actualiser la valeur de p
+end
+
+;;paths procedure
+;;calculates new Q coef
+to reset-Q
+  set Q D / arete-length * ([pressure] of end1 - [pressure] of end2)  
+end
+
+to reset-D ;paths procedure
+  ;; delta t -> should put in one single constant
+  let dt 0.05
+  let oldD D                 
+  set D dt * f + (1 - dt) * D
+  
+  ;;diameter variation :
+  set total-diameter-variation total-diameter-variation + (D - oldD)
+  
+end
+
+to-report f                        ;; paths procedure
+  let g 1.8                     ;; gamma
+  report (abs Q) ^ g / (1 + (abs Q) ^ g)
+end
+
+to new-noeud
+  set size 0.5 set color green
+end
+
+to new-arete
+  set thickness 0.2 set color green
+end
+
+
+

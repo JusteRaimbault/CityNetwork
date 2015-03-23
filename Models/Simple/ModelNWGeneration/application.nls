@@ -1,0 +1,244 @@
+
+
+to setup-application
+  ;;reset old implantation
+  set implantation-list []
+  ask stations [die]
+  ask segments [die]
+  
+  ;;create the tree
+  create-implantation-tree
+  
+  ;;fill the list
+  fill-implantation-list
+  
+  ;;keep only useful ones (fixed destination)
+  let new-impl-list [] let yt [ycor] of one-of stations with-min [distance patch xd yd]
+  foreach implantation-list [
+     if [abs (pycor - yt)] of last ? < 0.1 [set new-impl-list lput ? new-impl-list]
+  ]
+  set implantation-list new-impl-list
+  ;;kill unuseful stations
+  let to-keep []
+  foreach implantation-list [foreach ? [if not member? ? to-keep [set to-keep lput ? to-keep]]]
+  ask stations with [not member? self to-keep] [ask my-out-segments [die] ask my-in-segments [die] die]
+  
+  
+end
+
+
+to run-application
+  implantations-exploration 1 ["cost" "gamma" "geometrical-NRI" "average-speed"] "../Results/Application/test.csv"
+end
+
+;;exploration
+to implantations-exploration [n-repets final-reporter-names output-file]
+  
+  ;;first setup infrastructure
+  setup-gis
+  ;;and application
+  setup-application
+  set total-time-steps 100
+  
+  let res []
+
+  let i 0
+  foreach implantation-list [
+    ;;we insert in res for each repet, stat treatment will be done in external app
+    let j 0
+    repeat n-repets [
+      let conf []
+      carefully [
+        
+        ;;special setup: some setup can have been changed according to params
+        ;; this generic function has to exist
+        setup-exploration
+        
+        set current-implantation ?
+        
+        repeat total-time-steps [
+          go-for-one-time-step
+        ]
+        
+        abstract-real-network
+        
+        foreach final-reporter-names [set conf lput (list ? (runresult ?)) conf]
+        set conf lput (list "config" i) conf
+        set res lput conf res
+        ]
+      [
+        output-print error-message
+        foreach final-reporter-names [set conf lput (list ? 0) conf]
+        set conf lput (list "config" i) conf
+        set res lput conf res
+      ]
+      output-print word "Completed " (100 * ((i + (j / n-repets) )/ length implantation-list))
+      set j j + 1
+     ]
+      output-print word "Completed " (100 * i / length implantation-list)
+    set i i + 1
+    ]
+  csv-export res ";" output-file
+  
+end
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;
+;;
+;;Creation of implantation tree
+;;
+;;Line links West to East for example first
+;;;;;;;;;;;;;;;;;;;;
+
+
+;;show one implantations
+to illuminate-one-implantation [path colour]
+  ;;ask stations [ hide-turtle ]
+  ;;ask segments [ hide-link ]
+  
+  foreach path [
+     ask ? [
+       show-turtle
+       set color colour
+       ask my-out-segments [
+          if member? other-end path [show-link] 
+          set color colour
+       ]
+     ] 
+  ]
+  
+end
+
+;;show one implantation from file
+to display-implantation-from-file
+  ask stations [ hide-turtle ]
+  ask segments [ hide-link ]
+  
+  let current-line ""
+  file-open "/Users/Juste/Documents/Complex Systems/ProjetNetworkGeneration/TestModels/implantation.txt"
+  show file-read-line ;;skip description - structure assumed : #\nx\ny\n...
+  while [not file-at-end?] [
+    let implantation (list)
+    while[ not file-at-end? and current-line != "NEW"] [
+      let x (read-from-string file-read-line)
+      let y (read-from-string file-read-line)
+      let current-s (one-of stations-on patch x y )
+      set implantation lput current-s  implantation
+      set current-line file-read-line
+       show current-line
+    ]
+    set current-line ""
+    illuminate-one-implantation implantation approximate-rgb random 256 random 256 random 256
+    ;;foreach implantation [show ?]
+  ]
+  file-close
+  
+end
+
+
+
+
+
+;;all paths in the tree to build implantations
+to fill-implantation-list
+  set implantation-list (list)
+  let start one-of stations-on patch xs ys
+  let path (list (list start))
+  ask start [set implantation-list build-next-paths path]
+end
+
+to-report build-next-paths [ paths-to-here ]
+  let next-stations out-segment-neighbors
+  ifelse count next-stations = 0[
+      report paths-to-here ;;stop 
+  ]
+  [   
+      let res (list)
+      ask next-stations [
+        
+         set res sentence res build-next-paths (map [lput self ? ] paths-to-here)
+      ]
+      report res
+  ]
+  
+end
+
+
+;;global : y_origin : yo ; y_destination : yd ; interval ; alpha
+
+to create-implantation-tree
+  ask patch xs ys [ sprout-stations 1 [ new-station]]
+  
+  while[ any? stations with [not has-hatched?]][
+    ask stations with [ not has-hatched?][
+       hatch-next-stations
+       set has-hatched? true 
+    ]
+  ]
+  
+  
+end
+
+to hatch-next-stations
+  let ymax ycor + (interval * sin alpha)
+  let ymin ycor - (interval * sin alpha)
+  let xnext xcor + interval
+  
+  let hatcher self
+  
+  ;; false yet, many stations are created at the same place!
+  if xnext < max-pxcor [
+     let nextpatch patch xnext ycor
+     ifelse (count stations-on nextpatch) = 0 [
+           ask nextpatch [ sprout-stations 1 [ create-segment-from hatcher [ new-segment ]
+           new-station]]
+     ]
+     [
+         ask hatcher [ 
+           create-segment-to one-of stations-on nextpatch [new-segment]
+           ] 
+     ]
+     
+     if ymax < max-pycor [
+         let uppatch patch xnext ymax
+         ifelse (count stations-on uppatch) = 0 [
+             ask uppatch [ sprout-stations 1 [ create-segment-from hatcher [ new-segment ]
+                                                   new-station]]
+         ]
+         [
+             ask hatcher [
+               create-segment-to one-of stations-on uppatch [new-segment]
+               ] 
+          ]
+          
+     ]
+     if ymin > min-pycor [
+          let downpatch patch xnext ymin
+          ifelse (count stations-on downpatch) = 0 [
+             ask downpatch [ sprout-stations 1 [ create-segment-from hatcher [ new-segment ]
+                                                   new-station]]
+          ]
+          [
+             ask hatcher [
+               create-segment-to one-of stations-on downpatch [new-segment]
+               ] 
+          ]
+     ]
+  ]
+  
+end
+
+to new-station
+  set color green
+  set has-hatched? false
+end
+
+to new-segment
+  set color green
+  set thickness 0.3
+end

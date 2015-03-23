@@ -1,0 +1,184 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; SETUP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;;separate procedure for gis setup
+to setup-gis
+  ca
+  
+  ;;globals vars
+  set vertex-size 1
+  set real-patch-size 1
+  
+  ;;load layers
+  let roads gis:load-dataset roads-layer
+  let grid gis:load-dataset grid-layer
+  gis:set-world-envelope gis:envelope-of roads
+  
+  set paths-layer-data roads
+  ;;set cluster-treshold 10
+  ;create-network-vertices-clustering
+  ;;use classic nw creation function -> NEEDS SMALL GIS FILES !!!
+  create-network
+  
+  
+  
+  ;;gis:set-drawing-color green gis:draw roads 1
+  ;;gis:set-drawing-color pink gis:draw grid 1
+
+  ;;construct nodes : patches where a road is
+;  foreach gis:feature-list-of roads [
+;    let road ?
+;    ask patches [ 
+;        if gis:intersects? self road [if count vertices-here = 0 [sprout-vertices 1 [new-noeud]]]
+;    ]
+;  ]
+;
+;  ;; add links :: idem but check neighbors ?
+;  foreach gis:feature-list-of roads [
+;    let road ?
+;    ask patches with [count vertices-here > 0] [
+;      let p self
+;      ask one-of vertices-here[
+;        foreach to-list [neighbors4 with [count vertices-here > 0]] of p[
+;          if gis:intersects? p road and gis:intersects? ? road and not link-neighbor? [one-of vertices-here] of ? [create-path-with [one-of vertices-here] of ? [new-arete]]
+;        ] 
+;      ]
+;    ]
+;  ]
+
+  
+  nw:set-snapshot vertices paths
+  let comp nw:weak-component-clusters let giant-comp first sort-by [length ?1 > length ?2] comp
+  ask vertices with [not member? self giant-comp] [ask my-paths [die] die ]
+
+  let i 0
+  foreach to-list vertices [ask ? [set number i set i i + 1]]
+
+  ask paths [
+    set D D0
+    set arete-length link-length
+    set thickness 0.2
+    set color scale-color grey D Dmax Dmin
+  ]
+
+  ;classic-setup
+  setup-cities
+  
+  set nodes-number count vertices 
+  reset-ticks
+
+
+  ;;in case of simple runs, set current implantation as a empty list
+  set current-implantation []
+
+end
+
+
+
+to setup
+  clear-all
+  resize-world -20 20 0 20
+  set-patch-size 10
+  set-default-shape vertices "dot"
+  set-default-shape paths "line"
+  set-default-shape poles "star"
+  set Dmin 0
+  set Dmax D0
+  
+  setup-vertices
+  setup-paths
+  setup-cities
+  
+  set nodes-number count vertices 
+  
+  reset-ticks
+end
+
+to setup-vertices
+  ask patches [
+    set pcolor white                           ;; couleur du fond
+    sprout-vertices 1 [
+      set color black                          ;; couleur des vertices
+      set size 0.5
+      set number who                           ;; numéro = who au départ
+      
+      ;;let hide the nodes ???
+      ;; Nope, they will be colored as the adjacent arete (max of color)
+      
+      
+    ]
+  ]
+end
+
+
+to setup-paths
+  ask vertices [
+    create-paths-with other vertices in-radius 1.5 [
+      set D D0
+      let di 0
+      let otherend end2
+      ask end1 [ set di distance otherend ]
+      set arete-length di
+      set thickness 0.2
+      set color scale-color grey D Dmax Dmin
+    ]
+  ]
+end
+
+to setup-cities
+  ask patches [set density 0]
+  
+;  ifelse setup-from-file?[
+;     let pos user-new-file
+;     if pos != false [
+;       file-open pos
+;       let expl file-read-line ; explanation line
+;       while [not file-at-end?][
+;         let s file-read-line ;comment line
+;         let x read-from-string file-read-line
+;         let y read-from-string file-read-line
+;         let dens read-from-string file-read-line
+;         ask patch x y [set density dens]
+;       ]
+;     ]      
+;  ][    
+;      ask n-of centers-number (patches with [count vertices in-radius 5 > 0])[set density density-min + random (density-max - density-min)]
+;  ]
+  
+  ;;then diffusion procedure -> ok don't diffuse, does not seem useful !
+  ;;repeat diffusion-times [diffuse4 density diffusion-prop]
+  
+  foreach gis:feature-list-of gis:load-dataset centers-layer [
+    ask patches [if gis:contains? self ? [set density 1] ];; no need to normalize 
+  ]
+  
+  ask patches with [density > 0] [sprout 1 [set color red set shape "circle" set size 3]]
+  
+  color-patches
+           
+  set center1 one-of patches
+  set center2 one-of patches
+end
+
+
+
+
+;;explo specific setup
+to setup-exploration
+  ask paths [
+    set D D0
+    set arete-length link-length
+    set thickness 0.2
+    set color scale-color grey D Dmax Dmin
+  ]
+  
+  ;;kill abstract nw
+  ask poles [ask my-real-links [die] die]
+  
+  reset-ticks
+  
+end

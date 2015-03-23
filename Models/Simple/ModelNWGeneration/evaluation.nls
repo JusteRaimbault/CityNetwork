@@ -1,0 +1,170 @@
+
+to abstract-real-network
+  ask vertices with [ count my-links with [D > Df] > 2 ] [
+    if not any? poles-here [
+      hatch-poles 1 [
+        set size 1
+        set pressure 0
+      ]
+    ]
+  ]
+  ask poles [
+    let me self
+    let aux one-of vertices-here
+    let aux1 aux
+    ask aux [
+      ask my-paths with [D > Df] [
+        let not-found true
+        ask poles-on other-end [
+          
+          nw:set-snapshot vertices paths
+          let dist 0
+          ask one-of vertices-here[
+            set dist nw:distance-to aux
+          ]
+          
+          create-real-link-with me [
+            set d dist
+          ]
+          set not-found false
+        ]
+        let aux2 aux
+        set aux1 other-end
+        while [not-found] [
+          ask aux1 [
+            let s my-paths with [D > Df and other-end != aux2]
+            if not any? s [
+              set not-found false
+              stop
+            ]
+            ask one-of s [
+              ask poles-on other-end [
+                
+                nw:set-snapshot vertices paths
+                let dist 0
+                ask one-of vertices-here[
+                  set dist nw:distance-to aux
+                ]
+          
+                create-real-link-with me [
+                  set d dist
+                ]
+                
+                
+                set not-found false
+              ]
+              set aux2 aux1
+              set aux1 other-end
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
+
+ask real-links[
+  
+]
+
+
+end
+
+
+
+
+
+
+;;procedures to calculate network performance
+
+
+to-report cost
+  ;;cost of construction
+  report sum [d] of real-links
+end
+
+to-report gamma
+  ;;gamma index of the network is e/emax
+  let nn count poles
+  report 2 * (count real-links)/(nn * (nn - 1))
+end
+
+
+to-report geometrical-NRI
+  ;;computation of a NRI through geometrical repartition of flow (not Wardrop)
+  
+  ;;travel-time is directly proportionnal to distance, let say the factor is 1 (anyway the NRI is normalised)
+  
+  ;;first associates flows to each real links in the total network
+  ;;travels are doubled but again not a problem thanks to the normalisation
+  ask real-links[set geometrical-flux 0 ]
+  
+  nw:set-snapshot poles real-links
+  
+  ask poles[
+     let start self
+     ask other poles[
+        let chemin nw:weighted-path-to start "d"
+        foreach chemin[
+          ask ? [set geometrical-flux (geometrical-flux + 1) ]
+        ]
+     ]
+  ]
+  ;;c is Sum(t*x)
+  let cc sum [ d * geometrical-flux] of real-links
+  
+  ;;do the same, suppressing each link
+  ask real-links[
+     let dist d
+     
+     ;;supress the link by putting very huge distance?
+     set d d * 10
+     
+     ask real-links[set geometrical-flux 0 ]
+     
+     nw:set-snapshot poles real-links
+   
+     ask poles[
+     let start self
+     ask other poles[
+        let chemin nw:weighted-path-to start "d"
+        foreach chemin[
+             ask ? [set geometrical-flux (geometrical-flux + 1) ]
+          ]
+       ]
+     ]
+    
+
+
+     set NRI ((sum [d * geometrical-flux] of real-links) - cc)
+     
+     set d dist
+     
+  ]
+  
+  let nn count poles
+  report (sum [NRI] of real-links)/(nn * (nn - 1))
+  
+  
+end
+
+
+to-report average-speed
+  let total 0
+  
+  nw:set-snapshot poles real-links
+  
+  ask poles[
+     let start self
+     ask other poles[
+        set total total + ((nw:weighted-distance-to start "d")/(distance start))
+     ]
+  ]
+  let nn count poles
+  report total /(nn * (nn - 1))
+end
+
+to-report mean-square-error
+  let s sum [density] of patches
+  report mean [((density / s) - (n-times / (ticks + 1))) ^ 2] of patches
+end
+
