@@ -25,7 +25,7 @@ __includes[
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ExplorationUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/FileUtilities.nls"  
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"  
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/NetworkUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/GISNetworkUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LinkUtilities.nls"    
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls"
     
@@ -158,13 +158,13 @@ stations-own [
 ]
 @#$#@#$#@
 GRAPHICS-WINDOW
-197
-33
-960
-475
+262
+12
+962
+563
+34
 -1
--1
-3.0
+10.0
 1
 10
 1
@@ -174,10 +174,10 @@ GRAPHICS-WINDOW
 0
 0
 1
+-34
+34
 0
-250
-0
-136
+51
 0
 0
 1
@@ -202,10 +202,10 @@ NIL
 1
 
 BUTTON
-28
-267
-91
-300
+113
+74
+176
+107
 NIL
 go
 T
@@ -310,7 +310,7 @@ Df
 Df
 0
 0.4
-0.3
+0.05
 0.05
 1
 NIL
@@ -572,21 +572,21 @@ NIL
 INPUTBOX
 9
 115
-89
+252
 175
 roads-layer
-/Users/Juste/Documents/Cours/Misc/SeminaireVET/romainville.shp
+data/romainville.shp
 1
 0
 String
 
 INPUTBOX
-92
-115
-164
-175
+93
+240
+259
+300
 grid-layer
-../Data/GIS/TestGrid.shp
+data/TestGrid.shp
 1
 0
 String
@@ -731,10 +731,10 @@ HORIZONTAL
 INPUTBOX
 11
 178
-154
+233
 238
 centers-layer
-../Data/GIS/romainvilleCenters.shp
+data/romainvilleCenters.shp
 1
 0
 String
