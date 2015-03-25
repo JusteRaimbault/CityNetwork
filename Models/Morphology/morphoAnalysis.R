@@ -13,10 +13,18 @@ library(rgdal)
 # create data structures
 # load raw raster
 raw <- raster("/Users/Juste/Documents/ComplexSystems/CityNetwork/Data/PopulationDensity/bassin_parisien.tif")
-binmat<- (as.matrix(na.omit(as.matrix(raw))))>10000
-sum(binmat)
+m = as.matrix(raw)
+m[is.na(m)] <- 0
 
-w <- as.owin(im(as.matrix(raw)))
+hist(c(m),breaks=100)
 
+#composition of raster ?
+threshold = 50
+sum(m>threshold)/length(m)
 
-opening(w,10)
+binmat<- m>threshold
+sum(binmat)/length(m)
+
+w <- as.owin(im(as.matrix(binmat)))
+
+o <- opening(w,10)
