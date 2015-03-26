@@ -1,0 +1,58 @@
+;;;;;;;;;;;;;;;;
+;; Generation of large scale density pattern for a system of cities
+;;;;;;;;;;;;;;;;
+
+;; patches variables
+
+; patches-own :: sp-density
+
+
+to setup-synth-pattern
+  ; empty setup
+  ask patches [set sp-density 0]
+  reset-ticks
+  color-synth-pattern
+end
+
+
+to go-synth-pattern
+  
+  ;; add new inhabitants with proba proportionnal to density
+  ; TODO : function of the density
+  ;  ex : power function will favorise greater aggragations ?
+  ;
+  ifelse ticks = 0 [repeat sp-growth-rate [ask one-of patches [set sp-density sp-density + 1]]][
+    let stot sum [sp-density] of patches
+    let s 0 let f 0 let r [] repeat sp-growth-rate [set r lput random-float stot r] set r sort r
+    ask patches with [sp-density > 0] [if f < sp-growth-rate [set s s + sp-density if s > item f r [set sp-density sp-density + 1 set f f + 1]]]
+    
+  ]
+  
+  ;; diffuse
+  ;; TODO :: add heterogeneous diffusion. just random local perturbation ?
+  ;; also different diffusion if effective local density is too high ? would be logical to have "realistic" distribs
+  ;;   -> set proba different from population ? (ex depending on neighbors if too high ? -> diffuse other variable ?)
+  
+  repeat sp-diffusion-steps [
+    diffuse sp-density sp-diffusion
+  ]
+  
+  color-synth-pattern
+  
+  tick
+end
+
+to generate-synth-pattern
+  setup-synth-pattern
+  repeat sp-max-time [go-synth-pattern]
+end
+
+
+
+
+
+to color-synth-pattern
+  let ma max [sp-density] of patches let mi min [sp-density] of patches
+  ifelse ma > mi [ask patches [set pcolor scale-color red sp-density mi ma]]
+  [ask patches [set pcolor black]]
+end
