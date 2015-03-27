@@ -4,6 +4,7 @@
 
 __includes [
   "synth-pattern.nls"
+  "morph-indicators.nls"
 ]
 
 
