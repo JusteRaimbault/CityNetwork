@@ -1,0 +1,74 @@
+
+
+;;;;;;;;;;;;
+;; Network utils
+;;;;;;;;;;;;
+
+
+to dijkstra [startnode typeLinkt]
+
+
+  
+
+
+ask nodes [
+    set assigned? false
+    set final? false
+    set time-to-root 1000000
+    set dist-to-root 1000000
+    set path []
+
+]
+ask startnode [
+    set time-to-root 0
+    set dist-to-root 0
+    set assigned? true
+    set connection nobody
+
+]
+  ;let foundNewLink? true
+  while [any? nodes with [assigned? and not final? ]]
+  ;while [foundNewLink?]
+  [
+    ;set foundNewLink? false
+    ask min-one-of (nodes with [assigned? and not final? ]) [ time-to-root ] [
+    let tempTurtle self
+      set final? true
+      if not (connection = nobody) [
+        ;ask connection [
+          ;set thickness 0.2
+          ;set [color] of myself red;[color] of other-end
+        ;]
+      ]
+      ;set label-color black
+      ;set label precision dist-to-root 1
+      let d1 0
+      let this-d dist-to-root
+      let t1 self
+      ask my-out-links with [typeLink = typeLinkt] [
+       ; set foundNewLink? true
+        ask other-end [
+          set d1 distance t1 / [speed_l] of myself
+          let time-to-root-now time-to-root
+          set time-to-root min list (this-d + d1) time-to-root
+          if (time-to-root = time-to-root-now) [
+            set dist-to-root distance t1
+          ]
+          ;set label precision dist-to-root 1
+          set assigned? true
+          if not (time-to-root = time-to-root-now) [
+            ;set label-color blue + 3
+            set connection myself
+            set path [path] of tempTurtle
+            set path lput connection path
+          ]
+        ]
+      ]
+    ]
+  ]
+  
+  ; ressource:
+  ;http://www.sges.auckland.ac.nz/the_school/our_people/osullivan_david/personal/stuff/dijkstra.html
+  ; pour l'algorithme dijkstra
+
+end
