@@ -52,7 +52,7 @@ while [c < Ncsp] [
   ;;;;show temp
   ask patches [
     ;set plabel int ( 100 * exp (item c listcoeffUtilitesActifs * item c listAUtiliteR) / temp )  / 100
-    set listAnbrR replace-item c listAnbrR (item c listNactifs * exp (item c listcoeffUtilitesActifs * item c listAUtiliteR) / temp)
+    set list-A-nbr-R replace-item c list-A-nbr-R (item c listNactifs * exp (item c listcoeffUtilitesActifs * item c listAUtiliteR) / temp)
     ;;;;show listAnbrR
   ]
   set c c + 1
@@ -82,35 +82,40 @@ end
 
 
 to updateDensityActifs
-let tempActifs 0
-ask patches [
-let c 0
-set listDensiteActifs []
-while [c < Ncsp] [
-  let j 0
-  set tempActifs 0
-   while [j < length listPatchesRegion] [
-    let m 0
-    while [m < nModes] [
-      let tempShare item j item c item m listModesShare
-      let tempCout coutDistance (item j item c item m listCoutTransport)
-      ;set tempActifs tempActifs + tempShare * (item c [listAnbrR] of item j listPatchesRegion + item c [listAnbrM] of item j listPatchesRegion) * tempCout
-       ifelse item j listPatchesRegion = self
-       [
-        set tempActifs tempActifs +  (item c listAnbrR + item c listAnbrM)
-       ]
-       [
-       set tempActifs tempActifs + (item c [listAnbrR] of item j listPatchesRegion + item c [listAnbrM] of item j listPatchesRegion) / distance item j listPatchesRegion 
-       ]
-       set m m + 1
+  let tempActifs 0
+  ask patches [
+    
+    let c 0
+    set listDensiteActifs [] ; list of densities by CSP
+    ; for each csp
+    while [c < Ncsp][
+      let j 0
+      set tempActifs 0
+       ; for each patch (other !)
+       while [j < length listPatchesRegion] [
+        let m 0
+        ; for each mode
+        while [m < nModes] [
+          let tempShare item j item c item m listModesShare ; list mode share : (mode,csp,patch) from this patch
+          let tempCout coutDistance (item j item c item m listCoutTransport)
+          ;set tempActifs tempActifs + tempShare * (item c [listAnbrR] of item j listPatchesRegion + item c [listAnbrM] of item j listPatchesRegion) * tempCout
+           
+           ; check if we are dealing with another patch
+           ifelse item j listPatchesRegion = self [
+              set tempActifs tempActifs +  (item c list-A-nbr-R + item c list-A-nbr-M)
+           ][
+              ; just weight by distance : no transportation cost ?
+              set tempActifs tempActifs + (item c [list-A-nbr-R] of item j listPatchesRegion + item c [list-A-nbr-M] of item j listPatchesRegion) / distance item j listPatchesRegion 
+           ]
+           set m m + 1
+        ]
+        set j j + 1
+      ]
+      set listDensiteActifs lput tempActifs listDensiteActifs
+      set c c + 1
     ]
-    set j j + 1
+    
   ]
-  set listDensiteActifs lput tempActifs listDensiteActifs
-  set c c + 1
-]
-
-]
 
 end
 
@@ -125,6 +130,7 @@ ask patches [
 let c 0
 set listDensiteEmplois []
 
+; same procedure as for actives
 while [c < Ncsp] [
   let j 0
    set tempEmplois 0
@@ -134,8 +140,7 @@ while [c < Ncsp] [
       let tempShare item j item c item m listModesShare
       let tempCout coutDistance(item j item c item m listCoutTransport)
       ;set tempEmplois tempEmplois + tempShare * (item c [listEnbr] of item j listPatchesRegion) * tempCout
-             ifelse item j listPatchesRegion = self
-       [
+      ifelse item j listPatchesRegion = self[
         set tempEmplois tempEmplois +  (item c listEnbr)
        ]
        [
@@ -173,7 +178,7 @@ while  [c < Ncsp] [
 ask patches [
 set c 0
 while [c < Ncsp] [
-  set listAutiliteM replace-item c listAutiliteM item c listAutiliteM
+  ;set listAutiliteM replace-item c listAutiliteM item c listAutiliteM ; does nothing
   set listAutiliteR replace-item c listAutiliteR calculerutiliteActifs c
   set tempL replace-item c tempL (item c tempL + item c listAutiliteR)
   set c c + 1
@@ -252,22 +257,22 @@ end
 
 
 to-report calculerutiliteActifs [csp]
-let acces item csp AccessibilitePatches
-let forme 1
-
-let c 0
-while [c < nCSP] [
-
-    if item c listDensiteActifs > 0 [
-    set forme forme * exp(item c item csp matActifsActifs * ln(item c listDensiteActifs))
-    ]
-    if item c listDensiteEmplois > 0 [
-    set forme forme * exp(item c item csp matActifsEmplois * ln(item c listDensiteEmplois))
-    ] 
-  set c c + 1
-]
-;coeffAccessibiliteFormeUrbaine
-report exp(item csp listcoeffAccessibiliteFormeUrbaineActifs * ln(acces)) * exp((1 - item csp listcoeffAccessibiliteFormeUrbaineActifs) * ln(forme))
+  let acces item csp AccessibilitePatches
+  let forme 1
+  
+  let c 0
+  while [c < nCSP] [
+  
+      if item c listDensiteActifs > 0 [
+      set forme forme * exp(item c item csp matActifsActifs * ln(item c listDensiteActifs))
+      ]
+      if item c listDensiteEmplois > 0 [
+      set forme forme * exp(item c item csp matActifsEmplois * ln(item c listDensiteEmplois))
+      ] 
+    set c c + 1
+  ]
+  ;coeffAccessibiliteFormeUrbaine
+  report exp(item csp listcoeffAccessibiliteFormeUrbaineActifs * ln(acces)) * exp((1 - item csp listcoeffAccessibiliteFormeUrbaineActifs) * ln(forme))
 end
 
 

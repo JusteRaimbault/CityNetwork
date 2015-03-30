@@ -43,10 +43,12 @@ __includes [
   ;;external
   ; note : will not work in general - should put submodule locally
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LogUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
   
 ]
 
 globals [
+  
   ;parametrePolycentrisme
   ;parAct
   ;parEmp
@@ -54,14 +56,19 @@ globals [
   ;parametreDispersion
   ;parametreRatDispersion
 
-  Nmaires ; nombre de maires
+  ;; Number of mayors
+  Nmaires
 
   ;; nulber of socio-professional categories
   Ncsp
   
   listNactifs
+  
+  ;; List of patches lexicalographically ordered by increasing (xcor,ycor)
   listPatchesRegion
+  
   listNbrConnecteurs
+  
   listSpeed
   
   ;; number of transportation modes
@@ -115,7 +122,11 @@ globals [
 
   ; value of time for each csp
   listvaleursTemps
-  listcoutDistance ; par csp et par mode; typiquement prix du p�trole, abonnement de carte orange...
+  
+  ;;
+  ; Transportations costs per CSP and transportation mode
+  ;  typically vary : gaz prices, public transportation price
+  listcoutDistance
 
 
 
@@ -141,18 +152,31 @@ breed [nodes node]
 
 
 patches-own [
+  
+  ;; Is there a mayor here ?
+  ;  @type boolean
   has-maire?
+  
+  ;; Mayor ruling this patch
+  ;  @type turtle(maire)
   mairePatch
   
-  listAutiliteM
+  list-A-utilite-M
   listAutiliteR
   listEutiliteM
   listEutiliteR
-  listAnbrR
-  listAnbrM
+  
+  ;; Number of actives for each CSP
+  ;  @type List<Int>
+  list-A-nbr-R
+  list-A-nbr-M
   listEnbr
   dist-to-patch
+  
+  ;; Transportation costs, from this patch to all patches (indexed by order in global patch list) by mode and CSP
+  ;  @type List_mode<List_csp<List_patch>>
   listCoutTransport
+  
   ;listCoutTransportTemp
   listDistTransportEffectif
   listCoutTransportEffectif
@@ -173,6 +197,8 @@ patches-own [
   listNavettesModes
   listDensiteEmplois
   listDensiteActifs
+  
+  ;; Is there a node here ?
   has-node?
   
 ]
@@ -182,17 +208,24 @@ patches-own [
 
 maires-own [
   
-centreMaire
-listA-AbussiereInit ; param�tre de Bussi�re servant � l'initialisation (actifs)
-listA-bbussiereInit ; param�tre de Bussi�re servant � l'initialisation (emplois)
-listE-AbussiereInit ; param�tre de Bussi�re servant � l'initialisation (actifs)
-listE-bbussiereInit ; param�tre de Bussi�re servant � l'initialisation (emplois) 
+  centreMaire
 
-listPatchesMaire
-budget
-money-
-money+
+  ;; Bussiere Parameters used to initialize
+  listA-AbussiereInit ; (actifs)
+  listA-bbussiereInit ; (emplois)
+  listE-AbussiereInit ; (actifs)
+  listE-bbussiereInit ; (emplois) 
+
+  listPatchesMaire
+  
+  ;; wealth of governed zone
+  budget
+  
+  ;; boundary params for uniform random drawing ?
+  money-
+  money+
 ]
+
 
 actifs-own [
   cspActif
@@ -218,15 +251,21 @@ chemins-own [
 
 
 nodes-own [
+  
   typeNode
   patchNode
+  connection
+  tempNode?
+
+
+  ;;;;;;;;;;
+  ;; Dijkstra algo params
+  ;;;;;;;;;;
   assigned? ; pour dijkstra
   final? ; pour dijkstra
   dist-to-root ; pour dijkstra
   time-to-root ; pour dijkstra
   path ; pour dijkstra
-connection
-tempNode?
 
 
   ;;;;;;;;;;
@@ -305,10 +344,10 @@ ticks
 30.0
 
 BUTTON
-628
-267
-698
-300
+573
+10
+643
+43
 setup
 initRegion
 NIL
@@ -322,10 +361,10 @@ NIL
 1
 
 BUTTON
-702
-268
-773
-301
+646
+10
+717
+43
 go
 go
 T
@@ -339,10 +378,10 @@ NIL
 1
 
 BUTTON
-653
-386
-754
-419
+574
+363
+675
+396
 displayActifs
 displayActifs
 NIL
@@ -356,10 +395,10 @@ NIL
 1
 
 BUTTON
-647
-427
-733
-460
+574
+399
+674
+432
 displayEmplois
 displayEmplois
 NIL
@@ -373,10 +412,10 @@ NIL
 1
 
 PLOT
-628
 10
-788
-130
+465
+170
+585
 accessibiliteTicks
 NIL
 NIL
@@ -391,10 +430,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 SLIDER
-625
-345
-797
-378
+575
+84
+698
+117
 probaLocal
 probaLocal
 0
@@ -406,10 +445,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-631
-474
-789
-507
+678
+363
+790
+396
 showTempsMoyen
 showTempsMoyen
 T
@@ -423,10 +462,10 @@ NIL
 1
 
 PLOT
-628
-130
-788
-250
+10
+585
+170
+705
 tempsTransport
 NIL
 NIL
@@ -441,10 +480,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 BUTTON
-904
-275
-1014
-308
+575
+434
+685
+467
 utilisationLinks
 let rand random 1\nask links [\nifelse rand = 0 [\nset thickness (utilisation_l + utilisation_temp) / 10000\n][\nset thickness 0\n]\n]
 T
@@ -458,10 +497,10 @@ NIL
 1
 
 BUTTON
-914
-232
-1084
-265
+677
+398
+831
+431
 showAccessibilitePatches
 ask patches [\n  set plabel int (sum accessibilitePonderee self)\n]
 T
@@ -475,10 +514,10 @@ NIL
 1
 
 BUTTON
-853
-388
-988
-421
+576
+291
+683
+324
 showUtiliteActifs
 ask patches [\nset plabel int (100 * sum listAutiliteR) / 100\n]
 NIL
@@ -492,10 +531,10 @@ NIL
 1
 
 MONITOR
-872
-17
-967
-62
+171
+466
+266
+511
 sommePatches
 sum [plabel] of patches
 17
@@ -503,10 +542,10 @@ sum [plabel] of patches
 11
 
 BUTTON
-819
-128
-898
-161
+1009
+144
+1088
+177
 NIL
 land-use
 NIL
@@ -520,10 +559,10 @@ NIL
 1
 
 BUTTON
-814
-88
-897
-121
+1004
+104
+1087
+137
 NIL
 transport
 NIL
@@ -537,10 +576,10 @@ NIL
 1
 
 BUTTON
-814
-171
-926
-204
+1004
+187
+1116
+220
 NIL
 gouvernement
 NIL
@@ -554,10 +593,10 @@ NIL
 1
 
 BUTTON
-915
-330
-1023
-363
+1006
+233
+1114
+266
 NIL
 updateUtilites
 NIL
@@ -571,10 +610,10 @@ NIL
 1
 
 BUTTON
-852
-424
-984
-457
+575
+327
+686
+360
 showUtiliteEmplois
 ask patches [\nset plabel int (100 * sum listEutiliteR) / 100\n]
 NIL
@@ -588,12 +627,12 @@ NIL
 1
 
 BUTTON
-995
-388
-1127
-421
+687
+291
+796
+324
 showdensiteActifs
-ask patches [\nset plabel int sum listDensiteActifs\n\n]
+ask patches [\n  set plabel int sum listDensiteActifs\n]
 NIL
 1
 T
@@ -605,10 +644,10 @@ NIL
 1
 
 BUTTON
-994
-426
-1136
-459
+689
+327
+808
+360
 showDensiteEmplois
 ask patches [\nset plabel int sum listDensiteEmplois\n\n]
 NIL
@@ -622,10 +661,10 @@ NIL
 1
 
 SLIDER
-648
-611
-820
-644
+771
+46
+930
+79
 parametreDispersion
 parametreDispersion
 0
@@ -637,10 +676,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-648
-644
-832
-677
+771
+79
+930
+112
 parametrePolycentrisme
 parametrePolycentrisme
 0
@@ -652,10 +691,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-648
-676
-832
-709
+771
+111
+930
+144
 parametreRatDispersion
 parametreRatDispersion
 0
@@ -667,10 +706,10 @@ NIL
 HORIZONTAL
 
 INPUTBOX
-836
-612
-991
-672
+933
+47
+985
+107
 parAct
 1
 1
@@ -678,10 +717,10 @@ parAct
 Number
 
 INPUTBOX
-836
-677
-991
-737
+933
+110
+985
+170
 parEmp
 1
 1
@@ -689,10 +728,10 @@ parEmp
 Number
 
 SLIDER
-648
-709
-829
-742
+771
+144
+930
+177
 parametreCoutDistance
 parametreCoutDistance
 0
@@ -704,21 +743,51 @@ NIL
 HORIZONTAL
 
 OUTPUT
-1125
-10
-1394
-365
+1131
+58
+1400
+413
 10
 
 CHOOSER
-1028
+1130
 10
-1120
+1222
 55
 log-level
 log-level
 "debug" "default"
 0
+
+TEXTBOX
+771
+26
+921
+44
+Setup Params
+11
+0.0
+1
+
+TEXTBOX
+575
+60
+725
+78
+Runtime Params
+11
+0.0
+1
+
+TEXTBOX
+577
+268
+727
+286
+Display
+11
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

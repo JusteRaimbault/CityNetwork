@@ -1,32 +1,47 @@
 
 ;;;;;;;;;;
-;; governement
 ;;
-;;   Evolution of transportation network
+;; Governement
+;;
+;;   -> Evolution of transportation network
+;;
+;;  TODO : factorize network prospective ? around ~ 1000 lines in raw governement file, would be good to factorize !
 ;;;;;;;;;;
 
+
+
+;;
+; Network evolution stage of an iteration
+;
+;;
 to gouvernement
   
   updateMaires
   
   updatePlots
 
+  ; find mayor building infrastructure and creates it
   creerInfrastructureR chooseMaire
 
+  ; Q : is it good to tick inside ?
   tick
   
+  ;;;;;
   ; plus tard, � tick correspondra une hausse progressive du car ownership, avec pour effet de rendre rentables les projets routiers, donc il se font, donc ca transforme la m�tropole...
+  ;;;;;
+  
 end
 
 
 
 to updateMaires
-ask maires [
-  
-  set size sqrt ( sum [sum listEnbr] of patches with [mairePatch = myself]) / 500
-  set budget ( sum [sum listEnbr] of patches with [mairePatch = myself]) ; a affiner une fois que la ville, y'a des gens dedans!
-  ;;show budget
-]
+  ask maires [
+    ; visualization
+    set size sqrt ( sum [sum listEnbr] of patches with [mairePatch = myself]) / 500
+    
+    ; budget = number of employments
+    set budget ( sum [sum listEnbr] of patches with [mairePatch = myself]) ; a affiner une fois que la ville, y'a des gens dedans!
+  ]
 end
 
 
@@ -362,6 +377,9 @@ to creerImmobilierR
 
 end
 
+
+
+
 to creerInfrastructure [bestPaire1 bestPaire2 attributsLinks tempLink]
 
 ;attributsLinks liste consitu�e de
@@ -488,75 +506,97 @@ end
 
 
 
-to-report evaluerCoutInfrastructure [patchA patchB typeTransport]
-;;;;;;;;;;;;;;;;show "j'�value le cout de l'infrastructure"
-let tempCout 0
-let patchCourant patchA
-let dist1 0
-let head 0
-ask patchA [
-  set dist1 distance patchB
-  set head towards patchB
-]
-;let i 0
+;;
+; Cost of a new infrastructure
 ;
-;while [i < dist1 + 1] [; and patchCourant != patchB] [
-;  if patch-at-heading-and-distance head i != patchCourant [
-;    set patchCourant patch-at-heading-and-distance head i
-;    set tempCout sum [listAnbrM * listAutiliteR] of patchCourant + sum [listEnbr * listEutiliteM] of patchCourant
+;  for now : proportional to length of road
+;
+;  @param patchA
+;  @param patchB
+;  @param typeTransport
+;  @return cost
+;;
+to-report evaluerCoutInfrastructure [patchA patchB typeTransport]
+  let d 0 ask patchA [set d distance patchB] report d
+  
+;  ;;;;;;;;;;;;;;;;show "j'�value le cout de l'infrastructure"
+;  let tempCout 0
+;  let patchCourant patchA
+;  let dist1 0
+;  let head 0
+;  ask patchA [
+;    set dist1 distance patchB
+;    set head towards patchB
 ;  ]
-;  set i i + 1
-;]
-;report tempCout
-
-report dist1
-;report 1
+;  ;let i 0
+;  ;
+;  ;while [i < dist1 + 1] [; and patchCourant != patchB] [
+;  ;  if patch-at-heading-and-distance head i != patchCourant [
+;  ;    set patchCourant patch-at-heading-and-distance head i
+;  ;    set tempCout sum [listAnbrM * listAutiliteR] of patchCourant + sum [listEnbr * listEutiliteM] of patchCourant
+;  ;  ]
+;  ;  set i i + 1
+;  ;]
+;  ;report tempCout
+;  
+;  report dist1
+;  ;report 1
 end
 
 
 
+;;
+; Evaluate benefits of a new transportation infrastructure
+;
+;   @param patchA
+;   @param patchB
+;   @param attributsLinks
+;   @param tempmaire
+;   @param typeTransport
+;   @report new accessibility of the area for this mayor
+;;
 to-report evaluerBeneficeInfrastructure [patchA patchB attributsLinks tempmaire typeTransport]
-; a terme impl�menter hausse accessibilit� et plus tard, impacts environnementaux de TC (dans les couts pour VP?)
-  log-debug "Evaluating infrastructure"
-;;;;;;;;;;;;;;show patchA
-;;;;;;;;;;;;;;show patchB
+  ; a terme impl�menter hausse accessibilit� et plus tard, impacts environnementaux de TC (dans les couts pour VP?)
+  log-debug word "Evaluating infrastructure from " patchA " to " patchB
 
-creerInfrastructure patchA patchB attributsLinks 1
-creerInfrastructure patchB patchA attributsLinks 1
-;updateListCoutTransportsPatches tempmaire true
-updateListCoutTransportsPatches "region" false
-updateAccessibilitePatches tempmaire
-updateDeplacementsDomicileTravail
+  ;; @TODO : why create infra in both senses (isnt the network undirected ?)
+  creerInfrastructure patchA patchB attributsLinks 1
+  creerInfrastructure patchB patchA attributsLinks 1
 
-;let accesNew 0
-let accesNew reportAccessibilite tempmaire
+  ;updateListCoutTransportsPatches tempmaire true
+  updateListCoutTransportsPatches "region" false
+  updateAccessibilitePatches tempmaire
+  updateDeplacementsDomicileTravail
+  
+  ;let accesNew 0
+  let accesNew reportAccessibilite tempmaire
+  
+  ;ifelse is-maire? tempmaire [
+  ;
+  ;set accesNew sum [(sum listAnbrM + sum listAnbrR) * sum accessibilitePatches] of patches with [mairePatch = tempmaire]
+  ;; a changer, bien entendu, pour tenir compte des CSP
+  ;;set accesNew sum [sum listCoutTransportEffectifTemp] of patches with [mairePatch = tempmaire]
+  ;][
+  ;
+  ;set accesNew sum [(sum listAnbrM + sum listAnbrR) * sum accessibilitePatches] of patches
+  ;;set accesNew sum [sum listCoutTransportEffectif] of patches
+  ;]
+  
+  
+  ;;;;;;;;;;;;show "gain possible de transport des administr�s"
+  ;;;;;;;;;;;;show (- (accesNew - accesOld))
+  
+  
+  ;let accesNew calculerAccessibilite niveau typeTransport
+  ;;;;;;;;;;;;;;show accesNew - accesOld
+  ;;;;;;;;;;;;;;show "c'est le b�n�fice de la construction propos�e"
 
-;ifelse is-maire? tempmaire [
-;
-;set accesNew sum [(sum listAnbrM + sum listAnbrR) * sum accessibilitePatches] of patches with [mairePatch = tempmaire]
-;; a changer, bien entendu, pour tenir compte des CSP
-;;set accesNew sum [sum listCoutTransportEffectifTemp] of patches with [mairePatch = tempmaire]
-;][
-;
-;set accesNew sum [(sum listAnbrM + sum listAnbrR) * sum accessibilitePatches] of patches
-;;set accesNew sum [sum listCoutTransportEffectif] of patches
-;]
-
-
-;;;;;;;;;;;;show "gain possible de transport des administr�s"
-;;;;;;;;;;;;show (- (accesNew - accesOld))
-
-
-;let accesNew calculerAccessibilite niveau typeTransport
-;;;;;;;;;;;;;;show accesNew - accesOld
-;;;;;;;;;;;;;;show "c'est le b�n�fice de la construction propos�e"
-
-ask links with [tempLink? = 1] [
-die
-]
-ask nodes with [tempNode? = 1] [die]
-;;;;;;;;;;;;show  accesNew - accesOld
-report (accesNew)
+  ;; kill temporary links and nodes
+  ask links with [tempLink? = 1] [die]
+  ask nodes with [tempNode? = 1] [die]
+  
+  ;;;;;;;;;;;;show  accesNew - accesOld
+  report (accesNew)
 
 end
 
@@ -764,7 +804,7 @@ while [c < Ncsp] [
 
   let i 0
   while [i < length listP] [
-  ask item i listP [set temp temp + (item c listAnbrM + item c listAnbrR) * item c accessibilitePatches]
+  ask item i listP [set temp temp + (item c list-A-nbr-M + item c list-A-nbr-R) * item c accessibilitePatches]
     set i i + 1
   ]
   ;ask patches [set temp temp + (item c listAnbrM + item c listAnbrR) * item c accessibilitePatches]
@@ -877,42 +917,56 @@ end
 
 
 
+
+;;
+;  Chooses the mayor that will take a decision this step
+;
+;  @report "region" if decision is global (drawn by probaLocal)
+;;
 to-report chooseMaire
 let tempM "region"
 
 let tempR random 100
 if tempR < probaLocal [
-let argent sum [budget] of maires
-let temp 0
-ask maires [
-set money- temp
-set temp temp + budget
-set money+ temp
-]
-let tempR2 random-float argent
-;let tempM one-of maires
+  ;; total wealth
+  let argent sum [budget] of maires
+  
+  let temp 0
+  ; init random drawing vars money- and money+
+  ask maires [
+    set money- temp
+    set temp temp + budget
+    set money+ temp
+  ]
+  
+  let tempR2 random-float argent
+  ;let tempM one-of maires
 
 
-ask one-of maires with [money- <= tempR2 and money+ > tempR2] [
-set tempM self
-;updateListCoutTransportsPatches tempM
-;updateAccessibilitePatches tempM
-]
+  ask one-of maires with [money- <= tempR2 and money+ > tempR2] [
+      set tempM self
+      ;updateListCoutTransportsPatches tempM
+      ;updateAccessibilitePatches tempM
+    ]
 
-]
-;;;;;show tempM
-report tempM
+  ]
+
+  log-debug (word "Decision by " tempM)
+  report tempM
+  
 end
+
+
+
 
 to emptyActifs
 ask patches [
-let c 0
-while [c < ncsp] [
-  set listAnbrM replace-item c  listAnbrM 0
-  set listAnbrR replace-item c  listAnbrR 0
-  set c c + 1
-]
-
+  let c 0
+  while [c < ncsp] [
+    set list-A-nbr-M replace-item c list-A-nbr-M 0
+    set list-A-nbr-R replace-item c list-A-nbr-R 0
+    set c c + 1
+  ]
 ]
 
 end

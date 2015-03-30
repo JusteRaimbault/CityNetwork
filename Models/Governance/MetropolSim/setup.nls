@@ -7,38 +7,37 @@
 
 
 
-;; general setup
+;; 
+;  General setup
 ;  Creates initial configuration
 to initRegion
   
   clear-all
 
-; globals
-_initGlobals
+  ; globals
+  _initGlobals
 
-;createFractal
+  ; Fractal network, still in test ?
+  ;createFractal
 
-; maires agents
-initMaires
+  ; maires agents
+  initMaires
 
-; patches
-initPatches
+  ; patches
+  initPatches
 
-; update maires depending on patches config
-updateMaires
+  ; update maires depending on patches config
+  updateMaires
 
-updateLinksSpeed
+  updateLinksSpeed
 
-updateListCoutTransportsPatches "region" false
+  updateListCoutTransportsPatches "region" false
 
-initAccessibilite
+  initAccessibilite
 
-
-
-
-;updateListCoutTransportsPatches "region" false
-;updateDeplacementsDomicileTravail
-;updateAccessibilitePatches "region"
+  ;updateListCoutTransportsPatches "region" false
+  ;updateDeplacementsDomicileTravail
+  ;updateAccessibilitePatches "region"
   
   reset-ticks
   
@@ -53,73 +52,33 @@ end
 
 to _initGlobals
   
-  ; setup land use parameters
+  ; setup some land use parameters
   useParameters
 
-; on remplit d'abord les valeurs des variables globales
+  ; Global variables ruling "luti" parametrization : Ncsp and Nmodes
+  set Ncsp 4
+  set Nmodes 1
 
-set Ncsp 4
-
-set Nmodes 1
-
-; liste valable pour 3 CSP et 2 modes (pour transport land use ca sera bien)
-;set listNbrConnecteurs (list (1) (1)); par mode
-;set listSpeed (list (1) (1.5)); par mode
-;set listNactifs (list (200) (600) (200)) ; par CSP
-;set listCarOwnership (list (1) (1) (1)) ; par CSP
-;set listSalaires (list (1) (1) (1)) ; par CSP
-;set listcoeffAccessibiliteFormeUrbaineActifs (list (0.2) (0.5) (0.7)) ; par CSP
-;set listcoeffAccessibiliteFormeUrbaineEmplois (list (0.7) (0.5) (0.2)) ; par CSP
-;set listcoeffUtilitesActifs (list (100) (80) (40)) ; par CSP
-;set listcoeffUtilitesEmplois (list (20) (80) (100)) ; par CSP
-;;set listcoeffUtilitesActifs (list (50) (50) (50)) ; par CSP
-;;set listcoeffUtilitesEmplois (list (50) (50) (50)) ; par CSP
-;set matActifsActifs (list ((list (1)(0)(0)))((list (-1)(1)(-1)))((list (-2)(-2)(0.5))))
-;set matActifsEmplois (list ((list (1)(0)(0)))((list (0)(1)(0)))((list (0)(0)(0.5))))
-;set matEmploisActifs (list ((list (1)(-1)(-1)))((list (1)(1)(1)))((list (0)(0)(1))))
-;set matEmploisEmplois  (list ((list (1)(-1)(-1)))((list (-1)(1)(0)))((list (-2)(0)(1))))
+  ; Parametrize luti
+  parametrize-luti Ncsp Nmodes
 
 
-;set listvaleursTemps ; par csp
-;set listcoutDistance ; par csp et par mode; typiquement prix du p�trole, abonnement de carte orange...
-
-
-; liste valable pour 4 CSP et un mode (pour test th�orique de C4)
-set listNbrConnecteurs (list (4)); par mode
-set listSpeed (list (1)); par mode
-set listNactifs (list (100000) (100000) (100000) (100000)) ; par CSP
-set listCarOwnership (list (1) (1) (1) (1)) ; par CSP
-set listSalaires (list (1) (1) (1) (1)) ; par CSP
-set listcoeffAccessibiliteFormeUrbaineActifs (list (0.5) (0.5) (0.5) (0.5)) ; par CSP
-set listcoeffAccessibiliteFormeUrbaineEmplois (list (0.5) (0.5) (0.5) (0.5)) ; par CSP
-set listcoeffUtilitesActifs (list (100) (100) (100) (100)) ; par CSP
-set listcoeffUtilitesEmplois (list (100) (100) (100) (100)) ; par CSP
-;set listcoeffUtilitesActifs (list (50) (50) (50)) ; par CSP
-;set listcoeffUtilitesEmplois (list (50) (50) (50)) ; par CSP
-set matActifsActifs (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
-set matActifsEmplois (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
-set matEmploisActifs (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
-set matEmploisEmplois  (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
-
-
-set listvaleursTemps (list (1) (1) (1) (1)); par csp
-;set listcoutDistance (list (list (1) (1) (1) (1))); par csp et par mode; typiquement prix du p�trole, abonnement de carte orange...
-
-
-;(list ((list (0)(0)(0)))((list (0)(0)(0)))((list (0)(0)(0))));
-;(list ((list (1)(0)(0)))((list (0)(1)(0)))((list (0)(0)(1))))
-set listPatchesRegion []
-set coeffChoixModal 1
-let i min-pxcor
-let j 0
-while [i <= max-pxcor] [
-  set j min-pycor
-  while [j <= max-pycor] [
-    set listPatchesRegion lput (patch i j) listPatchesRegion
-    set j j + 1
+  ; modal choice
+  set coeffChoixModal 1
+  
+  ; static ordered list of patches
+  set listPatchesRegion []
+  let i min-pxcor
+  let j 0
+  while [i <= max-pxcor] [
+    set j min-pycor
+    while [j <= max-pycor] [
+      set listPatchesRegion lput (patch i j) listPatchesRegion
+      set j j + 1
+    ]
+    set i i + 1
   ]
-  set i i + 1
-]
+
 
 ; d�but "param�tres du r�seau fractal"
 set orderOfComplexity 2 ; >= 2
@@ -171,10 +130,10 @@ to useParameters
 ;set parametreCoutDistance 1
 
 
+; by CSP and Transportation mode, typically gaz prices, public transportation prices (abonnement carte orange)
+set listcoutDistance (list (list (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance)))
 
-let list1 [[1 1 1 1][1 1 1 1][1 1 1 1][1 1 1 1]]
-set listcoutDistance (list (list (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance))); par csp et par mode; typiquement prix du p�trole, abonnement de carte orange...
-;show listcoutDistance
+
 let t (1 / parametreDispersion)
 let p1 100
 let p2 (100 / (2 ^ parametrePolycentrisme))
@@ -198,24 +157,24 @@ let p4 (100 / (4 ^ parametrePolycentrisme))
 ;show tempList3
 ;show tempList4
 
-;set listActBussA []
-set listActBussb multiplyListList list1 (parametreRatDispersion * t)
-;show listActBussb
-set listEmpBussb  multiplyListList list1 t
-set listActBussA []
-set listEmpBussA []
 
-; parAct peut prendre 3 valeurs:
-;0 -> les 4 CSP ont la m�me distribution 1234 (par maire)
-;1 -> permutations circulaires : 1234 - 2341 - 3412 - 4123
-;2 - > autre permutation: 1234 - 3412 - 4321 - 2143
-;
+  set listActBussb multiplyListList (list1 4 4) (parametreRatDispersion * t)
+  set listEmpBussb  multiplyListList (list1 4 4) t
+  set listActBussA []
+  set listEmpBussA []
 
-; parEmp peut prendre 3 valeurs:
-;0 -> les 4 CSP ont la m�me distribution 1234 (par maire)
-;1 -> permutations circulaires : 1234 - 2341 - 3412 - 4123
-;2 - > autre permutation: 1234 - 3412 - 4321 - 2143
-;
+  ; Parameter parAct is a qualitative value fixing shape of Bussiere distribution for actives
+  ; Possible values are :
+  ; 0 -> same distribution 1234 (per mayor) for each CSP
+  ; 1 -> circular permutations : 1234 - 2341 - 3412 - 4123
+  ; 2 - > other permutations: 1234 - 3412 - 4321 - 2143
+  ;
+
+  ; Parameter parEmp is the same for employment :
+  ;0 -> les 4 CSP ont la m�me distribution 1234 (par maire)
+  ;1 -> permutations circulaires : 1234 - 2341 - 3412 - 4123
+  ;2 - > autre permutation: 1234 - 3412 - 4321 - 2143
+  ;
 
 ; si en th�orie le polycentrisme peut etre diff�rent par CSP et par type (act / emp), on n'a pour l'instant qu'un indicateur pour tous: parametrePolycentrisme
 if parAct = 1 [
@@ -315,6 +274,66 @@ if parEmp = 3 [
 end
 
 
+;;
+; Parametrize economic-transportation mode, depending on number of CSP and transportation modes
+;
+;  Ncsp and Nmodes are redundant for a comprehensive use of the function.
+to parametrize-luti [n-csp n-modes]
+  
+   if n-csp = 3 and n-modes = 2 [
+      ; liste valable pour 3 CSP et 2 modes (pour transport land use ca sera bien)
+    ;set listNbrConnecteurs (list (1) (1)); par mode
+    ;set listSpeed (list (1) (1.5)); par mode
+    ;set listNactifs (list (200) (600) (200)) ; par CSP
+    ;set listCarOwnership (list (1) (1) (1)) ; par CSP
+    ;set listSalaires (list (1) (1) (1)) ; par CSP
+    ;set listcoeffAccessibiliteFormeUrbaineActifs (list (0.2) (0.5) (0.7)) ; par CSP
+    ;set listcoeffAccessibiliteFormeUrbaineEmplois (list (0.7) (0.5) (0.2)) ; par CSP
+    ;set listcoeffUtilitesActifs (list (100) (80) (40)) ; par CSP
+    ;set listcoeffUtilitesEmplois (list (20) (80) (100)) ; par CSP
+    ;;set listcoeffUtilitesActifs (list (50) (50) (50)) ; par CSP
+    ;;set listcoeffUtilitesEmplois (list (50) (50) (50)) ; par CSP
+    ;set matActifsActifs (list ((list (1)(0)(0)))((list (-1)(1)(-1)))((list (-2)(-2)(0.5))))
+    ;set matActifsEmplois (list ((list (1)(0)(0)))((list (0)(1)(0)))((list (0)(0)(0.5))))
+    ;set matEmploisActifs (list ((list (1)(-1)(-1)))((list (1)(1)(1)))((list (0)(0)(1))))
+    ;set matEmploisEmplois  (list ((list (1)(-1)(-1)))((list (-1)(1)(0)))((list (-2)(0)(1))))
+    
+    ;set listvaleursTemps ; par csp
+    ;set listcoutDistance ; par csp et par mode; typiquement prix du p�trole, abonnement de carte orange...
+      
+    ;(list ((list (0)(0)(0)))((list (0)(0)(0)))((list (0)(0)(0))));
+    ;(list ((list (1)(0)(0)))((list (0)(1)(0)))((list (0)(0)(1))))
+      
+   ]   
+    
+    
+  if n-csp = 4 and n-modes = 1 [
+    ; liste valable pour 4 CSP et un mode (pour test th�orique de C4)
+    set listNbrConnecteurs (list (4)); par mode
+    set listSpeed (list (1)); par mode
+    set listNactifs (list (100000) (100000) (100000) (100000)) ; par CSP
+    set listCarOwnership (list (1) (1) (1) (1)) ; par CSP
+    set listSalaires (list (1) (1) (1) (1)) ; par CSP
+    set listcoeffAccessibiliteFormeUrbaineActifs (list (0.5) (0.5) (0.5) (0.5)) ; par CSP
+    set listcoeffAccessibiliteFormeUrbaineEmplois (list (0.5) (0.5) (0.5) (0.5)) ; par CSP
+    set listcoeffUtilitesActifs (list (100) (100) (100) (100)) ; par CSP
+    set listcoeffUtilitesEmplois (list (100) (100) (100) (100)) ; par CSP
+    ;set listcoeffUtilitesActifs (list (50) (50) (50)) ; par CSP
+    ;set listcoeffUtilitesEmplois (list (50) (50) (50)) ; par CSP
+    set matActifsActifs (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
+    set matActifsEmplois (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
+    set matEmploisActifs (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
+    set matEmploisEmplois  (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
+    
+    
+    set listvaleursTemps (list (1) (1) (1) (1)); par csp
+    ;set listcoutDistance (list (list (1) (1) (1) (1))); par csp et par mode; typiquement prix du p�trole, abonnement de carte orange...
+  ]
+
+  
+  
+  
+end
 
 
 
@@ -322,69 +341,79 @@ end
 
 ;; init maires = gov agents
 to initMaires
-let i 0
-let j 0
-
-repeat Nmaires [
-create-maires 1 [
-  setxy (min-pxcor + random (world-width)) (min-pycor + random (world-height))
-  ;setxy (3 * who + 1) 0
-  ;setxy 0 0
-  ;set xcor max-pxcor / 2
-  ;set ycor max-pycor / 2
-  set heading -15 + 60 + 360 / numberOfDirections * j
-  fd (1 - randomness% / 100) * DFRACTAL + randomness% / 100 * (random-float DFRACTAL)
-  set centreMaire patch-here
+  let i 0
+  let j 0
   
-  ;; MODIFIED - JR
-  ask patch-here [set has-maire? 1]
-  
-  
-  
-  set color who * 10 + 5
-  set shape "house"
-  set listA-AbussiereInit []
-  set listA-bbussiereInit []
-  set listE-AbussiereInit []
-  set listE-bbussiereInit []
-  set i 0
-  while [i < Ncsp] [
-    set listA-AbussiereInit lput item i item j listActBussA listA-AbussiereInit
-    set listA-bbussiereInit lput item i item j listActBussb listA-bbussiereInit
-    set listE-AbussiereInit lput item i item j listEmpBussA listE-AbussiereInit
-    set listE-bbussiereInit lput item i item j listEmpBussb listE-bbussiereInit
-    set i i + 1
+  repeat Nmaires [
+  create-maires 1 [
+    setxy (min-pxcor + random (world-width)) (min-pycor + random (world-height))
+    ;setxy (3 * who + 1) 0
+    ;setxy 0 0
+    ;set xcor max-pxcor / 2
+    ;set ycor max-pycor / 2
+    set heading -15 + 60 + 360 / numberOfDirections * j
+    fd (1 - randomness% / 100) * DFRACTAL + randomness% / 100 * (random-float DFRACTAL)
+    set centreMaire patch-here
+    
+    ;; MODIFIED - JR
+    ask patch-here [set has-maire? 1]
+    
+    
+    
+    set color who * 10 + 5
+    set shape "house"
+    set listA-AbussiereInit []
+    set listA-bbussiereInit []
+    set listE-AbussiereInit []
+    set listE-bbussiereInit []
+    set i 0
+    while [i < Ncsp] [
+      set listA-AbussiereInit lput item i item j listActBussA listA-AbussiereInit
+      set listA-bbussiereInit lput item i item j listActBussb listA-bbussiereInit
+      set listE-AbussiereInit lput item i item j listEmpBussA listE-AbussiereInit
+      set listE-bbussiereInit lput item i item j listEmpBussb listE-bbussiereInit
+      set i i + 1
+    ]
   ]
-]
-set j j + 1
-;show j
-]
-; les maires ont un pouvoir s'�tendant sur les polygones de Thiessen de leur distribution (au moins pour l'instant)
-let listMaires []
-ask patches [
-  set mairePatch min-one-of maires [distance myself]
-  set listAnbrR []
-  set listEnbr []
-]
+  set j j + 1
+  ;show j
+  ]
 
-ask maires [
-set listPatchesMaire []
-ask patches with [mairePatch = myself] [
+  ; area of power for mayors is determined by Thiessen polygons of their distributions (at least for now)
+  let listMaires []
+  ask patches [
+    set mairePatch min-one-of maires [distance myself]
+    
+    ;;@TODO : why empty list here ?
+    set list-A-nbr-R []
+    set listEnbr []
+  ]
   
-  ;; MODIFIED - JR
-   ask myself [set listPatchesMaire lput myself listPatchesMaire]
-]
-]
-ask maires [
-  set listMaires lput self listMaires
-]
-; on cr�e d�sormais les loyers et les actifs / emplois selon un bussi�re exog�ne
+  ;; set the list of governed patches
+  ask maires [
+    set listPatchesMaire []
+    ask patches with [mairePatch = myself] [
+      
+      ;; MODIFIED - JR (compatibility NL5)
+      ask myself [set listPatchesMaire lput myself listPatchesMaire]
+    ]
+  ]
+  
+  ;; @TODO : ?
+  ask maires [
+    set listMaires lput self listMaires
+  ]
+
+
+; we create now rents (?) and active/employments given an exogeneous Bussiere
 set j 0
 ask patches [
  ;set listAnbrR lput (item i [listA-AbussiereInit] of mairePatch * exp(- item i [listA-bbussiereInit] of mairePatch * distance mairePatch)) listAnbrR
+ 
  set i 0
  let tempA 0
  let tempE 0
+ ;for each csp
  while [i < Ncsp] [
      set j 0
      set tempA 0
@@ -395,25 +424,23 @@ ask patches [
        
      set j j + 1
    ]
-   set listAnbrR lput tempA listAnbrR
+     
+   ; initial number of actives for each CSP is then tempA for this patch
+   set list-A-nbr-R lput tempA list-A-nbr-R
    set listEnbr lput tempE listEnbr
-    ;set listAnbrR lput random 100 listAnbrR
+   
    set i i + 1
  ]
 ]
 
 
-
-
-
-
-;cette ligne sert � la visualisation, elle peut �tre supprim�e
-ask patches [set pcolor ([color] of mairePatch - 3)]
-;ask patches [set pcolor (item 0 listAnbrR)]
-
-
-
+  ; this line is used for visualizations, can be commented/deleted
+  ; @TODO : General viz factorization ?
+  ask patches [set pcolor ([color] of mairePatch - 3)]
+  ;ask patches [set pcolor (item 0 listAnbrR)]
+  
 end
+
 
 
 
@@ -431,12 +458,12 @@ to initPatches
   ;  ]
   ;  set i 0
   ;  while [i < Ncsp] [
-    set listAutiliteM []
+    set list-A-utilite-M []
     set listAutiliteR []
     set listEutiliteM []
     set listEutiliteR []
   
-    set listAnbrM []
+    set list-A-nbr-M []
     ;set listEnbr []
   
     
@@ -458,12 +485,15 @@ to initPatches
      ; set listEnbr lput  ((sum [item i listAnbrR] of patches with [mairePatch = [mairePatch] of myself]) / count patches with  [mairePatch = [mairePatch] of myself]) listEnbr
       ;set listEnbr lput random 100 listEnbr
       
-      set listAnbrM lput (0) listAnbrM
-      set listAutiliteM lput (1) listAutiliteM
+      ; number of actives "M" is zero fir each CSP and patch
+      set list-A-nbr-M lput (0) list-A-nbr-M
+      
+      ;; all utilities are initially set to 1
+      set list-A-utilite-M lput (1) list-A-utilite-M
       set listAutiliteR lput (1) listAutiliteR
       set listEutiliteM lput (1) listEutiliteM
       set listEutiliteR lput (1) listEutiliteR
-          set i i + 1
+      set i i + 1
     ]
   
   ]
@@ -472,12 +502,14 @@ to initPatches
   let tempA 0
   let tempE 0
   let c 0
+  
+  ; for each csp
   while [c < nCSP] [
-     set tempA sum [item c listAnbrR + item c listAnbrM] of patches
+     set tempA sum [item c list-A-nbr-R + item c list-A-nbr-M] of patches
      set tempE sum [item c listEnbr] of patches
      ask patches [
-       set listAnbrR replace-item c listAnbrR ((item c listAnbrR) * (item c listNactifs / tempA))
-       set listAnbrM replace-item c listAnbrM ((item c listAnbrM) * (item c listNactifs / tempA))
+       set list-A-nbr-R replace-item c list-A-nbr-R ((item c list-A-nbr-R) * (item c listNactifs / tempA))
+       set list-A-nbr-M replace-item c list-A-nbr-M ((item c list-A-nbr-M) * (item c listNactifs / tempA))
        
        set listEnbr replace-item c listEnbr ((item c listEnbr) * (item c listNactifs / tempE))
   
@@ -592,10 +624,8 @@ while [i < length listPatchesRegion] [
 ]
 
 
+  updateAccessibilitePatches "region"
 
-
-
-updateAccessibilitePatches "region"
 end
 
 

@@ -36,7 +36,7 @@ let i 0
 
 while [i < length listPatchesRegion] [
 ask item i listPatchesRegion [
-set plabel word "a-" int (sum [ listAnbrM] of item i listPatchesRegion + sum [listAnbrR] of item i listPatchesRegion)  
+set plabel word "a-" int (sum [list-A-nbr-M] of item i listPatchesRegion + sum [list-A-nbr-R] of item i listPatchesRegion)  
 ]
 set i i + 1
 ]
@@ -59,24 +59,24 @@ end
 
 
 to showTempsMoyen
-ask patches [
-
-let temp 0
-
-let m 0
-while [m < nModes] [
-  let c 0
-  while [c < nCSP] [
-    set temp temp + sum item c item m listCoutTransportEffectif
-    set c c + 1
+  
+  ask patches [
+    let temp 0
+    
+    let m 0
+    while [m < nModes] [
+      let c 0
+      while [c < nCSP] [
+        set temp temp + sum item c item m listCoutTransportEffectif
+        set c c + 1
+      ]
+      set m m + 1
+    
+     ]
+     set plabel int (100 * temp / (sum list-A-nbr-M + sum list-A-nbr-R)) / 100
   ]
-  set m m + 1
-
- ]
- set plabel int (100 * temp / (sum listAnbrM + sum listAnbrR)) / 100
-]
-
-ask links [set thickness (utilisation_l + utilisation_temp) / 400]
+  
+  ask links [set thickness (utilisation_l + utilisation_temp) / 400]
 
 end
 
