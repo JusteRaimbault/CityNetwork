@@ -37,6 +37,50 @@ end
 
 
 
+
+
+to mouvementsActifs
+; si il y a des logements sociaux, c'est l� qu'il faut l'�voquer, avec les listAnbrM; pour l'instant, rien de tout �a...
+
+let c 0
+let temp 0
+while [c < Ncsp] [
+  set temp 0
+  ask patches [
+    set temp temp + exp (item c listcoeffUtilitesActifs * item c listAUtiliteR)
+  ]
+  ;;;;show temp
+  ask patches [
+    ;set plabel int ( 100 * exp (item c listcoeffUtilitesActifs * item c listAUtiliteR) / temp )  / 100
+    set listAnbrR replace-item c listAnbrR (item c listNactifs * exp (item c listcoeffUtilitesActifs * item c listAUtiliteR) / temp)
+    ;;;;show listAnbrR
+  ]
+  set c c + 1
+]
+
+end
+
+to mouvementsEmplois
+
+let c 0
+let temp 0
+while [c < Ncsp] [
+set temp 0
+  ask patches [
+    set temp temp + exp (item c listcoeffUtilitesEmplois * item c listEUtiliteR)
+  ]
+  ;;;show temp
+  ask patches [
+    set listEnbr replace-item c listEnbr (item c listNactifs * exp (item c listcoeffUtilitesEmplois * item c listEUtiliteR) / temp)
+  ]
+  set c c + 1
+]
+end
+
+
+
+
+
 to updateDensityActifs
 let tempActifs 0
 ask patches [
@@ -178,6 +222,77 @@ while [c < Ncsp] [
 ]
 
 end
+
+
+
+
+
+to chercheEmploi [temp-actif]
+; il s'agit pour l'actif consid�r� de trouver un emploi. pour l'instant, on fait
+; cela n'importe au hasard, sans consid�ration de distance
+ask temp-actif [
+  set emploiActif one-of emplois with [actifEmploi = 0]
+  
+  ask emploiActif [set actifEmploi myself]
+  ;set [actifEmploi] of emploiActif self
+]
+
+
+end
+
+to chercheActif [temp-emploi]
+
+
+end
+
+
+
+
+
+
+
+to-report calculerutiliteActifs [csp]
+let acces item csp AccessibilitePatches
+let forme 1
+
+let c 0
+while [c < nCSP] [
+
+    if item c listDensiteActifs > 0 [
+    set forme forme * exp(item c item csp matActifsActifs * ln(item c listDensiteActifs))
+    ]
+    if item c listDensiteEmplois > 0 [
+    set forme forme * exp(item c item csp matActifsEmplois * ln(item c listDensiteEmplois))
+    ] 
+  set c c + 1
+]
+;coeffAccessibiliteFormeUrbaine
+report exp(item csp listcoeffAccessibiliteFormeUrbaineActifs * ln(acces)) * exp((1 - item csp listcoeffAccessibiliteFormeUrbaineActifs) * ln(forme))
+end
+
+
+to-report calculerutiliteEmplois [csp]
+let acces item csp AccessibilitePatches
+let forme 1
+
+let c 0
+while [c < nCSP] [
+
+    if item c listDensiteActifs > 0 [
+    set forme forme * exp(item c item csp matEmploisActifs * ln(item c listDensiteActifs))
+    ]
+    if item c listDensiteEmplois > 0 [
+    set forme forme * exp(item c item csp matEmploisEmplois * ln(item c listDensiteEmplois))
+    ] 
+    ;;;;show forme
+  set c c + 1
+]
+;;show forme
+;coeffAccessibiliteFormeUrbaine
+report exp(item csp listcoeffAccessibiliteFormeUrbaineEmplois * ln(acces)) * exp((1 - item csp listcoeffAccessibiliteFormeUrbaineEmplois) * ln(forme))
+end
+
+
 
 
 
