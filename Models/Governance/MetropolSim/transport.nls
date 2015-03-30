@@ -1,0 +1,390 @@
+
+;;;;
+;; Transportation
+;;;;
+
+;; Main function
+to transport
+
+  log-debug "Computing transportation flows"
+
+  updateDeplacementsDomicileTravail
+  ;updateAccessibilitePatches "region"
+  
+  ;; reporters
+  set resultatCout CoutMoyenTotal
+  set resultatDist DistMoyenTotal
+  tick
+
+end
+
+
+;; calculation of flows
+to updateDeplacementsDomicileTravail
+  
+  distributionGravitaire
+  
+  repeat 2 [
+    let c 0
+    ;for each csp
+    while [c < Ncsp] [
+      ;; Furness algo to compute gravital distribution
+      furnessActifs c
+      furnessEmplois c
+      set c c + 1
+    ]
+  ]
+  
+  ;; modal choice
+  let j 1
+  choixModal
+  
+  ;; flow affectation in network
+  while [j < 4] [
+    affectation j
+    updateLinksSpeed
+    updateListCoutTransportsPatches false false
+    set j j + 1
+  ]
+
+
+end
+
+
+
+
+
+to distributionGravitaire
+let i 0
+while [i < length listPatchesRegion] [
+  ask item i listPatchesRegion [
+    ;set listNavettesPatches [[]]
+    set listNavettesPatches []
+  let c 0
+  while [c < Ncsp] [
+    set listNavettesPatches lput [] listNavettesPatches
+    set c c + 1
+  ]
+  ]
+  set i i + 1
+]
+
+
+;; iterate on regions (i,j)
+
+set i 0
+while [i < length listPatchesRegion] [
+
+
+  let j 0
+  let m 0
+  
+  while [j < length listPatchesRegion] [
+    let k 0
+    let temp 0
+    ask item i listPatchesRegion [
+
+    ;; for each csp
+    while [k < Ncsp] [
+      let minCout 100000
+      set m 0
+      
+      ;; for each mode
+      while [m < Nmodes] [
+      ;;;;;;;;;show "mode"
+      ;;;;;;;;;show m
+      ;;;;;;;;;show item m listCoutTransport
+      ;;;;;;;;;show item j item m listCoutTransport
+      ;MODIFENCOURSlet tempD coutDistance(item j item m listCoutTransport)
+      let tempD coutDistance(item j item k item m listCoutTransport)
+      if tempD < minCout [
+        set minCout tempD
+      ]
+      
+        set m m + 1
+      ]
+    
+    
+      set temp temp + (item k listAnbrR + item k listAnbrM) * (item k [listEnbr] of item j listPatchesRegion) * minCout
+        set listNavettesPatches replace-item k listNavettesPatches lput temp item k listNavettesPatches
+        ;;;;;show "listNavettesPatches"
+        ;;;;;show listNavettesPatches
+      set k k + 1
+    ]
+;      set m m + 1
+    
+  
+    
+    
+    ]
+    set j j + 1
+  ]
+  set i i + 1
+]
+end
+
+
+
+
+
+to furnessActifs [csp]
+  
+; d'abord on va ajuster sur les "actifs" de csp
+
+let i 0
+
+while [i < length listPatchesRegion] [
+  ask item i listPatchesRegion [
+    let fact 0
+    if sum item csp listNavettesPatches > 0 [
+      set fact (item csp listAnbrR + item csp listAnbrM) / sum item csp listNavettesPatches
+    ]
+    set listNavettesPatches replace-item csp listNavettesPatches (multiplyList item csp listNavettesPatches fact)
+  ]
+  set i i + 1
+]
+
+end
+
+
+
+to furnessEmplois  [csp]
+let j 0
+
+while [j < length listPatchesRegion] [
+  let temp 0
+  let i 0
+  
+  while [i < length listPatchesRegion] [
+    ask item i listPatchesRegion [
+      ;set temp temp +  item j listNavettesPatches
+      set temp temp +  item j item csp listNavettesPatches
+    ]
+    ;set temp temp + item j [listNavettesPatches] of item i listPatchesRegion
+    set i i + 1
+  ]
+  
+  
+  if temp > 0 [
+  set i 0
+  ;let k sum [listEnbr] of item j listPatchesRegion / temp
+  let k item csp [listEnbr] of item j listPatchesRegion / temp
+  while [i < length listPatchesRegion] [
+    ask item i listPatchesRegion [
+      ;set listNavettesPatches replace-item j listNavettesPatches (k * item j listNavettesPatches)
+      let listCSP item csp  listNavettesPatches
+      set listCSP replace-item j listCSP (k * item j listCSP)
+      
+      set listNavettesPatches replace-item csp listNavettesPatches listCSP
+      
+      
+    ]
+    set i i + 1
+  ]
+  ]
+  
+  
+  
+  set j j + 1
+]
+
+end
+
+
+
+
+
+;; modal choice
+to choixModal
+let i 0
+;while [i < length listPatchesRegion] [
+;ask item i listPatchesRegion [
+;;  set listNavettesModes [[[]]]
+;;  set listModesShare [[[]]]
+;   set listNavettesModes []
+;   set listModesShare []
+;  
+;
+;  let m 0
+;    while [m < Nmodes] [
+;      set listNavettesModes lput [] listNavettesModes
+;      set listModesShare lput [] listModesShare
+;      let c 0
+;      while [c < Ncsp] [
+;        set listNavettesModes replace-item m listNavettesModes lput [] item m listNavettesModes
+;        set listModesShare replace-item m listModesShare lput [] item m listModesShare
+;
+;       ; set listNavettesModes replace-item m listNavettesModes lput [] listNavettesModes
+;        ;set listModesShare replace-item m listModesShare lput [] listModesShare
+;        ;;;;;show listModesShare
+;        
+;        set c c + 1
+;      ]
+;      set m m + 1
+;    ]
+;]
+;set i i + 1
+;]
+;set i 0
+while [i < length listPatchesRegion] [
+  let j 0
+  
+  
+  while [j < length listPatchesRegion] [
+    let temp 0
+    let temp1 0
+    ask item i listPatchesRegion [
+    let m 0
+    while [m < Nmodes] [
+          let c 0
+      while [c < Ncsp] [
+      ;MODIFENCOURSset temp temp + exp(- coeffChoixModal * item j item m listCoutTransport)
+      set temp temp + exp(- coeffChoixModal * item j item c item m listCoutTransport)
+        set c c + 1
+      ]
+      set m m + 1
+    ]
+    set m 0
+    while [m < Nmodes] [
+      let c 0
+      while [c < Ncsp] [
+
+      ;MODIFENCOURSset temp1 exp(- coeffChoixModal * [item j item m listCoutTransport] of item i listPatchesRegion)
+      set temp1 exp(- coeffChoixModal * [item j item c item m listCoutTransport] of item i listPatchesRegion)
+      let tempShare (item c listCarOwnership * (temp1 / temp))
+      if m = 0 [set tempShare (tempShare  + (1 - item c listCarOwnership)) ]
+      
+      
+      
+      let tempShareL item m listModesShare
+      ;set tempShareL lput tempShare tempShareL
+      set tempShareL replace-item c tempShareL lput tempShare item c tempShareL
+      
+      
+      ; set listModesShare replace-item m listModesShare lput (item c carownership * (temp1 / temp)) item m listModesShare
+
+           set listModesShare replace-item m listModesShare tempShareL
+      
+      ;;;;;show listModesShare
+      let tempNavettes item c listNavettesPatches
+;      ;;;;;show "tempNavettes"
+;      ;;;;;show tempNavettes
+;      ;;;;;show "listNavettesPatches"
+;      ;;;;;show listNavettesPatches
+      ;set tempNavettes lput ((item c listNavettesPatches) * (tempShare)) tempNavettes
+      
+      set tempNavettes multiplyList tempNavettes (tempShare)
+       let temp3 item m listNavettesModes
+       set temp3 replace-item c temp3 tempNavettes 
+     
+     ;  set listNavettesModes replace-item m listNavettesModes lput ((item j listNavettesPatches) * item m listModesShare) item m listNavettesModes
+     
+     
+     set listNavettesModes replace-item m listNavettesModes temp3
+     
+      ;;;;;;;show listNavettesModes
+        
+        set c c + 1
+      ]
+      set m m + 1
+    ]    
+    
+    ]
+    
+    set j j + 1
+  ]
+  set i i + 1
+]
+
+
+
+
+
+
+end
+
+
+
+
+
+
+to affectation [nIter]
+ask links [
+
+set utilisation_temp utilisation_l * (nIter - 1) * (1 - 1 /(nIter))
+set utilisation_l 0
+]
+let k 0
+while [k < length listPatchesRegion]
+[
+ask item k listPatchesRegion [
+let i 0
+let tempC 0
+let temp 0
+;let tempP self
+while [i < length listPatchesRegion] [
+
+
+  let m 0
+  while [m < nModes] [
+    if item m listChemins != [] [
+      
+;      ;;;;;;;show item m listChemins
+;      ;;;;;;;show item m listNavettesModes
+      set tempC item i item m listChemins
+      let c 0 
+      while [c < nCsp] [
+      
+      set temp item i item c item m listNavettesModes
+     
+     
+      let j 0
+      while [j < length tempC] [
+        if  item j tempC != nobody [
+        ;;;;;;;;show "ca y'est je suis rentr� dans un chemin"
+          ;;;;;;;;show item j tempC
+          
+          ;set [utilisation_l] of (item j tempC) ((1 / nIter) * temp) + [utilisation_l] of item j tempC
+          ask (item j tempC) [set utilisation_l ((1 / nIter) * temp) + utilisation_l]
+          
+          ;;;;;;;;show [utilisation_l] of item j tempC
+        ]
+      ;set [utilisation_temp] of item j tempC ((1 / nIter) * temp) + [utilisation_temp] of item j tempC
+      set j j + 1
+      ]
+    
+        set c c + 1
+      ]
+    
+    ]
+    
+    set m m + 1
+  ]
+  
+    
+  set i i + 1
+]
+
+
+]
+set k k + 1
+]
+
+
+end
+
+
+
+
+
+
+
+
+
+;; exponentially decreasing cost as a function of distance
+to-report coutDistance [d1]
+  report exp(- d1)
+end
+
+
+

@@ -1,0 +1,209 @@
+
+
+;;;;;;;;;;;;;;;
+;; Fractal Network
+;;;;;;;;;;;;;;;
+
+
+
+
+; -----------------------------------------------------------------------------------
+; Construction of the fractal network
+; -----------------------------------------------------------------------------------
+
+
+to reset_network
+
+set DFRACTAL (1 / 2) * ((fractalFactor - 1) / fractalFactor) * max-pxcor / (1 - (1 / fractalFactor) ^ (orderOfComplexity + 1))
+
+create-nodes 1
+  [
+
+  set xcor max-pxcor / 2
+  set ycor max-pycor / 2
+  set color black
+  set shape "circle"
+  set father (- 1)
+  set order 1
+  set node-id 0
+  set heading 0
+  set distFRACTAL 0
+  set size 4;(orderOfComplexity - order + 1)
+  ;set pop (D / 2) / 3 ^ (order - 1);D / 2 ^ (order + orderOfComplexity - 2) ; 2 ^ (orderOfComplexity / order)
+  ;set voroinized []
+  ]
+
+end
+
+to trame_network
+
+set kFRACTAL 2
+
+while [kFRACTAL <= orderOfComplexity]
+
+[
+
+let X []
+let Y []
+let idl []
+if ext? [
+ask nodes with [order = kFRACTAL - 1] [
+  set X lput xcor X
+  set Y lput ycor Y
+  set idl lput node-id idl
+
+]
+]
+if int? [
+ask nodes with [order < kFRACTAL - 1] [
+  set X lput xcor X
+  set Y lput ycor Y
+  set idl lput node-id idl
+
+]
+
+]
+
+let j 0   
+
+while [j < length X] [
+
+let i 1
+;let randomnumberOfDirections floor ((1 - randomness% / 100) * numberOfDirections + randomness% / 100 * (random-float numberOfDirections))
+let randomnumberOfDirections numberOfDirections
+while [i <= randomnumberOfDirections] [
+   
+  create-nodes 1 
+  [
+  set xcor item j X
+  set ycor item j Y
+  set color black
+  set shape "circle"
+  set order kFRACTAL
+  set node-id i * (randomnumberOfDirections + 1) ^ (order - 1) + item j idl
+  set father item j idl
+  set heading -15 + 30 * kFRACTAL + 360 / randomnumberOfDirections * (i - 1) + (randomness% / 100) * (-180 / randomnumberOfDirections + random-float 360 / randomnumberOfDirections)
+  set distFRACTAL DFRACTAL / fractalFactor ^ (order - 2)
+  ;(orderOfComplexity - order + 1)
+  ;set pop (D / 2) / 3 ^ (order  - 1) ;2 ^ (orderOfComplexity / order)
+  ;set voroinized []
+;  set echelle (orderOfComplexity - order + 1)
+;  set acces 1
+;  set park_and_ride? 1
+;  set capacity 6
+;  set reseau 1
+  if (kFRACTAL = 0)  [set radial 1]
+  if (kFRACTAL = 1)  [set radial 1]
+  if (kFRACTAL = 2)  [set rocade 1]
+  if (kFRACTAL = 3)  [set radial 1]  
+  ]
+  set i i + 1
+]
+  set j j + 1
+]
+
+
+ask nodes [
+ fd (1 - randomness% / 100) * distFRACTAL + randomness% / 100 * (random-float distFRACTAL)
+ ;fd dist
+ set distFRACTAL 0
+ set size 0
+;   set east xcor * 1000
+;  set north ycor * 1000
+]
+
+
+set kFRACTAL kFRACTAL + 1
+]
+
+end
+
+
+
+to father_linkage
+
+let temp 0
+let tempN 0
+ask nodes with [radial = 1] [
+  set temp father
+  set tempN self
+;  create-links-with nodes with [node-id = temp] [
+;    set thickness 0;(radial% / 100) * (orderOfComplexity - ([order] of tempN) + 1)
+;    set typeLink 1
+;    set scale_l ([echelle] of tempN)
+;    set speed_empty_l ([echelle] of tempN)
+;    set capacity_l 6
+;  ]
+   create-links-to nodes with [node-id = temp] [
+    set thickness 0;(radial% / 100) * (orderOfComplexity - ([order] of tempN) + 1)
+    set typeLink 0
+    set scale_l ([order] of tempN)
+    set speed_empty_l 20;([order] of tempN)
+    set capacity_l 1000
+  ]
+   create-links-from nodes with [node-id = temp] [
+    set thickness 0;(radial% / 100) * (orderOfComplexity - ([order] of tempN) + 1)
+    set typeLink 0
+    set scale_l ([order] of tempN)
+    set speed_empty_l 20;([] of tempN)
+    set capacity_l 1000
+  ]
+]
+
+end
+
+to brothers_linkage
+
+set kFRACTAL 2
+let temp 0
+let tempN 0
+while [kFRACTAL <= orderOfComplexity] [
+
+  ask nodes with [order = kFRACTAL and rocade = 1] [
+    set temp node-id
+    set tempN self
+    ;create-links-with nodes with [order = k and (node-id - temp = (numberOfDirections + 1) ^ (k - 1) or node-id - temp = (numberOfDirections - 1) * (numberOfDirections + 1) ^ (k - 1))] [
+;      set thickness 0;(1 - radial% / 100) *  (orderOfComplexity - ([order] of tempN) + 1)
+;          set typeLink 1
+;    set scale_l ([echelle] of tempN)
+;    set speed_empty_l ([echelle] of tempN)
+;    set capacity_l 6
+;    ]
+     create-links-to nodes with [order = kFRACTAL and (node-id - temp = (numberOfDirections + 1) ^ (kFRACTAL - 1) or node-id - temp = (numberOfDirections - 1) * (numberOfDirections + 1) ^ (kFRACTAL - 1))] [
+      set thickness 0;(1 - radial% / 100) *  (orderOfComplexity - ([order] of tempN) + 1)
+          set typeLink 0
+    set scale_l ([order] of tempN)
+    set speed_empty_l 20;([echelle] of tempN)
+    set capacity_l 1000
+    ]
+    create-links-from nodes with [order = kFRACTAL and (node-id - temp = (numberOfDirections + 1) ^ (kFRACTAL - 1) or node-id - temp = (numberOfDirections - 1) * (numberOfDirections + 1) ^ (kFRACTAL - 1))] [
+      set thickness 0;(1 - radial% / 100) *  (orderOfComplexity - ([order] of tempN) + 1)
+          set typeLink 0
+    set scale_l ([order] of tempN)
+    set speed_empty_l 20;([echelle] of tempN)
+    set capacity_l 1000
+    ]
+    
+  ]
+
+  
+
+set kFRACTAL kFRACTAL + 1
+]
+
+
+end
+
+to createFractal
+
+reset_network
+trame_network
+father_linkage
+brothers_linkage
+
+end
+
+
+; -----------------------------------------------------------------------------------
+; fin construction du r�seau fractal
+; -----------------------------------------------------------------------------------

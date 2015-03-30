@@ -1,16 +1,45 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; © F Le Nechet 2015
+;; © F Le Nechet, J Raimbault 2015
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-breed [maires maire]
-breed [regions region]
-breed [actifs actif]
-breed [emplois emploi]
-breed [chemins chemin]
-breed [nodes node]
 
+__includes [
+  
+  ;; setup
+  "setup.nls" 
+  
+  ;; main
+  "main.nls"
+  
+  ;; transport
+  "transport.nls"
+  
+  ;;governement
+  "governement.nls"
+  
+  ;; land-use
+  "land-use.nls"
+  
+  
+  ;;;;;;;;;;;;
+  ;; Utils
+  ;;;;;;;;;;;;
+  
+  ;; local utils
+  
+  ;; network
+  "networkUtils.nls"
+  
+  ;; list
+  "listUtils.nls"
+  
+  ;;external
+  ; note : will not work in general - should put submodule locally
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LogUtilities.nls"
+  
+]
 
 globals [
 ;parametrePolycentrisme
@@ -69,299 +98,36 @@ listcoutDistance ; par csp et par mode; typiquement prix du p�trole, abonnemen
 
 resultatCout
 resultatDist
-]
-to _initGlobals
-useParameters
-; on remplit d'abord les valeurs des variables globales
-
-set Ncsp 4
-
-set Nmodes 1
-
-; liste valable pour 3 CSP et 2 modes (pour transport land use ca sera bien)
-;set listNbrConnecteurs (list (1) (1)); par mode
-;set listSpeed (list (1) (1.5)); par mode
-;set listNactifs (list (200) (600) (200)) ; par CSP
-;set listCarOwnership (list (1) (1) (1)) ; par CSP
-;set listSalaires (list (1) (1) (1)) ; par CSP
-;set listcoeffAccessibiliteFormeUrbaineActifs (list (0.2) (0.5) (0.7)) ; par CSP
-;set listcoeffAccessibiliteFormeUrbaineEmplois (list (0.7) (0.5) (0.2)) ; par CSP
-;set listcoeffUtilitesActifs (list (100) (80) (40)) ; par CSP
-;set listcoeffUtilitesEmplois (list (20) (80) (100)) ; par CSP
-;;set listcoeffUtilitesActifs (list (50) (50) (50)) ; par CSP
-;;set listcoeffUtilitesEmplois (list (50) (50) (50)) ; par CSP
-;set matActifsActifs (list ((list (1)(0)(0)))((list (-1)(1)(-1)))((list (-2)(-2)(0.5))))
-;set matActifsEmplois (list ((list (1)(0)(0)))((list (0)(1)(0)))((list (0)(0)(0.5))))
-;set matEmploisActifs (list ((list (1)(-1)(-1)))((list (1)(1)(1)))((list (0)(0)(1))))
-;set matEmploisEmplois  (list ((list (1)(-1)(-1)))((list (-1)(1)(0)))((list (-2)(0)(1))))
 
 
-;set listvaleursTemps ; par csp
-;set listcoutDistance ; par csp et par mode; typiquement prix du p�trole, abonnement de carte orange...
+  ;; utils vars
+  ;log-level  ;; -> added as chooser in interface
 
-
-; liste valable pour 4 CSP et un mode (pour test th�orique de C4)
-set listNbrConnecteurs (list (4)); par mode
-set listSpeed (list (1)); par mode
-set listNactifs (list (100000) (100000) (100000) (100000)) ; par CSP
-set listCarOwnership (list (1) (1) (1) (1)) ; par CSP
-set listSalaires (list (1) (1) (1) (1)) ; par CSP
-set listcoeffAccessibiliteFormeUrbaineActifs (list (0.5) (0.5) (0.5) (0.5)) ; par CSP
-set listcoeffAccessibiliteFormeUrbaineEmplois (list (0.5) (0.5) (0.5) (0.5)) ; par CSP
-set listcoeffUtilitesActifs (list (100) (100) (100) (100)) ; par CSP
-set listcoeffUtilitesEmplois (list (100) (100) (100) (100)) ; par CSP
-;set listcoeffUtilitesActifs (list (50) (50) (50)) ; par CSP
-;set listcoeffUtilitesEmplois (list (50) (50) (50)) ; par CSP
-set matActifsActifs (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
-set matActifsEmplois (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
-set matEmploisActifs (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
-set matEmploisEmplois  (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(1)(1)))
-
-
-set listvaleursTemps (list (1) (1) (1) (1)); par csp
-;set listcoutDistance (list (list (1) (1) (1) (1))); par csp et par mode; typiquement prix du p�trole, abonnement de carte orange...
-
-
-;(list ((list (0)(0)(0)))((list (0)(0)(0)))((list (0)(0)(0))));
-;(list ((list (1)(0)(0)))((list (0)(1)(0)))((list (0)(0)(1))))
-set listPatchesRegion []
-set coeffChoixModal 1
-let i min-pxcor
-let j 0
-while [i <= max-pxcor] [
-  set j min-pycor
-  while [j <= max-pycor] [
-    set listPatchesRegion lput (patch i j) listPatchesRegion
-    set j j + 1
-  ]
-  set i i + 1
-]
-
-; d�but "param�tres du r�seau fractal"
-set orderOfComplexity 2 ; >= 2
-set fractalFactor 3
-set numberOfDirections 4
-set randomness% 0
-set radial% 50
-set randomness? true
-set additivity? true
-set int? false
-set ext? true
-; fin "param�tres du r�seau fractal"
-
-set Nmaires 2;numberOfDirections;2
-
-;d�but "utile pour la distribution de population initiale"
-; adapt� pour 3 CSP
-;set listActBussA [[100 0 0] [0 100 0] [0 0 100] [100 100 100]]
-;set listActBussb [[0.5 0.5 0.5] [0.5 0.5 0.5] [0.5 0.5 0.5] [0.5 0.5 0.5]]
-;set listEmpBussA [[0 100 0] [0 0 100] [100 0 0] [100 100 100]]
-;set listEmpBussb [[1 1 1] [1 1 1] [1 1 1] [1 1 1]]
-
-
-; adapt� pour 4 CSP
-;set listActBussA [[100 0 0 0] [0 100 0 0] [0 0 100 0][0 0 0 100]]
-;set listActBussb [[0.5 0.5 0.5 0.5] [0.5 0.5 0.5 0.5] [0.5 0.5 0.5 0.5][0.5 0.5 0.5 0.5]]
-;set listEmpBussA [[0 100 0 0] [0 0 100 0] [0 0 0 100][100 0 0 0]]
-;set listEmpBussb [[1 1 1 1][1 1 1 1] [1 1 1 1][1 1 1 1]]
-
-
-
-;fin "utile pour la distribution de population initiale"
-
-
-end
-
-to useParameters
-
-
-;set parametreDispersion 0.5
-;set parametrePolycentrisme 1
-;set parametreRatDispersion 3
-;set parAct 1111
-;set parEmp 1234
-;set parametreCoutDistance 1
-
-
-
-let list1 [[1 1 1 1][1 1 1 1][1 1 1 1][1 1 1 1]]
-set listcoutDistance (list (list (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance))); par csp et par mode; typiquement prix du p�trole, abonnement de carte orange...
-;show listcoutDistance
-let t (1 / parametreDispersion)
-let p1 100
-let p2 (100 / (2 ^ parametrePolycentrisme))
-let p3 (100 / (3 ^ parametrePolycentrisme))
-let p4 (100 / (4 ^ parametrePolycentrisme))
-;let tempList1 []
-;set tempList1 lput p1 tempList1
-;set tempList1 lput p2 tempList1
-;set tempList1 lput p3 tempList1
-;set tempList1 lput p4 tempList1
-;
-;;let tempList1 [p1 p2 p3 p4]
-;let tempList2 lput first tempList1 tempList1
-;set tempList2 but-first tempList2
-;let tempList3 lput first tempList2 tempList2
-;set tempList3 but-first tempList3
-;let tempList4 lput first tempList3 tempList3
-;set tempList4 but-first tempList4
-;show tempList1
-;show tempList2
-;show tempList3
-;show tempList4
-
-;set listActBussA []
-set listActBussb multiplyListList list1 (parametreRatDispersion * t)
-;show listActBussb
-set listEmpBussb  multiplyListList list1 t
-set listActBussA []
-set listEmpBussA []
-
-; parAct peut prendre 3 valeurs:
-;0 -> les 4 CSP ont la m�me distribution 1234 (par maire)
-;1 -> permutations circulaires : 1234 - 2341 - 3412 - 4123
-;2 - > autre permutation: 1234 - 3412 - 4321 - 2143
-;
-
-; parEmp peut prendre 3 valeurs:
-;0 -> les 4 CSP ont la m�me distribution 1234 (par maire)
-;1 -> permutations circulaires : 1234 - 2341 - 3412 - 4123
-;2 - > autre permutation: 1234 - 3412 - 4321 - 2143
-;
-
-; si en th�orie le polycentrisme peut etre diff�rent par CSP et par type (act / emp), on n'a pour l'instant qu'un indicateur pour tous: parametrePolycentrisme
-if parAct = 1 [
-  set listActBussA lput (list(p1)(p1)(p1)(p1)) listActBussA
-  set listActBussA lput (list(p2)(p2)(p2)(p2)) listActBussA
-  set listActBussA lput (list(p3)(p3)(p3)(p3)) listActBussA
-  set listActBussA lput (list(p4)(p4)(p4)(p4)) listActBussA
-]
-if parAct = 2 [
-  set listActBussA lput (list(p1)(p2)(p3)(p4)) listActBussA
-  set listActBussA lput (list(p2)(p3)(p4)(p1)) listActBussA
-  set listActBussA lput (list(p3)(p4)(p1)(p2)) listActBussA
-  set listActBussA lput (list(p4)(p1)(p2)(p3)) listActBussA
-]
-if parAct = 3 [
-  set listActBussA lput (list(p1)(p3)(p4)(p2)) listActBussA
-  set listActBussA lput (list(p2)(p4)(p3)(p1)) listActBussA
-  set listActBussA lput (list(p3)(p1)(p2)(p4)) listActBussA
-  set listActBussA lput (list(p4)(p2)(p1)(p3)) listActBussA
-]
-if parEmp = 1 [
-  set listEmpBussA lput (list(p1)(p1)(p1)(p1)) listEmpBussA
-  set listEmpBussA lput (list(p2)(p2)(p2)(p2)) listEmpBussA
-  set listEmpBussA lput (list(p3)(p3)(p3)(p3)) listEmpBussA
-  set listEmpBussA lput (list(p4)(p4)(p4)(p4)) listEmpBussA
-]
-if parEmp = 2 [
-  set listEmpBussA lput (list(p1)(p2)(p3)(p4)) listEmpBussA
-  set listEmpBussA lput (list(p2)(p3)(p4)(p1)) listEmpBussA
-  set listEmpBussA lput (list(p3)(p4)(p1)(p2)) listEmpBussA
-  set listEmpBussA lput (list(p4)(p1)(p2)(p3)) listEmpBussA
-]
-if parEmp = 3 [
-  set listEmpBussA lput (list(p1)(p3)(p4)(p2)) listEmpBussA
-  set listEmpBussA lput (list(p2)(p4)(p3)(p1)) listEmpBussA
-  set listEmpBussA lput (list(p3)(p1)(p2)(p4)) listEmpBussA
-  set listEmpBussA lput (list(p4)(p2)(p1)(p3)) listEmpBussA
 ]
 
 
 
-;let intMille int (parAct / 1000)
-;let intCent int (parAct / 100 - 10 * intMille)
-;let intDix int (parAct / 10 - 100 * intMille - 10 * intCent)
-;let intUn int (parAct - 1000 * intMille - 100 * intCent - 10 * intDix)
-;
-;if intMille = 1 [set listActBussA lput tempList1 listActBussA]
-;if intMille = 2 [set listActBussA lput tempList2 listActBussA]
-;if intMille = 3 [set listActBussA lput tempList3 listActBussA]
-;if intMille = 4 [set listActBussA lput tempList4 listActBussA]
-;
-;if intCent = 1 [set listActBussA lput tempList1 listActBussA]
-;if intCent = 2 [set listActBussA lput tempList2 listActBussA]
-;if intCent = 3 [set listActBussA lput tempList3 listActBussA]
-;if intCent = 4 [set listActBussA lput tempList4 listActBussA]
-;
-;if intDix = 1 [set listActBussA lput tempList1 listActBussA]
-;if intDix = 2 [set listActBussA lput tempList2 listActBussA]
-;if intDix = 3 [set listActBussA lput tempList3 listActBussA]
-;if intDix = 4 [set listActBussA lput tempList4 listActBussA]
-;
-;if intUn = 1 [set listActBussA lput tempList1 listActBussA]
-;if intUn = 2 [set listActBussA lput tempList2 listActBussA]
-;if intUn = 3 [set listActBussA lput tempList3 listActBussA]
-;if intUn = 4 [set listActBussA lput tempList4 listActBussA]
-
-;
-;
-;set intMille int (parEmp / 1000)
-;set intCent int (parEmp / 100 - 10 * intMille)
-;set intDix int (parEmp / 10 - 100 * intMille - 10 * intCent)
-;set intUn int (parEmp - 1000 * intMille - 100 * intCent - 10 * intDix)
-;
-;if intMille = 1 [set listEmpBussA lput tempList1 listEmpBussA]
-;if intMille = 2 [set listEmpBussA lput tempList2 listEmpBussA]
-;if intMille = 3 [set listEmpBussA lput tempList3 listEmpBussA]
-;if intMille = 4 [set listEmpBussA lput tempList4 listEmpBussA]
-;
-;if intCent = 1 [set listEmpBussA lput tempList1 listEmpBussA]
-;if intCent = 2 [set listEmpBussA lput tempList2 listEmpBussA]
-;if intCent = 3 [set listEmpBussA lput tempList3 listEmpBussA]
-;if intCent = 4 [set listEmpBussA lput tempList4 listEmpBussA]
-;
-;if intDix = 1 [set listEmpBussA lput tempList1 listEmpBussA]
-;if intDix = 2 [set listEmpBussA lput tempList2 listEmpBussA]
-;if intDix = 3 [set listEmpBussA lput tempList3 listEmpBussA]
-;if intDix = 4 [set listEmpBussA lput tempList4 listEmpBussA]
-;
-;if intUn = 1 [set listEmpBussA lput tempList1 listEmpBussA]
-;if intUn = 2 [set listEmpBussA lput tempList2 listEmpBussA]
-;if intUn = 3 [set listEmpBussA lput tempList3 listEmpBussA]
-;if intUn = 4 [set listEmpBussA lput tempList4 listEmpBussA]
-;
-;
+breed [maires maire]
+breed [regions region]
+breed [actifs actif]
+breed [emplois emploi]
+breed [chemins chemin]
+breed [nodes node]
 
 
-end
 
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
 patches-own [
-mairePatch
-listAutiliteM
-listAutiliteR
-listEutiliteM
-listEutiliteR
-listAnbrR
-listAnbrM
-listEnbr
-dist-to-patch
-listCoutTransport
-;listCoutTransportTemp
+  mairePatch
+  listAutiliteM
+  listAutiliteR
+  listEutiliteM
+  listEutiliteR
+  listAnbrR
+  listAnbrM
+  listEnbr
+  dist-to-patch
+  listCoutTransport
+  ;listCoutTransportTemp
 listDistTransportEffectif
 listCoutTransportEffectif
 listDistOiseauTransportEffectif
@@ -384,6 +150,8 @@ listDensiteActifs
 has-node?
 has-maire?
 ]
+
+
 
 maires-own [
 centreMaire
@@ -453,222 +221,6 @@ links-own [
 
 
 
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-;--------------------------------------------------------------------------------
-
-to initMaires
-let i 0
-let j 0
-repeat Nmaires [
-create-maires 1 [
-  setxy (min-pxcor + random (world-width)) (min-pycor + random (world-height))
-  ;setxy (3 * who + 1) 0
-  ;setxy 0 0
-  ;set xcor max-pxcor / 2
-  ;set ycor max-pycor / 2
-  set heading -15 + 60 + 360 / numberOfDirections * j
-  fd (1 - randomness% / 100) * DFRACTAL + randomness% / 100 * (random-float DFRACTAL)
-  set centreMaire patch-here
-  
-  ;; MODIFIED - JR
-  ask patch-here [set has-maire? 1]
-  
-  
-  
-  set color who * 10 + 5
-  set shape "house"
-  set listA-AbussiereInit []
-  set listA-bbussiereInit []
-  set listE-AbussiereInit []
-  set listE-bbussiereInit []
-  set i 0
-  while [i < Ncsp] [
-    set listA-AbussiereInit lput item i item j listActBussA listA-AbussiereInit
-    set listA-bbussiereInit lput item i item j listActBussb listA-bbussiereInit
-    set listE-AbussiereInit lput item i item j listEmpBussA listE-AbussiereInit
-    set listE-bbussiereInit lput item i item j listEmpBussb listE-bbussiereInit
-    set i i + 1
-  ]
-]
-set j j + 1
-;show j
-]
-; les maires ont un pouvoir s'�tendant sur les polygones de Thiessen de leur distribution (au moins pour l'instant)
-let listMaires []
-ask patches [
-  set mairePatch min-one-of maires [distance myself]
-  set listAnbrR []
-  set listEnbr []
-]
-ask maires [
-set listPatchesMaire []
-ask patches with [mairePatch = myself] [
-  
-  ;; MODIFIED - JR
-   ask myself [set listPatchesMaire lput myself listPatchesMaire]
-]
-]
-ask maires [
-  set listMaires lput self listMaires
-]
-; on cr�e d�sormais les loyers et les actifs / emplois selon un bussi�re exog�ne
-set j 0
-ask patches [
- ;set listAnbrR lput (item i [listA-AbussiereInit] of mairePatch * exp(- item i [listA-bbussiereInit] of mairePatch * distance mairePatch)) listAnbrR
- set i 0
- let tempA 0
- let tempE 0
- while [i < Ncsp] [
-     set j 0
-     set tempA 0
-     set tempE 0
-     while [j < length listMaires] [
-       set tempA tempA + (item i [listA-AbussiereInit] of item j listMaires * exp(- item i [listA-bbussiereInit] of item j listMaires * distance item j listMaires) / (2 * pi * 1));distance item j listMaires))
-       set tempE tempE + (item i [listE-AbussiereInit] of item j listMaires * exp(- item i [listE-bbussiereInit] of item j listMaires * distance item j listMaires) / (2 * pi * 1));distance item j listMaires))
-       
-     set j j + 1
-   ]
-   set listAnbrR lput tempA listAnbrR
-   set listEnbr lput tempE listEnbr
-    ;set listAnbrR lput random 100 listAnbrR
-   set i i + 1
- ]
-]
-
-
-
-
-
-
-;cette ligne sert � la visualisation, elle peut �tre supprim�e
-ask patches [set pcolor ([color] of mairePatch - 3)]
-;ask patches [set pcolor (item 0 listAnbrR)]
-
-
-
-end
-
-to initPatches
-
-
-let i 0
-ask patches [
-;  sprout-nodes 1 [
-;    set hidden? true
-;    set patchNode myself
-;    set typeNode -1
-;  ]
-;  set i 0
-;  while [i < Ncsp] [
-  set listAutiliteM []
-  set listAutiliteR []
-  set listEutiliteM []
-  set listEutiliteR []
-
-  set listAnbrM []
-  ;set listEnbr []
-
-  
-
-;    set i i + 1
-;  ]
-
-]
-
-ask patches [
-  set i 0
-  while [i < Ncsp] [
-    ;ifelse (distance (mairePatch) = 0) [
-;    ifelse (has-maire? = 1) [
-;      set listEnbr lput (sum [item i listAnbrR] of patches with [mairePatch = [mairePatch] of myself]) listEnbr
-;    ][
-;      set listEnbr lput (0) listEnbr
-;    ]
-   ; set listEnbr lput  ((sum [item i listAnbrR] of patches with [mairePatch = [mairePatch] of myself]) / count patches with  [mairePatch = [mairePatch] of myself]) listEnbr
-    ;set listEnbr lput random 100 listEnbr
-    
-    set listAnbrM lput (0) listAnbrM
-    set listAutiliteM lput (1) listAutiliteM
-    set listAutiliteR lput (1) listAutiliteR
-    set listEutiliteM lput (1) listEutiliteM
-    set listEutiliteR lput (1) listEutiliteR
-        set i i + 1
-  ]
-
-]
-
-;; ces lignes sont destin�es � faire se correspondre les distributions de bussi�re g�n�r�es et les populations actifs, fix�es de fa�on exog�ne
-let tempA 0
-let tempE 0
-let c 0
-while [c < nCSP] [
-   set tempA sum [item c listAnbrR + item c listAnbrM] of patches
-   set tempE sum [item c listEnbr] of patches
-   ask patches [
-     set listAnbrR replace-item c listAnbrR ((item c listAnbrR) * (item c listNactifs / tempA))
-     set listAnbrM replace-item c listAnbrM ((item c listAnbrM) * (item c listNactifs / tempA))
-     
-     set listEnbr replace-item c listEnbr ((item c listEnbr) * (item c listNactifs / tempE))
-
-     
-   ]
-   set c c + 1
-]
-
-end
-
-to updateMaires
-ask maires [
-  set size sqrt ( sum [sum listEnbr] of patches with [mairePatch = myself]) / 500
-  set budget ( sum [sum listEnbr] of patches with [mairePatch = myself]) ; a affiner une fois que la ville, y'a des gens dedans!
-  ;;show budget
-]
-end
-
-to initRegion
-; il s'agit ici de cr�er la r�gion initiale
-
-_initGlobals
-
-;createFractal
-
-initMaires
-initPatches
-updateMaires
-updateLinksSpeed
-updateListCoutTransportsPatches "region" false
-initAccessibilite
-
-
-
-
-;updateListCoutTransportsPatches "region" false
-;updateDeplacementsDomicileTravail
-;updateAccessibilitePatches "region"
-
-end
 
 
 
@@ -677,12 +229,11 @@ to updateListConnecteursPatches [patch1]
 
 let m 0
 
-;;;;;;;;;;show "je commence mes connecteurs"
-;;;;;;;;;;show "nombre de modes"
-;;;;;;;;;;show nModes
-ask patch1 [
-set listNoeuds [[]]
-]
+  ;; log-debug "je commence mes connecteurs" log-debug word "nombre de modes" nModes ;; DEBUG
+  
+  ask patch1 [
+    set listNoeuds [[]]
+  ]
 
 while [m < nModes][
 ask patch1 [
@@ -705,15 +256,14 @@ if count nodes with [typeNode = m] < nbrC [
   set nbrC count nodes with [typeNode = m]
 ]
 let nodes1 min-n-of nbrC nodes with [typeNode = m] [distance patch1] 
+
 let listTemp []
 ask nodes1 [
-
-
   set listTemp lput self listTemp
 ]
 
-
-set [listNoeuds] of patch1 replace-item m [listNoeuds] of patch1 listTemp
+ask patch1 [set listNoeuds replace-item m listNoeuds listTemp]
+;NL4 - set [listNoeuds] of patch1 replace-item m [listNoeuds] of patch1 listTemp
 
 ]
 
@@ -729,372 +279,12 @@ set [listNoeuds] of patch1 replace-item m [listNoeuds] of patch1 listTemp
 end
 
 
-to updateDeplacementsDomicileTravail
-distributionGravitaire
-repeat 2 [
-let c 0
-  while [c < Ncsp] [
-    furnessActifs c
-    furnessEmplois c
-    set c c + 1
-  ]
-]
-let j 1
-choixModal
-
-while [j < 4] [
-affectation j
-updateLinksSpeed
-updateListCoutTransportsPatches false false
-set j j + 1
-]
-
-
-end
-
-
-
-
-to distributionGravitaire
-let i 0
-while [i < length listPatchesRegion] [
-  ask item i listPatchesRegion [
-    ;set listNavettesPatches [[]]
-    set listNavettesPatches []
-  let c 0
-  while [c < Ncsp] [
-    set listNavettesPatches lput [] listNavettesPatches
-    set c c + 1
-  ]
-  ]
-  set i i + 1
-]
-
-
-set i 0
-while [i < length listPatchesRegion] [
-
-
-  let j 0
-  let m 0
-  while [j < length listPatchesRegion] [
-    let k 0
-    let temp 0
-    ask item i listPatchesRegion [
-
-
-    while [k < Ncsp] [
-      let minCout 100000
-      set m 0
-      while [m < Nmodes] [
-      ;;;;;;;;;show "mode"
-      ;;;;;;;;;show m
-      ;;;;;;;;;show item m listCoutTransport
-      ;;;;;;;;;show item j item m listCoutTransport
-      ;MODIFENCOURSlet tempD coutDistance(item j item m listCoutTransport)
-      let tempD coutDistance(item j item k item m listCoutTransport)
-      if tempD < minCout [
-        set minCout tempD
-      ]
-      
-        set m m + 1
-      ]
-    
-    
-      set temp temp + (item k listAnbrR + item k listAnbrM) * (item k [listEnbr] of item j listPatchesRegion) * minCout
-        set listNavettesPatches replace-item k listNavettesPatches lput temp item k listNavettesPatches
-        ;;;;;show "listNavettesPatches"
-        ;;;;;show listNavettesPatches
-      set k k + 1
-    ]
-;      set m m + 1
-    
-  
-    
-    
-    ]
-    set j j + 1
-  ]
-  set i i + 1
-]
-end
-
-
-
-
-to furnessActifs [csp]
-; d'abord on va ajuster sur les "actifs" de csp
-
-let i 0
-
-while [i < length listPatchesRegion] [
-  ask item i listPatchesRegion [
-    let fact 0
-    if sum item csp listNavettesPatches > 0 [
-      set fact (item csp listAnbrR + item csp listAnbrM) / sum item csp listNavettesPatches
-    ]
-    set listNavettesPatches replace-item csp listNavettesPatches (multiplyList item csp listNavettesPatches fact)
-  ]
-  set i i + 1
-]
-
-end
-
-to furnessEmplois  [csp]
-let j 0
-
-while [j < length listPatchesRegion] [
-  let temp 0
-  let i 0
-  
-  while [i < length listPatchesRegion] [
-    ask item i listPatchesRegion [
-      ;set temp temp +  item j listNavettesPatches
-      set temp temp +  item j item csp listNavettesPatches
-    ]
-    ;set temp temp + item j [listNavettesPatches] of item i listPatchesRegion
-    set i i + 1
-  ]
-  
-  
-  if temp > 0 [
-  set i 0
-  ;let k sum [listEnbr] of item j listPatchesRegion / temp
-  let k item csp [listEnbr] of item j listPatchesRegion / temp
-  while [i < length listPatchesRegion] [
-    ask item i listPatchesRegion [
-      ;set listNavettesPatches replace-item j listNavettesPatches (k * item j listNavettesPatches)
-      let listCSP item csp  listNavettesPatches
-      set listCSP replace-item j listCSP (k * item j listCSP)
-      
-      set listNavettesPatches replace-item csp listNavettesPatches listCSP
-      
-      
-    ]
-    set i i + 1
-  ]
-  ]
-  
-  
-  
-  set j j + 1
-]
-
-end
-
-to choixModal
-let i 0
-;while [i < length listPatchesRegion] [
-;ask item i listPatchesRegion [
-;;  set listNavettesModes [[[]]]
-;;  set listModesShare [[[]]]
-;   set listNavettesModes []
-;   set listModesShare []
-;  
-;
-;  let m 0
-;    while [m < Nmodes] [
-;      set listNavettesModes lput [] listNavettesModes
-;      set listModesShare lput [] listModesShare
-;      let c 0
-;      while [c < Ncsp] [
-;        set listNavettesModes replace-item m listNavettesModes lput [] item m listNavettesModes
-;        set listModesShare replace-item m listModesShare lput [] item m listModesShare
-;
-;       ; set listNavettesModes replace-item m listNavettesModes lput [] listNavettesModes
-;        ;set listModesShare replace-item m listModesShare lput [] listModesShare
-;        ;;;;;show listModesShare
-;        
-;        set c c + 1
-;      ]
-;      set m m + 1
-;    ]
-;]
-;set i i + 1
-;]
-;set i 0
-while [i < length listPatchesRegion] [
-  let j 0
-  
-  
-  while [j < length listPatchesRegion] [
-    let temp 0
-    let temp1 0
-    ask item i listPatchesRegion [
-    let m 0
-    while [m < Nmodes] [
-          let c 0
-      while [c < Ncsp] [
-      ;MODIFENCOURSset temp temp + exp(- coeffChoixModal * item j item m listCoutTransport)
-      set temp temp + exp(- coeffChoixModal * item j item c item m listCoutTransport)
-        set c c + 1
-      ]
-      set m m + 1
-    ]
-    set m 0
-    while [m < Nmodes] [
-      let c 0
-      while [c < Ncsp] [
-
-      ;MODIFENCOURSset temp1 exp(- coeffChoixModal * [item j item m listCoutTransport] of item i listPatchesRegion)
-      set temp1 exp(- coeffChoixModal * [item j item c item m listCoutTransport] of item i listPatchesRegion)
-      let tempShare (item c listCarOwnership * (temp1 / temp))
-      if m = 0 [set tempShare (tempShare  + (1 - item c listCarOwnership)) ]
-      
-      
-      
-      let tempShareL item m listModesShare
-      ;set tempShareL lput tempShare tempShareL
-      set tempShareL replace-item c tempShareL lput tempShare item c tempShareL
-      
-      
-      ; set listModesShare replace-item m listModesShare lput (item c carownership * (temp1 / temp)) item m listModesShare
-
-           set listModesShare replace-item m listModesShare tempShareL
-      
-      ;;;;;show listModesShare
-      let tempNavettes item c listNavettesPatches
-;      ;;;;;show "tempNavettes"
-;      ;;;;;show tempNavettes
-;      ;;;;;show "listNavettesPatches"
-;      ;;;;;show listNavettesPatches
-      ;set tempNavettes lput ((item c listNavettesPatches) * (tempShare)) tempNavettes
-      
-      set tempNavettes multiplyList tempNavettes (tempShare)
-       let temp3 item m listNavettesModes
-       set temp3 replace-item c temp3 tempNavettes 
-     
-     ;  set listNavettesModes replace-item m listNavettesModes lput ((item j listNavettesPatches) * item m listModesShare) item m listNavettesModes
-     
-     
-     set listNavettesModes replace-item m listNavettesModes temp3
-     
-      ;;;;;;;show listNavettesModes
-        
-        set c c + 1
-      ]
-      set m m + 1
-    ]    
-    
-    ]
-    
-    set j j + 1
-  ]
-  set i i + 1
-]
 
 
 
 
 
 
-end
-
-
-to affectation [nIter]
-ask links [
-
-set utilisation_temp utilisation_l * (nIter - 1) * (1 - 1 /(nIter))
-set utilisation_l 0
-]
-let k 0
-while [k < length listPatchesRegion]
-[
-ask item k listPatchesRegion [
-let i 0
-let tempC 0
-let temp 0
-;let tempP self
-while [i < length listPatchesRegion] [
-
-
-  let m 0
-  while [m < nModes] [
-    if item m listChemins != [] [
-      
-;      ;;;;;;;show item m listChemins
-;      ;;;;;;;show item m listNavettesModes
-      set tempC item i item m listChemins
-      let c 0 
-      while [c < nCsp] [
-      
-      set temp item i item c item m listNavettesModes
-     
-     
-      let j 0
-      while [j < length tempC] [
-        if  item j tempC != nobody [
-        ;;;;;;;;show "ca y'est je suis rentr� dans un chemin"
-          ;;;;;;;;show item j tempC
-          set [utilisation_l] of item j tempC ((1 / nIter) * temp) + [utilisation_l] of item j tempC
-          ;;;;;;;;show [utilisation_l] of item j tempC
-        ]
-      ;set [utilisation_temp] of item j tempC ((1 / nIter) * temp) + [utilisation_temp] of item j tempC
-      set j j + 1
-      ]
-    
-        set c c + 1
-      ]
-    
-    ]
-    
-    set m m + 1
-  ]
-  
-    
-  set i i + 1
-]
-
-
-]
-set k k + 1
-]
-
-
-end
-
-
-to-report multiplyList [liste k]
-let i 0
-let kliste []
-while [i < length liste] [
-  set kliste lput (k * item i liste) kliste
-  set i i + 1
-]
-
-report kliste
-
-end
-
-to-report multiplyListList [liste k]
-let i 0
-let kliste []
-let tempListe []
-while [i < length liste] [
-  set kliste lput [] kliste
-  set i i + 1
-]
-let j 0
-
-set i 0
-while [i < length liste] [
-  set j 0
-  while [j < length item i liste] [
-    
-    set tempListe item i kliste
-    set tempListe lput (k * item j item i liste) tempListe
-    set kliste replace-item i kliste tempListe
-    set j j + 1
-  ]
-  set i i + 1
-]
-
-report kliste
-
-end
-to-report coutDistance [d1]
-report exp(- d1)
-end
 
 
 to updateListCoutTransportsPatches [tempmaire temp?]
@@ -1343,7 +533,9 @@ to chercheEmploi [temp-actif]
 ; cela n'importe au hasard, sans consid�ration de distance
 ask temp-actif [
   set emploiActif one-of emplois with [actifEmploi = 0]
-  set [actifEmploi] of emploiActif self
+  
+  ask emploiActif [set actifEmploi myself]
+  ;set [actifEmploi] of emploiActif self
 ]
 
 
@@ -1419,199 +611,12 @@ while [c < ncsp] [
 ]
 
 end
-to updateUtilites
-
-updateDensityActifs
-updateDensityEmplois
-updateutiliteActifs
-updateutiliteEmplois
-end
-
-to land-use
-
-repeat 10 [
-repeat 10 [
-updateUtilites
-mouvementsActifs
-displayActifs
-]
-
-repeat 10 [
-updateUtilites
-mouvementsEmplois
-displayEmplois
-]
-]
-
-
-end
-
-to transport
-
-updateDeplacementsDomicileTravail
-;updateAccessibilitePatches "region"
-
-set resultatCout CoutMoyenTotal
-set resultatDist DistMoyenTotal
-tick
-
-end
-
-to gouvernement
-updateMaires
-updatePlots
-
-  creerInfrastructureR chooseMaire
-
-tick
-; plus tard, � tick correspondra une hausse progressive du car ownership, avec pour effet de rendre rentables les projets routiers, donc il se font, donc ca transforme la m�tropole...
-end
-
-to go
 
 
 
-transport
-land-use
-displayActifs
-tick
-transport
-gouvernement
 
 
 
-end
-
-to updateDensityActifs
-let tempActifs 0
-ask patches [
-let c 0
-set listDensiteActifs []
-while [c < Ncsp] [
-  let j 0
-  set tempActifs 0
-   while [j < length listPatchesRegion] [
-    let m 0
-    while [m < nModes] [
-      let tempShare item j item c item m listModesShare
-      let tempCout coutDistance(item j item c item m listCoutTransport)
-      ;set tempActifs tempActifs + tempShare * (item c [listAnbrR] of item j listPatchesRegion + item c [listAnbrM] of item j listPatchesRegion) * tempCout
-       ifelse item j listPatchesRegion = self
-       [
-        set tempActifs tempActifs +  (item c listAnbrR + item c listAnbrM)
-       ]
-       [
-       set tempActifs tempActifs + (item c [listAnbrR] of item j listPatchesRegion + item c [listAnbrM] of item j listPatchesRegion) / distance item j listPatchesRegion 
-       ]
-       set m m + 1
-    ]
-    set j j + 1
-  ]
-  set listDensiteActifs lput tempActifs listDensiteActifs
-  set c c + 1
-]
-
-]
-
-end
-
-to updateDensityEmplois
-
-let tempEmplois 0
-ask patches [
-let c 0
-set listDensiteEmplois []
-
-while [c < Ncsp] [
-  let j 0
-   set tempEmplois 0
-  while [j < length listPatchesRegion] [
-    let m 0
-    while [m < nModes] [
-      let tempShare item j item c item m listModesShare
-      let tempCout coutDistance(item j item c item m listCoutTransport)
-      ;set tempEmplois tempEmplois + tempShare * (item c [listEnbr] of item j listPatchesRegion) * tempCout
-             ifelse item j listPatchesRegion = self
-       [
-        set tempEmplois tempEmplois +  (item c listEnbr)
-       ]
-       [
-       set tempEmplois tempEmplois + (item c [listEnbr] of item j listPatchesRegion) / distance item j listPatchesRegion 
-       ]
-      
-      
-      set m m + 1
-    ]
-    set j j + 1
-  ]
-  set listDensiteEmplois lput tempEmplois listDensiteEmplois
-  set c c + 1
-]
-
-]
-
-end
-
-
-
-to updateUtiliteActifs
-let tempL []
-let c 0
-while  [c < Ncsp] [
-  set tempL lput 0 tempL
-  set c c + 1
-]
-
-
-ask patches [
-set c 0
-while [c < Ncsp] [
-  set listAutiliteM replace-item c listAutiliteM item c listAutiliteM
-  set listAutiliteR replace-item c listAutiliteR calculerutiliteActifs c
-  set tempL replace-item c tempL (item c tempL + item c listAutiliteR)
-  set c c + 1
-]
-]
-
-ask patches [
-set c 0
-while [c < Ncsp] [
-  ;set listAutiliteM replace-item c listAutiliteM item c listAutiliteM
-  set listAutiliteR replace-item c listAutiliteR (item c listAutiliteR / item c tempL )
-  set c c + 1
-]
-]
-
-end
-
-
-to updateUtiliteEmplois
-let tempL []
-let c 0
-while  [c < Ncsp] [
-  set tempL lput 0 tempL
-  set c c + 1
-]
-ask patches [
-set c 0
-while [c < Ncsp] [
-  set listEutiliteM replace-item c listEutiliteM item c listEutiliteM
-  set listEutiliteR replace-item c listEutiliteR calculerUtiliteEmplois c
-  set tempL replace-item c tempL (item c tempL + item c listEutiliteR)
-  set c c + 1
-]
-]
-
-ask patches [
-set c 0
-while [c < Ncsp] [
-  ;set listEutiliteM replace-item c listEutiliteM item c listEutiliteM
-  set listEutiliteR replace-item c listEutiliteR (item c listEutiliteR / item c tempL )
-  set c c + 1
-]
-]
-
-end
 
 
 
@@ -1998,7 +1003,7 @@ end
 
 to-report evaluerBeneficeInfrastructure [patchA patchB attributsLinks tempmaire typeTransport]
 ; a terme impl�menter hausse accessibilit� et plus tard, impacts environnementaux de TC (dans les couts pour VP?)
-;;;;;;;;;;;;;;;;show "j'�value l'infrastructure"
+  log-debug "Evaluating infrastructure"
 ;;;;;;;;;;;;;;show patchA
 ;;;;;;;;;;;;;;show patchB
 
@@ -2244,6 +1249,7 @@ let coutOiseauA 0
 let coutReseauA 0
 while [i < length [item typeTransport listNoeuds] of patch1] [
 let j 0
+
   ;;;;;;;;;;;;show "je fais dijkstra � partir de"
   ;;;;;;;;;;;;show item i [listNoeuds] of patch1
   dijkstra item i [item typeTransport listNoeuds] of patch1 typeTransport
@@ -2336,74 +1342,6 @@ end
 
 
 
-to dijkstra [startnode typeLinkt]
-
-
-  
-
-
-ask nodes [
-    set assigned? false
-    set final? false
-    set time-to-root 1000000
-    set dist-to-root 1000000
-    set path []
-
-]
-ask startnode [
-    set time-to-root 0
-    set dist-to-root 0
-    set assigned? true
-    set connection nobody
-
-]
-  ;let foundNewLink? true
-  while [any? nodes with [assigned? and not final? ]]
-  ;while [foundNewLink?]
-  [
-    ;set foundNewLink? false
-    ask min-one-of (nodes with [assigned? and not final? ]) [ time-to-root ] [
-    let tempTurtle self
-      set final? true
-      if not (connection = nobody) [
-        ;ask connection [
-          ;set thickness 0.2
-          ;set [color] of myself red;[color] of other-end
-        ;]
-      ]
-      ;set label-color black
-      ;set label precision dist-to-root 1
-      let d1 0
-      let this-d dist-to-root
-      let t1 self
-      ask my-out-links with [typeLink = typeLinkt] [
-       ; set foundNewLink? true
-        ask other-end [
-          set d1 distance t1 / [speed_l] of myself
-          let time-to-root-now time-to-root
-          set time-to-root min list (this-d + d1) time-to-root
-          if (time-to-root = time-to-root-now) [
-            set dist-to-root distance t1
-          ]
-          ;set label precision dist-to-root 1
-          set assigned? true
-          if not (time-to-root = time-to-root-now) [
-            ;set label-color blue + 3
-            set connection myself
-            set path [path] of tempTurtle
-            set path lput connection path
-          ]
-        ]
-      ]
-    ]
-  ]
-  
-  ; ressource:
-  ;http://www.sges.auckland.ac.nz/the_school/our_people/osullivan_david/personal/stuff/dijkstra.html
-  ; pour l'algorithme dijkstra
-
-end
-
 to updateLinksSpeed 
 ask links [
   let temp utilisation_l + utilisation_temp
@@ -2485,6 +1423,8 @@ while [m < nModes] [
 ]
 report result  / 400000
 end
+
+
 to-report DistMoyenTotal
 let result 0
 ask patches [
@@ -2506,206 +1446,6 @@ while [m < nModes] [
 report result  / 400000
 end
 
-
-; -----------------------------------------------------------------------------------
-; d�but construction du r�seau fractal
-; -----------------------------------------------------------------------------------
-
-to reset_network
-
-set DFRACTAL (1 / 2) * ((fractalFactor - 1) / fractalFactor) * max-pxcor / (1 - (1 / fractalFactor) ^ (orderOfComplexity + 1))
-
-create-nodes 1
-  [
-
-  set xcor max-pxcor / 2
-  set ycor max-pycor / 2
-  set color black
-  set shape "circle"
-  set father (- 1)
-  set order 1
-  set node-id 0
-  set heading 0
-  set distFRACTAL 0
-  set size 4;(orderOfComplexity - order + 1)
-  ;set pop (D / 2) / 3 ^ (order - 1);D / 2 ^ (order + orderOfComplexity - 2) ; 2 ^ (orderOfComplexity / order)
-  ;set voroinized []
-  ]
-
-end
-
-to trame_network
-
-set kFRACTAL 2
-
-while [kFRACTAL <= orderOfComplexity]
-
-[
-
-let X []
-let Y []
-let idl []
-if ext? [
-ask nodes with [order = kFRACTAL - 1] [
-  set X lput xcor X
-  set Y lput ycor Y
-  set idl lput node-id idl
-
-]
-]
-if int? [
-ask nodes with [order < kFRACTAL - 1] [
-  set X lput xcor X
-  set Y lput ycor Y
-  set idl lput node-id idl
-
-]
-
-]
-
-let j 0   
-
-while [j < length X] [
-
-let i 1
-;let randomnumberOfDirections floor ((1 - randomness% / 100) * numberOfDirections + randomness% / 100 * (random-float numberOfDirections))
-let randomnumberOfDirections numberOfDirections
-while [i <= randomnumberOfDirections] [
-   
-  create-nodes 1 
-  [
-  set xcor item j X
-  set ycor item j Y
-  set color black
-  set shape "circle"
-  set order kFRACTAL
-  set node-id i * (randomnumberOfDirections + 1) ^ (order - 1) + item j idl
-  set father item j idl
-  set heading -15 + 30 * kFRACTAL + 360 / randomnumberOfDirections * (i - 1) + (randomness% / 100) * (-180 / randomnumberOfDirections + random-float 360 / randomnumberOfDirections)
-  set distFRACTAL DFRACTAL / fractalFactor ^ (order - 2)
-  ;(orderOfComplexity - order + 1)
-  ;set pop (D / 2) / 3 ^ (order  - 1) ;2 ^ (orderOfComplexity / order)
-  ;set voroinized []
-;  set echelle (orderOfComplexity - order + 1)
-;  set acces 1
-;  set park_and_ride? 1
-;  set capacity 6
-;  set reseau 1
-  if (kFRACTAL = 0)  [set radial 1]
-  if (kFRACTAL = 1)  [set radial 1]
-  if (kFRACTAL = 2)  [set rocade 1]
-  if (kFRACTAL = 3)  [set radial 1]  
-  ]
-  set i i + 1
-]
-  set j j + 1
-]
-
-
-ask nodes [
- fd (1 - randomness% / 100) * distFRACTAL + randomness% / 100 * (random-float distFRACTAL)
- ;fd dist
- set distFRACTAL 0
- set size 0
-;   set east xcor * 1000
-;  set north ycor * 1000
-]
-
-
-set kFRACTAL kFRACTAL + 1
-]
-
-end
-
-
-
-to father_linkage
-
-let temp 0
-let tempN 0
-ask nodes with [radial = 1] [
-  set temp father
-  set tempN self
-;  create-links-with nodes with [node-id = temp] [
-;    set thickness 0;(radial% / 100) * (orderOfComplexity - ([order] of tempN) + 1)
-;    set typeLink 1
-;    set scale_l ([echelle] of tempN)
-;    set speed_empty_l ([echelle] of tempN)
-;    set capacity_l 6
-;  ]
-   create-links-to nodes with [node-id = temp] [
-    set thickness 0;(radial% / 100) * (orderOfComplexity - ([order] of tempN) + 1)
-    set typeLink 0
-    set scale_l ([order] of tempN)
-    set speed_empty_l 20;([order] of tempN)
-    set capacity_l 1000
-  ]
-   create-links-from nodes with [node-id = temp] [
-    set thickness 0;(radial% / 100) * (orderOfComplexity - ([order] of tempN) + 1)
-    set typeLink 0
-    set scale_l ([order] of tempN)
-    set speed_empty_l 20;([] of tempN)
-    set capacity_l 1000
-  ]
-]
-
-end
-
-to brothers_linkage
-
-set kFRACTAL 2
-let temp 0
-let tempN 0
-while [kFRACTAL <= orderOfComplexity] [
-
-  ask nodes with [order = kFRACTAL and rocade = 1] [
-    set temp node-id
-    set tempN self
-    ;create-links-with nodes with [order = k and (node-id - temp = (numberOfDirections + 1) ^ (k - 1) or node-id - temp = (numberOfDirections - 1) * (numberOfDirections + 1) ^ (k - 1))] [
-;      set thickness 0;(1 - radial% / 100) *  (orderOfComplexity - ([order] of tempN) + 1)
-;          set typeLink 1
-;    set scale_l ([echelle] of tempN)
-;    set speed_empty_l ([echelle] of tempN)
-;    set capacity_l 6
-;    ]
-     create-links-to nodes with [order = kFRACTAL and (node-id - temp = (numberOfDirections + 1) ^ (kFRACTAL - 1) or node-id - temp = (numberOfDirections - 1) * (numberOfDirections + 1) ^ (kFRACTAL - 1))] [
-      set thickness 0;(1 - radial% / 100) *  (orderOfComplexity - ([order] of tempN) + 1)
-          set typeLink 0
-    set scale_l ([order] of tempN)
-    set speed_empty_l 20;([echelle] of tempN)
-    set capacity_l 1000
-    ]
-    create-links-from nodes with [order = kFRACTAL and (node-id - temp = (numberOfDirections + 1) ^ (kFRACTAL - 1) or node-id - temp = (numberOfDirections - 1) * (numberOfDirections + 1) ^ (kFRACTAL - 1))] [
-      set thickness 0;(1 - radial% / 100) *  (orderOfComplexity - ([order] of tempN) + 1)
-          set typeLink 0
-    set scale_l ([order] of tempN)
-    set speed_empty_l 20;([echelle] of tempN)
-    set capacity_l 1000
-    ]
-    
-  ]
-
-  
-
-set kFRACTAL kFRACTAL + 1
-]
-
-
-end
-
-to createFractal
-
-reset_network
-trame_network
-father_linkage
-brothers_linkage
-
-end
-
-
-; -----------------------------------------------------------------------------------
-; fin construction du r�seau fractal
-; -----------------------------------------------------------------------------------
 @#$#@#$#@
 GRAPHICS-WINDOW
 19
@@ -2735,11 +1475,11 @@ ticks
 30.0
 
 BUTTON
-717
-257
-806
-290
-NIL
+628
+267
+698
+300
+setup
 initRegion
 NIL
 1
@@ -2752,27 +1492,10 @@ NIL
 1
 
 BUTTON
-652
-257
-715
-290
-NIL
-;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-656
-295
-803
-328
+702
+268
+773
+301
 go
 go
 T
@@ -3150,42 +1873,58 @@ parametreCoutDistance
 NIL
 HORIZONTAL
 
+OUTPUT
+1125
+10
+1394
+365
+10
+
+CHOOSER
+1028
+10
+1120
+55
+log-level
+log-level
+"debug" "default"
+0
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-This section could give a general understanding of what the model is trying to show or explain.
+LUTI model coupled with governance-based transportation network growth.
+
 
 ## HOW IT WORKS
 
-This section could explain what rules the agents use to create the overall behavior of the model.
+
+
+## ARCHITECTURE
+
+Sketch of global archi :
+
 
 ## HOW TO USE IT
 
-This section could explain how to use the model, including a description of each of the items in the interface tab.
 
 ## THINGS TO NOTICE
 
-This section could give some ideas of things for the user to notice while running the model.
 
 ## THINGS TO TRY
 
-This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
 
 ## EXTENDING THE MODEL
 
-This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
-
-## NETLOGO FEATURES
-
-This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
 
 ## RELATED MODELS
 
-This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
 
 ## CREDITS AND REFERENCES
 
-This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
+© F Le Nechet, J Raimbault 2015
+Licensed under CC-BY-NC-SA 4.0.
+See licence in model repository.
 @#$#@#$#@
 default
 true

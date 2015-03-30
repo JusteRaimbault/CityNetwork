@@ -1,3 +1,9 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Â© F Le Nechet 2012
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 breed [maires maire]
 breed [regions region]
 breed [actifs actif]
@@ -16,7 +22,7 @@ globals [
 
 Nmaires ; nombre de maires
 
-Ncsp ; nombre de catégories socio-professionnelles
+Ncsp ; nombre de catï¿½gories socio-professionnelles
 listNactifs
 listPatchesRegion
 listNbrConnecteurs
@@ -33,7 +39,7 @@ matActifsActifs
 matActifsEmplois
 matEmploisActifs
 matEmploisEmplois
-; début "utile pour faire le réseau fractal"
+; dï¿½but "utile pour faire le rï¿½seau fractal"
 DFRACTAL
 kFRACTAL
 orderOfComplexity
@@ -45,18 +51,18 @@ randomness?
 additivity?
 int?
 ext?
-;fin "utile pour faire le réseau fractal"
+;fin "utile pour faire le rï¿½seau fractal"
 
-;début "utile pour la distribution de population initiale"
+;dï¿½but "utile pour la distribution de population initiale"
 listActBussA
 listActBussb
 listEmpBussA
 listEmpBussb
 ;fin "utile pour la distribution de population initiale"
 
-; début "utile pour une prise en compte fine des couts de transport"
+; dï¿½but "utile pour une prise en compte fine des couts de transport"
 listvaleursTemps ; par csp
-listcoutDistance ; par csp et par mode; typiquement prix du pétrole, abonnement de carte orange...
+listcoutDistance ; par csp et par mode; typiquement prix du pï¿½trole, abonnement de carte orange...
 
 ; fin "utile pour une prise en compte fine des couts de transport"
 
@@ -91,10 +97,10 @@ set Nmodes 1
 
 
 ;set listvaleursTemps ; par csp
-;set listcoutDistance ; par csp et par mode; typiquement prix du pétrole, abonnement de carte orange...
+;set listcoutDistance ; par csp et par mode; typiquement prix du pï¿½trole, abonnement de carte orange...
 
 
-; liste valable pour 4 CSP et un mode (pour test théorique de C4)
+; liste valable pour 4 CSP et un mode (pour test thï¿½orique de C4)
 set listNbrConnecteurs (list (4)); par mode
 set listSpeed (list (1)); par mode
 set listNactifs (list (100000) (100000) (100000) (100000)) ; par CSP
@@ -113,7 +119,7 @@ set matEmploisEmplois  (list (list (1)(1)(1)(1))(list (1)(1)(1)(1))(list (1)(1)(
 
 
 set listvaleursTemps (list (1) (1) (1) (1)); par csp
-;set listcoutDistance (list (list (1) (1) (1) (1))); par csp et par mode; typiquement prix du pétrole, abonnement de carte orange...
+;set listcoutDistance (list (list (1) (1) (1) (1))); par csp et par mode; typiquement prix du pï¿½trole, abonnement de carte orange...
 
 
 ;(list ((list (0)(0)(0)))((list (0)(0)(0)))((list (0)(0)(0))));
@@ -131,7 +137,7 @@ while [i <= max-pxcor] [
   set i i + 1
 ]
 
-; début "paramètres du réseau fractal"
+; dï¿½but "paramï¿½tres du rï¿½seau fractal"
 set orderOfComplexity 2 ; >= 2
 set fractalFactor 3
 set numberOfDirections 4
@@ -141,19 +147,19 @@ set randomness? true
 set additivity? true
 set int? false
 set ext? true
-; fin "paramètres du réseau fractal"
+; fin "paramï¿½tres du rï¿½seau fractal"
 
 set Nmaires 2;numberOfDirections;2
 
-;début "utile pour la distribution de population initiale"
-; adapté pour 3 CSP
+;dï¿½but "utile pour la distribution de population initiale"
+; adaptï¿½ pour 3 CSP
 ;set listActBussA [[100 0 0] [0 100 0] [0 0 100] [100 100 100]]
 ;set listActBussb [[0.5 0.5 0.5] [0.5 0.5 0.5] [0.5 0.5 0.5] [0.5 0.5 0.5]]
 ;set listEmpBussA [[0 100 0] [0 0 100] [100 0 0] [100 100 100]]
 ;set listEmpBussb [[1 1 1] [1 1 1] [1 1 1] [1 1 1]]
 
 
-; adapté pour 4 CSP
+; adaptï¿½ pour 4 CSP
 ;set listActBussA [[100 0 0 0] [0 100 0 0] [0 0 100 0][0 0 0 100]]
 ;set listActBussb [[0.5 0.5 0.5 0.5] [0.5 0.5 0.5 0.5] [0.5 0.5 0.5 0.5][0.5 0.5 0.5 0.5]]
 ;set listEmpBussA [[0 100 0 0] [0 0 100 0] [0 0 0 100][100 0 0 0]]
@@ -179,7 +185,7 @@ to useParameters
 
 
 let list1 [[1 1 1 1][1 1 1 1][1 1 1 1][1 1 1 1]]
-set listcoutDistance (list (list (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance))); par csp et par mode; typiquement prix du pétrole, abonnement de carte orange...
+set listcoutDistance (list (list (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance))); par csp et par mode; typiquement prix du pï¿½trole, abonnement de carte orange...
 ;show listcoutDistance
 let t (1 / parametreDispersion)
 let p1 100
@@ -212,18 +218,18 @@ set listActBussA []
 set listEmpBussA []
 
 ; parAct peut prendre 3 valeurs:
-;0 -> les 4 CSP ont la même distribution 1234 (par maire)
+;0 -> les 4 CSP ont la mï¿½me distribution 1234 (par maire)
 ;1 -> permutations circulaires : 1234 - 2341 - 3412 - 4123
 ;2 - > autre permutation: 1234 - 3412 - 4321 - 2143
 ;
 
 ; parEmp peut prendre 3 valeurs:
-;0 -> les 4 CSP ont la même distribution 1234 (par maire)
+;0 -> les 4 CSP ont la mï¿½me distribution 1234 (par maire)
 ;1 -> permutations circulaires : 1234 - 2341 - 3412 - 4123
 ;2 - > autre permutation: 1234 - 3412 - 4321 - 2143
 ;
 
-; si en théorie le polycentrisme peut etre différent par CSP et par type (act / emp), on n'a pour l'instant qu'un indicateur pour tous: parametrePolycentrisme
+; si en thï¿½orie le polycentrisme peut etre diffï¿½rent par CSP et par type (act / emp), on n'a pour l'instant qu'un indicateur pour tous: parametrePolycentrisme
 if parAct = 1 [
   set listActBussA lput (list(p1)(p1)(p1)(p1)) listActBussA
   set listActBussA lput (list(p2)(p2)(p2)(p2)) listActBussA
@@ -381,10 +387,10 @@ has-maire?
 
 maires-own [
 centreMaire
-listA-AbussiereInit ; paramètre de Bussière servant à l'initialisation (actifs)
-listA-bbussiereInit ; paramètre de Bussière servant à l'initialisation (emplois)
-listE-AbussiereInit ; paramètre de Bussière servant à l'initialisation (actifs)
-listE-bbussiereInit ; paramètre de Bussière servant à l'initialisation (emplois) 
+listA-AbussiereInit ; paramï¿½tre de Bussiï¿½re servant ï¿½ l'initialisation (actifs)
+listA-bbussiereInit ; paramï¿½tre de Bussiï¿½re servant ï¿½ l'initialisation (emplois)
+listE-AbussiereInit ; paramï¿½tre de Bussiï¿½re servant ï¿½ l'initialisation (actifs)
+listE-bbussiereInit ; paramï¿½tre de Bussiï¿½re servant ï¿½ l'initialisation (emplois) 
 
 listPatchesMaire
 budget
@@ -422,14 +428,14 @@ time-to-root ; pour dijkstra
 path ; pour dijkstra
 connection
 tempNode?
-; début "pour le réseau fractal"
+; dï¿½but "pour le rï¿½seau fractal"
 father
 order
 node-id
 distFRACTAL
 radial
 rocade
-; fin "pour le réseau fractal"
+; fin "pour le rï¿½seau fractal"
 ]
 
 links-own [
@@ -504,7 +510,7 @@ create-maires 1 [
 set j j + 1
 ;show j
 ]
-; les maires ont un pouvoir s'étendant sur les polygones de Thiessen de leur distribution (au moins pour l'instant)
+; les maires ont un pouvoir s'ï¿½tendant sur les polygones de Thiessen de leur distribution (au moins pour l'instant)
 let listMaires []
 ask patches [
   set mairePatch min-one-of maires [distance myself]
@@ -520,7 +526,7 @@ ask patches with [mairePatch = myself] [
 ask maires [
   set listMaires lput self listMaires
 ]
-; on crée désormais les loyers et les actifs / emplois selon un bussière exogène
+; on crï¿½e dï¿½sormais les loyers et les actifs / emplois selon un bussiï¿½re exogï¿½ne
 set j 0
 ask patches [
  ;set listAnbrR lput (item i [listA-AbussiereInit] of mairePatch * exp(- item i [listA-bbussiereInit] of mairePatch * distance mairePatch)) listAnbrR
@@ -549,7 +555,7 @@ ask patches [
 
 
 
-;cette ligne sert à la visualisation, elle peut être supprimée
+;cette ligne sert ï¿½ la visualisation, elle peut ï¿½tre supprimï¿½e
 ask patches [set pcolor ([color] of mairePatch - 3)]
 ;ask patches [set pcolor (item 0 listAnbrR)]
 
@@ -606,7 +612,7 @@ ask patches [
 
 ]
 
-;; ces lignes sont destinées à faire se correspondre les distributions de bussière générées et les populations actifs, fixées de façon exogène
+;; ces lignes sont destinï¿½es ï¿½ faire se correspondre les distributions de bussiï¿½re gï¿½nï¿½rï¿½es et les populations actifs, fixï¿½es de faï¿½on exogï¿½ne
 let tempA 0
 let tempE 0
 let c 0
@@ -635,7 +641,7 @@ ask maires [
 end
 
 to initRegion
-; il s'agit ici de créer la région initiale
+; il s'agit ici de crï¿½er la rï¿½gion initiale
 
 _initGlobals
 
@@ -1011,7 +1017,7 @@ while [i < length listPatchesRegion] [
       let j 0
       while [j < length tempC] [
         if  item j tempC != nobody [
-        ;;;;;;;;show "ca y'est je suis rentré dans un chemin"
+        ;;;;;;;;show "ca y'est je suis rentrï¿½ dans un chemin"
           ;;;;;;;;show item j tempC
           set [utilisation_l] of item j tempC ((1 / nIter) * temp) + [utilisation_l] of item j tempC
           ;;;;;;;;show [utilisation_l] of item j tempC
@@ -1085,7 +1091,7 @@ end
 
 
 to updateListCoutTransportsPatches [tempmaire temp?]
-;;;;;;;;;;;show "début"
+;;;;;;;;;;;show "dï¿½but"
 let listP []
 ;ifelse is-maire? tempmaire [
 ;  set listP [listPatchesMaire] of tempmaire
@@ -1230,7 +1236,7 @@ while [i < length listP] [
 ;  ]
 ;  
 ;    
-  ;;;;;;;;;;;;;show "liste couts initialisée"
+  ;;;;;;;;;;;;;show "liste couts initialisï¿½e"
   while [j < length listP] [
     ;;;;;;;;;;;show item i listP
     ;;;;;;;;;;;show item j listP
@@ -1311,7 +1317,7 @@ while [i < length listP] [
     
     
     
-    ;;;;;;;;;;;;;show "cout tranport i -> j calculé"
+    ;;;;;;;;;;;;;show "cout tranport i -> j calculï¿½"
     ]
     set j j + 1
   ]
@@ -1326,8 +1332,8 @@ end
 
 
 to chercheEmploi [temp-actif]
-; il s'agit pour l'actif considéré de trouver un emploi. pour l'instant, on fait
-; cela n'importe au hasard, sans considération de distance
+; il s'agit pour l'actif considï¿½rï¿½ de trouver un emploi. pour l'instant, on fait
+; cela n'importe au hasard, sans considï¿½ration de distance
 ask temp-actif [
   set emploiActif one-of emplois with [actifEmploi = 0]
   set [actifEmploi] of emploiActif self
@@ -1451,7 +1457,7 @@ updatePlots
   creerInfrastructureR chooseMaire
 
 tick
-; plus tard, à tick correspondra une hausse progressive du car ownership, avec pour effet de rendre rentables les projets routiers, donc il se font, donc ca transforme la métropole...
+; plus tard, ï¿½ tick correspondra une hausse progressive du car ownership, avec pour effet de rendre rentables les projets routiers, donc il se font, donc ca transforme la mï¿½tropole...
 end
 
 to go
@@ -1647,7 +1653,7 @@ end
 
 
 to mouvementsActifs
-; si il y a des logements sociaux, c'est là qu'il faut l'évoquer, avec les listAnbrM; pour l'instant, rien de tout ça...
+; si il y a des logements sociaux, c'est lï¿½ qu'il faut l'ï¿½voquer, avec les listAnbrM; pour l'instant, rien de tout ï¿½a...
 
 let c 0
 let temp 0
@@ -1706,7 +1712,7 @@ let accesOld reportAccessibilite temp-maire
 ;set accesOld sum [(sum listAnbrM + sum listAnbrR) * sum accessibilitePatches] of patches
 ;;set accesOld sum [sum listCoutTransportEffectif] of patches
 ;]
-;;;;;;;;;;;;show "temps total de transport des administrés"
+;;;;;;;;;;;;show "temps total de transport des administrï¿½s"
 ;;;;;;;show "accessibilite"
 ;;;;;;;show accesOld
 ;
@@ -1726,10 +1732,10 @@ let patchA self
 ;      ;;;;;;;;;;;;;;show patch x2 y2
       ;;;;;;;show "maintenant je vais entrer dans EVALUERBENEFICE"
     set tempB ((evaluerBeneficeInfrastructure patchA patchB attributs temp-maire 0) - accesOld)
-    ; signe - pour les temps de transport: on cherche soit à maximiser l'accessibilité totale, soit à minimiser le temps de transport total...
+    ; signe - pour les temps de transport: on cherche soit ï¿½ maximiser l'accessibilitï¿½ totale, soit ï¿½ minimiser le temps de transport total...
 ;      ;;;;;;;;;;;;;;;show tempB
       set tempC evaluerCoutInfrastructure patchA patchB 0
-      ;show "gain accessibilité possible"
+      ;show "gain accessibilitï¿½ possible"
       ;show tempB
       if (tempB / tempC) > bestBCR [    
           set bestBCR (tempB / tempC)
@@ -1770,7 +1776,7 @@ end
 
 to creerInfrastructure [bestPaire1 bestPaire2 attributsLinks tempLink]
 
-;attributsLinks liste consituée de
+;attributsLinks liste consituï¿½e de
 ; typeNode
 ; speed_l
 ; capacity
@@ -1892,7 +1898,7 @@ set i i + 1
 ]
 end
 to-report evaluerCoutInfrastructure [patchA patchB typeTransport]
-;;;;;;;;;;;;;;;;show "j'évalue le cout de l'infrastructure"
+;;;;;;;;;;;;;;;;show "j'ï¿½value le cout de l'infrastructure"
 let tempCout 0
 let patchCourant patchA
 let dist1 0
@@ -1919,7 +1925,7 @@ end
 to-report accessibilitePonderee [patch1]
   ;let temp 0
   let j 0
-  let listTemp [] ; j'en suis là
+  let listTemp [] ; j'en suis lï¿½
   let c 0
   while [c < nCSP] [
         set listTemp lput 0 listTemp
@@ -1984,8 +1990,8 @@ end
 
 
 to-report evaluerBeneficeInfrastructure [patchA patchB attributsLinks tempmaire typeTransport]
-; a terme implémenter hausse accessibilité et plus tard, impacts environnementaux de TC (dans les couts pour VP?)
-;;;;;;;;;;;;;;;;show "j'évalue l'infrastructure"
+; a terme implï¿½menter hausse accessibilitï¿½ et plus tard, impacts environnementaux de TC (dans les couts pour VP?)
+;;;;;;;;;;;;;;;;show "j'ï¿½value l'infrastructure"
 ;;;;;;;;;;;;;;show patchA
 ;;;;;;;;;;;;;;show patchB
 
@@ -2011,13 +2017,13 @@ let accesNew reportAccessibilite tempmaire
 ;]
 
 
-;;;;;;;;;;;;show "gain possible de transport des administrés"
+;;;;;;;;;;;;show "gain possible de transport des administrï¿½s"
 ;;;;;;;;;;;;show (- (accesNew - accesOld))
 
 
 ;let accesNew calculerAccessibilite niveau typeTransport
 ;;;;;;;;;;;;;;show accesNew - accesOld
-;;;;;;;;;;;;;;show "c'est le bénéfice de la construction proposée"
+;;;;;;;;;;;;;;show "c'est le bï¿½nï¿½fice de la construction proposï¿½e"
 
 ask links with [tempLink? = 1] [
 die
@@ -2139,7 +2145,7 @@ end
 
 ;to-report calculAccessibilite [patchFrom listPatchs typeTransport]
 to calculAccessibilite [patchFrom listPatchs typeTransport csp]
-;;;;;;;;;;;;;;;;;show "je calcule l'accessibilite depuis un patch donné"
+;;;;;;;;;;;;;;;;;show "je calcule l'accessibilite depuis un patch donnï¿½"
 let i 0
 let toreport 0
 let temp 0
@@ -2175,9 +2181,9 @@ while [i < length listPatchs] [
 ;let toreport 0
 ;ask patches [
 ;  ifelse temp? [
-;  set toreport toreport + [sum listEnbr] of self * exp(- 1 * item i [listCoutTransportTemp] of patchFrom); a changer pour les accessibilités régionales
+;  set toreport toreport + [sum listEnbr] of self * exp(- 1 * item i [listCoutTransportTemp] of patchFrom); a changer pour les accessibilitï¿½s rï¿½gionales
 ;  ][
-;  set toreport toreport + [sum listEnbr] of self * exp(- 1 * item i [listCoutTransport] of patchFrom); a changer pour les accessibilités régionales
+;  set toreport toreport + [sum listEnbr] of self * exp(- 1 * item i [listCoutTransport] of patchFrom); a changer pour les accessibilitï¿½s rï¿½gionales
 ;  ]
 ;
 ;]
@@ -2231,7 +2237,7 @@ let coutOiseauA 0
 let coutReseauA 0
 while [i < length [item typeTransport listNoeuds] of patch1] [
 let j 0
-  ;;;;;;;;;;;;show "je fais dijkstra à partir de"
+  ;;;;;;;;;;;;show "je fais dijkstra ï¿½ partir de"
   ;;;;;;;;;;;;show item i [listNoeuds] of patch1
   dijkstra item i [item typeTransport listNoeuds] of patch1 typeTransport
   
@@ -2260,7 +2266,7 @@ let j 0
     ;;;;;;;;;;;;show distTemp
    ;;;;;;;;;;;;;;;show distTemp
    ;;;;;;;;;;;;show item j [listNoeuds] of patch2
-   ; à ce stade distTemp est la distance "vol d'oiseau": il faut stocker cela!!!
+   ; ï¿½ ce stade distTemp est la distance "vol d'oiseau": il faut stocker cela!!!
    set coutTempOiseau distTempOiseau * item csp item typeTransport listCoutDistance + timeTempOiseau * item csp listValeursTemps
    ;BALISE
    
@@ -2269,7 +2275,7 @@ let j 0
     set coutTempReseau distTempReseau * item csp item typeTransport listCoutDistance + timeTempReseau * item csp listValeursTemps
     set coutTemp coutTempReseau + coutTempOiseau
   ;;;;;;;;;;;;show distTemp
-    ;;;;;;;;;;;;show "à comparer avec la distance euclidienne"
+    ;;;;;;;;;;;;show "ï¿½ comparer avec la distance euclidienne"
     ;;;;;;;;;;;;show dist
     if coutTemp < coutMin [
     set coutMin coutTemp
@@ -2280,7 +2286,7 @@ let j 0
     set coutReseauA coutTempReseau    
     
     
-;    ;;;;;;;;;;;show "noeud entrée"
+;    ;;;;;;;;;;;show "noeud entrï¿½e"
 ;    ;;;;;;;;;;;show item i [listNoeuds] of patch1
 ;    ;;;;;;;;;;;show "noeud sortie"
 ;    ;;;;;;;;;;;show item j [listNoeuds] of patch2
@@ -2495,7 +2501,7 @@ end
 
 
 ; -----------------------------------------------------------------------------------
-; début construction du réseau fractal
+; dï¿½but construction du rï¿½seau fractal
 ; -----------------------------------------------------------------------------------
 
 to reset_network
@@ -2691,7 +2697,7 @@ end
 
 
 ; -----------------------------------------------------------------------------------
-; fin construction du réseau fractal
+; fin construction du rï¿½seau fractal
 ; -----------------------------------------------------------------------------------
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -2719,14 +2725,7 @@ GRAPHICS-WINDOW
 0
 1
 ticks
-
-CC-WINDOW
-5
-756
-1145
-851
-Command Center
-0
+30.0
 
 BUTTON
 717
@@ -2743,6 +2742,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 652
@@ -2750,7 +2750,7 @@ BUTTON
 715
 290
 NIL
-ca
+;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks
 NIL
 1
 T
@@ -2759,6 +2759,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 656
@@ -2775,6 +2776,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 653
@@ -2791,6 +2793,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 647
@@ -2807,6 +2810,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 PLOT
 628
@@ -2822,8 +2826,9 @@ NIL
 10.0
 true
 false
+"" ""
 PENS
-"default" 1.0 0 -16777216 true
+"default" 1.0 0 -16777216 true "" ""
 
 SLIDER
 625
@@ -2855,6 +2860,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 PLOT
 628
@@ -2870,8 +2876,9 @@ NIL
 10.0
 true
 false
+"" ""
 PENS
-"default" 1.0 0 -16777216 true
+"default" 1.0 0 -16777216 true "" ""
 
 BUTTON
 904
@@ -2888,6 +2895,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 914
@@ -2904,6 +2912,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 853
@@ -2920,6 +2929,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 MONITOR
 872
@@ -2947,6 +2957,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 814
@@ -2963,6 +2974,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 814
@@ -2979,6 +2991,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 915
@@ -2995,6 +3008,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 852
@@ -3011,6 +3025,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 995
@@ -3027,6 +3042,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 994
@@ -3043,6 +3059,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 SLIDER
 648
@@ -3127,48 +3144,40 @@ NIL
 HORIZONTAL
 
 @#$#@#$#@
-WHAT IS IT?
------------
+## WHAT IS IT?
+
 This section could give a general understanding of what the model is trying to show or explain.
 
+## HOW IT WORKS
 
-HOW IT WORKS
-------------
 This section could explain what rules the agents use to create the overall behavior of the model.
 
+## HOW TO USE IT
 
-HOW TO USE IT
--------------
 This section could explain how to use the model, including a description of each of the items in the interface tab.
 
+## THINGS TO NOTICE
 
-THINGS TO NOTICE
-----------------
 This section could give some ideas of things for the user to notice while running the model.
 
+## THINGS TO TRY
 
-THINGS TO TRY
--------------
 This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
 
+## EXTENDING THE MODEL
 
-EXTENDING THE MODEL
--------------------
 This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
 
+## NETLOGO FEATURES
 
-NETLOGO FEATURES
-----------------
 This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
 
+## RELATED MODELS
 
-RELATED MODELS
---------------
 This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
 
+## CREDITS AND REFERENCES
 
-CREDITS AND REFERENCES
-----------------------
 This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 @#$#@#$#@
 default
@@ -3454,13 +3463,17 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 4.0.2
+NetLogo 5.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
   <experiment name="experiment" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3487,7 +3500,11 @@ initRegion</setup>
     </enumeratedValueSet>
   </experiment>
   <experiment name="experiment" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3514,7 +3531,11 @@ initRegion</setup>
     </enumeratedValueSet>
   </experiment>
   <experiment name="experimentNew" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3536,7 +3557,11 @@ initRegion</setup>
     </enumeratedValueSet>
   </experiment>
   <experiment name="experimentTYPE1" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3558,7 +3583,11 @@ initRegion</setup>
     </enumeratedValueSet>
   </experiment>
   <experiment name="experimentTYPE2" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3580,7 +3609,11 @@ initRegion</setup>
     </enumeratedValueSet>
   </experiment>
   <experiment name="experimentDISPERSION" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3604,7 +3637,11 @@ initRegion</setup>
     </enumeratedValueSet>
   </experiment>
   <experiment name="experimentTYPE2-addon" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3629,7 +3666,11 @@ initRegion</setup>
     </enumeratedValueSet>
   </experiment>
   <experiment name="experimentTYPE1-addon" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3654,7 +3695,11 @@ initRegion</setup>
     </enumeratedValueSet>
   </experiment>
   <experiment name="experimentTYPE1-short" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3676,7 +3721,11 @@ initRegion</setup>
     </enumeratedValueSet>
   </experiment>
   <experiment name="experimentTYPE1-medium" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3698,7 +3747,11 @@ initRegion</setup>
     </enumeratedValueSet>
   </experiment>
   <experiment name="experimentTYPE1-medium-addon" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3720,7 +3773,11 @@ initRegion</setup>
     </enumeratedValueSet>
   </experiment>
   <experiment name="experimentTYPE2-medium" repetitions="1" runMetricsEveryStep="true">
-    <setup>ca
+    <setup>;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 initRegion</setup>
     <go>transport</go>
     <exitCondition>ticks = 1</exitCondition>
@@ -3800,4 +3857,6 @@ Line -7500403 true 150 135 150 120
 Line -7500403 true 150 105 150 90
 Line -7500403 true 150 75 150 60
 
+@#$#@#$#@
+0
 @#$#@#$#@
