@@ -231,7 +231,7 @@ public static updateListCoutTransportsPatchesMode(){
 *  if listNavettesPatches != 0 [
 * 
 * 
-*  set listCoutTransportEffectifTemp replace-item mode listCoutTransportEffectifTemp lput (temp LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls item j listNavettesPatches) item mode listCoutTransportEffectifTemp
+*  set listCoutTransportEffectifTemp replace-item mode listCoutTransportEffectifTemp lput (temp LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls item j listNavettesPatches) item mode listCoutTransportEffectifTemp
 * 
 *  ]
 *  if not temp? [
@@ -254,7 +254,7 @@ public static updateListCoutTransportsPatchesMode(){
 * MODIFENCOURSset c c + 1
 * ]
 * 
-* set listCoutTransportEffectif replace-item mode listCoutTransportEffectif lput (temp LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls item j listNavettesPatches) item mode listCoutTransportEffectif
+* set listCoutTransportEffectif replace-item mode listCoutTransportEffectif lput (temp LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls item j listNavettesPatches) item mode listCoutTransportEffectif
 * 
 * ]
 * 
@@ -319,17 +319,17 @@ public static creerInfrastructureR(){
 * 
 * 
 * let accesOld calculerAccessibilite "region" 1
-* let accesOld sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls accessibilitePatches] of patches
+* let accesOld sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls accessibilitePatches] of patches
 * 
 * let accesOld 0
 * 
 * 
 * 
 * ifelse is-maire? temp-maire [
-* set accesOld sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls sum accessibilitePatches] of patches with [mairePatch = temp-maire]
+* set accesOld sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls sum accessibilitePatches] of patches with [mairePatch = temp-maire]
 * 
 * ][
-* set accesOld sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls sum accessibilitePatches] of patches
+* set accesOld sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls sum accessibilitePatches] of patches
 * 
 * ]
 * 
@@ -600,12 +600,12 @@ public static evaluerBeneficeInfrastructure(){
 * 
 * ifelse is-maire? tempmaire [
 * 
-* set accesNew sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls sum accessibilitePatches] of patches with [mairePatch = tempmaire]
+* set accesNew sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls sum accessibilitePatches] of patches with [mairePatch = tempmaire]
 * 
 * 
 * ][
 * 
-* set accesNew sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls sum accessibilitePatches] of patches
+* set accesNew sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls sum accessibilitePatches] of patches
 * 
 * ]
 * 
@@ -781,7 +781,7 @@ public static calculAccessibilite(){
 * 
 * 
 *  ifelse is-maire? tempmaire [
-*  set temp [sum listEnbr] of item i listPatchs LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls coutDistance(item i [item typeTransport listCoutTransportTemp] of patchFrom)
+*  set temp [sum listEnbr] of item i listPatchs LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls coutDistance(item i [item typeTransport listCoutTransportTemp] of patchFrom)
 *  set listAccessibilitesPatchesTemp lput temp listAccessibilitesPatchesTemp
 *  set toreport toreport + temp
 *  ][
@@ -810,9 +810,9 @@ public static calculAccessibilite(){
 * let toreport 0
 * ask patches [
 *  ifelse temp? [
-*  set toreport toreport + [sum listEnbr] of self LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls exp(- 1 LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls item i [listCoutTransportTemp] of patchFrom)
+*  set toreport toreport + [sum listEnbr] of self LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls exp(- 1 LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls item i [listCoutTransportTemp] of patchFrom)
 *  ][
-*  set toreport toreport + [sum listEnbr] of self LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls exp(- 1 LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls item i [listCoutTransport] of patchFrom)
+*  set toreport toreport + [sum listEnbr] of self LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls exp(- 1 LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls item i [listCoutTransport] of patchFrom)
 *  ]
 * 
 * ]
@@ -830,7 +830,7 @@ public static reportAccessibilite(){
 
 * 
 * 
-* set accesNew sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls sum accessibilitePatches] of patches with [mairePatch = tempmaire]
+* set accesNew sum [(sum listAnbrM + sum listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls sum accessibilitePatches] of patches with [mairePatch = tempmaire]
 * 
 * 
 * 
@@ -846,7 +846,7 @@ public static reportAccessibilite(){
 * 
 * 
 * 
-* ask patches [set temp temp + (item c listAnbrM + item c listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls item c accessibilitePatches]
+* ask patches [set temp temp + (item c listAnbrM + item c listAnbrR) LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls item c accessibilitePatches]
 * 
 * 
 * 
@@ -883,9 +883,9 @@ public static accessibilitePonderee(){
 * 
 * 
 * 
-* set temp temp + item j item m listModesShare LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls item j item m listAccessibilitesPatches
-* set temp temp + item c item m item j listModesShare LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls item c item m item j listAccessibilitesPatches
-* set temp temp + item j item c item m listModesShare LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.nls land-use.nls listUtils.nls main.nls networkUtils.nls setup.nls transport.nls item j item c item m listAccessibilitesPatches
+* set temp temp + item j item m listModesShare LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls item j item m listAccessibilitesPatches
+* set temp temp + item c item m item j listModesShare LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls item c item m item j listAccessibilitesPatches
+* set temp temp + item j item c item m listModesShare LICENSE.md MetropolSim19.nlogo MetropolSim2.0.nlogo display.java display.nls fractal-network.java fractal-network.nls governement.java governement.nls indicators.java indicators.nls land-use.java land-use.nls listUtils.java listUtils.nls main.java main.nls networkUtils.java networkUtils.nls setup.java setup.nls transport.java transport.nls item j item c item m listAccessibilitesPatches
 * 
 * 
 * 
