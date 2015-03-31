@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 /**
@@ -17,16 +18,16 @@ import java.util.Set;
 public class Parser {
 	
 	/**
-	 * Get comment blocks in a file.
+	 * Get comment blocks in a file in occurence order.
 	 * 
 	 * Dirty to have two passes in file but more simple in parser calls.
 	 * 
 	 * @param file
-	 * @return HashSet of CommentBlock
+	 * @return List of CommentBlock
 	 */
-	public static Set<CommentBlock> parseComments(String file){
+	public static LinkedList<CommentBlock> parseComments(String file){
 		try{
-			HashSet<CommentBlock> blocks = new HashSet<CommentBlock>();
+			LinkedList<CommentBlock> blocks = new LinkedList<CommentBlock>();
 			BufferedReader reader = new BufferedReader(new FileReader(new File(file)));
 			
 			String currentLine = reader.readLine();
@@ -58,5 +59,56 @@ public class Parser {
 		}
 		catch(Exception e){e.printStackTrace();return null;}
 	}
+	
+	
+	
+
+	/**
+	 * Get primitives in a file in orccurence order
+	 * 
+	 * @param file
+	 * @return List of Primitives
+	 */
+	public static LinkedList<Primitive> parsePrimitives(String file){
+		try{
+			LinkedList<Primitive> prims = new LinkedList<Primitive>();
+			BufferedReader reader = new BufferedReader(new FileReader(new File(file)));
+			
+			String currentLine = reader.readLine();
+			int l = 1;
+			boolean inPrim= false;
+			Primitive currentPrim = null;
+			
+			while(currentLine != null){
+				//condition to enter block
+				boolean enteringPrim = currentLine.replace(" ", "").startsWith("to");
+				boolean outOfPrim = currentLine.replace(" ", "").startsWith("end");
+				
+				if(!inPrim){
+					if(enteringPrim){
+						//creates new prim
+						String potName = currentLine.split(";")[0].replace(" ", ""),name="";
+						if(potName.contains("to-report")){name=potName.replace("to-report", "");}
+						else{name=potName.substring(2, potName.length()-2);}
+						currentPrim = new Primitive(name,l);
+						prims.add(currentPrim);
+						inPrim = true;
+					}
+				}else{
+					if(outOfPrim){inPrim=false;currentPrim.setEnd(l);}
+				}
+				currentLine = reader.readLine();
+				l++;
+			}
+			
+			
+			return prims;
+		}
+		catch(Exception e){e.printStackTrace();return null;}
+	}
+	
+	
+	
+	
 	
 }
