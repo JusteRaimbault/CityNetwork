@@ -25,6 +25,12 @@ to land-use
       mouvementsEmplois
       displayEmplois
     ]
+    
+    ; update plot for convergence study
+    plot-convergence-land-use
+    ; update patch coloring
+    color-patches
+    
   ]
 
 
@@ -32,7 +38,9 @@ end
 
 
 
-
+;;
+; Update utilities
+;
 to updateUtilites
   updateDensityActifs
   updateDensityEmplois
@@ -57,6 +65,10 @@ to mouvementsActifs
 
   let c 0
   let temp 0
+  ; variable used to study convergence
+  ; will be 2* real movement (as = sum abs (Delta ) on all patches, but -> 0 anyway )
+  set moving-actives 0
+  
   ; for each csp
   while [c < Ncsp] [
     set temp 0
@@ -67,10 +79,14 @@ to mouvementsActifs
     
     ;;;;show temp
     
+    
+    
     ;; discrete choice proportion of actives for each patch
     ask patches [
       ;set plabel int ( 100 * exp (item c listcoeffUtilitesActifs * item c listAUtiliteR) / temp )  / 100
+      let prev-A-nbr list-A-nbr-R
       set list-A-nbr-R replace-item c list-A-nbr-R (item c listNactifs * exp (item c listcoeffUtilitesActifs * item c list-A-Utilite-R) / temp)
+      set moving-actives moving-actives + abs (item c prev-A-nbr - item c list-A-nbr-R)
       ;;;;show listAnbrR
     ]
     set c c + 1
@@ -89,25 +105,32 @@ end
 ;;
 to mouvementsEmplois
 
-let c 0
-let temp 0
-while [c < Ncsp] [
-set temp 0
-  ask patches [
-    set temp temp + exp (item c listcoeffUtilitesEmplois * item c list-E-Utilite-R)
+  let c 0
+  let temp 0
+  set moving-employment 0
+  
+  while [c < Ncsp] [
+  set temp 0
+    ask patches [
+      set temp temp + exp (item c listcoeffUtilitesEmplois * item c list-E-Utilite-R)
+    ]
+    ;;;show temp
+    ask patches [
+      let prev-E-nbr list-E-nbr
+      set list-E-nbr replace-item c list-E-nbr (item c listNactifs * exp (item c listcoeffUtilitesEmplois * item c list-E-Utilite-R) / temp)
+      set moving-employment moving-employment + abs (item c prev-E-nbr - item c list-E-nbr)
+    ]
+    set c c + 1
   ]
-  ;;;show temp
-  ask patches [
-    set listEnbr replace-item c listEnbr (item c listNactifs * exp (item c listcoeffUtilitesEmplois * item c list-E-Utilite-R) / temp)
-  ]
-  set c c + 1
-]
 end
 
 
 
 
-
+;;
+; Update density of actives
+;
+;;
 to updateDensityActifs
   let tempActifs 0
   ask patches [
@@ -124,7 +147,10 @@ to updateDensityActifs
         ; for each mode
         while [m < nModes] [
           let tempShare item j item c item m listModesShare ; list mode share : (mode,csp,patch) from this patch
-          let tempCout coutDistance (item j item c item m listCoutTransport)
+          
+          ; @TODO  -- NOT USED --
+          ;let tempCout coutDistance (item j item c item m listCoutTransport)
+          
           ;set tempActifs tempActifs + tempShare * (item c [listAnbrR] of item j listPatchesRegion + item c [listAnbrM] of item j listPatchesRegion) * tempCout
            
            ; check if we are dealing with another patch
@@ -149,41 +175,45 @@ end
 
 
 
-
+;;
+; Update density of employment.
+;
+;;
 to updateDensityEmplois
 
-let tempEmplois 0
-ask patches [
-let c 0
-set listDensiteEmplois []
-
-; same procedure as for actives
-while [c < Ncsp] [
-  let j 0
-   set tempEmplois 0
-  while [j < length listPatchesRegion] [
-    let m 0
-    while [m < nModes] [
-      let tempShare item j item c item m listModesShare
-      let tempCout coutDistance(item j item c item m listCoutTransport)
-      ;set tempEmplois tempEmplois + tempShare * (item c [listEnbr] of item j listPatchesRegion) * tempCout
-      ifelse item j listPatchesRegion = self[
-        set tempEmplois tempEmplois +  (item c listEnbr)
-       ]
-       [
-       set tempEmplois tempEmplois + (item c [listEnbr] of item j listPatchesRegion) / distance item j listPatchesRegion 
-       ]
-      
-      
-      set m m + 1
+  let tempEmplois 0
+  ask patches [
+    let c 0
+    set listDensiteEmplois []
+    
+    ; same procedure as for actives
+    while [c < Ncsp] [
+      let j 0
+      set tempEmplois 0
+      while [j < length listPatchesRegion] [
+        ;for each mode
+        let m 0
+        while [m < nModes] [
+          let tempShare item j item c item m listModesShare
+          let tempCout coutDistance(item j item c item m listCoutTransport)
+          ;set tempEmplois tempEmplois + tempShare * (item c [listEnbr] of item j listPatchesRegion) * tempCout
+          ifelse item j listPatchesRegion = self[
+            set tempEmplois tempEmplois +  (item c list-E-nbr)
+           ]
+           [
+           set tempEmplois tempEmplois + (item c [list-E-nbr] of item j listPatchesRegion) / distance item j listPatchesRegion 
+           ]
+          
+          
+          set m m + 1
+        ]
+        set j j + 1
+      ]
+      set listDensiteEmplois lput tempEmplois listDensiteEmplois
+      set c c + 1
     ]
-    set j j + 1
+  
   ]
-  set listDensiteEmplois lput tempEmplois listDensiteEmplois
-  set c c + 1
-]
-
-]
 
 end
 
@@ -264,25 +294,6 @@ end
 
 
 
-to chercheEmploi [temp-actif]
-; il s'agit pour l'actif consid�r� de trouver un emploi. pour l'instant, on fait
-; cela n'importe au hasard, sans consid�ration de distance
-ask temp-actif [
-  set emploiActif one-of emplois with [actifEmploi = 0]
-  
-  ask emploiActif [set actifEmploi myself]
-  ;set [actifEmploi] of emploiActif self
-]
-
-
-end
-
-to chercheActif [temp-emploi]
-
-
-end
-
-
 
 
 
@@ -314,6 +325,10 @@ to-report calculerutiliteActifs [csp]
 end
 
 
+
+;;
+; See calculerutiliteActifs
+;  (idem emplois)
 to-report calculerutiliteEmplois [csp]
 let acces item csp AccessibilitePatches
 let forme 1
@@ -334,6 +349,35 @@ while [c < nCSP] [
 ;coeffAccessibiliteFormeUrbaine
 report exp(item csp listcoeffAccessibiliteFormeUrbaineEmplois * ln(acces)) * exp((1 - item csp listcoeffAccessibiliteFormeUrbaineEmplois) * ln(forme))
 end
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;
+; -- NOT USED --
+
+;to chercheEmploi [temp-actif]
+;; il s'agit pour l'actif consid�r� de trouver un emploi. pour l'instant, on fait
+;; cela n'importe au hasard, sans consid�ration de distance
+;ask temp-actif [
+;  set emploiActif one-of emplois with [actifEmploi = 0]
+;  
+;  ask emploiActif [set actifEmploi myself]
+;  ;set [actifEmploi] of emploiActif self
+;]
+;
+;
+;end
+
+;to chercheActif [temp-emploi]
+;
+;
+;end
+
+;;;;;;;;;;;;;;;;;;;;;;;
+
 
 
 

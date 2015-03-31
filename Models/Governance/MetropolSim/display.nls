@@ -29,6 +29,14 @@ end
 
 
 
+to plot-convergence-land-use
+  set-current-plot "land-use conv"
+  set-current-plot-pen "actives" plot moving-actives
+  set-current-plot-pen "employment" plot moving-employment
+end
+
+
+
 
 to displayActifs
 
@@ -49,7 +57,7 @@ let i 0
 
 while [i < length listPatchesRegion] [
 ask item i listPatchesRegion [
-set plabel word  "e-" ( int (sum [ listEnbr] of item i listPatchesRegion))
+set plabel word  "e-" ( int (sum [ list-E-nbr] of item i listPatchesRegion))
 ]
 set i i + 1
 ]
@@ -79,4 +87,66 @@ to showTempsMoyen
   ask links [set thickness (utilisation_l + utilisation_temp) / 400]
 
 end
+
+
+
+;;;;;
+; Update patch color.
+;
+;  Global variable patch-color provies coloring method.
+to color-patches
+  
+  if patch-color = "utility-A" [ask patches [set coloring-variable mean list-A-utilite-R]]
+  if patch-color = "utility-E" [ask patches [set coloring-variable mean list-E-utilite-R]]
+  if patch-color = "nbr-A" [ask patches [set coloring-variable sum list-A-nbr-R]]
+  if patch-color = "nbr-E" [ask patches [set coloring-variable sum list-E-nbr]]
+  let mi min [coloring-variable] of patches let ma max [coloring-variable] of patches
+  ifelse ma > mi [ask patches [set pcolor scale-color green coloring-variable (mi - (ma - mi) / 4) (ma + (ma - mi) / 4)]][ask patches [set pcolor black]]
+  
+end
+
+
+
+
+;;;;
+; Draw boundary between regions
+; it is drawn permanently
+to draw-boundaries
+  
+  ;; dirty way : ask each patch to sprout someone drawing its border with neighbors of different area
+  
+  ask patches with [count neighbors4 with [[mairePatch] of myself != mairePatch] > 0] [
+    let p self
+    sprout 1 [
+      set color pink set shape "circle" ;set size patch-size / 2
+      foreach to-list [neighbors4 with [[mairePatch] of p != mairePatch]] of myself [
+          let xp [pxcor] of p let yp [pycor] of p let xn [pxcor] of ? let yn [pycor] of ?
+          ifelse xp = xn [
+            setxy xp - 0.499 (yp + yn) / 2 pen-down setxy xp + 0.499 (yp + yn) / 2 pen-up
+          ][
+            setxy (xp + xn) / 2  yp - 0.499 pen-down setxy (xp + xn) / 2  yp + 0.499 pen-up
+          ]
+      ]
+      die 
+    ]
+  ]
+  
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -13,7 +13,7 @@ OUT_DIR=$2
 
 ORIG=`pwd`
 cd $SOURCE_DIR
-ls | grep .nls | awk '{print "../jconv.sh "$1}' | sh
+ls | grep .nls | awk '{print "~/Documents/ComplexSystems/CityNetwork/Models/Doc/jconv.sh "$1}' | sh
 
 cd $ORIG
 

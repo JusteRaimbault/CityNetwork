@@ -40,7 +40,12 @@ to initRegion
   ;updateDeplacementsDomicileTravail
   ;updateAccessibilitePatches "region"
   
+  ;; visual setup
+  color-patches
+  draw-boundaries
+  
   reset-ticks
+  
   
 end
 
@@ -398,7 +403,7 @@ to initMaires
     
     ;;@TODO : why empty list here ?
     set list-A-nbr-R []
-    set listEnbr []
+    set list-E-nbr []
   ]
   
   ;; set the list of governed patches
@@ -439,7 +444,7 @@ to initMaires
        
      ; initial number of actives for each CSP is then tempA for this patch
      set list-A-nbr-R lput tempA list-A-nbr-R
-     set listEnbr lput tempE listEnbr
+     set list-E-nbr lput tempE list-E-nbr
      
      set i i + 1
    ]
@@ -521,12 +526,12 @@ to initPatches
   ; for each csp
   while [c < nCSP] [
      set tempA sum [item c list-A-nbr-R + item c list-A-nbr-M] of patches
-     set tempE sum [item c listEnbr] of patches
+     set tempE sum [item c list-E-nbr] of patches
      ask patches [
        set list-A-nbr-R replace-item c list-A-nbr-R ((item c list-A-nbr-R) * (item c listNactifs / tempA))
        set list-A-nbr-M replace-item c list-A-nbr-M ((item c list-A-nbr-M) * (item c listNactifs / tempA))
        
-       set listEnbr replace-item c listEnbr ((item c listEnbr) * (item c listNactifs / tempE))
+       set list-E-nbr replace-item c list-E-nbr ((item c list-E-nbr) * (item c listNactifs / tempE))
   
        
      ]

@@ -4,6 +4,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+extensions [profiler]
+
 
 __includes [
   
@@ -66,6 +68,13 @@ globals [
   Ncsp
   
   listNactifs
+  
+  ;; number of actives moving at this iteration of land-use algo
+  ; @type Int
+  moving-actives
+  ;;idem employment
+  ; @type Int
+  moving-employment
   
   ;; List of patches lexicalographically ordered by increasing (xcor,ycor)
   listPatchesRegion
@@ -210,8 +219,11 @@ patches-own [
   ;;
   list-A-nbr-M
   
-  
-  listEnbr
+  ;;
+  ; Number of jobs
+  ; @type Int
+  ;;
+  list-E-nbr
   
   dist-to-patch
   
@@ -252,6 +264,12 @@ patches-own [
   ; Is there a node here ?
   ;;
   has-node?
+  
+  ;; Display parameters
+  
+  ;;
+  ; coloring variable
+  coloring-variable
   
 ]
 
@@ -428,10 +446,10 @@ NIL
 1
 
 BUTTON
-571
-337
-672
-370
+572
+381
+673
+414
 displayActifs
 displayActifs
 NIL
@@ -445,10 +463,10 @@ NIL
 1
 
 BUTTON
-571
-373
-671
-406
+572
+417
+672
+450
 displayEmplois
 displayEmplois
 NIL
@@ -495,10 +513,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-675
-337
-787
-370
+676
+382
+788
+415
 showTempsMoyen
 showTempsMoyen
 T
@@ -530,10 +548,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 BUTTON
-572
-408
-682
-441
+573
+453
+683
+486
 utilisationLinks
 let rand random 1\nask links [\nifelse rand = 0 [\nset thickness (utilisation_l + utilisation_temp) / 10000\n][\nset thickness 0\n]\n]
 T
@@ -547,10 +565,10 @@ NIL
 1
 
 BUTTON
-674
-372
-828
-405
+675
+417
+829
+450
 showAccessibilitePatches
 ask patches [\n  set plabel int (sum accessibilitePonderee self)\n]
 T
@@ -564,10 +582,10 @@ NIL
 1
 
 BUTTON
-573
-265
-680
-298
+574
+310
+681
+343
 showUtiliteActifs
 ask patches [\nset plabel int (100 * sum list-A-utilite-R) / 100\n]
 NIL
@@ -581,10 +599,10 @@ NIL
 1
 
 MONITOR
-171
-466
-266
-511
+63
+416
+145
+461
 sommePatches
 sum [plabel] of patches
 17
@@ -660,10 +678,10 @@ NIL
 1
 
 BUTTON
-572
-301
-683
-334
+573
+346
+684
+379
 showUtiliteEmplois
 ask patches [\nset plabel int (100 * sum list-E-utilite-R) / 100\n]
 NIL
@@ -677,10 +695,10 @@ NIL
 1
 
 BUTTON
-684
-265
-793
-298
+685
+310
+794
+343
 showdensiteActifs
 ask patches [\n  set plabel int sum listDensiteActifs\n]
 NIL
@@ -694,10 +712,10 @@ NIL
 1
 
 BUTTON
-686
-301
-805
-334
+687
+346
+806
+379
 showDensiteEmplois
 ask patches [\nset plabel int sum listDensiteEmplois\n\n]
 NIL
@@ -734,7 +752,7 @@ parametrePolycentrisme
 parametrePolycentrisme
 0
 2
-1.5
+2
 0.1
 1
 NIL
@@ -761,7 +779,7 @@ INPUTBOX
 985
 107
 parAct
-1
+3
 1
 0
 Number
@@ -772,7 +790,7 @@ INPUTBOX
 985
 170
 parEmp
-1
+3
 1
 0
 Number
@@ -854,8 +872,8 @@ PLOT
 1023
 423
 1183
-578
-testPie
+579
+profiler
 NIL
 NIL
 0.0
@@ -867,6 +885,35 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" ""
+
+PLOT
+177
+465
+354
+615
+land-use conv
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"actives" 1.0 0 -14439633 true "" ""
+"employment" 1.0 0 -5825686 true "" ""
+
+CHOOSER
+575
+261
+667
+306
+patch-color
+patch-color
+"none" "utility-A" "utility-E" "nbr-A" "nbr-E"
+3
 
 @#$#@#$#@
 ## WHAT IS IT?
