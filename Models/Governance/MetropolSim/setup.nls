@@ -9,7 +9,8 @@
 
 ;; 
 ;  General setup
-;  Creates initial configuration
+;
+;  Creates initial configuration.
 to initRegion
   
   clear-all
@@ -80,37 +81,38 @@ to _initGlobals
   ]
 
 
-; d�but "param�tres du r�seau fractal"
-set orderOfComplexity 2 ; >= 2
-set fractalFactor 3
-set numberOfDirections 4
-set randomness% 0
-set radial% 50
-set randomness? true
-set additivity? true
-set int? false
-set ext? true
-; fin "param�tres du r�seau fractal"
-
-set Nmaires 2;numberOfDirections;2
-
-;d�but "utile pour la distribution de population initiale"
-; adapt� pour 3 CSP
-;set listActBussA [[100 0 0] [0 100 0] [0 0 100] [100 100 100]]
-;set listActBussb [[0.5 0.5 0.5] [0.5 0.5 0.5] [0.5 0.5 0.5] [0.5 0.5 0.5]]
-;set listEmpBussA [[0 100 0] [0 0 100] [100 0 0] [100 100 100]]
-;set listEmpBussb [[1 1 1] [1 1 1] [1 1 1] [1 1 1]]
-
-
-; adapt� pour 4 CSP
-;set listActBussA [[100 0 0 0] [0 100 0 0] [0 0 100 0][0 0 0 100]]
-;set listActBussb [[0.5 0.5 0.5 0.5] [0.5 0.5 0.5 0.5] [0.5 0.5 0.5 0.5][0.5 0.5 0.5 0.5]]
-;set listEmpBussA [[0 100 0 0] [0 0 100 0] [0 0 0 100][100 0 0 0]]
-;set listEmpBussb [[1 1 1 1][1 1 1 1] [1 1 1 1][1 1 1 1]]
-
-
-
-;fin "utile pour la distribution de population initiale"
+  ;; Parameters of fractal Network
+  set orderOfComplexity 2 ; >= 2
+  set fractalFactor 3
+  set numberOfDirections 4
+  set randomness% 0
+  set radial% 50
+  set randomness? true
+  set additivity? true
+  set int? false
+  set ext? true
+  
+  
+  
+  set Nmaires 2;numberOfDirections;2
+  
+  ;d�but "utile pour la distribution de population initiale"
+  ; adapt� pour 3 CSP
+  ;set listActBussA [[100 0 0] [0 100 0] [0 0 100] [100 100 100]]
+  ;set listActBussb [[0.5 0.5 0.5] [0.5 0.5 0.5] [0.5 0.5 0.5] [0.5 0.5 0.5]]
+  ;set listEmpBussA [[0 100 0] [0 0 100] [100 0 0] [100 100 100]]
+  ;set listEmpBussb [[1 1 1] [1 1 1] [1 1 1] [1 1 1]]
+  
+  
+  ; adapt� pour 4 CSP
+  ;set listActBussA [[100 0 0 0] [0 100 0 0] [0 0 100 0][0 0 0 100]]
+  ;set listActBussb [[0.5 0.5 0.5 0.5] [0.5 0.5 0.5 0.5] [0.5 0.5 0.5 0.5][0.5 0.5 0.5 0.5]]
+  ;set listEmpBussA [[0 100 0 0] [0 0 100 0] [0 0 0 100][100 0 0 0]]
+  ;set listEmpBussb [[1 1 1 1][1 1 1 1] [1 1 1 1][1 1 1 1]]
+  
+  
+  
+  ;fin "utile pour la distribution de population initiale"
 
 
 end
@@ -118,44 +120,47 @@ end
 
 
 
-
+;;
+;  Setup land-use initial distribution parameters
+;
+;;
 to useParameters
 
 
-;set parametreDispersion 0.5
-;set parametrePolycentrisme 1
-;set parametreRatDispersion 3
-;set parAct 1111
-;set parEmp 1234
-;set parametreCoutDistance 1
+  ;set parametreDispersion 0.5
+  ;set parametrePolycentrisme 1
+  ;set parametreRatDispersion 3
+  ;set parAct 1111
+  ;set parEmp 1234
+  ;set parametreCoutDistance 1
+  
+  
+  ; by CSP and Transportation mode, typically gaz prices, public transportation prices (abonnement carte orange)
+  set listcoutDistance (list (list (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance)))
 
 
-; by CSP and Transportation mode, typically gaz prices, public transportation prices (abonnement carte orange)
-set listcoutDistance (list (list (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance) (parametreCoutDistance)))
-
-
-let t (1 / parametreDispersion)
-let p1 100
-let p2 (100 / (2 ^ parametrePolycentrisme))
-let p3 (100 / (3 ^ parametrePolycentrisme))
-let p4 (100 / (4 ^ parametrePolycentrisme))
-;let tempList1 []
-;set tempList1 lput p1 tempList1
-;set tempList1 lput p2 tempList1
-;set tempList1 lput p3 tempList1
-;set tempList1 lput p4 tempList1
-;
-;;let tempList1 [p1 p2 p3 p4]
-;let tempList2 lput first tempList1 tempList1
-;set tempList2 but-first tempList2
-;let tempList3 lput first tempList2 tempList2
-;set tempList3 but-first tempList3
-;let tempList4 lput first tempList3 tempList3
-;set tempList4 but-first tempList4
-;show tempList1
-;show tempList2
-;show tempList3
-;show tempList4
+  let t (1 / parametreDispersion)
+  let p1 100
+  let p2 (100 / (2 ^ parametrePolycentrisme))
+  let p3 (100 / (3 ^ parametrePolycentrisme))
+  let p4 (100 / (4 ^ parametrePolycentrisme))
+  ;let tempList1 []
+  ;set tempList1 lput p1 tempList1
+  ;set tempList1 lput p2 tempList1
+  ;set tempList1 lput p3 tempList1
+  ;set tempList1 lput p4 tempList1
+  ;
+  ;;let tempList1 [p1 p2 p3 p4]
+  ;let tempList2 lput first tempList1 tempList1
+  ;set tempList2 but-first tempList2
+  ;let tempList3 lput first tempList2 tempList2
+  ;set tempList3 but-first tempList3
+  ;let tempList4 lput first tempList3 tempList3
+  ;set tempList4 but-first tempList4
+  ;show tempList1
+  ;show tempList2
+  ;show tempList3
+  ;show tempList4
 
 
   set listActBussb multiplyListList (list1 4 4) (parametreRatDispersion * t)
@@ -171,113 +176,117 @@ let p4 (100 / (4 ^ parametrePolycentrisme))
   ;
 
   ; Parameter parEmp is the same for employment :
-  ;0 -> les 4 CSP ont la m�me distribution 1234 (par maire)
-  ;1 -> permutations circulaires : 1234 - 2341 - 3412 - 4123
-  ;2 - > autre permutation: 1234 - 3412 - 4321 - 2143
+  ; 0 -> same distribution 1234 (per mayor) for each CSP
+  ; 1 -> circular permutations : 1234 - 2341 - 3412 - 4123
+  ; 2 - > other permutations: 1234 - 3412 - 4321 - 2143
   ;
 
-; si en th�orie le polycentrisme peut etre diff�rent par CSP et par type (act / emp), on n'a pour l'instant qu'un indicateur pour tous: parametrePolycentrisme
-if parAct = 1 [
-  set listActBussA lput (list(p1)(p1)(p1)(p1)) listActBussA
-  set listActBussA lput (list(p2)(p2)(p2)(p2)) listActBussA
-  set listActBussA lput (list(p3)(p3)(p3)(p3)) listActBussA
-  set listActBussA lput (list(p4)(p4)(p4)(p4)) listActBussA
-]
-if parAct = 2 [
-  set listActBussA lput (list(p1)(p2)(p3)(p4)) listActBussA
-  set listActBussA lput (list(p2)(p3)(p4)(p1)) listActBussA
-  set listActBussA lput (list(p3)(p4)(p1)(p2)) listActBussA
-  set listActBussA lput (list(p4)(p1)(p2)(p3)) listActBussA
-]
-if parAct = 3 [
-  set listActBussA lput (list(p1)(p3)(p4)(p2)) listActBussA
-  set listActBussA lput (list(p2)(p4)(p3)(p1)) listActBussA
-  set listActBussA lput (list(p3)(p1)(p2)(p4)) listActBussA
-  set listActBussA lput (list(p4)(p2)(p1)(p3)) listActBussA
-]
-if parEmp = 1 [
-  set listEmpBussA lput (list(p1)(p1)(p1)(p1)) listEmpBussA
-  set listEmpBussA lput (list(p2)(p2)(p2)(p2)) listEmpBussA
-  set listEmpBussA lput (list(p3)(p3)(p3)(p3)) listEmpBussA
-  set listEmpBussA lput (list(p4)(p4)(p4)(p4)) listEmpBussA
-]
-if parEmp = 2 [
-  set listEmpBussA lput (list(p1)(p2)(p3)(p4)) listEmpBussA
-  set listEmpBussA lput (list(p2)(p3)(p4)(p1)) listEmpBussA
-  set listEmpBussA lput (list(p3)(p4)(p1)(p2)) listEmpBussA
-  set listEmpBussA lput (list(p4)(p1)(p2)(p3)) listEmpBussA
-]
-if parEmp = 3 [
-  set listEmpBussA lput (list(p1)(p3)(p4)(p2)) listEmpBussA
-  set listEmpBussA lput (list(p2)(p4)(p3)(p1)) listEmpBussA
-  set listEmpBussA lput (list(p3)(p1)(p2)(p4)) listEmpBussA
-  set listEmpBussA lput (list(p4)(p2)(p1)(p3)) listEmpBussA
-]
+  ; si en th�orie le polycentrisme peut etre diff�rent par CSP et par type (act / emp), on n'a pour l'instant qu'un indicateur pour tous: parametrePolycentrisme
+  if parAct = 1 [
+    set listActBussA lput (list(p1)(p1)(p1)(p1)) listActBussA
+    set listActBussA lput (list(p2)(p2)(p2)(p2)) listActBussA
+    set listActBussA lput (list(p3)(p3)(p3)(p3)) listActBussA
+    set listActBussA lput (list(p4)(p4)(p4)(p4)) listActBussA
+  ]
+  if parAct = 2 [
+    set listActBussA lput (list(p1)(p2)(p3)(p4)) listActBussA
+    set listActBussA lput (list(p2)(p3)(p4)(p1)) listActBussA
+    set listActBussA lput (list(p3)(p4)(p1)(p2)) listActBussA
+    set listActBussA lput (list(p4)(p1)(p2)(p3)) listActBussA
+  ]
+  if parAct = 3 [
+    set listActBussA lput (list(p1)(p3)(p4)(p2)) listActBussA
+    set listActBussA lput (list(p2)(p4)(p3)(p1)) listActBussA
+    set listActBussA lput (list(p3)(p1)(p2)(p4)) listActBussA
+    set listActBussA lput (list(p4)(p2)(p1)(p3)) listActBussA
+  ]
+  if parEmp = 1 [
+    set listEmpBussA lput (list(p1)(p1)(p1)(p1)) listEmpBussA
+    set listEmpBussA lput (list(p2)(p2)(p2)(p2)) listEmpBussA
+    set listEmpBussA lput (list(p3)(p3)(p3)(p3)) listEmpBussA
+    set listEmpBussA lput (list(p4)(p4)(p4)(p4)) listEmpBussA
+  ]
+  if parEmp = 2 [
+    set listEmpBussA lput (list(p1)(p2)(p3)(p4)) listEmpBussA
+    set listEmpBussA lput (list(p2)(p3)(p4)(p1)) listEmpBussA
+    set listEmpBussA lput (list(p3)(p4)(p1)(p2)) listEmpBussA
+    set listEmpBussA lput (list(p4)(p1)(p2)(p3)) listEmpBussA
+  ]
+  if parEmp = 3 [
+    set listEmpBussA lput (list(p1)(p3)(p4)(p2)) listEmpBussA
+    set listEmpBussA lput (list(p2)(p4)(p3)(p1)) listEmpBussA
+    set listEmpBussA lput (list(p3)(p1)(p2)(p4)) listEmpBussA
+    set listEmpBussA lput (list(p4)(p2)(p1)(p3)) listEmpBussA
+  ]
+  
 
 
-
-;let intMille int (parAct / 1000)
-;let intCent int (parAct / 100 - 10 * intMille)
-;let intDix int (parAct / 10 - 100 * intMille - 10 * intCent)
-;let intUn int (parAct - 1000 * intMille - 100 * intCent - 10 * intDix)
-;
-;if intMille = 1 [set listActBussA lput tempList1 listActBussA]
-;if intMille = 2 [set listActBussA lput tempList2 listActBussA]
-;if intMille = 3 [set listActBussA lput tempList3 listActBussA]
-;if intMille = 4 [set listActBussA lput tempList4 listActBussA]
-;
-;if intCent = 1 [set listActBussA lput tempList1 listActBussA]
-;if intCent = 2 [set listActBussA lput tempList2 listActBussA]
-;if intCent = 3 [set listActBussA lput tempList3 listActBussA]
-;if intCent = 4 [set listActBussA lput tempList4 listActBussA]
-;
-;if intDix = 1 [set listActBussA lput tempList1 listActBussA]
-;if intDix = 2 [set listActBussA lput tempList2 listActBussA]
-;if intDix = 3 [set listActBussA lput tempList3 listActBussA]
-;if intDix = 4 [set listActBussA lput tempList4 listActBussA]
-;
-;if intUn = 1 [set listActBussA lput tempList1 listActBussA]
-;if intUn = 2 [set listActBussA lput tempList2 listActBussA]
-;if intUn = 3 [set listActBussA lput tempList3 listActBussA]
-;if intUn = 4 [set listActBussA lput tempList4 listActBussA]
-
-;
-;
-;set intMille int (parEmp / 1000)
-;set intCent int (parEmp / 100 - 10 * intMille)
-;set intDix int (parEmp / 10 - 100 * intMille - 10 * intCent)
-;set intUn int (parEmp - 1000 * intMille - 100 * intCent - 10 * intDix)
-;
-;if intMille = 1 [set listEmpBussA lput tempList1 listEmpBussA]
-;if intMille = 2 [set listEmpBussA lput tempList2 listEmpBussA]
-;if intMille = 3 [set listEmpBussA lput tempList3 listEmpBussA]
-;if intMille = 4 [set listEmpBussA lput tempList4 listEmpBussA]
-;
-;if intCent = 1 [set listEmpBussA lput tempList1 listEmpBussA]
-;if intCent = 2 [set listEmpBussA lput tempList2 listEmpBussA]
-;if intCent = 3 [set listEmpBussA lput tempList3 listEmpBussA]
-;if intCent = 4 [set listEmpBussA lput tempList4 listEmpBussA]
-;
-;if intDix = 1 [set listEmpBussA lput tempList1 listEmpBussA]
-;if intDix = 2 [set listEmpBussA lput tempList2 listEmpBussA]
-;if intDix = 3 [set listEmpBussA lput tempList3 listEmpBussA]
-;if intDix = 4 [set listEmpBussA lput tempList4 listEmpBussA]
-;
-;if intUn = 1 [set listEmpBussA lput tempList1 listEmpBussA]
-;if intUn = 2 [set listEmpBussA lput tempList2 listEmpBussA]
-;if intUn = 3 [set listEmpBussA lput tempList3 listEmpBussA]
-;if intUn = 4 [set listEmpBussA lput tempList4 listEmpBussA]
-;
-;
+  ;let intMille int (parAct / 1000)
+  ;let intCent int (parAct / 100 - 10 * intMille)
+  ;let intDix int (parAct / 10 - 100 * intMille - 10 * intCent)
+  ;let intUn int (parAct - 1000 * intMille - 100 * intCent - 10 * intDix)
+  ;
+  ;if intMille = 1 [set listActBussA lput tempList1 listActBussA]
+  ;if intMille = 2 [set listActBussA lput tempList2 listActBussA]
+  ;if intMille = 3 [set listActBussA lput tempList3 listActBussA]
+  ;if intMille = 4 [set listActBussA lput tempList4 listActBussA]
+  ;
+  ;if intCent = 1 [set listActBussA lput tempList1 listActBussA]
+  ;if intCent = 2 [set listActBussA lput tempList2 listActBussA]
+  ;if intCent = 3 [set listActBussA lput tempList3 listActBussA]
+  ;if intCent = 4 [set listActBussA lput tempList4 listActBussA]
+  ;
+  ;if intDix = 1 [set listActBussA lput tempList1 listActBussA]
+  ;if intDix = 2 [set listActBussA lput tempList2 listActBussA]
+  ;if intDix = 3 [set listActBussA lput tempList3 listActBussA]
+  ;if intDix = 4 [set listActBussA lput tempList4 listActBussA]
+  ;
+  ;if intUn = 1 [set listActBussA lput tempList1 listActBussA]
+  ;if intUn = 2 [set listActBussA lput tempList2 listActBussA]
+  ;if intUn = 3 [set listActBussA lput tempList3 listActBussA]
+  ;if intUn = 4 [set listActBussA lput tempList4 listActBussA]
+  
+  ;
+  ;
+  ;set intMille int (parEmp / 1000)
+  ;set intCent int (parEmp / 100 - 10 * intMille)
+  ;set intDix int (parEmp / 10 - 100 * intMille - 10 * intCent)
+  ;set intUn int (parEmp - 1000 * intMille - 100 * intCent - 10 * intDix)
+  ;
+  ;if intMille = 1 [set listEmpBussA lput tempList1 listEmpBussA]
+  ;if intMille = 2 [set listEmpBussA lput tempList2 listEmpBussA]
+  ;if intMille = 3 [set listEmpBussA lput tempList3 listEmpBussA]
+  ;if intMille = 4 [set listEmpBussA lput tempList4 listEmpBussA]
+  ;
+  ;if intCent = 1 [set listEmpBussA lput tempList1 listEmpBussA]
+  ;if intCent = 2 [set listEmpBussA lput tempList2 listEmpBussA]
+  ;if intCent = 3 [set listEmpBussA lput tempList3 listEmpBussA]
+  ;if intCent = 4 [set listEmpBussA lput tempList4 listEmpBussA]
+  ;
+  ;if intDix = 1 [set listEmpBussA lput tempList1 listEmpBussA]
+  ;if intDix = 2 [set listEmpBussA lput tempList2 listEmpBussA]
+  ;if intDix = 3 [set listEmpBussA lput tempList3 listEmpBussA]
+  ;if intDix = 4 [set listEmpBussA lput tempList4 listEmpBussA]
+  ;
+  ;if intUn = 1 [set listEmpBussA lput tempList1 listEmpBussA]
+  ;if intUn = 2 [set listEmpBussA lput tempList2 listEmpBussA]
+  ;if intUn = 3 [set listEmpBussA lput tempList3 listEmpBussA]
+  ;if intUn = 4 [set listEmpBussA lput tempList4 listEmpBussA]
+  ;
+  ;
 
 
 end
 
 
 ;;
-; Parametrize economic-transportation mode, depending on number of CSP and transportation modes
+; Parametrize economic-transportation mode, depending on number of CSP and transportation modes.
 ;
 ;  Ncsp and Nmodes are redundant for a comprehensive use of the function.
+;
+; @param n-csp
+; @param n-modes
+;;
 to parametrize-luti [n-csp n-modes]
   
    if n-csp = 3 and n-modes = 2 [
@@ -339,7 +348,10 @@ end
 
 
 
-;; init maires = gov agents
+;;
+; Init maires = gov agents
+;
+;;
 to initMaires
   let i 0
   let j 0
@@ -405,33 +417,33 @@ to initMaires
   ]
 
 
-; we create now rents (?) and active/employments given an exogeneous Bussiere
-set j 0
-ask patches [
- ;set listAnbrR lput (item i [listA-AbussiereInit] of mairePatch * exp(- item i [listA-bbussiereInit] of mairePatch * distance mairePatch)) listAnbrR
- 
- set i 0
- let tempA 0
- let tempE 0
- ;for each csp
- while [i < Ncsp] [
-     set j 0
-     set tempA 0
-     set tempE 0
-     while [j < length listMaires] [
-       set tempA tempA + (item i [listA-AbussiereInit] of item j listMaires * exp(- item i [listA-bbussiereInit] of item j listMaires * distance item j listMaires) / (2 * pi * 1));distance item j listMaires))
-       set tempE tempE + (item i [listE-AbussiereInit] of item j listMaires * exp(- item i [listE-bbussiereInit] of item j listMaires * distance item j listMaires) / (2 * pi * 1));distance item j listMaires))
-       
-     set j j + 1
-   ]
-     
-   ; initial number of actives for each CSP is then tempA for this patch
-   set list-A-nbr-R lput tempA list-A-nbr-R
-   set listEnbr lput tempE listEnbr
+  ; we create now rents (?) and active/employments given an exogeneous Bussiere
+  set j 0
+  ask patches [
+   ;set listAnbrR lput (item i [listA-AbussiereInit] of mairePatch * exp(- item i [listA-bbussiereInit] of mairePatch * distance mairePatch)) listAnbrR
    
-   set i i + 1
- ]
-]
+   set i 0
+   let tempA 0
+   let tempE 0
+   ;for each csp
+   while [i < Ncsp] [
+       set j 0
+       set tempA 0
+       set tempE 0
+       while [j < length listMaires] [
+         set tempA tempA + (item i [listA-AbussiereInit] of item j listMaires * exp(- item i [listA-bbussiereInit] of item j listMaires * distance item j listMaires) / (2 * pi * 1));distance item j listMaires))
+         set tempE tempE + (item i [listE-AbussiereInit] of item j listMaires * exp(- item i [listE-bbussiereInit] of item j listMaires * distance item j listMaires) / (2 * pi * 1));distance item j listMaires))
+         
+       set j j + 1
+     ]
+       
+     ; initial number of actives for each CSP is then tempA for this patch
+     set list-A-nbr-R lput tempA list-A-nbr-R
+     set listEnbr lput tempE listEnbr
+     
+     set i i + 1
+   ]
+  ]
 
 
   ; this line is used for visualizations, can be commented/deleted
@@ -445,7 +457,10 @@ end
 
 
 
-;; setup patches
+;;
+;  Setup patches
+;
+;;
 to initPatches
 
 
@@ -459,9 +474,9 @@ to initPatches
   ;  set i 0
   ;  while [i < Ncsp] [
     set list-A-utilite-M []
-    set listAutiliteR []
-    set listEutiliteM []
-    set listEutiliteR []
+    set list-A-utilite-R []
+    set list-E-utilite-M []
+    set list-E-utilite-R []
   
     set list-A-nbr-M []
     ;set listEnbr []
@@ -490,9 +505,9 @@ to initPatches
       
       ;; all utilities are initially set to 1
       set list-A-utilite-M lput (1) list-A-utilite-M
-      set listAutiliteR lput (1) listAutiliteR
-      set listEutiliteM lput (1) listEutiliteM
-      set listEutiliteR lput (1) listEutiliteR
+      set list-A-utilite-R lput (1) list-A-utilite-R
+      set list-E-utilite-M lput (1) list-E-utilite-M
+      set list-E-utilite-R lput (1) list-E-utilite-R
       set i i + 1
     ]
   
@@ -524,104 +539,104 @@ end
 
 
 to initAccessibilite
-let i 0
-while [i < length listPatchesRegion] [
-ask item i listPatchesRegion [
-;  set listNavettesModes [[[]]]
-;  set listModesShare [[[]]]
-   set listNavettesModes []
-   set listModesShare []
+  let i 0
+  while [i < length listPatchesRegion] [
+  ask item i listPatchesRegion [
+  ;  set listNavettesModes [[[]]]
+  ;  set listModesShare [[[]]]
+     set listNavettesModes []
+     set listModesShare []
+    
   
-
-  let m 0
-    while [m < Nmodes] [
-      set listNavettesModes lput [] listNavettesModes
-      set listModesShare lput [] listModesShare
-      let c 0
-      while [c < Ncsp] [
-        set listNavettesModes replace-item m listNavettesModes lput [] item m listNavettesModes
-        set listModesShare replace-item m listModesShare lput [] item m listModesShare
-
-       ; set listNavettesModes replace-item m listNavettesModes lput [] listNavettesModes
-        ;set listModesShare replace-item m listModesShare lput [] listModesShare
-        ;;;;;show listModesShare
-        
-        set c c + 1
-      ]
-      set m m + 1
-    ]
-]
-set i i + 1
-]
-set i 0
-
-
-
-while [i < length listPatchesRegion] [
-  let j 0
-  
-  
-  while [j < length listPatchesRegion] [
-    let temp 0
-    let temp1 0
-    ask item i listPatchesRegion [
-;    let m 0
-;    while [m < Nmodes] [
-;    
-;      set temp temp + exp(- coeffChoixModal * item j item m listCoutTransport)
-;      set m m + 1
-;    ]
     let m 0
-    while [m < Nmodes] [
-      let c 0
-      while [c < Ncsp] [
-
-     ; set temp1 exp(- coeffChoixModal * [item j item m listCoutTransport] of item i listPatchesRegion)
-      
-     ;let tempShare (item c listCarOwnership * (temp1 / temp))
-      ;if m = 0 [set tempShare (tempShare  + (1 - item c listCarOwnership)) ]
-      
-      
-      
-      let tempShareL item m listModesShare
-      ;set tempShareL lput tempShare tempShareL
-      set tempShareL replace-item c tempShareL lput (1 - m) item c tempShareL
-      
-      
-      ; set listModesShare replace-item m listModesShare lput (item c carownership * (temp1 / temp)) item m listModesShare
-
-           set listModesShare replace-item m listModesShare tempShareL
-      
-      ;;;;;show listModesShare
-      ;let tempNavettes item c listNavettesPatches
-;      ;;;;;show "tempNavettes"
-;      ;;;;;show tempNavettes
-;      ;;;;;show "listNavettesPatches"
-;      ;;;;;show listNavettesPatches
-      ;set tempNavettes lput ((item c listNavettesPatches) * (tempShare)) tempNavettes
-      
-      ;set tempNavettes multiplyList tempNavettes (tempShare)
-       ;let temp3 item m listNavettesModes
-       ;set temp3 replace-item c temp3 tempNavettes 
-     
-     ;  set listNavettesModes replace-item m listNavettesModes lput ((item j listNavettesPatches) * item m listModesShare) item m listNavettesModes
-     
-     
-     ;set listNavettesModes replace-item m listNavettesModes temp3
-     
-      ;;;;;;;show listNavettesModes
-        
-        set c c + 1
+      while [m < Nmodes] [
+        set listNavettesModes lput [] listNavettesModes
+        set listModesShare lput [] listModesShare
+        let c 0
+        while [c < Ncsp] [
+          set listNavettesModes replace-item m listNavettesModes lput [] item m listNavettesModes
+          set listModesShare replace-item m listModesShare lput [] item m listModesShare
+  
+         ; set listNavettesModes replace-item m listNavettesModes lput [] listNavettesModes
+          ;set listModesShare replace-item m listModesShare lput [] listModesShare
+          ;;;;;show listModesShare
+          
+          set c c + 1
+        ]
+        set m m + 1
       ]
-      set m m + 1
-    ]    
-    
-    ]
-    
-    set j j + 1
   ]
   set i i + 1
-]
+  ]
+  set i 0
+  
+  
+  
+  while [i < length listPatchesRegion] [
+    let j 0
+    
+    
+    while [j < length listPatchesRegion] [
+      let temp 0
+      let temp1 0
+      ask item i listPatchesRegion [
+  ;    let m 0
+  ;    while [m < Nmodes] [
+  ;    
+  ;      set temp temp + exp(- coeffChoixModal * item j item m listCoutTransport)
+  ;      set m m + 1
+  ;    ]
+      let m 0
+      while [m < Nmodes] [
+        let c 0
+        while [c < Ncsp] [
+  
+       ; set temp1 exp(- coeffChoixModal * [item j item m listCoutTransport] of item i listPatchesRegion)
+        
+       ;let tempShare (item c listCarOwnership * (temp1 / temp))
+        ;if m = 0 [set tempShare (tempShare  + (1 - item c listCarOwnership)) ]
+        
+        
+        
+        let tempShareL item m listModesShare
+        ;set tempShareL lput tempShare tempShareL
+        set tempShareL replace-item c tempShareL lput (1 - m) item c tempShareL
+        
+        
+        ; set listModesShare replace-item m listModesShare lput (item c carownership * (temp1 / temp)) item m listModesShare
+  
+             set listModesShare replace-item m listModesShare tempShareL
+        
+        ;;;;;show listModesShare
+        ;let tempNavettes item c listNavettesPatches
+  ;      ;;;;;show "tempNavettes"
+  ;      ;;;;;show tempNavettes
+  ;      ;;;;;show "listNavettesPatches"
+  ;      ;;;;;show listNavettesPatches
+        ;set tempNavettes lput ((item c listNavettesPatches) * (tempShare)) tempNavettes
+        
+        ;set tempNavettes multiplyList tempNavettes (tempShare)
+         ;let temp3 item m listNavettesModes
+         ;set temp3 replace-item c temp3 tempNavettes 
+       
+       ;  set listNavettesModes replace-item m listNavettesModes lput ((item j listNavettesPatches) * item m listModesShare) item m listNavettesModes
+       
+       
+       ;set listNavettesModes replace-item m listNavettesModes temp3
+       
+        ;;;;;;;show listNavettesModes
+          
+          set c c + 1
+        ]
+        set m m + 1
+      ]    
+      
+      ]
+      
+      set j j + 1
+    ]
+    set i i + 1
+  ]
 
 
   updateAccessibilitePatches "region"

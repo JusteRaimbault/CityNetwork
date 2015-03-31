@@ -16,11 +16,12 @@ __includes [
   ;; transport
   "transport.nls"
   
-  ;;governement
-  "governement.nls"
-  
   ;; land-use
   "land-use.nls"
+   
+  ;;governement/network evolution
+  "governement.nls"
+  "infrastructure.nls"
   
   ;; indicators
   "indicators.nls"
@@ -44,6 +45,8 @@ __includes [
   ; note : will not work in general - should put submodule locally
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LogUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/PlottingUtilities.nls"
+  
   
 ]
 
@@ -59,7 +62,7 @@ globals [
   ;; Number of mayors
   Nmaires
 
-  ;; nulber of socio-professional categories
+  ;; number of socio-professional categories
   Ncsp
   
   listNactifs
@@ -153,28 +156,69 @@ breed [nodes node]
 
 patches-own [
   
-  ;; Is there a mayor here ?
+  ;;
+  ; Is there a mayor here ?
   ;  @type boolean
+  ;;
   has-maire?
   
-  ;; Mayor ruling this patch
+  ;;
+  ; Mayor ruling this patch
   ;  @type turtle(maire)
+  ;;
   mairePatch
   
-  list-A-utilite-M
-  listAutiliteR
-  listEutiliteM
-  listEutiliteR
   
-  ;; Number of actives for each CSP
+  ;;
+  ; Utility of actives per CSP for this patch
+  ;  see land-use.mouvementActifs , 
+  ;  @type List_csp<Double>
+  ;;
+  list-A-utilite-R
+  
+  ;;
+  ; See list-A-utilite-R
+  ;  same for other category ; NOT USED
+  ;;
+  list-A-utilite-M
+  
+  
+  ;;
+  ; Utility of actives per CSP for this patch
+  ;  see land-use.mouvementActifs , 
+  ;  @type List_csp<Double>
+  ;;
+  list-E-utilite-R
+  
+  ;;
+  ; See list-E-utilite-R
+  ;  same for other category ; NOT USED
+  ;;
+  list-E-utilite-M
+  
+  
+  ;;
+  ; Number of actives (residents ?) for each CSP
   ;  @type List<Int>
+  ;;
   list-A-nbr-R
+  
+  ;;
+  ; Number of actives (mobiles ?) for each CSP
+  ;  - NOT USED FOR NOW -
+  ;  @type List<Int>
+  ;;
   list-A-nbr-M
+  
+  
   listEnbr
+  
   dist-to-patch
   
-  ;; Transportation costs, from this patch to all patches (indexed by order in global patch list) by mode and CSP
+  ;;
+  ; Transportation costs, from this patch to all patches (indexed by order in global patch list) by mode and CSP
   ;  @type List_mode<List_csp<List_patch>>
+  ;;
   listCoutTransport
   
   ;listCoutTransportTemp
@@ -188,7 +232,13 @@ patches-own [
   listChemins
   listCheminsTemp
   listNoeuds
+  
+  ;;
+  ; Accessibility of the patch for each CSP
+  ; @type List_csp<Double>
+  ;;
   accessibilitePatches
+  
   ;accessibilitePatchesTemp
   listAccessibilitesPatches
   ;listAccessibilitesPatchesTemp
@@ -198,7 +248,9 @@ patches-own [
   listDensiteEmplois
   listDensiteActifs
   
-  ;; Is there a node here ?
+  ;;
+  ; Is there a node here ?
+  ;;
   has-node?
   
 ]
@@ -234,7 +286,7 @@ actifs-own [
 ]
 
 
-; emplois are agents
+; emplois are agents ?
 emplois-own [
   cspEmploi
   ageEmploi
@@ -281,7 +333,6 @@ nodes-own [
 ]
 
 
-
 links-own [
   speed_l
   capacity_l
@@ -293,7 +344,6 @@ links-own [
   speed_empty_l
   scale_l
 ]
-
 
 
 
@@ -378,10 +428,10 @@ NIL
 1
 
 BUTTON
-574
-363
-675
-396
+571
+337
+672
+370
 displayActifs
 displayActifs
 NIL
@@ -395,10 +445,10 @@ NIL
 1
 
 BUTTON
-574
-399
-674
-432
+571
+373
+671
+406
 displayEmplois
 displayEmplois
 NIL
@@ -413,9 +463,9 @@ NIL
 
 PLOT
 10
-465
+464
 170
-585
+584
 accessibiliteTicks
 NIL
 NIL
@@ -445,10 +495,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-678
-363
-790
-396
+675
+337
+787
+370
 showTempsMoyen
 showTempsMoyen
 T
@@ -480,10 +530,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 BUTTON
-575
-434
-685
-467
+572
+408
+682
+441
 utilisationLinks
 let rand random 1\nask links [\nifelse rand = 0 [\nset thickness (utilisation_l + utilisation_temp) / 10000\n][\nset thickness 0\n]\n]
 T
@@ -497,10 +547,10 @@ NIL
 1
 
 BUTTON
-677
-398
-831
-431
+674
+372
+828
+405
 showAccessibilitePatches
 ask patches [\n  set plabel int (sum accessibilitePonderee self)\n]
 T
@@ -514,12 +564,12 @@ NIL
 1
 
 BUTTON
-576
-291
-683
-324
+573
+265
+680
+298
 showUtiliteActifs
-ask patches [\nset plabel int (100 * sum listAutiliteR) / 100\n]
+ask patches [\nset plabel int (100 * sum list-A-utilite-R) / 100\n]
 NIL
 1
 T
@@ -542,10 +592,10 @@ sum [plabel] of patches
 11
 
 BUTTON
-1009
-144
-1088
-177
+572
+181
+651
+214
 NIL
 land-use
 NIL
@@ -559,10 +609,10 @@ NIL
 1
 
 BUTTON
-1004
-104
-1087
-137
+572
+147
+655
+180
 NIL
 transport
 NIL
@@ -576,10 +626,10 @@ NIL
 1
 
 BUTTON
-1004
-187
-1116
-220
+653
+181
+741
+214
 NIL
 gouvernement
 NIL
@@ -593,10 +643,10 @@ NIL
 1
 
 BUTTON
-1006
-233
-1114
-266
+656
+147
+741
+180
 NIL
 updateUtilites
 NIL
@@ -610,12 +660,12 @@ NIL
 1
 
 BUTTON
-575
-327
-686
-360
+572
+301
+683
+334
 showUtiliteEmplois
-ask patches [\nset plabel int (100 * sum listEutiliteR) / 100\n]
+ask patches [\nset plabel int (100 * sum list-E-utilite-R) / 100\n]
 NIL
 1
 T
@@ -627,10 +677,10 @@ NIL
 1
 
 BUTTON
-687
-291
-796
-324
+684
+265
+793
+298
 showdensiteActifs
 ask patches [\n  set plabel int sum listDensiteActifs\n]
 NIL
@@ -644,10 +694,10 @@ NIL
 1
 
 BUTTON
-689
-327
-808
-360
+686
+301
+805
+334
 showDensiteEmplois
 ask patches [\nset plabel int sum listDensiteEmplois\n\n]
 NIL
@@ -743,16 +793,16 @@ NIL
 HORIZONTAL
 
 OUTPUT
-1131
+1020
 58
 1400
 413
 10
 
 CHOOSER
-1130
+1020
 10
-1222
+1112
 55
 log-level
 log-level
@@ -780,14 +830,43 @@ Runtime Params
 1
 
 TEXTBOX
-577
-268
-727
-286
+574
+242
+724
+260
 Display
 11
 0.0
 1
+
+MONITOR
+10
+416
+60
+461
+links
+count links
+17
+1
+11
+
+PLOT
+1023
+423
+1183
+578
+testPie
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+false
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
 
 @#$#@#$#@
 ## WHAT IS IT?

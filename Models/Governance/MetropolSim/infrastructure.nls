@@ -1,0 +1,81 @@
+
+
+to creerInfrastructureR [temp-maire]
+let bestPaire1 0
+let bestPaire2 0
+
+; best Benefits-Costs Ratio
+let bestBCR -1000
+
+let tempC 0
+let tempB 0
+
+updateListCoutTransportsPatches temp-maire false
+updateAccessibilitePatches temp-maire
+;let accesOld calculerAccessibilite "region" 1
+;let accesOld sum [(sum listAnbrM + sum listAnbrR) * accessibilitePatches] of patches
+;;;;;;;;;;;;show accesOld
+;let accesOld 0
+
+let accesOld reportAccessibilite temp-maire
+
+;ifelse is-maire? temp-maire [
+;set accesOld sum [(sum listAnbrM + sum listAnbrR) * sum accessibilitePatches] of patches with [mairePatch = temp-maire]
+;;set accesOld sum [sum listCoutTransportEffectifTemp] of patches with [mairePatch = temp-maire]
+;][
+;set accesOld sum [(sum listAnbrM + sum listAnbrR) * sum accessibilitePatches] of patches
+;;set accesOld sum [sum listCoutTransportEffectif] of patches
+;]
+;;;;;;;;;;;;show "temps total de transport des administr�s"
+;;;;;;;show "accessibilite"
+;;;;;;;show accesOld
+
+
+
+  ask patches with [has-node? = 1 or has-maire? = 1] [
+    if not is-maire? temp-maire or mairePatch = temp-maire [
+      let patchA self
+        ask neighbors [
+          if not is-maire? temp-maire or mairePatch = temp-maire [
+          let patchB self
+               let attributs (list 0 3 100 0)
+               ifelse is-maire? temp-maire [set attributs lput 115 attributs]
+               [set attributs lput 15 attributs]
+      ;      ;;;;;;;;;;;;;;show patch x1 y1
+      ;      ;;;;;;;;;;;;;;show patch x2 y2
+            ;;;;;;;show "maintenant je vais entrer dans EVALUERBENEFICE"
+          set tempB ((evaluerBeneficeInfrastructure patchA patchB attributs temp-maire 0) - accesOld)
+          ; signe - pour les temps de transport: on cherche soit � maximiser l'accessibilit� totale, soit � minimiser le temps de transport total...
+      ;      ;;;;;;;;;;;;;;;show tempB
+            set tempC evaluerCoutInfrastructure patchA patchB 0
+            ;show "gain accessibilit� possible"
+            ;show tempB
+            if (tempB / tempC) > bestBCR [    
+                set bestBCR (tempB / tempC)
+                set bestPaire1 patchA
+                set bestPaire2 patchB
+             ]
+        ]
+      ]
+    ]
+  ]
+
+
+
+ask nodes with [tempNode? = 1] [die]
+if true [;bestBCR > 1 [
+let attributs (list 0 3 100 0)
+ifelse is-maire? temp-maire [set attributs lput 115 attributs][set attributs lput 15 attributs]
+  creerInfrastructure bestPaire1 bestPaire2 attributs 0
+  creerInfrastructure bestPaire2 bestPaire1 attributs 0
+]
+
+
+ask nodes with [tempNode? = 1] [die]
+if true [;bestBCR > 1 [
+let attributs (list 0 3 100 0)
+
+creerInfrastructure bestPaire1 bestPaire2 attributs 0
+creerInfrastructure bestPaire2 bestPaire1 attributs 0
+]
+end
