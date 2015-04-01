@@ -1,5 +1,8 @@
-public class main{
 
-public static go(){
-
+/**
+* 
+*  main
+* 
+*/
+public class main {
 }
