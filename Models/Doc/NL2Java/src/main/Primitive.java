@@ -54,6 +54,15 @@ public class Primitive extends Content {
 	
 	
 	
+	/**
+	 * 
+	 * @return
+	 */
+	public String toString(){
+		return "Primitive : "+name+", start "+start+", end "+end;
+	}
+	
+	
 	
 	
 	

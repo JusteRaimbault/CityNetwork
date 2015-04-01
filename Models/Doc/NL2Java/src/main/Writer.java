@@ -34,25 +34,27 @@ public class Writer {
 	 * @param contents
 	 */
 	public static void writeAllContents(LinkedList<Content> contents,String className,String file){
-		try{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(file)));
-			
-			// write class header
-			//TODO : add Header class ?
-			// use className for now
-			
-			//check if first content is a comment, then writes it before the class beginning
-			if(contents.getFirst() instanceof CommentBlock){writeContent(contents.removeFirst(),writer);}
-			
-			//write class declaration
-			writer.write("public class "+className+" {");
-			
-			for(Content c:contents){writeContent(c,writer);}
-			
-			writer.write("}");
-			writer.close();
-			
-		}catch(Exception e){e.printStackTrace();}
+		if(contents.size()>0){
+			try{
+				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(file)));
+				
+				// write class header
+				//TODO : add Header class ?
+				// use className for now
+				
+				//check if first content is a comment, then writes it before the class beginning
+				if(contents.getFirst() instanceof CommentBlock){writeContent(contents.removeFirst(),writer);}
+				
+				//write class declaration
+				writer.write("public class "+className+" {\n");
+				
+				for(Content c:contents){writeContent(c,writer);}
+				
+				writer.write("}\n");
+				writer.close();
+				
+			}catch(Exception e){e.printStackTrace();}
+		}
 	}
 	
 	/**
@@ -72,11 +74,11 @@ public class Writer {
 	 */
 	public static void writeCommentBlock(CommentBlock com,BufferedWriter w){
 		try{
-			w.write("\n/**");
+			w.write("\n/**\n");
 			for(String s:com.content){
 				w.write("* "+s+"\n");
 			}
-			w.write("*/");
+			w.write("*/\n");
 		}catch(Exception e){e.printStackTrace();}
 	}
 	
@@ -86,8 +88,12 @@ public class Writer {
 	 * @param w
 	 */
 	public static void writePrimitive(Primitive p,BufferedWriter w){
-		if(p.header != CommentBlock.EMPTY){writeCommentBlock(p.header,w);}
-		w.write("public static "+p.javaType+" ");
+		try{
+			if(p.header != CommentBlock.EMPTY){writeCommentBlock(p.header,w);}
+			w.write("public static "+p.javaType+" () {\n");
+			for(CommentBlock c:p.insideComments){writeCommentBlock(c,w);}
+			w.write("}\n");
+		}catch(Exception e){e.printStackTrace();}
 	}
 	
 	

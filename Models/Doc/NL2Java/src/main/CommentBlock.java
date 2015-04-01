@@ -41,4 +41,19 @@ public class CommentBlock extends Content {
 		content.add(line);
 	}
 	
+	
+	
+	
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String toString(){
+		String res = "---------------\nCommentBlock, start "+start+", end "+end+"\n";
+		for(String l:content){res+=l+"\n";}
+		return res;
+	}
+	
+	
 }

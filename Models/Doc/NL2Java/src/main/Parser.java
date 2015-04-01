@@ -28,7 +28,7 @@ public class Parser {
 	public static LinkedList<CommentBlock> parseComments(String file){
 		try{
 			LinkedList<CommentBlock> blocks = new LinkedList<CommentBlock>();
-			BufferedReader reader = new BufferedReader(new FileReader(new File(file)));
+			BufferedReader reader = new BufferedReader(new FileReader(new File(Main.directory+file)));
 			
 			String currentLine = reader.readLine();
 			int l = 1;
@@ -72,7 +72,7 @@ public class Parser {
 	public static LinkedList<Primitive> parsePrimitives(String file){
 		try{
 			LinkedList<Primitive> prims = new LinkedList<Primitive>();
-			BufferedReader reader = new BufferedReader(new FileReader(new File(file)));
+			BufferedReader reader = new BufferedReader(new FileReader(new File(Main.directory+file)));
 			
 			String currentLine = reader.readLine();
 			int l = 1;
@@ -88,8 +88,9 @@ public class Parser {
 					if(enteringPrim){
 						//creates new prim
 						String potName = currentLine.split(";")[0].replace(" ", ""),name="";
+						System.out.println(potName);
 						if(potName.contains("to-report")){name=potName.replace("to-report", "");}
-						else{name=potName.substring(2, potName.length()-2);}
+						else{name=potName.substring(2, potName.length());}
 						currentPrim = new Primitive(name,l);
 						prims.add(currentPrim);
 						inPrim = true;
