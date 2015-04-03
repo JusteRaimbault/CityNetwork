@@ -7,75 +7,182 @@
 
 
 ;;
+; replace the dijsktra algo by a caching of shortest path / distances ?
+;
+;  -> speed_l of nodes gives relation speed / distance
+;  -> uses distance(end1,end2) for link length (distance in nw)
+;  -> uses typeLink of links to get required transportation type 
+;
+;  The algo is called for each pairs (i,j) of nodes on patches (p1,p2).
+;  to compute times and distance in nw.
+;
+;  Replacement procedure :
+;   - use cached distances and times
+;   - length of links
+
+
+
+;;
+; Cache shortest path in nw for two patches
+;
+to compute-nw-paths [patch1 patch2 transportation-type]
+  ;let network-nodes nodes with [member? self [item transportation-type listNoeuds] of patch1 and member? self [item transportation-type listNoeuds] of patch2]
+  let network-nodes nodes with [member? self ([nodes-here] of patch1) with [typeNode = transportation-type] and member? self ([nodes-here] of patch2) with [typeNode = transportation-type]]
+  
+  ; set nw context
+  nw:set-context network-nodes links
+  
+  ; keep trace of computed couples to have only n(n-1)/2 shortest path computations instead of n(n-1)
+  ; uses a symmetric table as defined in utils.
+  let computed-paths table:make
+  
+  ;; setup cached lists
+  ;ask network-nodes [set cached-nw-distances [] set cached-nw-times [] set cached-nw-paths []]
+  ;; DOES NOT WORK with node var if does not use ordered lists anymore but agentsets
+  ;; -> uses tables
+  set cached-nw-distances table:make
+  set cached-nw-times table:make
+  set cached-nw-paths table:make
+  
+  ;; setup link lengths
+  ask links [set transportation-link-length link-length]
+  
+  ;; iterate on pairs
+  ask ([nodes-here] of patch1) with [typeNode = transportation-type] [
+    let n1 self
+    ask ([nodes-here] of patch2) with [typeNode = transportation-type] [
+       let n2 self
+       
+       ;output-print (word patch1 " - " patch2)
+       ;output-print (word n1 " - " n2)
+       
+       ; normally no pb as different patches, but check however
+       ;if n1 != n2 [
+          ; default 'infinite' time and distances
+          let d 1000000 let t 1000000 let p []
+          ;ifelse get-symmetric-table computed-paths (list [who] of n1 [who] of n2) = 0 [
+          ifelse not member? table:keys computed-paths (list [who] of n1 [who] of n2) [
+            ; path was not computed
+            ask n1 [
+              let shortest-path nw:weighted-path-to n2 "transportation-link-length"
+              if shortest-path != [] [
+                set d sum [transportation-link-length] of to-agentset shortest-path set t sum [transportation-link-length / speed_l ] of to-agentset shortest-path
+                ; put in table      
+              ]
+              table:put computed-paths (list [who] of n1 [who] of n2) (list d t shortest-path)
+            ]
+          ][
+            ; else get already computed path
+            let cached table:get computed-paths (list [who] of n1 [who] of n2)
+            if cached != 0 [
+            set d first cached set t item 1 cached set p last cached
+            ]
+          ]
+          
+          ; uses computed vars
+          ;ask n1 [set cached-nw-distances lput d cached-nw-distances set cached-nw-times lput t cached-nw-times set cached-nw-paths lput p cached-nw-paths]
+          ;ask n2 [set cached-nw-distances lput d cached-nw-distances set cached-nw-times lput t cached-nw-times set cached-nw-paths lput p cached-nw-paths]
+          table:put cached-nw-distances (list [who] of n1 [who] of n2) d
+          table:put cached-nw-times (list [who] of n1 [who] of n2) t 
+          table:put cached-nw-paths (list [who] of n1 [who] of n2) p
+       ;]     
+    ]
+  ]
+  
+  ;ask one-of nodes [output-print cached-nw-paths]
+  
+end
+
+
+;;
+; setup nodes time-to-root and distance-to-root vars, using cached vars
+;
+;  -> replaces dijsktra call.
+;
+to update-nw-vars [obj-patch transportation-type root-node]
+  let network-nodes ([nodes-here] of obj-patch) with [typeNode = transportation-type]
+  ;let i position root-node ([item transportation-type listNoeuds] of orig-patch)
+  
+  ask network-nodes [
+    set dist-to-root get-symmetric-table cached-nw-distances (list [who] of self [who] of root-node)
+    set time-to-root get-symmetric-table cached-nw-times (list [who] of self [who] of root-node)
+    set path get-symmetric-table cached-nw-paths (list [who] of self [who] of root-node)
+  ]
+  
+end
+
+
+
+;;
 ; Dijkstra algo
 ; 
 ;;
 to dijkstra [startnode typeLinkt]
 
 
+    
   
-
-
-ask nodes [
   
-    set assigned? false
-    set final? false
-    set time-to-root 1000000
-    set dist-to-root 1000000
-    set path []
-
-]
-
-ask startnode [
-    set time-to-root 0
-    set dist-to-root 0
-    set assigned? true
-    set connection nobody
-
-]
-  ;let foundNewLink? true
-  while [any? nodes with [assigned? and not final? ]]
-  ;while [foundNewLink?]
-  [
-    ;set foundNewLink? false
-    ask min-one-of (nodes with [assigned? and not final? ]) [ time-to-root ] [
-    let tempTurtle self
-      set final? true
-      if not (connection = nobody) [
-        ;ask connection [
-          ;set thickness 0.2
-          ;set [color] of myself red;[color] of other-end
-        ;]
-      ]
-      ;set label-color black
-      ;set label precision dist-to-root 1
-      let d1 0
-      let this-d dist-to-root
-      let t1 self
-      ask my-out-links with [typeLink = typeLinkt] [
-       ; set foundNewLink? true
-        ask other-end [
-          set d1 distance t1 / [speed_l] of myself
-          let time-to-root-now time-to-root
-          set time-to-root min list (this-d + d1) time-to-root
-          if (time-to-root = time-to-root-now) [
-            set dist-to-root distance t1
-          ]
-          ;set label precision dist-to-root 1
-          set assigned? true
-          if not (time-to-root = time-to-root-now) [
-            ;set label-color blue + 3
-            set connection myself
-            set path [path] of tempTurtle
-            set path lput connection path
+  ask nodes [
+    
+      set assigned? false
+      set final? false
+      set time-to-root 1000000
+      set dist-to-root 1000000
+      set path []
+  
+  ]
+  
+  ask startnode [
+      set time-to-root 0
+      set dist-to-root 0
+      set assigned? true
+      set connection nobody
+  
+  ]
+    ;let foundNewLink? true
+    while [any? nodes with [assigned? and not final? ]]
+    ;while [foundNewLink?]
+    [
+      ;set foundNewLink? false
+      ask min-one-of (nodes with [assigned? and not final? ]) [ time-to-root ] [
+      let tempTurtle self
+        set final? true
+        if not (connection = nobody) [
+          ;ask connection [
+            ;set thickness 0.2
+            ;set [color] of myself red;[color] of other-end
+          ;]
+        ]
+        ;set label-color black
+        ;set label precision dist-to-root 1
+        let d1 0
+        let this-d dist-to-root
+        let t1 self
+        ask my-out-links with [typeLink = typeLinkt] [
+         ; set foundNewLink? true
+          ask other-end [
+            set d1 distance t1 / [speed_l] of myself
+            let time-to-root-now time-to-root
+            set time-to-root min list (this-d + d1) time-to-root
+            if (time-to-root = time-to-root-now) [
+              set dist-to-root distance t1
+            ]
+            ;set label precision dist-to-root 1
+            set assigned? true
+            if not (time-to-root = time-to-root-now) [
+              ;set label-color blue + 3
+              set connection myself
+              set path [path] of tempTurtle
+              set path lput connection path
+            ]
           ]
         ]
       ]
     ]
-  ]
-  
-  ; ressource:
-  ;http://www.sges.auckland.ac.nz/the_school/our_people/osullivan_david/personal/stuff/dijkstra.html
-  ; pour l'algorithme dijkstra
+    
+    ; ressource:
+    ;http://www.sges.auckland.ac.nz/the_school/our_people/osullivan_david/personal/stuff/dijkstra.html
+    ; pour l'algorithme dijkstra
 
 end

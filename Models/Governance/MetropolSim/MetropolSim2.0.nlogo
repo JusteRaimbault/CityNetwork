@@ -1,10 +1,16 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; © F Le Nechet, J Raimbault 2015
+;;
+;; MetropolSim 2.0
+;;  
+;; © F Le Nechet, J Raimbault 2015 ; see License.md.
+;;
+;;
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-extensions [profiler]
+extensions [nw table profiler]
 
 
 __includes [
@@ -48,7 +54,7 @@ __includes [
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LogUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/PlottingUtilities.nls"
-  
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/TableUtilities.nls"
   
 ]
 
@@ -149,6 +155,14 @@ globals [
 
   ;; utils vars
   ;log-level  ;; -> added as chooser in interface
+
+
+  ;; Network variables
+  ;; Caches for shortest path computation
+  
+  cached-nw-distances
+  cached-nw-times
+  cached-nw-paths
 
 ]
 
@@ -347,22 +361,50 @@ nodes-own [
   distFRACTAL
   radial
   rocade
+  
+  ;;;;
+  ;; Dijstktra replacement variables
+  ;;
+
+  ;; DEPRECATED : global vars
+  ;; cached nw distances, same order as listNoeuds of destination patch
+  ;cached-nw-distances  
+  ;; idem for nw times
+  ;cached-nw-times  
+  ;; and paths
+  ;cached-nw-paths
 
 ]
 
 
 links-own [
+  
+  ;; speed in link
   speed_l
+  
   capacity_l
+  
   waitTime
+  
+  ;; transportation type
   typeLink
+  
+  ;; temporary link ? (used for best link research)
   tempLink?
+  
   utilisation_l
   utilisation_temp
   speed_empty_l
   scale_l
+  
+  ;;;;
+  ;; Dijstktra replacement variables
+  ;;
+  
+  ;; length of the link, used for weighted shortest path algo
+  transportation-link-length
+  
 ]
-
 
 
 
@@ -598,10 +640,10 @@ NIL
 1
 
 MONITOR
-63
-416
-145
-461
+273
+417
+355
+462
 sommePatches
 sum [plabel] of patches
 17
@@ -913,6 +955,17 @@ patch-color
 patch-color
 "none" "utility-A" "utility-E" "nbr-A" "nbr-E"
 3
+
+MONITOR
+62
+416
+112
+461
+nodes
+count nodes
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?

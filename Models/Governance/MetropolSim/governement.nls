@@ -642,101 +642,142 @@ to-report coutTransportPatches [patch1 patch2 typeTransport csp]
   let distReseauA 0
   let coutOiseauA 0
   let coutReseauA 0
-  while [i < length [item typeTransport listNoeuds] of patch1] [
-  let j 0
-
-  ;;;;;;;;;;;;show "je fais dijkstra � partir de"
-  ;;;;;;;;;;;;show item i [listNoeuds] of patch1
   
-  ;; dijkstra shortest path in network computation
-  ;; @TODO replace it by nw extension primitive ? possibility to cache shortest distances ?
-  dijkstra item i [item typeTransport listNoeuds] of patch1 typeTransport
+  ;; compute nw distance and cache them
+  ; if count [nodes-here] of patch1 > 0 or count [nodes-here] of patch2 > 0 [ output-print (word patch1 " - " patch2)]
+  compute-nw-paths patch1 patch2 typeTransport
   
-  while [j <  length [item typeTransport listNoeuds] of patch2] [ 
-  set distTempOiseau 0
-  set distTempReseau 0
-  set timeTempOiseau 0
-  set timeTempReseau 0  
-  set coutTempOiseau 0
-  set coutTempReseau 0
-  set coutTemp 0
-  ;;;;;;;;;;;;show "je trouve la distance suivante"
-    ask patch1 [
-      set temptemp (distance item i [item typeTransport listNoeuds] of patch1)
-      set distTempOiseau distTempOiseau + temptemp
-      set timeTempOiseau timeTempOiseau + temptemp / item typeTransport listSpeed
+  
+  ;; for all nodes of transport typeTransport on patch1
+  ; REPLACED by ask nodes
+  
+  ;while [i < length [item typeTransport listNoeuds] of patch1] [
+  ask ([nodes-here] of patch1) with [typeNode = typeTransport] [
+    
+     let j 0
+  
+     let n1 self
+    
+    ;; dijkstra shortest path in network computation
+    ;;->  replace it by nw extension primitive ? possibility to cache shortest distances ?
+    ;; [item typeTransport listNoeuds] of patch1 = list of nodes for transport typeTransport
+    ;;   -> dijkstra algo from node i
+    ;dijkstra (item i ([item typeTransport listNoeuds] of patch1)) typeTransport
+    
+    ; REPLACED by call :
+    update-nw-vars patch2 typeTransport self ; (item i ([item typeTransport listNoeuds] of patch1))
+    
+    
+    ;; for all nodes on patch2
+    ;output-print (word "nodes : " length [item typeTransport listNoeuds] of patch2)
+    
+    ; IDEM
+    ;while [j <  length [item typeTransport listNoeuds] of patch2] [ 
+    ask ([nodes-here] of patch2) with [typeNode = typeTransport] [
+      
+      
+      let n2 self
+      
+      set distTempOiseau 0
+      set distTempReseau 0
+      set timeTempOiseau 0
+      set timeTempReseau 0  
+      set coutTempOiseau 0
+      set coutTempReseau 0
+      set coutTemp 0
+      ;;;;;;;;;;;;show "je trouve la distance suivante"
+        ask patch1 [
+          ;set temptemp (distance item i [item typeTransport listNoeuds] of patch1)
+          set temptemp distance n1
+          set distTempOiseau distTempOiseau + temptemp
+          set timeTempOiseau timeTempOiseau + temptemp / item typeTransport listSpeed
+        ]
+        ;ask patch1 [set distTemp distTemp + (distance item i [listNoeuds] of patch1)]
+        ;;;;;;;;;;;;show distTemp
+        ask patch2 [
+          ;set temptemp (distance item j [item typeTransport listNoeuds] of patch2)
+          set temptemp distance n2
+          set distTempOiseau distTempOiseau + temptemp
+          set timeTempOiseau timeTempOiseau + temptemp / item typeTransport listSpeed      
+          ]
+        ;ask patch2 [set distTemp distTemp + (distance item j [listNoeuds] of patch2)]
+        ;;;;;;;;;;;;show distTemp
+       ;;;;;;;;;;;;;;;show distTemp
+       ;;;;;;;;;;;;show item j [listNoeuds] of patch2
+       ; � ce stade distTemp est la distance "vol d'oiseau": il faut stocker cela!!!
+       set coutTempOiseau distTempOiseau * item csp item typeTransport listCoutDistance + timeTempOiseau * item csp listValeursTemps
+       ;BALISE
+        
+        
+        ;; uses dijkstra variables
+        ;;  - time-to-root
+        ;;  - dist-to-root
+        ;;  - path
+        ;;
+        set timeTempReseau [time-to-root] of n2  ;(item j ([item typeTransport listNoeuds] of patch2))
+        set distTempReseau [dist-to-root] of n2  ;(item j ([item typeTransport listNoeuds] of patch2))
+        
+        set coutTempReseau distTempReseau * item csp item typeTransport listCoutDistance + timeTempReseau * item csp listValeursTemps
+        set coutTemp coutTempReseau + coutTempOiseau
+      ;;;;;;;;;;;;show distTemp
+        ;;;;;;;;;;;;show "� comparer avec la distance euclidienne"
+        ;;;;;;;;;;;;show dist
+        
+        if coutTemp < coutMin [
+           set coutMin coutTemp
+           set distMin (distTempReseau + distTempOiseau)
+           set distOiseauA distTempOiseau
+           set distReseauA distTempReseau
+           set coutOiseauA coutTempOiseau
+           set coutReseauA coutTempReseau    
+           
+           
+       ;    ;;;;;;;;;;;show "noeud entr�e"
+       ;    ;;;;;;;;;;;show item i [listNoeuds] of patch1
+       ;    ;;;;;;;;;;;show "noeud sortie"
+       ;    ;;;;;;;;;;;show item j [listNoeuds] of patch2
+       ;    
+           set cheminTemp [path] of n2  ; item j ([item typeTransport listNoeuds] of patch2)
+           
+           ;output-print patch2
+           ;output-print n2
+           ;output-print typeTransport
+           ;output-print cheminTemp
+        
+        
+        ]
+        
+      set j j + 1
     ]
-    ;ask patch1 [set distTemp distTemp + (distance item i [listNoeuds] of patch1)]
-    ;;;;;;;;;;;;show distTemp
-    ask patch2 [
-      set temptemp (distance item j [item typeTransport listNoeuds] of patch2)
-      set distTempOiseau distTempOiseau + temptemp
-      set timeTempOiseau timeTempOiseau + temptemp / item typeTransport listSpeed      
-      ]
-    ;ask patch2 [set distTemp distTemp + (distance item j [listNoeuds] of patch2)]
-    ;;;;;;;;;;;;show distTemp
-   ;;;;;;;;;;;;;;;show distTemp
-   ;;;;;;;;;;;;show item j [listNoeuds] of patch2
-   ; � ce stade distTemp est la distance "vol d'oiseau": il faut stocker cela!!!
-   set coutTempOiseau distTempOiseau * item csp item typeTransport listCoutDistance + timeTempOiseau * item csp listValeursTemps
-   ;BALISE
     
-    
-    ;; uses dijkstra variables
-    set timeTempReseau [time-to-root] of item j [item typeTransport listNoeuds] of patch2
-    set distTempReseau [dist-to-root] of item j [item typeTransport listNoeuds] of patch2
-    set coutTempReseau distTempReseau * item csp item typeTransport listCoutDistance + timeTempReseau * item csp listValeursTemps
-    set coutTemp coutTempReseau + coutTempOiseau
-  ;;;;;;;;;;;;show distTemp
-    ;;;;;;;;;;;;show "� comparer avec la distance euclidienne"
-    ;;;;;;;;;;;;show dist
-    if coutTemp < coutMin [
-    set coutMin coutTemp
-    set distMin (distTempReseau + distTempOiseau)
-    set distOiseauA distTempOiseau
-    set distReseauA distTempReseau
-    set coutOiseauA coutTempOiseau
-    set coutReseauA coutTempReseau    
-    
-    
-;    ;;;;;;;;;;;show "noeud entr�e"
-;    ;;;;;;;;;;;show item i [listNoeuds] of patch1
-;    ;;;;;;;;;;;show "noeud sortie"
-;    ;;;;;;;;;;;show item j [listNoeuds] of patch2
-;    
-    set cheminTemp [path] of item j [item typeTransport listNoeuds] of patch2
- ;   ;;;;;;;;;;;show cheminTemp
-    ]
-    
-  set j j + 1]
-set i i + 1]
+    set i i + 1
+  ]
 
-
-
-;;;;;;;;;;;;;;;;;show nodes1
-;;;;;;;;;;;;;;;;;show nodes2
-;]
-;;;;;;;;;;;;;show dist
-;;;;;;;;;;;;;show distanceMin
-if coutMin < cout1 [
-set cout1 coutMin
-set dist1 distMin
-
-set distOiseau distOiseauA
-set distReseau distReseauA
-set coutOiseau coutOiseauA
-set coutReseau coutReseauA
-
-]
-
-set cheminTemp fput cout1 cheminTemp
-set cheminTemp fput dist1 cheminTemp;AVERIFIER
-set cheminTemp fput coutReseau cheminTemp
-set cheminTemp fput coutOiseau cheminTemp
-set cheminTemp fput distReseau cheminTemp
-set cheminTemp fput distOiseau cheminTemp
-
-report cheminTemp
+  ;output-print cheminTemp
+  
+  ;;;;;;;;;;;;;;;;;show nodes1
+  ;;;;;;;;;;;;;;;;;show nodes2
+  ;]
+  ;;;;;;;;;;;;;show dist
+  ;;;;;;;;;;;;;show distanceMin
+  if coutMin < cout1 [
+    set cout1 coutMin
+    set dist1 distMin 
+    set distOiseau distOiseauA
+    set distReseau distReseauA
+    set coutOiseau coutOiseauA
+    set coutReseau coutReseauA
+  ]
+  
+  set cheminTemp fput cout1 cheminTemp
+  set cheminTemp fput dist1 cheminTemp;AVERIFIER
+  set cheminTemp fput coutReseau cheminTemp
+  set cheminTemp fput coutOiseau cheminTemp
+  set cheminTemp fput distReseau cheminTemp
+  set cheminTemp fput distOiseau cheminTemp
+  
+  report cheminTemp
+  
 end
 
 
