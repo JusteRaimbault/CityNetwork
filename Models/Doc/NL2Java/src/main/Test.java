@@ -14,9 +14,9 @@ public class Test {
 
 	
 	public static void test() throws Exception{
-		Main.processDirectory("data/", "data/");
+		Main.processDirectory("data/", "data/src/");
 		System.out.println("\n\n----------- main.java-------------\n");
-		Process p = Runtime.getRuntime().exec("cat data/main.java");
+		Process p = Runtime.getRuntime().exec("cat data/main.java;cd data/src; doxygen config");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line=reader.readLine();
         while (line != null) {    

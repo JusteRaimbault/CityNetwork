@@ -59,7 +59,7 @@ public class Primitive extends Content {
 	 * @return
 	 */
 	public String toString(){
-		return "Primitive : "+name+", start "+start+", end "+end;
+		return "Primitive : "+name+", start "+start+", end "+end+", header : "+header.toString()+" inside : "+insideComments.size();
 	}
 	
 	

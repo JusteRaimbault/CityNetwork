@@ -43,12 +43,12 @@ public class Writer {
 				// use className for now
 				
 				//check if first content is a comment, then writes it before the class beginning
-				if(contents.getFirst() instanceof CommentBlock){writeContent(contents.removeFirst(),writer);}
+				if(contents.getFirst() instanceof CommentBlock){System.out.println("Writing "+contents.getFirst());writeContent(contents.removeFirst(),writer);}
 				
 				//write class declaration
 				writer.write("public class "+className+" {\n");
 				
-				for(Content c:contents){writeContent(c,writer);}
+				for(Content c:contents){System.out.println("Writing "+c);writeContent(c,writer);}
 				
 				writer.write("}\n");
 				writer.close();
@@ -90,7 +90,7 @@ public class Writer {
 	public static void writePrimitive(Primitive p,BufferedWriter w){
 		try{
 			if(p.header != CommentBlock.EMPTY){writeCommentBlock(p.header,w);}
-			w.write("public static "+p.javaType+" () {\n");
+			w.write("public static "+p.javaType+" "+p.name+"() {\n");
 			for(CommentBlock c:p.insideComments){writeCommentBlock(c,w);}
 			w.write("}\n");
 		}catch(Exception e){e.printStackTrace();}
