@@ -12,7 +12,11 @@ library(rgdal)
 
 # create data structures
 # load raw raster
-raw <- raster("/Users/Juste/Documents/ComplexSystems/CityNetwork/Data/PopulationDensity/raw/uk-lr.tif")
+#raw <- raster("/Users/Juste/Documents/ComplexSystems/CityNetwork/Data/PopulationDensity/raw/uk-lr.tif")
+
+raw <- raster("/Users/Juste/Documents/ComplexSystems/CityNetwork/Data/PopulationDensity/raw/bassin_parisien_500x300.tif")
+
+
 m = as.matrix(raw)
 m[is.na(m)] <- 0
 
@@ -46,6 +50,10 @@ plot(o)
 
 #save result to view externally
 # pb ?
+
+# export binary * initial values ?
+
+
 writeRaster(raster(as.im(o)),paste0("/Users/Juste/Documents/ComplexSystems/CityNetwork/Data/PopulationDensity/processed/uk_closed_opened",radius,"_rep",rep,".tif"),"GTiff")
 
 

@@ -1,32 +1,52 @@
+
 ;;;;;;;;;;;;;;;;
 ;; Generation of large scale density pattern for a system of cities
 ;;;;;;;;;;;;;;;;
 
+
 ;; patches variables
+;
+; patches-own :: sp-density, sp-occupants-number
+;
 
-; patches-own :: sp-density
 
-
+;;
+; Setup for a synthetic pattern generation.
+;
 to setup-synth-pattern
   ; empty setup
-  ask patches [set sp-density 0]
+  ask patches [set sp-density 0 set sp-occupants 0]
   reset-ticks
   color-synth-pattern
 end
 
 
+;;
+; Go for one step of generation.
+;
 to go-synth-pattern
   
   ;; add new inhabitants with proba proportionnal to density
-  ; TODO : function of the density
+  ; Function of the density ?
   ;  ex : power function will favorise greater aggragations ?
   ;
-  ifelse ticks = 0 [repeat sp-growth-rate [ask one-of patches [set sp-density sp-density + 1]]][
-    let stot sum [sp-density] of patches
-    let s 0 let f 0 let r [] repeat sp-growth-rate [set r lput random-float stot r] set r sort r
-    ask patches with [sp-density > 0] [if f < sp-growth-rate [set s s + sp-density if s > item f r [set sp-density sp-density + 1 set f f + 1]]]
+  ; --> discrete choice model with beta param
+  ;
+  
+  let stot sum [sp-density ^ sp-alpha-localization] of patches
+  
+  ifelse stot = 0 [repeat sp-growth-rate [ask one-of patches [set sp-occupants sp-occupants + 1]]]
+  [
+    ; draw random patches
+    let s 0 let f 0 let r [] repeat sp-growth-rate [set r lput random-float 1 r] set r sort r
+    ; add 1 population to each
+    ask patches [if f < sp-growth-rate [set s s + (sp-density ^ sp-alpha-localization) if (s / stot) > item f r [set sp-occupants sp-occupants + 1 set f f + 1]]]
     
   ]
+  
+  ; update density
+  set sp-population sum [sp-occupants] of patches
+  ask patches [set sp-density sp-occupants / sp-population]
   
   ;; diffuse
   ;; TODO :: add heterogeneous diffusion. just random local perturbation ?
@@ -42,17 +62,37 @@ to go-synth-pattern
   tick
 end
 
+
+
+;;
+; Generation of a synthetic pattern
 to generate-synth-pattern
   setup-synth-pattern
   repeat sp-max-time [go-synth-pattern]
 end
 
 
+;;
+; setup density from a real raster file.
+to setup-real-pattern
+  clear-drawing
+  gis:apply-raster gis:load-dataset real-pattern-file sp-density
+  ;gis:paint gis:load-dataset real-pattern-file 0
+  
+  ; replace Nan -> strange test with <= or =>
+  ask patches with [not ( sp-density >= 0 or sp-density <= 0) ] [set sp-density 0]
+  
+  color-synth-pattern
+end
 
 
 
+;;
+; Color a given configuration (color gradient : number of people)
 to color-synth-pattern
   let ma max [sp-density] of patches let mi min [sp-density] of patches
+  ; density already normalized
+  ;let ma 1 let mi 0
   ifelse ma > mi [ask patches [set pcolor scale-color red sp-density mi ma]]
   [ask patches [set pcolor black]]
 end

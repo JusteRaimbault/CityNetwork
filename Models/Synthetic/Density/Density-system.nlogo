@@ -1,10 +1,12 @@
 
-
+extensions [gis]
 
 
 __includes [
   "synth-pattern.nls"
   "morph-indicators.nls"
+  
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
 ]
 
 
@@ -19,9 +21,21 @@ globals [
   ; number of ticks needed
   ;sp-max-time
   
+  ;; total number of people
+  sp-population
+  
 ]
 
-patches-own [sp-density]
+patches-own [
+  
+  ;; density of people living on the patch
+  sp-density
+  
+  ;; number of people
+  sp-occupants
+  
+  
+]
 @#$#@#$#@
 GRAPHICS-WINDOW
 14
@@ -59,7 +73,7 @@ sp-diffusion
 sp-diffusion
 0
 1
-0.0050
+0.89
 0.005
 1
 NIL
@@ -74,7 +88,7 @@ sp-growth-rate
 sp-growth-rate
 0
 100
-32
+85
 1
 1
 NIL
@@ -96,10 +110,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-1176
-178
-1239
-211
+1172
+246
+1235
+279
 go
 go-synth-pattern
 T
@@ -113,10 +127,10 @@ NIL
 1
 
 BUTTON
-1105
-178
-1171
-211
+1101
+246
+1167
+279
 setup
 setup-synth-pattern
 NIL
@@ -138,11 +152,48 @@ sp-diffusion-steps
 sp-diffusion-steps
 0
 10
-1
+2
 1
 1
 NIL
 HORIZONTAL
+
+SLIDER
+1099
+164
+1288
+197
+sp-alpha-localization
+sp-alpha-localization
+0
+10
+0.2
+0.1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+14
+655
+81
+700
+population
+sp-population
+17
+1
+11
+
+INPUTBOX
+1097
+338
+1344
+423
+real-pattern-file
+../../../Data/PopulationDensity/raw/bp_300x500.asc
+1
+1
+String
 
 @#$#@#$#@
 ## WHAT IS IT?

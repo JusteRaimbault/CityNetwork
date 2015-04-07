@@ -20,10 +20,32 @@ to-report int-local-density
 end
 
 
+;;
+; Moran index for densities
+;
+;  Computed patch by patch - in \theta(N(N-1)/2)
+;
 to-report moran-index
+  let patch-list to-list patches
   
+  let s 0 let w 0 let norm-factor 0 let n count patches
+  let rem-list but-first patch-list
+  let m mean [sp-density] of patches
+  
+  foreach but-last patch-list [
+    let patch-i ?
+    foreach rem-list [
+      let patch-j ?
+      set w w + (1 / [distance patch-j] of patch-i)
+      ;ask patch-i [set w w + (1 / distance patch-j) set s s + (((sp-density - m)*([sp-density] of patch-j - m))/(1 / distance patch-j))]
+    ] 
+    set norm-factor norm-factor + (([sp-density] of patch-i - m) ^ 2)
+    set rem-list but-first rem-list
+  ]
+  report (n * (n - 1) / 2 ) * s / (w * norm-factor)
   
 end
+
 
 
 to-report average-distance-individuals
