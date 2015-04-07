@@ -7,6 +7,8 @@ __includes [
   "morph-indicators.nls"
   
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ViewUtilities.nls"
+  
 ]
 
 
@@ -73,7 +75,7 @@ sp-diffusion
 sp-diffusion
 0
 1
-0.89
+0.105
 0.005
 1
 NIL
@@ -88,7 +90,7 @@ sp-growth-rate
 sp-growth-rate
 0
 100
-85
+40
 1
 1
 NIL
@@ -167,7 +169,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-0.2
+0.4
 0.1
 1
 NIL
@@ -194,6 +196,38 @@ real-pattern-file
 1
 1
 String
+
+BUTTON
+1100
+434
+1189
+467
+save view
+save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Examples/ex\" [\"sp-max-pop\" \"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\"]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+1099
+202
+1271
+235
+sp-max-pop
+sp-max-pop
+0
+10000
+3000
+10
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

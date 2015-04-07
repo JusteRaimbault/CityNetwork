@@ -14,6 +14,20 @@
 ;  -> implement 7 indicators of Florent ?
 
 
+;;
+; Setup of external indicators computation
+;
+to setup-indicator-computation
+  
+  ;; setup r session, source functions
+  ;r:
+  
+  ;; save density data in temp raster file
+  gis:store-dataset gis:patch-dataset sp-density "temp_raster.asc"
+  
+end
+
+
 to-report int-local-density
   
   
@@ -26,23 +40,31 @@ end
 ;  Computed patch by patch - in \theta(N(N-1)/2)
 ;
 to-report moran-index
-  let patch-list to-list patches
   
-  let s 0 let w 0 let norm-factor 0 let n count patches
-  let rem-list but-first patch-list
-  let m mean [sp-density] of patches
+  ;; direct computation is very slow (complexity - ask, distance)
+  ; external call to R primitives using matrix convolution should be a huge gain of time
+  ;  -> general indicator setup setting up r extension, sourcing functions, etc
+  ;     then calls specific functions ?
+  ;
   
-  foreach but-last patch-list [
-    let patch-i ?
-    foreach rem-list [
-      let patch-j ?
-      set w w + (1 / [distance patch-j] of patch-i)
-      ;ask patch-i [set w w + (1 / distance patch-j) set s s + (((sp-density - m)*([sp-density] of patch-j - m))/(1 / distance patch-j))]
-    ] 
-    set norm-factor norm-factor + (([sp-density] of patch-i - m) ^ 2)
-    set rem-list but-first rem-list
-  ]
-  report (n * (n - 1) / 2 ) * s / (w * norm-factor)
+  
+;  let patch-list to-list patches
+;  
+;  let s 0 let w 0 let norm-factor 0 let n count patches
+;  let rem-list but-first patch-list
+;  let m mean [sp-density] of patches
+;  
+;  foreach but-last patch-list [
+;    let patch-i ?
+;    foreach rem-list [
+;      let patch-j ?
+;      set w w + (1 / [distance patch-j] of patch-i)
+;      ;ask patch-i [set w w + (1 / distance patch-j) set s s + (((sp-density - m)*([sp-density] of patch-j - m))/(1 / distance patch-j))]
+;    ] 
+;    set norm-factor norm-factor + (([sp-density] of patch-i - m) ^ 2)
+;    set rem-list but-first rem-list
+;  ]
+;  report (n * (n - 1) / 2 ) * s / (w * norm-factor)
   
 end
 
