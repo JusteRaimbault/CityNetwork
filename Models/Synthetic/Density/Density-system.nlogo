@@ -75,7 +75,7 @@ sp-diffusion
 sp-diffusion
 0
 1
-0.105
+0.2
 0.005
 1
 NIL
@@ -154,7 +154,7 @@ sp-diffusion-steps
 sp-diffusion-steps
 0
 10
-2
+4
 1
 1
 NIL
@@ -169,7 +169,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-0.4
+0.9
 0.1
 1
 NIL
@@ -222,8 +222,8 @@ SLIDER
 sp-max-pop
 sp-max-pop
 0
-10000
-3000
+100000
+100000
 10
 1
 NIL

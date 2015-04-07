@@ -48,6 +48,10 @@ for(n in 1:length(N)){
   }
 }
 
+#save result
+save(null_morans,morans,file="moran.Rdata",ascii=TRUE)
+
+
 # plot results with error bars
 library(ggplot2)
 d = data.frame(meanCons,sdCons,lims)
