@@ -4,7 +4,7 @@
 
 # libraries
 library(raster)
-
+library(bigmemory)
 
 # weights for Moran
 spatialWeights <- function (N,P){
@@ -25,6 +25,36 @@ r = raster(m)
 moranIndex <- function(){
   return(Moran(r,spatialWeights(floor(nrow(m)/2),floor(ncol(m)/2))))
 }
+
+
+# average distance between indivduals
+# normalized by max distance = world diagonal
+
+averageDistance <- function(){
+  # get densities as vector
+  # -> by default numered row by row, transpose to have by column
+  N = matrix(data=t(as.matrix(r)),nrow=nrow(m)*ncol(m))
+  
+  n_patches = length(N)
+  n_cols = ncol(m)
+  
+  # creates distance matrix
+  #D = matrix(0,n_patches,n_patches)
+  s = 0
+  for(i in 1:n_patches){
+    if(i %% floor(n_patches / 10) == 0){show(i %/% n_patches)}
+    for(j in 1:n_patches){
+      s = s + (N[i] * sqrt( ((j-i) %/% n_cols)^2 +  ((j-i) %% n_cols )^2))
+    }
+  }
+  
+  D = (D + t(D))
+  
+  return(matrix(1,1,n_patches) %*% D %*% N)
+  
+}
+
+
 
 
 
