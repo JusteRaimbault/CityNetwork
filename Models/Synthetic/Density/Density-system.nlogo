@@ -1,5 +1,5 @@
 
-extensions [gis]
+extensions [r gis pathdir profiler]
 
 
 __includes [
@@ -36,6 +36,8 @@ patches-own [
   ;; number of people
   sp-occupants
   
+  ;; raster variable
+  sp-raster-var
   
 ]
 @#$#@#$#@
@@ -75,7 +77,7 @@ sp-diffusion
 sp-diffusion
 0
 1
-0.2
+0.385
 0.005
 1
 NIL
@@ -154,7 +156,7 @@ sp-diffusion-steps
 sp-diffusion-steps
 0
 10
-4
+3
 1
 1
 NIL
@@ -169,7 +171,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-0.9
+0.6
 0.1
 1
 NIL
@@ -223,11 +225,28 @@ sp-max-pop
 sp-max-pop
 0
 100000
-100000
+4460
 10
 1
 NIL
 HORIZONTAL
+
+BUTTON
+1102
+501
+1190
+534
+setup indics
+setup-indicator-computation
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

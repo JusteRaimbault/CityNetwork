@@ -15,15 +15,26 @@
 
 
 ;;
-; Setup of external indicators computation
+; Setup of external indicators computation.
+;
+;   setup R session, saves temporary raster
 ;
 to setup-indicator-computation
   
-  ;; setup r session, source functions
-  ;r:
   
   ;; save density data in temp raster file
+  ; needs first to set a default coordinate system
+  ;gis:set-coordinate-system "default.prj"  ;; does not work
+  ; load a dataset inside void variable
+  gis:apply-raster gis:load-dataset "data/example.asc" sp-raster-var
   gis:store-dataset gis:patch-dataset sp-density "temp_raster.asc"
+  
+  
+  ;; setup r session, source functions
+  let pathroot (word pathdir:get-current pathdir:get-separator)
+  r:eval (word "setwd(\"" pathroot "\")")
+  r:eval "source(\"morpho.R\")"
+  
   
 end
 
