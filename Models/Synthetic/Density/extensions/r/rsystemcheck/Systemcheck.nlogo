@@ -1,281 +1,167 @@
+extensions [rsystemcheck]
 
-extensions [gis pathdir profiler r]
+to basicCheck
+  rsystemcheck:basiccheck
+end
 
-__includes [
-  "synth-pattern.nls"
-  "morph-indicators.nls"
-  "exploration.nls"
-  
-  
-  "utils/ListUtilities.nls"
-  "utils/ViewUtilities.nls"
-  "utils/ExplorationUtilities.nls"
-  "utils/FileUtilities.nls"
-]
+to javaCheck
+  rsystemcheck:javacheck  
+end
 
+to RCheck
+  rsystemcheck:rcheck
+end
 
-globals [
-  
-  ; diffusion parameter
-  ;sp-diffusion
-  
-  ; growth rate = number of new inhabitats per time step
-  ; sp-growth-rate
-  
-  ; number of ticks needed
-  ;sp-max-time
-  
-  ;; total number of people
-  sp-population
-  
-  ;; total-time-steps for exploration
-  total-time-steps
-  
-]
+to rJavaCheck
+  rsystemcheck:rJavacheck2
+end
 
-patches-own [
-  
-  ;; density of people living on the patch
-  sp-density
-  
-  ;; number of people
-  sp-occupants
-  
-  ;; raster variable
-  sp-raster-var
-  
-]
+to jriCheck
+  rsystemcheck:jricheck
+end
+
+to javaGDCheck
+  rsystemcheck:javagdcheck
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-14
-10
-529
-546
+619
+19
+864
+230
 -1
 -1
-5.0
+90.0
 1
 10
 1
 1
 1
 0
-0
+1
+1
+1
 0
 1
 0
-100
+1
 0
-100
-1
-1
+0
 1
 ticks
 30.0
 
-SLIDER
-1096
-17
-1277
-50
-sp-diffusion
-sp-diffusion
-0
-1
-0.05
-0.005
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1097
-54
-1269
-87
-sp-growth-rate
-sp-growth-rate
-0
-1000
-100
-1
-1
-NIL
-HORIZONTAL
-
 BUTTON
-1172
-246
-1235
-279
-go
-go-synth-pattern
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1101
-246
-1167
-279
-setup
-setup-synth-pattern
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-1098
-129
-1270
-162
-sp-diffusion-steps
-sp-diffusion-steps
-0
-10
-2
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1099
-164
-1288
-197
-sp-alpha-localization
-sp-alpha-localization
-0
-10
-1.4
-0.1
-1
-NIL
-HORIZONTAL
-
-MONITOR
-14
-655
-81
-700
-population
-sp-population
-17
-1
-11
-
-INPUTBOX
-1097
-338
-1344
-423
-real-pattern-file
-data/england.asc
-1
-1
-String
-
-BUTTON
-1100
-434
-1189
-467
-save view
-save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Examples/ex\" [\"sp-max-pop\" \"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\"]
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-1099
-202
-1271
-235
-sp-max-pop
-sp-max-pop
-0
-100000
-80260
-10
-1
-NIL
-HORIZONTAL
-
-BUTTON
-1102
-501
-1190
-534
-setup indics
-setup-indicator-computation
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1196
-500
-1292
-533
-eval indics
-setup-indicator-computation\noutput-print word \"moran :\" moran-index\noutput-print word \"distance :\" average-distance-individuals\noutput-print word \"entropy :\" entropy\noutput-print word \"rank-size-slope :\" rank-size-slope
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-OUTPUT
-1087
-538
-1399
-693
 12
-
-SLIDER
-1099
-90
-1271
-123
-sp-max-time
-sp-max-time
-0
-100
-50
-1
-1
+10
+521
+43
+Do a basic check (operation system, java, env. variables)
+basicCheck
 NIL
-HORIZONTAL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+12
+46
+521
+79
+Check Java: used to run this NetLogo instance compared to terminal java (used for R).
+javaCheck
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+12
+82
+522
+115
+Check R: which version runs in terminal.
+Rcheck
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+12
+118
+523
+151
+Check rJava: try to load the rJava package (check against the terminal Java version)
+rJavacheck
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+13
+192
+523
+225
+Check JavaGD: try to load the JavaGD package (only needed if you use r:setplotdevice)
+javagdcheck
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+TEXTBOX
+15
+230
+818
+717
+Notes:\n\n--> only tested with Windows XP, Vista and Ubuntu Linux\n\nCheck Java:\nEspecially on Windows OS there could be a mismatch between the Java version used by NetLogo and the Java version available in terminal (and therefore used for R/rJava). Especially, when one is for 64-bit and the other is for 32-bit, the connection to R will fail. \nSolutions: Try to start NetLogo from a terminal via: java -jar NetLogo.jar, or change the Java used in terminal by changing the JAVA_HOME and/or PATH variable (and reinstall the rJava package).\n \nCheck R:\nIs there a connection to R? Is a R library file (R.so, R.dll) available? If not, check your R_HOME and PATH variable or whatever you have used. If you cannot start R from a terminal by typing \"R\", this check will fail. Have a look on the version of R. Is this the version, where you have installed the rJava package. Does it correspond to the running Java version regarding the bits (32- or 64-bit). You could either change the Java version used (on Windows: change your JAVA_HOME and/or PATH variable) or the R version (on Windows: change your PATH variable to %R_HOME%/bin/i386 for example to use an explicit 32-bit version). \n\nCheck rJava: \nThis will try to load the rJava package from R. If there is a Java mismatch, this will fail. At the end of the output you will see the path to the rJava package. This should correspond to the JRI_HOME variable, given at the beginning of the output (with the additional /jri directory).\n\nCheck JRI:\nThis will load the JRI library from the path given by the JRI_HOME variable. If the jri.dll/jri.so file wasn't found or is not the correct version for the running Java version (32-/64-bit mismatch), it can happen that NetLogo closes immediatly. Check your JRI_HOME variable, the Java and R version, and reinstall the rJava package. Check rJava1/rJava2 first!\n\nCheck JavaGD:\nThis is only needed if you want to use the plot device via r:setPlotDevice. This will try to load the JavaGD package in R and shows you the path, where it is installed at the end of the output.  
+11
+0.0
+1
+
+BUTTON
+12
+155
+522
+188
+Check JRI: try to load the JRI library
+jriCheck
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -508,19 +394,12 @@ Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
 sheep
 false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
+0
+Rectangle -7500403 true true 151 225 180 285
+Rectangle -7500403 true true 47 225 75 285
+Rectangle -7500403 true true 15 75 210 225
+Circle -7500403 true true 135 75 150
+Circle -16777216 true false 165 76 116
 
 square
 false
@@ -606,13 +485,6 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
-
 x
 false
 0
@@ -620,7 +492,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -628,9 +500,9 @@ NetLogo 5.1.0
 @#$#@#$#@
 default
 0.0
--0.2 0 0.0 1.0
+-0.2 0 1.0 0.0
 0.0 1 1.0 0.0
-0.2 0 0.0 1.0
+0.2 0 1.0 0.0
 link direction
 true
 0

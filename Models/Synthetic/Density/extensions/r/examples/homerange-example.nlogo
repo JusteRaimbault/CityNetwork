@@ -1,56 +1,190 @@
+;; Homerange example of R-extension
+;;
+;;
+;; by Jan C. Thiele
+;; University of Goettingen, Germany
+;; Department Ecoinformatics, Biometrics and Forest Growth
+;; Buesgenweg 4
+;; 37077 Goettingen
+;; Germany
+;;
+;; Contact: jthiele@gwdg.de
+;;
+;; Copyright: 2013, J.C. Thiele
 
-extensions [gis pathdir profiler r]
+extensions [r]
 
-__includes [
-  "synth-pattern.nls"
-  "morph-indicators.nls"
-  "exploration.nls"
+breed [animals animal]
+breed [homeranges homerange]
+
+animals-own
+[ Name X Y ]
+
+homeranges-own
+[ Name ]
+
+to setup
+  clear-all
+  r:clear 
   
-  
-  "utils/ListUtilities.nls"
-  "utils/ViewUtilities.nls"
-  "utils/ExplorationUtilities.nls"
-  "utils/FileUtilities.nls"
-]
+  ;; create three different animals (rabbit, cat, fox)
+  create-animals 3
+  [ 
+    if (who = 0)
+    [ 
+      set Name "rabbit" 
+      set color 14
+    ]
+    if (who = 1)
+    [ 
+      set Name "cat" 
+      set color 44
+    ]
+    if (who = 2)
+    [ 
+      set Name "fox" 
+      set color 94
+    ]
+    set xcor random-pxcor
+    set ycor random-pycor
+    set X (list xcor)
+    set Y (list ycor)
+    pen-down
+  ]
+
+  go
+end 
+
+to go
+  repeat 100
+  [
+    ;; move the animals randomly
+    ask animals
+    [
+      let nextpatch patch-at-heading-and-distance random 360 random 3
+      if (nextpatch != nobody)
+      [ move-to nextpatch ]
+      set X lput xcor X
+      set Y lput ycor Y
+    ]
+  ]
+end
 
 
-globals [
-  
-  ; diffusion parameter
-  ;sp-diffusion
-  
-  ; growth rate = number of new inhabitats per time step
-  ; sp-growth-rate
-  
-  ; number of ticks needed
-  ;sp-max-time
-  
-  ;; total number of people
-  sp-population
-  
-  ;; total-time-steps for exploration
-  total-time-steps
-  
-]
 
-patches-own [
+to calc-homerange
+  r:eval "library(adehabitatHR)"
+  r:eval "library(sp)"
   
-  ;; density of people living on the patch
-  sp-density
+  ;; create an empty data.frame"
+  r:eval "turtles <- data.frame()"
   
-  ;; number of people
-  sp-occupants
+  ;; merge the Name, X- and Y-lists of all animals to one big data.frame
+  ask animals
+  [
+    (r:putdataframe "turtle" "X" X "Y" Y)     
+    r:eval (word "turtle <- data.frame(turtle, Name = '" Name "')")
+    r:eval "turtles <- rbind(turtles, turtle)"
+  ]
+   
+  ;; create SpatialPointsDataFrame
+  r:eval "spdf <- SpatialPointsDataFrame(turtles[1:2], turtles[3])" 
+  r:eval "homerange <- mcp(spdf)"
   
-  ;; raster variable
-  sp-raster-var
+  ifelse (plot-homerange)
+  [ plot-into-file ]
+  [ 
+    mark-homeranges 
+    plot-area
+  ]    
+end  
+
+
+
+to plot-into-file
+  ;; plot the homerange polygons (into pdf-file)
+  r:eval (word "pdf('" homerange-plot ".pdf')" )
+  r:eval (word "plot(homerange, xlim=c(" min-pxcor "," max-pxcor "), ylim=c(" min-pycor "," max-pycor "))")
+  r:eval (word "plot(spdf, col=as.data.frame(spdf)[,1], add=TRUE)")
+  r:eval "dev.off()" 
+
+  ;; plot the homerange area depending on the homerange level (into pdf-file)
+  r:eval (word "pdf('" homerange-level-plot ".pdf')" )  
+  r:eval "plot(mcp.area(spdf, unout='m2'))"  
+  r:eval "dev.off()" 
+
+end
+
+
+
+to mark-homeranges
+  clear-drawing
   
-]
+  ask animals
+  [  
+    pen-up
+    ;; get the points of the homerange polygon for the current animal
+    r:eval (word "temp <- slot(homerange,'polygons')[[which(slot(homerange,'data')$id == '"Name"')]]@Polygons[[1]]@coords")
+    let tempX r:get "temp[,1]"
+    let tempY r:get "temp[,2]"
+    let tempXY (map [list ?1 ?2] tempX tempY)
+    
+    ;; create a turtle, which draws the homerange boundary
+    hatch-homeranges 1
+    [ 
+      hide-turtle
+      set Name [Name] of myself 
+      set color [color] of myself
+    ]
+    
+    ;; draw the homerange boundary
+    foreach tempXY
+    [
+      ask homeranges with [Name = [Name] of myself]
+      [
+        move-to patch (item 0 ?) (item 1 ?)
+        pen-down
+      ]
+    ] 
+    
+    ;; connect the last point of the homerange with the first one, to close the polygon
+    ask homeranges with [Name = [Name] of myself]
+    [
+      let lastpoint first tempXY
+      move-to patch (item 0 lastpoint) (item 1 lastpoint)   
+    ]
+  ]   
+end
+
+
+to plot-area
+  clear-all-plots 
+  let precstart 20
+  let precincre 5
+  ;; calculate the size of the homerange depending on homerange level 
+  r:eval (word "area <- mcp.area(spdf, unout='m2', percent = seq(" precstart ",100, by = " precincre "), plotit=FALSE)")
+
+  ;; plot the homerange area of every animal, using temporary plot pen
+  ask animals
+  [ 
+    let arealist r:get (word "area$" Name)    
+    set-current-plot "home range area"
+    create-temporary-plot-pen Name
+    set-plot-pen-color color
+    let prec precstart
+    foreach arealist
+    [ 
+      plotxy prec ?
+      set prec prec + precincre 
+    ]       
+  ]  
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-14
-10
-529
-546
+346
+49
+861
+585
 -1
 -1
 5.0
@@ -67,66 +201,19 @@ GRAPHICS-WINDOW
 100
 0
 100
-1
-1
+0
+0
 1
 ticks
 30.0
 
-SLIDER
-1096
-17
-1277
-50
-sp-diffusion
-sp-diffusion
-0
-1
-0.05
-0.005
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1097
-54
-1269
-87
-sp-growth-rate
-sp-growth-rate
-0
-1000
-100
-1
-1
-NIL
-HORIZONTAL
-
 BUTTON
-1172
-246
-1235
-279
-go
-go-synth-pattern
-T
-1
-T
-OBSERVER
+5
+93
+68
+126
 NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1101
-246
-1167
-279
 setup
-setup-synth-pattern
 NIL
 1
 T
@@ -137,182 +224,140 @@ NIL
 NIL
 1
 
-SLIDER
-1098
-129
-1270
-162
-sp-diffusion-steps
-sp-diffusion-steps
-0
-10
-2
-1
-1
+BUTTON
+4
+138
+123
+171
 NIL
-HORIZONTAL
-
-SLIDER
-1099
-164
-1288
-197
-sp-alpha-localization
-sp-alpha-localization
-0
-10
-1.4
-0.1
-1
+calc-homerange
 NIL
-HORIZONTAL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
-MONITOR
-14
-655
-81
-700
-population
-sp-population
+TEXTBOX
+10
+16
+339
+58
+R-packages \"adehabitatHR\" and \"sp\" have to be installed!
 17
+15.0
 1
-11
+
+SWITCH
+5
+176
+148
+209
+plot-homerange
+plot-homerange
+1
+1
+-1000
 
 INPUTBOX
-1097
-338
-1344
-423
-real-pattern-file
-data/england.asc
+5
+259
+242
+319
+homerange-plot
+extensions/r/examples/homerange
 1
-1
+0
 String
 
-BUTTON
-1100
-434
-1189
-467
-save view
-save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Examples/ex\" [\"sp-max-pop\" \"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\"]
-NIL
+INPUTBOX
+6
+325
+319
+385
+homerange-level-plot
+extensions/r/examples/homerangearea
 1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-1099
-202
-1271
-235
-sp-max-pop
-sp-max-pop
 0
-100000
-80260
-10
-1
-NIL
-HORIZONTAL
+String
 
-BUTTON
-1102
-501
-1190
-534
-setup indics
-setup-indicator-computation
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
+PLOT
+7
+398
+343
+584
+home range area
+home-range level
+home-range size (m2)
+0.0
+1.0
+0.0
+1.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
 
-BUTTON
-1196
-500
-1292
-533
-eval indics
-setup-indicator-computation\noutput-print word \"moran :\" moran-index\noutput-print word \"distance :\" average-distance-individuals\noutput-print word \"entropy :\" entropy\noutput-print word \"rank-size-slope :\" rank-size-slope
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
+TEXTBOX
+11
+61
+321
+79
+See documentation for notes about package loading.
+13
+0.0
 1
 
-OUTPUT
-1087
-538
-1399
-693
-12
-
-SLIDER
-1099
-90
-1271
-123
-sp-max-time
-sp-max-time
-0
-100
-50
+TEXTBOX
+11
+220
+293
+254
+You will need to have writing permissions to save the pdf files into the paths.
+13
+0.0
 1
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This section could give a general understanding of what the model is trying to show or explain.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+This section could explain what rules the agents use to create the overall behavior of the model.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+This section could explain how to use the model, including a description of each of the items in the interface tab.
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+This section could give some ideas of things for the user to notice while running the model.
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
 
 ## NETLOGO FEATURES
 
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
 
 ## RELATED MODELS
 
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 @#$#@#$#@
 default
 true
@@ -506,22 +551,6 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
-sheep
-false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
-
 square
 false
 0
@@ -606,13 +635,6 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
-
 x
 false
 0
@@ -620,7 +642,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

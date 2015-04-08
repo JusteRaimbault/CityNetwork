@@ -1,132 +1,105 @@
+;; Ripley's K example of R-extension
+;;
+;;
+;; by Jan C. Thiele
+;; University of Goettingen, Germany
+;; Department Ecoinformatics, Biometrics and Forest Growth
+;; Buesgenweg 4
+;; 37077 Goettingen
+;; Germany
+;;
+;; Contact: jthiele@gwdg.de
+;;
+;; Copyright: 2013, J.C. Thiele
 
-extensions [gis pathdir profiler r]
+extensions [r]
 
-__includes [
-  "synth-pattern.nls"
-  "morph-indicators.nls"
-  "exploration.nls"
+to setup
+  clear-all
   
+  ;; load R package spatstat for spatial statistics
+  r:eval "library(spatstat)"
   
-  "utils/ListUtilities.nls"
-  "utils/ViewUtilities.nls"
-  "utils/ExplorationUtilities.nls"
-  "utils/FileUtilities.nls"
-]
+  ;; create 20 turtles at random positions  
+  crt 20
+  [
+    set xcor random-xcor
+    set ycor random-ycor  
+  ]
+end
 
+to go
+  ;; let the turtles walk around randomly
+  ask turtles
+  [
+    right random 360
+    forward random 10
+  ]
+  
+  ;; send agent variables into an R data-frame
+  (r:putagentdf "agentset" turtles "who" "xcor" "ycor")
 
-globals [
+  ;; create point pattern with vectors of x- and y-coordinates of turtles and the dimension of the window/world
+  let revalstring (word "agppp <- ppp(agentset$xcor, agentset$ycor, c(" min-pxcor "," max-pxcor "), c(" min-pycor "," max-pycor ") )")
+  r:eval revalstring
   
-  ; diffusion parameter
-  ;sp-diffusion
+  ;; calculate Ripley's K function
+  r:eval "K <- Kest(agppp)"
   
-  ; growth rate = number of new inhabitats per time step
-  ; sp-growth-rate
+  ;; get results from R
+  let ripl_k r:get "K$iso"
+  let r r:get "K$r"
+  let theo r:get "K$theo"
   
-  ; number of ticks needed
-  ;sp-max-time
+  ;; combine results into a multidimensional list for plotting
+  let ripl (map [(list ?1 ?2 ?3)] r ripl_k theo)
   
-  ;; total number of people
-  sp-population
-  
-  ;; total-time-steps for exploration
-  total-time-steps
-  
-]
-
-patches-own [
-  
-  ;; density of people living on the patch
-  sp-density
-  
-  ;; number of people
-  sp-occupants
-  
-  ;; raster variable
-  sp-raster-var
-  
-]
+  ;; plot the results
+  clear-plot
+  foreach ripl
+  [
+    set-current-plot "Ripley's K function"
+    set-current-plot-pen "K(r)"
+    plotxy (item 0 ?) (item 1 ?)
+    set-current-plot-pen "theo"
+    plotxy (item 0 ?) (item 2 ?)
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-14
-10
-529
-546
--1
--1
-5.0
+432
+69
+759
+417
+16
+16
+9.61
 1
 10
 1
 1
 1
 0
-0
-0
-1
-0
-100
-0
-100
 1
 1
+1
+-16
+16
+-16
+16
+0
+0
 1
 ticks
 30.0
 
-SLIDER
-1096
-17
-1277
-50
-sp-diffusion
-sp-diffusion
-0
-1
-0.05
-0.005
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1097
-54
-1269
-87
-sp-growth-rate
-sp-growth-rate
-0
-1000
-100
-1
-1
-NIL
-HORIZONTAL
-
 BUTTON
-1172
-246
-1235
-279
-go
-go-synth-pattern
-T
-1
-T
-OBSERVER
+6
+70
+69
+103
 NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1101
-246
-1167
-279
 setup
-setup-synth-pattern
 NIL
 1
 T
@@ -137,182 +110,98 @@ NIL
 NIL
 1
 
-SLIDER
-1098
-129
-1270
-162
-sp-diffusion-steps
-sp-diffusion-steps
-0
-10
-2
-1
-1
+BUTTON
+5
+109
+68
+142
 NIL
-HORIZONTAL
-
-SLIDER
-1099
-164
-1288
-197
-sp-alpha-localization
-sp-alpha-localization
-0
-10
-1.4
-0.1
-1
+go
 NIL
-HORIZONTAL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
-MONITOR
-14
-655
-81
-700
-population
-sp-population
+PLOT
+73
+69
+426
+417
+Ripley's K function
+r
+K(r)
+0.0
+1.0
+0.0
+1.0
+true
+false
+"" ""
+PENS
+"K(r)" 1.0 0 -16777216 true "" ""
+"theo" 1.0 0 -2674135 true "" ""
+
+TEXTBOX
+9
+13
+376
+40
+R-Package \"spatstat\" has to be installed!
 17
-1
-11
-
-INPUTBOX
-1097
-338
-1344
-423
-real-pattern-file
-data/england.asc
-1
-1
-String
-
-BUTTON
-1100
-434
-1189
-467
-save view
-save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Examples/ex\" [\"sp-max-pop\" \"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\"]
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
+15.0
 1
 
-SLIDER
-1099
-202
-1271
-235
-sp-max-pop
-sp-max-pop
-0
-100000
-80260
+TEXTBOX
 10
+42
+329
+60
+See documentation for notes about package loading.
+13
+0.0
 1
-NIL
-HORIZONTAL
-
-BUTTON
-1102
-501
-1190
-534
-setup indics
-setup-indicator-computation
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1196
-500
-1292
-533
-eval indics
-setup-indicator-computation\noutput-print word \"moran :\" moran-index\noutput-print word \"distance :\" average-distance-individuals\noutput-print word \"entropy :\" entropy\noutput-print word \"rank-size-slope :\" rank-size-slope
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-OUTPUT
-1087
-538
-1399
-693
-12
-
-SLIDER
-1099
-90
-1271
-123
-sp-max-time
-sp-max-time
-0
-100
-50
-1
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This section could give a general understanding of what the model is trying to show or explain.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+This section could explain what rules the agents use to create the overall behavior of the model.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+This section could explain how to use the model, including a description of each of the items in the interface tab.
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+This section could give some ideas of things for the user to notice while running the model.
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
 
 ## NETLOGO FEATURES
 
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
 
 ## RELATED MODELS
 
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 @#$#@#$#@
 default
 true
@@ -508,19 +397,12 @@ Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
 sheep
 false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
+0
+Rectangle -7500403 true true 151 225 180 285
+Rectangle -7500403 true true 47 225 75 285
+Rectangle -7500403 true true 15 75 210 225
+Circle -7500403 true true 135 75 150
+Circle -16777216 true false 165 76 116
 
 square
 false
@@ -606,13 +488,6 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
-
 x
 false
 0
@@ -620,7 +495,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -628,9 +503,9 @@ NetLogo 5.1.0
 @#$#@#$#@
 default
 0.0
--0.2 0 0.0 1.0
+-0.2 0 1.0 0.0
 0.0 1 1.0 0.0
-0.2 0 0.0 1.0
+0.2 0 1.0 0.0
 link direction
 true
 0

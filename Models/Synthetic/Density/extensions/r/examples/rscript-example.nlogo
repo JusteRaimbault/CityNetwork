@@ -1,132 +1,65 @@
+;; RScript Example of R-extension
+;;
+;;
+;; by Jan C. Thiele
+;; University of Goettingen, Germany
+;; Department Ecoinformatics, Biometrics and Forest Growth
+;; Buesgenweg 4
+;; 37077 Goettingen
+;; Germany
+;;
+;; Contact: jthiele@gwdg.de
+;;
+;; Copyright: 2013, J.C. Thiele
 
-extensions [gis pathdir profiler r]
 
-__includes [
-  "synth-pattern.nls"
-  "morph-indicators.nls"
-  "exploration.nls"
-  
-  
-  "utils/ListUtilities.nls"
-  "utils/ViewUtilities.nls"
-  "utils/ExplorationUtilities.nls"
-  "utils/FileUtilities.nls"
-]
+extensions [r]
 
 
-globals [
-  
-  ; diffusion parameter
-  ;sp-diffusion
-  
-  ; growth rate = number of new inhabitats per time step
-  ; sp-growth-rate
-  
-  ; number of ticks needed
-  ;sp-max-time
-  
-  ;; total number of people
-  sp-population
-  
-  ;; total-time-steps for exploration
-  total-time-steps
-  
-]
-
-patches-own [
-  
-  ;; density of people living on the patch
-  sp-density
-  
-  ;; number of people
-  sp-occupants
-  
-  ;; raster variable
-  sp-raster-var
-  
-]
+to test
+  clear-all
+  ;; file contains a function with the name "x" which calculates the geometric mean of a vector
+  let evalstring (word "source('" path "')")
+  r:eval evalstring
+  ;; we can use the loaded function "x" now:
+  print "geometric mean of vecor 1,...,10 is:"
+  print r:get "x(seq(1:10))"
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-14
+254
 10
-529
-546
--1
--1
-5.0
+693
+470
+16
+16
+13.0
 1
 10
 1
 1
 1
 0
-0
-0
-1
-0
-100
-0
-100
 1
 1
+1
+-16
+16
+-16
+16
+0
+0
 1
 ticks
 30.0
 
-SLIDER
-1096
-17
-1277
-50
-sp-diffusion
-sp-diffusion
-0
-1
-0.05
-0.005
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1097
-54
-1269
-87
-sp-growth-rate
-sp-growth-rate
-0
-1000
-100
-1
-1
-NIL
-HORIZONTAL
-
 BUTTON
-1172
-246
-1235
-279
-go
-go-synth-pattern
-T
-1
-T
-OBSERVER
+6
+76
+69
+109
 NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1101
-246
-1167
-279
-setup
-setup-synth-pattern
+test
 NIL
 1
 T
@@ -136,183 +69,54 @@ NIL
 NIL
 NIL
 1
-
-SLIDER
-1098
-129
-1270
-162
-sp-diffusion-steps
-sp-diffusion-steps
-0
-10
-2
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1099
-164
-1288
-197
-sp-alpha-localization
-sp-alpha-localization
-0
-10
-1.4
-0.1
-1
-NIL
-HORIZONTAL
-
-MONITOR
-14
-655
-81
-700
-population
-sp-population
-17
-1
-11
 
 INPUTBOX
-1097
-338
-1344
-423
-real-pattern-file
-data/england.asc
-1
-1
-String
-
-BUTTON
-1100
-434
-1189
-467
-save view
-save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Examples/ex\" [\"sp-max-pop\" \"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\"]
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-1099
-202
-1271
-235
-sp-max-pop
-sp-max-pop
-0
-100000
-80260
+5
 10
+221
+70
+path
+extensions/r/examples/rfunction1.r
 1
-NIL
-HORIZONTAL
-
-BUTTON
-1102
-501
-1190
-534
-setup indics
-setup-indicator-computation
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1196
-500
-1292
-533
-eval indics
-setup-indicator-computation\noutput-print word \"moran :\" moran-index\noutput-print word \"distance :\" average-distance-individuals\noutput-print word \"entropy :\" entropy\noutput-print word \"rank-size-slope :\" rank-size-slope
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-OUTPUT
-1087
-538
-1399
-693
-12
-
-SLIDER
-1099
-90
-1271
-123
-sp-max-time
-sp-max-time
 0
-100
-50
-1
-1
-NIL
-HORIZONTAL
+String
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This section could give a general understanding of what the model is trying to show or explain.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+This section could explain what rules the agents use to create the overall behavior of the model.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+This section could explain how to use the model, including a description of each of the items in the interface tab.
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+This section could give some ideas of things for the user to notice while running the model.
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
 
 ## NETLOGO FEATURES
 
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
 
 ## RELATED MODELS
 
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 @#$#@#$#@
 default
 true
@@ -506,22 +310,6 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
-sheep
-false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
-
 square
 false
 0
@@ -606,13 +394,6 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
-
 x
 false
 0
@@ -620,7 +401,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
