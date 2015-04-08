@@ -43,11 +43,11 @@ patches-own [
 GRAPHICS-WINDOW
 14
 10
-1026
-643
+529
+546
 -1
 -1
-2.0
+5.0
 1
 10
 1
@@ -58,9 +58,9 @@ GRAPHICS-WINDOW
 0
 1
 0
-500
+100
 0
-300
+100
 1
 1
 1
@@ -76,7 +76,7 @@ sp-diffusion
 sp-diffusion
 0
 1
-0.075
+0.04
 0.005
 1
 NIL
@@ -91,7 +91,7 @@ sp-growth-rate
 sp-growth-rate
 0
 1000
-452
+102
 1
 1
 NIL
@@ -155,7 +155,7 @@ sp-diffusion-steps
 sp-diffusion-steps
 0
 10
-2
+1
 1
 1
 NIL
@@ -193,7 +193,7 @@ INPUTBOX
 1344
 423
 real-pattern-file
-../../../Data/PopulationDensity/raw/bp_300x500.asc
+data/england.asc
 1
 1
 String
@@ -246,6 +246,30 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+1196
+500
+1292
+533
+eval indics
+setup-indicator-computation\noutput-print word \"moran :\" moran-index\noutput-print word \"distance :\" average-distance-individuals\noutput-print word \"entropy :\" entropy\noutput-print word \"rank-size-slope :\" rank-size-slope
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+OUTPUT
+1087
+538
+1399
+693
+12
 
 @#$#@#$#@
 ## WHAT IS IT?
