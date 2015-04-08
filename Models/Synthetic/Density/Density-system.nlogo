@@ -1,6 +1,5 @@
 
-extensions [r gis pathdir profiler]
-
+extensions [gis pathdir profiler r]
 
 __includes [
   "synth-pattern.nls"
@@ -77,7 +76,7 @@ sp-diffusion
 sp-diffusion
 0
 1
-0.385
+0.075
 0.005
 1
 NIL
@@ -91,8 +90,8 @@ SLIDER
 sp-growth-rate
 sp-growth-rate
 0
-100
-40
+1000
+452
 1
 1
 NIL
@@ -156,7 +155,7 @@ sp-diffusion-steps
 sp-diffusion-steps
 0
 10
-3
+2
 1
 1
 NIL
@@ -171,7 +170,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-0.6
+1.4
 0.1
 1
 NIL
@@ -225,7 +224,7 @@ sp-max-pop
 sp-max-pop
 0
 100000
-4460
+80260
 10
 1
 NIL

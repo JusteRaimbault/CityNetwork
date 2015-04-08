@@ -44,18 +44,20 @@ to go-synth-pattern
     
   ]
   
-  ; update density
-  set sp-population sum [sp-occupants] of patches
-  ask patches [set sp-density sp-occupants / sp-population]
-  
   ;; diffuse
   ;; TODO :: add heterogeneous diffusion. just random local perturbation ?
   ;; also different diffusion if effective local density is too high ? would be logical to have "realistic" distribs
   ;;   -> set proba different from population ? (ex depending on neighbors if too high ? -> diffuse other variable ?)
   
   repeat sp-diffusion-steps [
-    diffuse sp-density sp-diffusion
+    diffuse sp-occupants sp-diffusion
   ]
+  
+  ; update density
+  set sp-population sum [sp-occupants] of patches
+  ask patches [set sp-density sp-occupants / sp-population]
+  
+  
   
   color-synth-pattern
   

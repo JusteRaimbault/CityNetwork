@@ -17,14 +17,18 @@ spatialWeights <- function (N,P){
 }
 
 # load data -> global variable
-r = raster("temp_raster.asc")
-m = as.matrix(r)
+r_dens = raster("temp_raster_dens.asc")
+m = as.matrix(r_dens)
 m[is.na(m)] <- 0
-r = raster(m)
+r_dens = raster(m)
+r_pop = raster("temp_raster_pop.asc")
+m = as.matrix(r_pop)
+m[is.na(m)] <- 0
+r_pop = raster(m)
 
 #moran index 
 moranIndex <- function(){
-  return(Moran(r,spatialWeights(floor(nrow(m)/2),floor(ncol(m)/2))))
+  return(Moran(r_dens,spatialWeights(nrow(r_dens)-1,ncol(r_dens)-1)))
 }
 
 
@@ -47,11 +51,11 @@ distanceMatrix <- function(N,P){
 
 # average distance
 # still very heavy computationally
-# uses focal instead as Moran computation.
+# uses focal instead as in Moran Index computation.
 #
 averageDistance <- function(){
-  return(2 * cellStats(focal(r,distanceMatrix(nrow(m)-1,ncol(m)-1),sum),sum) / ((nrow(m)*ncol(m))^2))
-}
+  return(2 * cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0),sum) / ((nrow(r_pop)*ncol(r_pop))^2 * sqrt(nrow(r_pop)^2 + ncol(r_pop)^2)))
+
 #   # get densities as vector
 #   # -> by default numered row by row, transpose to have by column
 #   N = matrix(data=t(as.matrix(r)),nrow=nrow(m)*ncol(m))
@@ -78,6 +82,28 @@ averageDistance <- function(){
 #   
 #   return(2 * s / (n_patches ^ 2))
 }
+
+
+# distribution entropy --> rough equivalent of integrated local density ?
+entropy <- function(){
+  m= values(r_dens)*cellStats(r_dens,function(x,...){na.omit(log(x))})
+  m[is.na(m)]=0
+  return(-1 / log(ncell(r_dens)) * sum(m) )
+}
+
+
+# rank-size slope
+# -> linear regression on sorted log series
+rankSizeSlope <- function(){
+  size = cellStats(r_pop,function(x,...){na.omit(log(x))})
+  size = size[size>0] # at least one person
+  size=sort(size,decreasing=TRUE)
+  rank = log(1:length(size))
+  return(lm(size~rank,data.frame(rank,size))$coefficients[2])
+}
+
+
+
 
 
 
