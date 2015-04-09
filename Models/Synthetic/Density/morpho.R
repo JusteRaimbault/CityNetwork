@@ -4,8 +4,9 @@
 
 # libraries
 library(raster)
-library(bigmemory)
-setwd('/Users//Juste/Documents/ComplexSystems/CityNetwork/Models/Synthetic//Density')
+#library(bigmemory)
+setwd('/root/ComplexSystems/CityNetwork/Models/Synthetic//Density')
+# wd assumed as script dir ?
 
 # weights for Moran
 spatialWeights <- function (N,P){
