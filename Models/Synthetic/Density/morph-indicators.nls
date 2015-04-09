@@ -31,9 +31,12 @@ to setup-indicator-computation
   
   ;; setup r session, source functions
   let pathroot (word pathdir:get-current pathdir:get-separator)
-  r:eval (word "setwd(\"" pathroot "\")")
-  r:eval "source(\"morpho.R\")"
-  
+  ;r:eval (word "setwd(\"" pathroot "\")")
+  ; connect with rserve
+  ;carefully[
+  ;rserve:init 6311 "localhost"
+  rserve:eval (word "source('"pathroot "morpho.R')")
+  ;][output-print error-message rserve:close]
   
 end
 
@@ -51,7 +54,7 @@ end
 ;  Requires setup before.
 to-report moran-index
   
-  report r:get "moranIndex()"
+  report rserve:get "moranIndex()"
   
   ;; direct computation is very slow (complexity - ask, distance)
   ; external call to R primitives using matrix convolution should be a huge gain of time
@@ -99,9 +102,9 @@ end
 
 
 to-report rank-size-slope
-  report r:get "rankSizeSlope()"
+  report rserve:get "rankSizeSlope()"
 end
 
 to-report entropy
-  report r:get "entropy()"
+  report rserve:get "entropy()"
 end
