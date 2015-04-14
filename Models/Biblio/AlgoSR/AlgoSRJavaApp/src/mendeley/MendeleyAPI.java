@@ -130,7 +130,8 @@ public class MendeleyAPI{
 			
 			for(int i=0;i<entries.size();i++){
 				JsonObject entry = entries.getJsonObject(i);
-				refs.add(Reference.construct(entry.getString("id"), entry.getString("title"), entry.getString("abstract"),Integer.toString(entry.getInt("year"))));
+				// add reference using construct -- no scholar ID
+				refs.add(Reference.construct(entry.getString("id"), entry.getString("title"), entry.getString("abstract"),Integer.toString(entry.getInt("year")),""));
 			}			
 			return refs;
 			

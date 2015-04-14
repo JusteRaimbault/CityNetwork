@@ -6,6 +6,8 @@ package main;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import mendeley.MendeleyAPI;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -31,6 +33,11 @@ public class Reference {
 	 * UUID retrieved from mendeley.
 	 */
 	public String id;
+	
+	/**
+	 * Google scholar UUID (cluster)
+	 */
+	public String scholarID;
 	
 	/**
 	 * Title
@@ -67,9 +74,9 @@ public class Reference {
 	 * @param t title
 	 * @param r abstract
 	 */
-	public Reference(String i,String t,String r,String y){
+	public Reference(String i,String t,String r,String y,String schID){
 		id=i;
-		title=t;resume=r;year=y;
+		title=t;resume=r;year=y;scholarID=schID;
 		authors = new HashSet<String>();keywords = new HashSet<String>();
 	}
 	
@@ -81,17 +88,58 @@ public class Reference {
 	}
 	
 	/**
+	 * DEPRECATED
+	 * 
+	 * Specific scholar constructor, returns 'ghost' references.
+	 * 
+	 * --DEP
+	 * --Note that if full fill option is activated, will also fill global ref table as a catalog request is done.
+	 * --Else this constructor retrieves "ghost" references, in the sense of not hard-coded in static table (hash-counsed reference)
+	 * 
+	 * 
+	 * @param t title
+	 * @param schid scholar id as String
+	 * 
+	 * -- DEPRECATED @param retrieveAllInfos : option to request mendeley to have a full ref. - activated or not depending on performance wanted
+	 * -- ARCHITECTURAL ISSUE --
+	 */
+	public Reference(String t,String schid){//,boolean retrieveAllInfos){
+		title=t;
+		
+		/*
+		if(retrieveAllInfos){
+			HashSet<Reference> mendeleyReq = MendeleyAPI.catalogRequest(t.replace(" ", "+"), 1);
+			Reference mendRef = (Reference) mendeleyReq.toArray()[0];
+			id=mendRef.id;
+		}
+		*/
+		
+		scholarID=schid;
+		
+	}
+	
+	
+	
+	/**
 	 * Static constructor used to construct objects only one time.
 	 * 
 	 * @param i
 	 * @return
 	 */
-	public static Reference construct(String i,String t,String r,String y){
+	public static Reference construct(String i,String t,String r,String y,String schID){
 		Reference ref = new Reference(t);
 		if(references.containsKey(ref)){
-			return references.get(ref);
+			Reference existingRef = references.get(ref);
+			//override existing records if not empty fields provided --> the function can be used as a table updater --
+			//ref in table has thus always the lastest requested values. NO ?		
+			if(i.length()>0){existingRef.id=i;}
+			if(r.length()>0){existingRef.resume=r;}
+			if(y.length()>0){existingRef.year=y;}
+			if(schID.length()>0){existingRef.scholarID=schID;}
+			
+			return existingRef;
 		}else{
-			Reference newRef = new Reference(i,t,r,y);
+			Reference newRef = new Reference(i,t,r,y,schID);
 			//put in map
 			references.put(newRef, newRef);
 			return newRef;
@@ -121,7 +169,7 @@ public class Reference {
 	 * Override to string
 	 */
 	public String toString(){
-		return "Ref "+id+" - "+title;
+		return "Ref "+id+" - schID : "+scholarID+"- t : "+title;
 	}
 	
 }
