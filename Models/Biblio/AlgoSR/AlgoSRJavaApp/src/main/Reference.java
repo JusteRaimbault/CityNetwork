@@ -65,6 +65,11 @@ public class Reference {
 	 */
 	public String year;
 
+	/**
+	 * Refs citing this ref
+	 */
+	public HashSet<Reference> citing;
+	
 	
 	/**
 	 * Constructor
@@ -78,6 +83,7 @@ public class Reference {
 		id=i;
 		title=t;resume=r;year=y;scholarID=schID;
 		authors = new HashSet<String>();keywords = new HashSet<String>();
+		citing=new HashSet<Reference>();
 	}
 	
 	/**

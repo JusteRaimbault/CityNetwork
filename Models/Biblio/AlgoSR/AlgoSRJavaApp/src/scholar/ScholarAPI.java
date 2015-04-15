@@ -6,7 +6,9 @@ package scholar;
 import java.util.HashSet;
 import java.util.regex.Pattern;
 
+import main.Main;
 import main.Reference;
+import mendeley.MendeleyAPI;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
@@ -20,6 +22,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -117,7 +120,63 @@ public class ScholarAPI {
 		return refs;
 	}
 	
+	/**
+	 * Queries and constructs citing refs for a set of refs, and fills scholar id.
+	 * 
+	 * Alters refs in place.
+	 * 
+	 * @param refs
+	 */
+	public static void fillIdAndCitingRefs(HashSet<Reference> refs){
+		try{
+			for(Reference r:refs){
+				System.out.println("Getting cit for ref "+r.toString());
+				// first get scholar ID
+				//System.out.println(r.scholarID);
+				scholarRequest(r.title.replace(" ", "+"),1);
+				//System.out.println(r.scholarID);
+				// while still results on cluster page, iterate
+				Document dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
+				Elements e = dom.getElementsByClass("gs_ri");
+				
+				//check if first response is empty
+				//if(e.size()==0){System.out.println(dom.html());}
+				
+				// need to handle google blocking
+				//System.out.println(dom.getElementsByClass("gs_hatr").size());
+				
+				
+				
+				for(Element c:e){
+			    	String cluster = getCluster(c);
+		    		String title = c.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]","");
+		    		r.citing.add(Reference.construct("", title, "", "", cluster));
+			    }
+				int l=10;
+				while(e.size()>0){
+					dom = Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID+"&start="+l),context).getEntity().getContent(),"UTF-8","");
+					e = dom.getElementsByClass("gs_ri");
+					for(Element c:e){
+				    	String cluster = getCluster(c);
+			    		String title = c.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]","");
+			    		r.citing.add(Reference.construct("", title, "", "", cluster));
+				    }
+				    //System.out.println(l);
+					l=l+10;
+				}
+				System.out.println("Citing refs : "+r.citing.size());
+			}
+		}catch(Exception e){e.printStackTrace();}
+	}
 	
+	
+	
+	/**
+	 * Local function parsing a scholar response.
+	 * @param refs
+	 * @param e
+	 * @param remResponses
+	 */
 	private static void addPage(HashSet<Reference> refs,Elements e,int remResponses){
 		int resultsNumber = 0;
 		for(Element r:e){
@@ -126,7 +185,7 @@ public class ScholarAPI {
 	    		//System.out.println(r.getElementsByClass("gs_rt").text());
 	    		
 	    		//get citation link
-	    		String cluster = r.getElementsByAttributeValueContaining("href", "/scholar?cites=").first().attr("href").split("scholar?")[1].split("cites=")[1].split("&")[0];
+	    		String cluster = getCluster(r);
 	    		//get title using regex matching to eliminate types in brackets
 	    		String title = r.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]","");
 	    		//System.out.println(cluster+" - "+title);
@@ -136,6 +195,23 @@ public class ScholarAPI {
 	    }
 	}
 	
+	/**
+	 * Get cluster from an element
+	 * 
+	 * @param e
+	 */
+	private static String getCluster(Element e){
+		String cluster = "";
+		try{
+		   cluster = e.getElementsByAttributeValueContaining("href", "/scholar?cites=").first().attr("href").split("scholar?")[1].split("cites=")[1].split("&")[0];
+		}catch(NullPointerException nu){
+			
+			//null pointer -> not cited, try "versions" link to get cluster
+			try{cluster = e.getElementsByAttributeValueContaining("href", "/scholar?cluster=").first().attr("href").split("scholar?")[1].split("cluster=")[1].split("&")[0];}
+			catch(Exception nu2){}
+		}
+		return cluster;
+	}
 	
 	
 	/**
@@ -146,9 +222,18 @@ public class ScholarAPI {
 		setup("");
 		
 		// test request
-		HashSet<Reference> refs = scholarRequest("transportation+network",50);
-		for(Reference r:refs){System.out.println(r);}
+		//HashSet<Reference> refs = scholarRequest("Co-evolution+of+density+and+topology+in+a+simple+model+of+city+formation",1);
+		//for(Reference r:refs){System.out.println(r);}
+		//fillIdAndCitingRefs(refs);
+		//for(Reference r:refs){System.out.println(r);for(Reference c:r.citing){System.out.println(c);}}
 		
+		// test to fill a mendeley ref
+		Main.setup("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/conf/default.conf");
+		
+		MendeleyAPI.setupAPI();
+		HashSet<Reference> refs = MendeleyAPI.catalogRequest("transportation+network", 1);
+		fillIdAndCitingRefs(refs);
+		for(Reference r:refs){System.out.println(r);for(Reference c:r.citing){System.out.println(c);}}
 	}
 
 }
