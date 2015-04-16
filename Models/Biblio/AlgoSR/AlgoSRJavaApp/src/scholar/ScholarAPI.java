@@ -137,14 +137,16 @@ public class ScholarAPI {
 				//System.out.println(r.scholarID);
 				// while still results on cluster page, iterate
 				Document dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
-				Elements e = dom.getElementsByClass("gs_ri");
-				
+						
 				//check if first response is empty
 				//if(e.size()==0){System.out.println(dom.html());}
 				
 				// need to handle google blocking
 				//System.out.println(dom.getElementsByClass("gs_hatr").size());
 				
+				dom=ensureConnection(dom,r);
+				
+				Elements e = dom.getElementsByClass("gs_ri");
 				
 				
 				for(Element c:e){
@@ -169,6 +171,30 @@ public class ScholarAPI {
 		}catch(Exception e){e.printStackTrace();}
 	}
 	
+	
+	
+	/**
+	 * Sleeps to ensure scholar connection (google blocking).
+	 * 
+	 * @param d
+	 * @param r
+	 * @return
+	 */
+	private static Document ensureConnection(Document d,Reference r) {
+		Document dom=d;
+		try{
+			if(dom.getElementsByClass("gs_hatr").size()==0){
+				while(dom.getElementsByClass("gs_hatr").size()==0){
+				    System.out.println("Waiting for fucking google to stop blocking... sleep 5sec");
+				    Thread.sleep(5000);
+				    setup("");
+				    //note : interfer with other APIs --> may be useful to separate them for a more stable archi.
+				    dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
+				}
+			}
+		}catch(Exception e){e.printStackTrace();}
+		return dom;
+	}
 	
 	
 	/**
