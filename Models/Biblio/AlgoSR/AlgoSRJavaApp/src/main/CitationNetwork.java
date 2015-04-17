@@ -5,8 +5,10 @@ package main;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import scholar.ScholarAPI;
+import utils.CSVWriter;
 import utils.RISReader;
 
 /**
@@ -37,8 +39,8 @@ public class CitationNetwork {
 		ScholarAPI.setup("");
 		
 		//initialize orig tables and load initial references
-		HashSet<Reference>[] originals = (HashSet<Reference>[]) new Object[keywords.length];
-		for(int i=0;i<originals.length;i++){originals[i]=new HashSet<Reference>(RISReader.read(getLastIteration(prefix,keywords[i],maxIt)));}
+		LinkedList<HashSet<Reference>> originals = new LinkedList<HashSet<Reference>>();
+		for(int i=0;i<keywords.length;i++){originals.addLast(new HashSet<Reference>(RISReader.read(getLastIteration(prefix,keywords[i],maxIt))));}
 	
 		// build the cit nw
 		buildCitationNetwork();
@@ -53,9 +55,13 @@ public class CitationNetwork {
 		for(int i=0;i<keywords.length;i++){
 			for(int j=0;j<keywords.length;j++){
 				int cit=0;
-				for(Reference r:originals[i]){for(Reference c){}}
+				for(Reference r:originals.get(i)){for(Reference c:r.citing){if(originals.get(j).contains(c)){cit++;}}}
+				interClusterLinks[i+1][j]=(new Integer(cit)).toString();
 			}
 		}
+		
+		// output in csv file
+		CSVWriter.write(outFile, interClusterLinks, ";");
 		
 	}
 	
@@ -76,7 +82,7 @@ public class CitationNetwork {
 			f = new File(prefix+kw+"_"+num+".ris");
 			num++;
 		}
-		return prefix+kw+"_"+(num-1)+".ris";
+		return prefix+kw+"_"+(num-2)+".ris";
 	}
 	
 	
@@ -85,7 +91,9 @@ public class CitationNetwork {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Main.setup("conf/default.conf");ScholarAPI.setup("");
+		String[] keywords = {"land+use+transport+interaction","city+system+network","network+urban+modeling","population+density+transport","transportation+network+urban+growth","urban+morphogenesis+network"};
+		buildGeneralizedNetwork("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/junk/refs_",keywords,"nw.csv",20);
+		/*Main.setup("conf/default.conf");ScholarAPI.setup("");
 		
 		// test if nw building
 		RISReader.read("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/junk/refs_land+use+transport+interaction_8.ris");
@@ -95,7 +103,7 @@ public class CitationNetwork {
 		//count effective links
 		int links = 0;
 		for(Reference r:orig){for(Reference c:r.citing){if(orig.contains(c)){links++;System.out.println(c);}}}
-		System.out.println("links : "+links);
+		System.out.println("links : "+links);*/
 	}
 
 }

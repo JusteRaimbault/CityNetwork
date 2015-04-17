@@ -3,23 +3,41 @@
  */
 package scholar;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Socket;
 import java.util.HashSet;
 import java.util.regex.Pattern;
+
+import javax.net.ssl.SSLContext;
 
 import main.Main;
 import main.Reference;
 import mendeley.MendeleyAPI;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -89,9 +107,10 @@ public class ScholarAPI {
 		
 		try{
 			//first request and define vars
-			HttpGet httpGet = new HttpGet("http://scholar.google.fr/scholar?q="+request);
-			HttpResponse resp = client.execute(httpGet,context);
-			org.jsoup.nodes.Document dom = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
+			//HttpGet httpGet = new HttpGet("http://scholar.google.fr/scholar?q="+request);
+			//HttpResponse resp = client.execute(httpGet,context);
+			//org.jsoup.nodes.Document dom = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
+			Document dom = request("scholar?q="+request);
 			
 			// a query result is elements of class gs_ri
 			Elements e = dom.getElementsByClass("gs_ri");
@@ -107,11 +126,13 @@ public class ScholarAPI {
 		     // iterate previous operation with start option in query
 		     
 			 for(int l=10;l<maxNumResponses;l=l+10){
-			     httpGet = new HttpGet("http://scholar.google.fr/scholar?q="+request+"&lookup=0&start="+l);
-			     resp = client.execute(httpGet,context);
+			     //httpGet = new HttpGet("http://scholar.google.fr/scholar?q="+request+"&lookup=0&start="+l);
+			     //resp = client.execute(httpGet,context);
 			     // construct dom
-			     dom = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
-			     e = dom.getElementsByClass("gs_ri");
+			     //dom = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
+			     dom = request("scholar?q="+request+"&lookup=0&start="+l);
+				 
+				 e = dom.getElementsByClass("gs_ri");
 			     addPage(refs,e,maxNumResponses-resultsNumber);
 			     resultsNumber = refs.size();
 			 }
@@ -134,10 +155,12 @@ public class ScholarAPI {
 				// first get scholar ID
 				//System.out.println(r.scholarID);
 				scholarRequest(r.title.replace(" ", "+"),1);
+				Thread.sleep(2000);
 				//System.out.println(r.scholarID);
 				// while still results on cluster page, iterate
-				Document dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
-						
+				//Document dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
+				Document dom = request("scholar?cites="+r.scholarID);
+				
 				//check if first response is empty
 				//if(e.size()==0){System.out.println(dom.html());}
 				
@@ -156,7 +179,9 @@ public class ScholarAPI {
 			    }
 				int l=10;
 				while(e.size()>0){
-					dom = Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID+"&start="+l),context).getEntity().getContent(),"UTF-8","");
+					//dom = Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID+"&start="+l),context).getEntity().getContent(),"UTF-8","");
+					dom = request("scholar?cites="+r.scholarID+"&start="+l);
+					Thread.sleep(2000);
 					e = dom.getElementsByClass("gs_ri");
 					for(Element c:e){
 				    	String cluster = getCluster(c);
@@ -184,12 +209,14 @@ public class ScholarAPI {
 		Document dom=d;
 		try{
 			if(dom.getElementsByClass("gs_hatr").size()==0){
+				System.out.println(dom.html());
 				while(dom.getElementsByClass("gs_hatr").size()==0){
 				    System.out.println("Waiting for fucking google to stop blocking... sleep 5sec");
 				    Thread.sleep(5000);
 				    setup("");
 				    //note : interfer with other APIs --> may be useful to separate them for a more stable archi.
-				    dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
+				    //dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
+				    dom = request("scholar?cites="+r.scholarID);
 				}
 			}
 		}catch(Exception e){e.printStackTrace();}
@@ -240,12 +267,49 @@ public class ScholarAPI {
 	}
 	
 	
+	public static Document request(String url){
+		
+		Document res = null;
+		Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory>create()
+		        .register("http", PlainConnectionSocketFactory.INSTANCE)
+		        .register("https", new MyConnectionSocketFactory(SSLContexts.createSystemDefault()))
+		        .build();
+		PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(reg);
+		CloseableHttpClient httpclient = HttpClients.custom()
+		        .setConnectionManager(cm)
+		        .build();
+		try {
+		    InetSocketAddress socksaddr = new InetSocketAddress("127.0.0.1", 9050);
+		    HttpClientContext context = HttpClientContext.create();
+		    context.setAttribute("socks.address", socksaddr);
+
+		    HttpHost target = new HttpHost("scholar.google.com", 80, "http");
+		    HttpGet request = new HttpGet("/"+url);
+
+		    System.out.println("Executing request " + request + " to " + target + " via SOCKS proxy " + socksaddr);
+		    CloseableHttpResponse response = httpclient.execute(target, request);
+		    try {
+		        //System.out.println("----------------------------------------");
+		        //System.out.println(response.getStatusLine());
+		        
+		    	//EntityUtils.consume(response.getEntity());
+		    	res= Jsoup.parse(response.getEntity().getContent(),"UTF-8","");
+		    }catch(Exception e){e.printStackTrace();}
+		} catch(Exception e){e.printStackTrace();} 
+		
+		return res;
+		
+		
+		
+	}
+	
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// test setup
-		setup("");
+		//setup("");
 		
 		// test request
 		//HashSet<Reference> refs = scholarRequest("Co-evolution+of+density+and+topology+in+a+simple+model+of+city+formation",1);
@@ -254,12 +318,66 @@ public class ScholarAPI {
 		//for(Reference r:refs){System.out.println(r);for(Reference c:r.citing){System.out.println(c);}}
 		
 		// test to fill a mendeley ref
-		Main.setup("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/conf/default.conf");
+		/*Main.setup("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/conf/default.conf");
 		
 		MendeleyAPI.setupAPI();
 		HashSet<Reference> refs = MendeleyAPI.catalogRequest("transportation+network", 1);
 		fillIdAndCitingRefs(refs);
-		for(Reference r:refs){System.out.println(r);for(Reference c:r.citing){System.out.println(c);}}
+		for(Reference r:refs){System.out.println(r);for(Reference c:r.citing){System.out.println(c);}}*/
+		
+		Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory>create()
+		        .register("http", PlainConnectionSocketFactory.INSTANCE)
+		        .register("https", new MyConnectionSocketFactory(SSLContexts.createSystemDefault()))
+		        .build();
+		PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(reg);
+		CloseableHttpClient httpclient = HttpClients.custom()
+		        .setConnectionManager(cm)
+		        .build();
+		try {
+		    InetSocketAddress socksaddr = new InetSocketAddress("127.0.0.1", 9050);
+		    HttpClientContext context = HttpClientContext.create();
+		    context.setAttribute("socks.address", socksaddr);
+
+		    HttpHost target = new HttpHost("scholar.google.com", 80, "http");
+		    HttpGet request = new HttpGet("/");
+
+		    System.out.println("Executing request " + request + " to " + target + " via SOCKS proxy " + socksaddr);
+		    CloseableHttpResponse response = httpclient.execute(target, request);
+		    try {
+		        System.out.println("----------------------------------------");
+		        System.out.println(response.getStatusLine());
+		        EntityUtils.consume(response.getEntity());
+		    } finally {
+		        response.close();
+		    }
+		} catch(Exception e){e.printStackTrace();} 
+		finally {
+		    //httpclient.close();
+		}
+		
+		
+		
 	}
+	
+	
+	
+	static class MyConnectionSocketFactory extends SSLConnectionSocketFactory {
+
+	    public MyConnectionSocketFactory(final SSLContext sslContext) {
+	        super(sslContext);
+	    }
+
+	    @Override
+	    public Socket createSocket(final HttpContext context) throws IOException {
+	        InetSocketAddress socksaddr = new InetSocketAddress("127.0.0.1",9050); //context.getAttribute("socks.address");
+	        Proxy proxy = new Proxy(Proxy.Type.SOCKS, socksaddr);
+	        return new Socket(proxy);
+	    }
+
+	}
+	
+	
+	
+	
 
 }
