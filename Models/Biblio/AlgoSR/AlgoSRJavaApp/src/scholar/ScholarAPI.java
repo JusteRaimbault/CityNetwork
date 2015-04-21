@@ -110,7 +110,7 @@ public class ScholarAPI {
 			//HttpGet httpGet = new HttpGet("http://scholar.google.fr/scholar?q="+request);
 			//HttpResponse resp = client.execute(httpGet,context);
 			//org.jsoup.nodes.Document dom = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
-			Document dom = request("scholar?q="+request);
+			Document dom = request("scholar.google.com","scholar?q="+request);
 			
 			// a query result is elements of class gs_ri
 			Elements e = dom.getElementsByClass("gs_ri");
@@ -130,7 +130,7 @@ public class ScholarAPI {
 			     //resp = client.execute(httpGet,context);
 			     // construct dom
 			     //dom = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
-			     dom = request("scholar?q="+request+"&lookup=0&start="+l);
+			     dom = request("scholar.google.com","scholar?q="+request+"&lookup=0&start="+l);
 				 
 				 e = dom.getElementsByClass("gs_ri");
 			     addPage(refs,e,maxNumResponses-resultsNumber);
@@ -159,7 +159,7 @@ public class ScholarAPI {
 				//System.out.println(r.scholarID);
 				// while still results on cluster page, iterate
 				//Document dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
-				Document dom = request("scholar?cites="+r.scholarID);
+				Document dom = request("scholar.google.com","scholar?cites="+r.scholarID);
 				
 				//check if first response is empty
 				//if(e.size()==0){System.out.println(dom.html());}
@@ -180,7 +180,7 @@ public class ScholarAPI {
 				int l=10;
 				while(e.size()>0){
 					//dom = Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID+"&start="+l),context).getEntity().getContent(),"UTF-8","");
-					dom = request("scholar?cites="+r.scholarID+"&start="+l);
+					dom = request("scholar.google.com","scholar?cites="+r.scholarID+"&start="+l);
 					Thread.sleep(2000);
 					e = dom.getElementsByClass("gs_ri");
 					for(Element c:e){
@@ -216,7 +216,7 @@ public class ScholarAPI {
 				    setup("");
 				    //note : interfer with other APIs --> may be useful to separate them for a more stable archi.
 				    //dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
-				    dom = request("scholar?cites="+r.scholarID);
+				    dom = request("scholar.google.com","scholar?cites="+r.scholarID);
 				}
 			}
 		}catch(Exception e){e.printStackTrace();}
@@ -267,7 +267,7 @@ public class ScholarAPI {
 	}
 	
 	
-	public static Document request(String url){
+	public static Document request(String host,String url){
 		
 		Document res = null;
 		Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory>create()
@@ -279,15 +279,17 @@ public class ScholarAPI {
 		        .setConnectionManager(cm)
 		        .build();
 		try {
-		    InetSocketAddress socksaddr = new InetSocketAddress("127.0.0.1", 9050);
+		    InetSocketAddress socksaddr = new InetSocketAddress("localhost", 9050);
 		    HttpClientContext context = HttpClientContext.create();
 		    context.setAttribute("socks.address", socksaddr);
 
-		    HttpHost target = new HttpHost("scholar.google.com", 80, "http");
+		    HttpHost target = new HttpHost(host, 80, "http");
 		    HttpGet request = new HttpGet("/"+url);
 
-		    System.out.println("Executing request " + request + " to " + target + " via SOCKS proxy " + socksaddr);
-		    CloseableHttpResponse response = httpclient.execute(target, request);
+		    //System.out.println("Executing request " + request + " to " + target + " via SOCKS proxy " + socksaddr);
+		    System.out.println(context.getAttribute("socks.address"));
+		    //CloseableHttpResponse response = httpclient.execute(target, request);
+		    HttpResponse response = httpclient.execute(new HttpGet("http://"+host+"/"+url));
 		    try {
 		        //System.out.println("----------------------------------------");
 		        //System.out.println(response.getStatusLine());
@@ -308,6 +310,7 @@ public class ScholarAPI {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		System.out.println(request("ipecho.net","plain").html());
 		// test setup
 		//setup("");
 		
@@ -324,7 +327,7 @@ public class ScholarAPI {
 		HashSet<Reference> refs = MendeleyAPI.catalogRequest("transportation+network", 1);
 		fillIdAndCitingRefs(refs);
 		for(Reference r:refs){System.out.println(r);for(Reference c:r.citing){System.out.println(c);}}*/
-		
+		/*
 		Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory>create()
 		        .register("http", PlainConnectionSocketFactory.INSTANCE)
 		        .register("https", new MyConnectionSocketFactory(SSLContexts.createSystemDefault()))
@@ -354,7 +357,7 @@ public class ScholarAPI {
 		finally {
 		    //httpclient.close();
 		}
-		
+	*/
 		
 		
 	}
@@ -369,8 +372,9 @@ public class ScholarAPI {
 
 	    @Override
 	    public Socket createSocket(final HttpContext context) throws IOException {
-	        InetSocketAddress socksaddr = new InetSocketAddress("127.0.0.1",9050); //context.getAttribute("socks.address");
+	        InetSocketAddress socksaddr = new InetSocketAddress("localhost",9050); //context.getAttribute("socks.address");
 	        Proxy proxy = new Proxy(Proxy.Type.SOCKS, socksaddr);
+	        
 	        return new Socket(proxy);
 	    }
 
