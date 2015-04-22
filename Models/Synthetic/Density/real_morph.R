@@ -21,11 +21,22 @@ source('morpho.R')
 raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/popu01clcv5.tif"))
 
 # test extraction
-e <- extract(raw,extent(3000000,3001000,1000000,1001000))
+e <- extract(raw,extent(3000000,3010000,1000000,1010000))
 
 # initial raster is 100mx100m -> grid of 100x100 give 10kmx10km areas
 # more consistent with a 100kmx100km area ?
 
 # anyway test different aggregation scales
-# -> treatment with qgis (or rgdal)
+# -> treatment with qgis (or rgdal) ?
+# ok here using resolution ?
+
+res(raw) <- c(1000,1000)
+
+
+
+
+
+
+
+
 
