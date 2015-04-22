@@ -1,0 +1,159 @@
+
+####################
+## Analysis of Morpho Analysis Calibration
+####################
+
+# setwd with env var : need Sys.getenv
+setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
+
+# load result
+res = read.csv('res/explo_04:50:49.122 PM 09-avr.-2015.csv',sep=';')
+
+# function to get single param points from raw result
+#  --> make generic function ?
+getSingleParamPoints <- function(data,params_cols,indics_cols,nreps){
+  # really more simple to use nreps
+  # necessarily, length(data[,1])/nreps \in \mathbb{N}
+  k = length(data[,1]) / nreps
+  means = matrix(0,k,length(indics_cols))
+  sigmas = matrix(0,k,length(indics_cols))
+  params = matrix(0,k,length(params_cols))
+ 
+  for(kk in 0:(k-1)){
+    #show(points)
+    d = data[((kk*nreps)+1):((kk+1)*nreps),indics_cols]
+    means[kk+1,] = apply(d,2,mean);sigmas[kk+1,]=apply(d,2,sd)
+    for(j in 1:length(indics_cols)){
+      params[(kk+1),j] = data[((kk*nreps)+1),params_cols[j]]
+    }
+  }
+  return(list(params,means,sigmas))
+}
+
+
+# test
+p = getSingleParamPoints(res,1:4,5:8,20)
+
+# ggplot
+
+library(ggplot2)
+
+# simple plot
+m = data.frame(moran=p[[2]][,1],distance=p[[2]][,2],
+               entropy=p[[2]][,3],slope=p[[2]][,4],
+               diffusion=p[[1]][,1],diffsteps=p[[1]][,2],alpha=p[[1]][,3],rate=p[[1]][,4])
+s = data.frame(moran=p[[3]][,1],distance=p[[3]][,2],entropy=p[[3]][,3],slope=p[[3]][,4])
+
+# plotPoints<-function(data,xx,yy,sx,sy,col,with_bars){
+#   p = ggplot(data, aes(x=xx,y=yy,col=col))
+#   p + geom_point()
+#   if(with_bars){
+#     p + geom_errorbarh(aes(xmin=xx-sx, xmax=xx+sx), height=.005) +
+#     geom_errorbar(aes(ymin=yy-sy, ymax=yy+sy), width=.005)
+#   }
+#  }
+# 
+# 
+# # plot for different indicators
+# 
+# plotPoints(data=m,xx=m$moran,yy=m$entropy,sx=s$moran,sy=s$entropy,col=m$alpha,with_bars=TRUE)
+
+# DOES NOT FUCKING WORK ???
+
+plotPoints<-function(d,xstring,ystring,colstring){
+ p = ggplot(m, aes_string(x=xstring,y=ystring,col=colstring)) 
+ return(p+ geom_point())
+}
+
+plotPoints(m,"entropy","slope","diffusion")
+plotPoints(m,"entropy","distance","diffusion")
+plotPoints(m,"entropy","moran","diffusion")
+plotPoints(m,"slope","distance","diffusion")
+plotPoints(m,"slope","moran","diffusion")
+plotPoints(m,"distance","moran","diffusion")
+
+indics = c("moran","distance","entropy","slope")
+#par(mfrow=c(2,3))
+for(i in 1:3){for(j in (i+1):4){
+  show(paste(i,j))
+  plotPoints(m,indics[i],indics[j],"rate")
+}}
+
+
+
+
+
+## dirty dirty to handle multiplots with ggplot :(
+# function from R cookbook
+# Multiple plot function
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+
+for(col_par_name in c("diffusion","diffsteps","rate","alpha")){
+plots=list()
+k=1
+#par(mfrow=c(2,3))
+for(i in 1:3){for(j in (i+1):4){
+  plots[[k]]=plotPoints(m,indics[i],indics[j],col_par_name)
+  k=k+1
+}}
+
+multiplot(plotlist=plots,cols=3)
+#savePlot(filename=paste0(Sys.getenv("$CN_HOME"),"/Results/Synthetic/Density/Calibration/",col_par_name,".png"))
+}
+
+
+# interesting...
+# Next step : compute for real situations ?
+
+
+
+
+
+
+
+
+

@@ -5,8 +5,12 @@
 # libraries
 library(raster)
 #library(bigmemory)
-setwd('/root/ComplexSystems/CityNetwork/Models/Synthetic//Density')
-# wd assumed as script dir ?
+#setwd('/root/ComplexSystems/CityNetwork/Models/Synthetic//Density')
+setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
+# wd assumed as script dir ? YES
+# The environment variable $CN_HOME allows to transparentely run scripts on differents platforms mirroring the project
+# (gain of flexibility and time)
+
 
 # weights for Moran
 spatialWeights <- function (N,P){
