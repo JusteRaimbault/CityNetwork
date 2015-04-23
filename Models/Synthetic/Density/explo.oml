@@ -1,0 +1,80 @@
+import java.io._
+import sys.process._
+import java.util.Date
+
+// Parameters
+val diffusion = Val[Double]
+val diffusionsteps = Val[Double]
+val alphalocalization = Val[Double]
+val growthrate = Val[Double]
+val replication = Val[Int]
+
+// exploration task
+/*val exploration =
+  ExplorationTask(
+        (diffusion in (0.0 to 0.1 by 0.01)) x
+        (diffusionsteps in (1.0 to 7.0 by 3.0)) x
+        (alphalocalization in (0.5 to 1.5 by 0.1)) x
+        (growthrate in (100.0 to 500.0 by 200.0)) x
+        (replication in (UniformDistribution[Int]() take 100))
+  )
+*/
+
+//-------------------------------------------------------
+// FOR TEST
+ val exploration =  ExplorationTask(
+  (diffusion in List(0.1)) x
+    (diffusionsteps in List(1.0)) x
+    (alphalocalization in List(0.5)) x
+    (growthrate in List(100.0)) x
+      (replication in (UniformDistribution[Int]() take 4))
+  )
+//--------------------------------------------------------
+
+
+// reporters
+//moran-index" "average-distance-individuals" "entropy" "rank-size-slope
+val moran=Val[Double]
+val distance=Val[Double]
+val entropy=Val[Double]
+val slope=Val[Double]
+
+//NetLogo go for one time step
+val cmds = List(
+  "setup-openmole-experiment 0.1 1.0 0.5 100",
+  "go-openmole-experiment")
+
+// run RServe
+"R -e library(Rserve);Rserve()" !
+
+// system adjustement for gis lib in netlogo
+System.setProperty("com.sun.media.jai.disableMediaLib", "true")
+
+val scriptPath = System.getenv("CN_HOME")+"/Models/Synthetic/Density/HEADLESS_Density-system.nlogo"
+
+val model = NetLogo5Task(scriptPath,cmds,true) set (
+  netLogoOutputs += ("moran-index", moran),
+  netLogoOutputs += ("average-distance-individuals", distance),
+  netLogoOutputs += ("entropy", entropy),
+  netLogoOutputs += ("rank-size-slope",slope),
+  outputs += (diffusion,diffusionsteps,alphalocalization,growthrate)
+  )
+
+// output
+//val h = ToStringHook()
+val h = AppendToCSVFileHook("res_oml/"+(new java.util.Date()).toString().replace(" ","_")+".csv")
+
+
+
+val startTime = System.currentTimeMillis
+
+// environement
+val env = LocalEnvironment(1)
+
+logger.level("FINE")
+
+val exec = exploration -< (model on env hook h) start
+
+exec.waitUntilEnded
+
+println("Ellapsed Time is "+(System.currentTimeMillis - startTime) / 1000.0)

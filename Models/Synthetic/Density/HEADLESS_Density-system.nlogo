@@ -25,13 +25,13 @@ __includes [
 globals [
   
   ; diffusion parameter
-  ;sp-diffusion
+  sp-diffusion
   
   ; growth rate = number of new inhabitats per time step
-  ; sp-growth-rate
+  sp-growth-rate
   
   ; number of ticks needed
-  ;sp-max-time
+  sp-max-time
   
   ;; total number of people
   sp-population
@@ -39,6 +39,9 @@ globals [
   ;; total-time-steps for exploration
   total-time-steps
   
+  sp-alpha-localization
+  sp-diffusion-steps
+  sp-max-pop 
 ]
 
 patches-own [
@@ -81,36 +84,6 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
-SLIDER
-1096
-17
-1277
-50
-sp-diffusion
-sp-diffusion
-0
-1
-0.05
-0.005
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1097
-54
-1269
-87
-sp-growth-rate
-sp-growth-rate
-0
-1000
-100
-1
-1
-NIL
-HORIZONTAL
-
 BUTTON
 1172
 246
@@ -144,36 +117,6 @@ NIL
 NIL
 NIL
 1
-
-SLIDER
-1098
-129
-1270
-162
-sp-diffusion-steps
-sp-diffusion-steps
-0
-10
-2
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1099
-164
-1288
-197
-sp-alpha-localization
-sp-alpha-localization
-0
-10
-1.3
-0.1
-1
-NIL
-HORIZONTAL
 
 MONITOR
 14
@@ -213,21 +156,6 @@ NIL
 NIL
 NIL
 1
-
-SLIDER
-1099
-202
-1271
-235
-sp-max-pop
-sp-max-pop
-0
-100000
-80260
-10
-1
-NIL
-HORIZONTAL
 
 BUTTON
 1102
@@ -269,21 +197,6 @@ OUTPUT
 1399
 693
 12
-
-SLIDER
-1099
-90
-1271
-123
-sp-max-time
-sp-max-time
-0
-100
-50
-1
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

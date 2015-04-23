@@ -33,10 +33,13 @@ to setup-indicator-computation
   let pathroot (word pathdir:get-current pathdir:get-separator)
   ;r:eval (word "setwd(\"" pathroot "\")")
   ; connect with rserve
-  ;carefully[
-  ;rserve:init 6311 "localhost"
-  rserve:eval (word "source('"pathroot "morpho.R')")
-  ;][output-print error-message rserve:close]
+  carefully[
+    rserve:init 6311 "localhost"
+  ][output-print error-message]
+  
+  show (word "Evaluating " "source('"pathroot "morpho.R',chdir=TRUE)")
+  rserve:eval (word "source('"pathroot "morpho.R',chdir=TRUE)")
+  
   
 end
 
