@@ -59,7 +59,7 @@ distanceMatrix <- function(N,P){
 # uses focal instead as in Moran Index computation.
 #
 averageDistance <- function(){
-  return(2 * cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0),sum) / ((nrow(r_pop)*ncol(r_pop))^2 * sqrt(nrow(r_pop)^2 + ncol(r_pop)^2)))
+  return(2 * cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0),sum) / ((nrow(r_pop)*ncol(r_pop))^2 * cellStats(r_pop,max) * sqrt(nrow(r_pop)^2 + ncol(r_pop)^2)))
 
 #   # get densities as vector
 #   # -> by default numered row by row, transpose to have by column
