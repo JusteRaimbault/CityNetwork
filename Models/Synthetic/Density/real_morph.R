@@ -30,12 +30,24 @@ e <- extract(raw,extent(3000000,3010000,1000000,1010000))
 # -> treatment with qgis (or rgdal) ?
 # ok here using resolution ?
 
-res(raw) <- c(1000,1000)
+# res in meters
+resolution = 1000
+res(raw) <- c(resolution,resolution)
 
+# incells
+areasize <- 1000
 
+# extract a 100kmx100km area
+e <- extract(raw,extent(3000000,3100000,1000000,1100000))
 
-
-
+for(x in seq(from=1,to=nrow(raw)-areasize,by=areasize)){
+  for(y in seq(from=1,to=ncol(raw)-areasize,by=areasize)){
+     show(paste(x,y))
+     #e <- extract(raw,extent(x,x+areasize-1,y,y+areasize-1))
+     e<-getValuesBlock(raw,row=x,nrows=areasize,col=y,ncols=areasize)
+     show(prod(is.na(e)))
+  }
+}
 
 
 
