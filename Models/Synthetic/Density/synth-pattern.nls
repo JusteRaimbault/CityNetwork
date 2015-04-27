@@ -57,19 +57,29 @@ to go-synth-pattern
   
   ;; add new inhabitants with proba proportionnal to density
   ; Function of the density ?
-  ;  ex : power function will favorise greater aggragations ?
+  ;  ex : power function will favorise greater aggregations ?
   ;
   ; --> discrete choice model with beta param
   ;
   
   let stot sum [sp-density ^ sp-alpha-localization] of patches
   
-  ifelse stot = 0 [repeat sp-growth-rate [ask one-of patches [set sp-occupants sp-occupants + 1]]]
-  [
+  ifelse stot = 0 [
+    repeat sp-growth-rate [ask one-of patches [set sp-occupants sp-occupants + 1]]
+    ][
     ; draw random patches
     let s 0 let f 0 let r [] repeat sp-growth-rate [set r lput random-float 1 r] set r sort r
+    ;show r
     ; add 1 population to each
-    ask patches [if f < sp-growth-rate [set s s + (sp-density ^ sp-alpha-localization) if (s / stot) > item f r [set sp-occupants sp-occupants + 1 set f f + 1]]]
+    ask patches [
+      if f < sp-growth-rate [
+        set s s + (sp-density ^ sp-alpha-localization)
+        if (s / stot) > item f r [
+          ;show (word self " : " (s / stot) " - " item f r)
+          set sp-occupants sp-occupants + 1 set f f + 1
+        ]
+      ]
+    ]
     
   ]
   

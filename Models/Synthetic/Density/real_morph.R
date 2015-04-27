@@ -52,6 +52,19 @@ simplifyBlock<-function(data,resFactor,areasize){
   return(res)
 }
 
+
+# plot a block
+plotSimplifiedBlock <- function(x,y){
+  e<-getValuesBlock(raw,row=x,nrows=areasize,col=y,ncols=areasize)
+  m=simplifyBlock(e,0.1,areasize)
+  r_pop = raster(m)
+  plot(x=r_pop,col=colorRampPalette(c("white", "red"))(50))
+}
+
+
+
+
+# computation on all europe (simplified block 100kmx100km)
 vals = list()
 i=1
 for(x in seq(from=1,to=nrow(raw)-areasize,by=areasize)){

@@ -90,8 +90,8 @@ sp-diffusion
 sp-diffusion
 0
 1
-0.05
-0.005
+0.048
+0.001
 1
 NIL
 HORIZONTAL
@@ -104,18 +104,18 @@ SLIDER
 sp-growth-rate
 sp-growth-rate
 0
-1000
-100
+10000
+510
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-1172
-246
-1235
-279
+1169
+297
+1232
+330
 go
 go-synth-pattern
 T
@@ -129,10 +129,10 @@ NIL
 1
 
 BUTTON
-1101
-246
-1167
-279
+1098
+297
+1164
+330
 setup
 setup-synth-pattern
 NIL
@@ -154,7 +154,7 @@ sp-diffusion-steps
 sp-diffusion-steps
 0
 10
-2
+3
 1
 1
 NIL
@@ -222,8 +222,8 @@ SLIDER
 sp-max-pop
 sp-max-pop
 0
-100000
-80260
+10000000
+8025480
 10
 1
 NIL
@@ -279,11 +279,22 @@ sp-max-time
 sp-max-time
 0
 100
-50
+100
 1
 1
 NIL
 HORIZONTAL
+
+MONITOR
+88
+654
+145
+699
+stot
+sum [sp-density] of patches
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?

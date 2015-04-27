@@ -60,12 +60,16 @@ s = data.frame(moran=p[[3]][,1],distance=p[[3]][,2],entropy=p[[3]][,3],slope=p[[
 
 # DOES NOT FUCKING WORK ???
 
-plotPoints<-function(d,xstring,ystring,colstring){
- p = ggplot(m, aes_string(x=xstring,y=ystring,col=colstring)) 
- return(p+ geom_point())
+# plot points
+plotPoints<-function(d1,d2,xstring,ystring,colstring){
+ p = ggplot(d1, aes_string(x=xstring,y=ystring,col=colstring))
+ return(p+ geom_point() + geom_point(data=d2, aes_string(x = xstring, y = ystring),colour=I("red"),shape="+",size=5))
 }
 
-plotPoints(m,"entropy","slope","diffusion")
+
+
+plotPoints(m,m[1:10,],"entropy","slope","diffusion")
+# ok additional points features works
 plotPoints(m,"entropy","distance","diffusion")
 plotPoints(m,"entropy","moran","diffusion")
 plotPoints(m,"slope","distance","diffusion")
@@ -132,12 +136,17 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 }
 
 
+real = read.csv(
+  paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/europe_100km.csv'),
+  sep=";"
+  )
+
 for(col_par_name in c("diffusion","diffsteps","rate","alpha")){
 plots=list()
 k=1
 #par(mfrow=c(2,3))
 for(i in 1:3){for(j in (i+1):4){
-  plots[[k]]=plotPoints(m,indics[i],indics[j],col_par_name)
+  plots[[k]]=plotPoints(m,real,indics[i],indics[j],col_par_name)
   k=k+1
 }}
 
@@ -148,6 +157,32 @@ multiplot(plotlist=plots,cols=3)
 
 # interesting...
 # Next step : compute for real situations ?
+
+#
+plotPoints(m,real,"entropy","slope","diffusion")
+
+# difficult calib ?
+# try map some areas to understand real patterns
+
+# real conf
+plotSimplifiedBlock(15001,35001)
+# against generated
+plot(x=raster("temp_raster_pop.asc"),col=colorRampPalette(c("white", "red"))(50))
+
+# !! too much diffusion and too few population
+# -> bigger growth rates and smaller diffusions ?
+
+# needs a function calling netlogo from here to visualize a pattern for some params.
+
+library(RNetLogo)
+NLStart(nl.path='/Applications/NetLogo/NetLogo 5.1.0/',gui=FALSE)
+
+
+
+
+
+
+
 
 
 
