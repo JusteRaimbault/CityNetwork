@@ -72,6 +72,24 @@ for(x in seq(from=1,to=nrow(raw)-areasize,by=areasize)){
   }
 }
 
+# get results into data frame
+vals_mat = matrix(0,length(vals),length(vals[[1]]))
+for(a in 1:length(vals)){vals_mat[a,]=vals[[a]]}
+v = data.frame(vals_mat);colnames(v)=c("x","y","moran","distance","entropy","slope")
+
+# check geographical consistence of computed areas
+plot(v$x,v$y) # --> transposed.
+
+# check indics values : scatterplot
+plot(v[,3:6],v[,3:6])
+# seems reasonable -> now superpose with calib plots.
+
+# store in data file to be called from other script.
+
+
+
+
+
 
 
 
