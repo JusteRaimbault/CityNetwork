@@ -85,8 +85,12 @@ plot(v[,3:6],v[,3:6])
 # seems reasonable -> now superpose with calib plots.
 
 # store in data file to be called from other script.
-
-
+write.table(
+  v,
+  file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/europe_100km.csv'),
+  sep = ";",
+  col.names=colnames(v)
+)
 
 
 
