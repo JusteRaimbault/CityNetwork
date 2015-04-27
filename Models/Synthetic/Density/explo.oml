@@ -38,11 +38,13 @@ val moran=Val[Double]
 val distance=Val[Double]
 val entropy=Val[Double]
 val slope=Val[Double]
+val closed=Val[Int]
 
 //NetLogo go for one time step
 val cmds = List(
   "setup-openmole-experiment ${diffusion} ${diffusionsteps} ${alphalocalization} ${growthrate}",
-  "go-openmole-experiment")
+  "go-openmole-experiment"
+)
 
 // run RServe
 // -> do it before, many instance if not.
@@ -50,6 +52,10 @@ val cmds = List(
 
 // system adjustement for gis lib in netlogo
 System.setProperty("com.sun.media.jai.disableMediaLib", "true")
+
+//show available processors
+println("Available Processors : "+Runtime.getRuntime().availableProcessors());
+
 
 val scriptPath = System.getenv("CN_HOME")+"/Models/Synthetic/Density/HEADLESS_Density-system.nlogo"
 
@@ -62,7 +68,8 @@ val model = NetLogo5Task(scriptPath,cmds,true) set (
   netLogoOutputs += ("sp-diffusion",diffusion),
   netLogoOutputs += ("sp-diffusion-steps",diffusionsteps),
   netLogoOutputs += ("sp-alpha-localization",alphalocalization),
-  netLogoOutputs += ("sp-growth-rate",growthrate)
+  netLogoOutputs += ("sp-growth-rate",growthrate),
+  netLogoOutputs += ("close-rserve",closed)
   )
 
 // output
