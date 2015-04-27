@@ -10,7 +10,7 @@ val growthrate = Val[Double]
 val replication = Val[Int]
 
 // exploration task
-/*val exploration =
+val exploration =
   ExplorationTask(
         (diffusion in (0.0 to 0.1 by 0.01)) x
         (diffusionsteps in (1.0 to 7.0 by 3.0)) x
@@ -18,17 +18,17 @@ val replication = Val[Int]
         (growthrate in (100.0 to 500.0 by 200.0)) x
         (replication in (UniformDistribution[Int]() take 100))
   )
-*/
+
 
 //-------------------------------------------------------
 // FOR TEST
- val exploration =  ExplorationTask(
+/* val exploration =  ExplorationTask(
   (diffusion in (0.1 to 0.1 by 1)) x
     (diffusionsteps in (1.0 to 1.0 by 1)) x
     (alphalocalization in (0.5 to 0.5 by 1)) x
     (growthrate in (100.0 to 100.0 by 1)) x
       (replication in (UniformDistribution[Int]() take 16))
-  )
+  )*/
 //--------------------------------------------------------
 
 
@@ -41,7 +41,7 @@ val slope=Val[Double]
 
 //NetLogo go for one time step
 val cmds = List(
-  "setup-openmole-experiment 0.1 1.0 0.5 100",
+  "setup-openmole-experiment ${diffusion} ${diffusionsteps} ${alphalocalization} ${growthrate}",
   "go-openmole-experiment")
 
 // run RServe
@@ -58,8 +58,10 @@ val model = NetLogo5Task(scriptPath,cmds,true) set (
   netLogoOutputs += ("average-distance-individuals", distance),
   netLogoOutputs += ("entropy", entropy),
   netLogoOutputs += ("rank-size-slope",slope),
-  netLogoOutputs += ("sp-diffusion",diffusion)
-  //outputs += (diffusion,diffusionsteps,alphalocalization,growthrate)
+  netLogoOutputs += ("sp-diffusion",diffusion),
+  netLogoOutputs += ("sp-diffusion-steps",diffusionsteps),
+  netLogoOutputs += ("sp-alpha-localization",alphalocalization),
+  netLogoOutputs += ("sp-growth-rate",growthrate)
   )
 
 // output
