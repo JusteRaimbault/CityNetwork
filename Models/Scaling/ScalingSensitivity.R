@@ -103,12 +103,14 @@ linFit <- function(d,theta){
 slope(test,0.02)
 persp3D(z=d)
 
-d=spatializedExpMixtureDensity(400,30,10,10,200,0.2,0.01)
+d=spatializedExpMixtureDensity(200,15,5,5,200,0.7,0.001)
 
-thetas=seq(from=0.01,to=0.1,by=0.005)
+thetas=seq(from=0.01,to=0.2,by=0.005)
+# be careful in thresholds, not good connex areas otherwise
+# thetas given in proportion
 slopes=c();rsquared=c()
 for(theta in thetas){
-  l=linFit(d,theta)
+  l=linFit(d,theta*max(d))
   slopes=append(slopes,l$coefficients[2])
   rsquared=append(rsquared,summary(l)$adj.r.squared)
 }
@@ -116,6 +118,7 @@ for(theta in thetas){
 plot(thetas,-slopes)
 plot(thetas,rsquared)
 
-
+# slope of slopes ?
+lm(-slopes~thetas,data.frame(thetas,slopes))$coefficients[2]
 
 
