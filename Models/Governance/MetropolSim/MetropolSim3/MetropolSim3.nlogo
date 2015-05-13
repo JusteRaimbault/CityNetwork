@@ -8,6 +8,25 @@ __includes [
   ; setup
   "setup.nls"
   
+  ;;;;;;;;
+  ; agents
+  ;;;;;;;;
+  
+  ; mayors
+  "mayor.nls"
+  
+  
+  
+  
+  ;;;;;;;;;;
+  ; display
+  ;;;;;;;;;;
+  
+  "display.nls"
+  
+  
+  
+  
 ]
 
 
@@ -16,8 +35,21 @@ __includes [
 globals[
   
   ; initial number of territories
-  #-initial-territories
+  ;#-initial-territories
   
+]
+
+
+patches-own [
+  
+  ; pointer to governing mayor
+  governing-mayor
+  
+  ; actives and employment
+  ; do not need mobile agents as deterministic evolution, considering at this time scale that random effect is averaged
+  ;  on the contrary to transportation infrastructure evolution, that eveolves at a greater scale.
+  
+   
 ]
 
 
@@ -27,16 +59,16 @@ breed[mayors mayor]
 
 mayors-own[
   
-  ; set of governed patches
-  governed-patches
+  ; set of governed patches -> not needed ?
+  ;governed-patches
   
 ]
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
-10
-649
-470
+358
+15
+797
+475
 16
 16
 13.0
@@ -46,8 +78,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-1
-1
+0
+0
 1
 -16
 16
@@ -58,6 +90,48 @@ GRAPHICS-WINDOW
 1
 ticks
 30.0
+
+SLIDER
+12
+57
+151
+90
+#-initial-territories
+#-initial-territories
+0
+5
+2
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+20
+341
+86
+374
+setup
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+21
+445
+159
+490
+patches-display
+patches-display
+"governance" "actives" "employments"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

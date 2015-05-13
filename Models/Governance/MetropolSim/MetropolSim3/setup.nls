@@ -7,12 +7,32 @@
 ;;
 ; General setup
 to setup
-  ;
+  
+  clear-all
+  
+  ; setup initial governance
   setup-territories
-end
-
-
-
-to setup-territories
+  
+  
+  
   
 end
+
+
+;;
+; setup mayors and governed patches
+to setup-territories
+  
+  ; create mayors
+  create-mayors #-initial-territories [
+    initial-position-mayor
+    new-mayor
+  ]
+  
+  ; setup governance areas
+  ask patches [set governing-mayor one-of mayors with-min [distance myself] set pcolor [color] of governing-mayor]
+  ; no need to cache governed patches, quickly accessed ?
+  
+end
+
+
