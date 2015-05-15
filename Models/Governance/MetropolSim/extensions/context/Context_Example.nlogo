@@ -1,108 +1,28 @@
-
-;;;;;;;;;;;;;;;;;;;;;
-;; MetropolSim v3.0
-;;
-;; Major changes since v2
-;;   - matrix dynamic shortest path (euclidian and nw) computation
-;;   - simplified population structure (one csp)
-;;   
-;;;;;;;;;;;;;;;;;;;;;
-
-extensions[matrix]
+extensions [context]
 
 __includes [
-  
-  ; main
-  "main.nls" 
-  
-  ; setup
-  "setup.nls"
-  
-  ;;;;;;;;
-  ; agents
-  ;;;;;;;;
-  
-  ; mayors
-  "mayor.nls"
-  
-
-  
-  ;;;;;;;;;;
-  ; display
-  ;;;;;;;;;;
-  
-  "display.nls"
-  
-  
-  
-  
+  "../../agent/Agent.nls" 
 ]
 
 
+breed [sheeps sheep]
+breed [sigycops sigycop]
 
 
-globals[
-  
-  ; initial number of territories
-  ;#-initial-territories
-  
-  
-  ;;;;;;;;;;;;;
-  ;; Cached distances matrices
-  ;;
-  ;;  updated through dynamic programming rules
-  ;;;;;;;;;;;;;
-  
-  ;; Matrix of euclidian distances between patches
-  ; remains unchanged
-  euclidian-distance-matrix
-  
-  ;; network distance (without congestion)
-  network-distance-matrix
-  
-  ;; effective distance
-  ;  - with congestion in network -
-  effective-distance-matrix
-  
-  
-]
 
-
-patches-own [
-  
-  ; pointer to governing mayor
-  governing-mayor
-  
-  ; actives and employment
-  ; do not need mobile agents as deterministic evolution, considering at this time scale that random effect is averaged
-  ;  on the contrary to transportation infrastructure evolution, that evolves at a greater scale.
-  ;  -> patch variables and not agents
-  
-  ; number of actives on the patch
-  actives
-  
-  ; number of jobs on the patch
-  employments
-   
-]
-
-
-;;
-; abstract entity representing territorial governance
-breed[mayors mayor]
-
-mayors-own[
-  
-  ; set of governed patches -> not needed ?
-  ;governed-patches
-  
-]
+to test-my-breed
+  ca
+  crt 5
+  create-sheeps 5
+  create-sigycops 5
+  ask turtles [show my-breed]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-358
-15
-797
-475
+210
+10
+649
+470
 16
 16
 13.0
@@ -112,8 +32,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-0
-0
+1
+1
 1
 -16
 16
@@ -125,72 +45,10 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
-SLIDER
-9
-27
-140
-60
-#-initial-territories
-#-initial-territories
-0
-5
-2
-1
-1
-NIL
-HORIZONTAL
-
-BUTTON
-20
-341
-86
-374
-setup
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-CHOOSER
-21
-445
-159
-490
-patches-display
-patches-display
-"governance" "actives" "employments"
-0
-
-TEXTBOX
-11
-7
-161
-25
-Setup parameters
-11
-0.0
-1
-
-TEXTBOX
-15
-188
-165
-206
-Runtime parameters
-11
-0.0
-1
-
 @#$#@#$#@
 ## WHAT IS IT?
 
-MetropolSim 3.0
+(a general understanding of what the model is trying to show or explain)
 
 ## HOW IT WORKS
 

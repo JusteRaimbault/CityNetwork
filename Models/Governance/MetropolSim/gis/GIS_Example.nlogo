@@ -1,110 +1,72 @@
-
-;;;;;;;;;;;;;;;;;;;;;
-;; MetropolSim v3.0
-;;
-;; Major changes since v2
-;;   - matrix dynamic shortest path (euclidian and nw) computation
-;;   - simplified population structure (one csp)
-;;   
-;;;;;;;;;;;;;;;;;;;;;
-
-extensions[matrix]
+extensions [gis nw context]
 
 __includes [
+  "GISNetwork.nls"
   
-  ; main
-  "main.nls" 
+  ;; dependancies : Link and List utils
+  ;"/${env:CN_HOME}/Models/Governance/MetropolSim/governement.nls" ; test for env ar : does not work! 
+  "../agent/Link.nls"
+  "../math/EuclidianDistanceUtilities.nls"
+  "../agent/Agent.nls"
+  "../agent/Link.nls"
+  "../agent/AgentSet.nls"
+  "../misc/List.nls"
   
-  ; setup
-  "setup.nls"
-  
-  ;;;;;;;;
-  ; agents
-  ;;;;;;;;
-  
-  ; mayors
-  "mayor.nls"
-  
-
-  
-  ;;;;;;;;;;
-  ; display
-  ;;;;;;;;;;
-  
-  "display.nls"
-  
-  
-  
+  ;; test : network
+  "../network/Network.nls"
   
 ]
 
 
 
 
-globals[
-  
-  ; initial number of territories
-  ;#-initial-territories
-  
-  
-  ;;;;;;;;;;;;;
-  ;; Cached distances matrices
-  ;;
-  ;;  updated through dynamic programming rules
-  ;;;;;;;;;;;;;
-  
-  ;; Matrix of euclidian distances between patches
-  ; remains unchanged
-  euclidian-distance-matrix
-  
-  ;; network distance (without congestion)
-  network-distance-matrix
-  
-  ;; effective distance
-  ;  - with congestion in network -
-  effective-distance-matrix
-  
-  
+;;;;;;;;;;;;;;;;;;;;;;
+;; Global defs for GIS Network algos
+;;  -> include that in model for primitives to work
+;;;;;;;;;;;;;;;;;;;;;;
+globals[remaining-links remaining-vertices]
+breed [vertices vertex]
+breed [abstract-gis-edges abstract-gis-edge]
+abstract-gis-edges-own [
+  gis-feature
+  vertices-list
 ]
-
-
-patches-own [
-  
-  ; pointer to governing mayor
-  governing-mayor
-  
-  ; actives and employment
-  ; do not need mobile agents as deterministic evolution, considering at this time scale that random effect is averaged
-  ;  on the contrary to transportation infrastructure evolution, that evolves at a greater scale.
-  ;  -> patch variables and not agents
-  
-  ; number of actives on the patch
-  actives
-  
-  ; number of jobs on the patch
-  employments
-   
+undirected-link-breed [edges edge]
+edges-own [
+  ; owned var for length
+  edge-length
 ]
+;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;;
-; abstract entity representing territorial governance
-breed[mayors mayor]
 
-mayors-own[
-  
-  ; set of governed patches -> not needed ?
-  ;governed-patches
-  
-]
+;;;;; tests ;;;;;;;;
+undirected-link-breed [roads road]
+undirected-link-breed [pathways pathway]
+
+
+to test-nw-conn
+  ca crt 20 [setxy random-xcor random-ycor]
+  ask n-of 5 turtles[ create-road-with one-of other turtles [set thickness 0.5 set color red] create-pathway-with one-of other turtles[set thickness 0.2 set color green] ]
+end
+
+
+
+
+
+
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
-358
-15
-797
-475
-16
-16
+13
+10
+1102
+704
+41
+25
 13.0
 1
 10
@@ -115,38 +77,45 @@ GRAPHICS-WINDOW
 0
 0
 1
--16
-16
--16
-16
+-41
+41
+-25
+25
 0
 0
 1
 ticks
 30.0
 
-SLIDER
-9
-27
-140
-60
-#-initial-territories
-#-initial-territories
-0
-5
-2
+MONITOR
+1151
+13
+1208
+58
+turtles
+count turtles
+17
 1
+11
+
+MONITOR
+1211
+13
+1268
+58
+links
+count links
+17
 1
-NIL
-HORIZONTAL
+11
 
 BUTTON
-20
-341
-86
-374
-setup
-setup
+1145
+69
+1268
+102
+create network
+ca\ncreate-network layer threshold
 NIL
 1
 T
@@ -157,40 +126,36 @@ NIL
 NIL
 1
 
-CHOOSER
-21
-445
-159
-490
-patches-display
-patches-display
-"governance" "actives" "employments"
+INPUTBOX
+1146
+118
+1287
+178
+layer
+data/roads_123.shp
+1
 0
+String
 
-TEXTBOX
-11
-7
-161
-25
-Setup parameters
-11
-0.0
-1
-
-TEXTBOX
-15
+SLIDER
+1145
 188
-165
-206
-Runtime parameters
-11
-0.0
+1317
+221
+threshold
+threshold
+0
 1
+1
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-MetropolSim 3.0
+(a general understanding of what the model is trying to show or explain)
 
 ## HOW IT WORKS
 

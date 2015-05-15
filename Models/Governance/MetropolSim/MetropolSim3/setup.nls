@@ -13,6 +13,8 @@ to setup
   ; setup initial governance
   setup-territories
   
+  ; setup initial configuration
+  setup-initial-distributions
   
   
   
@@ -32,6 +34,21 @@ to setup-territories
   ; setup governance areas
   ask patches [set governing-mayor one-of mayors with-min [distance myself] set pcolor [color] of governing-mayor]
   ; no need to cache governed patches, quickly accessed ?
+  
+end
+
+
+
+;;
+;  Setup initial distributions of actives and employments (polycentric Bussiere model)
+to setup-initial-distributions
+  
+  ; use monocentric kernel application function
+  ask mayors [
+    apply-monocentric-kernel "poisson" kernel-dispersion kernel-max "actives" patch-here
+    apply-monocentric-kernel "poisson" kernel-dispersion kernel-max "employments" patch-here
+  ]
+  
   
 end
 

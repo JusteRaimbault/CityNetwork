@@ -1,0 +1,58 @@
+
+;;;;;;;;;;;;;;;;;;
+;; Plotting Utils
+;;
+;; @requires ListUtilities.nls
+;;
+;;;;;;;;;;;;;;;;;;
+
+
+
+;;;;;
+;  Plots a pie plot from data list, in given plot, with optional colors.
+;  
+;  @param data
+;  @param plotName
+;  @param colors
+;;;
+to pie-plot [data plotName colors]
+  
+  let m sum data
+  set data map [ ? * 2 * pi / m] data
+  
+  ;; draw the pie
+  set-current-plot plotName clear-plot
+  ; assumed to have only one pen
+  
+  ; line mode to fill
+  set-plot-pen-mode 0
+  
+  let current-color 0
+  ifelse colors != [] [set current-color item 0 colors]
+  [set current-color 5]
+  
+  ; get center : (xc,yc)=r, radius of circle
+  let r min (list (plot-x-max - plot-x-min) (plot-y-max - plot-y-min)) / 2
+  
+  ; current circum coordinates
+  let x r let y 0 let alpha 0 let s 0
+  let dalpha (2 * pi / 500)
+  let i 0
+  
+  foreach data [
+    set s s + ?
+    ifelse colors != [] [set current-color item i colors]
+    [set current-color current-color + (130 / length data)]
+    set-plot-pen-color current-color
+    while [alpha < s][
+      ; move to center
+      plotxy r r
+      ; back to circum
+      set x x - (y * dalpha / 2) set y y + (x * dalpha / 2)
+      plotxy (x + r) (y + r)
+      set x x - (y * dalpha / 2) set y y + (x * dalpha / 2)
+      set alpha alpha + dalpha
+    ]
+     set i i + 1
+  ]
+end

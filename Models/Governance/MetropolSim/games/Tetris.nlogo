@@ -1,111 +1,255 @@
-
-;;;;;;;;;;;;;;;;;;;;;
-;; MetropolSim v3.0
-;;
-;; Major changes since v2
-;;   - matrix dynamic shortest path (euclidian and nw) computation
-;;   - simplified population structure (one csp)
-;;   
-;;;;;;;;;;;;;;;;;;;;;
-
 extensions[matrix]
 
-__includes [
-  
-  ; main
-  "main.nls" 
-  
-  ; setup
-  "setup.nls"
-  
-  ;;;;;;;;
-  ; agents
-  ;;;;;;;;
-  
-  ; mayors
-  "mayor.nls"
-  
-
-  
-  ;;;;;;;;;;
-  ; display
-  ;;;;;;;;;;
-  
-  "display.nls"
-  
-  
-  
-  
+__includes[
+ "/Users/Juste/Documents/Complex Systems/Softwares/Netlogo/utils/FileUtilities.nls" 
+ "/Users/Juste/Documents/Complex Systems/Softwares/Netlogo/utils/StringUtilities.nls" 
 ]
-
-
-
 
 globals[
-  
-  ; initial number of territories
-  ;#-initial-territories
-  
-  
-  ;;;;;;;;;;;;;
-  ;; Cached distances matrices
-  ;;
-  ;;  updated through dynamic programming rules
-  ;;;;;;;;;;;;;
-  
-  ;; Matrix of euclidian distances between patches
-  ; remains unchanged
-  euclidian-distance-matrix
-  
-  ;; network distance (without congestion)
-  network-distance-matrix
-  
-  ;; effective distance
-  ;  - with congestion in network -
-  effective-distance-matrix
-  
-  
+ current-piece
+ 
+ left?
+ right?
+ down?
+ 
+ rotate?
+ 
+ first?
+ 
+ total-lines
+ 
+ ;for each piece, list of matrixes representing shapes
+ ;simpler than to proceed to rotation?
+ bar-piece
+ leftl-piece
+ rightl-piece
+ block-piece
+ tri-piece
+ leftd-piece
+ rightd-piece
+ 
 ]
 
+breed [pieces piece]
 
-patches-own [
+
+patches-own[
+  occupied?
+]
+
+pieces-own[
+  matrixes-list
+  current-matrix 
+]
+
+to setup
+  ca
+  set-patch-size 22
+  resize-world 0 10 0 22
+  load-pieces-data
+  set first? true set left? false set right? false set down? false set rotate? false
+  set total-lines 0
+  ask patches [set occupied? false]
+  new-current-piece
+end
+
+
+to play
+  ;show timer
+  ;if time is to descend, test if piece has to be immobilised, then descend or create new piece
+  if first? [reset-timer set first? false]
+  if timer > 0.3 or (down? = true and timer > 0.1) [
+    set down? false
+    reset-timer
+    move-piece-or-immobilise
+  ]
   
-  ; pointer to governing mayor
-  governing-mayor
+  ;;makes moves if needed
+  if left? [
+     ask current-piece [set-trace false set xcor max list 1 (xcor - 1) set-trace false]
+     set left? false
+  ]
   
-  ; actives and employment
-  ; do not need mobile agents as deterministic evolution, considering at this time scale that random effect is averaged
-  ;  on the contrary to transportation infrastructure evolution, that evolves at a greater scale.
-  ;  -> patch variables and not agents
+  if right? [
+     ask current-piece [set-trace false set xcor min list (max-pxcor - 1) (xcor + 1)]
+     set right? false
+  ]
   
-  ; number of actives on the patch
-  actives
+  if rotate? [
+     ask current-piece [set-trace false rotate]
+     set rotate? false
+  ]
   
-  ; number of jobs on the patch
-  employments
+  color-patches
+  
+end
+
+to move-piece-or-immobilise
+  ;;test if piece has to stop
+  let stop? false
+  ;;can't use 
+  ask current-piece [
+    set-trace false
+    let i 0 let j 0
+    repeat 4 [
+      set j 0
+      repeat 4[
+        if matrix:get current-matrix i j = 1 [ifelse patch-at (- i + 2)  (j - 3) = nobody [set stop? true][set stop? stop? or [occupied?] of patch-at (- i + 2)  (j - 3) = true]]
+        set j j + 1 
+      ]
+      set i i + 1
+    ]
+    set-trace true
+  ]
+  ifelse stop? [
+    ask current-piece [
+    set-trace true
+    check-lines
+    if ycor = 19 [user-message "Game Over !"]
+    die
+    ]
+    ;;create new piece
+    new-current-piece
    
-]
-
-
-;;
-; abstract entity representing territorial governance
-breed[mayors mayor]
-
-mayors-own[
+    
+  ][
+   ask current-piece [
+    set-trace false
+    ;;move
+    set ycor ycor - 1
+    set-trace true
+  ]
   
-  ; set of governed patches -> not needed ?
-  ;governed-patches
+  ]
   
-]
+  
+  
+end
+
+
+;current piece procedure
+to set-trace [value]
+  let i 0 let j 0
+    repeat 4 [
+      set j 0
+      repeat 4[
+        if matrix:get current-matrix i j = 1 [ if patch-at (- i + 2)  (j - 2) != nobody [ ask patch-at (- i + 2)  (j - 2) [set occupied? value]]]
+        set j j + 1 
+      ]
+      set i i + 1
+    ]
+end
+
+
+
+
+to go-left
+  set left? true
+end
+
+to go-right
+  set right? true
+end
+
+to down
+   set down? true
+end
+
+to ask-rotate
+  set rotate? true
+end
+
+to rotate
+  ask current-piece [
+     set current-matrix first matrixes-list
+     set matrixes-list but-first lput first matrixes-list matrixes-list
+  ]
+end
+
+to check-lines
+  ;;degeu,faire un repeat?
+  let line 0
+  repeat 20 [
+    if count patches with [pycor = line] = 10 [
+       let j 0 repeat (19 - line ) [
+          ask patches with [pycor = line + j] [let o? [occupied?] of one-of patches with [pxcor = [pxcor] of myself and pycor = line + j + 1] set occupied? o?]
+          set j j + 1 
+       ]
+       ask patches with [pycor = 19] [set occupied? false]
+       set total-lines total-lines + 1
+    ]
+    set line line + 1
+  ]
+end
+
+
+
+to color-patches
+  ask patches[
+     ifelse occupied? [set pcolor red][set pcolor black] 
+  ]
+end
+
+
+to new-current-piece
+  create-pieces 1 [
+      set current-piece self
+      set xcor 5
+      set ycor 19
+      let n random 7
+      if n = 0 [set matrixes-list bar-piece]
+      if n = 1 [set matrixes-list leftl-piece]
+      if n = 2 [set matrixes-list rightl-piece]
+      if n = 3 [set matrixes-list block-piece]
+      if n = 4 [set matrixes-list tri-piece]
+      if n = 5 [set matrixes-list leftd-piece]
+      if n = 6 [set matrixes-list rightd-piece] 
+      set current-matrix first matrixes-list
+      
+      set hidden? true
+    ]
+end
+
+
+
+to load-pieces-data
+  set bar-piece [] set leftl-piece [] set rightl-piece [] set block-piece [] set tri-piece [] set leftd-piece [] set rightd-piece []
+  
+  let data but-first read-file "Tetris.txt"
+  let i 0 let rest-deg 1
+  let current-piece-name ""
+  let current-matrix-as-row-list []
+  foreach data [
+     if i mod 5 = 0 [
+        let command word word word word word "set " current-piece-name " lput matrix:from-row-list " current-matrix-as-row-list " " current-piece-name
+        ;show command
+        if i != 0 [run command]
+        set current-matrix-as-row-list []
+     ]
+       ifelse i mod 20 = 0 [
+         set current-piece-name ?
+         set current-matrix-as-row-list []
+         ;show word "New-name " current-piece-name
+       ][
+           if i mod 5 != 0 [set current-matrix-as-row-list lput explode ";" ? current-matrix-as-row-list]
+       ]
+     
+     set i i + 1
+     
+  ]
+  ;;end with the last
+  run word word word word word "set " current-piece-name " lput matrix:from-row-list " current-matrix-as-row-list " " current-piece-name
+  
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-358
-15
-797
-475
-16
-16
-13.0
+436
+23
+688
+560
+-1
+-1
+22.0
 1
 10
 1
@@ -115,37 +259,22 @@ GRAPHICS-WINDOW
 0
 0
 1
--16
-16
--16
-16
+0
+10
+0
+22
 0
 0
 1
 ticks
 30.0
 
-SLIDER
-9
-27
-140
-60
-#-initial-territories
-#-initial-territories
-0
-5
-2
-1
-1
-NIL
-HORIZONTAL
-
 BUTTON
-20
-341
-86
-374
-setup
+21
+21
+115
+54
+New game
 setup
 NIL
 1
@@ -157,40 +286,106 @@ NIL
 NIL
 1
 
-CHOOSER
-21
-445
+BUTTON
+23
+79
+86
+112
+Play
+play
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+90
+162
+155
+195
+down
+down
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+47
+123
+110
+156
+left
+go-left
+NIL
+1
+T
+OBSERVER
+NIL
+J
+NIL
+NIL
+1
+
+BUTTON
+121
+124
+184
+157
+right
+go-right
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+243
+126
+306
 159
-490
-patches-display
-patches-display
-"governance" "actives" "employments"
-0
-
-TEXTBOX
-11
-7
-161
-25
-Setup parameters
-11
-0.0
+turn
+set rotate? true
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 1
 
-TEXTBOX
-15
-188
-165
-206
-Runtime parameters
-11
-0.0
+MONITOR
+19
+263
+76
+308
+occ.
+count patches with [occupied?]
+17
 1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-MetropolSim 3.0
+(a general understanding of what the model is trying to show or explain)
 
 ## HOW IT WORKS
 
@@ -530,7 +725,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -538,9 +733,9 @@ NetLogo 5.1.0
 @#$#@#$#@
 default
 0.0
--0.2 0 0.0 1.0
+-0.2 0 1.0 0.0
 0.0 1 1.0 0.0
-0.2 0 0.0 1.0
+0.2 0 1.0 0.0
 link direction
 true
 0
