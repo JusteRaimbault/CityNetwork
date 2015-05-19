@@ -51,10 +51,10 @@ __includes [
   
   ;;external
   ; note : will not work in general - should put submodule locally
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LogUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/PlottingUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/TableUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/io/LogUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/misc/List.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/gui/PlottingUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/misc/Table.nls"
   
 ]
 
@@ -405,7 +405,6 @@ links-own [
   transportation-link-length
   
 ]
-
 
 
 

@@ -237,7 +237,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility"
-1
+3
 
 TEXTBOX
 11
@@ -328,7 +328,7 @@ gamma-cobb-douglas
 gamma-cobb-douglas
 0
 1
-0.5
+0.8
 0.05
 1
 NIL
@@ -360,7 +360,7 @@ beta-discrete-choices
 beta-discrete-choices
 0
 2
-1.25
+1.1
 0.05
 1
 NIL
