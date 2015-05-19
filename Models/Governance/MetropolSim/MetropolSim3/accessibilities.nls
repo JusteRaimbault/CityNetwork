@@ -1,0 +1,47 @@
+
+;;;;;;;;;;;;;;
+;; accessibility and utility functions
+;;;;;;;;;;;;;;
+
+
+;;
+; update acc, form factor and utilities
+to compute-patches-variables
+  compute-patches-accessibilities
+  compute-patches-form-factor
+  compute-patches-utilities
+end
+
+
+;;
+;  Compute patches accessibilities
+;   given current distributions and effective distance matrix
+to compute-patches-accessibilities
+  ask patches [
+     ; only one csp for now
+     set a-to-e-accessibility scalar-product (patches-employments) map [exp (- ?)] (matrix:get-row effective-distance-matrix number)
+     set e-to-a-accessibility scalar-product (patches-actives) map [exp (- ?)] (matrix:get-row effective-distance-matrix number)
+  ]
+end
+
+to compute-patches-form-factor
+  ; only one csp : nothing to do
+  ask patches [
+    set form-factor actives * employments 
+  ]
+end
+
+
+;;
+; patches utilities
+;  note : could be in same loop as accessibilities ? more flexibility.
+to compute-patches-utilities
+  ask patches [
+    set a-utility (a-to-e-accessibility ^ gamma-cobb-douglas) * (form-factor ^ (1 - gamma-cobb-douglas))
+    set e-utility (e-to-a-accessibility ^ gamma-cobb-douglas) * (form-factor ^ (1 - gamma-cobb-douglas))
+  ]
+  
+  ; renormalize utilities
+  let ma-a max [a-utility] of patches let ma-e max [e-utility] of patches
+  ask patches [set a-utility a-utility / ma-a set e-utility e-utility / ma-e]
+end

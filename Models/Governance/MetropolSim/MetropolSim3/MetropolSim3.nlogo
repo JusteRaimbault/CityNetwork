@@ -8,15 +8,28 @@
 ;;   
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix]
+extensions[matrix table]
 
 __includes [
   
   ; main
-  "main.nls" 
+  "main.nls"
   
   ; setup
   "setup.nls"
+  
+  ;;;;;;;;;
+  ;; main modules
+  ;;;;;;;;;
+  
+  ;; transportation
+  "transportation.nls"
+  
+  ;; luti
+  "luti.nls"
+  
+  ;; governance
+  "governance.nls"
   
   ;;;;;;;;
   ; agents
@@ -25,7 +38,15 @@ __includes [
   ; mayors
   "mayor.nls"
   
-
+  ;;;;;;;;;
+  ; functions
+  ;;;;;;;;;
+  
+  ; functions to update distance matrices
+  "distances.nls"
+  
+  ; accessibilities
+  "accessibilities.nls"
   
   ;;;;;;;;;;
   ; display
@@ -34,8 +55,15 @@ __includes [
   "display.nls"
   
   
+  ;;;;;;;;;;
+  ;; utils
+  ;;;;;;;;;;
   
-  
+  "utils/math/SpatialKernels.nls"
+  "utils/misc/List.nls"
+  "utils/misc/Types.nls"
+  "utils/misc/Matrix.nls"
+  "utils/gui/Display.nls"
 ]
 
 
@@ -43,9 +71,30 @@ __includes [
 
 globals[
   
+  ;;;;;;;;;;;;;
+  ;; Setup params
+  ;;;;;;;;;;;;;
+  
   ; initial number of territories
   ;#-initial-territories
   
+  ; spatial distribution params
+  ;actives-spatial-dispersion
+  ;employments-spatial-distribution
+  
+  ;; global employments and actives list
+  patches-employments
+  patches-actives
+  
+  ;; convergence variables
+  diff-actives
+  diff-employments
+  
+  ; utility : cobb-douglas parameter
+  ;gamma-cobb-douglas
+  
+  ; relocation : discrete choice parameter
+  ;beta-discrete-choices
   
   ;;;;;;;;;;;;;
   ;; Cached distances matrices
@@ -70,6 +119,9 @@ globals[
 
 patches-own [
   
+  ; number of the patch (used as index in distance matrices)
+  number
+  
   ; pointer to governing mayor
   governing-mayor
   
@@ -83,7 +135,27 @@ patches-own [
   
   ; number of jobs on the patch
   employments
+  
+  
+  ;;;;;
+  ;; utilities and accessibilities
+  ;;;;;
+  
+  ; accessibility of jobs to actives
+  a-to-e-accessibility
+  
+  ; accessibility of actives to employments
+  e-to-a-accessibility
    
+  ; utilities
+  a-utility
+  e-utility
+  
+  ; form factor
+  form-factor
+  
+  
+  
 ]
 
 
@@ -160,12 +232,12 @@ NIL
 CHOOSER
 21
 445
-159
+192
 490
 patches-display
 patches-display
-"governance" "actives" "employments"
-0
+"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility"
+1
 
 TEXTBOX
 11
@@ -186,6 +258,149 @@ Runtime parameters
 11
 0.0
 1
+
+SLIDER
+9
+62
+184
+95
+actives-spatial-dispersion
+actives-spatial-dispersion
+0
+100
+5
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+8
+96
+184
+129
+employments-spatial-dispersion
+employments-spatial-dispersion
+0
+100
+5
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+185
+62
+294
+95
+actives-max
+actives-max
+0
+1000
+500
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+184
+96
+294
+129
+employments-max
+employments-max
+0
+1000
+500
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+11
+206
+179
+239
+gamma-cobb-douglas
+gamma-cobb-douglas
+0
+1
+0.5
+0.05
+1
+NIL
+HORIZONTAL
+
+BUTTON
+20
+381
+136
+414
+compute utils
+compute-patches-variables\ncolor-patches
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+10
+241
+200
+274
+beta-discrete-choices
+beta-discrete-choices
+0
+2
+1.25
+0.05
+1
+NIL
+HORIZONTAL
+
+BUTTON
+89
+341
+152
+374
+go
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+932
+18
+1092
+138
+convergence
+NIL
+NIL
+0.0
+10.0
+0.0
+100.0
+false
+false
+"" ""
+PENS
+"default" 1.0 0 -5298144 true "" "plot diff-employments"
+"pen-1" 1.0 0 -12087248 true "" "plot diff-actives"
 
 @#$#@#$#@
 ## WHAT IS IT?

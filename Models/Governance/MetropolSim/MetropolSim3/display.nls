@@ -8,8 +8,36 @@ to color-patches
   if patches-display = "governance"[
      ask patches [set pcolor [color] of governing-mayor]
   ]
-  if patches-display = "actives"[
-     ask patches [set pcolor [color] of governing-mayor]
+  if member? patches-display ["actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility"] [
+     color-gradient-patches patches-display "green"
+  ]
+  
+end
+
+
+
+
+;;;;
+; Draw boundary between regions
+; it is drawn permanently
+to draw-boundaries
+  
+  ;; dirty way : ask each patch to sprout someone drawing its border with neighbors of different area
+  
+  ask patches with [count neighbors4 with [[governing-mayor] of myself != governing-mayor] > 0] [
+    let p self
+    sprout 1 [
+      set color pink set shape "circle" ;set size patch-size / 2
+      foreach to-list [neighbors4 with [[governing-mayor] of p != governing-mayor]] of myself [
+          let xp [pxcor] of p let yp [pycor] of p let xn [pxcor] of ? let yn [pycor] of ?
+          ifelse xp = xn [
+            setxy xp - 0.499 (yp + yn) / 2 pen-down setxy xp + 0.499 (yp + yn) / 2 pen-up
+          ][
+            setxy (xp + xn) / 2  yp - 0.499 pen-down setxy (xp + xn) / 2  yp + 0.499 pen-up
+          ]
+      ]
+      die 
+    ]
   ]
   
 end
