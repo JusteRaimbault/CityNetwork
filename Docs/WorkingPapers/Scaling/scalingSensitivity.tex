@@ -38,7 +38,7 @@ where $r_i$ are spread parameters of kernels, $d_i^0$ densities at origins, $\ve
 
 \begin{enumerate}
 \item To simplify, cities are monocentric, in the sense that for all $i\neq j$, we have $\norm{\vec{x}_i - \vec{x}_j}\gg r_i$.
-\item It allows to impose structural scaling in the urban system by the simple constraint on city populations $P_i$. One can compute by integration that $P_i=2\pi d_i^0 r_i^2$, what gives by injection into the scaling hypothesis $\ln{P_i}=K-\alpha \ln{i}$, the following relation between parameters : $\ln{\left[d_i^0 r_i^2\right]}=K' - \alpha \ln{i}$.
+\item It allows to impose structural scaling in the urban system by the simple constraint on city populations $P_i$. One can compute by integration that $P_i=2\pi d_i^0 r_i^2$, what gives by injection into the scaling hypothesis $\ln{P_i}=\ln{P_{max}}-\alpha \ln{i}$, the following relation between parameters : $\ln{\left[d_i^0 r_i^2\right]}=K' - \alpha \ln{i}$.
 \end{enumerate}
 
 To study scaling relations, we consider a random scalar spatial variable $a(\vec{x})$ representing one aspect of the city, that can be everything but has the dimension of a spatial density, such that the indicator $A(D)=\Eb{\iint_D{a(\vec{x})d\vec{x}}}$ represents the expected quantity of $a$ in area $D$. We make the assumption that $a\in \{0;1\}$ (``counting'' indicator) and that its law is given by $\Pb{a(\vec{x})=1}=f(d(\vec{x}))$. Following the empirical work done in~\cite{cottineau2015scaling}, the integrated indicator on city $i$ as a function of $\theta$ is given by
@@ -81,9 +81,12 @@ The Ordinary-Least-Square estimation, solving the problem $\inf_{\alpha,C}\norm{
 We implement empirically the density model given in section~\ref{sec:formalization}. Centers are successively chosen such that in a given region of space only one kernel dominates in the sense that the sum of other contributions are above a given threshold $\theta_e$. In practice, adapting $N$ to world size allows to respect the monocentric condition. Population are distributed in order to follow the scaling law with fixed $\alpha$ and $r_i$ (arbitrary choice) by computing corresponding $d_i^0$. Technical details of the implementation done in R~\cite{R-Core-Team:2015fk} and using the package \texttt{kernlab} for efficient kernel mixture methods~\cite{Karatzoglou:2004uq} are given as comments in source code\footnote{available at \texttt{https://github.com/JusteRaimbault/CityNetwork/tree/master/Models/Scaling}}. We show in figure~\ref{fig:ex-distrib} example of synthetic density distributions on which the numerical study is conducted. Theoretical result obtained in Eq.~\ref{eq:th} are confirmed for various parameter values as shown in Fig.~\ref{}
 
 \begin{figure}
-
+\centering
+\includegraphics[width=0.4\textwidth]{figures/example_exp_mixture}
+\caption{Example of a synthetic density distribution obtained with the exponential mixture, with a grid of size $400\times 400$ and parameters $N=20$, $r_0=10$, $P_{max}=200$, $\alpha=0.5$, $\theta_C = 0.01$.}
 \label{fig:ex-distrib}
 \end{figure}
+
 
 \begin{figure}
 
@@ -91,10 +94,27 @@ We implement empirically the density model given in section~\ref{sec:formalizati
 \end{figure}
 
 
+
+\paragraph{Random Perturbations}
+
+The simple model used is quite reducing for maximal densities and radius distribution. We proceed to an empirical study of the influence of noise in the system by fixing $d_i^0$ and $r_i$ the following way :
+\begin{itemize}
+\item $d_i^0$ follows a reversed log-normal distribution with maximal value being a realistic maximal density
+\item Radiuses are computed to respect rank-size law and then perturbated by a white noise.
+\end{itemize}
+
+
+
 \paragraph{Kernel Type}
 
-We test the influence of the type of spatial kernel used on results.
+We test the influence of the type of spatial kernel used on results. We test gaussian kernels and quadratic kernels with parameters within reasonable ranges analog to the exponential kernel. As shown in Fig.~\ref{fig:other-kernels}, we obtain the same qualitative results that is the significant variation of $\alpha(\theta)$ as a function of $\theta$.
 
+
+%TODO
+\begin{figure}
+
+\label{fig:other-kernels}
+\end{figure}
 
 
 
