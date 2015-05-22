@@ -21,7 +21,7 @@ library(plot3D)
 #
 #  todo : stricy power law here ; add real values - or synthetic noise
 #
-spatializedExpMixtureDensity <- function(gridSize,N,rmin,rmax,Pmax,alpha,tolThreshold){
+spatializedExpMixtureDensity <- function(gridSize,N,rmin,rmax,Pmax,alpha,tolThreshold,kernel_type="poisson"){
   
   # patches of the grid are 1 unit size (in r_min/max units)
   grid = matrix(0,gridSize,gridSize)
@@ -51,7 +51,11 @@ spatializedExpMixtureDensity <- function(gridSize,N,rmin,rmax,Pmax,alpha,tolThre
     row = sample(nrow(pot),1)
     center = matrix(pot[row,],nrow=1)
     
-    # add kernel : use kernlab laplace kernel
+    # add kernel : use kernlab laplace kernel or other
+    if(kernel_type="poisson"){ker=laplacedot(sigma=1/r_i)}
+    if(kernel_type="gaussian"){ker=rbfdot(sigma=1/r_i)}
+    #if(kernel_type="quadratic"){ker=} # is quad kernel available ?
+    
     grid = grid + (d_i * matrix(kernelMatrix(kernel=laplacedot(sigma=1/r_i),x=coords,y=center),nrow=gridSize))
     
   }
