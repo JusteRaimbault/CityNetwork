@@ -76,8 +76,8 @@ pseudoClosing <- function(mat,rcut){
 
 
 # test the function
-test = spatializedExpMixtureDensity(400,20,10,10,200,0.5,0.01)
-persp3D(z=test)
+#test = spatializedExpMixtureDensity(400,20,10,10,200,0.5,0.01)
+#persp3D(z=test)
 # -> not disgusting
 
 
@@ -99,26 +99,42 @@ linFit <- function(d,theta){
   return(lm(y~x,data.frame(x,y)))
 }
 
-#
-slope(test,0.02)
-persp3D(z=d)
 
-d=spatializedExpMixtureDensity(200,15,5,5,200,0.7,0.001)
-
-thetas=seq(from=0.01,to=0.2,by=0.005)
-# be careful in thresholds, not good connex areas otherwise
-# thetas given in proportion
-slopes=c();rsquared=c()
-for(theta in thetas){
-  l=linFit(d,theta*max(d))
-  slopes=append(slopes,l$coefficients[2])
-  rsquared=append(rsquared,summary(l)$adj.r.squared)
+# Empirical scaling exponent log(A_i) = K - alpha log(P_i)
+empScalExp <- function(theta,lambda,beta,d){
+  c = connexAreas(d>theta)
+  pops = c();amens = c()
+  for(i in 1:length(c)){
+    pops=append(pops,sum(d[c[[i]]]))
+    amens=append(amens,sum(lambda*d[c[[i]]]^beta))
+  }
+  x=log(pops)
+  y=log(amens)
+  fit = lm(y~x,data.frame(x,y))
+  return(fit$coefficients[2])
 }
 
-plot(thetas,-slopes)
-plot(thetas,rsquared)
+
+#
+#slope(test,0.02)
+#persp3D(z=d)
+
+#d=spatializedExpMixtureDensity(200,15,5,5,200,0.7,0.001)
+
+#thetas=seq(from=0.01,to=0.2,by=0.005)
+# be careful in thresholds, not good connex areas otherwise
+# thetas given in proportion
+#slopes=c();rsquared=c()
+#for(theta in thetas){
+#  l=linFit(d,theta*max(d))
+#  slopes=append(slopes,l$coefficients[2])
+#  rsquared=append(rsquared,summary(l)$adj.r.squared)
+#}
+
+#plot(thetas,-slopes)
+#plot(thetas,rsquared)
 
 # slope of slopes ?
-lm(-slopes~thetas,data.frame(thetas,slopes))$coefficients[2]
+#lm(-slopes~thetas,data.frame(thetas,slopes))$coefficients[2]
 
 
