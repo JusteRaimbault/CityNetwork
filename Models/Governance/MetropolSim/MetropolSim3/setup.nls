@@ -11,6 +11,8 @@ to setup
   clear-all
   reset-ticks
   
+  output-print "Setting up"
+  
   ; setup initial governance
   setup-territories
   
@@ -33,6 +35,8 @@ end
 ; setup mayors and governed patches
 to setup-territories
   
+  output-print "... Territories"
+  
   ; create mayors
   create-mayors #-initial-territories [
     initial-position-mayor
@@ -43,6 +47,9 @@ to setup-territories
   ask patches [set governing-mayor one-of mayors with-min [distance myself] set pcolor [color] of governing-mayor]
   ; no need to cache governed patches, quickly accessed ?
   
+  ; create regional authority
+  create-mayors 1 [set regional-authority self set hidden? true]
+  
 end
 
 
@@ -50,6 +57,8 @@ end
 ;;
 ;  Setup initial distributions of actives and employments (polycentric Bussiere model)
 to setup-initial-distributions
+  
+  output-print "... Distributions"
   
   ; use monocentric kernel application function
   let centers [patch-here] of mayors
@@ -89,6 +98,8 @@ end
 ;  - no nw for now ? -
 to setup-initial-network
   
+  ;; try a radioconcentric network ? or use slime mould ?
+  
 end
 
 
@@ -96,6 +107,8 @@ end
 ; Cached distances : initialize matrices
 ;
 to setup-cached-distances
+  
+  output-print "Caching distances"
   
   let N count patches
   let dmax sqrt ((world-width ^ 2) + (world-height ^ 2))  
@@ -118,15 +131,23 @@ to setup-cached-distances
      set p1 p1 + 1
   ]
   
-  ; initialize at infty = dmax + 1
+  ; initialize nw distance at infty = dmax + 1  if no nw
   set network-distance-matrix matrix:make-constant N N (dmax + 1)
-  ; in the case of no network, effective distance is euclidian
-  ;set effective-distance-matrix matrix:copy euclidian-distance-matrix
+  ; Q : should be done here ?
+  
   ; use generic function
-  update-effective-distance-matrix
+  update-effective-matrices
   
   
 end
+
+
+
+
+
+
+
+
 
 
 

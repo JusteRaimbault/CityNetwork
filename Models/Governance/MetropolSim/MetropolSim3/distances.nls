@@ -6,10 +6,10 @@
 
 
 ;;
-;  Given euclidian and network distance matrices, computes effective distance matrix
+;  Given euclidian and network distance matrices, computes effective distance matrix and corresponding effective paths
 ;
 ;  uses the fact that network distance matrix is sparse ? NO, uses heuristic to consider best network access as closest (not exact)
-to update-effective-distance-matrix
+to update-effective-matrices
    ;; 
    ; d_eff = min(d_e,min_{l,l'}(d_e(i,l)+d_n(l,l')+d_e(l',j))
    ;
@@ -21,9 +21,12 @@ to update-effective-distance-matrix
    
    let dmax sqrt ((world-width) ^ 2 + (world-height) ^ 2) let n count patches
    ;let d-to-nw-patches matrix:times-element-wise (matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix) euclidian-distance-matrix
+   
    let nw-patches-bool matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
    let nw-patches [] let i 0
    repeat n [if sum matrix:get-row nw-patches-bool i > 0 [set nw-patches lput i nw-patches] set i i + 1]
+   
+   set effective-shortest-paths table:make
    
    ifelse nw-patches != [] [
      ;optimization : contruct a table giving index of nearest nw patch
@@ -38,6 +41,11 @@ to update-effective-distance-matrix
           let a1 table:get nw-access-table p1 let a2 table:get nw-access-table p2
           ; connectivity of nw is taken into account : if a1->a2 does not exists in nw, will be initialized at dmax+ (\infty) and minimum will be euclidian distance
           matrix:set effective-distance-matrix p1 p2 min list (matrix:get euclidian-distance-matrix p1 p2) ((matrix:get euclidian-distance-matrix p1 a1) + (matrix:get euclidian-distance-matrix p2 a2) + (matrix:get network-distance-matrix a1 a2))
+          
+          ;;;;
+          ;; Pb : here need to check for each connected cluster ?
+          ;;
+          ;;
           
           ;; TODO :: add lambda and nu parameters, take network speed into account (for now, network not used ?) -> done in update-nw-matrix
           
@@ -54,3 +62,16 @@ to update-effective-distance-matrix
 end
 
 
+
+;;
+; update network matrices if a new link is added
+; @param new-link list of [num_patch1 numpatch_2]
+;
+; Dynamic programming paradigm 
+to update-network-matrices [new-link]
+  let o1 first new-link let o2 last new-link
+  let p1 one-of patches with [number = o1] let p2 one-of patches with [number = o2]
+  ; get footprint of the link, all patches of it are connected
+  
+  
+end

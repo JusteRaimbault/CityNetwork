@@ -29,6 +29,19 @@ end
 ; Gets mayors taking the decision at this step - can be region ?
 to-report decision-makers
   
+  ifelse random-float 1 < regional-decision-proba [
+     ; regional decision
+     report regional-authority
+  ][
+     ; local decision : choose according to wealth
+     ; choose neighbor pairs with maximal weight
+     ; dirty way ok as very few mayors
+     ;  -- TODO -- for now not random
+     let ma 0 let maxpair []
+     ask mayors[ask other mayors [let etot [employments] of self + [employments] of myself if etot > ma [set ma etot set maxpair (list self myself)]]]
+     report maxpair
+  ]
+  
 end
 
 
@@ -38,7 +51,11 @@ end
 ;  FIND Heuristic in order to exploit reduced part of the space (already too long with very few patches if in O(n^2)
 ;  here no game, report indifferently common and alone infras ? or report with distinct feature ?
 to-report potential-infrastructures [decidors]
-  
+  ifelse decidors = regional-authority [
+    
+  ][
+    
+  ]
 end
 
 
@@ -47,7 +64,14 @@ end
 ;
 ;  Implement the game between the two players here -> evaluate all costs (have to be done anyway), then draw randomly issue of the game according to individual utilities 
 to-report best-infrastructure [decidors choices]
-  
+  ifelse decidors = regional-authority [
+    ; no game, find the best among the choices
+    
+    
+    
+  ][
+    
+  ]
 end
 
 

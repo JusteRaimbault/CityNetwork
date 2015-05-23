@@ -5,10 +5,15 @@
 ;; Major changes since v2
 ;;   - matrix dynamic shortest path (euclidian and nw) computation
 ;;   - simplified population structure (one csp)
-;;   
+;;
+;; TODO :
+;;    * add different transportation modes ?
+;;    * add csp ? not prioritary.
+;;    * clarify game-theory governance management
+;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table]
+extensions[matrix table context]
 
 __includes [
   
@@ -64,6 +69,7 @@ __includes [
   "utils/misc/Types.nls"
   "utils/misc/Matrix.nls"
   "utils/gui/Display.nls"
+  "utils/agent/Link.nls"
 ]
 
 
@@ -96,6 +102,9 @@ globals[
   ; relocation : discrete choice parameter
   ;beta-discrete-choices
   
+  ; governor of the region : particular mayor
+  regional-authority
+  
   ;;;;;;;;;;;;;
   ;; Transportation
   ;;;;;;;;;;;;;
@@ -120,6 +129,17 @@ globals[
   ;; effective distance
   ;  - with congestion in network -
   effective-distance-matrix
+  
+  ;; cached shortest paths -> updated same time as distance
+  ; stored as table (num_patch_1,num_patch_2) -> [path-as-list]
+  ;
+  ; in network
+  network-shortest-paths
+  
+  ; overall
+  ; stored as table (num_patch_1,num_patch_2) -> [[i,i1],[i1,i2],...,[in,j]] where couples are either (void-nw) or (nw-nw)
+  ; then effective path is [ik->i_k+1] or [ik->_nw i_k+1]
+  effective-shortest-paths
   
   
 ]
@@ -156,7 +176,9 @@ patches-own [
   e-to-a-accessibility
    
   ; utilities
+  ; for actives
   a-utility
+  ; for employments
   e-utility
   
   ; form factor
@@ -176,7 +198,13 @@ mayors-own[
   ; set of governed patches -> not needed ?
   ;governed-patches
   
+  ; wealth of the area
+  wealth
+  
 ]
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 358
@@ -258,10 +286,10 @@ Setup parameters
 1
 
 TEXTBOX
-15
-188
-165
-206
+9
+161
+159
+179
 Runtime parameters
 11
 0.0
@@ -328,10 +356,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-11
-206
-179
-239
+3
+204
+171
+237
 gamma-cobb-douglas
 gamma-cobb-douglas
 0
@@ -360,10 +388,10 @@ NIL
 1
 
 SLIDER
-10
-241
-200
-274
+2
+239
+171
+272
 beta-discrete-choices
 beta-discrete-choices
 0
@@ -409,6 +437,78 @@ false
 PENS
 "default" 1.0 0 -5298144 true "" "plot diff-employments"
 "pen-1" 1.0 0 -12087248 true "" "plot diff-actives"
+
+OUTPUT
+358
+490
+802
+697
+10
+
+TEXTBOX
+9
+187
+159
+205
+LUTI
+11
+0.0
+1
+
+TEXTBOX
+188
+184
+338
+202
+Governance
+11
+0.0
+1
+
+SLIDER
+184
+203
+354
+236
+regional-decision-proba
+regional-decision-proba
+0
+1
+0.5
+0.05
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+174
+202
+189
+233
+|
+25
+0.0
+1
+
+TEXTBOX
+174
+223
+189
+254
+|
+25
+0.0
+1
+
+TEXTBOX
+174
+245
+189
+276
+|
+25
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
