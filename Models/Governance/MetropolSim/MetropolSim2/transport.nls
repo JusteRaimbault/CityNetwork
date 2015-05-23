@@ -26,6 +26,7 @@ to updateDeplacementsDomicileTravail
   
   distributionGravitaire
   
+  ; convergence in 2 iterations ?
   repeat 2 [
     let c 0
     ;for each csp
@@ -42,6 +43,7 @@ to updateDeplacementsDomicileTravail
   choixModal
   
   ;; flow affectation in network
+  ; : balancing algo to obtain wardrop ?
   while [j < 4] [
     affectation j
     updateLinksSpeed
@@ -55,9 +57,13 @@ end
 
 
 
-
+;;
+; gravital distribution of fluxs ?
+;
+;  -> initialize listNavettesPatches as [[]_csp1,...,[]_cspK]
 to distributionGravitaire
 let i 0
+; for each patch
 while [i < length listPatchesRegion] [
   ask item i listPatchesRegion [
     ;set listNavettesPatches [[]]
@@ -106,6 +112,7 @@ while [i < length listPatchesRegion] [
         set m m + 1
       ]
     
+     ; \sum_m A_i E_j
     
       set temp temp + (item k list-A-nbr-R + item k list-A-nbr-M) * (item k [list-E-nbr] of item j listPatchesRegion) * minCout
         set listNavettesPatches replace-item k listNavettesPatches lput temp item k listNavettesPatches
@@ -148,6 +155,8 @@ while [i < length listPatchesRegion] [
 
 end
 
+;; furness :
+;  - compute \sum_{j}{\phi_ij} as listNavettesPatches
 
 
 to furnessEmplois  [csp]
@@ -309,6 +318,9 @@ end
 
 
 
+;;;
+;; Wardrop affectation ?
+;;;
 
 to affectation [nIter]
 ask links [

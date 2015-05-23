@@ -97,6 +97,14 @@ globals[
   ;beta-discrete-choices
   
   ;;;;;;;;;;;;;
+  ;; Transportation
+  ;;;;;;;;;;;;;
+  
+  ;; transportation flows \phi_ij between patches
+  flow-matrix
+  
+  
+  ;;;;;;;;;;;;;
   ;; Cached distances matrices
   ;;
   ;;  updated through dynamic programming rules
