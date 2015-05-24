@@ -13,7 +13,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table context]
+extensions[matrix table context nw]
 
 __includes [
   
@@ -43,6 +43,13 @@ __includes [
   ; mayors
   "mayor.nls"
   
+  ;;;;;;;;
+  ; transportation network
+  ;;;;;;;;
+  
+  ; network
+  "network.nls"
+  
   ;;;;;;;;;
   ; functions
   ;;;;;;;;;
@@ -64,12 +71,19 @@ __includes [
   ;; utils
   ;;;;;;;;;;
   
+  ; Q : package utils subpackages or all utils to have a simpler use ?
+  
   "utils/math/SpatialKernels.nls"
   "utils/misc/List.nls"
   "utils/misc/Types.nls"
   "utils/misc/Matrix.nls"
   "utils/gui/Display.nls"
   "utils/agent/Link.nls"
+  "utils/agent/AgentSet.nls"
+  "utils/agent/Agent.nls"
+  "utils/network/Network.nls"
+  
+  "list_temp.nls"
 ]
 
 
@@ -141,6 +155,9 @@ globals[
   ; then effective path is [ik->i_k+1] or [ik->_nw i_k+1]
   effective-shortest-paths
   
+  ;;
+  ; maximal distance in the world
+  dmax
   
 ]
 
@@ -202,6 +219,39 @@ mayors-own[
   wealth
   
 ]
+
+
+;;;;;;;;;
+;; Transportation Network
+;;;;;;;;;
+
+;; transportation link
+undirected-link-breed[transportation-links transportation-link]
+
+transportation-links-own [
+  
+  ; capacity of the link ; expressed as max trip per length unit 
+  capacity
+  
+  ; congestion : travels in the link
+  congestion
+  
+  ; speed in the link, deduced from capacity and congestion
+  speed
+  
+]
+
+;; nodes of the transportation network
+breed[transportation-nodes transportation-node]
+
+transportation-nodes-own[
+]
+
+
+
+
+
+
 
 
 

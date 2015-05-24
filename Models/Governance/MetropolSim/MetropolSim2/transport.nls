@@ -324,15 +324,18 @@ end
 
 ;;;
 ;; Wardrop affectation ?
+;;
+;; Does not reaffect trajectories !
 ;;;
 
 to affectation [nIter]
+  
 ask links [
  
- ; congestion only in links, not in virtual network.
+  ; congestion only in links, not in virtual network.
  
-set utilisation_temp utilisation_l * (nIter - 1) * (1 - 1 /(nIter))
-set utilisation_l 0
+  set utilisation_temp utilisation_l * (nIter - 1) * (1 - 1 /(nIter))
+  set utilisation_l 0
 ]
 
 
@@ -359,26 +362,29 @@ while [k < length listPatchesRegion]
 ;     ;;;;;;;show item m listChemins
 ;     ;;;;;;;show item m listNavettesModes
       set tempC item i item m listChemins
+      ;tempC = for mode m, patch on path from k to i
+      
       let c 0 
       while [c < nCsp] [
       
       set temp item i item c item m listNavettesModes
-     
+      ; temp = quantity
      
       let j 0
       while [j < length tempC] [
-        if  item j tempC != nobody [
-        ;;;;;;;;show "ca y'est je suis rentr� dans un chemin"
-          ;;;;;;;;show item j tempC
+         if item j tempC != nobody [
           
-          ;set [utilisation_l] of (item j tempC) ((1 / nIter) * temp) + [utilisation_l] of item j tempC
-          ask (item j tempC) [set utilisation_l ((1 / nIter) * temp) + utilisation_l]
+           ;;;;;;;;show "ca y'est je suis rentr� dans un chemin"
+           ;;;;;;;;show item j tempC
           
-          ;;;;;;;;show [utilisation_l] of item j tempC
+           ;set [utilisation_l] of (item j tempC) ((1 / nIter) * temp) + [utilisation_l] of item j tempC
+           ask (item j tempC) [set utilisation_l ((1 / nIter) * temp) + utilisation_l]
+          
+            ;;;;;;;;show [utilisation_l] of item j tempC
+          ]
+          ;set [utilisation_temp] of item j tempC ((1 / nIter) * temp) + [utilisation_temp] of item j tempC
+          set j j + 1
         ]
-      ;set [utilisation_temp] of item j tempC ((1 / nIter) * temp) + [utilisation_temp] of item j tempC
-      set j j + 1
-      ]
     
         set c c + 1
       ]

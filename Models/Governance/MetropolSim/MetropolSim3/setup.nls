@@ -111,7 +111,7 @@ to setup-cached-distances
   output-print "Caching distances"
   
   let N count patches
-  let dmax sqrt ((world-width ^ 2) + (world-height ^ 2))  
+  set dmax sqrt ((world-width ^ 2) + (world-height ^ 2))  
   
   ; euclidian distance matrix
   set euclidian-distance-matrix matrix:make-constant N N 0
@@ -131,9 +131,8 @@ to setup-cached-distances
      set p1 p1 + 1
   ]
   
-  ; initialize nw distance at infty = dmax + 1  if no nw
-  set network-distance-matrix matrix:make-constant N N (dmax + 1)
-  ; Q : should be done here ?
+  ; setup nw matrices, needed in particular if initial nw
+  setup-nw-matrices
   
   ; use generic function
   update-effective-matrices
@@ -142,8 +141,17 @@ to setup-cached-distances
 end
 
 
-
-
+to setup-nw-matrices
+  output-print "NW shortest distances"
+  let n count patches
+  ifelse count transportation-nodes = 0 [
+    ; initialize nw distance at infty = dmax + 1  if no nw  
+    set network-distance-matrix matrix:make-constant n n (dmax + 1)
+    set network-shortest-paths table:make let i 0 repeat n [let j 0 repeat n [table:put network-shortest-paths (list i j) [] set j j + 1] set i i + 1]
+  ][
+    
+  ]
+end
 
 
 

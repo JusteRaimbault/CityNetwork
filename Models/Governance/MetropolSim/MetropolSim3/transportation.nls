@@ -34,22 +34,16 @@ to compute-flows
   ; compute (equilibrium ?) weights
   ; how many iterations needed ?
   let n-iter-furness 10
-  repeat n-iter-furness [
-    
-    ; TODO : q*E time element-wise and as.matrix to use matrix product
-    ;  idem p*A
-    
+  repeat n-iter-furness [    
     let ptemp p let qtemp q
-    ;p = map [1 / ?] (matrix:times effective-distance-matrix (qtemp * employments))
-    ;q = map [1 / ?] (matrix:times effective-distance-matrix (ptemp * actives))
-    set p ptemp set q qtemp
+    set p map [1 / ?] (matrix:times effective-distance-matrix (list-times-element-wise qtemp patches-employments))
+    set q map [1 / ?] (matrix:times effective-distance-matrix (list-times-element-wise ptemp patches-actives))
   ]
   
   ; then set flows as \phi_ij = p_i*q_j*A_i*E_j*effective_distance(i,j)
   ;   -> Q : here effective dist takes into account network
   
-  ; TODO : list element-wise multiplication
-  set flow-matrix matrix:times-element-wise (matrix:times-element-wise (matrix:from-column-list (rep (p * patches-actives) n)) (matrix:from-row-list (rep (q * patches-employments) n))) effective-distance-matrix
+  set flow-matrix matrix:times-element-wise (matrix:times-element-wise (matrix:from-column-list (rep (list-times-element-wise p patches-actives) n)) (matrix:from-row-list (rep (list-times-element-wise q patches-employments) n))) effective-distance-matrix
   
   
 end

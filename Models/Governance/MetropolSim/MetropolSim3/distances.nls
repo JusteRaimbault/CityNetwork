@@ -19,7 +19,8 @@ to update-effective-matrices
    ; uses boolean matrix to get network patches ? or keep them in a variable ?
    
    
-   let dmax sqrt ((world-width) ^ 2 + (world-height) ^ 2) let n count patches
+   ;let dmax sqrt ((world-width) ^ 2 + (world-height) ^ 2) ; already done before
+   let n count patches
    ;let d-to-nw-patches matrix:times-element-wise (matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix) euclidian-distance-matrix
    
    let nw-patches-bool matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
@@ -65,13 +66,18 @@ end
 
 ;;
 ; update network matrices if a new link is added
-; @param new-link list of [num_patch1 numpatch_2]
+; @param new-link new link (entirely)
 ;
-; Dynamic programming paradigm 
+; Dynamic programming paradigm
 to update-network-matrices [new-link]
-  let o1 first new-link let o2 last new-link
-  let p1 one-of patches with [number = o1] let p2 one-of patches with [number = o2]
-  ; get footprint of the link, all patches of it are connected
   
+  ; get footprint of the link, all patches of it are connected
+  let new-nw-patches [] ask new-link [ask footprint[set new-nw-patches lput [number] of myself new-nw-patches]]
+  
+  ; find intersections : pb better be consecutive...
+  let new-inters [] let is-in-nw-matrix? matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
+  foreach new-nw-patches [
+    if sum matrix:get-row is-in-nw-matrix? ? > 0 [set new-inters lput ? new-inters]
+  ]
   
 end

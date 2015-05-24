@@ -56,6 +56,10 @@ to-report potential-infrastructures [decidors]
   ][
     
   ]
+  
+  ; for tests : random infras
+  let res [] repeat 10 [set res lput (list (list random-xcor random-ycor) (list random-xcor random-ycor)) res]
+  report res
 end
 
 
@@ -63,15 +67,19 @@ end
 ; Given a set of choices and decidors, find the best infrastructure
 ;
 ;  Implement the game between the two players here -> evaluate all costs (have to be done anyway), then draw randomly issue of the game according to individual utilities 
+;
+;  @returns list of coordinates of extremities (better not to construct links here -> sure, as capacity congestion etc are not used at this step : only matrix needed.
 to-report best-infrastructure [decidors choices]
   ifelse decidors = regional-authority [
     ; no game, find the best among the choices
     
     
-    
   ][
     
   ]
+  
+  ; for tests
+  report one-of choices
 end
 
 
@@ -80,7 +88,24 @@ end
 ;
 ; Update matrices distances etc here !
 to construct-infrastructure [decidors infra]
-
+  
+  ; construct the infra
+  let e1 nobody let new-link nobody
+  create-transportation-nodes 1 [new-transportation-node setxy first first infra last first infra set e1 self]
+  create-transportation-nodes 1 [
+    new-transportation-node setxy first last infra last last infra
+    create-transportation-link-with e1 [new-transportation-link set new-link self]
+  ]
+  
+  ; update matrices
+  update-network-matrices new-link
+  update-effective-matrices
+  
+  ; then correct the network by planarization if intersecting links.
+  ; Beware, has to be done AFTER updating matrices, as nw updating needs footprint of the link (fastest way to get patches newly connected to the network
+  ;  but planarizing before would kill the entire links, cutting it into smaller
+  planarize-network transportation-nodes transportation-links
+  
 end
 
 
