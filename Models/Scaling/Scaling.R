@@ -32,10 +32,10 @@ N=15
 # Multiple curves
 kernel_type = "poisson"
 
-thetas = c(10^(-3)) #10^(seq(from=-3,to=-1,by=0.02))
-betas = c(1.05,1.1) # seq(from=1.05,to=1.5,by=0.05)
+thetas = 10^(seq(from=-3,to=-1,by=0.1))
+betas = seq(from=1.05,to=1.5,by=0.05)
 
-Nrep_emp = 1 #10
+Nrep_emp = 10
 
 theta=c();emp=c();empsd=c();th=c();beta=c();
 for(b in betas){
@@ -57,24 +57,24 @@ for(b in betas){
 
 # save data
 d = data.frame(theta,emp,empsd,th,beta)
-write.csv(d,file="res/emp-th_expl.csv")
+write.csv(d,file=paste0("res/emp-th_expl_",date(),".csv"))
 
 # draw the plot using ggplot
 
 # 1) Th/emp
-p = ggplot(data.frame(theta,emp,empsd,th,beta),aes(x=theta,y=emp))+ geom_point(aes(x=theta,y=emp,colour=beta,group=beta))+ geom_line(aes(x=theta,y=th,colour=beta,group=beta)) 
-    p + geom_errorbar(aes(y=emp,ymin=emp-empsd, ymax=emp+empsd,colour=beta),width=0.001) 
+#p = ggplot(data.frame(theta,emp,empsd,th,beta),aes(x=theta,y=emp))+ geom_point(aes(x=theta,y=emp,colour=beta,group=beta))+ geom_line(aes(x=theta,y=th,colour=beta,group=beta)) 
+#    p + geom_errorbar(aes(y=emp,ymin=emp-empsd, ymax=emp+empsd,colour=beta),width=0.001) 
 
 #+ ggtitle("")
      #+ xlab("") + ylab("")
 
 
 # 2) Idem with varying density and radius - th not needed
-ggplot(data.frame(theta,emp,empsd,beta))
-+ geom_points(aes(x=theta,y=emp,colour=beta,group=beta))
-+ geom_errorbar(aes(ymin=emp-empsd, ymax=emp+empsd,colour=beta), width=.01) + 
-  + ggtitle("")
-+ xlab("") + ylab("")
+#ggplot(data.frame(theta,emp,empsd,beta))
+#+ geom_points(aes(x=theta,y=emp,colour=beta,group=beta))
+#+ geom_errorbar(aes(ymin=emp-empsd, ymax=emp+empsd,colour=beta), width=.01) + 
+#  + ggtitle("")
+#+ xlab("") + ylab("")
 
 
 # 3) same as 1) but data with different kernels
