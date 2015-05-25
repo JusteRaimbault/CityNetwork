@@ -82,8 +82,6 @@ __includes [
   "utils/agent/AgentSet.nls"
   "utils/agent/Agent.nls"
   "utils/network/Network.nls"
-  
-  "list_temp.nls"
 ]
 
 
@@ -246,7 +244,6 @@ breed[transportation-nodes transportation-node]
 
 transportation-nodes-own[
 ]
-
 
 
 

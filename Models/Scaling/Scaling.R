@@ -25,17 +25,17 @@ theta=10^(-3)
 N=15
 
 # single run
-emp = empScalExp(spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,theta),theta,lambda,beta)
-th = scalExp(theta,beta)
+#emp = empScalExp(spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,theta),theta,lambda,beta)
+#th = scalExp(theta,beta)
 
 
 # Multiple curves
 kernel_type = "poisson"
 
-thetas = 10^(seq(from=-3,to=-1,by=0.02))
-betas = seq(from=1.05,to=1.5,by=0.05)
+thetas = c(10^(-3)) #10^(seq(from=-3,to=-1,by=0.02))
+betas = c(1.05,1.1) # seq(from=1.05,to=1.5,by=0.05)
 
-Nrep_emp = 10
+Nrep_emp = 1 #10
 
 theta=c();emp=c();empsd=c();th=c();beta=c();
 for(b in betas){
@@ -48,27 +48,31 @@ for(b in betas){
   for(k in 1:Nrep_emp){
     show(k)
     d=spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,0.001);
-    empvals[k,]=sapply(thetas,empScalExp,lambda,beta,d)
+    empvals[k,]=sapply(thetas,empScalExp,lambda,b,d)
   }
   emp=append(emp,apply(empvals,2,mean));empsd=append(empsd,apply(empvals,2,sd))
 }
 
 
+
+# save data
+d = data.frame(theta,emp,empsd,th,beta)
+write.csv(d,file="res/emp-th_expl.csv")
+
 # draw the plot using ggplot
 
 # 1) Th/emp
-ggplot(data.frame(theta,emp,empsd,th,beta))
-     + geom_line(aes(x=theta,y=th,colour=beta,group=beta))
-     + geom_points(aes(x=theta,y=emp,colour=beta,group=beta))
-     + geom_errorbar(aes(ymin=emp-empsd, ymax=emp+empsd,colour=beta), width=.2) + 
-     + ggtitle("")
-     + xlab("") + ylab("")
+p = ggplot(data.frame(theta,emp,empsd,th,beta),aes(x=theta,y=emp))+ geom_point(aes(x=theta,y=emp,colour=beta,group=beta))+ geom_line(aes(x=theta,y=th,colour=beta,group=beta)) 
+    p + geom_errorbar(aes(y=emp,ymin=emp-empsd, ymax=emp+empsd,colour=beta),width=0.001) 
+
+#+ ggtitle("")
+     #+ xlab("") + ylab("")
 
 
 # 2) Idem with varying density and radius - th not needed
 ggplot(data.frame(theta,emp,empsd,beta))
 + geom_points(aes(x=theta,y=emp,colour=beta,group=beta))
-+ geom_errorbar(aes(ymin=emp-empsd, ymax=emp+empsd,colour=beta), width=.2) + 
++ geom_errorbar(aes(ymin=emp-empsd, ymax=emp+empsd,colour=beta), width=.01) + 
   + ggtitle("")
 + xlab("") + ylab("")
 
