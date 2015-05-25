@@ -21,7 +21,7 @@ library(plot3D)
 #
 #  todo : stricy power law here ; add real values - or synthetic noise
 #
-spatializedExpMixtureDensity <- function(gridSize,N,rmin,rmax,Pmax,alpha,tolThreshold,kernel_type){
+spatializedExpMixtureDensity <- function(gridSize,N,rmin,rmax,Pmax,alpha,tolThreshold,kernel_type="poisson"){
   
   # patches of the grid are 1 unit size (in r_min/max units)
   grid = matrix(0,gridSize,gridSize)
