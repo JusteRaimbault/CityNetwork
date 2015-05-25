@@ -142,3 +142,60 @@ empScalExp <- function(theta,lambda,beta,d){
 #lm(-slopes~thetas,data.frame(thetas,slopes))$coefficients[2]
 
 
+###############
+## Morpho funs
+###############
+
+
+
+library(rlist)
+# iterative version
+propagate <- function(m,indices,ii,jj,n){
+  pile = list(c(ii,jj))
+  while(length(pile)>0){
+    # unstack first
+    coords = list.take(pile,1)[[1]] ; pile = list.remove(pile,1);
+    i=coords[1];j=coords[2];
+    # update indices
+    indices[i,j]=n
+    #stack neighbors of conditions are met
+    if(i>1){if(indices[i-1,j]==0&&m[i-1,j]==TRUE){pile = list.prepend(pile,c(i-1,j))}}
+    if(i<nrow(m)){if(indices[i+1,j]==0&&m[i+1,j]==TRUE){pile = list.prepend(pile,c(i+1,j))}}
+    if(j>1){if(indices[i,j-1]==0&&m[i,j-1]==TRUE){pile = list.prepend(pile,c(i,j-1))}}
+    if(j<ncol(m)){if(indices[i,j+1]==0&&m[i,j+1]==TRUE){pile = list.prepend(pile,c(i,j+1))}}
+  }  
+  return(indices)
+}
+
+connexAreas <- function(m){
+  indices <- matrix(data=rep(0,nrow(m)*ncol(m)),nrow=nrow(m),ncol=ncol(m))
+  maxArea = 0
+  
+  for(i in 1:nrow(m)){
+    for(j in 1:ncol(m)){
+      # if colored but not marked, mark recursively
+      #   -- necessarily a new area
+      if(m[i,j]==TRUE&&indices[i,j]==0){
+        maxArea = maxArea + 1
+        show(paste("Prop",i,j," - area ",maxArea))
+        indices <- propagate(m,indices,i,j,maxArea)
+      }
+    }
+  }
+  
+  
+  # use indices to create list of coordinates
+  
+  areas = list()
+  for(a in 1:maxArea){
+    areas=list.append(areas,which(indices==a))
+  }
+  
+  return(areas)
+}
+
+
+
+
+
+
