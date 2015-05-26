@@ -53,7 +53,7 @@ spatializedExpMixtureDensity <- function(gridSize,N,rmin,rmax,Pmax,alpha,tolThre
     
     # add kernel : use kernlab laplace kernel or other
     if(kernel_type=="poisson"){ker=laplacedot(sigma=1/r_i)}
-    if(kernel_type=="gaussian"){ker=rbfdot(sigma=1/(2*r_i^2)}
+    if(kernel_type=="gaussian"){ker=rbfdot(sigma=1/(2*r_i^2))}
     #if(kernel_type="quadratic"){ker=} # is quad kernel available ?
     
     grid = grid + (d_i * matrix(kernelMatrix(kernel=laplacedot(sigma=1/r_i),x=coords,y=center),nrow=gridSize))
