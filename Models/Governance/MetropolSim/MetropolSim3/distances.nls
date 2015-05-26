@@ -77,11 +77,12 @@ to update-network-matrices [new-link]
   ; find intersections : as footprint is ordered, new intersections are orderered too.
   let new-inters (list (first new-nw-patches)) let is-in-nw-matrix? matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
   let in-between [[]] ; patches between consecutive intersections
-  foreach new-nw-patches [
+  foreach but-first but-last new-nw-patches [
     set in-between lput (lput ? (last in-between)) (but-last in-between)
     if sum matrix:get-row is-in-nw-matrix? ? > 0 [set new-inters lput ? new-inters set in-between lput [] in-between]
   ]
   set new-inters lput (last new-nw-patches) new-inters
+  set in-between lput (lput (last new-nw-patches) (last in-between)) (but-last in-between)
   
   ; for each couple of consecutive intersections, update path table with following updates :
   ;   - add shortcuts if needed for each already existing path
@@ -93,11 +94,42 @@ to update-network-matrices [new-link]
   
   ; interate on consecutive inters - note : at least both ends even if does not intersects.
   let i 0
-  repeat ((length new-inters)-1) [
+  repeat ((length new-inters) - 1) [
     let i1 item i new-inters let i2 item (i + 1) new-inters
-    ;foreach table:keys network-shortest-paths
+    
+    ; add shortcuts iff i1 and i2 are already in network
+    if sum matrix:get-row is-in-nw-matrix? i1 > 0 and sum matrix:get-row is-in-nw-matrix? i2 > 0 [ ; may be a shortcut
+       foreach table:keys network-shortest-paths [
+          table:put new-entries-nw-table ? (shortcut ? (list i1 i2))
+       ]
+    ]
+    
+    ; connect new patches with old ones
+    ; use new paths ? not needed as the path to a in-between patch cannot go through both i1 and i2
+    
     
     set i i + 1
   ]
   
 end
+
+
+;;
+; shorcuts path if possible
+;
+;  no loops in paths -> position-of-element will be unique if exists
+to-report shortcut [path cut]
+   let p1 position (first cut) path let p2 position (last cut) path
+   ifelse p1 != false and p2 != false [
+     let res [] let i 0
+     repeat (min list p1 p2) + 1 [
+       set res lput (item i path) res set i i + 1
+     ] set i (max list p1 p2 )
+     repeat (length path - max list p1 p2) [set res lput (item i path) res set i i + 1]
+     report res
+   ][
+     report path
+   ]
+end
+  
+
