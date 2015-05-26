@@ -30,7 +30,7 @@ N=15
 
 
 # Multiple curves
-kernel_type = "poisson"
+kernel_type = "gaussian"
 
 thetas = 10^(seq(from=-3,to=-1,by=0.1))
 betas = seq(from=1.05,to=1.5,by=0.05)
@@ -47,7 +47,7 @@ for(b in betas){
   empvals=matrix(0,Nrep_emp,length(thetas))
   for(k in 1:Nrep_emp){
     show(k)
-    d=spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,0.001);
+    d=spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,0.001,kernel_type);
     empvals[k,]=sapply(thetas,empScalExp,lambda,b,d)
   }
   emp=append(emp,apply(empvals,2,mean));empsd=append(empsd,apply(empvals,2,sd))
