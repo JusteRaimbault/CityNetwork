@@ -72,12 +72,32 @@ end
 to update-network-matrices [new-link]
   
   ; get footprint of the link, all patches of it are connected
-  let new-nw-patches [] ask new-link [ask footprint[set new-nw-patches lput [number] of myself new-nw-patches]]
+  let new-nw-patches [] ask new-link [foreach footprint[ask ? [set new-nw-patches lput [number] of myself new-nw-patches]]]
   
-  ; find intersections : pb better be consecutive...
-  let new-inters [] let is-in-nw-matrix? matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
+  ; find intersections : as footprint is ordered, new intersections are orderered too.
+  let new-inters (list (first new-nw-patches)) let is-in-nw-matrix? matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
+  let in-between [[]] ; patches between consecutive intersections
   foreach new-nw-patches [
-    if sum matrix:get-row is-in-nw-matrix? ? > 0 [set new-inters lput ? new-inters]
+    set in-between lput (lput ? (last in-between)) (but-last in-between)
+    if sum matrix:get-row is-in-nw-matrix? ? > 0 [set new-inters lput ? new-inters set in-between lput [] in-between]
+  ]
+  set new-inters lput (last new-nw-patches) new-inters
+  
+  ; for each couple of consecutive intersections, update path table with following updates :
+  ;   - add shortcuts if needed for each already existing path
+  ;   - for each previous nw patch, connect it to each new patch (do not forget reciprocity)
+  ;   - connect new patches between themselves (idem)
+  
+  ; table for new and modified entries
+  let new-entries-nw-table table:make
+  
+  ; interate on consecutive inters - note : at least both ends even if does not intersects.
+  let i 0
+  repeat ((length new-inters)-1) [
+    let i1 item i new-inters let i2 item (i + 1) new-inters
+    ;foreach table:keys network-shortest-paths
+    
+    set i i + 1
   ]
   
 end
