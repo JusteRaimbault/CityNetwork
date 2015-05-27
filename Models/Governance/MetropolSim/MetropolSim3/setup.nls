@@ -13,6 +13,9 @@ to setup
   
   output-print "Setting up"
   
+  ; setup patches
+  setup-patches
+  
   ; setup initial governance
   setup-territories
   
@@ -21,6 +24,9 @@ to setup
   
   ; setup initial network
   setup-initial-network
+  
+  ; setup transportation
+  setup-transportation
   
   ; cached distances
   setup-cached-distances
@@ -53,6 +59,18 @@ to setup-territories
 end
 
 
+;;
+; setup patches
+to setup-patches
+  
+  ; setup patches number
+  let p 0
+  repeat count patches [
+    let x (floor (p / world-width)) + min-pxcor let y (p - world-width * floor (p / world-width)) + min-pycor
+    ask (patch x y) [set number p] set p p + 1
+  ]
+end
+
 
 ;;
 ;  Setup initial distributions of actives and employments (polycentric Bussiere model)
@@ -67,12 +85,6 @@ to setup-initial-distributions
     apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" ?
   ]
   
-  ; setup patches number
-  let p 0
-  repeat count patches [
-    let x (floor (p / world-width)) + min-pxcor let y (p - world-width * floor (p / world-width)) + min-pycor
-    ask (patch x y) [set number p] set p p + 1
-  ]
   
   ; setup global lists
   set patches-employments rep 0 count patches
@@ -146,14 +158,17 @@ to setup-nw-matrices
   tic output-print "...NW shortest distances"
   let n count patches
   ifelse count transportation-nodes = 0 [
-    ; initialize nw distance at infty = dmax + 1  if no nw  
-    set network-distance-matrix matrix:make-constant n n (dmax + 1)
-    set network-shortest-paths table:make let i 0 repeat n [let j 0 repeat n [table:put network-shortest-paths (list i j) [] set j j + 1] set i i + 1]
+    ; initialize nw distance at -1 if no nw
+    set network-distance-matrix matrix:make-constant n n -1
+    ; for paths, put in table only if in nw
+    set network-shortest-paths table:make
+    ;let i 0 repeat n [let j 0 repeat n [table:put network-shortest-paths (list i j) [] set j j + 1] set i i + 1]
+    ; so not needed
   ][
     
   ]
   
-  let nw-patches-bool matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
+  let nw-patches-bool matrix:map [bool-to-int (?1 > 0)] network-distance-matrix
   set nw-patches [] let i 0
   repeat n [if sum matrix:get-row nw-patches-bool i > 0 [set nw-patches lput i nw-patches] set i i + 1]
   
@@ -161,6 +176,12 @@ to setup-nw-matrices
   toc
 end
 
+
+;;
+; transportation
+to setup-transportation
+  set patches-congestion rep 1 (count patches)
+end
 
 
 

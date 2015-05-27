@@ -9,6 +9,8 @@
 ; test update of nw matrices
 to setup-test-nw-mat
   ca
+  setup-patches
+  setup-transportation
   setup-cached-distances
 end
 
@@ -18,10 +20,16 @@ to test-nw-mat
   
   let new-link nobody
   create-transportation-nodes 1 [
-    setxy random-xcor random-ycor new-transportation-node
+    new-transportation-node
+    ;setxy random-xcor random-ycor 
+    ;test a random grid
+    move-to one-of patches with [(pxcor = max-pxcor or pxcor = min-pxcor or pycor = min-pycor or pycor = max-pycor) and count transportation-nodes in-radius 1.5  = 0]
     hatch 1 [
-      setxy random-xcor random-ycor new-transportation-node
-      create-transportation-link-with myself [new-transportation-link set new-link self]
+      ;setxy random-xcor random-ycor
+      new-transportation-node
+      let x [xcor] of myself let y [ycor] of myself
+      if x = max-pxcor [setxy min-pxcor y] if x = min-pxcor [setxy max-pxcor y] if y = min-pycor [setxy x max-pycor] if y = max-pycor [setxy x min-pycor]
+      create-transportation-link-with myself [new-transportation-link set new-link self set color one-of [yellow blue red]]
     ]
   ]
   
@@ -36,7 +44,20 @@ to test-nw-mat
 end
 
 to test-shortest-path
-  foreach table:get network-shortest-paths (one-of table:keys network-shortest-paths) [
+  ask patches [set pcolor white]
+  
+  foreach nw-patches [
+    ask patch-with-number ? [set pcolor black] 
+  ]
+  
+  let k  (one-of table:keys network-shortest-paths)
+  
+  foreach table:get network-shortest-paths k [
+    
     ask patch-with-number ? [set pcolor pink] 
   ]
+  
+  ask patch-with-number first k [set pcolor blue]
+  ask patch-with-number last k [set pcolor blue]
+  
 end

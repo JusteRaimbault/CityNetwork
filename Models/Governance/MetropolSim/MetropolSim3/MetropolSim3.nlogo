@@ -272,16 +272,15 @@ transportation-nodes-own[
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 358
 15
-797
-475
-16
-16
-13.0
+860
+538
+20
+20
+12.0
 1
 10
 1
@@ -291,10 +290,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--16
-16
--16
-16
+-20
+20
+-20
+20
 0
 0
 1
@@ -507,10 +506,10 @@ PENS
 "pen-1" 1.0 0 -12087248 true "" "plot diff-actives"
 
 OUTPUT
-358
-490
-802
-697
+887
+480
+1331
+687
 10
 
 TEXTBOX
@@ -647,7 +646,7 @@ BUTTON
 84
 test nw
 test-nw-mat
-T
+NIL
 1
 T
 OBSERVER
