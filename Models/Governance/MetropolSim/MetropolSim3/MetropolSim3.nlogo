@@ -274,13 +274,13 @@ transportation-nodes-own[
 
 @#$#@#$#@
 GRAPHICS-WINDOW
-358
+376
+21
+820
+486
 15
-860
-538
-20
-20
-12.0
+15
+14.0
 1
 10
 1
@@ -290,10 +290,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--20
-20
--20
-20
+-15
+15
+-15
+15
 0
 0
 1
@@ -672,6 +672,28 @@ NIL
 NIL
 NIL
 1
+
+MONITOR
+1218
+13
+1282
+58
+th paths
+(length nw-patches) ^ 2
+17
+1
+11
+
+MONITOR
+1223
+61
+1281
+106
+eff paths
+length table:keys network-shortest-paths
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
