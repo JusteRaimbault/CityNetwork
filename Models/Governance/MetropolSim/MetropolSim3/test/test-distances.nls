@@ -1,0 +1,42 @@
+
+;;;;;;;;;;;;;;;;
+;; Test dynamic programming shortest distance computation
+;;;;;;;;;;;;;;;;
+
+
+
+;;
+; test update of nw matrices
+to setup-test-nw-mat
+  ca
+  setup-cached-distances
+end
+
+to test-nw-mat
+  tic
+  ask patches [set pcolor black]
+  
+  let new-link nobody
+  create-transportation-nodes 1 [
+    setxy random-xcor random-ycor new-transportation-node
+    hatch 1 [
+      setxy random-xcor random-ycor new-transportation-node
+      create-transportation-link-with myself [new-transportation-link set new-link self]
+    ]
+  ]
+  
+  update-network-matrices new-link
+  
+  foreach nw-patches [
+    ask patch-with-number ? [set pcolor green] 
+  ]
+  
+  toc
+  
+end
+
+to test-shortest-path
+  foreach table:get network-shortest-paths (one-of table:keys network-shortest-paths) [
+    ask patch-with-number ? [set pcolor pink] 
+  ]
+end

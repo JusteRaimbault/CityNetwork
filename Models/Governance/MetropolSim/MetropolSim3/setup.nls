@@ -71,7 +71,7 @@ to setup-initial-distributions
   let p 0
   repeat count patches [
     let x (floor (p / world-width)) + min-pxcor let y (p - world-width * floor (p / world-width)) + min-pycor
-    ask (patch x y) [set number p] set p p + 1 
+    ask (patch x y) [set number p] set p p + 1
   ]
   
   ; setup global lists
@@ -140,9 +140,10 @@ to setup-cached-distances
   
 end
 
-
+;;
+; setup initial network matrices
 to setup-nw-matrices
-  output-print "NW shortest distances"
+  tic output-print "...NW shortest distances"
   let n count patches
   ifelse count transportation-nodes = 0 [
     ; initialize nw distance at infty = dmax + 1  if no nw  
@@ -151,6 +152,13 @@ to setup-nw-matrices
   ][
     
   ]
+  
+  let nw-patches-bool matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
+  set nw-patches [] let i 0
+  repeat n [if sum matrix:get-row nw-patches-bool i > 0 [set nw-patches lput i nw-patches] set i i + 1]
+  
+  
+  toc
 end
 
 

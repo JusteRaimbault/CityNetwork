@@ -24,14 +24,16 @@ to update-effective-matrices
    ;let d-to-nw-patches matrix:times-element-wise (matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix) euclidian-distance-matrix
    
    let nw-patches-bool matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
-   let nw-patches [] let i 0
-   repeat n [if sum matrix:get-row nw-patches-bool i > 0 [set nw-patches lput i nw-patches] set i i + 1]
+   
+   ; not done here, but in network setup and/or update
+   ;set nw-patches [] let i 0
+   ;repeat n [if sum matrix:get-row nw-patches-bool i > 0 [set nw-patches lput i nw-patches] set i i + 1]
    
    set effective-shortest-paths table:make
    
    ifelse nw-patches != [] [
      ;optimization : contruct a table giving index of nearest nw patch
-     let nw-access-table table:make set i 0
+     let nw-access-table table:make let i 0
      repeat n [table:put nw-access-table i (min-index (matrix-get-sparse-row euclidian-distance-matrix i nw-patches)) set i i + 1]
    
      ;; fill effective distance matrix
@@ -71,8 +73,12 @@ end
 ; Dynamic programming paradigm
 to update-network-matrices [new-link]
   
+  ;;;;;;;;;;;;;;;
+  ;; I) Shortest paths update
+  ;;;;;;;;;;;;;;;
+  
   ; get footprint of the link, all patches of it are connected
-  let new-nw-patches [] ask new-link [foreach footprint[ask ? [set new-nw-patches lput [number] of myself new-nw-patches]]]
+  let new-nw-patches [] ask new-link [foreach footprint[ask ? [set new-nw-patches lput number new-nw-patches]]]
   
   ; find intersections : as footprint is ordered, new intersections are orderered too.
   let new-inters (list (first new-nw-patches)) let is-in-nw-matrix? matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
@@ -83,6 +89,7 @@ to update-network-matrices [new-link]
   ]
   set new-inters lput (last new-nw-patches) new-inters
   set in-between lput (lput (last new-nw-patches) (last in-between)) (but-last in-between)
+  
   
   ; for each couple of consecutive intersections, update path table with following updates :
   ;   - add shortcuts if needed for each already existing path
@@ -96,6 +103,7 @@ to update-network-matrices [new-link]
   let i 0
   repeat ((length new-inters) - 1) [
     let i1 item i new-inters let i2 item (i + 1) new-inters
+    let ib item i in-between
     
     ; add shortcuts iff i1 and i2 are already in network
     if sum matrix:get-row is-in-nw-matrix? i1 > 0 and sum matrix:get-row is-in-nw-matrix? i2 > 0 [ ; may be a shortcut
@@ -106,15 +114,63 @@ to update-network-matrices [new-link]
     
     ; connect new patches with old ones
     ; use new paths ? not needed as the path to a in-between patch cannot go through both i1 and i2
-    
-    
-    
-    ; connect new patches between themselves
-    
-    
+    let ib-p 0 ; index of in-betweeen patch
+    foreach ib [
+      let d ?
+      foreach nw-patches [
+        let o ?
+        let d1 matrix:get network-distance-matrix o i1 let d2 matrix:get network-distance-matrix o i2 let p []
+        ifelse d1 < d2 [
+          set p concatenate list (table:get network-shortest-paths (list o i1)) (sublist ib 0 (ib-p + 1))
+        ][
+          set p rev (concatenate list (sublist ib ib-p (length ib)) (table:get network-shortest-paths (list i2 o)))
+        ]
+        table:put new-entries-nw-table (list o d) p
+        table:put new-entries-nw-table (list d o) (rev p)
+      ]
+      set ib-p ib-p + 1
+    ]
     
     set i i + 1
   ]
+  
+  ; connect new patches between themselves
+  let i-o 0
+  foreach new-nw-patches [
+    let i-d 0 let o ?
+    foreach new-nw-patches [
+      let d ?
+      table:put new-entries-nw-table (list o d) (sublist new-nw-patches (min list i-o i-d) ((max list i-o i-d) + 1) )
+      set i-d i-d + 1
+    ] 
+    set i-o i-o + 1
+  ]
+  
+  ; update the shortest path table
+  set network-shortest-paths new-entries-nw-table
+  
+  
+  ;;;;;;;;;;;;;;;
+  ;; II) Distance update
+  ;;;;;;;;;;;;;;;
+  
+  ; map sum of distances to table ?
+  ; ¡¡ do not forget to use congestion and network speed here !!
+  let n count patches
+  
+  set network-distance-matrix matrix:make-constant n n (dmax + 1)
+  foreach table:keys network-shortest-paths [ 
+    matrix:set network-distance-matrix (first ?) (last ?) (congested-distance table:get network-shortest-paths ?)
+  ]
+  
+  
+  ;;;;;;;;;;;;;;;
+  ;; III) NW patches update
+  ;;;;;;;;;;;;;;;
+  let nw-patches-bool matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
+  set nw-patches [] set i 0
+  repeat n [if sum matrix:get-row nw-patches-bool i > 0 [set nw-patches lput i nw-patches] set i i + 1]
+
   
 end
 
@@ -136,5 +192,26 @@ to-report shortcut [path cut]
      report path
    ]
 end
+
+
+;;
+; given a path, reports generalized time to go through it
+to-report congested-distance [path]
+  let res 0
+  let current-patch first path
+  foreach but-first path [
+    let next-patch ?
+    set res res + (matrix:get euclidian-distance-matrix current-patch next-patch) * network-min-pace * (item current-patch patches-congestion + item next-patch patches-congestion) / 2
+    set current-patch next-patch 
+  ]
+  report res
+end
+
+
+
+
+
+
+
   
 

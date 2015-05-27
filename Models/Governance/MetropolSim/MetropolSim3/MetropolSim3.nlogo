@@ -5,11 +5,11 @@
 ;; Major changes since v2
 ;;   - matrix dynamic shortest path (euclidian and nw) computation
 ;;   - simplified population structure (one csp)
+;;   - game-theoretical governance management
 ;;
-;; TODO :
+;; TODO - possible extensions :
 ;;    * add different transportation modes ?
 ;;    * add csp ? not prioritary.
-;;    * clarify game-theory governance management
 ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
@@ -42,6 +42,9 @@ __includes [
   
   ; mayors
   "mayor.nls"
+  
+  ; patches
+  "patches.nls"
   
   ;;;;;;;;
   ; transportation network
@@ -83,6 +86,14 @@ __includes [
   "utils/agent/Agent.nls"
   "utils/network/Network.nls"
   "utils/io/Timer.nls"
+  
+  
+  ;;;;;;;;;;;
+  ;; Tests
+  ;;;;;;;;;;;
+  
+  "test/test-distances.nls"
+  
 ]
 
 
@@ -125,6 +136,13 @@ globals[
   ;; transportation flows \phi_ij between patches
   flow-matrix
   
+  ;; congestion in patches
+  ; list ordered by patch number
+  patches-congestion
+  
+  ;; maximal pace (inverse of speed) in the transportation network
+  ;network-max-pace
+  
   
   ;;;;;;;;;;;;;
   ;; Cached distances matrices
@@ -148,6 +166,9 @@ globals[
   ;
   ; in network
   network-shortest-paths
+  
+  ;; list of nw patches
+  nw-patches
   
   ; overall
   ; stored as table (num_patch_1,num_patch_2) -> [[i,i1],[i1,i2],...,[in,j]] where couples are either (void-nw) or (nw-nw)
@@ -252,7 +273,6 @@ transportation-nodes-own[
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 358
@@ -297,10 +317,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-20
-341
-86
-374
+26
+498
+92
+531
 setup
 setup
 NIL
@@ -314,10 +334,10 @@ NIL
 1
 
 CHOOSER
-21
-445
-192
-490
+13
+606
+184
+651
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility"
@@ -419,10 +439,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-20
-381
-136
-414
+26
+538
+142
+571
 compute utils
 compute-patches-variables\ncolor-patches
 NIL
@@ -436,9 +456,9 @@ NIL
 1
 
 SLIDER
-2
+3
 239
-171
+172
 272
 beta-discrete-choices
 beta-discrete-choices
@@ -451,10 +471,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-89
-341
-152
-374
+95
+498
+158
+531
 go
 go
 T
@@ -556,6 +576,102 @@ TEXTBOX
 |
 25
 0.0
+1
+
+SLIDER
+7
+306
+172
+339
+network-min-pace
+network-min-pace
+0
+10
+1
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+3
+256
+206
+283
+_________________
+20
+0.0
+1
+
+TEXTBOX
+7
+285
+157
+303
+Transportation
+11
+0.0
+1
+
+TEXTBOX
+174
+267
+189
+298
+|
+25
+0.0
+1
+
+BUTTON
+1287
+15
+1400
+48
+setup test nw
+setup-test-nw-mat
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1287
+51
+1362
+84
+test nw
+test-nw-mat
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1288
+89
+1398
+122
+test shortest
+test-shortest-path
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 1
 
 @#$#@#$#@
