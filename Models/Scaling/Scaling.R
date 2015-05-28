@@ -14,26 +14,28 @@ library(ggplot2)
 
 
 # Parameters
-WorldWidth = 400
+WorldWidth = 500
 Pmax = 10000
 d0=100 # in case constant
 r0=4 # idem
-alpha=1.3
+alpha=0.5
 lambda=1
-beta=10
+beta=0.8
 theta=10^(-3)
-N=15
+N=10
 
 # single run
-#emp = empScalExp(spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,theta),theta,lambda,beta)
-#th = scalExp(theta,beta)
+d=spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,theta)
+emp = empScalExp(theta,lambda,beta,d)
+th = scalExp(theta,beta)
 
 
 # Multiple curves
 kernel_type = "gaussian"
 
 thetas = 10^(seq(from=-3,to=-1,by=0.1))
-betas = seq(from=1.05,to=1.5,by=0.05)
+#betas = seq(from=1.05,to=1.5,by=0.05)
+betas = seq(from=0.5,to=1.5,by=0.1)
 
 Nrep_emp = 10
 
@@ -44,13 +46,13 @@ for(b in betas){
   theta=append(theta,thetas);
   th=append(th,sapply(thetas,scalExp,b));
   # compute empirical
-  empvals=matrix(0,Nrep_emp,length(thetas))
-  for(k in 1:Nrep_emp){
-    show(k)
-    d=spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,0.001,kernel_type);
-    empvals[k,]=sapply(thetas,empScalExp,lambda,b,d)
-  }
-  emp=append(emp,apply(empvals,2,mean));empsd=append(empsd,apply(empvals,2,sd))
+  #empvals=matrix(0,Nrep_emp,length(thetas))
+  #for(k in 1:Nrep_emp){
+  #  show(k)
+  #  d=spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,0.001,kernel_type);
+  #  empvals[k,]=sapply(thetas,empScalExp,lambda,b,d)
+  #}
+  #emp=append(emp,apply(empvals,2,mean));empsd=append(empsd,apply(empvals,2,sd))
 }
 
 
@@ -61,9 +63,17 @@ write.csv(d,file=paste0("res/emp-th_expl_",date(),".csv"))
 
 # draw the plot using ggplot
 
+d = read.csv('res/emp-th_expl_Tue May 26 16:01:41 2015.csv')
+d = read.csv('res/emp-th_expl_Wed May 27 13:47:58 2015.csv')
+
+
 # 1) Th/emp
-#p = ggplot(data.frame(theta,emp,empsd,th,beta),aes(x=theta,y=emp))+ geom_point(aes(x=theta,y=emp,colour=beta,group=beta))+ geom_line(aes(x=theta,y=th,colour=beta,group=beta)) 
-#    p + geom_errorbar(aes(y=emp,ymin=emp-empsd, ymax=emp+empsd,colour=beta),width=0.001) 
+p = ggplot(d,aes(x=theta,y=th))+ geom_point(aes(x=theta,y=emp,colour=beta,group=beta))+ geom_line(aes(x=theta,y=th,colour=beta,group=beta)) 
+    p + geom_errorbar(aes(y=emp,ymin=emp-empsd, ymax=emp+empsd,colour=beta),width=0.001) 
+
+ggplot(data.frame(theta,th,beta),aes(x=theta,y=th,colour=beta)) + geom_line(aes(group=beta))
+
+
 
 #+ ggtitle("")
      #+ xlab("") + ylab("")

@@ -58,19 +58,19 @@ scalExpBeta <- function(theta){
 #########
 # Plot alpha(theta) for different betas
 library(ggplot2)
-#thetas = 10^(seq(from=-2,to=-0.2,by=0.01))
-#thetas = 1:10
-#betas = seq(from=1.05,to=1.5,by=0.05)
+thetas = 10^(seq(from=-2,to=-0.2,by=0.01))
+thetas=10^(seq(from=-3,to=-1,by=0.1))
+betas = seq(from=1.05,to=1.5,by=0.05)
 
-#theta=c();scaling.exp=c();beta=c();
-#for(b in betas){
-#  beta=append(beta,rep(b,length(thetas)));
-#  theta=append(theta,thetas);
-#  scaling.exp=append(scaling.exp,sapply(thetas,scalExp,b))
-#}
+theta=c();scaling.exp=c();beta=c();
+for(b in betas){
+  beta=append(beta,rep(b,length(thetas)));
+  theta=append(theta,thetas);
+  scaling.exp=append(scaling.exp,sapply(thetas,scalExp,b))
+}
 
 # plot
-#ggplot(data.frame(theta,scaling.exp,beta),aes(x=theta,y=scaling.exp,colour=beta)) + geom_line(aes(group=beta))
+ggplot(data.frame(theta,scaling.exp,beta),aes(x=theta,y=scaling.exp,colour=beta)) + geom_line(aes(group=beta))
 
 
 
