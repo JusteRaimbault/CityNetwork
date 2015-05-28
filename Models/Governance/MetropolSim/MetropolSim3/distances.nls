@@ -102,69 +102,74 @@ to update-network-matrices [new-link]
   ; table for new and modified entries
   let new-entries-nw-table table:make
   
-  ; interate on consecutive inters - note : at least both ends even if does not intersects.
-  let i 0
+  ; interate on all couples of iters inters - note : at least both ends even if does not intersects.
+  let i 0 let j 0
   repeat ((length new-inters) - 1) [
-    let i1 item i new-inters let i2 item (i + 1) new-inters
-    let ib item i in-between
-    let d12 0 ask patch-with-number i1 [set d12 distance patch-with-number i2]
-    
-    ; add shortcuts iff i1 and i2 are already in network
-    if sum matrix:get-row is-in-nw-matrix? i1 > 0 and sum matrix:get-row is-in-nw-matrix? i2 > 0 [ ; may be a shortcut
+    set j (i + 1)
+    repeat (length new-inters - i - 1) [
+      let i1 item i new-inters let i2 item j new-inters
+      let ib concatenate (sublist in-between i j)
+      let d12 0 ask patch-with-number i1 [set d12 distance patch-with-number i2]
       
-      ; check distance improvement by matrix operations
-      ;output-print "diff" tic
-      ;let d-diff matrix:minus network-distance-matrix (matrix:plus matrix:make-constant n n (d12 * network-min-pace) matrix:plus (matrix:from-column-list (rep (matrix:get-column network-distance-matrix i1) n)) (matrix:from-column-list (rep (matrix:get-column network-distance-matrix i2) n)))
-      ;toc
-      
-       foreach table:keys network-shortest-paths [
-         ;let o first ? let d last ?
-         ;if matrix:get d-diff o d > 0 [ let p concatenate (list (table:get network-shortest-paths (list o i1)) in-between (table:get network-shortest-paths (list i2 d)))
-          ;       table:put new-entries-nw-table ? p table:put new-entries-nw-table (rev ?) (rev p)]
-         let o first ? let d last ?
-          ; test if direct shorcut (couple already in path)
-          ; or if taking it is indeed a shorcut - no congestion for new link
-          let d1 matrix:get network-distance-matrix o i1 let d2 matrix:get network-distance-matrix o i2
-          if d1 != -1 and d2 != -1 [
-              ifelse matrix:get network-distance-matrix o d > (d1 + d2 + (network-min-pace * d12)) [
-                 ; fucking shortcut
-                 let p concatenate (list (table:get network-shortest-paths (list o i1)) in-between (table:get network-shortest-paths (list i2 d)))
-                 table:put new-entries-nw-table ? p table:put new-entries-nw-table (rev ?) (rev p)
-                 ;table:put new-entries-nw-table ? (shortcut ? (list i1 i2)) ; shortcut function not needed !
-              ][
-                 ; otherwise ; not needed
-                 ;table:put new-entries-nw-table ? table:get network-shortest-paths ?
-              ]
-          ]
-          
-       ]
-    ]
-    
-    ; connect new patches with old ones
-    ; use new paths ? not needed as the path to a in-between patch cannot go through both i1 and i2
-    let ib-p 0 ; index of in-betweeen patch
-    foreach ib [
-      let d ?
-      foreach nw-patches [
-        let o ?
-        let d1 matrix:get network-distance-matrix o i1 let d2 matrix:get network-distance-matrix o i2
-        let p []
-        if d1 != -1 or d2 != -1 [
-           if d1 != -1 and d2 != -1 [
-             ifelse d1 < d2 [
-               set p concatenate list (table:get network-shortest-paths (list o i1)) (sublist ib 0 (ib-p + 1))
-             ][
-               set p rev (concatenate list (sublist ib ib-p (length ib)) (table:get network-shortest-paths (list i2 o)))
-             ]
-           ]
-           if d1 != -1 and d2 = -1 [set p concatenate list (table:get network-shortest-paths (list o i1)) (sublist ib 0 (ib-p + 1))]
-           if d2 != -1 and d1 = -1 [set p rev (concatenate list (sublist ib ib-p (length ib)) (table:get network-shortest-paths (list i2 o)))]
-           
-           table:put new-entries-nw-table (list o d) p
-           table:put new-entries-nw-table (list d o) (rev p)
-        ]
+      ; add shortcuts iff i1 and i2 are already in network
+      if sum matrix:get-row is-in-nw-matrix? i1 > 0 and sum matrix:get-row is-in-nw-matrix? i2 > 0 [ ; may be a shortcut
+        
+        ; check distance improvement by matrix operations
+        ;output-print "diff" tic
+        ;let d-diff matrix:minus network-distance-matrix (matrix:plus matrix:make-constant n n (d12 * network-min-pace) matrix:plus (matrix:from-column-list (rep (matrix:get-column network-distance-matrix i1) n)) (matrix:from-column-list (rep (matrix:get-column network-distance-matrix i2) n)))
+        ;toc
+        
+         foreach table:keys network-shortest-paths [
+           ;let o first ? let d last ?
+           ;if matrix:get d-diff o d > 0 [ let p concatenate (list (table:get network-shortest-paths (list o i1)) in-between (table:get network-shortest-paths (list i2 d)))
+            ;       table:put new-entries-nw-table ? p table:put new-entries-nw-table (rev ?) (rev p)]
+           let o first ? let d last ?
+            ; test if direct shorcut (couple already in path)
+            ; or if taking it is indeed a shorcut - no congestion for new link
+            let d1 matrix:get network-distance-matrix o i1 let d2 matrix:get network-distance-matrix o i2
+            if d1 != -1 and d2 != -1 [
+                ifelse matrix:get network-distance-matrix o d > (d1 + d2 + (network-min-pace * d12)) [
+                   ; fucking shortcut
+                   let p concatenate (list (table:get network-shortest-paths (list o i1)) in-between (table:get network-shortest-paths (list i2 d)))
+                   table:put new-entries-nw-table ? p table:put new-entries-nw-table (rev ?) (rev p)
+                   ;table:put new-entries-nw-table ? (shortcut ? (list i1 i2)) ; shortcut function not needed !
+                ][
+                   ; otherwise ; not needed
+                   ;table:put new-entries-nw-table ? table:get network-shortest-paths ?
+                ]
+            ]
+            
+         ]
       ]
-      set ib-p ib-p + 1
+      
+      ; connect new patches with old ones
+      ; use new paths ? not needed as the path to a in-between patch cannot go through both i1 and i2
+      let ib-p 0 ; index of in-betweeen patch
+      foreach ib [
+        let d ?
+        foreach nw-patches [
+          let o ?
+          let d1 matrix:get network-distance-matrix o i1 let d2 matrix:get network-distance-matrix o i2
+          let p []
+          if d1 != -1 or d2 != -1 [
+             if d1 != -1 and d2 != -1 [
+               ifelse d1 < d2 [
+                 set p concatenate list (table:get network-shortest-paths (list o i1)) (sublist ib 0 (ib-p + 1))
+               ][
+                 set p rev (concatenate list (sublist ib ib-p (length ib)) (table:get network-shortest-paths (list i2 o)))
+               ]
+             ]
+             if d1 != -1 and d2 = -1 [set p concatenate list (table:get network-shortest-paths (list o i1)) (sublist ib 0 (ib-p + 1))]
+             if d2 != -1 and d1 = -1 [set p rev (concatenate list (sublist ib ib-p (length ib)) (table:get network-shortest-paths (list i2 o)))]
+             
+             table:put new-entries-nw-table (list o d) p
+             table:put new-entries-nw-table (list d o) (rev p)
+          ]
+        ]
+        set ib-p ib-p + 1
+      ]
+      
+      set j j + 1
     ]
     
     set i i + 1
