@@ -41,15 +41,25 @@ spatializedExpMixtureDensity <- function(gridSize,N,rmin,rmax,Pmax,alpha,tolThre
     
     # find origin of that kernel
     #  -> one of points such that : d(bord) > rcut and \forall \vec{x}\in D(rcut),d(\vec{x})<tolThr.
-    pot = which(!pseudoClosing(grid>tolThreshold,r_i),arr.ind=TRUE)
-    show(length(pot))
-    if(length(pot)==0){
-      # Take a point with minimal density ?
-      pot = which(grid==min(grid),arr.ind=TRUE)
-    }
+    #pot = which(!pseudoClosing(grid>tolThreshold,r_i),arr.ind=TRUE)
+    #show(length(pot))
+    #if(length(pot)==0){
+    #  # Take a point with minimal density ?
+    #  pot = which(grid==min(grid),arr.ind=TRUE)
+    #}
     
-    row = sample(nrow(pot),1)
-    center = matrix(pot[row,],nrow=1)
+    # simplify : take deterministiquely (almost, after two exps only two points possible)
+    # BUT not close to border
+    rbord = 2*rmax*log(Pmax/tolThreshold)
+    
+    if(max(grid)==0){
+      center = matrix(runif(2,min=rbord+1,max=gridSize-rbord),nrow=1)
+    }
+    else {
+      pot = which(grid==min(grid[(rbord+1):(gridSize-rbord),(rbord+1):(gridSize-rbord)]),arr.ind=TRUE)
+      row = sample(nrow(pot),1)
+      center = matrix(pot[row,],nrow=1)
+    }
     
     # add kernel : use kernlab laplace kernel or other
     if(kernel_type=="poisson"){ker=laplacedot(sigma=1/r_i)}
@@ -70,8 +80,8 @@ pseudoClosing <- function(mat,rcut){
       if(i>rcut&&i<nrow(mat)-rcut+1&&j>rcut&&j<ncol(mat)-rcut+1){
         # dirty that way - should be quicker with convol.
         # furthermore Manhattan distance, not best solution for distribs symmetric by rotation.
-        if(sum(mat[(i-rcut):(i+rcut),(j-rcut):(j+rcut)])>=1){res[i,j]=1}
-      }else{res[i,j]=1}
+        if(sum(mat[(i-rcut):(i+rcut),(j-rcut):(j+rcut)])>=1){res[i,j]=TRUE}
+      }else{res[i,j]=TRUE}
     }
   }
   return(res)

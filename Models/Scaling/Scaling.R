@@ -14,18 +14,19 @@ library(ggplot2)
 
 
 # Parameters
-WorldWidth = 500
+WorldWidth = 600
 Pmax = 10000
 d0=100 # in case constant
-r0=4 # idem
-alpha=0.5
+r0=6 # idem
+alpha=1.3
 lambda=1
 beta=0.8
-theta=10^(-3)
-N=10
+theta=10^(-2)
+N=8
 
 # single run
 d=spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,theta)
+persp3D(z=d>theta)
 emp = empScalExp(theta,lambda,beta,d)
 th = scalExp(theta,beta)
 
