@@ -52,13 +52,16 @@ spatializedExpMixtureDensity <- function(gridSize,N,rmin,rmax,Pmax,alpha,tolThre
     # BUT not close to border
     rbord = 2*rmax*log(Pmax/tolThreshold)
     
+    # random center
+    #center = matrix(runif(2,min=rbord+1,max=gridSize-rbord),nrow=1)
+    
     if(max(grid)==0){
-      center = matrix(runif(2,min=rbord+1,max=gridSize-rbord),nrow=1)
+     center = matrix(runif(2,min=rbord+1,max=gridSize-rbord),nrow=1)
     }
     else {
-      pot = which(grid==min(grid[(rbord+1):(gridSize-rbord),(rbord+1):(gridSize-rbord)]),arr.ind=TRUE)
-      row = sample(nrow(pot),1)
-      center = matrix(pot[row,],nrow=1)
+     pot = which(grid==min(grid[(rbord+1):(gridSize-rbord),(rbord+1):(gridSize-rbord)]),arr.ind=TRUE)
+     row = sample(nrow(pot),1)
+     center = matrix(pot[row,],nrow=1)
     }
     
     # add kernel : use kernlab laplace kernel or other
