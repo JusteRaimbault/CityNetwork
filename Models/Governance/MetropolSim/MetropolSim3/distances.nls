@@ -82,19 +82,57 @@ to update-network-matrices [new-link]
   let new-nw-patches [] ask new-link [foreach footprint[ask ? [set new-nw-patches lput number new-nw-patches]]]
   
   ; find intersections : as footprint is ordered, new intersections are orderered too.
-  let new-inters (list (first new-nw-patches)) let is-in-nw-matrix? matrix:map [bool-to-int (?1 != -1)] network-distance-matrix
+  ;let new-inters (list (first new-nw-patches))
+  let new-inters []
+  let is-in-nw-matrix? matrix:map [bool-to-int (?1 != -1)] network-distance-matrix
   let in-between [[]] ; patches between consecutive intersections
-  foreach but-first but-last new-nw-patches [
-    set in-between lput (lput ? (last in-between)) (but-last in-between)
-    if sum matrix:get-row is-in-nw-matrix? ? > 0 [set new-inters lput ? new-inters set in-between lput [] in-between]
+  foreach but-first but-last new-nw-patches [   
+    ifelse sum matrix:get-row is-in-nw-matrix? ? > 0 [
+      set new-inters lput ? new-inters set in-between lput [] in-between
+    ][
+      set in-between lput (lput ? (last in-between)) (but-last in-between)
+    ]
   ]
-  set new-inters lput (last new-nw-patches) new-inters
-  set in-between lput (lput (last new-nw-patches) (last in-between)) (but-last in-between)
+  
+  ; Q : link extremities not needed ?
+  ;set new-inters lput (last new-nw-patches) new-inters
+  ;set in-between lput (lput (last new-nw-patches) (last in-between)) (but-last in-between)
+  
+  ;; add intersections
+  foreach new-inters [
+    set nw-inters lput ? nw-inters
+    
+    ;; update nw-closest-inter for crossing link
+    let prev-crossing-ends table:get closest-nw-inters ?
+    table:remove closest-nw-inters ?
+    foreach table:keys closest-nw-inters [
+      let chge? (length prev-crossing-ends = length table:get closest-nw-inters ?)
+      if chge? [let i 0 foreach table:get closest-nw-inters ? [set chge? (chge? and first ? = first item i prev-crossing-ends) set i i + 1]]
+      if chge? [table:put ? ()]
+    ]
+    
+  ]
+  
+  
+  
+  ;;corresponding 'nw-closest-inter' entries
+  let i -1
+  foreach in-between [
+    foreach ? [
+       let closest-inters []
+       if i >= 0 [set closest-inters lput (matrix:get euclidian-distance-matrix ? item i new-inters) closest-inters]
+       if (i + 1) < (length new-inters) [set closest-inters lput (matrix:get euclidian-distance-matrix ? item (i + 1) new-inters) closest-inters]
+       table:put closest-nw-inters ? closest-inters
+    ]
+  ]
   
   
   
   ;; test
-  foreach new-inters [ask ? [set pcolor red]]
+  ;foreach new-inters [ask patch-with-number ? [set pcolor red]]
+  
+  
+  
   
   
   ;;;;;;;;;;;;;;;

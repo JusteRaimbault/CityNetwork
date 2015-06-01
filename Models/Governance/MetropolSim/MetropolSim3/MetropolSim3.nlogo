@@ -182,6 +182,9 @@ globals[
   ;; for patches in nw, table caching closest nw inters (i.e. [end1,end2] of my-link )
   closest-nw-inters
   
+  ;; network intersections
+  nw-inters
+  
   ; overall
   ; stored as table (num_patch_1,num_patch_2) -> [[i,i1],[i1,i2],...,[in,j]] where couples are either (void-nw) or (nw-nw)
   ; then effective path is [ik->i_k+1] or [ik->_nw i_k+1]
@@ -702,6 +705,17 @@ MONITOR
 106
 eff paths
 length table:keys network-shortest-paths
+17
+1
+11
+
+MONITOR
+1222
+109
+1279
+154
+inters
+length nw-inters
 17
 1
 11
