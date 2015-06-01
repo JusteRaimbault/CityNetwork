@@ -151,21 +151,25 @@ to update-network-matrices [new-link]
   ;; II) Update shortest paths between intersections
   ;;;;;;;;;;;;;;;
   
-  foreach new-inters [table:put network-shortest-paths (list ? ?) (list ?)]
+  let new-paths table:make
+  
+  foreach new-inters [table:put new-paths (list ? ?) (list ?)]
   
   ; interate on all couples of inters
   set i 0 let j 0
   repeat ((length new-inters) - 1) [
+    ;update for i1
+    
     set j (i + 1)
     repeat (length new-inters - i - 1) [
       let i1 item i new-inters let i2 item j new-inters
       
       ; update old paths with possible shorcut
-      shortcut i1 i2
+      set new-paths (shortcut i1 i2 new-paths)
       
       ; add new straight paths
-      table:put network-shortest-paths (list i1 i2) (sublist new-inters i (j + 1))
-      table:put network-shortest-paths (list i2 i1) (rev sublist new-inters i (j + 1))
+      table:put new-paths (list i1 i2) (sublist new-inters i (j + 1))
+      table:put new-paths (list i2 i1) (rev sublist new-inters i (j + 1))
       
       set j j + 1
     ]
@@ -175,28 +179,30 @@ to update-network-matrices [new-link]
   
   
   ; for each new inter, connects it to old ones if possible
-  foreach nw-inters [
-    let o ?
-    if not member? o new-inters [
-      foreach new-inters [
-        let d ? let pmin [] let dmin 0
-        if table:has-key? network-shortest-paths (list o (first first (table:get closest-nw-inters d))) [
-          set dmin ((matrix:get network-distance-matrix o (first first (table:get closest-nw-inters d))) + (last first (table:get closest-nw-inters d)) )
-          set pmin concatenate (list (table:get network-shortest-paths (list o (first first (table:get closest-nw-inters d)))) (list d))
-        ]
-        if table:has-key? network-shortest-paths (list o (first last (table:get closest-nw-inters d))) [
-          let dpot ((matrix:get network-distance-matrix o (first last (table:get closest-nw-inters d))) + (last last (table:get closest-nw-inters d)) )
-          if dpot <= dmin [set dmin dpot set pmin concatenate (list (table:get network-shortest-paths (list o (first last (table:get closest-nw-inters d)))) (list d))]
-        ]
-        
-        if pmin != [] [
-          output-print (word "connecting " o d)
-          table:put network-shortest-paths (list o d) pmin
-          table:put network-shortest-paths (list d o) rev pmin
-        ]
-      ]
-    ]
-  ]
+;  foreach nw-inters [
+;    let o ?
+;    if not member? o new-inters [
+;      foreach new-inters [
+;        let d ? let pmin [] let dmin 0
+;        if table:has-key? network-shortest-paths (list o (first first (table:get closest-nw-inters d))) [
+;          set dmin ((matrix:get network-distance-matrix o (first first (table:get closest-nw-inters d))) + (last first (table:get closest-nw-inters d)) )
+;          set pmin concatenate (list (table:get network-shortest-paths (list o (first first (table:get closest-nw-inters d)))) (list d))
+;        ]
+;        if table:has-key? network-shortest-paths (list o (first last (table:get closest-nw-inters d))) [
+;          let dpot ((matrix:get network-distance-matrix o (first last (table:get closest-nw-inters d))) + (last last (table:get closest-nw-inters d)) )
+;          if dpot <= dmin [set dmin dpot set pmin concatenate (list (table:get network-shortest-paths (list o (first last (table:get closest-nw-inters d)))) (list d))]
+;        ]
+;        
+;        if pmin != [] [
+;          output-print (word "connecting " o d)
+;          table:put network-shortest-paths (list o d) pmin
+;          table:put network-shortest-paths (list d o) rev pmin
+;        ]
+;      ]
+;    ]
+;  ]
+  
+
   
   ;;;;;;;;;;;;;;;
   ;; III) Update network distances
@@ -385,7 +391,7 @@ end
 ;;
 ; shorcuts existing paths if possible for the given intersection
 ;
-to shortcut [i1 i2]
+to-report shortcut [i1 i2 new-paths]
   output-print (word "updating " length table:keys network-shortest-paths " paths...")
   let new-shortest-paths table:make
   foreach table:keys network-shortest-paths [
@@ -416,7 +422,9 @@ to shortcut [i1 i2]
     
   ]
   
-  set network-shortest-paths new-shortest-paths
+  ;foreach table:keys new-paths [table:put new-shortest-paths]
+  
+  report new-shortest-paths
   
 ;   let p1 position (first cut) path let p2 position (last cut) path
 ;   ifelse p1 != false and p2 != false [
