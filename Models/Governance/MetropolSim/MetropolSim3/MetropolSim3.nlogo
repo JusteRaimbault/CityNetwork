@@ -720,6 +720,23 @@ length nw-inters
 1
 11
 
+BUTTON
+1288
+125
+1382
+158
+test inters
+test-closest-inter
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
