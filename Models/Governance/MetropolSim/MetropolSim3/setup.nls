@@ -122,20 +122,20 @@ to setup-cached-distances
   
   output-print "Caching distances"
   
-  let N count patches
+  set #-patches count patches
   set dmax sqrt ((world-width ^ 2) + (world-height ^ 2))  
   
   ; euclidian distance matrix
-  set euclidian-distance-matrix matrix:make-constant N N 0
+  set euclidian-distance-matrix matrix:make-constant #-patches #-patches 0
   let p1 0 let p2 0
-  repeat n [
+  repeat #-patches [
      let x1 (floor (p1 / world-width)) + min-pxcor let y1 (p1 - world-width * floor (p1 / world-width)) + min-pycor
      
      ; profite of this loop to set correspondance number <-> coordinates ? NO has to be done before !
      ;ask (patch x1 y1) [set number p1] 
      
      set p2 0
-     repeat n [
+     repeat #-patches [
         let x2 (floor (p2 / world-width)) + min-pxcor let y2 (p2 - world-width * floor (p2 / world-width)) + min-pycor
         matrix:set euclidian-distance-matrix p1 p2 sqrt ((x1 - x2) ^ 2 + (y1 - y2) ^ 2) 
         set p2 p2 + 1
@@ -156,21 +156,22 @@ end
 ; setup initial network matrices
 to setup-nw-matrices
   tic output-print "...NW shortest distances"
-  let n count patches
+  set #-patches count patches
   ifelse count transportation-nodes = 0 [
     ; initialize nw distance at -1 if no nw
-    set network-distance-matrix matrix:make-constant n n -1
+    set network-distance-matrix matrix:make-constant #-patches #-patches -1
     ; for paths, put in table only if in nw
     set network-shortest-paths table:make
-    ;let i 0 repeat n [let j 0 repeat n [table:put network-shortest-paths (list i j) [] set j j + 1] set i i + 1]
-    ; so not needed
+    
+    ; nw intersections
+    set closest-nw-inters table:make
   ][
     
   ]
   
   let nw-patches-bool matrix:map [bool-to-int (?1 > 0)] network-distance-matrix
   set nw-patches [] let i 0
-  repeat n [if sum matrix:get-row nw-patches-bool i > 0 [set nw-patches lput i nw-patches] set i i + 1]
+  repeat #-patches [if sum matrix:get-row nw-patches-bool i > 0 [set nw-patches lput i nw-patches] set i i + 1]
   
   
   toc

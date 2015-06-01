@@ -129,6 +129,9 @@ globals[
   ; governor of the region : particular mayor
   regional-authority
   
+  
+  
+  
   ;;;;;;;;;;;;;
   ;; Transportation
   ;;;;;;;;;;;;;
@@ -142,6 +145,9 @@ globals[
   
   ;; maximal pace (inverse of speed) in the transportation network
   ;network-max-pace
+  
+  
+  
   
   
   ;;;;;;;;;;;;;
@@ -169,6 +175,12 @@ globals[
   
   ;; list of nw patches
   nw-patches
+  
+  ;; number of patches
+  #-patches
+  
+  ;; for patches in nw, table caching closest nw inters (i.e. [end1,end2] of my-link )
+  closest-nw-inters
   
   ; overall
   ; stored as table (num_patch_1,num_patch_2) -> [[i,i1],[i1,i2],...,[in,j]] where couples are either (void-nw) or (nw-nw)
@@ -266,7 +278,6 @@ breed[transportation-nodes transportation-node]
 
 transportation-nodes-own[
 ]
-
 
 
 

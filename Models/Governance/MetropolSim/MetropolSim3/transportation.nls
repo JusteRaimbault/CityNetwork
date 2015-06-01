@@ -27,12 +27,12 @@ end
 ; Furness algo
 to compute-flows
   
-  let n count patches
+  ;let n count patches
   
   ; initial weights
-  let p rep (1 / n) n let q rep (1 / n) n
+  let p rep (1 / #-patches) #-patches let q rep (1 / #-patches) #-patches
   ; reinitialize matrix
-  set flow-matrix matrix:make-constant n n 0
+  set flow-matrix matrix:make-constant #-patches #-patches 0
   
   ; compute (equilibrium ?) weights
   ; how many iterations needed ?
@@ -46,7 +46,7 @@ to compute-flows
   ; then set flows as \phi_ij = p_i*q_j*A_i*E_j*effective_distance(i,j)
   ;   -> Q : here effective dist takes into account network
   
-  set flow-matrix matrix:times-element-wise (matrix:times-element-wise (matrix:from-column-list (rep (list-times-element-wise p patches-actives) n)) (matrix:from-row-list (rep (list-times-element-wise q patches-employments) n))) effective-distance-matrix
+  set flow-matrix matrix:times-element-wise (matrix:times-element-wise (matrix:from-column-list (rep (list-times-element-wise p patches-actives) #-patches)) (matrix:from-row-list (rep (list-times-element-wise q patches-employments) #-patches))) effective-distance-matrix
   
   
 end
