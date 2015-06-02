@@ -23,7 +23,7 @@ lambda=1
 beta=0.8
 theta=0.05
 N=15
-kernel_type = "poisson"
+kernel_type = "gaussian"
 
 # single run
 #d=spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,theta,kernel_type)
