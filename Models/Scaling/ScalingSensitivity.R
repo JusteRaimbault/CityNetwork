@@ -8,7 +8,7 @@
 #
 
 library(kernlab)
-library(plot3D)
+#library(plot3D)
 
 # Generate a random density distribution
 #   following a scaling law with params alpha>0, Pmax (P_i = Pmax*i^{-\alpha})
