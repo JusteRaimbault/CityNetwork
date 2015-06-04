@@ -85,7 +85,7 @@ coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(4)
+cl <- makeCluster(16)
 registerDoParallel(cl)
 
 res <- foreach(i=1:nrow(coords)) %dopar% {
