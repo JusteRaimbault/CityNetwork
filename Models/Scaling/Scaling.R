@@ -10,7 +10,7 @@ source('ScalingSensitivity.R')
 source('ScalingAnal.R')
 
 # libraries
-library(ggplot2)
+#library(ggplot2)
 
 
 # Parameters
@@ -23,7 +23,7 @@ lambda=1
 beta=0.8
 theta=0.05
 N=15
-kernel_type = "gaussian"
+kernel_type = "poisson"
 
 # single run
 #d=spatializedExpMixtureDensity(WorldWidth,N,r0,r0,Pmax,alpha,theta,kernel_type)
@@ -62,7 +62,7 @@ for(b in betas){
 
 # save data
 d = data.frame(theta,emp,empsd,th,beta)
-write.csv(d,file=paste0("res/emp-th_expl_",date(),".csv"))
+write.csv(d,file=paste0("res/emp-th_expl_",kernel_type,"_",format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),".csv"))
 
 # draw the plot using ggplot
 
