@@ -73,11 +73,11 @@ simplifyBlock<-function(data,resFactor,areasize){
 areasize = 200
 offset = 50
 
-xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
-yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
+#xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
+#yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
 #TEST //
-#xvals=seq(from=5000,to=5200,by=offset)
-#yvals=seq(from=5000,to=5200,by=offset)
+xvals=seq(from=5000,to=5400,by=offset)
+yvals=seq(from=5000,to=5400,by=offset)
 
 # coord matrix
 coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)))),nrow=length(xvals)*length(yvals))
@@ -85,7 +85,7 @@ coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(16)
+cl <- makeCluster(4)
 registerDoParallel(cl)
 
 res <- foreach(i=1:nrow(coords)) %dopar% {
