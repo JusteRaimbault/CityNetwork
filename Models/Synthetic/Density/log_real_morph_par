@@ -1,6 +1,6 @@
 
-R version 3.1.2 (2014-10-31) -- "Pumpkin Helmet"
-Copyright (C) 2014 The R Foundation for Statistical Computing
+R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R est un logiciel libre livré sans AUCUNE GARANTIE.
@@ -21,6 +21,7 @@ Tapez 'q()' pour quitter R.
 > #############
 > 
 > library(raster)
+Le chargement a nécessité le package : sp
 > 
 > setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
 > 
@@ -93,8 +94,8 @@ Tapez 'q()' pour quitter R.
 > xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
 > yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
 > #TEST //
-> #xvals=seq(from=5000,to=5200,by=offset)
-> #yvals=seq(from=5000,to=5200,by=offset)
+> #xvals=seq(from=1,to=400,by=offset)
+> #yvals=seq(from=1,to=400,by=offset)
 > 
 > # coord matrix
 > coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)))),nrow=length(xvals)*length(yvals))
@@ -102,6 +103,9 @@ Tapez 'q()' pour quitter R.
 > 
 > # create // cluster
 > library(doParallel)
+Le chargement a nécessité le package : foreach
+Le chargement a nécessité le package : iterators
+Le chargement a nécessité le package : parallel
 > cl <- makeCluster(16)
 > registerDoParallel(cl)
 > 
@@ -117,6 +121,7 @@ Tapez 'q()' pour quitter R.
 +      r_dens = raster(m/sum(m))
 +      res=c(x,y,moranIndex(),averageDistance(),entropy(),rankSizeSlope())
 +    }
++    else{res=c(x,y,NA,NA,NA,NA)}
 +    res
 + }
 > 
@@ -126,3 +131,20 @@ Tapez 'q()' pour quitter R.
 > # get results into data frame
 > vals_mat = matrix(0,length(res),length(res[[1]]))
 > for(a in 1:length(res)){vals_mat[a,]=res[[a]]}
+> v = data.frame(vals_mat);colnames(v)=c("x","y","moran","distance","entropy","slope")
+> 
+> 
+> # store in data file
+> write.table(
++   v,
++   file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/france_20km_',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'.csv'),
++   sep = ";",
++   col.names=colnames(v)
++ )
+> 
+> 
+> 
+> 
+> 
+> 
+> 
