@@ -27,7 +27,7 @@ to setup-exploration
   ; set time steps
   setup-synth-pattern
   ; here fix max pop
-  set total-time-steps 100000 / sp-growth-rate
+  set total-time-steps floor (100000 / sp-growth-rate)
 end
 
 to setup-final-indicators
@@ -65,14 +65,14 @@ to go-synth-pattern
   let stot sum [sp-density ^ sp-alpha-localization] of patches
   
   ifelse stot = 0 [
-    repeat sp-growth-rate [ask one-of patches [set sp-occupants sp-occupants + 1]]
+    repeat (floor sp-growth-rate) [ask one-of patches [set sp-occupants sp-occupants + 1]]
     ][
     ; draw random patches
-    let s 0 let f 0 let r [] repeat sp-growth-rate [set r lput random-float 1 r] set r sort r
+    let s 0 let f 0 let r [] repeat (floor sp-growth-rate) [set r lput random-float 1 r] set r sort r
     ;show r
     ; add 1 population to each
     ask patches [
-      if f < sp-growth-rate [
+      if f < (floor sp-growth-rate) [
         set s s + (sp-density ^ sp-alpha-localization)
         if (s / stot) > item f r [
           ;show (word self " : " (s / stot) " - " item f r)
