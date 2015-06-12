@@ -67,12 +67,13 @@ write.csv(d,file=paste0("res/emp-th_expl_",kernel_type,"_",format(Sys.time(), "%
 # draw the plot using ggplot
 
 #d = read.csv('res/emp-th_expl_Tue May 26 16:01:41 2015.csv')
-#d = read.csv('res/emp-th_expl_Wed May 27 13:47:58 2015.csv')
+d = read.csv('res/emp-th_expl_gaussian_ven.-juin-12-07:55:25-2015.csv')
 
 
 # 1) Th/emp
-#p = ggplot(d,aes(x=theta,y=th))+ geom_point(aes(x=theta,y=emp,colour=beta,group=beta))+ geom_line(aes(x=theta,y=th,colour=beta,group=beta)) 
-#    p + geom_errorbar(aes(y=emp,ymin=emp-empsd, ymax=emp+empsd,colour=beta),width=0.001) 
+library(ggplot2)
+p = ggplot(d,aes(x=theta,y=th))+ geom_point(aes(x=theta,y=emp,colour=beta,group=beta))#+ geom_line(aes(x=theta,y=th,colour=beta,group=beta)) 
+    p + geom_errorbar(aes(y=emp,ymin=emp-empsd, ymax=emp+empsd,colour=beta),width=0.001) 
 
 #ggplot(data.frame(theta,th,beta),aes(x=theta,y=th,colour=beta)) + geom_line(aes(group=beta))
 

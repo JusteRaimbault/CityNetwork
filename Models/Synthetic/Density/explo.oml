@@ -10,18 +10,9 @@ val growthrate = Val[Double]
 val replication = Val[Int]
 
 // exploration task
-val exploration =
-  ExplorationTask(
-        (diffusion in (0.0 to 0.1 by 0.01)) x
-        (diffusionsteps in (1.0 to 7.0 by 3.0)) x
-        (alphalocalization in (0.5 to 1.5 by 0.1)) x
-        (growthrate in (100.0 to 500.0 by 200.0)) x
-        (replication in (UniformDistribution[Int]() take 100))
-  )
-
 
 //-------------------------------------------------------
-// FOR TEST
+// TEST
 /* val exploration =  ExplorationTask(
   (diffusion in (0.1 to 0.1 by 1)) x
     (diffusionsteps in (1.0 to 1.0 by 1)) x
@@ -30,6 +21,32 @@ val exploration =
       (replication in (UniformDistribution[Int]() take 16))
   )*/
 //--------------------------------------------------------
+
+//-------------------------------------------------------
+// GRID
+/*val exploration =
+  ExplorationTask(
+        (diffusion in (0.0 to 0.1 by 0.01)) x
+        (diffusionsteps in (1.0 to 7.0 by 3.0)) x
+        (alphalocalization in (0.5 to 1.5 by 0.1)) x
+        (growthrate in (100.0 to 500.0 by 200.0)) x
+        (replication in (UniformDistribution[Int]() take 100))
+  )
+*/
+//--------------------------------------------------------
+
+//-------------------------------------------------------
+// SOBOL
+val exploration = ExplorationTask (
+  SobolSampling (
+    4,
+    diffusion in Range(0.0, 0.1),
+    alphalocalization in Range(0.5,1.5),
+    growthrate in Range(100.0,500.0)
+  ) x (replication in UniformDistribution[Int]() take 1) x (diffusionsteps in (0.0 to 3.0 by 1.0))
+)
+//--------------------------------------------------------
+
 
 
 // reporters
@@ -52,7 +69,7 @@ val cmds = List(
 System.setProperty("com.sun.media.jai.disableMediaLib", "true")
 
 //show available processors
-println("Available Processors : "+Runtime.getRuntime().availableProcessors());
+//println("Available Processors : "+Runtime.getRuntime().availableProcessors());
 
 
 val scriptPath = System.getenv("CN_HOME")+"/Models/Synthetic/Density/HEADLESS_Density-system.nlogo"
@@ -66,8 +83,8 @@ val model = NetLogo5Task(scriptPath,cmds,true) set (
   netLogoOutputs += ("sp-diffusion",diffusion),
   netLogoOutputs += ("sp-diffusion-steps",diffusionsteps),
   netLogoOutputs += ("sp-alpha-localization",alphalocalization),
-  netLogoOutputs += ("sp-growth-rate",growthrate),
-  netLogoOutputs += ("close-rserve",closed)
+  netLogoOutputs += ("sp-growth-rate",growthrate)//,
+  //netLogoOutputs += ("close-rserve",closed)
   )
 
 // output
