@@ -86,6 +86,7 @@ __includes [
   "utils/agent/Agent.nls"
   "utils/network/Network.nls"
   "utils/io/Timer.nls"
+  "utils/io/Logger.nls"
   
   
   ;;;;;;;;;;;
@@ -193,6 +194,16 @@ globals[
   ;;
   ; maximal distance in the world
   dmax
+  
+  
+  
+  ;;;;;;;;;;;;;
+  ;; Utils
+  ;;;;;;;;;;;;;
+  
+  ; log level : defined in chooser
+  ;log-level
+  
   
 ]
 
@@ -518,8 +529,8 @@ PENS
 "pen-1" 1.0 0 -12087248 true "" "plot diff-actives"
 
 OUTPUT
-954
-485
+940
+283
 1398
 692
 10
@@ -751,6 +762,16 @@ NIL
 NIL
 NIL
 1
+
+CHOOSER
+187
+605
+325
+650
+log-level
+log-level
+"DEBUG" "VERBOSE" "DEFAULT"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
