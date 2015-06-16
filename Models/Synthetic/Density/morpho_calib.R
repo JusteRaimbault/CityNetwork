@@ -6,8 +6,10 @@
 # setwd with env var : need Sys.getenv
 setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
 
-# load result
-res = read.csv('res/explo_04:50:49.122 PM 09-avr.-2015.csv',sep=';')
+
+
+#############################
+#############################
 
 # function to get single param points from raw result
 #  --> make generic function ?
@@ -31,78 +33,123 @@ getSingleParamPoints <- function(data,params_cols,indics_cols,nreps){
 }
 
 
+############################
+# plot points
+plotPoints<-function(d1,d2,xstring,ystring,colstring){
+  p = ggplot(d1, aes_string(x=xstring,y=ystring,col=colstring))
+  p + geom_point() + geom_point(data=d2, aes_string(x = xstring, y = ystring),colour=I("red"),shape="+",size=5)
+}
+
+
+
+#############################
+#############################
+
+
+
+
+# load result
+res = read.csv('res_oml/2015_06_12_17_41_44_sampling.csv',sep=',')
+
+
 # test
-p = getSingleParamPoints(res,1:4,5:8,20)
+p = getSingleParamPoints(res,c(1,2,3,6),c(4,5,7,8),100)
 
 # ggplot
 
 library(ggplot2)
 
 # simple plot
+
+# data frame of means
 m = data.frame(moran=p[[2]][,1],distance=p[[2]][,2],
                entropy=p[[2]][,3],slope=p[[2]][,4],
                diffusion=p[[1]][,1],diffsteps=p[[1]][,2],alpha=p[[1]][,3],rate=p[[1]][,4])
+
+# data frame of stds
 s = data.frame(moran=p[[3]][,1],distance=p[[3]][,2],entropy=p[[3]][,3],slope=p[[3]][,4])
 
-# plotPoints<-function(data,xx,yy,sx,sy,col,with_bars){
-#   p = ggplot(data, aes(x=xx,y=yy,col=col))
-#   p + geom_point()
-#   if(with_bars){
-#     p + geom_errorbarh(aes(xmin=xx-sx, xmax=xx+sx), height=.005) +
-#     geom_errorbar(aes(ymin=yy-sy, ymax=yy+sy), width=.005)
-#   }
-#  }
-# 
-# 
-# # plot for different indicators
-# 
-# plotPoints(data=m,xx=m$moran,yy=m$entropy,sx=s$moran,sy=s$entropy,col=m$alpha,with_bars=TRUE)
-
-# DOES NOT FUCKING WORK ???
-
-# plot points
-plotPoints<-function(d1,d2,xstring,ystring,colstring){
- p = ggplot(d1, aes_string(x=xstring,y=ystring,col=colstring))
- return(p+ geom_point() + geom_point(data=d2, aes_string(x = xstring, y = ystring),colour=I("red"),shape="+",size=5))
-}
-
-
-
-plotPoints(m,m[1:10,],"entropy","slope","diffusion")
-# ok additional points features works
-plotPoints(m,"entropy","distance","diffusion")
-plotPoints(m,"entropy","moran","diffusion")
-plotPoints(m,"slope","distance","diffusion")
-plotPoints(m,"slope","moran","diffusion")
-plotPoints(m,"distance","moran","diffusion")
-
+# indicators
 indics = c("moran","distance","entropy","slope")
+
+
+
+#plotPoints(m,m[1:10,],"entropy","slope","diffusion")
+# ok additional points features works
+#plotPoints(m,"entropy","distance","diffusion")
+#plotPoints(m,"entropy","moran","diffusion")
+#plotPoints(m,"slope","distance","diffusion")
+#plotPoints(m,"slope","moran","diffusion")
+#plotPoints(m,"distance","moran","diffusion")
+
+
 #par(mfrow=c(2,3))
 for(i in 1:3){for(j in (i+1):4){
   show(paste(i,j))
-  plotPoints(m,indics[i],indics[j],"rate")
+  plotPoints(m,real,indics[i],indics[j],"rate")
 }}
 
 
-
+# load plot utils
 source(paste0(Sys.getenv("CN_HOME"),'/Models/Utils/R/plots.R'))
 
 
 real = read.csv(
-  paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/europe_100km.csv'),
+  paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/france_20km_mar.-juin-09-23:46:42-2015.csv'),
   sep=";"
-  )
+)
+
+# no na
+real =real[!is.na(real[,3]),3:6]
+
+# indepednant measurement
+real = real[4*(0:(nrow(real)/4))+1,]
+
+#sample
+real = real[sample.int(length(real[,1]),500),]
+
+plotPoints(m,real,"moran","entropy","diffusion")
+
+####--------------
+# Check independance of objectives
+##
+
+cor(real)
+pr=prcomp(real)
+r=pr$rotation
+cor(real*r)
+
+summary(prcomp(real))
+summary(prcomp(real[,1:3]))
+summary(prcomp(real[,2:4]))
+summary(prcomp(real[,c(1,2,4)]))
+
+summary(prcomp(m[,1:4]))
+
+# resp 95% and 96% of variance is explained by a single principal component
+# -> problem ; should be of dim ~ 3 ?
+# -- WRONG --
+# because superposed areas (with ≠ origin phases) -> strongly dependant
+# should do the pca on 1/4
+
+
+
+########################
+# multiplots
+########################
 
 for(col_par_name in c("diffusion","diffsteps","rate","alpha")){
-plots=list()
-k=1
-#par(mfrow=c(2,3))
-for(i in 1:3){for(j in (i+1):4){
-  plots[[k]]=plotPoints(m,real,indics[i],indics[j],col_par_name)
-  k=k+1
-}}
+  plots=list()
+  k=1
+  #par(mfrow=c(2,3))
+  for(i in 1:3){
+    for(j in (i+1):4){
+      plots[[k]]=plotPoints(m,real,indics[i],indics[j],col_par_name)
+      k=k+1
+    }
+  }
 
-multiplot(plotlist=plots,cols=3)
+  multiplot(plotlist=plots,cols=3)
 #savePlot(filename=paste0(Sys.getenv("$CN_HOME"),"/Results/Synthetic/Density/Calibration/",col_par_name,".png"))
 }
 
@@ -126,15 +173,28 @@ plot(x=raster("temp_raster_pop.asc"),col=colorRampPalette(c("white", "red"))(50)
 
 # needs a function calling netlogo from here to visualize a pattern for some params.
 
-library(RNetLogo)
-NLStart(nl.path='/Applications/NetLogo/NetLogo 5.1.0/',gui=FALSE)
+#library(RNetLogo)
+#NLStart(nl.path='/Applications/NetLogo/NetLogo 5.1.0/',gui=FALSE)
+
+# or rewrite the generator in R ?
 
 
 
 
+#############
+## Compare real data computations
+#############
 
+real20 = read.csv(
+  paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/france_20km_mar.-juin-09-23:46:42-2015.csv'),
+  sep=";"
+)
+real20 =real20[!is.na(real20[,3]),3:6]
+real20$green = rep("green",nrow(real20))
 
+real100 = read.csv(paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/europe_100km.csv'),sep=";")
 
+plotPoints(real20,real100,"entropy","slope","green")
 
 
 

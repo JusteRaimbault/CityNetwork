@@ -20,26 +20,11 @@ source('morpho.R')
 # load all europe raster
 # Q : size of grid ? -> synthetic datasets are 101x101 rasters
 
-#raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/popu01clcv5.tif"))
-raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/france.tif"))
-
-
-# test extraction
-#e <- extract(raw,extent(3000000,3010000,1000000,1010000))
+raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/popu01clcv5.tif"))
+#raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/france.tif"))
 
 # initial raster is 100mx100m -> grid of 100x100 give 10kmx10km areas
 # more consistent with a 100kmx100km area ?
-
-# anyway test different aggregation scales
-# -> treatment with qgis (or rgdal) ?
-# ok here using resolution ?
-# res in meters
-#resolution = 1000
-#res(raw) <- c(resolution,resolution)
-# incells
-#areasize <- 1000
-# extract a 100kmx100km area
-#e <- extract(raw,extent(3000000,3100000,1000000,1100000))
 
 
 
@@ -56,28 +41,23 @@ simplifyBlock<-function(data,resFactor,areasize){
 }
 
 
-# plot a block
-#plotSimplifiedBlock <- function(x,y){
-#  e<-getValuesBlock(raw,row=x,nrows=areasize,col=y,ncols=areasize)
-#  m=simplifyBlock(e,0.1,areasize)
-#  r_pop = raster(m)
-#  plot(x=r_pop,col=colorRampPalette(c("white", "red"))(50))
-#}
-
-
-
+# -----------------
+# -- Experiments --
 
 # 1) computation on all europe (simplified block 100kmx100km)
 # 2) France with 20kmx20km, including offset of 2km to avoid bord effects
+# 3) Europe 50km with 10km offset (22h max computation with 16 cores)
 
-areasize = 200
-offset = 50
+
+
+areasize = 500
+offset = 100
 
 xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
 yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
 #TEST //
-#xvals=seq(from=1,to=400,by=offset)
-#yvals=seq(from=1,to=400,by=offset)
+#xvals=seq(from=20000,to=20400,by=offset)
+#yvals=seq(from=25000,to=25400,by=offset)
 
 # coord matrix
 coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)))),nrow=length(xvals)*length(yvals))
@@ -85,8 +65,10 @@ coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(16)
+cl <- makeCluster(4)
 registerDoParallel(cl)
+
+startTime = proc.time()[3]
 
 res <- foreach(i=1:nrow(coords)) %dopar% {
    library(raster)
@@ -113,10 +95,12 @@ for(a in 1:length(res)){vals_mat[a,]=res[[a]]}
 v = data.frame(vals_mat);colnames(v)=c("x","y","moran","distance","entropy","slope")
 
 
+show(paste0("Ellapsed Time : ",proc.time()[3]-startTime))
+
 # store in data file
 write.table(
   v,
-  file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/france_20km_',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'.csv'),
+  file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/europe_20km_TEST_',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'.csv'),
   sep = ";",
   col.names=colnames(v)
 )

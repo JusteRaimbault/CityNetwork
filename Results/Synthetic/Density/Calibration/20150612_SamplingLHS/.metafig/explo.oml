@@ -1,0 +1,110 @@
+import java.util.Date
+import java.text.SimpleDateFormat
+
+// Parameters
+val diffusion = Val[Double]
+val diffusionsteps = Val[Double]
+val alphalocalization = Val[Double]
+val growthrate = Val[Double]
+val replication = Val[Int]
+
+// exploration task
+
+//-------------------------------------------------------
+// TEST
+/* val exploration =  ExplorationTask(
+  (diffusion in (0.1 to 0.1 by 1)) x
+    (diffusionsteps in (1.0 to 1.0 by 1)) x
+    (alphalocalization in (0.5 to 0.5 by 1)) x
+    (growthrate in (100.0 to 100.0 by 1)) x
+      (replication in (UniformDistribution[Int]() take 16))
+  )*/
+//--------------------------------------------------------
+
+//-------------------------------------------------------
+// GRID
+/*val exploration =
+  ExplorationTask(
+        (diffusion in (0.0 to 0.1 by 0.01)) x
+        (diffusionsteps in (1.0 to 7.0 by 3.0)) x
+        (alphalocalization in (0.5 to 1.5 by 0.1)) x
+        (growthrate in (100.0 to 500.0 by 200.0)) x
+        (replication in (UniformDistribution[Int]() take 100))
+  )
+  val purpose = "grid"
+*/
+//--------------------------------------------------------
+
+//-------------------------------------------------------
+// sampling sequences
+val exploration = ExplorationTask (
+  LHS (
+    250,
+    diffusion in Range(0.0, 0.1),
+    alphalocalization in Range(0.5,1.5),
+    growthrate in Range(100.0,500.0)
+  ) x (replication in UniformDistribution[Int]() take 50) x (diffusionsteps in (1.0 to 2.0 by 1.0))
+)
+val purpose = "sampling"
+// 130 / 16 * 50 * 2 / 3600 * 250 = 56h
+//--------------------------------------------------------
+
+
+
+// reporters
+//moran-index" "average-distance-individuals" "entropy" "rank-size-slope
+val moran=Val[Double]
+val distance=Val[Double]
+val entropy=Val[Double]
+val slope=Val[Double]
+val closed=Val[Double]
+
+//NetLogo go for one time step
+val cmds = List(
+  "setup-openmole-experiment ${diffusion} ${diffusionsteps} ${alphalocalization} ${growthrate}",
+  "go-openmole-experiment"
+)
+
+
+
+// system adjustement for gis lib in netlogo
+System.setProperty("com.sun.media.jai.disableMediaLib", "true")
+
+//show available processors
+//println("Available Processors : "+Runtime.getRuntime().availableProcessors());
+
+
+val scriptPath = System.getenv("CN_HOME")+"/Models/Synthetic/Density/HEADLESS_Density-system.nlogo"
+
+val model = NetLogo5Task(scriptPath,cmds,true) set (
+  inputs += (diffusion,diffusionsteps,alphalocalization,growthrate),
+  netLogoOutputs += ("moran-index", moran),
+  netLogoOutputs += ("average-distance-individuals", distance),
+  netLogoOutputs += ("entropy", entropy),
+  netLogoOutputs += ("rank-size-slope",slope),
+  netLogoOutputs += ("sp-diffusion",diffusion),
+  netLogoOutputs += ("sp-diffusion-steps",diffusionsteps),
+  netLogoOutputs += ("sp-alpha-localization",alphalocalization),
+  netLogoOutputs += ("sp-growth-rate",growthrate)//,
+  //netLogoOutputs += ("close-rserve",closed)
+  )
+
+// output
+//val h = ToStringHook()
+val h = AppendToCSVFileHook("res_oml/"+((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
+
+
+
+val startTime = System.currentTimeMillis
+
+// environement
+val env = LocalEnvironment(4)
+
+logger.level("FINE")
+
+val exec = exploration -< (model on env hook h) start
+
+exec.waitUntilEnded
+
+println("Ellapsed Time is "+(System.currentTimeMillis - startTime) / 1000.0)
+
