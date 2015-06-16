@@ -135,19 +135,27 @@ to-report get-new-inters [new-link]
   
   ; find intersections : as footprint is ordered, new intersections are orderered too.
   let new-inters (list (first new-nw-patches))
-  let is-in-nw-matrix? matrix:map [bool-to-int (?1 != -1)] network-distance-matrix
-  let in-between (list (list first new-nw-patches)) ; patches between consecutive intersections
+  
+  ; patches between consecutive intersections
+  let in-between (list [])
+  
   foreach but-first but-last new-nw-patches [   
-    set in-between lput (lput ? (last in-between)) (but-last in-between)
-    if sum matrix:get-row is-in-nw-matrix? ? > 0 [
-      set new-inters lput ? new-inters set in-between lput (list ?) in-between
+    ifelse member? ? nw-patches [
+      set new-inters lput ? new-inters
+      set in-between lput [] in-between
+    ][
+      set in-between lput (lput ? (last in-between)) (but-last in-between)
     ]
   ]
   
   ; Q : link extremities not needed ?
   set new-inters lput (last new-nw-patches) new-inters
-  set in-between lput (lput (last new-nw-patches) (last in-between)) (but-last in-between)
+  ; set in-between lput (lput (last new-nw-patches) (last in-between)) (but-last in-between) STRICT
   
+  ;; DEBUG
+  ;foreach new-inters[ask patch-with-number ? [set pcolor red]] foreach in-between [foreach ? [ask patch-with-number ? [set pcolor pink]]]
+  ;debug (word "New inters : " new-inters)
+  ;debug (word "In-bw : " in-between)
   
   report (list new-inters in-between new-nw-patches)
   
@@ -157,10 +165,96 @@ end
 
 
 ;;
-; 
+; Update network closest intersection table
+;
+;  @requires in-between strictly in-between patches
 to update-inters [new-inters in-between]
   
   debug (word "updating intersections with inters " new-inters )
+  
+  
+  
+  
+  
+  ;; add intersections
+  foreach new-inters [
+    
+    ;; add to nw inters set
+    set nw-inters lput ? nw-inters
+    
+    ;; update nw-closest-inter for crossing link
+    let ni ?
+    
+    if table:has-key? closest-nw-inters ? [
+       ; was already on a link, then it is the link crossed
+       debug (word "old inter : " ?)
+       
+       let prev-crossing-ends table:get closest-nw-inters ?
+       table:remove closest-nw-inters ?
+       foreach table:keys closest-nw-inters [
+         debug (word "patch " ? " - inters "  table:get closest-nw-inters ?)
+         
+         ; find table entries with same extremities
+         let chge? (length prev-crossing-ends = length table:get closest-nw-inters ?)
+         if chge? [
+           let i 0 foreach table:get closest-nw-inters ? [set chge? (chge? and first ? = first item i prev-crossing-ends) set i i + 1]
+           set i 0 let chgerev true foreach rev table:get closest-nw-inters ? [set chgerev (chgerev and first ? = first item i prev-crossing-ends) set i i + 1]
+           set chge? (chge? or chgerev)
+         ]
+         
+        ; output-print chge?
+        ; must change the table entry
+         if chge? [
+           let oldints table:get closest-nw-inters ? let nints []
+           debug oldints
+           ;output-print length oldints
+;           ifelse length oldints = 1 [
+;             let dni matrix:get euclidian-distance-matrix ? ni let d1 matrix:get euclidian-distance-matrix ? first first oldints
+;             ifelse d1 < dni [set nints (list (list ni dni) (list (first first oldints) d1))][set nints (list (list ni dni))]
+;           ][
+           
+             let dni matrix:get euclidian-distance-matrix ? ni
+             ;let d1 matrix:get euclidian-distance-matrix ? first first oldints let d2 matrix:get euclidian-distance-matrix ? first last oldints
+             let d1 last first oldints let d2 last last oldints
+             let dn1 matrix:get euclidian-distance-matrix ni first first oldints
+             
+             debug (word "dni : " dni " - d1 : " d1 " - d2 : " d2 " - dn1 : " dn1)  ; DEBUG
+             debug first first oldints debug first last oldints
+             
+             ifelse d1 + dni = dn1 [
+               set nints (list (list ni dni) (list (first first oldints) d1))
+             ][
+               set nints (list (list ni dni) (list (first last oldints) d2))
+             ]
+           ;]
+           table:put closest-nw-inters ? nints
+         ]
+         
+         
+       ]
+       
+       ; and reput the entry for the intersection itself (has been removed, will be completed after)
+       table:put closest-nw-inters ni prev-crossing-ends
+       
+    ]
+    
+    ;;;;;;;;;;;;;;
+    ;; TODO : Deal with other intersections (update other end with new extr) -- using nw-inters ?
+    ;;  then heuristic complete !
+    ;;;;;;;;;;;;;;
+    
+    
+    
+    
+    ;;;;;;;;;;;;;;;;;;;;
+    
+    
+    ;;;;;;;;;;;;;;;;;;;;
+    
+    
+    
+  ]
+  
   
   
   ;;corresponding 'nw-closest-inter' entries
@@ -168,51 +262,27 @@ to update-inters [new-inters in-between]
   foreach in-between [
     foreach ? [
        let closest-inters []
-       if i >= 0 [set closest-inters lput (list (item i new-inters) (matrix:get euclidian-distance-matrix ? (item i new-inters))) closest-inters]
-       if (i + 1) < (length new-inters) [set closest-inters lput (list (item (i + 1) new-inters) (matrix:get euclidian-distance-matrix ? (item (i + 1) new-inters))) closest-inters]
+       set closest-inters lput (list (item i new-inters) (matrix:get euclidian-distance-matrix ? (item i new-inters))) closest-inters
+       set closest-inters lput (list (item (i + 1) new-inters) (matrix:get euclidian-distance-matrix ? (item (i + 1) new-inters))) closest-inters
        table:put closest-nw-inters ? closest-inters
+       ask patch-with-number ? [set pcolor pink] foreach closest-inters [ask patch-with-number first ? [set pcolor red]]
     ]
     set i i + 1
   ]
   
-  
-  
-  ;; add intersections
+  ;; special treatment for inters
+  ; done AFTER crossing to have good both ends
+  set i 0
   foreach new-inters [
-    
-    set nw-inters lput ? nw-inters
-    
-    ;; update nw-closest-inter for crossing link
-    let ni ?
-    
-    if table:has-key? closest-nw-inters ? [
-       let prev-crossing-ends table:get closest-nw-inters ?
-       table:remove closest-nw-inters ?
-       foreach table:keys closest-nw-inters [
-         let chge? (length prev-crossing-ends = length table:get closest-nw-inters ?)
-         if chge? [
-           let i 0 foreach table:get closest-nw-inters ? [set chge? (chge? and first ? = first item i prev-crossing-ends) set i i + 1]
-           set i 0 let chgerev true foreach rev table:get closest-nw-inters ? [set chgerev (chgerev and first ? = first item i prev-crossing-ends) set i i + 1]
-           set chge? (chge? or chgerev)
-         ]
-        ; output-print chge?
-         if chge? [
-           let oldints table:get closest-nw-inters ? let nints []
-           ;output-print length oldints
-;           ifelse length oldints = 1 [
-;             let dni matrix:get euclidian-distance-matrix ? ni let d1 matrix:get euclidian-distance-matrix ? first first oldints
-;             ifelse d1 < dni [set nints (list (list ni dni) (list (first first oldints) d1))][set nints (list (list ni dni))]
-;           ][
-           
-             let dni matrix:get euclidian-distance-matrix ? ni let d1 matrix:get euclidian-distance-matrix ? first first oldints let d2 matrix:get euclidian-distance-matrix ? first last oldints
-             let dn1 matrix:get euclidian-distance-matrix ni first first oldints
-             ; output-print (word "dni : " dni " - d1 : " d1 " - d2 : " d2 " - dn1 : " dn1)  ; DEBUG
-             ifelse d1 + dni = dn1 [set nints (list (list ni dni) (list (first first oldints) d1))][set nints (list (list ni dni) (list (first last oldints) d2))]
-           ;]
-           table:put closest-nw-inters ? nints
-         ]
-       ]
+    let closest-inters []
+    if i > 0 [set closest-inters lput (list (item (i - 1) new-inters) (matrix:get euclidian-distance-matrix ? (item (i - 1) new-inters))) closest-inters]
+    if (i + 1) < (length new-inters) [set closest-inters lput (list (item (i + 1) new-inters) (matrix:get euclidian-distance-matrix ? (item (i + 1) new-inters))) closest-inters]
+    ifelse table:has-key? closest-nw-inters ? [
+      table:put closest-nw-inters ? (concatenate (list (table:get closest-nw-inters ?) closest-inters))
+    ][
+      table:put closest-nw-inters ? closest-inters
     ]
+    set i i + 1 
   ]
   
   

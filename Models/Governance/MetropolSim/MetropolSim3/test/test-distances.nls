@@ -10,11 +10,12 @@ to test-closest-inter
   ;foreach nw-patches [ask patch-with-number ? [set pcolor green]]
   let p one-of nw-patches ask patch-with-number p [set pcolor yellow]
   let i table:get closest-nw-inters p
-
-  ask patch-with-number first first i [set pcolor pink]
-  ask patch-with-number first last i [set pcolor pink]
- 
-  output-print (word "patch " p " : inters " last first i " ; " last last i)
+  output-print (word "patch " p " : inters ")
+  foreach i [
+     ask patch-with-number first ? [set pcolor pink]
+     output-print (first ?)
+  ]
+  
 end
 
 
@@ -25,6 +26,7 @@ to setup-test-nw-mat
   setup-patches
   setup-transportation
   setup-cached-distances
+  set gridor true
 end
 
 to test-nw-mat-grid-nw
@@ -36,7 +38,9 @@ to test-nw-mat-grid-nw
     new-transportation-node set hidden? true
     ;setxy random-xcor random-ycor 
     ;test a random grid
-    move-to one-of patches with [(pxcor = max-pxcor or pxcor = min-pxcor or pycor = min-pycor or pycor = max-pycor) and count transportation-nodes in-radius 1.5  = 0]
+    ifelse gridor [ 
+    move-to one-of patches with [(pxcor = max-pxcor or pxcor = min-pxcor) and count transportation-nodes in-radius 1.5  = 0]
+    ][move-to one-of patches with [(pycor = min-pycor or pycor = max-pycor) and count transportation-nodes in-radius 1.5  = 0]]
     hatch 1 [
       ;setxy random-xcor random-ycor
       new-transportation-node 
@@ -58,7 +62,7 @@ to test-nw-mat-grid-nw
   ]
   
   toc
-  
+  set gridor not gridor
 end
 
 

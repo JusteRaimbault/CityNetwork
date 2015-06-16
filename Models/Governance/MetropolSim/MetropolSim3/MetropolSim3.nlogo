@@ -205,6 +205,13 @@ globals[
   ;log-level
   
   
+  ;;;;;;;;;;;;;
+  ;; Tests
+  ;;;;;;;;;;;;;
+  
+  gridor
+  
+  
 ]
 
 
@@ -292,7 +299,6 @@ breed[transportation-nodes transportation-node]
 
 transportation-nodes-own[
 ]
-
 
 
 @#$#@#$#@
