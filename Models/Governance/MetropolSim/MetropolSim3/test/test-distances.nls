@@ -6,12 +6,15 @@
 
 
 to test-closest-inter
-  foreach nw-patches [ask patch-with-number ? [set pcolor green]]
+  ask patches [set pcolor black]
+  ;foreach nw-patches [ask patch-with-number ? [set pcolor green]]
   let p one-of nw-patches ask patch-with-number p [set pcolor yellow]
   let i table:get closest-nw-inters p
+
   ask patch-with-number first first i [set pcolor pink]
   ask patch-with-number first last i [set pcolor pink]
-  output-print last first i output-print last last i
+ 
+  output-print (word "patch " p " : inters " last first i " ; " last last i)
 end
 
 
@@ -24,7 +27,7 @@ to setup-test-nw-mat
   setup-cached-distances
 end
 
-to test-nw-mat
+to test-nw-mat-grid-nw
   tic
   ask patches [set pcolor black]
   
@@ -39,14 +42,17 @@ to test-nw-mat
       new-transportation-node 
       let x [xcor] of myself let y [ycor] of myself
       if x = max-pxcor [setxy min-pxcor y] if x = min-pxcor [setxy max-pxcor y] if y = min-pycor [setxy x max-pycor] if y = max-pycor [setxy x min-pycor]
-      create-transportation-link-with myself [new-transportation-link set new-link self set color one-of [yellow blue red] set hidden? true]
+      create-transportation-link-with myself [new-transportation-link set new-link self set color green
+        ;one-of [yellow blue red] set hidden? true
+        ]
     ]
   ]
   
-  update-network-matrices new-link
+  update-network new-link
   
   foreach nw-patches [
-    ask patch-with-number ? [set pcolor green
+    ask patch-with-number ? [
+      ;set pcolor green
       ;set plabel number
       ] 
   ]
@@ -55,23 +61,63 @@ to test-nw-mat
   
 end
 
-to test-shortest-path
-  ;ask patches [set pcolor white]
+
+to test-nw-mat-random-nw
+  tic
+  ask patches [set pcolor black]
+  
+  let new-link nobody
+  create-transportation-nodes 1 [
+    new-transportation-node set hidden? true
+    setxy random-xcor random-ycor 
+    ;test a random grid
+    hatch 1 [
+      setxy random-xcor random-ycor
+      new-transportation-node 
+      create-transportation-link-with myself [new-transportation-link set new-link self set color green
+        ;one-of [yellow blue red] set hidden? true
+        ]
+    ]
+  ]
+  
+  update-network new-link
   
   foreach nw-patches [
-    ask patch-with-number ? [set pcolor green
+    ask patch-with-number ? [
+      ;set pcolor green
+      ;set plabel number
+      ] 
+  ]
+  
+  toc
+  
+end
+
+
+
+to test-shortest-path
+  ask patches [set pcolor black]
+  
+  foreach nw-patches [
+    ask patch-with-number ? [
+      ;set pcolor green
       ; set plabel number
       ] 
   ]
   
   let k  (one-of table:keys network-shortest-paths)
+  output-print (word k " : " table:get network-shortest-paths k )
   
-  foreach table:get network-shortest-paths k [
-    
+  foreach table:get network-shortest-paths k [    
     ask patch-with-number ? [set pcolor pink] 
+    output-print ?
   ]
   
   ask patch-with-number first k [set pcolor blue]
   ask patch-with-number last k [set pcolor blue]
   
 end
+
+
+
+
