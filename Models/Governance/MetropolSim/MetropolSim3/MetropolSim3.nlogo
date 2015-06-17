@@ -168,6 +168,8 @@ globals[
   ;  - with congestion in network -
   effective-distance-matrix
   
+  nw-access-table
+  
   ;; cached shortest paths -> updated same time as distance
   ; stored as table (num_patch_1,num_patch_2) -> [path-as-list]
   ;
@@ -299,7 +301,6 @@ breed[transportation-nodes transportation-node]
 
 transportation-nodes-own[
 ]
-
 
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -777,7 +778,67 @@ CHOOSER
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
+1
+
+SLIDER
+7
+342
+171
+375
+euclidian-min-pace
+euclidian-min-pace
+1
+50
+10
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+7
+376
+169
+409
+congestion-price
+congestion-price
 0
+100
+50
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+184
+241
+354
+274
+road-length
+road-length
+0
+20
+10
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+211
+287
+383
+320
+#-explorations
+#-explorations
+0
+20
+10
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

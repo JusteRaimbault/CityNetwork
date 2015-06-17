@@ -18,25 +18,24 @@ to update-effective-matrices
    ;
    ; if network is not pathologic, we can make the approximation d_e(i,l_min)+d_n(l_min,l'_min)+d_e(l'_min,j) - in the case of a connex network !
    ;  (counter examples exist)
-   ;
-   ; uses boolean matrix to get network patches ? or keep them in a variable ?
    
    
    ;let dmax sqrt ((world-width) ^ 2 + (world-height) ^ 2) ; already done before
    ;let n count patches
    ;let d-to-nw-patches matrix:times-element-wise (matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix) euclidian-distance-matrix
    
-   let nw-patches-bool matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
+   ;let nw-patches-bool matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
    
    ; not done here, but in network setup and/or update
    ;set nw-patches [] let i 0
    ;repeat n [if sum matrix:get-row nw-patches-bool i > 0 [set nw-patches lput i nw-patches] set i i + 1]
    
-   set effective-shortest-paths table:make
+   ; not needed
+   ;set effective-shortest-paths table:make
    
    ifelse nw-patches != [] [
      ;optimization : contruct a table giving index of nearest nw patch
-     let nw-access-table table:make let i 0
+     set nw-access-table table:make let i 0
      repeat #-patches [table:put nw-access-table i (min-index (matrix-get-sparse-row euclidian-distance-matrix i nw-patches)) set i i + 1]
    
      ;; fill effective distance matrix
@@ -46,15 +45,13 @@ to update-effective-matrices
        repeat #-patches [
           let a1 table:get nw-access-table p1 let a2 table:get nw-access-table p2
           ; connectivity of nw is taken into account : if a1->a2 does not exists in nw, will be initialized at dmax+ (\infty) and minimum will be euclidian distance
-          matrix:set effective-distance-matrix p1 p2 min list (matrix:get euclidian-distance-matrix p1 p2) ((matrix:get euclidian-distance-matrix p1 a1) + (matrix:get euclidian-distance-matrix p2 a2) + (matrix:get network-distance-matrix a1 a2))
+          matrix:set effective-distance-matrix p1 p2 min list ((matrix:get euclidian-distance-matrix p1 p2) * euclidian-min-pace) (((matrix:get euclidian-distance-matrix p1 a1) + (matrix:get euclidian-distance-matrix p2 a2)) * euclidian-min-pace + (matrix:get network-distance-matrix a1 a2))
           
           ;;;;
           ;; Pb : here need to check for each connected cluster ?
           ;;
           ;;
-          
-          ;; TODO :: add lambda and nu parameters, take network speed into account (for now, network not used ?) -> done in update-nw-matrix
-          
+         
           set p2 p2 + 1
        ]
        set p1 p1 + 1
@@ -206,7 +203,7 @@ to update-inters [new-inters in-between]
         ; must change the table entry
          if chge? [
            let oldints table:get closest-nw-inters ? let nints []
-           debug oldints
+           ;debug oldints
            ;output-print length oldints
 ;           ifelse length oldints = 1 [
 ;             let dni matrix:get euclidian-distance-matrix ? ni let d1 matrix:get euclidian-distance-matrix ? first first oldints
@@ -218,8 +215,8 @@ to update-inters [new-inters in-between]
              let d1 last first oldints let d2 last last oldints
              let dn1 matrix:get euclidian-distance-matrix ni first first oldints
              
-             debug (word "dni : " dni " - d1 : " d1 " - d2 : " d2 " - dn1 : " dn1)  ; DEBUG
-             debug first first oldints debug first last oldints
+             ;debug (word "dni : " dni " - d1 : " d1 " - d2 : " d2 " - dn1 : " dn1)  ; DEBUG
+             ;debug first first oldints debug first last oldints
              
              ifelse d1 + dni = dn1 [
                set nints (list (list ni dni) (list (first first oldints) d1))
@@ -239,11 +236,23 @@ to update-inters [new-inters in-between]
     ]
     
     ;;;;;;;;;;;;;;
-    ;; TODO : Deal with other intersections (update other end with new extr) -- using nw-inters ?
-    ;;  then heuristic complete !
+    ;; Deal with other intersections (update other end with new extr) -- using nw-inters ?
     ;;;;;;;;;;;;;;
     
-    
+    foreach nw-inters [
+      let n1 ?
+      if not member? ? new-inters [
+        if table:has-key? closest-nw-inters ni [
+           let chge? false let n2 0 foreach table:get closest-nw-inters ni [set chge? chge? or first ? = n1 if first ? != n1[set n2 first ?]]
+           if chge? [
+             ; replace entry with n2 by ni
+             debug (word "Replacing " n2 " by " ni " for " n1)
+             let newints [] foreach table:get closest-nw-inters n1 [ifelse first ? = n2[set newints lput (list ni (matrix:get euclidian-distance-matrix ni n1)) newints][set newints lput ? newints]]
+             table:put closest-nw-inters n1 newints
+           ]
+        ] 
+      ]
+    ]
     
     
     ;;;;;;;;;;;;;;;;;;;;
@@ -305,46 +314,28 @@ to update-vertices-and-paths [new-inters]
   
   foreach new-inters [
     let o ?
-    
-    ;; connect to all vertices
-    ; includes self to self paths and direct paths between new vertices
-    foreach nw-inters [
+    foreach new-inters [
       let d ?
-      
-      debug (word "adding " o " -> " d)
-      
-      ifelse member? ? new-inters [
-         ; if also new inter, add direct path 
+      ; if also new inter, add direct path 
          ifelse position o new-inters < position d new-inters [
            table:put network-shortest-paths (list o d) (sublist new-inters (position o new-inters) ((position d new-inters) + 1))
          ][
            table:put network-shortest-paths (list o d) (rev sublist new-inters (position d new-inters) ((position o new-inters) + 1))
          ]
          
+         let di matrix:get euclidian-distance-matrix o d
+         matrix:set network-distance-matrix o d di matrix:set network-distance-matrix d o di
+            
+         debug (word "adding " o " -> " d)
          debug (word "... directly : " table:get network-shortest-paths (list o d))
-         
-      ][
-         ; else find closest neighbor -> closest inters shall give neighbors for a vertice
-         ; put path in both senses here because directed path
-         
-         let path [] let dmin -1
-         foreach table:get closest-nw-inters o [
-            if table:has-key? network-shortest-paths (list d (first ?)) and dmin > 0 [
-              let dpot (matrix:get network-distance-matrix d (first ?) + (last ?))
-              if dpot < dmin [
-                 set dmin dpot set path (lput o table:get network-shortest-paths (list d (first ?)))
-              ]
-            ]
-         ]
-         
-         table:put network-shortest-paths (list d o) path table:put network-shortest-paths (list o d) rev path
-         
-         debug (word "... via neighbors : " table:get network-shortest-paths (list o d))
-         
-      ]
     ]
+  ]
     
-    ;
+  
+  foreach new-inters [
+    let o ?
+  
+   ;
     ;; foreach path, add intermediate step if the intersection is on an old edge
     ;
     let changed-paths table:make
@@ -366,7 +357,47 @@ to update-vertices-and-paths [new-inters]
           
           set j j + 1] set i (i + 1)]
     ]
-    foreach table:keys changed-paths [table:put network-shortest-paths ? (table:get ? changed-paths)]    
+    foreach table:keys changed-paths [table:put network-shortest-paths ? (table:get ? changed-paths)]   
+  
+  ]
+  
+  
+  
+  foreach new-inters [
+    let o ?
+    
+    ;; connect to all vertices
+    ; includes self to self paths and direct paths between new vertices
+    foreach nw-inters [
+      let d ?
+      
+      debug (word "adding " o " -> " d)
+      
+      if not member? ? new-inters[
+         ; find closest neighbor -> closest inters shall give neighbors for a vertice
+         ; put path in both senses here because directed path
+         
+         let path [] let dmin -1
+         foreach table:get closest-nw-inters o [
+           debug (word "neigh : " ? " ; " table:has-key? network-shortest-paths (list d (first ?)) )
+            if table:has-key? network-shortest-paths (list d (first ?)) [
+              let dpot ((matrix:get network-distance-matrix d (first ?)) + (last ?))
+              debug dpot
+              if dpot < dmin or dmin = -1 [
+                 set dmin dpot set path (lput o table:get network-shortest-paths (list d (first ?)))
+                 debug (word "dmin : " dmin " ; path : " path)
+              ]
+            ]
+         ]
+         
+         table:put network-shortest-paths (list d o) path table:put network-shortest-paths (list o d) rev path
+         
+         debug (word "... via neighbors : " table:get network-shortest-paths (list o d))
+         
+      ]
+    ]
+    
+    
   ]
   
   
@@ -513,7 +544,7 @@ to-report congested-distance [path]
     let current-patch first path
     foreach but-first path [
       let next-patch ?
-      set res res + (matrix:get euclidian-distance-matrix current-patch next-patch) * network-min-pace * (item current-patch patches-congestion + item next-patch patches-congestion) / 2
+      set res res + (matrix:get euclidian-distance-matrix current-patch next-patch) * network-min-pace * ((network-pace item current-patch patches-congestion) + (network-pace item next-patch patches-congestion)) / 2
       set current-patch next-patch 
     ]
   ]
@@ -521,6 +552,28 @@ to-report congested-distance [path]
 end
 
 
+;;
+to-report network-pace [cong]
+  
+  ; Q : find a more elaborate function (such as BPR)
+  
+  report cong * congestion-price
+end
+
+
+;;
+;
+to recall-nw-config [old]
+  set network-distance-matrix item 0 old
+  set network-shortest-paths item 1 old
+  set closest-nw-inters item 2 old
+  set nw-inters item 3 old
+  set nw-patches item 4 old
+end
+
+to-report save-nw-config
+  report (list network-distance-matrix network-shortest-paths closest-nw-inters nw-inters nw-patches)
+end
 
 
 
