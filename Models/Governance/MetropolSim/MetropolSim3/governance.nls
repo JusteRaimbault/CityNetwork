@@ -18,10 +18,11 @@ to governance
   let decidors decision-makers
   
   ; corresponding potential place for infrastructures
-  let infra-choices potential-infrastructures decidors
+  ;let infra-choices potential-infrastructures decidors
   
+  let old-config save-nw-config
   ; construct the best one
-  construct-infrastructure decidors (best-infrastructure decidors infra-choices)
+  construct-infrastructure decidors (best-infrastructure decidors old-config) old-config
   
   
 end
@@ -59,7 +60,9 @@ to-report potential-infrastructures [decidors]
       set res lput (random-infra patches) res
     ]
   ][
-    
+    repeat #-explorations [
+      set res lput (random-infra (patches with [member? governing-mayor decidors])) res
+    ]
   ]
   report res
 end
@@ -71,14 +74,24 @@ end
 ;  Implement the game between the two players here -> evaluate all costs (have to be done anyway), then draw randomly issue of the game according to individual utilities 
 ;
 ;  @returns list of coordinates of extremities (better not to construct links here -> sure, as capacity congestion etc are not used at this step : only matrix needed.
-to-report best-infrastructure [decidors choices]
-  let old-config save-nw-config
+to-report best-infrastructure [decidors old-config]
+  
   ifelse decidors = regional-authority [
     ; no game, find the best among the choices
-    report compare-infrastructures old-config choices
+    report first compare-infrastructures old-config potential-infrastructures regional-authority
   ][  
-    ; for tests
-    report one-of choices
+    ; generate potential infras here
+    ; assume 2 decidors
+    let dec1 first decidors let dec2 last decidors
+    let best1 compare-infrastructures old-config potential-infrastructures (list dec1)
+    let best2 compare-infrastructures old-config potential-infrastructures (list dec2)
+    let best12 compare-infrastructures old-config potential-infrastructures decidors
+    
+    ; implement game : need to check proba formula.
+    ; for now random
+    let r random 3
+    if r = 1 [report first best1] if r = 2 [report first best2]
+    if r = 0 [report first best12]
   ]
   
 end
@@ -89,8 +102,9 @@ end
 ; raw comparison of infras : needs old configuration of a-e ? yes nw config for shortest paths
 to-report compare-infrastructures [old-nw-config choices]
   verbose (word "comparing " length choices " infras")
-  let old-acc sum [sum a-to-e-accessibility + sum e-to-a-accessibility] of patches
-  let best-choice []
+  ;let old-acc sum [a-to-e-accessibility + e-to-a-accessibility] of patches
+  let old-acc 0
+  let best-choice [] let delta-acc 0
   foreach choices [
     recall-nw-config old-nw-config
     let potential-infra new-infra ?
@@ -98,12 +112,12 @@ to-report compare-infrastructures [old-nw-config choices]
     update-effective-matrices
     ; recompute new accessibilities
     compute-patches-accessibilities
-    let new-acc sum [sum a-to-e-accessibility + sum e-to-a-accessibility] of patches
-    if new-acc > old-acc [set best-choice ? set old-acc new-acc]
+    let new-acc sum [a-to-e-accessibility + e-to-a-accessibility] of patches
+    if new-acc > old-acc [set best-choice ? set delta-acc new-acc - old-acc set old-acc new-acc]
     ask potential-infra [ask both-ends [die] die]
   ]
   verbose (word "best infra is " best-choice)
-  report best-choice
+  report (list best-choice delta-acc)
 end
 
 
@@ -111,10 +125,12 @@ end
 ; Construct the given infrastructure
 ;
 ; Update matrices distances etc here !
-to construct-infrastructure [decidors infra]
+to construct-infrastructure [decidors infra old-config]
   
   ; construct the infra if not empty
   if infra != [] [
+    recall-nw-config old-config
+    
     let new-link new-infra infra
     
     ; update matrices
@@ -146,9 +162,10 @@ end
 
 to-report random-infra [patchset]
   let p1 one-of patchset
-  let p2 nobody ask p1 [set p2 one-of patchset with [abs(distance myself - road-length) < 1]]
-  ifelse p2 = nobody [report []][
-  report (list (list [xcor] of p1 [ycor] of p1) (list [xcor] of p2 [ycor] of p2))  
+  let p2 nobody if p1 != nobody [ask p1 [set p2 one-of patchset with [abs(distance myself - road-length) < 1]]]
+  if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patchset with [distance myself < road-length]]]]
+  ifelse p2 = nobody or p1 = nobody [report (list (list random-xcor random-ycor) (list random-xcor random-ycor))][
+  report (list (list [pxcor] of p1 [pycor] of p1) (list [pxcor] of p2 [pycor] of p2))  
   ]
 end
 
