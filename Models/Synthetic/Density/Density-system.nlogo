@@ -15,6 +15,9 @@ __includes [
   ;; OpenMole Experiment
   "experiment.nls"
   
+  ;; plots
+  "plots.nls"
+  
   "utils/ListUtilities.nls"
   "utils/ViewUtilities.nls"
   "utils/ExplorationUtilities.nls"
@@ -90,7 +93,7 @@ sp-diffusion
 sp-diffusion
 0
 1
-0.114
+0.05
 0.001
 1
 NIL
@@ -105,7 +108,7 @@ sp-growth-rate
 sp-growth-rate
 0
 1000
-108
+76
 1
 1
 NIL
@@ -154,7 +157,7 @@ sp-diffusion-steps
 sp-diffusion-steps
 0
 10
-1
+2
 1
 1
 NIL
@@ -169,7 +172,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-1
+0.4
 0.1
 1
 NIL
@@ -203,7 +206,7 @@ BUTTON
 836
 454
 save view
-save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Density/Examples/ex\" [\"sp-max-pop\" \"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\"]
+save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Density/Examples/comparable/ex\" [\"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\" \"sp-population\"]
 NIL
 1
 T
@@ -278,8 +281,8 @@ SLIDER
 sp-max-time
 sp-max-time
 0
-1000
-300
+10000
+6752
 1
 1
 NIL
@@ -329,6 +332,24 @@ NIL
 NIL
 NIL
 1
+
+PLOT
+547
+10
+752
+172
+rank-size
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" "plot-rank-size"
+PENS
+"default" 1.0 0 -16777216 true "" ""
 
 @#$#@#$#@
 ## WHAT IS IT?
