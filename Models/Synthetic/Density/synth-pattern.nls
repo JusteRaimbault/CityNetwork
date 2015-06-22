@@ -118,15 +118,34 @@ end
 
 ;;
 ; setup density from a real raster file.
+; need indic setup first
 to setup-real-pattern
+  ; do the extraction and store in temp raster pop
+  ;show  (word "extractSubRaster(\"" real-pattern-file "\"," real-row "," real-col "," real-size "," real-factor ")")
+  
+  let config rserve:get (word "extractSubRaster(\"" real-pattern-file "\"," real-row "," real-col "," real-size "," real-factor ")")
+
   clear-drawing
-  gis:apply-raster gis:load-dataset real-pattern-file sp-density
+  ;gis:apply-raster gis:load-dataset "temp_raster_pop.asc" sp-occupants
   ;gis:paint gis:load-dataset real-pattern-file 0
   
   ; replace Nan -> strange test with <= or =>
-  ask patches with [not ( sp-density >= 0 or sp-density <= 0) ] [set sp-density 0]
+  ;ask patches with [not ( sp-density >= 0 or sp-density <= 0) ] [set sp-density 0]
+  
+  let i 0 let j 0
+  foreach config [
+    set j 0
+    foreach ? [
+     ask patch i j [set sp-occupants ?]
+     set j j + 1
+    ]
+    set i i + 1
+  ]
+  
   
   color-synth-pattern
+  
+  plots
 end
 
 
@@ -134,6 +153,7 @@ end
 ;;
 ; Color a given configuration (color gradient : number of people)
 to color-synth-pattern
+  if sp-population > 0 [ask patches [set sp-density sp-occupants / sp-population]]
   let ma max [sp-density] of patches let mi min [sp-density] of patches
   ; density already normalized
   ;let ma 1 let mi 0

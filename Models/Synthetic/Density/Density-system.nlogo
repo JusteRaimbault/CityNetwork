@@ -60,8 +60,8 @@ patches-own [
 GRAPHICS-WINDOW
 14
 10
-529
-546
+524
+541
 -1
 -1
 5.0
@@ -75,9 +75,9 @@ GRAPHICS-WINDOW
 0
 1
 0
-100
+99
 0
-100
+99
 1
 1
 1
@@ -92,9 +92,9 @@ SLIDER
 sp-diffusion
 sp-diffusion
 0
-1
 0.05
-0.001
+0.0069
+0.0001
 1
 NIL
 HORIZONTAL
@@ -108,7 +108,7 @@ sp-growth-rate
 sp-growth-rate
 0
 1000
-76
+102
 1
 1
 NIL
@@ -172,7 +172,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-0.4
+1.4
 0.1
 1
 NIL
@@ -184,27 +184,27 @@ MONITOR
 81
 700
 population
-sp-population
+sum [sp-occupants] of patches
 17
 1
 11
 
 INPUTBOX
-768
-333
-928
-418
+769
+445
+959
+532
 real-pattern-file
-temp_raster.asc
+/Users/Juste/Documents/ComplexSystems/CityNetwork/Data/PopulationDensity/raw/france.tif
 1
 1
 String
 
 BUTTON
-768
-421
-836
-454
+770
+365
+838
+398
 save view
 save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Density/Examples/comparable/ex\" [\"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\" \"sp-population\"]
 NIL
@@ -225,8 +225,8 @@ SLIDER
 sp-max-pop
 sp-max-pop
 0
-10000000
-382170
+100000
+50320
 10
 1
 NIL
@@ -234,9 +234,9 @@ HORIZONTAL
 
 BUTTON
 769
-472
-857
-505
+290
+846
+323
 setup indics
 setup-indicator-computation
 NIL
@@ -250,10 +250,10 @@ NIL
 1
 
 BUTTON
-863
-471
-959
-504
+850
+290
+921
+323
 eval indics
 setup-indicator-computation\noutput-print word \"moran :\" moran-index\noutput-print word \"distance :\" average-distance-individuals\noutput-print word \"entropy :\" entropy\noutput-print word \"rank-size-slope :\" rank-size-slope
 NIL
@@ -282,7 +282,7 @@ sp-max-time
 sp-max-time
 0
 10000
-6752
+10000
 1
 1
 NIL
@@ -301,9 +301,9 @@ sum [sp-density] of patches
 
 BUTTON
 770
-533
+326
 853
-566
+359
 start Rserve
 output-print shell:exec \"/usr/bin/R -e \\\"library(RServe);RServe()\\\"\"
 NIL
@@ -317,10 +317,10 @@ NIL
 1
 
 BUTTON
-769
-290
-841
-323
+770
+402
+842
+435
 setup real
 setup-real-pattern
 NIL
@@ -350,6 +350,66 @@ false
 "" "plot-rank-size"
 PENS
 "default" 1.0 0 -16777216 true "" ""
+
+SLIDER
+767
+544
+864
+577
+real-row
+real-row
+0
+10000
+3902
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+867
+544
+959
+577
+real-col
+real-col
+0
+10000
+2987
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+767
+580
+867
+613
+real-factor
+real-factor
+0
+1
+0.25
+0.05
+1
+NIL
+HORIZONTAL
+
+SLIDER
+869
+580
+961
+613
+real-size
+real-size
+0
+400
+400
+10
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

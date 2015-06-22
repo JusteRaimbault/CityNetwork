@@ -103,9 +103,41 @@ rankSizeSlope <- function(){
   size = cellStats(r_pop,function(x,...){na.omit(log(x))})
   size = size[size>0] # at least one person
   size=sort(size,decreasing=TRUE)
+  #size = size[1:(length(size)*0.8)] # kill 2 last deciles
   rank = log(1:length(size))
   return(lm(size~rank,data.frame(rank,size))$coefficients[2])
 }
+
+
+
+
+# aggregate by resFactor (resolution = resolution * resFactor)
+# a given square matrix of size areasize
+simplifyBlock<-function(data,resFactor,areasize){
+  m = matrix(data=data,nrow=areasize,byrow=TRUE)
+  m[is.na(m)] <- 0
+  res=matrix(0,areasize*resFactor,areasize*resFactor)
+  for(x in 1:(areasize*resFactor)){
+    for(y in 1:(areasize*resFactor)){
+      res[x,y]=sum(m[((x-1)/resFactor+1):(x/resFactor),((y-1)/resFactor+1):(y/resFactor)])
+    }
+  }
+  return(res)
+}
+
+
+
+
+# function to extract square subraster of a large raster
+# used for visualisation of parts as real config
+# - stored as temp asc file
+extractSubRaster<- function(file,r,c,size,factor){
+  raw <- raster(file)
+  return(data.frame(simplifyBlock(getValuesBlock(raw,row=r,nrows=size,col=c,ncols=size),factor,size)/100))
+  #r<-setExtent(r,extent(raster(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density/temp_raster_pop.asc'))))
+  #writeRaster(r,paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density/temp_raster_pop.asc'),format="ascii",overwrite=TRUE)
+}
+
 
 
 

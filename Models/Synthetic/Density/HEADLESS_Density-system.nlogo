@@ -15,6 +15,8 @@ __includes [
   ;; OpenMole Experiment
   "experiment.nls"
   
+  "plots.nls"
+  
   "utils/ListUtilities.nls"
   "utils/ViewUtilities.nls"
   "utils/ExplorationUtilities.nls"
@@ -42,7 +44,15 @@ globals [
   sp-alpha-localization
   sp-diffusion-steps
   sp-max-pop 
+
+  ;
+  real-row
+  real-col
+  real-factor
+  real-size
+
 ]
+
 
 patches-own [
   
