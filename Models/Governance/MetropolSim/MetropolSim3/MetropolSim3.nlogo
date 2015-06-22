@@ -363,14 +363,14 @@ NIL
 1
 
 CHOOSER
-13
-606
-184
-651
+5
+600
+172
+645
 patches-display
 patches-display
-"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility"
-3
+"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance"
+8
 
 TEXTBOX
 11
@@ -771,10 +771,10 @@ NIL
 1
 
 CHOOSER
-187
-605
-325
-650
+177
+602
+315
+647
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
@@ -789,7 +789,7 @@ euclidian-min-pace
 euclidian-min-pace
 1
 50
-10
+5
 1
 1
 NIL
@@ -834,7 +834,7 @@ SLIDER
 #-explorations
 0
 20
-5
+4
 1
 1
 NIL
