@@ -1,5 +1,5 @@
 
-extensions [gis pathdir profiler rserve]
+extensions [gis pathdir profiler rserve shell]
 
 __includes [
   
@@ -82,40 +82,40 @@ ticks
 30.0
 
 SLIDER
-1096
-17
-1277
-50
+767
+12
+948
+45
 sp-diffusion
 sp-diffusion
 0
 1
-0.048
+0.114
 0.001
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1097
-54
-1269
-87
+768
+49
+940
+82
 sp-growth-rate
 sp-growth-rate
 0
-10000
-510
+1000
+108
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-1169
-297
-1232
-330
+839
+253
+902
+286
 go
 go-synth-pattern
 T
@@ -129,10 +129,10 @@ NIL
 1
 
 BUTTON
-1098
-297
-1164
-330
+768
+253
+834
+286
 setup
 setup-synth-pattern
 NIL
@@ -146,30 +146,30 @@ NIL
 1
 
 SLIDER
-1098
-129
-1270
-162
+769
+124
+941
+157
 sp-diffusion-steps
 sp-diffusion-steps
 0
 10
-3
+1
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1099
-164
-1288
-197
+770
+159
+959
+192
 sp-alpha-localization
 sp-alpha-localization
 0
 10
-1.3
+1
 0.1
 1
 NIL
@@ -187,23 +187,23 @@ sp-population
 11
 
 INPUTBOX
-1097
-338
-1344
-423
+768
+333
+928
+418
 real-pattern-file
-data/england.asc
+temp_raster.asc
 1
 1
 String
 
 BUTTON
-1100
-434
-1189
-467
+768
+421
+836
+454
 save view
-save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Examples/ex\" [\"sp-max-pop\" \"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\"]
+save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Density/Examples/ex\" [\"sp-max-pop\" \"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\"]
 NIL
 1
 T
@@ -215,25 +215,25 @@ NIL
 1
 
 SLIDER
-1099
-202
-1271
-235
+770
+197
+942
+230
 sp-max-pop
 sp-max-pop
 0
 10000000
-8025480
+382170
 10
 1
 NIL
 HORIZONTAL
 
 BUTTON
-1102
-501
-1190
-534
+769
+472
+857
+505
 setup indics
 setup-indicator-computation
 NIL
@@ -247,10 +247,10 @@ NIL
 1
 
 BUTTON
-1196
-500
-1292
-533
+863
+471
+959
+504
 eval indics
 setup-indicator-computation\noutput-print word \"moran :\" moran-index\noutput-print word \"distance :\" average-distance-individuals\noutput-print word \"entropy :\" entropy\noutput-print word \"rank-size-slope :\" rank-size-slope
 NIL
@@ -264,22 +264,22 @@ NIL
 1
 
 OUTPUT
-1087
-538
-1399
-693
+964
+12
+1385
+542
 12
 
 SLIDER
-1099
-90
-1271
-123
+770
+85
+942
+118
 sp-max-time
 sp-max-time
 0
-100
-100
+1000
+300
 1
 1
 NIL
@@ -295,6 +295,40 @@ sum [sp-density] of patches
 17
 1
 11
+
+BUTTON
+770
+533
+853
+566
+start Rserve
+output-print shell:exec \"/usr/bin/R -e \\\"library(RServe);RServe()\\\"\"
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+769
+290
+841
+323
+setup real
+setup-real-pattern
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
