@@ -62,11 +62,10 @@ yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
 
 # coord matrix
 coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)))),nrow=length(xvals)*length(yvals))
-coords=coords[125798:125800,]
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(4)
+cl <- makeCluster(16)
 registerDoParallel(cl)
 
 startTime = proc.time()[3]
@@ -81,9 +80,9 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
      m=simplifyBlock(e,factor,areasize)
      r_pop = raster(m/100)
      r_dens = raster(m/sum(m))
-     res=c(x,y,moranIndex(),averageDistance(),entropy(),rankSizeSlope(),cellStats(r_pop,'sum'))
+     res=c(x,y,moranIndex(),averageDistance(),entropy(),rankSizeSlope(),cellStats(r_pop,'sum'),cellStats(r_pop,'max'))
    }
-   else{res=c(x,y,NA,NA,NA,NA,NA)}
+   else{res=c(x,y,NA,NA,NA,NA,NA,NA)}
    res
 }
 
@@ -93,7 +92,7 @@ stopCluster(cl)
 # get results into data frame
 vals_mat = matrix(0,length(res),length(res[[1]]))
 for(a in 1:length(res)){vals_mat[a,]=res[[a]]}
-v = data.frame(vals_mat);colnames(v)=c("x","y","moran","distance","entropy","slope","pop")
+v = data.frame(vals_mat);colnames(v)=c("x","y","moran","distance","entropy","slope","pop","max")
 
 
 show(paste0("Ellapsed Time : ",proc.time()[3]-startTime))
