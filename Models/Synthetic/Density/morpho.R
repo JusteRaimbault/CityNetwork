@@ -103,9 +103,11 @@ rankSizeSlope <- function(){
   size = cellStats(r_pop,function(x,...){na.omit(log(x))})
   size = size[size>0] # at least one person
   size=sort(size,decreasing=TRUE)
-  #size = size[1:(length(size)*0.8)] # kill 2 last deciles
+  #size = size[1:(length(size)*0.5)] # kill last quartile
   rank = log(1:length(size))
+  if(length(size)>0){
   return(lm(size~rank,data.frame(rank,size))$coefficients[2])
+  }else{return(NA)}
 }
 
 

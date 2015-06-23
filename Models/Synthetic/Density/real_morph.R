@@ -62,11 +62,11 @@ yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
 
 # coord matrix
 coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)))),nrow=length(xvals)*length(yvals))
-
+coords=coords[125798:125800,]
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(16)
+cl <- makeCluster(4)
 registerDoParallel(cl)
 
 startTime = proc.time()[3]
