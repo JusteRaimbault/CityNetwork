@@ -89,23 +89,27 @@ end
 
 ; heuristic mean
 to-report average-distance-individuals
-  let pop-patches to-list max-n-of (min list ((count patches) / 30) count patches with [sp-occupants > 1]) patches [sp-occupants]
-  let s 0 let o 0
-  foreach pop-patches [
-    let p1 ?
-    foreach pop-patches [
-      ask ? [set s s + ((sp-occupants + [sp-occupants] of p1) * distance p1) set o o + (sp-occupants + [sp-occupants] of p1)] 
-    ]
-    
-  ]
-  
-  report s / (o * sqrt (world-width ^ 2 + world-height ^ 2))
-  ;report r:get "averageDistance()"
+;  let pop-patches to-list max-n-of (min list ((count patches) / 30) count patches with [sp-occupants > 1]) patches [sp-occupants]
+;  let s 0 let o 0
+;  foreach pop-patches [
+;    let p1 ?
+;    foreach pop-patches [
+;      ask ? [set s s + ((sp-occupants + [sp-occupants] of p1) * distance p1) set o o + (sp-occupants + [sp-occupants] of p1)] 
+;    ]
+;    
+;  ]
+;  
+;  report s / (o * sqrt (world-width ^ 2 + world-height ^ 2))
+  report rserve:get "averageDistance()"
 end
 
 
 to-report rank-size-slope
-  report rserve:get "rankSizeSlope()"
+  report item 0 rserve:get "rankSizeSlope()"
+end
+
+to-report rank-size-rsquared
+  report item 1 rserve:get "rankSizeSlope()"
 end
 
 to-report entropy

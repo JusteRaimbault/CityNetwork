@@ -59,33 +59,7 @@ distanceMatrix <- function(N,P){
 # uses focal instead as in Moran Index computation.
 #
 averageDistance <- function(){
-  return(2 * cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0),sum) / ((nrow(r_pop)*ncol(r_pop))^2 * cellStats(r_pop,max) * sqrt(nrow(r_pop)^2 + ncol(r_pop)^2)))
-
-#   # get densities as vector
-#   # -> by default numered row by row, transpose to have by column
-#   N = matrix(data=t(as.matrix(r)),nrow=nrow(m)*ncol(m))
-#   
-#   n_patches = length(N)
-#   n_cols = ncol(m)
-#   
-#   # creates distance matrix ?
-#   # -> too few memory to do directly big matrices products, whereas too slow to compute iteratively
-#   #   :: uses a compromise time/memory, cutting the matrix into smaller matrices.
-#   
-#   s = 0
-#   subMatRows = 200
-#   row_offset = 0
-#   show((n_patches%/%subMatRows + 1))
-#   for(k in 1:(n_patches%/%subMatRows + 1)){
-#     # k : submat index
-#     show(k)
-#     D = distanceSubMatrix(min(subMatRows,n_patches-row_offset-1),n_patches,n_cols,row_offset,0)
-#     s = s + (matrix(1,1,min(subMatRows,n_patches-row_offset-1)) %*% (D %*% N))
-#     row_offset = row_offset + subMatRows
-#     rm(D) # free memory
-#   }
-#   
-#   return(2 * s / (n_patches ^ 2))
+  return(cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0),sum) / ( cellStats(r_pop,sum)^2 * sqrt(nrow(r_pop)*ncol(r_pop)/pi)))
 }
 
 
@@ -106,9 +80,11 @@ rankSizeSlope <- function(){
   #size = size[1:(length(size)*0.5)] # kill last quartile
   rank = log(1:length(size))
   if(length(size)>0){
-  return(lm(size~rank,data.frame(rank,size))$coefficients[2])
-  }else{return(NA)}
+    reg = lm(size~rank,data.frame(rank,size))
+  return(c(reg$coefficients[2],summary(reg)$r.squared))
+  }else{return(c(NA,NA))}
 }
+
 
 
 

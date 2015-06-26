@@ -98,7 +98,7 @@ sp-diffusion
 sp-diffusion
 0
 0.5
-0.039
+0.078
 0.001
 1
 NIL
@@ -112,8 +112,8 @@ SLIDER
 sp-growth-rate
 sp-growth-rate
 0
-1000
-51
+10000
+3057
 1
 1
 NIL
@@ -177,7 +177,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-1.11
+1.32
 0.01
 1
 NIL
@@ -200,7 +200,7 @@ INPUTBOX
 959
 532
 real-pattern-file
-/Users/Juste/Documents/ComplexSystems/CityNetwork/Data/PopulationDensity/raw/france.tif
+/Users/Juste/Documents/ComplexSystems/CityNetwork/Data/PopulationDensity/raw/popu01clcv5.tif
 1
 1
 String
@@ -231,7 +231,7 @@ sp-max-pop
 sp-max-pop
 0
 100000
-10000
+70060
 10
 1
 NIL
@@ -260,7 +260,7 @@ BUTTON
 921
 323
 eval indics
-setup-indicator-computation\noutput-print word \"moran :\" moran-index\noutput-print word \"distance :\" average-distance-individuals\noutput-print word \"entropy :\" entropy\noutput-print word \"rank-size-slope :\" rank-size-slope
+setup-indicator-computation\noutput-print word \"moran :\" moran-index\noutput-print word \"distance :\" average-distance-individuals\noutput-print word \"entropy :\" entropy\noutput-print word \"rank-size-slope :\" rank-size-slope\noutput-print word \"rank-size-resquared :\" rank-size-rsquared
 NIL
 1
 T
@@ -364,8 +364,8 @@ SLIDER
 real-row
 real-row
 0
-10000
-5732
+100000
+15854
 1
 1
 NIL
@@ -379,8 +379,8 @@ SLIDER
 real-col
 real-col
 0
-10000
-5325
+100000
+35065
 1
 1
 NIL
@@ -395,7 +395,7 @@ real-factor
 real-factor
 0
 1
-0.25
+0.2
 0.05
 1
 NIL
@@ -409,8 +409,8 @@ SLIDER
 real-size
 real-size
 0
-400
-400
+1000
+500
 10
 1
 NIL
