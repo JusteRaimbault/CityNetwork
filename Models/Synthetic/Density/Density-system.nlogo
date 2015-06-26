@@ -98,7 +98,7 @@ sp-diffusion
 sp-diffusion
 0
 0.5
-0.078
+0.066
 0.001
 1
 NIL
@@ -177,7 +177,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-1.32
+1.43
 0.01
 1
 NIL
@@ -365,7 +365,7 @@ real-row
 real-row
 0
 100000
-15854
+24390
 1
 1
 NIL
