@@ -98,7 +98,7 @@ sp-diffusion
 sp-diffusion
 0
 0.5
-0.078
+0.066
 0.001
 1
 NIL
@@ -113,7 +113,7 @@ sp-growth-rate
 sp-growth-rate
 0
 10000
-3057
+9108
 1
 1
 NIL
@@ -177,7 +177,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-1.32
+1.43
 0.01
 1
 NIL
@@ -231,7 +231,7 @@ sp-max-pop
 sp-max-pop
 0
 100000
-70060
+90450
 10
 1
 NIL
@@ -365,7 +365,7 @@ real-row
 real-row
 0
 100000
-15854
+24390
 1
 1
 NIL

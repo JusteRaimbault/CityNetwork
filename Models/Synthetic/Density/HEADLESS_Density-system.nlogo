@@ -51,6 +51,8 @@ globals [
   real-factor
   real-size
 
+  comp-time
+
 ]
 
 
