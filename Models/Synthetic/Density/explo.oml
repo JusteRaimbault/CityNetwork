@@ -6,6 +6,7 @@ val diffusion = Val[Double]
 val diffusionsteps = Val[Double]
 val alphalocalization = Val[Double]
 val growthrate = Val[Double]
+val population = Val[Double]
 val replication = Val[Int]
 
 // exploration task
@@ -42,10 +43,11 @@ val exploration = ExplorationTask (
     250,
     diffusion in Range(0.0, 0.1),
     alphalocalization in Range(0.5,1.5),
-    growthrate in Range(100.0,500.0)
-  ) x (replication in UniformDistribution[Int]() take 50) x (diffusionsteps in (1.0 to 2.0 by 1.0))
+    growthrate in Range(500.0,10000.0),
+    population in Range(10000.0,100000.0)
+  ) x (replication in UniformDistribution[Int]() take 10) x (diffusionsteps in (1.0 to 2.0 by 1.0))
 )
-val purpose = "sampling"
+val purpose = "LHSsampling"
 // 130 / 16 * 50 * 2 / 3600 * 250 = 56h
 //--------------------------------------------------------
 
@@ -58,10 +60,11 @@ val distance=Val[Double]
 val entropy=Val[Double]
 val slope=Val[Double]
 val closed=Val[Double]
+val rsquared=Val[Double]
 
 //NetLogo go for one time step
 val cmds = List(
-  "setup-openmole-experiment ${diffusion} ${diffusionsteps} ${alphalocalization} ${growthrate}",
+  "setup-openmole-experiment ${diffusion} ${diffusionsteps} ${alphalocalization} ${growthrate} ${population}",
   "go-openmole-experiment"
 )
 
@@ -77,7 +80,7 @@ System.setProperty("com.sun.media.jai.disableMediaLib", "true")
 val scriptPath = System.getenv("CN_HOME")+"/Models/Synthetic/Density/HEADLESS_Density-system.nlogo"
 
 val model = NetLogo5Task(scriptPath,cmds,true) set (
-  inputs += (diffusion,diffusionsteps,alphalocalization,growthrate),
+  inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population),
   netLogoOutputs += ("moran-index", moran),
   netLogoOutputs += ("average-distance-individuals", distance),
   netLogoOutputs += ("entropy", entropy),
@@ -85,7 +88,8 @@ val model = NetLogo5Task(scriptPath,cmds,true) set (
   netLogoOutputs += ("sp-diffusion",diffusion),
   netLogoOutputs += ("sp-diffusion-steps",diffusionsteps),
   netLogoOutputs += ("sp-alpha-localization",alphalocalization),
-  netLogoOutputs += ("sp-growth-rate",growthrate)//,
+  netLogoOutputs += ("sp-growth-rate",growthrate),
+  netLogoOutputs += ("rank-size-rsquared",rsquared)//,
   //netLogoOutputs += ("close-rserve",closed)
   )
 
