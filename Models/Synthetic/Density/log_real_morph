@@ -1,1 +1,116 @@
-Fatal error: impossible d'ouvrir le fichier 'real_morph' : Aucun fichier ou dossier de ce type
+
+R version 3.2.1 (2015-06-18) -- "World-Famous Astronaut"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R est un logiciel libre livré sans AUCUNE GARANTIE.
+Vous pouvez le redistribuer sous certaines conditions.
+Tapez 'license()' ou 'licence()' pour plus de détails.
+
+R est un projet collaboratif avec de nombreux contributeurs.
+Tapez 'contributors()' pour plus d'information et
+'citation()' pour la façon de le citer dans les publications.
+
+Tapez 'demo()' pour des démonstrations, 'help()' pour l'aide
+en ligne ou 'help.start()' pour obtenir l'aide au format HTML.
+Tapez 'q()' pour quitter R.
+
+> 
+> #############
+> # computation of real values of indicators on large grid on all europe
+> #############
+> 
+> library(raster)
+Le chargement a nécessité le package : sp
+> 
+> setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
+> 
+> # to avoid bord effects dur to grid offset, takes "many" origin phases to setup the grid
+> # (not too much -- perfs issues)
+> 
+> # use raster package
+> 
+> # first source indicators
+> 
+> source('morpho.R')
+> 
+> 
+> raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/popu01clcv5.tif"))
+> #raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/france.tif"))
+> 
+> 
+> 
+> # -----------------
+> # -- Experiments --
+> 
+> # 1) computation on all europe (simplified block 100kmx100km)
+> # 2) France with 20kmx20km, including offset of 2km to avoid bord effects
+> # 3) Europe 50km with 10km offset (22h max computation with 16 cores)
+> # 4) Frce 50km
+> 
+> 
+> areasize = 500
+> factor=0.2
+> offset = 100
+> 
+> xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
+> yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
+> #TEST //
+> #xvals=seq(from=20000,to=20200,by=offset)
+> #yvals=seq(from=20000,to=20200,by=offset)
+> 
+> # coord matrix
+> coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)))),nrow=length(xvals)*length(yvals))
+> 
+> # create // cluster
+> library(doParallel)
+Le chargement a nécessité le package : foreach
+Le chargement a nécessité le package : iterators
+Le chargement a nécessité le package : parallel
+> cl <- makeCluster(20)
+> registerDoParallel(cl)
+> 
+> startTime = proc.time()[3]
+> 
+> res <- foreach(i=1:nrow(coords)) %dopar% {
++    library(raster)
++    source('morpho.R')
++    x=coords[i,1];y=coords[i,2];
++    e<-getValuesBlock(raw,row=x,nrows=areasize,col=y,ncols=areasize)
++    if(sum(is.na(e))/length(e)<0.5){
++      show("computing indicators...")
++      m=simplifyBlock(e,factor,areasize)
++      r_pop = raster(m/100)
++      r_dens = raster(m/sum(m))
++      res=c(x,y,moranIndex(),averageDistance(),entropy(),rankSizeSlope(),cellStats(r_pop,'sum'),cellStats(r_pop,'max'))
++    }
++    else{res=c(x,y,NA,NA,NA,NA,NA,NA,NA)}
++    res
++ }
+> 
+> stopCluster(cl)
+> 
+> 
+> # get results into data frame
+> vals_mat = matrix(0,length(res),length(res[[1]]))
+> for(a in 1:length(res)){vals_mat[a,]=res[[a]]}
+> v = data.frame(vals_mat);colnames(v)=c("x","y","moran","distance","entropy","slope","rsquaredslope","pop","max")
+> 
+> 
+> show(paste0("Ellapsed Time : ",proc.time()[3]-startTime))
+[1] "Ellapsed Time : 29098.202"
+> 
+> # store in data file
+> write.table(
++   v,
++   file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/europe_50km_',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'.csv'),
++   sep = ";",
++   col.names=colnames(v)
++ )
+> 
+> 
+> 
+> 
+> 
+> 
+> 

@@ -23,14 +23,15 @@ r=raster(nrow=floor((e[4]-e[3])/100)+1,ncol=floor((e[2]-e[1])/100)+1);extent(r)=
 extr<- rasterize(p,r,getCover=TRUE)
 o <- overlay(raw,extr,fun=function(d,p)d*p/100)
 
+
 # extract from raster
 e = extract(raw,p,cellnumbers=TRUE)
 c=sapply(e[[1]][,1],coordinates,nc=43700)
 
 # get coords of a raster cell given its cell number
-coordinates<-function(cellnumber,nc){
-  return(c(floor(cellnumber / nc) + 1,cellnumber - nc * floor(cellnumber / nc)))
-}
+#coordinates<-function(cellnumber,nc){
+#  return(c(floor(cellnumber / nc) + 1,cellnumber - nc * floor(cellnumber / nc)))
+#}
 
 extractAsMatrix<-function(raw,polygon,nr,nc){
   rawVals = extract(raw,p,cellnumbers=TRUE)
