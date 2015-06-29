@@ -113,7 +113,7 @@ sp-growth-rate
 sp-growth-rate
 0
 10000
-3057
+9108
 1
 1
 NIL
@@ -231,7 +231,7 @@ sp-max-pop
 sp-max-pop
 0
 100000
-70060
+90450
 10
 1
 NIL
