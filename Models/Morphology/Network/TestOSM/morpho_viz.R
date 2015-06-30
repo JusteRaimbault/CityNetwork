@@ -75,14 +75,14 @@ plot(real[,3:6],pch="+")
 
 # hists
 par(mfrow=c(2,2))
-indics=c("moran","distance","entropy","slope");laws=c("log-normal","log-normal","inv-log-normal","inv-log-normal")
+indics=c("moran","distance","entropy","slope");laws=c("log-normal","log-normal","inv-log-normal","log-normal")
 ranges=list((1:2000)/1000,(1:2000)/1000,(1:2000)/1000,(-2000:-1)/1000)
 k=1
 for(indic in indics){
  hist(real[[indic]],breaks=1000,main="",xlab=indic,freq=FALSE)
  if(laws[k]=="log-normal"){
-   fit = coef(fitdistr(real[[indic]],laws[k]))
-   dens=dlnorm(ranges[[k]],meanlog=fit[1],sdlog=fit[2])}
+   fit = coef(fitdistr(abs(real[[indic]]),laws[k]))
+   dens=dlnorm(ranges[[k]],meanlog=fit[1],sdlog=fit[2])*sign(fit[1])}
  if(laws[k]=="inv-log-normal"){
    # fit on inversed distrib in that case
    fit = coef(fitdistr(rev(real[[indic]]),"log-normal"))
@@ -112,6 +112,8 @@ for(k in 1:15){
   ccoef=append(ccoef,clust$tot.withinss/clust$betweenss)# clust coef
   plot(real$y,1-real$x,col=clust$cluster,pch='.',cex=3,main=paste0('k=',k),xlab="",ylab="",xaxt='n',yaxt='n')
 }
+
+# TODO : add "typical" profile next to each cluster 
 
 
 # on rotated data (principal components)
