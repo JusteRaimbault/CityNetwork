@@ -1,9 +1,14 @@
 
-## Analysis and Visualization of moephological density analysis
+##############
+## Analysis and Visualization of morphological density analysis
+##############
 
 library(RColorBrewer)
 library(ggplot2)
 library(MASS)
+source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
+
+# data
 
 real_raw = read.csv(
   #paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/france_20km_mar.-juin-09-23:46:42-2015.csv'),
@@ -45,6 +50,21 @@ p+geom_point()+xlab("")+ylab("")+labs(title=indic)+scale_colour_gradientn(colour
 #     give square patterns for "thresholded" indicators, as max or moran)
 # * kill outsiders ? issue meanDistance in Narvik and northern Sweden
 
+map<-function(indic){
+  d=data.frame(x=real$y,y=1-real$x);d[[indic]]=real[[indic]]
+  p=ggplot(d,aes_string(x="x",y="y",colour=indic))
+  p+geom_point(shape=".",size=2)+xlab("")+ylab("")+labs(title=indic)+scale_colour_gradientn(colours=rev(rainbow(5)))+scale_y_continuous(breaks=NULL)+scale_x_continuous(breaks=NULL)
+}
+
+# multiplots
+indics=c("moran","distance","entropy","slope")
+plots=list();k=1
+for(indic in indics){
+ plots[[k]]=map(indic)
+ k=k+1
+}
+multiplot(plotlist=plots,cols=2)
+
 
 ###########
 # Descriptive Statistics
@@ -54,27 +74,50 @@ plot(real[sample.int(nrow(real),size=2000),3:6],pch="+")
 plot(real[,3:6],pch="+")
 
 # hists
-indic="distance"
-hist(real[[indic]],breaks=1000,main="",xlab=indic,freq=FALSE)
-fit = coef(fitdistr(real[[indic]],"log-normal"))
-points((1:2000)/1000,dlnorm((1:2000)/1000,meanlog=fit[1],sdlog=fit[2]),type="l",col="red")
-
+par(mfrow=c(2,2))
+indics=c("moran","distance","entropy","slope");laws=c("log-normal","log-normal","inv-log-normal","inv-log-normal")
+ranges=list((1:2000)/1000,(1:2000)/1000,(1:2000)/1000,(-2000:-1)/1000)
+k=1
+for(indic in indics){
+ hist(real[[indic]],breaks=1000,main="",xlab=indic,freq=FALSE)
+ if(laws[k]=="log-normal"){
+   fit = coef(fitdistr(real[[indic]],laws[k]))
+   dens=dlnorm(ranges[[k]],meanlog=fit[1],sdlog=fit[2])}
+ if(laws[k]=="inv-log-normal"){
+   # fit on inversed distrib in that case
+   fit = coef(fitdistr(rev(real[[indic]]),"log-normal"))
+   dens=rev(dnorm(ranges[[k]],mean=fit[1],sd=fit[2]))
+ }
+ points(ranges[[k]],dens,type="l",col="red")
+ k=k+1
+}
 
 
 ###############
 # Clustering
 ###############
 
-# with all data (incl pop and max)
+# with all data (incl pop and max) :: cols = 3:9
 # test various cluster vals
-k=10;ccoef=c()
+#  - all : cols = 3:9
+#  - with (pop,max,rsquared)
+#  - without distance
+k=10;
+vars = c(3,5,6)
+ccoef=c()
 for(k in 1:15){
   show(k)
-  clust = kmeans(real[,3:9],k,iter.max=30)
+  clust = kmeans(real[,vars],k,iter.max=30)
   #ccoef=append(ccoef,sum(clust$withinss/clust$size)/k)# mean cluster size
   ccoef=append(ccoef,clust$tot.withinss/clust$betweenss)# clust coef
-  #plot(real$y,1-real$x,col=clust$cluster,pch='.',cex=3,main=paste0('k=',k),xlab="",ylab="",xaxt='n',yaxt='n')
+  plot(real$y,1-real$x,col=clust$cluster,pch='.',cex=3,main=paste0('k=',k),xlab="",ylab="",xaxt='n',yaxt='n')
 }
+
+
+# on rotated data (principal components)
+
+
+
 
 
 
