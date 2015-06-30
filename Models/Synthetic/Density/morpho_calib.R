@@ -33,12 +33,7 @@ getSingleParamPoints <- function(data,params_cols,indics_cols,nreps){
 }
 
 
-############################
-# plot points
-plotPoints<-function(d1,d2,xstring,ystring,colstring){
-  p = ggplot(d1, aes_string(x=xstring,y=ystring,col=colstring))
-  p + geom_point() + geom_point(data=d2, aes_string(x = xstring, y = ystring),colour=I("red"),shape="+",size=5)
-}
+
 
 
 
