@@ -254,6 +254,10 @@ patches-own [
   ; accessibility of actives to employments
   e-to-a-accessibility
    
+  ; travel distances
+  a-to-e-distance
+  e-to-a-distance
+   
   ; utilities
   ; for actives
   a-utility
@@ -376,7 +380,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance"
-1
+5
 
 TEXTBOX
 11
