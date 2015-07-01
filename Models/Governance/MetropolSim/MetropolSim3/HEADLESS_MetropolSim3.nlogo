@@ -250,7 +250,7 @@ globals[
   congestion-price
   
   total-time-steps
-  
+  headless?
 ]
 
 
