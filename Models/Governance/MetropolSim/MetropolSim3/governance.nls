@@ -57,11 +57,11 @@ to-report potential-infrastructures [decidors]
   let res []
   ifelse decidors = regional-authority [
     repeat #-explorations [
-      set res lput (random-infra patches) res
+      set res lput (random-infra patches 2 * road-length) res
     ]
   ][
     repeat #-explorations [
-      set res lput (random-infra (patches with [member? governing-mayor decidors])) res
+      set res lput (random-infra (patches with [member? governing-mayor decidors]) road-length) res
     ]
   ]
   report res
@@ -160,10 +160,10 @@ end
 
 
 
-to-report random-infra [patchset]
+to-report random-infra [patchset infra-length]
   let p1 one-of patchset
-  let p2 nobody if p1 != nobody [ask p1 [set p2 one-of patchset with [abs(distance myself - road-length) < 1]]]
-  if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patchset with [distance myself < road-length]]]]
+  let p2 nobody if p1 != nobody [ask p1 [set p2 one-of patchset with [abs(distance myself - infra-length) < 1]]]
+  if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patchset with [distance myself < infra-length]]]]
   ifelse p2 = nobody or p1 = nobody [report (list (list random-xcor random-ycor) (list random-xcor random-ycor))][
   report (list (list [pxcor] of p1 [pycor] of p1) (list [pxcor] of p2 [pycor] of p2))  
   ]

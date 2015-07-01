@@ -71,6 +71,13 @@ __includes [
   
   
   ;;;;;;;;;;
+  ; indicators
+  ;;;;;;;;;;
+  
+  "indicators.nls"
+  
+  
+  ;;;;;;;;;;
   ;; utils
   ;;;;;;;;;;
   
@@ -301,7 +308,6 @@ breed[transportation-nodes transportation-node]
 
 transportation-nodes-own[
 ]
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 376
@@ -370,7 +376,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance"
-8
+1
 
 TEXTBOX
 11
@@ -608,10 +614,10 @@ TEXTBOX
 1
 
 SLIDER
-7
-306
-172
-339
+6
+342
+171
+375
 network-min-pace
 network-min-pace
 0
@@ -623,20 +629,20 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-3
-256
-206
-283
+4
+298
+207
+325
 _________________
 20
 0.0
 1
 
 TEXTBOX
-7
-285
-157
-303
+6
+327
+156
+345
 Transportation
 11
 0.0
@@ -781,25 +787,25 @@ log-level
 1
 
 SLIDER
-7
-342
-171
-375
+6
+378
+170
+411
 euclidian-min-pace
 euclidian-min-pace
 1
 50
-5
+2
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-7
-376
-169
-409
+6
+412
+170
+445
 congestion-price
 congestion-price
 0
@@ -819,7 +825,7 @@ road-length
 road-length
 0
 20
-4
+10
 1
 1
 NIL
@@ -839,6 +845,55 @@ SLIDER
 1
 NIL
 HORIZONTAL
+
+BUTTON
+6
+652
+95
+685
+update display
+color-patches
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+4
+273
+171
+306
+lambda-accessibility
+lambda-accessibility
+0
+1
+0.085
+0.005
+1
+NIL
+HORIZONTAL
+
+BUTTON
+1303
+245
+1397
+278
+indicators
+compute-indicators
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
