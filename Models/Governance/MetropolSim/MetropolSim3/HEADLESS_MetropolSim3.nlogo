@@ -78,6 +78,13 @@ __includes [
   
   
   ;;;;;;;;;;
+  ; Experiments
+  ;;;;;;;;;;
+  
+  "experiment.nls"
+  
+  
+  ;;;;;;;;;;
   ;; utils
   ;;;;;;;;;;
   
@@ -241,6 +248,9 @@ globals[
   network-min-pace
   euclidian-min-pace
   congestion-price
+  
+  total-time-steps
+  
 ]
 
 
