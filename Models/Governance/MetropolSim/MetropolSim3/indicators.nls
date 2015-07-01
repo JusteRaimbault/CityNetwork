@@ -3,14 +3,16 @@
 ;; Indicators of system performance
 ;;;;;;;;;;;;;;;;;;;
 
-;-> convergence ?
-;-> distance moyenne deplacements
-;-> delta configs successives
-;-> hierarchy case, population, evol hierarchy.
+;-> convergence ? == stability ?
+;-> distance moyenne deplacements == weighted mean by actives, employments of effective distance
+;-> delta configs successives  ok diff-*
+;-> hierarchy case, population, evol hierarchy.  -- TODO --
 
 
 to compute-indicators
   output-print (word "mean-accessibility : " mean-accessibility)
+  output-print (word "mean-travel-distance : " mean-travel-distance)
+  output-print (word "actives-entropy : " actives-entropy)
   ;output-print (word "mean-congestion : " mean-congestion)
 end
 
@@ -24,8 +26,38 @@ to-report mean-accessibility
   report sum [a-to-e-accessibility] of patches / ((sum [actives] of patches) * (sum [employments] of patches))
 end
 
+; mean travel distance
+to-report mean-travel-distance
+  report sum [a-to-e-distance] of patches / ((sum [actives] of patches) * (sum [employments] of patches))
+end
+
 
 ; mean congestion in network
 to-report mean-congestion
   report mean [congestion] of transportation-links
 end
+
+
+;; last variability of relocation process
+to-report stability
+  report ((diff-employments / sum [employments] of patches) + (diff-actives / sum [actives] of patches) ) / 2
+end
+
+
+;; entropy of distribution of actives
+to-report actives-entropy
+  let atot sum [actives] of patches
+  report (- 1 / (ln count patches) * sum [actives / atot * ln (actives / atot)] of patches)
+end
+
+;; entropy of distribution of employments
+to-report employments-entropy
+  let etot sum [employments] of patches
+  report (- 1 / (ln count patches) * sum [employments / etot * ln (employments / etot)] of patches)
+end
+
+
+
+
+
+
