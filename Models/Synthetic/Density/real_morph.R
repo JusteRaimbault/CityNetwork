@@ -17,8 +17,8 @@ setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
 source('morpho.R')
 
 
-raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/popu01clcv5.tif"))
-#raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/france.tif"))
+#raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/popu01clcv5.tif"))
+raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/france.tif"))
 
 
 
@@ -31,8 +31,8 @@ raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/popu01cl
 # 4) Frce 50km
 
 
-areasize = 500
-factor=0.2
+areasize = 200
+factor=0.5
 offset = 100
 
 xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
@@ -46,7 +46,7 @@ coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(20)
+cl <- makeCluster(4)
 registerDoParallel(cl)
 
 startTime = proc.time()[3]
@@ -81,7 +81,7 @@ show(paste0("Ellapsed Time : ",proc.time()[3]-startTime))
 # store in data file
 write.table(
   v,
-  file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/europe_50km_',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'.csv'),
+  file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/frce_20km_',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'.csv'),
   sep = ";",
   col.names=colnames(v)
 )
