@@ -221,7 +221,11 @@ globals[
   gridor
   
   
+  ;; HEADLESS
+  headless?
+  
 ]
+
 
 
 patches-own [
@@ -380,7 +384,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance"
-5
+7
 
 TEXTBOX
 11
@@ -471,7 +475,7 @@ gamma-cobb-douglas
 gamma-cobb-douglas
 0
 1
-0.8
+0.6
 0.05
 1
 NIL
@@ -527,18 +531,18 @@ NIL
 1
 
 PLOT
-932
-18
-1092
-138
+913
+13
+1073
+133
 convergence
 NIL
 NIL
 0.0
 10.0
 0.0
-100.0
-false
+10.0
+true
 false
 "" ""
 PENS
@@ -575,7 +579,7 @@ Governance
 SLIDER
 184
 203
-354
+333
 236
 regional-decision-proba
 regional-decision-proba
@@ -714,7 +718,7 @@ NIL
 1
 
 MONITOR
-1218
+1227
 13
 1282
 58
@@ -725,7 +729,7 @@ th paths
 11
 
 MONITOR
-1223
+1227
 61
 1281
 106
@@ -736,7 +740,7 @@ length table:keys network-shortest-paths
 11
 
 MONITOR
-1222
+1228
 109
 1279
 154
@@ -799,7 +803,7 @@ euclidian-min-pace
 euclidian-min-pace
 1
 50
-2
+10
 1
 1
 NIL
@@ -814,7 +818,7 @@ congestion-price
 congestion-price
 0
 100
-50
+2
 1
 1
 NIL
@@ -823,13 +827,13 @@ HORIZONTAL
 SLIDER
 184
 241
-354
+333
 274
 road-length
 road-length
 0
 20
-10
+7
 1
 1
 NIL
@@ -838,7 +842,7 @@ HORIZONTAL
 SLIDER
 185
 277
-357
+333
 310
 #-explorations
 #-explorations
@@ -856,7 +860,7 @@ BUTTON
 95
 685
 update display
-color-patches
+compute-patches-variables
 NIL
 1
 T
@@ -898,6 +902,81 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+7
+459
+169
+492
+total-time-steps
+total-time-steps
+0
+20
+5
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+3
+430
+239
+465
+__________________
+20
+0.0
+1
+
+CHOOSER
+185
+312
+332
+357
+game-type
+game-type
+"random"
+0
+
+TEXTBOX
+174
+289
+189
+321
+|
+25
+0.0
+1
+
+TEXTBOX
+174
+312
+192
+342
+|
+25
+0.0
+1
+
+PLOT
+914
+134
+1074
+254
+accessibility
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean-accessibility"
+"pen-1" 1.0 0 -7858858 true "" "plot max-accessibility"
+"pen-2" 1.0 0 -4757638 true "" "plot min-accessibility"
 
 @#$#@#$#@
 ## WHAT IS IT?

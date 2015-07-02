@@ -23,8 +23,20 @@ end
 ;
 ;  -- symmetric a-e --
 to-report mean-accessibility
-  report sum [a-to-e-accessibility] of patches / ((sum [actives] of patches) * (sum [employments] of patches))
+  ifelse sum [actives] of patches > 0 and sum [employments] of patches > 0 [
+    report sum [a-to-e-accessibility + e-to-a-accessibility] of patches / (2 * (sum [actives] of patches) * (sum [employments] of patches))
+  ][report 0]
 end
+
+; min / max access
+to-report max-accessibility
+   report max [max (list a-to-e-accessibility e-to-a-accessibility)] of patches
+end
+
+to-report min-accessibility
+   report min [min (list a-to-e-accessibility e-to-a-accessibility)] of patches
+end
+
 
 ; mean travel distance
 to-report mean-travel-distance
