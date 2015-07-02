@@ -21,15 +21,32 @@ getSingleParamPoints <- function(data,params_cols,indics_cols,nreps){
   sigmas = matrix(0,k,length(indics_cols))
   params = matrix(0,k,length(params_cols))
  
-  for(kk in 0:(k-1)){
-    #show(points)
-    d = data[((kk*nreps)+1):((kk+1)*nreps),indics_cols]
-    means[kk+1,] = apply(d,2,mean);sigmas[kk+1,]=apply(d,2,sd)
-    for(j in 1:length(indics_cols)){
-      params[(kk+1),j] = data[((kk*nreps)+1),params_cols[j]]
+#   for(kk in 0:(k-1)){
+#     #show(points)
+#     d = data[((kk*nreps)+1):((kk+1)*nreps),indics_cols]
+#     means[kk+1,] = apply(d,2,mean);sigmas[kk+1,]=apply(d,2,sd)
+#     for(j in 1:length(indics_cols)){
+#       params[(kk+1),j] = data[((kk*nreps)+1),params_cols[j]]
+#     }
+#   }
+
+# can be disordered -> need to fill a list and compute means,sd afterwards
+  
+  params = list();indics = list()
+  for(l in 1:length(data)){
+    pval = data[l,param_cols]
+    known_param = 0;
+    for(k in 1:length(params)){
+      if(prod(params[[k]]==pval)){known_param=k;indics[[k]]=append(indics[[k]], data[l,indic_cols])}
+    }
+    if(known_param==0){
+      # add the parameter
+      params = append(params,pval)
+      indics = append(indics,list(data[l,indic_cols]))
     }
   }
-  return(list(params,means,sigmas))
+
+  return(list(params,lapply(indics,function(l){mean(as.numeric(l))},lapply(indics,function(l){sd(as.numeric(l))}))))
 }
 
 
