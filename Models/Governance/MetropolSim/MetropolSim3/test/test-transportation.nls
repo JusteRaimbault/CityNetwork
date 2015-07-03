@@ -1,0 +1,44 @@
+
+;;;;;;;;;
+;; test of transportation affectation
+;;;;;;;;;
+
+
+
+
+
+;;
+; Visualize flows : debug procedure to check validity of transportation flows
+;
+;  -- BUG ? --
+;   -> pb in flow determination algo ? seems to be ponderated by distance, and not gravital function of distance :: check formula !
+;
+to check-flows [q]
+  setup
+  transportation
+  
+  let ma max map [max ?] matrix:to-row-list flow-matrix
+  let quant quantile (concatenate matrix:to-row-list flow-matrix) q
+  
+  let i 0
+  repeat (#-patches - 1) [
+    let j (i + 1)
+    repeat (#-patches - i - 1)[
+      if (matrix:get flow-matrix i j) > quant [
+        ask patch-with-number i [
+          sprout 1 [
+            set hidden? true let o self
+            ask patch-with-number j [
+              sprout 1 [
+                set hidden? true  create-link-with o [set thickness ((matrix:get flow-matrix i j) - quant) / (ma - quant) * 2 set color scale-color yellow (((matrix:get flow-matrix i j) - quant) / (ma - quant)) 0 1]
+              ] 
+            ]
+          ] 
+        ]
+      ]
+      set j j + 1
+    ]
+    set i i + 1
+  ]
+  
+end
