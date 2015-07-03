@@ -84,6 +84,7 @@ __includes [
   ; Q : package utils subpackages or all utils to have a simpler use ?
   
   "utils/math/SpatialKernels.nls"
+  "utils/math/Statistics.nls"
   "utils/misc/List.nls"
   "utils/misc/Types.nls"
   "utils/misc/Matrix.nls"
@@ -101,6 +102,7 @@ __includes [
   ;;;;;;;;;;;
   
   "test/test-distances.nls"
+  "test/test-transportation.nls"
   
 ]
 
@@ -379,12 +381,12 @@ NIL
 CHOOSER
 5
 600
-172
+124
 645
 patches-display
 patches-display
-"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance"
-7
+"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance"
+9
 
 TEXTBOX
 11
@@ -785,10 +787,10 @@ NIL
 1
 
 CHOOSER
-177
-602
-315
-647
+126
+600
+264
+645
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
@@ -904,10 +906,10 @@ NIL
 1
 
 SLIDER
-7
-459
-169
-492
+186
+375
+348
+408
 total-time-steps
 total-time-steps
 0
@@ -919,10 +921,10 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-3
-430
-239
-465
+182
+346
+418
+381
 __________________
 20
 0.0
@@ -977,6 +979,31 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean-accessibility"
 "pen-1" 1.0 0 -7858858 true "" "plot max-accessibility"
 "pen-2" 1.0 0 -4757638 true "" "plot min-accessibility"
+
+SLIDER
+6
+447
+169
+480
+lambda-flows
+lambda-flows
+0
+1
+0.5
+0.005
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+7
+467
+194
+511
+__________________
+20
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
