@@ -805,7 +805,7 @@ euclidian-min-pace
 euclidian-min-pace
 1
 50
-10
+15
 1
 1
 NIL
