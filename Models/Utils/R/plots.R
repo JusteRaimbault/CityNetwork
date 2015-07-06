@@ -95,9 +95,10 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 plotPoints<-function(d1,d2=NULL,xstring,ystring,colstring){
   p = ggplot(d1, aes_string(x=xstring,y=ystring,col=colstring))
   if(!is.null(d2)){
-    p + geom_point(data=d2, aes_string(x = xstring, y = ystring),colour=I("red"),shape="+",size=5)
+    return(p + geom_point() + geom_point(data=d2, aes_string(x = xstring, y = ystring),colour=I("red"),shape="+",size=5))
+  }else{
+    return(p + geom_point())
   }
-  p + geom_point() 
 }
 
 
