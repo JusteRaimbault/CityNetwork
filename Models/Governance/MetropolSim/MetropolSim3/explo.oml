@@ -1,0 +1,81 @@
+import java.util.Date
+import java.text.SimpleDateFormat
+
+// Parameters
+val regionalproba = Val[Double]
+val lambdaacc = Val[Double]
+val euclpace = Val[Double]
+val replication = Val[Int]
+
+// exploration task
+
+//-------------------------------------------------------
+// TEST
+val exploration =  ExplorationTask(
+  (regionalproba in (0.5 to 0.5 by 1)) x
+    (lambdaacc in (0.05 to 0.05 by 1)) x
+    (euclpace in (2.0 to 2.0 by 1)) x
+      (replication in (UniformDistribution[Int]() take 2))
+  )
+val purpose = "test"
+
+//--------------------------------------------------------
+
+//-------------------------------------------------------
+// GRID
+/*val exploration =  ExplorationTask(
+  (regionalproba in (0.5 to 1.0 by 0.5)) x
+    (lambdaacc in (0.05 to 0.1 by 0.025)) x
+    (euclpace in (1.5 to 2.5 by 0.5)) x
+      (replication in (UniformDistribution[Int]() take 4))
+  )
+  val purpose = "grid"
+*/
+//--------------------------------------------------------
+
+
+
+// reporters
+val accessibility=Val[Double]
+val traveldistance=Val[Double]
+val entropy=Val[Double]
+val stability=Val[Double]
+
+
+//NetLogo go for one time step
+val cmds = List(
+  "setup-openmole-experiment ${regionalproba} ${lambdaacc} ${euclpace}",
+  "go-openmole-experiment"
+)
+
+
+val scriptPath = System.getenv("CN_HOME")+"/Models/Governance/MetropolSim/MetropolSim3/HEADLESS_MetropolSim3.nlogo"
+
+val model = NetLogo5Task(scriptPath,cmds,true) set (
+  inputs += (regionalproba, lambdaacc, euclpace),
+  netLogoOutputs += ("mean-accessibility", accessibility),
+  netLogoOutputs += ("mean-travel-distance", traveldistance),
+  netLogoOutputs += ("actives-entropy", entropy),
+  netLogoOutputs += ("stability",stability),
+  netLogoOutputs += ("regional-decision-proba", regionalproba),
+  netLogoOutputs += ("lambda-accessibility", lambdaacc),
+  netLogoOutputs += ("euclidian-min-pace", euclpace)  )
+
+// output
+val h = AppendToCSVFileHook("res_oml/"+((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
+
+
+
+val startTime = System.currentTimeMillis
+
+// environement
+val env = LocalEnvironment(4)
+
+logger.level("FINE")
+
+val exec = exploration -< (model on env hook h) start
+
+exec.waitUntilEnded
+
+println("Ellapsed Time is "+(System.currentTimeMillis - startTime) / 1000.0)
+

@@ -21,24 +21,36 @@ getSingleParamPoints <- function(data,params_cols,indics_cols,nreps){
   sigmas = matrix(0,k,length(indics_cols))
   params = matrix(0,k,length(params_cols))
  
-  for(kk in 0:(k-1)){
-    #show(points)
-    d = data[((kk*nreps)+1):((kk+1)*nreps),indics_cols]
-    means[kk+1,] = apply(d,2,mean);sigmas[kk+1,]=apply(d,2,sd)
-    for(j in 1:length(indics_cols)){
-      params[(kk+1),j] = data[((kk*nreps)+1),params_cols[j]]
+#   for(kk in 0:(k-1)){
+#     #show(points)
+#     d = data[((kk*nreps)+1):((kk+1)*nreps),indics_cols]
+#     means[kk+1,] = apply(d,2,mean);sigmas[kk+1,]=apply(d,2,sd)
+#     for(j in 1:length(indics_cols)){
+#       params[(kk+1),j] = data[((kk*nreps)+1),params_cols[j]]
+#     }
+#   }
+
+# can be disordered -> need to fill a list and compute means,sd afterwards
+  
+  params = list();indics = list()
+  for(l in 1:length(data)){
+    pval = data[l,param_cols]
+    known_param = 0;
+    for(k in 1:length(params)){
+      if(prod(params[[k]]==pval)){known_param=k;indics[[k]]=append(indics[[k]], data[l,indic_cols])}
+    }
+    if(known_param==0){
+      # add the parameter
+      params = append(params,pval)
+      indics = append(indics,list(data[l,indic_cols]))
     }
   }
-  return(list(params,means,sigmas))
+
+  return(list(params,lapply(indics,function(l){mean(as.numeric(l))},lapply(indics,function(l){sd(as.numeric(l))}))))
 }
 
 
-############################
-# plot points
-plotPoints<-function(d1,d2,xstring,ystring,colstring){
-  p = ggplot(d1, aes_string(x=xstring,y=ystring,col=colstring))
-  p + geom_point() + geom_point(data=d2, aes_string(x = xstring, y = ystring),colour=I("red"),shape="+",size=5)
-}
+
 
 
 
@@ -94,19 +106,24 @@ for(i in 1:3){for(j in (i+1):4){
 source(paste0(Sys.getenv("CN_HOME"),'/Models/Utils/R/plots.R'))
 
 
-real = read.csv(
-  paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/france_20km_mar.-juin-09-23:46:42-2015.csv'),
+real_raw = read.csv(
+  #paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/france_20km_mar.-juin-09-23:46:42-2015.csv'),
+  paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/europe_50km_sam.-juin-27-03:00:19-2015.csv'),
   sep=";"
 )
 
 # no na
-real =real[!is.na(real[,3]),3:6]
+real =real_raw[!is.na(real_raw[,3])&!is.na(real_raw[,4])&!is.na(real_raw[,5])&!is.na(real_raw[,6])&!is.na(real_raw[,7])&!is.na(real_raw[,8])&!is.na(real_raw[,9]),]
+
+# renormalize
+for(j in 1:ncol(real)){real[,j]=(real[,j]-min(real[,j]))/(max(real[,j])-min(real[,j]))}
 
 # indepednant measurement
-real = real[4*(0:(nrow(real)/4))+1,]
+# : disjoint areas - offset/gridSize
+real = real[5*(0:(nrow(real)/5))+1,]
 
-#sample
-real = real[sample.int(length(real[,1]),500),]
+#sample :: no need
+#real = real[sample.int(length(real[,1]),500),]
 
 plotPoints(m,real,"moran","entropy","diffusion")
 
@@ -114,8 +131,8 @@ plotPoints(m,real,"moran","entropy","diffusion")
 # Check independance of objectives
 ##
 
-cor(real)
-pr=prcomp(real)
+cor(real[,3:9])
+pr=prcomp(real[,3:9])
 r=pr$rotation
 cor(real*r)
 
@@ -126,12 +143,9 @@ summary(prcomp(real[,c(1,2,4)]))
 
 summary(prcomp(m[,1:4]))
 
-# resp 95% and 96% of variance is explained by a single principal component
-# -> problem ; should be of dim ~ 3 ?
-# -- WRONG --
 # because superposed areas (with ≠ origin phases) -> strongly dependant
-# should do the pca on 1/4
-
+# should do the pca on 1/4 --> OK
+# dim ~ 3.5, quite good
 
 
 ########################

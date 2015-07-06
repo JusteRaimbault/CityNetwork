@@ -8,7 +8,11 @@
 ; General setup
 to setup
   
-  clear-all
+  ; if headless, no need to reset as all patch vars will be 0 and no agents (different model instances).
+  if headless? = 0 [
+    clear-all
+  ]
+   
   reset-ticks
   
   output-print "Setting up"
@@ -79,7 +83,7 @@ to setup-initial-distributions
   output-print "... Distributions"
   
   ; use monocentric kernel application function
-  let centers [patch-here] of mayors
+  let centers [patch-here] of mayors with [self != regional-authority]
   foreach centers [
     apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" ?
     apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" ?
@@ -189,6 +193,29 @@ end
 ; transportation
 to setup-transportation
   set patches-congestion rep 1 (count patches)
+end
+
+
+
+to setup-headless-vars
+  set actives-max 500 set employments-max 500
+  set #-initial-territories 2
+  set actives-spatial-dispersion 5
+  set employments-spatial-dispersion 5
+  set gamma-cobb-douglas 0.8
+  set beta-discrete-choices 1.1
+  set lambda-accessibility 0.05
+  set regional-decision-proba 0.5
+  set road-length 5
+  set #-explorations 5
+  set log-level "DEFAULT"
+  set network-min-pace 1
+  set euclidian-min-pace 2
+  set congestion-price 50
+  
+  set total-time-steps 4
+  
+  
 end
 
 
