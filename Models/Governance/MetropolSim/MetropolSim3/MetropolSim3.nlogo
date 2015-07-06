@@ -71,12 +71,20 @@ __includes [
   
   
   ;;;;;;;;;;
+  ; indicators
+  ;;;;;;;;;;
+  
+  "indicators.nls"
+  
+  
+  ;;;;;;;;;;
   ;; utils
   ;;;;;;;;;;
   
   ; Q : package utils subpackages or all utils to have a simpler use ?
   
   "utils/math/SpatialKernels.nls"
+  "utils/math/Statistics.nls"
   "utils/misc/List.nls"
   "utils/misc/Types.nls"
   "utils/misc/Matrix.nls"
@@ -94,6 +102,7 @@ __includes [
   ;;;;;;;;;;;
   
   "test/test-distances.nls"
+  "test/test-transportation.nls"
   
 ]
 
@@ -214,7 +223,11 @@ globals[
   gridor
   
   
+  ;; HEADLESS
+  headless?
+  
 ]
+
 
 
 patches-own [
@@ -246,6 +259,10 @@ patches-own [
   
   ; accessibility of actives to employments
   e-to-a-accessibility
+   
+  ; travel distances
+  a-to-e-distance
+  e-to-a-distance
    
   ; utilities
   ; for actives
@@ -301,7 +318,6 @@ breed[transportation-nodes transportation-node]
 
 transportation-nodes-own[
 ]
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 376
@@ -365,12 +381,12 @@ NIL
 CHOOSER
 5
 600
-172
+124
 645
 patches-display
 patches-display
-"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance"
-8
+"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance"
+9
 
 TEXTBOX
 11
@@ -461,7 +477,7 @@ gamma-cobb-douglas
 gamma-cobb-douglas
 0
 1
-0.8
+0.6
 0.05
 1
 NIL
@@ -517,18 +533,18 @@ NIL
 1
 
 PLOT
-932
-18
-1092
-138
+913
+13
+1073
+133
 convergence
 NIL
 NIL
 0.0
 10.0
 0.0
-100.0
-false
+10.0
+true
 false
 "" ""
 PENS
@@ -565,7 +581,7 @@ Governance
 SLIDER
 184
 203
-354
+333
 236
 regional-decision-proba
 regional-decision-proba
@@ -608,10 +624,10 @@ TEXTBOX
 1
 
 SLIDER
-7
-306
-172
-339
+6
+342
+171
+375
 network-min-pace
 network-min-pace
 0
@@ -623,20 +639,20 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-3
-256
-206
-283
+4
+298
+207
+325
 _________________
 20
 0.0
 1
 
 TEXTBOX
-7
-285
-157
-303
+6
+327
+156
+345
 Transportation
 11
 0.0
@@ -704,7 +720,7 @@ NIL
 1
 
 MONITOR
-1218
+1227
 13
 1282
 58
@@ -715,7 +731,7 @@ th paths
 11
 
 MONITOR
-1223
+1227
 61
 1281
 106
@@ -726,7 +742,7 @@ length table:keys network-shortest-paths
 11
 
 MONITOR
-1222
+1228
 109
 1279
 154
@@ -771,40 +787,40 @@ NIL
 1
 
 CHOOSER
-177
-602
-315
-647
+126
+600
+264
+645
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
 1
 
 SLIDER
-7
-342
-171
-375
+6
+378
+170
+411
 euclidian-min-pace
 euclidian-min-pace
 1
 50
-5
+15
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-7
-376
-169
-409
+6
+412
+170
+445
 congestion-price
 congestion-price
 0
 100
-50
+2
 1
 1
 NIL
@@ -813,13 +829,13 @@ HORIZONTAL
 SLIDER
 184
 241
-354
+333
 274
 road-length
 road-length
 0
 20
-4
+7
 1
 1
 NIL
@@ -828,7 +844,7 @@ HORIZONTAL
 SLIDER
 185
 277
-357
+333
 310
 #-explorations
 #-explorations
@@ -839,6 +855,155 @@ SLIDER
 1
 NIL
 HORIZONTAL
+
+BUTTON
+6
+652
+95
+685
+update display
+compute-patches-variables
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+4
+273
+171
+306
+lambda-accessibility
+lambda-accessibility
+0
+1
+0.085
+0.005
+1
+NIL
+HORIZONTAL
+
+BUTTON
+1303
+245
+1397
+278
+indicators
+compute-indicators
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+186
+375
+348
+408
+total-time-steps
+total-time-steps
+0
+20
+5
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+182
+346
+418
+381
+__________________
+20
+0.0
+1
+
+CHOOSER
+185
+312
+332
+357
+game-type
+game-type
+"random"
+0
+
+TEXTBOX
+174
+289
+189
+321
+|
+25
+0.0
+1
+
+TEXTBOX
+174
+312
+192
+342
+|
+25
+0.0
+1
+
+PLOT
+914
+134
+1074
+254
+accessibility
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean-accessibility"
+"pen-1" 1.0 0 -7858858 true "" "plot max-accessibility"
+"pen-2" 1.0 0 -4757638 true "" "plot min-accessibility"
+
+SLIDER
+6
+447
+169
+480
+lambda-flows
+lambda-flows
+0
+1
+0.5
+0.005
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+7
+467
+194
+511
+__________________
+20
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

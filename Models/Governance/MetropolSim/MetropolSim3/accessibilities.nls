@@ -10,6 +10,10 @@ to compute-patches-variables
   compute-patches-accessibilities
   compute-patches-form-factor
   compute-patches-utilities
+  
+  ; color patches here, for more understanding of the infrastructure explo process
+  color-patches
+  
 end
 
 
@@ -19,8 +23,12 @@ end
 to compute-patches-accessibilities
   ask patches [
      ; only one csp for now
-     set a-to-e-accessibility scalar-product (patches-employments) map [exp (- ?)] (matrix:get-row effective-distance-matrix number)
-     set e-to-a-accessibility scalar-product (patches-actives) map [exp (- ?)] (matrix:get-row effective-distance-matrix number)
+     set a-to-e-accessibility actives * scalar-product (patches-employments) map [exp (- lambda-accessibility * ?)] (matrix:get-row effective-distance-matrix number)
+     set e-to-a-accessibility employments * scalar-product (patches-actives) map [exp (- lambda-accessibility * ?)] (matrix:get-row effective-distance-matrix number)
+     
+     ; update also travel distances
+     set a-to-e-distance actives * scalar-product (patches-employments) (matrix:get-row effective-distance-matrix number)
+     set e-to-a-distance employments * scalar-product (patches-actives) (matrix:get-row effective-distance-matrix number)
   ]
 end
 

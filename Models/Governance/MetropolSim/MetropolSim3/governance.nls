@@ -22,8 +22,11 @@ to governance
   
   let old-config save-nw-config
   ; construct the best one
-  construct-infrastructure decidors (best-infrastructure decidors old-config) old-config
+  construct-infrastructure (best-infrastructure decidors old-config) old-config
   
+  ; recompute patch vars here - as indicators are called after the end of this stage.
+  ;  Q : to gain perf, do it only at the end ? -- OK not so much time
+  compute-patches-variables
   
 end
 
@@ -39,7 +42,11 @@ to-report decision-makers
      ; local decision : choose according to wealth
      ; choose neighbor pairs with maximal weight
      ; dirty way ok as very few mayors
+     ;
      ;  -- TODO -- for now not random
+     ;
+     ;  @TODO implement various ways to choose constructors ?
+     ;
      let ma 0 let maxpair []
      ask mayors[ask other mayors [let etot [employments] of self + [employments] of myself if etot > ma [set ma etot set maxpair (list self myself)]]]
      report maxpair
@@ -57,11 +64,11 @@ to-report potential-infrastructures [decidors]
   let res []
   ifelse decidors = regional-authority [
     repeat #-explorations [
-      set res lput (random-infra patches) res
+      set res lput (random-infra patches (2 * road-length)) res
     ]
   ][
     repeat #-explorations [
-      set res lput (random-infra (patches with [member? governing-mayor decidors])) res
+      set res lput (random-infra (patches with [member? governing-mayor decidors]) road-length) res
     ]
   ]
   report res
@@ -87,11 +94,8 @@ to-report best-infrastructure [decidors old-config]
     let best2 compare-infrastructures old-config potential-infrastructures (list dec2)
     let best12 compare-infrastructures old-config potential-infrastructures decidors
     
-    ; implement game : need to check proba formula.
-    ; for now random
-    let r random 3
-    if r = 1 [report first best1] if r = 2 [report first best2]
-    if r = 0 [report first best12]
+    ; report game result given these explorations
+    report game-result best1 best2 best12
   ]
   
 end
@@ -100,10 +104,21 @@ end
 
 ;;
 ; raw comparison of infras : needs old configuration of a-e ? yes nw config for shortest paths
+;
+;  @TODO
+;  -- NOTE -- for mean-acc ; shouldn't it be only on patches concerned by the decidor ?
+;    --> clarify this point
+;
 to-report compare-infrastructures [old-nw-config choices]
   verbose (word "comparing " length choices " infras")
-  ;let old-acc sum [a-to-e-accessibility + e-to-a-accessibility] of patches
-  let old-acc 0
+  
+  recall-nw-config old-nw-config
+  
+  ; old mean accessibility
+  compute-patches-accessibilities
+  let old-acc mean-accessibility
+  verbose mean-travel-distance
+  
   let best-choice [] let delta-acc 0
   foreach choices [
     recall-nw-config old-nw-config
@@ -112,20 +127,50 @@ to-report compare-infrastructures [old-nw-config choices]
     update-effective-matrices
     ; recompute new accessibilities
     compute-patches-accessibilities
-    let new-acc sum [a-to-e-accessibility + e-to-a-accessibility] of patches
-    if new-acc > old-acc [set best-choice ? set delta-acc new-acc - old-acc set old-acc new-acc]
+    let new-acc mean-accessibility
+    
+    ; check if better delta-acc
+    verbose (word "∆Z=" (new-acc - old-acc))
+    verbose (word "mean-travel-distance = " mean-travel-distance)
+    
+    if (new-acc - old-acc) > delta-acc [set best-choice ? set delta-acc (new-acc - old-acc)]
+    
+    ; kill the potential infra, will be reconstructed if indeed the best
     ask potential-infra [ask both-ends [die] die]
+    
+    ; color patch here ? should be supressed for performance
+    color-patches
   ]
-  verbose (word "best infra is " best-choice)
+  
+  verbose (word "best infra is " best-choice " with ∆Z=" delta-acc)
+  
   report (list best-choice delta-acc)
 end
+
+
+
+;;
+; Implement the game between the two actors
+to-report game-result [best1 best2 best12]
+    ; implement game : need to check proba formula.
+  
+   if game-type = "random" [
+    ; Random = no game
+    let r random 3
+    if r = 1 [report first best1] if r = 2 [report first best2]
+    if r = 0 [report first best12]
+   ]
+   
+   
+end
+
 
 
 ;;
 ; Construct the given infrastructure
 ;
 ; Update matrices distances etc here !
-to construct-infrastructure [decidors infra old-config]
+to construct-infrastructure [infra old-config]
   
   ; construct the infra if not empty
   if infra != [] [
@@ -160,14 +205,17 @@ end
 
 
 
-to-report random-infra [patchset]
+to-report random-infra [patchset infra-length]
   let p1 one-of patchset
-  let p2 nobody if p1 != nobody [ask p1 [set p2 one-of patchset with [abs(distance myself - road-length) < 1]]]
-  if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patchset with [distance myself < road-length]]]]
+  let p2 nobody if p1 != nobody [ask p1 [set p2 one-of patchset with [abs(distance myself - infra-length) < 1]]]
+  if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patchset with [distance myself < infra-length]]]]
   ifelse p2 = nobody or p1 = nobody [report (list (list random-xcor random-ycor) (list random-xcor random-ycor))][
   report (list (list [pxcor] of p1 [pycor] of p1) (list [pxcor] of p2 [pycor] of p2))  
   ]
 end
+
+
+
 
 
 

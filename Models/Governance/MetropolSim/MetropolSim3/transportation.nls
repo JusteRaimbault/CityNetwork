@@ -41,16 +41,18 @@ to compute-flows
   let n-iter-furness 10
   repeat n-iter-furness [    
     let ptemp p let qtemp q
-    set p map [1 / ?] first matrix:to-column-list (matrix:times effective-distance-matrix (matrix:from-column-list (list list-times-element-wise qtemp patches-employments)))
-    set q map [1 / ?] first matrix:to-column-list (matrix:times effective-distance-matrix (matrix:from-column-list (list list-times-element-wise ptemp patches-actives)))
+    set p map [1 / ?] first matrix:to-column-list (matrix:times (matrix:map [exp (- ? * lambda-flows)] effective-distance-matrix) (matrix:from-column-list (list list-times-element-wise qtemp patches-employments)))
+    set q map [1 / ?] first matrix:to-column-list (matrix:times (matrix:map [exp (- ? * lambda-flows)] effective-distance-matrix) (matrix:from-column-list (list list-times-element-wise ptemp patches-actives)))
   ]
   
-  ; then set flows as \phi_ij = p_i*q_j*A_i*E_j*effective_distance(i,j)
+  ; then set flows as \phi_ij = p_i*q_j*A_i*E_j*exp( - \lambda * effective_distance(i,j) )
   ;   -> Q : here effective dist takes into account network
   
-  set flow-matrix matrix:times-element-wise (matrix:times-element-wise (matrix:from-column-list (rep (list-times-element-wise p patches-actives) #-patches)) (matrix:from-row-list (rep (list-times-element-wise q patches-employments) #-patches))) effective-distance-matrix
+  ; TODO : BORD EFFECTS ? : proportion of population that should go 'outside the world' is indeed redistributed to nearest patches,
+  ;   causing sometimes highest flows to result of bord effects. -- for that, choose centers not to close from brod of the world ?
   
-  
+  set flow-matrix matrix:times-element-wise (matrix:times-element-wise (matrix:from-column-list (rep (list-times-element-wise p patches-actives) #-patches)) (matrix:from-row-list (rep (list-times-element-wise q patches-employments) #-patches))) (matrix:map [exp (- ? * lambda-flows)] effective-distance-matrix)
+    
 end
 
 
@@ -74,9 +76,13 @@ to transportation-affectation
          ;
          ; Q : congestion in euclidian space needed ?
          ;
-         if ((matrix:get euclidian-distance-matrix p1 p2) * euclidian-min-pace) > (((matrix:get euclidian-distance-matrix p1 a1) + (matrix:get euclidian-distance-matrix p2 a2)) * euclidian-min-pace + (matrix:get network-distance-matrix a1 a2)) and table:has-key? closest-nw-inters a1 and table:has-key? closest-nw-inters a2[
+         ifelse ((matrix:get euclidian-distance-matrix p1 p2) * euclidian-min-pace) > (((matrix:get euclidian-distance-matrix p1 a1) + (matrix:get euclidian-distance-matrix p2 a2)) * euclidian-min-pace + (matrix:get network-distance-matrix a1 a2)) and table:has-key? closest-nw-inters a1 and table:has-key? closest-nw-inters a2[
            let path table:get network-shortest-paths (list (one-of map [first ?] table:get closest-nw-inters a1) (one-of map [first ?] table:get closest-nw-inters a2))
            foreach path [set patches-congestion replace-item ? patches-congestion (item ? patches-congestion + matrix:get flow-matrix p1 p2)]
+         ][
+           ; euclidian congestion ?
+           
+           
          ]
       ]
        set p2 p2 + 2
