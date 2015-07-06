@@ -11,61 +11,13 @@ setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
 #############################
 #############################
 
-# function to get single param points from raw result
-#  --> make generic function ?
-getSingleParamPoints <- function(data,params_cols,indics_cols,nreps){
-  # really more simple to use nreps
-  # necessarily, length(data[,1])/nreps \in \mathbb{N}
-  k = length(data[,1]) / nreps
-  means = matrix(0,k,length(indics_cols))
-  sigmas = matrix(0,k,length(indics_cols))
-  params = matrix(0,k,length(params_cols))
- 
-#   for(kk in 0:(k-1)){
-#     #show(points)
-#     d = data[((kk*nreps)+1):((kk+1)*nreps),indics_cols]
-#     means[kk+1,] = apply(d,2,mean);sigmas[kk+1,]=apply(d,2,sd)
-#     for(j in 1:length(indics_cols)){
-#       params[(kk+1),j] = data[((kk*nreps)+1),params_cols[j]]
-#     }
-#   }
-
-# can be disordered -> need to fill a list and compute means,sd afterwards
-  
-  params = list();indics = list()
-  for(l in 1:length(data)){
-    pval = data[l,param_cols]
-    known_param = 0;
-    for(k in 1:length(params)){
-      if(prod(params[[k]]==pval)){known_param=k;indics[[k]]=append(indics[[k]], data[l,indic_cols])}
-    }
-    if(known_param==0){
-      # add the parameter
-      params = append(params,pval)
-      indics = append(indics,list(data[l,indic_cols]))
-    }
-  }
-
-  return(list(params,lapply(indics,function(l){mean(as.numeric(l))},lapply(indics,function(l){sd(as.numeric(l))}))))
-}
-
-
-
-
-
-
-#############################
-#############################
-
 
 
 
 # load result
-res = read.csv('res_oml/2015_06_12_17_41_44_sampling.csv',sep=',')
-
-
-# test
-p = getSingleParamPoints(res,c(1,2,3,6),c(4,5,7,8),100)
+res = read.csv('res_oml/2015_06_29_16_12_01_LHSsampling.csv',sep=',')
+# transform as usable data structure
+p = getSingleParamPoints(res,c(1,2,3,6),c(4,5,7,8,9))
 
 # ggplot
 
@@ -74,25 +26,22 @@ library(ggplot2)
 # simple plot
 
 # data frame of means
-m = data.frame(moran=p[[2]][,1],distance=p[[2]][,2],
-               entropy=p[[2]][,3],slope=p[[2]][,4],
-               diffusion=p[[1]][,1],diffsteps=p[[1]][,2],alpha=p[[1]][,3],rate=p[[1]][,4])
+m=data.frame(matrix(data=unlist(p$mean),ncol=5,byrow=TRUE),matrix(data=unlist(p$param),ncol=4,byrow=TRUE));names(m)<- c("distance","entropy","moran","rsquared","slope","alphalocalization","diffusion","diffusionsteps","growthrate")
+s=data.frame(matrix(data=unlist(p$sd),ncol=5,byrow=TRUE));names(s)<- c("distance","entropy","moran","rsquared","slope")
 
-# data frame of stds
-s = data.frame(moran=p[[3]][,1],distance=p[[3]][,2],entropy=p[[3]][,3],slope=p[[3]][,4])
 
 # indicators
-indics = c("moran","distance","entropy","slope")
+indics = c("distance","entropy","moran","rsquared","slope")
 
 
 
 #plotPoints(m,m[1:10,],"entropy","slope","diffusion")
 # ok additional points features works
-#plotPoints(m,"entropy","distance","diffusion")
-#plotPoints(m,"entropy","moran","diffusion")
-#plotPoints(m,"slope","distance","diffusion")
-#plotPoints(m,"slope","moran","diffusion")
-#plotPoints(m,"distance","moran","diffusion")
+plotPoints(m,xstring="entropy",ystring="distance",colstring="diffusion")
+plotPoints(m,xstring="entropy",ystring="moran",colstring="diffusion")
+plotPoints(m,"slope","distance","diffusion")
+plotPoints(m,"slope","moran","diffusion")
+plotPoints(m,"distance","moran","diffusion")
 
 
 #par(mfrow=c(2,3))
