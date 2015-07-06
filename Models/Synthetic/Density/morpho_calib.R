@@ -15,9 +15,9 @@ setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
 
 
 # load result
-res = read.csv('res_oml/2015_06_29_16_12_01_LHSsampling.csv',sep=',')
+res = read.csv('res_oml/2015_06_29_16_12_01_LHSsampling_WITHPOPULATION.csv',sep=';')
 # transform as usable data structure
-p = getSingleParamPoints(res,c(1,2,3,6),c(4,5,7,8,9))
+p = getSingleParamPoints(res,c(1,2,3,6,10),c(4,5,7,8,9))
 
 # ggplot
 
@@ -26,7 +26,7 @@ library(ggplot2)
 # simple plot
 
 # data frame of means
-m=data.frame(matrix(data=unlist(p$mean),ncol=5,byrow=TRUE),matrix(data=unlist(p$param),ncol=4,byrow=TRUE));names(m)<- c("distance","entropy","moran","rsquared","slope","alphalocalization","diffusion","diffusionsteps","growthrate")
+m=data.frame(matrix(data=unlist(p$mean),ncol=5,byrow=TRUE),matrix(data=unlist(p$param),ncol=5,byrow=TRUE));names(m)<- c("distance","entropy","moran","rsquared","slope","alphalocalization","diffusion","diffusionsteps","growthrate","population")
 s=data.frame(matrix(data=unlist(p$sd),ncol=5,byrow=TRUE));names(s)<- c("distance","entropy","moran","rsquared","slope")
 
 
@@ -37,7 +37,7 @@ indics = c("distance","entropy","moran","rsquared","slope")
 
 #plotPoints(m,m[1:10,],"entropy","slope","diffusion")
 # ok additional points features works
-plotPoints(m,xstring="entropy",ystring="distance",colstring="diffusion")
+plotPoints(d1=m,d2=real,xstring="slope",ystring="moran",colstring="population")
 plotPoints(m,xstring="entropy",ystring="moran",colstring="diffusion")
 plotPoints(m,"slope","distance","diffusion")
 plotPoints(m,"slope","moran","diffusion")
@@ -57,7 +57,7 @@ source(paste0(Sys.getenv("CN_HOME"),'/Models/Utils/R/plots.R'))
 
 real_raw = read.csv(
   #paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/france_20km_mar.-juin-09-23:46:42-2015.csv'),
-  paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/europe_50km_sam.-juin-27-03:00:19-2015.csv'),
+  paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/europe_50km_sam.-juin-27-03:00:19-2015.csv'),
   sep=";"
 )
 
@@ -72,7 +72,7 @@ for(j in 1:ncol(real)){real[,j]=(real[,j]-min(real[,j]))/(max(real[,j])-min(real
 real = real[5*(0:(nrow(real)/5))+1,]
 
 #sample :: no need
-#real = real[sample.int(length(real[,1]),500),]
+real = real[sample.int(length(real[,1]),500),]
 
 plotPoints(m,real,"moran","entropy","diffusion")
 
