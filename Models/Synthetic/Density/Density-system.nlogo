@@ -83,8 +83,8 @@ GRAPHICS-WINDOW
 99
 0
 99
-1
-1
+0
+0
 1
 ticks
 30.0
@@ -98,7 +98,7 @@ sp-diffusion
 sp-diffusion
 0
 0.5
-0.051
+0.205
 0.001
 1
 NIL
@@ -113,7 +113,7 @@ sp-growth-rate
 sp-growth-rate
 0
 10000
-5322
+5350
 1
 1
 NIL
@@ -177,7 +177,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-1.22
+1.32
 0.01
 1
 NIL
@@ -231,7 +231,7 @@ sp-max-pop
 sp-max-pop
 0
 100000
-10190
+50960
 10
 1
 NIL

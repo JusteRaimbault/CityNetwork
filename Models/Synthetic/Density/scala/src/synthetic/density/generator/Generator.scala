@@ -1,15 +1,31 @@
 package synthetic.density.generator
 
+import java.io.{File, FileWriter}
+
 import synthetic.density.Cell
 
 import scala.util.Random
-
 
 trait Generator {
 
   def size : Int
 
   def world(implicit rng: Random): Seq[Seq[Cell]]
+
+  /**
+   * computes config and exports it
+   */
+  def export(rng:Random) : Unit = {
+    val w = world(rng)
+    val writer:FileWriter=new FileWriter(new File("../temp_pop.csv"))
+    w.foreach(
+       row => {
+         //println(row.map{c=>c.population}.mkString(";"))
+         writer.write(row.map{c=>c.population}.mkString(";")+"\n");
+       }
+    )
+    writer.close()
+  }
 
 
     /**
