@@ -9,7 +9,7 @@ trait ExpMixtureGenerator extends Generator{
 
 
   /** maximal capacity C_m */
-  def maxCapacity : Int
+  def maxPopulation : Int
 
   /** Size of exponential kernels, of the form C_m*exp(-||x-x_0||/r_0) */
   def kernelRadius : Double
@@ -17,7 +17,7 @@ trait ExpMixtureGenerator extends Generator{
   /** Number of exponential kernels */
   def centersNumber : Int
 
-  def container(implicit rng: Random) = {
+  def world(implicit rng: Random) : Seq[Seq[Cell]] = {
     val arrayVals = Array.fill[Cell](size, size) {
       new Cell(0)
     }
@@ -29,7 +29,7 @@ trait ExpMixtureGenerator extends Generator{
 
     for (i <- 0 to size - 1; j <- 0 to size - 1) {
       for (c <- 0 to centersNumber - 1) {
-        arrayVals(i)(j).population = arrayVals(i)(j).population + maxCapacity * math.exp(-math.sqrt(math.pow((i - centers(c)(0)), 2) + math.pow((j - centers(c)(1)), 2)) / kernelRadius)
+        arrayVals(i)(j).population = arrayVals(i)(j).population + maxPopulation * math.exp(-math.sqrt(math.pow((i - centers(c)(0)), 2) + math.pow((j - centers(c)(1)), 2)) / kernelRadius)
       }
     }
 
