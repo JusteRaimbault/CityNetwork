@@ -1,0 +1,23 @@
+import density._
+import density.TestGenerator
+import org.openmole.plugin.domain.collection._
+import org.openmole.plugin.domain.distribution._
+import org.openmole.plugin.domain.modifier._
+import org.openmole.plugin.sampling.combine._
+import org.openmole.plugin.task.scala._
+import org.openmole.plugin.hook.display._
+
+logger.level("FINE")
+
+val task =
+  ScalaTask("TestGenerator.main") set (
+    imports += "density._"
+    //usedClasses += classOf[density.TestGenerator]
+    )
+
+val seed = Val[Int]
+
+val explo = ExplorationTask(seed in (0 to 1))
+
+val ex = explo -< (task hook ToStringHook()) start
+ex.waitUntilEnded

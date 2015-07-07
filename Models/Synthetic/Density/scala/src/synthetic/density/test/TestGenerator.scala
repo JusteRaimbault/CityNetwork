@@ -1,4 +1,7 @@
-package synthetic.density.test
+package synthetic.density
+
+import java.io.{BufferedReader, File, FileReader}
+
 
 import synthetic.density.generator.PrefAttDiffusionGenerator
 import scala.util.Random
@@ -37,6 +40,18 @@ object TestGenerator extends App{
   // external call to compute indicators
   ("R -e source('../csv2raster.R',chdir=TRUE);source('../morpho.R',chdir=TRUE);exportIndics()").!
 
+
+  //get back indicators
+  val r = new BufferedReader(new FileReader(new File("temps_indics.csv")))
+  r.readLine();
+  val indics = r.readLine().split(";")
+  val moran = indics(0)
+  val distance=indics(1)
+  val entropy=indics(2)
+  val slope=indics(3)
+  val rsquared=indics(4)
+
+  println(moran)
   // generate instance of container
   /*println("Moran : "+Morphology.moran(world)+" ("+(System.currentTimeMillis()-t)/1000.0+" s)")
   println("Distance : "+Morphology.distanceMean(world)+" ("+(System.currentTimeMillis()-t)/1000.0+" s)")
