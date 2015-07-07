@@ -118,7 +118,13 @@ extractSubRaster<- function(file,r,c,size,factor){
 
 
 
-
+exportIndics<-function(){
+  s=rankSizeSlope()
+  write.table(data.frame(moran=moranIndex(),distance=averageDistance(),entropy=entropy(),slope=s[1],rsquared=s[2])
+              ,file="../temp_indics.csv"
+              ,row.names=FALSE,sep=';',quote=FALSE
+              )
+}
 
 
 

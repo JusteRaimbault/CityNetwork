@@ -17,7 +17,7 @@ object Morphology {
 
 
 
-  def distanceMean[T](matrix: Seq[Seq[Cell]]) = {
+  def distanceMean(matrix: Seq[Seq[Cell]]) = {
 
     def totalQuantity = matrix.flatten.map(_.population).sum
 
@@ -64,41 +64,36 @@ object Morphology {
 
   def moran(matrix: Seq[Seq[Cell]]): Double = {
     def flatCells = matrix.flatten
-    val totalQuantity = flatCells.map(_.population).sum
-    val averageQuantity = totalQuantity / matrix.flatten.length
+    val totalPop = flatCells.map(_.population).sum
+    val averagePop = totalPop / matrix.flatten.length
 
-    val neighs = neighbors(matrix)
 
-    def numerator =
-      neighs.map {
-        case (cellI, cellJ, weight) =>
-          val term1 = if (cellI.population == 0) 0.0 else (cellI.population - averageQuantity.toDouble)
-          val term2 = if (cellJ.population == 0) 0.0 else (cellJ.population - averageQuantity.toDouble)
-          weight * term1 * term2
-      }.sum
+    def vals =
+      for {
+        (c1, p1) <- zipWithPosition(matrix)
+        (c2, p2) <- zipWithPosition(matrix)
+      } yield (decay(p1, p2) * (c1.population - averagePop) * (c2.population - averagePop),decay(p1, p2))
+
+
+
+    def numerator : Double = vals.map{case (n,_)=>n}.sum
+    def totalWeight : Double = vals.map{case(_,w)=>w}.sum
 
     def denominator =
       flatCells.map {
         cell =>
           if (cell.population == 0) 0
-          else math.pow(cell.population - averageQuantity.toDouble, 2)
+          else math.pow(cell.population - averagePop.toDouble, 2)
       }.sum
 
-    val totalWeight = neighs.map { case (_, _, weight) => weight }.sum
-
-    if (denominator.toDouble == 0) 0
-    else (matrix.flatten.length / totalWeight.toDouble) * (numerator / denominator)
+    if (denominator == 0) 0
+    else (matrix.flatten.length / totalWeight) * (numerator / denominator)
   }
 
-
-  def neighbors(matrix: Seq[Seq[Cell]]):Seq[(Cell,Cell,Double)] =
-    for {
-      (cellI,positionI) <- zipWithPosition(matrix)
-      (cellJ,positionJ) <- zipWithPosition(matrix)
-      if positionI != positionJ
-      d = 1 / distance(positionI, positionJ)
-      if d > 0.0
-    } yield (cellI, cellJ, d)
+  def decay(p1:(Int,Int),p2:(Int,Int)) = {
+    if (p1==p2) 0.0
+    else 1/distance(p1,p2)
+  }
 
 
 
