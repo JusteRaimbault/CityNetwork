@@ -12,7 +12,7 @@ trait PrefAttDiffusionGenerator extends Generator {
   def diffusionSteps: Int
 
   /** Growth rate */
-  def growthRate: Int
+  def growthRate: Double
 
   /** Preferential attachment parameter */
   def alphaAtt: Double
@@ -31,12 +31,12 @@ trait PrefAttDiffusionGenerator extends Generator {
       // add new population following pref att rule
       if (population == 0) {
         //choose random patch
-        for (_ <- 1 to growthRate) { val i = rng.nextInt(size); val j = rng.nextInt(size); arrayVals(i)(j).population = arrayVals(i)(j).population + 1 }
+        for (_ <- 1 to growthRate.toInt) { val i = rng.nextInt(size); val j = rng.nextInt(size); arrayVals(i)(j).population = arrayVals(i)(j).population + 1 }
       } else {
         val oldPop = arrayVals.clone()
         val ptot = oldPop.flatten.map((c: Cell) => math.pow(c.population / population, alphaAtt)).sum
 
-        for (_ <- 1 to growthRate) {
+        for (_ <- 1 to growthRate.toInt) {
           var s = 0.0; val r = rng.nextDouble(); var i = 0; var j = 0
           while (s < r) { s = s + (math.pow(oldPop(i)(j).population / population, alphaAtt) / ptot); j = j + 1; if (j == size) { j = 0; i = i + 1 } }
           if (j == 0) { j = size - 1; i = i - 1 } else { j = j - 1 };
