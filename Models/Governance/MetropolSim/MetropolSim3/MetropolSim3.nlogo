@@ -1005,6 +1005,23 @@ __________________
 0.0
 1
 
+BUTTON
+1240
+166
+1321
+199
+test dist
+setup\ntest-network-effect\ncheck-effective-distance 1180 684
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
