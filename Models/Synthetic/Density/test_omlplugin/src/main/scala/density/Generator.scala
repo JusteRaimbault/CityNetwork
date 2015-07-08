@@ -10,15 +10,16 @@ trait Generator {
 
   def world(implicit rng: Random): Seq[Seq[Cell]]
 
+  def temp_file: String
+
   /**
    * computes config and exports it
    */
   def export(rng: Random): Unit = {
     val w = world(rng)
-    val writer: FileWriter = new FileWriter(new File("temp_pop.csv"))
+    val writer: FileWriter = new FileWriter(new File(temp_file))
     w.foreach(
       row => {
-        //println(row.map{c=>c.population}.mkString(";"))
         writer.write(row.map { c => c.population }.mkString(";") + "\n");
       }
     )

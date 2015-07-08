@@ -22,11 +22,14 @@ spatialWeights <- function (N,P){
 }
 
 # load data -> global variable
-r_dens = raster("temp_raster_dens.asc")
+# @requires : vars rdens, rpop are defined
+# "temp_raster_dens.asc", "temp_raster_pop.asc"
+show(paste0('Loading rasters from ',rdens_file,' , ',rpop_file))
+r_dens = raster(rdens_file)
 m = as.matrix(r_dens)
 m[is.na(m)] <- 0
 r_dens = raster(m)
-r_pop = raster("temp_raster_pop.asc")
+r_pop = raster(rpop_file)
 m = as.matrix(r_pop)
 m[is.na(m)] <- 0
 r_pop = raster(m)
@@ -116,15 +119,6 @@ extractSubRaster<- function(file,r,c,size,factor){
   #writeRaster(r,paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density/temp_raster_pop.asc'),format="ascii",overwrite=TRUE)
 }
 
-
-
-exportIndics<-function(){
-  s=rankSizeSlope()
-  write.table(data.frame(moran=moranIndex(),distance=averageDistance(),entropy=entropy(),slope=s[1],rsquared=s[2])
-              ,file="temp_indics.csv"
-              ,row.names=FALSE,sep=';',quote=FALSE
-              )
-}
 
 
 
