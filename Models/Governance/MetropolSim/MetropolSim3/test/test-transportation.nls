@@ -54,6 +54,18 @@ to test-network-effect
   color-patches
 end
 
+;;
+; 
+to check-effective-distance [p1 p2]
+  let a1 table:get nw-access-table p1 let a2 table:get nw-access-table p2
+  foreach nw-patches [ask patch-with-number ? [set pcolor green]]
+  ask patch-with-number a1 [set pcolor red] ask patch-with-number a2 [set pcolor red]
+  ask patch-with-number p1 [set pcolor blue] ask patch-with-number p2 [set pcolor blue]
+  output-print (word "Effective distance : " matrix:get effective-distance-matrix p1 p2)
+  output-print (word "Euclidian distance : " ((matrix:get euclidian-distance-matrix p1 p2) * euclidian-min-pace)) 
+  output-print (word "Via NW : " (((matrix:get euclidian-distance-matrix p1 a1) + (matrix:get euclidian-distance-matrix p2 a2)) * euclidian-min-pace) " + "  (matrix:get network-distance-matrix a1 a2))
+          
+end
 
 
 
