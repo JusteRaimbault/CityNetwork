@@ -23,7 +23,8 @@ spatialWeights <- function (N,P){
 
 # load data -> global variable
 # @requires : vars rdens, rpop are defined
-# "temp_raster_dens.asc", "temp_raster_pop.asc"
+#rdens_file="temp_raster_dens.asc"
+#rpop_file = "temp_raster_pop.asc"
 show(paste0('Loading rasters from ',rdens_file,' , ',rpop_file))
 r_dens = raster(rdens_file)
 m = as.matrix(r_dens)
