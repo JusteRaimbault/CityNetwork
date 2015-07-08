@@ -5,7 +5,7 @@ convertCSV<-function(UIR){
   #setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density')) # not needed
   d=as.matrix(read.table(paste0('tmp/temp_pop_',UIR,'.csv'),header=FALSE,sep=';'))
   rpop = raster(d)
-  rdens = raster(d)
+  rdens = raster(d/sum(d))
 
   writeRaster(rpop,paste0('tmp/temp_raster_pop_',UIR,'.asc'),overwrite=TRUE)
   writeRaster(rdens,paste0('tmp/temp_raster_dens_',UIR,'.asc'),overwrite=TRUE)
@@ -14,8 +14,8 @@ convertCSV<-function(UIR){
 
 exportIndics<-function(UIR){
   convertCSV(UIR)
-  rdens_file=paste0('tmp/temp_raster_pop_',UIR,'.asc')
-  rpop_file=paste0('tmp/temp_raster_dens_',UIR,'.asc')
+  rpop_file=paste0('tmp/temp_raster_pop_',UIR,'.asc')
+  rdens_file=paste0('tmp/temp_raster_dens_',UIR,'.asc')
   source('morpho.R',local=TRUE)
   
   s=rankSizeSlope()
