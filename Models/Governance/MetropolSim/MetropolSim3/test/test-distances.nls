@@ -56,10 +56,18 @@ to test-nw-mat-grid-nw
   
   foreach nw-patches [
     ask patch-with-number ? [
-      ;set pcolor green
+      set pcolor green
       ;set plabel number
       ] 
   ]
+  
+  foreach nw-inters [
+    ask patch-with-number ? [
+      set plabel number
+      ] 
+  ]
+  
+  ask transportation-links [set hidden? true]
   
   toc
   set gridor not gridor
@@ -100,11 +108,11 @@ end
 
 
 to test-shortest-path
-  ask patches [set pcolor black]
+  ask patches [set pcolor black set plabel ""]
   
   foreach nw-patches [
     ask patch-with-number ? [
-      ;set pcolor green
+      set pcolor green
       ; set plabel number
       ] 
   ]
@@ -113,14 +121,32 @@ to test-shortest-path
   output-print (word k " : " table:get network-shortest-paths k )
   
   foreach table:get network-shortest-paths k [    
-    ask patch-with-number ? [set pcolor pink] 
-    output-print ?
+    ask patch-with-number ? [set pcolor pink set plabel number] 
   ]
   
   ask patch-with-number first k [set pcolor blue]
   ask patch-with-number last k [set pcolor blue]
   
 end
+
+
+
+
+to test-connex-components
+  let col 5
+  foreach connex-components [
+    foreach ? [
+      ask patch-with-number ? [
+        set pcolor col
+      ] 
+    ]
+    set col col + 20
+  ]
+end
+
+
+
+
 
 
 
