@@ -340,8 +340,10 @@ to update-vertices-and-paths [new-inters]
     ]
   ]
    
-    
+  debug "-------------------------\n-------------------------"  
+  
   ; 2) add intermediate steps in old paths if needed
+  ;     AND add new paths created on old ones (== subpaths )
   
   foreach new-inters [
     let o ?
@@ -363,26 +365,46 @@ to update-vertices-and-paths [new-inters]
           if member? n1 p and member? n2 p [
             ifelse position n1 p < position n2 p [
                table:put changed-paths ind (concatenate (list (sublist p 0 (position n1 p + 1)) (list o) (sublist p (position n2 p) length p)) )
+               ; i1 -> o ; o -> i1 will be tackled by reverse path
+               table:put changed-paths (list (first ind) o) (lput o (sublist p 0 (position n1 p + 1)))
+               ; idem for i2
+               table:put changed-paths (list o (last ind)) (fput o (sublist p (position n2 p) length p))
             ][
                table:put changed-paths ind (concatenate (list (sublist p 0 (position n2 p + 1)) (list o) (sublist p (position n1 p) length p)) )
+               table:put changed-paths (list (first ind) o) (lput o (sublist p 0 (position n2 p + 1)))
+               table:put changed-paths (list o (last ind)) (fput o (sublist p (position n1 p) length p))
             ]
           ]
           
           set j j + 1] set i (i + 1)]
     ]
     foreach table:keys changed-paths [
-      debug (word "Updating path " (table:get network-shortest-paths ?) " into " (table:get changed-paths ?) " for inter " o)
+      ;debug (word "Updating path " (table:get network-shortest-paths ?) " into " (table:get changed-paths ?) " for inter " o)
       table:put network-shortest-paths ? (table:get changed-paths ?)
     ]   
   
   ]
   
   
+  debug "-------------------------\n-------------------------"
+  
   ;;;;;;;;;;;;;;;;;
   ; 3) add paths new -> old
+ 
+ 
+ ; ---------------------;
+ ; DEBUG ~= HEAD
+ ; ---------------------;
   
-  ;;;;; ------------
-  ;;; TODO -- DEBUG
+  
+  ;;;;;;;;;;;;;;;;
+  ;;
+  ;;
+  ;;   DEBUG :: REQUIRED HERE == Accurate nw-distance-matrix ; pb as not updated in the previous stage ?
+  ;;
+  ;;
+  ;;
+ 
   
   
   foreach new-inters [
@@ -393,7 +415,7 @@ to update-vertices-and-paths [new-inters]
     foreach nw-inters [
       let d ?
       
-      debug (word "adding " o " -> " d)
+      debug (word " -- adding " o " -> " d)
       
       if not member? d new-inters [
          ; find closest neighbor -> closest inters shall give neighbors for a vertice
@@ -401,22 +423,26 @@ to update-vertices-and-paths [new-inters]
          
          let path [] let dmin -1
          foreach table:get closest-nw-inters o [
-           debug (word "neigh : " (first ?) " ; " table:has-key? network-shortest-paths (list d (first ?)) )
+           debug (word " ---- neigh : " (first ?) " ; " table:has-key? network-shortest-paths (list d (first ?)) )
             if table:has-key? network-shortest-paths (list d (first ?)) [
+              
+              debug (word "nw-matrix : d(" d "," (first ?) " = " (matrix:get network-distance-matrix d (first ?)))
+              
               let dpot ((matrix:get network-distance-matrix d (first ?)) + (last ?))
+              
               debug dpot
               if dpot < dmin or dmin = -1 [
                  set dmin dpot set path (lput o table:get network-shortest-paths (list d (first ?)))
-                 debug (word "dmin : " dmin " ; path : " path)
+                 debug (word " ---- dmin : " dmin " ; path : " path)
               ]
             ]
          ]
          
-         debug (word "Final path : " path)
+         debug (word " -- Final path : " path)
          
          table:put network-shortest-paths (list d o) path table:put network-shortest-paths (list o d) rev path
          
-         debug (word "... via neighbors : " table:get network-shortest-paths (list o d))
+         ;debug (word "... via neighbors : " table:get network-shortest-paths (list o d))
          
       ]
     ]
@@ -432,7 +458,7 @@ end
 ;; check for possible new shorcuts through the newly created link
 to update-shortest-paths [new-inters]
   
-  debug "computing shortcuts" ; DEBUG
+  debug "\n computing shortcuts"
   
   ; iterate on each couple of intersection, as each couple can be a shortcut
   let i 0 let j 1
@@ -524,7 +550,9 @@ to compute-extended-paths
   set network-clusters connex-components
   
   
-  
+  ;;
+  ;; TODO
+  ;; 
   
   
 
