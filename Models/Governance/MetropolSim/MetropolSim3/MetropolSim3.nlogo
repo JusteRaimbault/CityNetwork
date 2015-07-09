@@ -177,6 +177,10 @@ globals[
   ;  - with congestion in network -
   effective-distance-matrix
   
+  ;;
+  ; Cached access patches to network, i.e. closest patch belonging to nw
+  ;  @type table
+  ;   number -> number of access
   nw-access-table
   
   ;; cached shortest paths -> updated same time as distance
@@ -186,6 +190,8 @@ globals[
   network-shortest-paths
   
   ;; list of nw patches
+  ;  @type list
+  ;  List of network patches number
   nw-patches
   
   ;; number of patches
@@ -195,7 +201,12 @@ globals[
   closest-nw-inters
   
   ;; network intersections
+  ;  @type list
+  ;  List of intersection patches numbers
   nw-inters
+  
+  ;; network clusters
+  network-clusters
   
   ; overall
   ; stored as table (num_patch_1,num_patch_2) -> [[i,i1],[i1,i2],...,[in,j]] where couples are either (void-nw) or (nw-nw)
@@ -555,7 +566,7 @@ OUTPUT
 940
 283
 1398
-692
+577
 10
 
 TEXTBOX
@@ -720,12 +731,12 @@ NIL
 1
 
 MONITOR
-1227
+1218
 13
-1282
+1286
 58
-th paths
-(length nw-patches) ^ 2
+nw patches
+length nw-patches
 17
 1
 11
@@ -794,7 +805,7 @@ CHOOSER
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
-1
+0
 
 SLIDER
 6
