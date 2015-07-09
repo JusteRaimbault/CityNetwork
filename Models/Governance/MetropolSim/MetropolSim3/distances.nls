@@ -174,7 +174,7 @@ end
 ;  @requires in-between strictly in-between patches
 to update-inters [new-inters in-between]
   
-  debug (word "updating intersections with inters " new-inters )
+  ;debug (word "updating intersections with inters " new-inters )
   
   
   
@@ -191,12 +191,12 @@ to update-inters [new-inters in-between]
     
     if table:has-key? closest-nw-inters ? [
        ; was already on a link, then it is the link crossed
-       debug (word "old inter : " ?)
+       ;debug (word "old inter : " ?)
        
        let prev-crossing-ends table:get closest-nw-inters ?
        table:remove closest-nw-inters ?
        foreach table:keys closest-nw-inters [
-         debug (word "patch " ? " - inters "  table:get closest-nw-inters ?)
+         ;debug (word "patch " ? " - inters "  table:get closest-nw-inters ?)
          
          ; find table entries with same extremities
          let chge? (length prev-crossing-ends = length table:get closest-nw-inters ?)
@@ -253,7 +253,7 @@ to update-inters [new-inters in-between]
            let chge? false let n2 0 foreach table:get closest-nw-inters ni [set chge? chge? or first ? = n1 if first ? != n1[set n2 first ?]]
            if chge? [
              ; replace entry with n2 by ni
-             debug (word "Replacing " n2 " by " ni " for " n1)
+             ;debug (word "Replacing " n2 " by " ni " for " n1)
              let newints [] foreach table:get closest-nw-inters n1 [ifelse first ? = n2[set newints lput (list ni (matrix:get euclidian-distance-matrix ni n1)) newints][set newints lput ? newints]]
              table:put closest-nw-inters n1 newints
            ]
@@ -316,7 +316,7 @@ end
 ;
 to update-vertices-and-paths [new-inters]
   
-  debug (word "updating vertices for inters " new-inters)
+  debug (word " --> Updating paths for inters " new-inters)
   
   ; 1) add paths new -> new
   
@@ -351,11 +351,13 @@ to update-vertices-and-paths [new-inters]
     ;
     let changed-paths table:make
     foreach table:keys network-shortest-paths [
+      
       let ind ? let p table:get network-shortest-paths ?
+      
       ; iterate on couples of neighbors
       let neighs table:get closest-nw-inters o
       let i 0 let j 1 repeat length neighs - 1 [set j (i + 1) repeat (length neighs) - i - 1 [
-          let n1 item i neighs let n2 item j neighs
+          let n1 first (item i neighs) let n2 first (item j neighs)
           
           ; add the new vertex if between two existing vertices of a path
           if member? n1 p and member? n2 p [
@@ -368,13 +370,19 @@ to update-vertices-and-paths [new-inters]
           
           set j j + 1] set i (i + 1)]
     ]
-    foreach table:keys changed-paths [table:put network-shortest-paths ? (table:get ? changed-paths)]   
+    foreach table:keys changed-paths [
+      debug (word "Updating path " (table:get network-shortest-paths ?) " into " (table:get changed-paths ?) " for inter " o)
+      table:put network-shortest-paths ? (table:get changed-paths ?)
+    ]   
   
   ]
   
   
   ;;;;;;;;;;;;;;;;;
   ; 3) add paths new -> old
+  
+  ;;;;; ------------
+  ;;; TODO -- DEBUG
   
   
   foreach new-inters [
