@@ -26,4 +26,4 @@ libraryDependencies += "org.apache.commons" % "commons-math3" % "3.5"
 
 libraryDependencies += "org.scalaforge" % "scalax" % "0.1"
 
-
+libraryDependencies += "org.jaitools" % "jt-all" % "1.2.0"

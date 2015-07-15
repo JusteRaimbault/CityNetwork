@@ -1,8 +1,5 @@
 package density
 
-import java.io.{ FileReader, File, BufferedReader }
-
-import scala.sys.process._
 import scala.util.Random
 
 class PADGeneratorLauncher {
@@ -20,7 +17,7 @@ class PADGeneratorLauncher {
     println("Params : " + pop + " ; " + diff + " ; " + diffSteps + " ; " + growth + " ; " + alpha + " ; " + replication)
 
     val UIR = (pop.toString + "_" + diff + "_" + diffSteps + "_" + growth + "_" + alpha + "_" + replication)
-    println(UIR)
+    //println(UIR)
 
     val t = System.currentTimeMillis()
 
@@ -34,31 +31,37 @@ class PADGeneratorLauncher {
       override def growthRate: Double = growth
       override def alphaAtt: Double = alpha
       override def temp_file: String = "tmp/temp_pop_" + UIR + ".csv"
-
     }
 
     // compute
-    gen.export(rng)
+    val world = gen.world(rng)
+    gen.export_static(world)
 
-    println("Ellapsed Time generation : " + (System.currentTimeMillis() - t) / 1000.0)
+    /*
+    Computation of indicators using R ;
+    Very painful in comp time - Why ? (pb with processor load) -
 
-    val s = new File("./").getAbsolutePath()
-    println(s)
+    //println("Ellapsed Time generation : " + (System.currentTimeMillis() - t) / 1000.0)
+    //val s = new File("./").getAbsolutePath()
+    //println(s)
     // external call to compute indicators
-    ("R -e source('csv2raster.R',chdir=TRUE);exportIndics('" + UIR + "')").!
+    //("R -e source('csv2raster.R',chdir=TRUE);exportIndics('" + UIR + "')").!
 
     //val s = new File("./").getAbsolutePath()
     //println(s.substring(0, s.length() - 1))
 
     //get back indicators
-    val r = new BufferedReader(new FileReader("tmp/temp_indics_" + UIR + ".csv"))
-    r.readLine();
-    val indics = r.readLine().split(";")
-    moran = indics(0).toDouble
-    distance = indics(1).toDouble
-    entropy = indics(2).toDouble
-    slope = indics(3).toDouble
-    rsquared = indics(4).toDouble
+    //val r = new BufferedReader(new FileReader("tmp/temp_indics_" + UIR + ".csv"))
+    //r.readLine();
+    //val indics = r.readLine().split(";")
+    */
+
+    moran = Morphology.moran_convol(world)
+    distance = Morphology.distance_convol(world)
+    entropy = Morphology.entropy(world)
+    val slopeVals = Morphology.slope(world)
+    slope = slopeVals._1
+    rsquared = slopeVals._2
 
     println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0)
 
