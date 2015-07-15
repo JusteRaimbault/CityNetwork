@@ -32,8 +32,8 @@ val rsquared=Val[Double]
 // delete old tmp dir
 // this trick of tmp files with unique identifier is needed because scala task is embedded in main task
 // not copied in an external dir such as for a NetLogo task
-("rm -r -f tmp/").!
-("mkdir tmp").!
+//("rm -r -f tmp/").!
+//("mkdir tmp").!
 
 val task =
   ScalaTask(
@@ -54,17 +54,19 @@ val task =
     )
 
 
-/*
+
 val exploration =  ExplorationTask(
   (diffusion in (0.1 to 0.1 by 1)) x
     (diffusionsteps in (2 to 2 by 1)) x
     (alphalocalization in (1.2 to 1.2 by 1)) x
     (growthrate in (10000.0 to 10000.0 by 1)) x
     (population in (100000.0 to 100000.0 by 1)) x
-    (replication in (UniformDistribution[Int]() take 4))
+    (replication in (UniformDistribution[Int]() take 8))
 )
 val purpose = "TEST"
-*/
+
+
+/*
 val exploration = ExplorationTask (
   LHS (
     6000,
@@ -75,13 +77,14 @@ val exploration = ExplorationTask (
   ) x (replication in UniformDistribution[Int]() take 20) x (diffusionsteps in (1 to 3 by 1))
 )
 val purpose = "LHSsampling"
+*/
 
 val h = AppendToCSVFileHook("res_oml_scala/"+((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
 
 val startTime = System.currentTimeMillis
 
 // environement
-val env = LocalEnvironment(20)
+val env = LocalEnvironment(4)
 
 val ex = exploration -< (task on env hook h) start
 
