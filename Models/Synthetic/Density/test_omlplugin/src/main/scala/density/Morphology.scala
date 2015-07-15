@@ -1,7 +1,10 @@
 package density
 
 import org.apache.commons.math3.stat.regression.SimpleRegression
+
 import scala.math._
+
+
 
 object Morphology {
 
@@ -85,4 +88,20 @@ object Morphology {
     else 1 / distance(p1, p2)
   }
 
+
+
+  def moran_convol(matrix: Seq[Seq[Cell]]):Double = {
+    0.0
+  }
+
+  def distance_convol(matrix:Seq[Seq[Cell]]):Double={
+
+    val flatMat =  zipWithPosition(matrix)
+    val p = matrix(0).length
+    val n = matrix.length
+
+    //new FastFourierTransformer(DftNormalization.STANDARD).transform(matrix.flatten.toArray.map{c=>c.population},TransformType.FORWARD)
+
+    0.0
+  }
 }

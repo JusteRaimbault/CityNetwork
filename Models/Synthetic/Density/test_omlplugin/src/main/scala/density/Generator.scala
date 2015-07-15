@@ -27,6 +27,24 @@ trait Generator {
   }
 
   /**
+   * Exports grid already computed.
+   * (needed not to compute the grid 2 times)
+   *
+   * @param w : world
+   */
+  def export_static(w : Seq[Seq[Cell]]):Unit = {
+    val writer: FileWriter = new FileWriter(new File(temp_file))
+    w.foreach(
+      row => {
+        writer.write(row.map { c => c.population }.mkString(";") + "\n");
+      }
+    )
+    writer.close()
+  }
+
+
+
+  /**
    * Stringify just to check validity of generators ; has no sense in general context as a new instance will be randomly generated at each
    * call of container.
    *
