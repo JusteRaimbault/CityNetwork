@@ -396,8 +396,8 @@ CHOOSER
 645
 patches-display
 patches-display
-"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance"
-9
+"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
+10
 
 TEXTBOX
 11
@@ -805,7 +805,7 @@ CHOOSER
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
-0
+1
 
 SLIDER
 6
@@ -816,7 +816,7 @@ euclidian-min-pace
 euclidian-min-pace
 1
 50
-15
+10
 1
 1
 NIL
@@ -831,7 +831,7 @@ congestion-price
 congestion-price
 0
 100
-2
+3
 1
 1
 NIL
@@ -870,9 +870,9 @@ HORIZONTAL
 BUTTON
 6
 652
-95
+79
 685
-update display
+comp vars
 compute-patches-variables
 NIL
 1
@@ -1022,7 +1022,24 @@ BUTTON
 1321
 199
 test dist
-setup\ntest-network-effect\ncheck-effective-distance 1180 684
+setup\ntest-network-effect (patches with [pxcor = 0])\ncheck-effective-distance 1180 684
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+82
+653
+174
+686
+update display
+color-patches
 NIL
 1
 T
