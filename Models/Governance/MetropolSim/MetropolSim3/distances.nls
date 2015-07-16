@@ -318,6 +318,19 @@ to update-vertices-and-paths [new-inters]
   
   debug (word " --> Updating paths for inters " new-inters)
   
+  
+  ;;;
+  ; Prelim : reset distance matrix for network vertices, as 'natural' (uncongestioned) network distance
+  
+  foreach table:keys network-shortest-paths [
+    let p table:get network-shortest-paths ? let o first ? let d last ? let di path-length p
+    matrix:set network-distance-matrix o d di matrix:set network-distance-matrix d o di
+  ]
+  
+  
+  
+  
+  
   ; 1) add paths new -> new
   
   foreach new-inters [
@@ -335,12 +348,12 @@ to update-vertices-and-paths [new-inters]
          matrix:set network-distance-matrix o d di matrix:set network-distance-matrix d o di
           
          ; DEBUG -- not needed ?  
-         debug (word "adding " o " -> " d)
-         debug (word "... directly : " table:get network-shortest-paths (list o d))
+         ;debug (word "adding " o " -> " d)
+         ;debug (word "... directly : " table:get network-shortest-paths (list o d))
     ]
   ]
    
-  debug "-------------------------\n-------------------------"  
+  ;debug "-------------------------\n-------------------------"  
   
   ; 2) add intermediate steps in old paths if needed
   ;     AND add new paths created on old ones (== subpaths )
@@ -380,7 +393,9 @@ to update-vertices-and-paths [new-inters]
     ]
     foreach table:keys changed-paths [
       ;debug (word "Updating path " (table:get network-shortest-paths ?) " into " (table:get changed-paths ?) " for inter " o)
-      table:put network-shortest-paths ? (table:get changed-paths ?)
+      let p (table:get changed-paths ?) let d path-length p
+      table:put network-shortest-paths ? p
+      matrix:set network-distance-matrix (first ?) (last ?) d matrix:set network-distance-matrix (last ?) (first ?) d
     ]   
   
   ]
@@ -390,19 +405,9 @@ to update-vertices-and-paths [new-inters]
   
   ;;;;;;;;;;;;;;;;;
   ; 3) add paths new -> old
- 
- 
- ; ---------------------;
- ; DEBUG ~= HEAD
- ; ---------------------;
-  
   
   ;;;;;;;;;;;;;;;;
-  ;;
-  ;;
-  ;;   DEBUG :: REQUIRED HERE == Accurate nw-distance-matrix ; pb as not updated in the previous stage ?
-  ;;
-  ;;
+  ;;  REQUIRED HERE == Accurate nw-distance-matrix ; OK, updated in all previous stages
   ;;
  
   
@@ -426,7 +431,7 @@ to update-vertices-and-paths [new-inters]
            debug (word " ---- neigh : " (first ?) " ; " table:has-key? network-shortest-paths (list d (first ?)) )
             if table:has-key? network-shortest-paths (list d (first ?)) [
               
-              debug (word "nw-matrix : d(" d "," (first ?) " = " (matrix:get network-distance-matrix d (first ?)))
+              debug (word "nw-matrix : d(" d "," (first ?) ") = " (matrix:get network-distance-matrix d (first ?)))
               
               let dpot ((matrix:get network-distance-matrix d (first ?)) + (last ?))
               
@@ -441,6 +446,10 @@ to update-vertices-and-paths [new-inters]
          debug (word " -- Final path : " path)
          
          table:put network-shortest-paths (list d o) path table:put network-shortest-paths (list o d) rev path
+         
+         ;; update network distance matrix
+         let di path-length path
+         matrix:set network-distance-matrix d o di matrix:set network-distance-matrix o d di
          
          ;debug (word "... via neighbors : " table:get network-shortest-paths (list o d))
          
@@ -514,6 +523,8 @@ to shortcut [i1 i2]
   
   ;; update paths in table
   foreach table:keys new-paths [table:put network-shortest-paths ? (table:get new-paths ?)]
+
+  ;; distance matrix already updated.
 
 end
 
@@ -645,6 +656,20 @@ to update-network-distance-matrix
 end
 
 
+;;
+; euclidian length of a path, used to update shortest paths in the nw
+to-report path-length [path]
+  let res 0
+  if length path > 0 [
+    let current-patch first path
+    foreach but-first path [
+      let next-patch ?
+      set res res + (matrix:get euclidian-distance-matrix current-patch next-patch)
+      set current-patch next-patch
+    ]
+  ]
+  report res
+end
 
 ;;
 ; given a path, reports generalized time to go through it
