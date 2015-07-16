@@ -70,23 +70,31 @@ multiplot(plotlist=plots,cols=2)
 # Descriptive Statistics
 ###########
 
+real=real_raw[pop>100000,]
+
 plot(real[sample.int(nrow(real),size=2000),3:6],pch="+")
 plot(real[,3:6],pch="+")
 
 # hists
 par(mfrow=c(2,2))
-indics=c("moran","distance","entropy","slope");laws=c("log-normal","log-normal","inv-log-normal","log-normal")
-ranges=list((1:2000)/1000,(1:2000)/1000,(1:2000)/1000,(-2000:-1)/1000)
+indics=c("moran","distance","entropy","slope");
+laws=c("log-normal","log-normal","normal","normal")
+ranges=list((1:250)/1000,(1:100)/1000,(600:1000)/1000,(-2500:-500)/1000)
 k=1
 for(indic in indics){
- hist(real[[indic]],breaks=1000,main="",xlab=indic,freq=FALSE)
+ hist(real[[indic]],breaks=500,main="",xlab=indic,freq=FALSE)
  if(laws[k]=="log-normal"){
    fit = coef(fitdistr(abs(real[[indic]]),laws[k]))
-   dens=dlnorm(ranges[[k]],meanlog=fit[1],sdlog=fit[2])*sign(fit[1])}
+   dens=dlnorm(ranges[[k]],meanlog=fit[1],sdlog=fit[2])#*sign(fit[1])
+ }
  if(laws[k]=="inv-log-normal"){
    # fit on inversed distrib in that case
    fit = coef(fitdistr(rev(real[[indic]]),"log-normal"))
    dens=rev(dnorm(ranges[[k]],mean=fit[1],sd=fit[2]))
+ }
+ if(laws[k]=="normal"){
+   fit = coef(fitdistr(real[[indic]],"normal"))
+   dens=dnorm(ranges[[k]],mean=fit[1],sd=fit[2])
  }
  points(ranges[[k]],dens,type="l",col="red")
  k=k+1
