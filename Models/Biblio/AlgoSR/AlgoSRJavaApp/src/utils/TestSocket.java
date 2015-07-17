@@ -4,6 +4,8 @@
 package utils;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
@@ -31,7 +33,8 @@ import org.jsoup.nodes.Document;
 
 import com.subgraph.orchid.Tor;
 import com.subgraph.orchid.TorClient;
-import com.subgraph.orchid.sockets.OrchidSocketFactory;
+//import com.subgraph.orchid.sockets.OrchidSocketFactory;
+
 import com.subgraph.orchid.socks.Socks4Request;
 
 /**
@@ -151,7 +154,7 @@ public class TestSocket {
 			TorClient torclient = new TorClient();
 			
 			torclient.start();
-			torclient.waitUntilReady();
+			//torclient.waitUntilReady();
 			torclient.enableSocksListener(9050);
 			//torclient.enableDashboard();
 			
@@ -166,7 +169,7 @@ public class TestSocket {
 		Socket socket = new Socket(proxy);
 		URL url = new URL("http://ipecho.net/plain");
 		URLConnection conn = url.openConnection(proxy);
-		conn.setReadTimeout(30000);conn.setReadTimeout(30000);
+		conn.setReadTimeout(30000);
 		conn.setRequestProperty("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36");
 		InputStream in = conn.getInputStream();
 		BufferedReader r = new BufferedReader(new InputStreamReader(in));
@@ -182,7 +185,7 @@ public class TestSocket {
 		//Thread.currentThread().stop();
 		//tor.getCircuitManager().openDirectoryCircuit().
 		
-		torclient.stop();
+		//torclient.stop();
 		
 		}catch(Exception e){e.printStackTrace();}
 		finally{
@@ -193,6 +196,95 @@ public class TestSocket {
 	
 	
 	
+	public static void testExternalThread(){
+		try{
+			try{
+			@SuppressWarnings("resource")
+			String pid = new BufferedReader(new FileReader(new File("/Users/Juste/.torpid"))).readLine();
+			System.out.println(pid);
+			Process p=Runtime.getRuntime().exec("kill -SIGTERM "+pid);
+			InputStream s = p.getInputStream();
+			BufferedReader r = new BufferedReader(new InputStreamReader(s));
+			System.out.println(r.readLine());
+			p.waitFor();
+			}catch(Exception e){e.printStackTrace();System.out.println("SOCKET Clean");}
+			
+			TorThread t = new TorThread();
+			t.start();
+			Thread.sleep(5000);
+			int i = 0;
+			while(true){
+				Thread.sleep(100);
+				
+				
+				SocketAddress addr = new InetSocketAddress("localhost", 9050);
+				Proxy proxy = new Proxy(Proxy.Type.SOCKS, addr);
+				Socket socket = new Socket(proxy);
+				
+				
+				
+				URL url = new URL("http://scholar.google.com/scholar?q=transfer+theorem&lookup=0&start="+i);
+				URLConnection conn = url.openConnection(proxy);
+				conn.setReadTimeout(30000);
+				conn.setRequestProperty("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36");
+				InputStream in = conn.getInputStream();
+				BufferedReader r = new BufferedReader(new InputStreamReader(in));
+				String html="";
+				String currentLine=r.readLine();
+				while(currentLine!= null){System.out.println(currentLine);html+=currentLine;currentLine=r.readLine();}
+				r.close();
+				
+				i=i+10;
+				
+				
+				if(i%50 == 0){
+					try{
+					String pid = new BufferedReader(new FileReader(new File("/Users/Juste/.torpid"))).readLine();
+					Process p=Runtime.getRuntime().exec("kill -SIGTERM "+pid);p.waitFor();
+					}catch(Exception e){}
+					
+					t.running=false;
+					Thread.sleep(500);
+					System.out.println("running new tor...");
+					t = new TorThread();t.start();
+					System.out.println("waiting...");
+					Thread.sleep(5000);
+				}
+			}
+			
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	
+	private static class TorThread extends Thread {
+		
+		boolean running;
+		
+		private TorThread(){running=true;}
+	    
+		public void run(){
+			try{
+			Process p=Runtime.getRuntime().exec("/opt/local/bin/tor -f /Users/Juste/.torrc");
+			InputStream s = p.getInputStream();
+			BufferedReader r = new BufferedReader(new InputStreamReader(s));
+			while(true){
+				Thread.sleep(100);
+				System.out.println(r.readLine());
+				if(!running){
+					p.destroy();p.waitFor();
+				}
+			}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	
 	
 	/**
 	 * @param args
@@ -201,7 +293,9 @@ public class TestSocket {
 		
 		// test1();
 		
-		testOrchid();
+		//testOrchid();
+		
+		testExternalThread();
 		
 	}
 

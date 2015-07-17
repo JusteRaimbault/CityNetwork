@@ -3,7 +3,12 @@
  */
 package scholar;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
@@ -25,6 +30,7 @@ import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -56,6 +62,8 @@ public class ScholarAPI {
 	public static DefaultHttpClient client;
 	public static HttpContext context;
 	
+	public static TorThread tor;
+	
 	/**
 	 * 
 	 * Make a scholar request to be connected through cookies.
@@ -65,6 +73,20 @@ public class ScholarAPI {
 	 */
 	public static void setup(String query){
 		try{
+			
+			// General setup for using tor ?
+			//System.setProperty("socksProxyHost", "127.0.0.1");
+			//System.setProperty("socksProxyPort", "9050");
+			
+			
+
+			 
+			 // create and run the tor client
+			/* tor = new TorThread();
+			 tor.start();
+			 System.out.println("starting tor...");
+			 Thread.sleep(5000);
+			*/
 			
 		    client = new DefaultHttpClient();
 
@@ -180,8 +202,9 @@ public class ScholarAPI {
 				int l=10;
 				while(e.size()>0){
 					//dom = Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID+"&start="+l),context).getEntity().getContent(),"UTF-8","");
+					System.out.println(l);
 					dom = request("scholar.google.com","scholar?cites="+r.scholarID+"&start="+l);
-					Thread.sleep(2000);
+					Thread.sleep(10000);
 					e = dom.getElementsByClass("gs_ri");
 					for(Element c:e){
 				    	String cluster = getCluster(c);
@@ -270,6 +293,8 @@ public class ScholarAPI {
 	public static Document request(String host,String url){
 		
 		Document res = null;
+		
+		/*
 		Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory>create()
 		        .register("http", PlainConnectionSocketFactory.INSTANCE)
 		        .register("https", new MyConnectionSocketFactory(SSLContexts.createSystemDefault()))
@@ -278,26 +303,38 @@ public class ScholarAPI {
 		CloseableHttpClient httpclient = HttpClients.custom()
 		        .setConnectionManager(cm)
 		        .build();
+		*/
+		        
 		try {
-		    InetSocketAddress socksaddr = new InetSocketAddress("localhost", 9050);
-		    HttpClientContext context = HttpClientContext.create();
-		    context.setAttribute("socks.address", socksaddr);
+		    //InetSocketAddress socksaddr = new InetSocketAddress("localhost", 9050);
+		    
+		    
+		    //HttpClientContext context = HttpClientContext.create();
+		    //context.setAttribute("socks.address", socksaddr);
 
-		    HttpHost target = new HttpHost(host, 80, "http");
-		    HttpGet request = new HttpGet("/"+url);
+		    //HttpHost target = new HttpHost(host, 80, "http");
+		    
+			
+			
+		    //HttpGet request = new HttpGet("/"+url);
 
 		    //System.out.println("Executing request " + request + " to " + target + " via SOCKS proxy " + socksaddr);
-		    System.out.println(context.getAttribute("socks.address"));
+		    //System.out.println(context.getAttribute("socks.address"));
 		    //CloseableHttpResponse response = httpclient.execute(target, request);
-		    HttpResponse response = httpclient.execute(new HttpGet("http://"+host+"/"+url));
+		    
+			//client.getParams().setParameter("socksProxyHost", "127.0.0.1");
+			//client.getParams().setParameter("socksProxyPort",9050);
+			
+		    HttpResponse response = client.execute(new HttpGet("http://"+host+"/"+url));
 		    try {
 		        //System.out.println("----------------------------------------");
 		        //System.out.println(response.getStatusLine());
 		        
 		    	//EntityUtils.consume(response.getEntity());
 		    	res= Jsoup.parse(response.getEntity().getContent(),"UTF-8","");
+		    	EntityUtils.consume(response.getEntity());
 		    }catch(Exception e){e.printStackTrace();}
-		} catch(Exception e){e.printStackTrace();} 
+		} catch(Exception e){e.printStackTrace();}
 		
 		return res;
 		
@@ -308,9 +345,20 @@ public class ScholarAPI {
 	
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
-		System.out.println(request("ipecho.net","plain").html());
+	public static void main(String[] args) throws Exception {
+		setup("");
+		//tor.running=false;
+		tor=new TorThread();tor.start();
+		Thread.sleep(1000);
+		for(int i=0;i<5;i=i+10){
+		//tor=new TorThread();tor.start();
+		Thread.sleep(5000);
+		System.out.println(request("scholar.google.com","scholar?q=transfer+theorem&lookup=0&start="+i).html());
+		//tor.running=false;
+		//Thread.sleep(1000);
+		}
 		// test setup
 		//setup("");
 		
@@ -359,6 +407,42 @@ public class ScholarAPI {
 		}
 	*/
 		
+		
+	}
+	
+	
+	
+	private static class TorThread extends Thread {
+		
+		boolean running;
+		
+		private TorThread(){running=true;}
+	    
+		public void run(){
+			try{
+			Process p=Runtime.getRuntime().exec("/opt/local/bin/tor -f /Users/Juste/.torrc");
+			InputStream s = p.getInputStream();
+			BufferedReader r = new BufferedReader(new InputStreamReader(s));
+			while(true){
+				Thread.sleep(100);
+				String l= r.readLine();
+				if(l!= null)System.out.println(l);
+				if(!running){
+					//p.destroy();p.waitFor();
+					try{
+						
+						String pid = new BufferedReader(new FileReader(new File("/Users/Juste/.torpid"))).readLine();
+						System.out.println("running: "+running+" ; sending SIGTERM to tor... PID : "+pid);
+						p=Runtime.getRuntime().exec("kill -SIGTERM "+pid);p.waitFor();
+						break;
+					}catch(Exception e){e.printStackTrace();}
+					break;
+				}
+			}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
 		
 	}
 	
