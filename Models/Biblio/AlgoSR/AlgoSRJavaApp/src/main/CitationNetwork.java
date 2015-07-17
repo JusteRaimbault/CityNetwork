@@ -92,7 +92,7 @@ public class CitationNetwork {
 	 */
 	public static void main(String[] args) {
 		String[] keywords = {"land+use+transport+interaction","city+system+network","network+urban+modeling","population+density+transport","transportation+network+urban+growth","urban+morphogenesis+network"};
-		buildGeneralizedNetwork("/root/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/junk/refs_",keywords,"nw.csv",20);
+		buildGeneralizedNetwork("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/cit/refs_",keywords,"nw.csv",20);
 		/*Main.setup("conf/default.conf");ScholarAPI.setup("");
 		
 		// test if nw building

@@ -2,8 +2,8 @@
 ## Systematic Review Algo study
 #################
 
-# directory must contain confRScript.conf file
-# and called by source(...,chdir=TRUE)
+
+setwd(paste0(Sys.getenv('CN_HOME'),"/Models/Biblio/AlgoSR"))
 
 #################
 ## Utils functions
@@ -45,23 +45,27 @@ executeAlgo <- function(query,resDir,numIteration,kwLimit){
 #
 
 # CV for ≠ kw limit
-queries <- c('transportation+network+urban+growth',
-             'city+system+network',
-             'land+use+transport+interaction',
-             'land+use+transport+interaction+network',
-             'population+density+transport',
-             'urban+structure+traffic',
-             'urban+flow+development',
-             'urban+morphogenesis+network',
-             'network+urban+modeling',
-             'transfer+theorem+probability',
-             'bike+sharing+transportation+system',
-             'bike+sharing',
-             'urban',
-             'city'
-             )
-resDir <- 'junk'
-limits<-c(1,2,3,4,5,6,7,8,9,10,15,20,25,30)
+#queries <- c('transportation+network+urban+growth',
+#              'city+system+network',
+#              'land+use+transport+interaction',
+#              'land+use+transport+interaction+network',
+#              'population+density+transport',
+#              'urban+structure+traffic',
+#              'urban+flow+development',
+#              'urban+morphogenesis+network',
+#              'network+urban+modeling',
+#              'transfer+theorem+probability',
+#              'bike+sharing+transportation+system',
+#              'bike+sharing',
+#              'urban',
+#              'city'
+#              )
+#resDir <- 'junk'
+
+queries<-c("land+use+transport+interaction","city+system+network","network+urban+modeling","population+density+transport","transportation+network+urban+growth","urban+morphogenesis+network")
+resDir <- 'cit'
+#limits<-c(1,2,3,4,5,6,7,8,9,10,15,20,25,30)
+limits<-c(30)
 maxIt <- 20
 
 res=pairlist()
