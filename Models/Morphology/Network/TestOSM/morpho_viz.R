@@ -70,7 +70,7 @@ multiplot(plotlist=plots,cols=2)
 # Descriptive Statistics
 ###########
 
-real=real_raw[pop>100000,]
+real=real_raw[pop>500000,]
 
 plot(real[sample.int(nrow(real),size=2000),3:6],pch="+")
 plot(real[,3:6],pch="+")
