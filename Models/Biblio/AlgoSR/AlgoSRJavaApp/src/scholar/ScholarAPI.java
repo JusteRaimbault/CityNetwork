@@ -82,11 +82,11 @@ public class ScholarAPI {
 
 			 
 			 // create and run the tor client
-			/* tor = new TorThread();
-			 tor.start();
-			 System.out.println("starting tor...");
-			 Thread.sleep(5000);
-			*/
+			//tor = new TorThread();
+			// tor.start();
+			// System.out.println("starting tor...");
+			// Thread.sleep(10000);
+			
 			
 		    client = new DefaultHttpClient();
 
@@ -350,12 +350,14 @@ public class ScholarAPI {
 	public static void main(String[] args) throws Exception {
 		setup("");
 		//tor.running=false;
-		tor=new TorThread();tor.start();
-		Thread.sleep(1000);
+		//tor=new TorThread();tor.start();
+		//Thread.sleep(1000);
 		for(int i=0;i<5;i=i+10){
 		//tor=new TorThread();tor.start();
 		Thread.sleep(5000);
-		System.out.println(request("scholar.google.com","scholar?q=transfer+theorem&lookup=0&start="+i).html());
+		Document d = request("scholar.google.com","scholar?q=urban+network&lookup=0&start="+i);
+		System.out.println(d.html());
+		System.out.println(d.getElementsByClass("gs_rt").first().html());
 		//tor.running=false;
 		//Thread.sleep(1000);
 		}
@@ -407,42 +409,6 @@ public class ScholarAPI {
 		}
 	*/
 		
-		
-	}
-	
-	
-	
-	private static class TorThread extends Thread {
-		
-		boolean running;
-		
-		private TorThread(){running=true;}
-	    
-		public void run(){
-			try{
-			Process p=Runtime.getRuntime().exec("/opt/local/bin/tor -f /Users/Juste/.torrc");
-			InputStream s = p.getInputStream();
-			BufferedReader r = new BufferedReader(new InputStreamReader(s));
-			while(true){
-				Thread.sleep(100);
-				String l= r.readLine();
-				if(l!= null)System.out.println(l);
-				if(!running){
-					//p.destroy();p.waitFor();
-					try{
-						
-						String pid = new BufferedReader(new FileReader(new File("/Users/Juste/.torpid"))).readLine();
-						System.out.println("running: "+running+" ; sending SIGTERM to tor... PID : "+pid);
-						p=Runtime.getRuntime().exec("kill -SIGTERM "+pid);p.waitFor();
-						break;
-					}catch(Exception e){e.printStackTrace();}
-					break;
-				}
-			}
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
 		
 	}
 	
