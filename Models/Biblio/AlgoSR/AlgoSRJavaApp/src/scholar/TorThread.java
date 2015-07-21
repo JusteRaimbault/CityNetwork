@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -18,9 +19,9 @@ public class TorThread extends Thread {
 	
 
 	/**
-	 * currently available threads
+	 * currently available threads - no need for concurrency
 	 */
-	public static final ConcurrentHashMap<TorThread,TorThread> torthreads = new ConcurrentHashMap<TorThread,TorThread>();
+	public static final LinkedList<TorThread> torthreads = new LinkedList<TorThread>();
 	
 	/**
 	 * Available ports to open new threads.
@@ -99,7 +100,7 @@ public class TorThread extends Thread {
 		// create the threads
 		for(int k=0;k<nThreads;k++){
 			TorThread t = new TorThread();
-			torthreads.put(t,t);
+			torthreads.addLast(t);
 		}
 		
 	}
@@ -107,18 +108,27 @@ public class TorThread extends Thread {
 	
 	public static void runPool(){
 		try{
-		for(TorThread t:torthreads.keySet()){
+		for(TorThread t:torthreads){
 			//System.out.println(t.port);
 			t.start();
 		}
-		Thread.sleep(600000);
+		// heuristic of required waiting time
+		Thread.sleep(10000*torthreads.size());
 		}catch(Exception e){e.printStackTrace();}
 	}
 	
 	public static void stopPool(){
-		for(TorThread t:torthreads.keySet()){
+		for(TorThread t:torthreads){
 			t.cleanStop();
 		}
+	}
+	
+	
+	/**
+	 * Switch the current port, by taking thread from the list, testing it and setting it if needed.
+	 */
+	public static void switchPort(){
+		
 	}
 	
 	

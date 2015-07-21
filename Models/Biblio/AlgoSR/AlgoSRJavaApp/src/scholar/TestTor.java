@@ -72,7 +72,7 @@ public class TestTor {
 			  String currentLine=r.readLine();
 			  while(currentLine!= null){System.out.println(currentLine);currentLine=r.readLine();};
 			  
-			  ScholarAPI.setup("");
+			  ScholarAPI.init();
 			  Document d = ScholarAPI.request("scholar.google.com","scholar?q=urban+network&lookup=0&start=0");
 			  try{
 				  System.out.println(d.getElementsByClass("gs_rt").first().text());

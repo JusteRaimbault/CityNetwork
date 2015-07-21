@@ -15,9 +15,9 @@ setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
 
 
 # load result
-res = read.csv('res_oml/2015_06_29_16_12_01_LHSsampling_WITHPOPULATION.csv',sep=';')
+res = read.csv('res_oml_scala/2015_07_08_19_26_19_LHSsampling.csv',sep=',')
 # transform as usable data structure
-p = getSingleParamPoints(res,c(1,2,3,6,10),c(4,5,7,8,9))
+p = getSingleParamPoints(res,c(1,2,3,6,10),c(4,5,7,8,10,11))
 
 # ggplot
 
@@ -56,7 +56,6 @@ source(paste0(Sys.getenv("CN_HOME"),'/Models/Utils/R/plots.R'))
 
 
 real_raw = read.csv(
-  #paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/france_20km_mar.-juin-09-23:46:42-2015.csv'),
   paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/europe_50km_sam.-juin-27-03:00:19-2015.csv'),
   sep=";"
 )

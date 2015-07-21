@@ -64,30 +64,30 @@ public class ScholarAPI {
 	
 	public static TorThread tor;
 	
+	
+	
+	
+	
 	/**
-	 * 
-	 * Make a scholar request to be connected through cookies.
-	 * 
-	 * @param query - is the query necessary ?
+	 * Initialize the pool of tor connexion used to avoid ggl blocking.
+	 */
+	public static void setupConnectionPool(int nPorts){
+		System.setProperty("socksProxyHost", "127.0.0.1");
+		TorThread.initPool(9050, 9050+nPorts, nPorts);
+		TorThread.runPool();
+		
+		// switch the port to the first working
+		TorThread.switchPort();
+	}
+	
+	
+	
+	/**
+	 * Init a scholar client
 	 * 
 	 */
-	public static void setup(String query){
+	public static void init(){
 		try{
-			
-			// General setup for using tor ?
-			//System.setProperty("socksProxyHost", "127.0.0.1");
-			//System.setProperty("socksProxyPort", "9050");
-			
-			
-
-			 
-			 // create and run the tor client
-			//tor = new TorThread();
-			// tor.start();
-			// System.out.println("starting tor...");
-			// Thread.sleep(10000);
-			
-			
 		    client = new DefaultHttpClient();
 
 		    //context
@@ -103,16 +103,13 @@ public class ScholarAPI {
 			 HttpConnectionParams.setSoTimeout(params, 10000);
 			 
 			 HttpGet httpGet = new HttpGet("http://scholar.google.com");
-			 //for(String k:headers.keySet()){httpGet.setHeader(k, headers.get(k));}
 			 HttpResponse resp = client.execute(httpGet,context);
 			 
-			 
-			 System.out.println("Connected to scholar, persistent through cookies. ");
+			 //System.out.println("Connected to scholar, persistent through cookies. ");
 			 //for(int i=0;i<cookieStore.getCookies().size();i++){System.out.println(cookieStore.getCookies().get(0).toString());}
 				
 			 EntityUtils.consumeQuietly(resp.getEntity());
 			 
-				
 			}catch(Exception e){e.printStackTrace();}	
 	}
 	
@@ -234,9 +231,11 @@ public class ScholarAPI {
 			if(dom.getElementsByClass("gs_hatr").size()==0){
 				System.out.println(dom.html());
 				while(dom.getElementsByClass("gs_hatr").size()==0){
-				    System.out.println("Waiting for fucking google to stop blocking... sleep 5sec");
-				    Thread.sleep(5000);
-				    setup("");
+				    //System.out.println("Waiting for fucking google to stop blocking... sleep 5sec");
+				    //Thread.sleep(5000);
+				    
+					
+					init();
 				    //note : interfer with other APIs --> may be useful to separate them for a more stable archi.
 				    //dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
 				    dom = request("scholar.google.com","scholar?cites="+r.scholarID);
@@ -348,7 +347,7 @@ public class ScholarAPI {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		setup("");
+		init();
 		//tor.running=false;
 		//tor=new TorThread();tor.start();
 		//Thread.sleep(1000);

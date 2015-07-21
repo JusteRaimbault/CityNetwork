@@ -36,7 +36,7 @@ public class CitationNetwork {
 	public static void buildGeneralizedNetwork(String prefix,String[] keywords,String outFile,int maxIt){
 		// setup
 		Main.setup("conf/default.conf");
-		ScholarAPI.setup("");
+		ScholarAPI.init();
 		
 		//initialize orig tables and load initial references
 		LinkedList<HashSet<Reference>> originals = new LinkedList<HashSet<Reference>>();
