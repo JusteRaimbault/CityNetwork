@@ -11,26 +11,27 @@ getSingleParamPoints <- function(data,params_cols,indics_cols){
   # can be disordered -> need to fill a list and compute means,sd afterwards
   
   params = list();indics = list()
+  pkeys = list();#hashlist to keep position of parameters in params,indics list
   for(l in 1:nrow(data)){
     pval = data[l,params_cols]
-    known_param = 0;
-    if(length(params)>=1){
-    for(k in 1:length(params)){
-      if(prod(as.numeric(params[[k]])==pval)){known_param=k;indics[[k]]=append(indics[[k]], list(as.numeric(data[l,indics_cols])))}
-    }
-    }
-    if(known_param==0){
-      # add the parameter
+    key = Reduce(paste0,as.character(pval),"")
+    if(is.null(pkeys[[key]])){
       params = append(params,list(pval))
       indics = append(indics,list(list(as.numeric(data[l,indics_cols]))))
+      pkeys[[key]] = length(params) # necessarily last element of the list
+    }else{
+      ind = pkeys[[key]]
+      indics[[ind]]=append(indics[[ind]], list(as.numeric(data[l,indics_cols])))
     }
   }
-  return(list(
-    param=params,
-    mean=lapply(indics,function(ll){colMeans(matrix(unlist(ll),nrow=length(ll),byrow=TRUE))}),
-    sd=lapply(indics,function(ll){apply(matrix(unlist(ll),nrow=length(ll),byrow=TRUE),2,sd)})
-              )
+  
+  return(
+    list(
+       param=params,
+       mean=lapply(indics,function(ll){colMeans(matrix(unlist(ll),nrow=length(ll),byrow=TRUE))}),
+       sd=lapply(indics,function(ll){apply(matrix(unlist(ll),nrow=length(ll),byrow=TRUE),2,sd)})
          )
+   )
 }
 
 
