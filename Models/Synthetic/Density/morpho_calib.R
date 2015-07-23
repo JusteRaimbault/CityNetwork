@@ -6,6 +6,9 @@
 # setwd with env var : need Sys.getenv
 setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
 
+# load plot utils
+source(paste0(Sys.getenv("CN_HOME"),'/Models/Utils/R/plots.R'))
+
 
 
 #############################
@@ -17,7 +20,7 @@ setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
 # load result
 res = read.csv('res_oml_scala/2015_07_08_19_26_19_LHSsampling.csv',sep=',')
 # transform as usable data structure
-p = getSingleParamPoints(res,c(1,2,3,6,10),c(4,5,7,8,10,11))
+p = getSingleParamPoints(res,c(1,2,3,6,8),c(4,5,7,10,11))
 
 # ggplot
 
@@ -31,7 +34,7 @@ s=data.frame(matrix(data=unlist(p$sd),ncol=5,byrow=TRUE));names(s)<- c("distance
 
 
 # indicators
-indics = c("distance","entropy","moran","rsquared","slope")
+indics = c("distance","entropy","moran","slope")
 
 
 
@@ -51,10 +54,6 @@ for(i in 1:3){for(j in (i+1):4){
 }}
 
 
-# load plot utils
-source(paste0(Sys.getenv("CN_HOME"),'/Models/Utils/R/plots.R'))
-
-
 real_raw = read.csv(
   paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/europe_50km_sam.-juin-27-03:00:19-2015.csv'),
   sep=";"
@@ -62,6 +61,11 @@ real_raw = read.csv(
 
 # no na
 real =real_raw[!is.na(real_raw[,3])&!is.na(real_raw[,4])&!is.na(real_raw[,5])&!is.na(real_raw[,6])&!is.na(real_raw[,7])&!is.na(real_raw[,8])&!is.na(real_raw[,9]),]
+# nor outsiders
+real=real[real[,3]<quantile(real[,3],0.9)&real[,3]>quantile(real[,3],0.1)&real[,4]<quantile(real[,4],0.9)&real[,4]>quantile(real[,4],0.1)&real[,5]<quantile(real[,5],0.9)&real[,5]>quantile(real[,5],0.1)&real[,6]<quantile(real[,6],0.9)&real[,6]>quantile(real[,6],0.1),]
+
+# only "big cities"
+real=real[real$pop>500000,]
 
 # renormalize
 for(j in 1:ncol(real)){real[,j]=(real[,j]-min(real[,j]))/(max(real[,j])-min(real[,j]))}
@@ -100,7 +104,7 @@ summary(prcomp(m[,1:4]))
 # multiplots
 ########################
 
-for(col_par_name in c("diffusion","diffsteps","rate","alpha")){
+for(col_par_name in c("diffusion","diffusionsteps","growthrate","alphalocalization")){
   plots=list()
   k=1
   #par(mfrow=c(2,3))

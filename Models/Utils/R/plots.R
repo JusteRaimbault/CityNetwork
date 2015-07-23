@@ -13,6 +13,7 @@ getSingleParamPoints <- function(data,params_cols,indics_cols){
   params = list();indics = list()
   pkeys = list();#hashlist to keep position of parameters in params,indics list
   for(l in 1:nrow(data)){
+    if(l%%1000==0){show(l)}
     pval = data[l,params_cols]
     key = Reduce(paste0,as.character(pval),"")
     if(is.null(pkeys[[key]])){

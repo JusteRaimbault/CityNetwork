@@ -43,11 +43,19 @@ public class CybergeoImport {
 		HashSet<Reference> res = new HashSet<Reference>();
 		try{
 		   ResultSet sqlrefs = sqlDB.createStatement().executeQuery(
-				"SELECT `altertitre`,`resume`,`datepubli` "
+				"SELECT `titre`,`altertitre`,`resume`,`datepubli`,`identity` "
 				+ "FROM  `textes` "
-				+ "WHERE  `datepubli` >=  '2003-01-01';");
+				+ "WHERE  `datepubli` >=  '2003-01-01' AND  `resume` !=  '' AND  `titre` != '';");
 		   while(sqlrefs.next()){
-			   res.add(Reference.construct("", rawText(sqlrefs.getString(1)), rawText(sqlrefs.getString(2)), sqlrefs.getString(3), ""));
+			   Reference r = Reference.construct("", rawText(sqlrefs.getString(1)+sqlrefs.getString(2)), rawText(sqlrefs.getString(3)), sqlrefs.getString(4), "");
+				
+			   // get authors
+			   ResultSet authorsIds = sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +sqlrefs.getString(5)+" AND  `nature` LIKE  'G' ORDER BY  `degree` ASC ;");
+			   while(authorsIds.next()){
+			      ResultSet author = sqlDB.createStatement().executeQuery("SELECT `nomfamille`,`prenom` FROM `auteurs` WHERE `idperson` = "+authorsIds.getString(1)+" ;");
+			      if(author.next()){r.authors.add(author.getString(1)+" , "+author.getString(2));}
+			   }
+			   res.add(r);
 		   }
 		   
 		}catch(Exception e){
@@ -72,7 +80,7 @@ public class CybergeoImport {
 	public static void main(String[] args) {
 		setupSQL();
 		//GEXFWriter.write("res/test_cyb_gexf.gexf", importBase());
-		RISWriter.write("res/test_cyb.ris", importBase());
+		RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_with_resume_fullbase.ris", importBase());
 		
 		/*
 		try{
