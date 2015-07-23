@@ -31,7 +31,8 @@ public class CybergeoImport {
 	 */
 	public static void setupSQL(){
 		try{
-			Class.forName("com.mysql.jdbc.Driver");
+	      Class.forName("com.mysql.jdbc.Driver");
+	      // !! localhost config only, ok to leak is here ¡¡ //
 		  sqlDB = DriverManager.getConnection("jdbc:mysql://localhost:3306/Cybergeo","root","root");
 		}catch(Exception e){
 			e.printStackTrace();

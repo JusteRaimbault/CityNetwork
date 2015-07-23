@@ -3,8 +3,12 @@
  */
 package utils;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Set;
 
 import main.Reference;
@@ -29,7 +33,7 @@ public class RISWriter {
 	public static void write(String filePath,Set<Reference> refs){
 		try{
 			File file = new File(filePath);
-			FileWriter writer = new FileWriter(file);
+			Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "ISO-8859-1"));
 			
 			for(Reference r:refs){
 				writer.write("TY  - JOUR\nAB  - "+r.resume+"\n");
