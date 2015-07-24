@@ -1,0 +1,94 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+import scala.sys.process._
+
+/*
+import density._
+import org.openmole.plugin.domain.collection._
+import org.openmole.plugin.domain.distribution._
+import org.openmole.plugin.domain.modifier._
+import org.openmole.plugin.sampling.combine._
+import org.openmole.plugin.task.scala._
+import org.openmole.plugin.hook.display._
+*/
+
+logger.level("FINE")
+
+// Parameters
+val diffusion = Val[Double]
+val diffusionsteps = Val[Int]
+val alphalocalization = Val[Double]
+val growthrate = Val[Double]
+val population = Val[Double]
+val replication = Val[Int]
+
+// Reporters
+val moran=Val[Double]
+val distance=Val[Double]
+val entropy=Val[Double]
+val slope=Val[Double]
+val rsquared=Val[Double]
+
+// delete old tmp dir
+// this trick of tmp files with unique identifier is needed because scala task is embedded in main task
+// not copied in an external dir such as for a NetLogo task
+//("rm -r -f tmp/").!
+//("mkdir tmp").!
+
+val task =
+  ScalaTask(
+    """
+      | val gen = new PADGeneratorLauncher
+      | gen.main(50,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication)
+      | val moran = gen.moran
+      | val distance = gen.distance
+      | val entropy = gen.entropy
+      | val slope = gen.slope
+      | val rsquared = gen.rsquared
+    """.stripMargin
+  ) set (
+    imports += "density._",
+    inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication),
+    outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication),
+    outputs += (moran,distance,entropy,slope,rsquared)
+    )
+
+
+
+val exploration =  ExplorationTask(
+  (diffusion in (0.1 to 0.1 by 1)) x
+    (diffusionsteps in (2 to 2 by 1)) x
+    (alphalocalization in (1.2 to 1.2 by 1)) x
+    (growthrate in (10000.0 to 10000.0 by 1)) x
+    (population in (100000.0 to 100000.0 by 1)) x
+    (replication in (UniformDistribution[Int]() take 8))
+)
+val purpose = "TEST"
+
+
+/*
+val exploration = ExplorationTask (
+  LHS (
+    6000,
+    diffusion in Range(0.0, 0.2),
+    alphalocalization in Range(0.5,1.5),
+    growthrate in Range(100.0,20000.0),
+    population in Range(10000.0,100000.0)
+  ) x (replication in UniformDistribution[Int]() take 20) x (diffusionsteps in (1.0 to 3.0 by 1.0))
+)
+val purpose = "LHSsampling"
+*/
+
+val h = AppendToCSVFileHook("res_oml_scala/"+((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
+
+val startTime = System.currentTimeMillis
+
+// environement
+val env = LocalEnvironment(4)
+
+val ex = exploration -< (task on env hook h) start
+
+ex.waitUntilEnded
+
+
+println("Total Ellapsed Time is "+(System.currentTimeMillis - startTime) / 1000.0)

@@ -152,7 +152,6 @@ prcomp(synth[,c(1,2,3,5)])
 #  ~ synth in our case as union of both is not really bigger
 #  (for big cities)
 
-# OR test : prcomp on set { (R_i - S_j)_k | R_i \in Real, S_j \in Synth, k \in indics }
 
 
 
