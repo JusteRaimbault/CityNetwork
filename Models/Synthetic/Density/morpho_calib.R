@@ -5,9 +5,10 @@
 
 # setwd with env var : need Sys.getenv
 setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
-
 # load plot utils
 source(paste0(Sys.getenv("CN_HOME"),'/Models/Utils/R/plots.R'))
+# ggplot
+library(ggplot2)
 
 
 
@@ -24,14 +25,11 @@ indics_cols = c(4,5,7,10,11)
 params_cols = c(1,2,3,6,8)
 p = getSingleParamPoints(res,params_cols,indics_cols)
 
-# ggplot
-
-library(ggplot2)
-
 # simple plot
 
 # data frame of means
 indics_cols_m = 1:5
+params_cols_m = 6:9
 m=data.frame(matrix(data=unlist(p$mean),ncol=5,byrow=TRUE),matrix(data=unlist(p$param),ncol=5,byrow=TRUE));names(m)<- c("distance","entropy","moran","rsquared","slope","alphalocalization","diffusion","diffusionsteps","growthrate","population")
 s=data.frame(matrix(data=unlist(p$sd),ncol=5,byrow=TRUE));names(s)<- c("distance","entropy","moran","rsquared","slope")
 
@@ -152,10 +150,60 @@ prcomp(synth[,c(1,2,3,5)])
 #  ~ synth in our case as union of both is not really bigger
 #  (for big cities)
 
-# OR test : prcomp on set { (R_i - S_j)_k | R_i \in Real, S_j \in Synth, k \in indics }
+#############
+# OR test : prcomp on set { (R_i - S_j)_k | R_i \in sample(Real), S_j \in Synth, k \in indics }
+# -- without right outsiders - distance ONLY --
+
+real =real_raw[!is.na(real_raw[,3])&!is.na(real_raw[,4])&!is.na(real_raw[,5])&!is.na(real_raw[,6])&!is.na(real_raw[,7])&!is.na(real_raw[,8])&!is.na(real_raw[,9]),]
+real=real[real[,3]<quantile(real[,3],0.9),3:6]
+real=as.matrix(real[sample.int(length(real[,1]),1000),])
+synth = as.matrix(m[,c(3,1,2,5)])
+
+# construct product using kronecker
+diffs = (real %x% rep(1,nrow(synth))) - (rep(1,nrow(real)) %x% synth)
+
+pca = prcomp(normalize(diffs))
+summary(pca)
+
+# -> 90% of explained variance
+rot = pca$rotation
+plotPoints(data.frame(synth%*%rot,m[,params_cols_m]),data.frame(real%*%rot),"PC1","PC2","diffusion")
+
+# aggregate on PCs ?
+# and take min_real(||(real-synth)_PC||^2)
+
+sr = (synth%*%rot) ; rr =  (real%*%rot)
+d1 = sapply(sr[,1],function(x){min((rr[,1]-x)^2)})
+d2 = sapply(sr[,2],function(x){min((rr[,2]-x)^2)})
+d=d1+d2
+
+threshold = 0.000001
+
+hist(d,breaks=200)
+hist(d[d<threshold],breaks=200)
+
+# get the corresponding parameters
+params=m[,params_cols_m]
+best_params = params[d<threshold,]
+# corresponding hypercube
+apply(best_params,2,min)
+apply(best_params,2,max)
+apply(best_params,2,mean)
+
+# -> extract configs from pop directory in other script, given the best_params matrix
 
 
+## try to draw some kind of calibration profiles
+# given a parameter, cut it, find points with value within, take the min.
 
+plotCalibProfile<-function(param_col,breaks,name){
+  cuts = cut(params[,param_col],breaks,labels=FALSE)
+  profile=c()
+  for(b in 1:breaks){
+     profile=append(profile,min(d[cuts==b]))
+  }
+  plot(cuts)
+}
 
 
 

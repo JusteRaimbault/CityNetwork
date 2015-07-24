@@ -104,6 +104,14 @@ plotPoints<-function(d1,d2=NULL,xstring,ystring,colstring){
 }
 
 
+##############
+## normalization of columns
+normalize<-function(m){
+  res = matrix(m,nrow=nrow(m))
+  for(j in 1:ncol(res)){res[,j]=(res[,j]-min(res[,j]))/(max(res[,j])-min(res[,j]))}
+  return(res)
+}
+
 
 
 
