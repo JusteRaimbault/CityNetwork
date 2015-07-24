@@ -120,6 +120,24 @@ for(col_par_name in c("diffusion","diffusionsteps","growthrate","alphalocalizati
 }
 
 
+
+####################
+## Calib using prcomp analysis
+####################
+
+real =real_raw[!is.na(real_raw[,3])&!is.na(real_raw[,4])&!is.na(real_raw[,5])&!is.na(real_raw[,6])&!is.na(real_raw[,7])&!is.na(real_raw[,8])&!is.na(real_raw[,9]),]
+real=real[real[,3]<quantile(real[,3],0.9)&real[,3]>quantile(real[,3],0.1)&real[,4]<quantile(real[,4],0.9)&real[,4]>quantile(real[,4],0.1)&real[,5]<quantile(real[,5],0.9)&real[,5]>quantile(real[,5],0.1)&real[,6]<quantile(real[,6],0.9)&real[,6]>quantile(real[,6],0.1),]
+real=real[real$pop>500000,]
+for(j in 1:ncol(real)){real[,j]=(real[,j]-min(real[,j]))/(max(real[,j])-min(real[,j]))}
+
+summary(prcomp(real[,3:9]))
+
+
+
+
+
+
+
 # interesting...
 # Next step : compute for real situations ?
 

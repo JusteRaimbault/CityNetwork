@@ -48,7 +48,7 @@ public class CybergeoImport {
 				+ "FROM  `textes` "
 				+ "WHERE  `datepubli` >=  '2003-01-01' AND  `resume` !=  '' AND  `titre` != '';");
 		   while(sqlrefs.next()){
-			   Reference r = Reference.construct("", rawText(sqlrefs.getString(1)+sqlrefs.getString(2)), rawText(sqlrefs.getString(3)), sqlrefs.getString(4), "");
+			   Reference r = Reference.construct("", rawTitle(sqlrefs.getString(1),sqlrefs.getString(2)), rawText(sqlrefs.getString(3)), sqlrefs.getString(4), "");
 				
 			   // get authors
 			   ResultSet authorsIds = sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +sqlrefs.getString(5)+" AND  `nature` LIKE  'G' ORDER BY  `degree` ASC ;");
@@ -67,12 +67,34 @@ public class CybergeoImport {
 	}
 	
 	
+	/**
+	 * Get english raw text from xml multiling structure
+	 * 
+	 * @param xml
+	 * @return
+	 */
 	public static String rawText(String xml){
 		Document d = Jsoup.parse(xml);
 		try{
 		return d.getElementsByAttributeValue("lang", "en").first().text();
 		}catch(Exception e){return xml;}
 	}
+	
+	/**
+	 * Get eng title from title, aletrtitle fields
+	 * 
+	 * @param title
+	 * @param altertitle
+	 * @return
+	 */
+	public static String rawTitle(String title,String altertitle){
+		// find english title : if not in altertitle, then must be the main title
+		Document d = Jsoup.parse(altertitle);
+		try{
+		return d.getElementsByAttributeValue("lang", "fr").first().text();
+		}catch(Exception e){return title;}
+	}
+	
 	
 	
 	/**
@@ -81,7 +103,7 @@ public class CybergeoImport {
 	public static void main(String[] args) {
 		setupSQL();
 		//GEXFWriter.write("res/test_cyb_gexf.gexf", importBase());
-		RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_with_resume_fullbase.ris", importBase());
+		RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_frenchTitles_fullbase.ris", importBase());
 		
 		/*
 		try{
