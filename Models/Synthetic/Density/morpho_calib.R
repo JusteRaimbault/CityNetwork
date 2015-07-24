@@ -200,12 +200,14 @@ plotCalibProfile<-function(param_col,breaks,name){
   cuts = cut(params[,param_col],breaks,labels=FALSE)
   profile=c()
   for(b in 1:breaks){
-     profile=append(profile,min(d[cuts==b]))
+     if(length(which(cuts==b))==0){m=NA}else{   m =min(d[cuts==b])}
+     profile=append(profile,m)
   }
-  plot(cuts)
+  plot(sort(unique(cuts)),profile,main=name)
 }
 
-
+plotCalibProfile(2,40,"diffusion")
+plotCalibProfile(4,20,"growthrate")
 
 
 
