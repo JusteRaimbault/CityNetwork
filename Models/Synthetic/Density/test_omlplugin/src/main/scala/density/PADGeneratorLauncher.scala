@@ -30,7 +30,7 @@ class PADGeneratorLauncher {
       override def diffusionSteps: Int = diffSteps
       override def growthRate: Double = growth
       override def alphaAtt: Double = alpha
-      override def temp_file: String = "tmp/temp_pop_" + UIR + ".csv"
+      override def temp_file: String = "tmp_pop.csv" //"tmp/temp_pop_" + UIR + ".csv"
     }
 
     // compute

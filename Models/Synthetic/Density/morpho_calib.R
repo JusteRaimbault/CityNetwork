@@ -182,10 +182,13 @@ sr = (synth%*%rot) ; rr =  (real%*%rot)
 # GOOD DISTANCE : min_sr d(rr_i,sr)
 d=apply(sr[,1:2],1,function(z){min((rr[,1]-z[1])^2 + (rr[,2]-z[2])^2)})
 
-threshold = 1e-6
+threshold = 1e-4
 
-hist(d,breaks=200)
-hist(d[d<threshold],breaks=200)
+#hist(d,breaks=200)
+#hist(d[d<threshold],breaks=200)
+
+par(mfrow=c(2,2))
+for(threshold in c(1e-6,1e-5,1e-4,1e-3)){
 
 # get the corresponding parameters
 params=m[,params_cols_m]
@@ -193,9 +196,11 @@ best_params_rows = d<threshold
 best_params = params[best_params_rows,];nrow(best_params)
 
 # check distance
-plot(sr[best_params_rows,1:2],col="blue",main=paste0("threshold=",threshold," ; ",nrow(best_params)),pch="+",cex=1)
-points(rr[,1:2],col="red",,pch="+",cex=1)
+plot(sr[best_params_rows,1:2],col="blue",main=paste0("threshold=",threshold," ; ",nrow(best_params)," points"),pch="+",cex=1)
+points(rr[,1:2],col="red",pch="+",cex=1)
+points(sr[best_params_rows,1:2],col="blue",pch="+",cex=1)
 
+}
 
 # corresponding hypercube
 apply(best_params,2,min)
@@ -204,6 +209,7 @@ apply(best_params,2,mean)
 
 
 # -> extract configs from pop directory in other script, given the best_params matrix
+# threshold = 1e-4
 
 
 ## try to draw some kind of calibration profiles

@@ -44,6 +44,7 @@ trait Generator {
 
 
 
+
   /**
    * Stringify just to check validity of generators ; has no sense in general context as a new instance will be randomly generated at each
    * call of container.
