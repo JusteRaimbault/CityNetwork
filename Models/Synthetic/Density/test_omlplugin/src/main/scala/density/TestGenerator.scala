@@ -60,7 +60,7 @@ object TestGenerator extends App {
 
   }
 
-  //simpleTest
+  simpleTest
 
   //monteCarlo
 

@@ -32,16 +32,18 @@ fileName<-function(params){
   #return(paste0("pop/temp_pop_",params["population"],"_",params["diffusion"],"_",params["diffusionsteps"],
   #              "_",params["growthrate"],"_",params["alphalocalization"],"_",params["replication"],".csv"
   #              ))
+  # -> DOES NOT WORK, ROUNDING ISSUES
   # use integer keys : rep and diffSteps
   inds=sapply(files,function(s){grepl(paste0(params["replication"],".csv"),s)})&sapply(files,function(s){grepl(paste0("_",params["diffusionsteps"],"_"),s)})
   return(files[inds])
 }
 
 # test if the file exists
-z=read.csv(paste0("pop/",fileName(representatives[200,c(params_cols,9)])),sep=";",header=FALSE)
-# -> DOES NOT WORK, ROUNDING ISSUES
+z=read.csv(paste0("pop/",fileName(representatives[400,c(params_cols,9)])),sep=";",header=FALSE)
+z=read.csv(paste0("pop/",fileName(res[sample.int(nrow(res),1),c(params_cols,9)])),sep=";",header=FALSE)
 persp(x=1:50,y=1:50,z=as.matrix(z))
-
+# check scala generation
+persp(x=1:50,y=1:50,z=as.matrix(read.csv("test_omlplugin/tmp_pop.csv",sep=";",header=FALSE)))
 
 
 # now get configs and convert
