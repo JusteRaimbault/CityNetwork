@@ -83,8 +83,10 @@ object Test extends App {
     val k = Array.tabulate(8,8){ (i:Int,j:Int)=>Math.sqrt((i - 8.0) * (i-8.0) +(j - 8.0) * (j-8.0) )}
     val x = Array.fill(4,4){1.0}
     //println(k.flatten.length)
-    //fastConvolution(x.flatten,k.flatten).sliding(10).foreach(row=>println(row.mkString(";")))
-     fastConvolution2D(x,k).foreach(row=>println(row.mkString(";")))
+
+    fastConvolution(x.flatten,k.flatten).sliding(10).foreach(row=>println(row.mkString(";")))
+
+    //fastConvolution2D(x,k).foreach(row=>println(row.mkString(";")))
   }
 
 

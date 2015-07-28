@@ -62,7 +62,9 @@ object TestGenerator extends App {
 
   //simpleTest
 
-  monteCarlo
+  //monteCarlo
+
+  // MONTE CARLO : validation of random pref Attachment.
 
 
 }
