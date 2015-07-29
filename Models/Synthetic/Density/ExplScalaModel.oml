@@ -73,10 +73,10 @@ val exploration = ExplorationTask (
   LHS (
     3000,
     diffusion in Range(0.0, 0.3),
-    alphalocalization in Range(0.6,2),
+    alphalocalization in Range(0.6,2.0),
     growthrate in Range(1000.0,30000.0),
     population in Range(10000.0,1000000.0)
-  ) x (replication in UniformDistribution[Int]() take 10) x (diffusionsteps in (1.0 to 3.0 by 1.0))
+  ) x (replication in UniformDistribution[Int]() take 10) x (diffusionsteps in (1 to 3 by 1))
 )
 val purpose = "LHSsampling"
 
@@ -86,7 +86,7 @@ val h = AppendToCSVFileHook("res_oml_scala/"+((new SimpleDateFormat("yyyy_MM_dd_
 val startTime = System.currentTimeMillis
 
 // environement
-val env = LocalEnvironment(4)
+val env = LocalEnvironment(20)
 
 val ex = exploration -< (task on env hook h) start
 
