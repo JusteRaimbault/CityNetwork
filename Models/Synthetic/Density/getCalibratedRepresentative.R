@@ -25,7 +25,7 @@ for(p in 1:nrow(params)){
 colnames(representatives)<-colnames(res)
 
 
-files<-list.files("pop")
+files<-list.files(paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/Output/ScalaImpl/20150729_Scala_SamplingLHS/pop'))
 
 # check one
 fileName<-function(params){
@@ -34,23 +34,34 @@ fileName<-function(params){
   #              ))
   # -> DOES NOT WORK, ROUNDING ISSUES
   # use integer keys : rep and diffSteps
-  inds=sapply(files,function(s){grepl(paste0(params["replication"],".csv"),s)})&sapply(files,function(s){grepl(paste0("_",params["diffusionsteps"],"_"),s)})
-  return(files[inds])
+  #inds=sapply(files,function(s){grepl(paste0(params["replication"],".csv"),s)})&sapply(files,function(s){grepl(paste0("_",params["diffusionsteps"],"_"),s)})
+  #return(files[inds])
+  return(paste0(params["replication"],params["diffusionsteps"],".csv"))
 }
 
 # test if the file exists
-z=read.csv(paste0("pop/",fileName(representatives[400,c(params_cols,9)])),sep=";",header=FALSE)
+z=read.csv(fileName(representatives[100,c(params_cols,9)]),sep=";",header=FALSE)
 z=read.csv(paste0("pop/",fileName(res[sample.int(nrow(res),1),c(params_cols,9)])),sep=";",header=FALSE)
-persp(x=1:50,y=1:50,z=as.matrix(z))
+persp(x=1:20,y=1:20,z=as.matrix(z))
 # check scala generation
 persp(x=1:20,y=1:20,z=as.matrix(read.csv("tmp/pop_15764867352.csv",sep=";",header=FALSE)))
 
 
 # now get configs and convert
 
+prefix=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/Output/ScalaImpl/20150729_Scala_SamplingLHS/'
+
 for(r in 1:nrow(representatives)){
-  
-  
+  ztab=read.csv(paste0(prefix,'pop/pop_',fileName(representatives[r,]),sep=";",header=FALSE)
+  x=c();y=c();z=c();
+  for(i in 1:nrow(ztab)){
+    for(j in 1:ncol(ztab)){
+      x=append(x,i);y=append(y,j);
+      z=append(z,ztab[i,j])
+    }
+  }
+  write.csv(data.frame(x=x,y=y,z=z),file=paste0(prefix,'processed/',fileName(representatives[r,]),'_config.csv'),sep=";",row.names = FALSE)
+  write.csv(representatives[r,],file=paste0(prefix,'processed/',fileName(representatives[r,]),'_params.csv'),sep=";",row.names = FALSE)
 }
 
 

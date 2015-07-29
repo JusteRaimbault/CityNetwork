@@ -19,7 +19,7 @@ library(ggplot2)
 
 
 # load result
-res = read.csv('res_oml_scala/2015_07_08_19_26_19_LHSsampling.csv',sep=',')
+res = read.csv('res_oml_scala/2015_07_29_15_52_21_LHSsampling.csv',sep=',')
 # transform as usable data structure
 indics_cols = c(4,5,7,10,11)
 params_cols = c(1,2,3,6,8)
