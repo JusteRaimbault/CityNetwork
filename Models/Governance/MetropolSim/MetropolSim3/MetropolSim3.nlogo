@@ -208,6 +208,9 @@ globals[
   ;; network clusters
   network-clusters
   
+  ;; connexion between clusters
+  network-clusters-connectors
+  
   ; overall
   ; stored as table (num_patch_1,num_patch_2) -> [[i,i1],[i1,i2],...,[in,j]] where couples are either (void-nw) or (nw-nw)
   ; then effective path is [ik->i_k+1] or [ik->_nw i_k+1]
@@ -1017,10 +1020,10 @@ __________________
 1
 
 BUTTON
-1240
-166
-1321
-199
+1225
+162
+1306
+195
 test dist
 setup\ntest-network-effect (patches with [pxcor = 0])\ncheck-effective-distance 1180 684
 NIL
@@ -1040,6 +1043,23 @@ BUTTON
 686
 update display
 color-patches
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1309
+161
+1391
+194
+test connex
+test-connex-components
 NIL
 1
 T

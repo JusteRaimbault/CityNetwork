@@ -113,7 +113,7 @@ to update-network [new-link]
   ;; IV) Paths between connex components
   ;;;;;;;;;;;;;;;
   
-  compute-extended-paths
+  compute-component-distances
   
   ;;;;;;;;;;;;;;;
   ;; V) Update network distances
@@ -582,15 +582,13 @@ end
 
 ;;
 ; Compute extended paths in nw, using connex components
-to compute-extended-paths
+to compute-component-distances
   
   ; 1) compute connex components
   set network-clusters connex-components
   
-  
-  ;;
-  ;; TODO
-  ;; 
+  ; 2) compute component connectors
+  set network-clusters-connectors components-connectors
   
   
 
@@ -606,19 +604,31 @@ to-report connex-components
   let clusters []
   
   foreach table:keys network-shortest-paths [
-    show table:get network-shortest-paths ?
+    ;show table:get network-shortest-paths ?
     if table:get network-shortest-paths ? != [] [
       let e1 first ? let e2 last ?
-      let existing? false let k 0
-      foreach clusters [
-         if member? e1 ? and not member? e2 ? [set clusters replace-item k clusters (lput e2 (item k clusters)) set existing? true]
-         if member? e2 ? and not member? e1 ? [set clusters replace-item k clusters (lput e1 (item k clusters)) set existing? true]
-         if member? e2 ? and member? e1 ? [set existing? true]
-         set k k + 1
+      let existing? false let k1 0 let k2 1 let c clusters let to-del []
+      if length c > 0 [
+        repeat length c [
+          let c1 item k1 c set k2 k1 + 1
+          if member? e1 c1 and not member? e2 c1 [set clusters replace-item k1 clusters (lput e2 (item k1 clusters)) set existing? true]
+          if member? e2 c1 and not member? e1 c1 [set clusters replace-item k1 clusters (lput e1 (item k1 clusters)) set existing? true]
+          if member? e2 c1 and member? e1 c1 [set existing? true]
+          if length c > 1 [
+            repeat (length c - k1 - 1) [
+               let c2 item k2 c
+               if (member? e1 c1 and member? e2 c2) or (member? e2 c1 and member? e1 c2) [set clusters replace-item k1 clusters (remove-duplicates concatenate (list c1 c2)) set to-del lput k2 to-del]
+               set k2 k2 + 1
+            ]
+          ]
+          set k1 k1 + 1
+        ]
+        foreach to-del [set clusters remove-item ? clusters]
       ]
       ; create a new cluster if needed
       if not existing? [
         set clusters lput (remove-duplicates ?) clusters
+        ;debug (word "new : " ?)
       ]
     ]
   ]
@@ -626,8 +636,8 @@ to-report connex-components
   ;; add other network patches, using closest-nw-inters  
   foreach nw-patches [
     if not member? ? nw-inters [
-      let p ? let inters table:get closest-nw-inters p let k 0
-      foreach clusters [
+      let p ? let inters table:get closest-nw-inters p let k 0 let c clusters
+      foreach c [
         if member? (first first inters) ? or member? (first last inters) ? [set clusters replace-item k clusters (lput p (item k clusters))]
         set k k + 1
       ]
@@ -635,6 +645,34 @@ to-report connex-components
   ]
   
   report clusters
+end
+
+
+
+;;
+; Assuming clusters have been computed, find connectors
+;   ( = patches through which euclidian connexion is made)
+to-report components-connectors
+   let res table:make
+   ; if only one cluster, nothing to be done
+   if length network-clusters > 1 [
+      let k1 0 let k2 1
+      repeat (length network-clusters - 1) [
+        let c1 item k1 network-clusters set k2 k1 + 1
+        repeat (length network-clusters - k1 - 1) [
+          let c2 item k2 network-clusters
+          let dmin (dmax + 1) let p1 0 let p2 0
+          ifelse length c1 < length c2 [
+            foreach c1 []
+          ][
+            foreach c2 []
+          ]
+          set k2 k2 + 1
+        ]
+        set k1 k1 + 1 
+      ]
+   ]
+   report res
 end
 
 
