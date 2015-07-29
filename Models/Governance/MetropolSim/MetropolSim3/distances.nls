@@ -85,7 +85,9 @@ to update-network [new-link]
   let in-between item 1 r
   let new-nw-patches last r
   
-  update-inters new-inters in-between
+  ;update-inters new-inters in-between
+  update-inters-recompute new-inters new-nw-patches
+  
 
   ;;;;;;;;;;;;;;;
   ;; II) Update shortest paths between intersections
@@ -176,6 +178,37 @@ end
 
 
 ;;
+; unoptimal but exact function
+;  - provisory use waiting for update-inters to be proved
+;
+to update-inters-recompute [new-inters new-nw-patches]
+  foreach new-inters [set nw-inters lput ? nw-inters]
+  let footprints []
+  ask transportation-links [let f [] foreach footprint[ask ? [set f lput number f]] set footprints lput f footprints]
+  set closest-nw-inters table:make
+  foreach footprints [
+    let current-fp ? let current-inters []
+    foreach current-fp [if position ? nw-inters != false [set current-inters lput ? current-inters]]
+    let k 1 let current-inter item 0 current-inters let next-inter item 1 current-inters
+    foreach current-fp [
+      let nints []
+      if ? = current-inter [set nints (list (list next-inter (matrix:get euclidian-distance-matrix current-inter next-inter)))]
+      if ? != current-inter and ? != next-inter [set nints (list (list current-inter (matrix:get euclidian-distance-matrix current-inter ?)) (list next-inter (matrix:get euclidian-distance-matrix ? next-inter)))]
+      if ? = next-inter [set nints (list (list current-inter (matrix:get euclidian-distance-matrix current-inter ?))) 
+          set current-inter next-inter if (k + 1) < length current-inters [set next-inter item (k + 1) current-inters set nints lput (list next-inter (matrix:get euclidian-distance-matrix ? next-inter)) nints set k k + 1]]
+      ifelse table:has-key? closest-nw-inters ? [
+         table:put closest-nw-inters ? (concatenate (list table:get closest-nw-inters ? nints))
+      ][
+         table:put closest-nw-inters ? nints
+      ]
+    ]
+  ]
+end
+
+
+
+
+;;
 ; Update network closest intersection table
 ;
 ;  @requires in-between strictly in-between patches
@@ -203,7 +236,7 @@ to update-inters [new-inters in-between]
        let prev-crossing-ends table:get closest-nw-inters ?
        table:remove closest-nw-inters ?
        foreach table:keys closest-nw-inters [
-         if not member? ? nw-inters[
+         
          ;debug (word "patch " ? " - inters "  table:get closest-nw-inters ?)
          
          ; find table entries with same extremities
@@ -238,10 +271,11 @@ to update-inters [new-inters in-between]
              table:put closest-nw-inters ? nints
          ]
                
-         table:put to-replace (first first oldints) (first last oldints)
-         table:put to-replace (first last oldints) (first first oldints)
+         if not member? ? nw-inters[
+           table:put to-replace (first first oldints) (first last oldints)
+           table:put to-replace (first last oldints) (first first oldints)
+         ]
          
-       ]
        ]
        
        ; and reput the entry for the intersection itself (has been removed, will be completed after)
@@ -250,7 +284,8 @@ to update-inters [new-inters in-between]
        
     ]
     
-    foreach table:keys to-replace [debug (word ? " : " table:get to-replace ?)]
+    ; DEBUG
+    ;foreach table:keys to-replace [debug (word ? " : " table:get to-replace ?)]
     
     ;;;;;;;;;;;;;;
     ;; Deal with other intersections (update other end with new extr) -- using nw-inters ?
@@ -311,6 +346,7 @@ to update-vertices-and-paths [new-inters]
   
   ;;;
   ; Prelim : reset distance matrix for network vertices, as 'natural' (uncongestioned) network distance
+  set network-distance-matrix  matrix:make-constant #-patches #-patches (dmax + 1)
   
   foreach table:keys network-shortest-paths [
     let p table:get network-shortest-paths ? let o first ? let d last ? let di path-length p
@@ -435,13 +471,14 @@ to update-vertices-and-paths [new-inters]
          
          debug (word " -- Final path : " path)
          
-         table:put network-shortest-paths (list d o) path table:put network-shortest-paths (list o d) rev path
+         if path != [] [
+            table:put network-shortest-paths (list d o) path table:put network-shortest-paths (list o d) rev path
          
-         ;; update network distance matrix
-         let di path-length path
-         matrix:set network-distance-matrix d o di matrix:set network-distance-matrix o d di
-         
-         ;debug (word "... via neighbors : " table:get network-shortest-paths (list o d))
+            ;; update network distance matrix
+            let di path-length path
+            matrix:set network-distance-matrix d o di matrix:set network-distance-matrix o d di
+            ;debug (word "... via neighbors : " table:get network-shortest-paths (list o d))
+         ]
          
       ]
     ]
@@ -630,13 +667,15 @@ to update-network-distance-matrix
         foreach i1 [
           let n1 first ? foreach i2 [
              let n2 first ?
-             set d min (list d (((matrix:get euclidian-distance-matrix p1 n1) * network-min-pace * (network-pace item p1 patches-congestion)) +((matrix:get euclidian-distance-matrix p2 n2) * network-min-pace * (network-pace item p2 patches-congestion)) + table:get paths-length (list n1 n2))) 
+             if table:has-key? paths-length (list n1 n2) [ 
+                set d min (list d (((matrix:get euclidian-distance-matrix p1 n1) * network-min-pace * (network-pace item p1 patches-congestion)) +((matrix:get euclidian-distance-matrix p2 n2) * network-min-pace * (network-pace item p2 patches-congestion)) + table:get paths-length (list n1 n2))) 
+             ]
           ] 
         ]
       ] 
  
       matrix:set network-distance-matrix p1 p2 d
-    ] 
+    ]
   ]
   
 end
