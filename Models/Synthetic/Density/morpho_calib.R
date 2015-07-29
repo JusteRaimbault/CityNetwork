@@ -193,7 +193,7 @@ for(threshold in c(1e-6,1e-5,1e-4,1e-3)){
 # get the corresponding parameters
 params=m[,params_cols_m]
 best_params_rows = d<threshold
-best_params = params[best_params_rows,];nrow(best_params)
+best_params = m[best_params_rows,]#params[best_params_rows,];nrow(best_params)
 
 # check distance
 plot(sr[best_params_rows,1:2],col="blue",main=paste0("threshold=",threshold," ; ",nrow(best_params)," points"),pch="+",cex=1)
@@ -227,6 +227,14 @@ plotCalibProfile<-function(param_col,breaks,name){
 
 plotCalibProfile(2,40,"diffusion")
 plotCalibProfile(4,20,"growthrate")
+
+
+## try to check simple linear models linking parameters and indicators
+
+
+
+
+
 
 
 
