@@ -805,7 +805,7 @@ CHOOSER
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
-1
+0
 
 SLIDER
 6

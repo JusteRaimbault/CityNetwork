@@ -137,27 +137,34 @@ to-report get-new-inters [new-link]
   ; get footprint of the link, all patches of it are connected
   let new-nw-patches [] ask new-link [foreach footprint[ask ? [set new-nw-patches lput number new-nw-patches]]]
   
-  ; find intersections : as footprint is ordered, new intersections are orderered too.
-  let new-inters (list (first new-nw-patches))
+  ; find intersections : as footprint is ordered, new intersections are orderered too -> get extremities
+  let new-inters (list (first new-nw-patches) (last new-nw-patches))
   
-  ; patches between consecutive intersections
+  ; use actual links to get exact intersection
+  ask transportation-links with [self != new-link] [
+     let inter intersection-with-link self new-link
+     if inter != [] [
+       set new-inters lput [number] of (patch (first inter) (last inter)) new-inters 
+     ] 
+  ]
+  
+  ; order the inters following footprint order ( ! requirement for other functions to work ¡ )
+  let new-inters-copy new-inters
+  set new-inters []
+  foreach new-nw-patches [if member? ? new-inters-copy [set new-inters lput ? new-inters]]
+  
+  ; construct in-between : patches between consecutive intersections
   let in-between (list [])
-  
   foreach but-first but-last new-nw-patches [   
-    ifelse member? ? nw-patches [
-      set new-inters lput ? new-inters
+    ifelse member? ? new-inters [
       set in-between lput [] in-between
     ][
       set in-between lput (lput ? (last in-between)) (but-last in-between)
     ]
   ]
   
-  ; Q : link extremities not needed ?
-  set new-inters lput (last new-nw-patches) new-inters
-  ; set in-between lput (lput (last new-nw-patches) (last in-between)) (but-last in-between) STRICT
-  
   ;; DEBUG
-  foreach new-inters[ask patch-with-number ? [set pcolor red]] foreach in-between [foreach ? [ask patch-with-number ? [set pcolor pink]]]
+  ;foreach new-inters[ask patch-with-number ? [set pcolor red set plabel position number new-inters]] foreach in-between [foreach ? [ask patch-with-number ? [set pcolor pink]]]
   ;debug (word "New inters : " new-inters)
   ;debug (word "In-bw : " in-between)
   
@@ -177,9 +184,6 @@ to update-inters [new-inters in-between]
   ;debug (word "updating intersections with inters " new-inters )
   
   
-  
-  
-  
   ;; add intersections
   foreach new-inters [
     
@@ -189,13 +193,17 @@ to update-inters [new-inters in-between]
     ;; update nw-closest-inter for crossing link
     let ni ?
     
+    let to-replace table:make
+    
     if table:has-key? closest-nw-inters ? [
        ; was already on a link, then it is the link crossed
+       
        ;debug (word "old inter : " ?)
        
        let prev-crossing-ends table:get closest-nw-inters ?
        table:remove closest-nw-inters ?
        foreach table:keys closest-nw-inters [
+         if not member? ? nw-inters[
          ;debug (word "patch " ? " - inters "  table:get closest-nw-inters ?)
          
          ; find table entries with same extremities
@@ -208,39 +216,41 @@ to update-inters [new-inters in-between]
          
         ; output-print chge?
         ; must change the table entry
-         if chge? [
-           let oldints table:get closest-nw-inters ? let nints []
-           ;debug oldints
-           ;output-print length oldints
-;           ifelse length oldints = 1 [
-;             let dni matrix:get euclidian-distance-matrix ? ni let d1 matrix:get euclidian-distance-matrix ? first first oldints
-;             ifelse d1 < dni [set nints (list (list ni dni) (list (first first oldints) d1))][set nints (list (list ni dni))]
-;           ][
-           
+        let oldints table:get closest-nw-inters ?
+        if chge? [
+             let nints []
              let dni matrix:get euclidian-distance-matrix ? ni
-             ;let d1 matrix:get euclidian-distance-matrix ? first first oldints let d2 matrix:get euclidian-distance-matrix ? first last oldints
-             let d1 last first oldints let d2 last last oldints
-             let dn1 matrix:get euclidian-distance-matrix ni first first oldints
+             let d1 last first oldints let n1 first first oldints
+             let d2 last last oldints let n2 first last oldints
+             let dn1 matrix:get euclidian-distance-matrix ni n1
              
-             ;debug (word "dni : " dni " - d1 : " d1 " - d2 : " d2 " - dn1 : " dn1)  ; DEBUG
+             debug (word "ni : " ni " - n1 : " n1 " - n2 : " n2 " - ? : " ?)
+             debug (word "dni : " dni " - d1 : " d1 " - d2 : " d2 " - dn1 : " dn1)  ; DEBUG      
              ;debug first first oldints debug first last oldints
              
-             ifelse d1 + dni = dn1 [
+             ; heuristic ?
+             ifelse abs (d1 + dni - dn1 ) < 1 [
                set nints (list (list ni dni) (list (first first oldints) d1))
              ][
                set nints (list (list ni dni) (list (first last oldints) d2))
              ]
-           ;]
-           table:put closest-nw-inters ? nints
+        
+             table:put closest-nw-inters ? nints
          ]
+               
+         table:put to-replace (first first oldints) (first last oldints)
+         table:put to-replace (first last oldints) (first first oldints)
          
-         
+       ]
        ]
        
        ; and reput the entry for the intersection itself (has been removed, will be completed after)
        table:put closest-nw-inters ni prev-crossing-ends
        
+       
     ]
+    
+    foreach table:keys to-replace [debug (word ? " : " table:get to-replace ?)]
     
     ;;;;;;;;;;;;;;
     ;; Deal with other intersections (update other end with new extr) -- using nw-inters ?
@@ -248,32 +258,17 @@ to update-inters [new-inters in-between]
     
     foreach nw-inters [
       let n1 ?
-      if not member? ? new-inters [
-        if table:has-key? closest-nw-inters ni [
-           let chge? false let n2 0 foreach table:get closest-nw-inters ni [set chge? chge? or first ? = n1 if first ? != n1[set n2 first ?]]
-           if chge? [
-             ; replace entry with n2 by ni
-             ;debug (word "Replacing " n2 " by " ni " for " n1)
-             let newints [] foreach table:get closest-nw-inters n1 [ifelse first ? = n2[set newints lput (list ni (matrix:get euclidian-distance-matrix ni n1)) newints][set newints lput ? newints]]
-             table:put closest-nw-inters n1 newints
-           ]
-        ] 
+      if table:has-key? to-replace n1 [
+         let newints [] foreach table:get closest-nw-inters n1 [ifelse first ? = table:get to-replace n1 [set newints lput (list ni (matrix:get euclidian-distance-matrix ni n1)) newints][set newints lput ? newints]]
+         table:put closest-nw-inters n1 newints
       ]
     ]
-    
-    
-    ;;;;;;;;;;;;;;;;;;;;
-    
-    
-    ;;;;;;;;;;;;;;;;;;;;
-    
-    
     
   ]
   
   
-  
-  ;;corresponding 'nw-closest-inter' entries
+  ;;
+  ;;in-between network patches
   let i 0
   foreach in-between [
     foreach ? [
@@ -299,11 +294,6 @@ to update-inters [new-inters in-between]
     ]
     set i i + 1 
   ]
-  
-  
-  
-  
-  
   
 end
 
