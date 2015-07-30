@@ -141,6 +141,8 @@ globals[
   
   
   
+  external-facility
+  
   
   ;;;;;;;;;;;;;
   ;; Transportation
@@ -264,9 +266,15 @@ patches-own [
   employments
   
   
+  
+  
+  
+  
   ;;;;;
   ;; utilities and accessibilities
   ;;;;;
+  
+  prev-accessibility
   
   ; accessibility of jobs to actives
   a-to-e-accessibility
@@ -334,13 +342,13 @@ transportation-nodes-own[
 ]
 @#$#@#$#@
 GRAPHICS-WINDOW
-376
-21
-904
-570
-18
-18
-14.0
+360
+34
+913
+608
+5
+5
+49.44444444444444
 1
 10
 1
@@ -350,10 +358,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--18
-18
--18
-18
+-5
+5
+-5
+5
 0
 0
 1
@@ -376,10 +384,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-26
-498
-92
-531
+2
+499
+68
+532
 setup
 setup
 NIL
@@ -400,7 +408,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-9
+2
 
 TEXTBOX
 11
@@ -446,7 +454,7 @@ employments-spatial-dispersion
 employments-spatial-dispersion
 0
 100
-5
+2
 1
 1
 NIL
@@ -530,10 +538,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-95
-498
-158
-531
+130
+500
+185
+533
 go
 go
 T
@@ -547,10 +555,10 @@ NIL
 1
 
 PLOT
-913
-13
-1073
-133
+1006
+10
+1166
+130
 convergence
 NIL
 NIL
@@ -601,7 +609,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-0.5
+0
 0.05
 1
 NIL
@@ -819,7 +827,7 @@ euclidian-min-pace
 euclidian-min-pace
 1
 50
-5
+10
 1
 1
 NIL
@@ -833,9 +841,9 @@ SLIDER
 congestion-price
 congestion-price
 0
-100
-1
-1
+10
+0
+0.1
 1
 NIL
 HORIZONTAL
@@ -849,7 +857,7 @@ road-length
 road-length
 0
 20
-7
+2
 1
 1
 NIL
@@ -863,8 +871,8 @@ SLIDER
 #-explorations
 #-explorations
 0
-20
-4
+1000
+98
 1
 1
 NIL
@@ -896,7 +904,7 @@ lambda-accessibility
 lambda-accessibility
 0
 1
-0.085
+0.01
 0.005
 1
 NIL
@@ -920,10 +928,10 @@ NIL
 1
 
 SLIDER
-186
-375
-348
-408
+184
+438
+346
+471
 total-time-steps
 total-time-steps
 0
@@ -935,10 +943,10 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-182
-346
-418
-381
+180
+409
+416
+444
 __________________
 20
 0.0
@@ -952,7 +960,7 @@ CHOOSER
 game-type
 game-type
 "random" "simple-nash"
-1
+0
 
 TEXTBOX
 174
@@ -975,10 +983,10 @@ TEXTBOX
 1
 
 PLOT
-914
-134
-1074
-254
+1007
+131
+1167
+251
 accessibility
 NIL
 NIL
@@ -990,7 +998,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot mean-accessibility"
+"default" 1.0 0 -16777216 true "" "plot mean-accessibility patches"
 "pen-1" 1.0 0 -7858858 true "" "plot max-accessibility"
 "pen-2" 1.0 0 -4757638 true "" "plot min-accessibility"
 
@@ -1077,6 +1085,78 @@ BUTTON
 230
 nw effect
 test-network-effect patches
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+184
+359
+332
+392
+alpha-nash
+alpha-nash
+0
+20
+0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+184
+395
+332
+428
+delta-alpha-nash
+delta-alpha-nash
+0
+10
+0
+1
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+146
+15
+284
+60
+setup-type
+setup-type
+"random" "from-file"
+0
+
+SLIDER
+190
+479
+335
+512
+ext-growth-factor
+ext-growth-factor
+0
+1
+0.5
+0.1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+72
+500
+127
+533
+go
+go
 NIL
 1
 T

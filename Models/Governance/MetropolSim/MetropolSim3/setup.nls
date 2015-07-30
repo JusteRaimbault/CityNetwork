@@ -26,6 +26,8 @@ to setup
   ; setup initial configuration
   setup-initial-distributions
   
+  ;setup-externalities
+  
   ; setup initial network
   setup-initial-network
   
@@ -106,6 +108,24 @@ to setup-display
   color-patches
   draw-boundaries
 end
+
+
+
+to setup-externalities
+  if setup-type = "random" [
+    set external-facility []
+    ask one-of patches [
+      set external-facility lput number external-facility
+      sprout 1 [
+         set shape "airplane" set size 2 set color red set heading 0
+         
+      ] 
+      set employments employments-max / 2
+      ask neighbors [set employments employments-max / 2 set external-facility lput number external-facility]
+    ] 
+  ]
+end
+
 
 
 ;;

@@ -85,14 +85,14 @@ to-report best-infrastructure [decidors old-config]
   
   ifelse decidors = regional-authority [
     ; no game, find the best among the choices
-    report first compare-infrastructures old-config potential-infrastructures regional-authority
+    report (list first compare-infrastructures old-config (potential-infrastructures regional-authority) regional-authority patches)
   ][  
     ; generate potential infras here
     ; assume 2 decidors
     let dec1 first decidors let dec2 last decidors
-    let best1 compare-infrastructures old-config potential-infrastructures (list dec1)
-    let best2 compare-infrastructures old-config potential-infrastructures (list dec2)
-    let best12 compare-infrastructures old-config potential-infrastructures decidors
+    let best1 compare-infrastructures old-config (potential-infrastructures (list dec1)) (list dec1) (patches with [governing-mayor = dec1])
+    let best2 compare-infrastructures old-config (potential-infrastructures (list dec2)) (list dec2) (patches with [governing-mayor = dec2])
+    let best12 compare-infrastructures old-config (potential-infrastructures decidors) regional-authority patches
     
     ; report game result given these explorations
     report game-result best1 best2 best12
@@ -109,17 +109,20 @@ end
 ;  -- NOTE -- for mean-acc ; shouldn't it be only on patches concerned by the decidor ?
 ;    --> clarify this point
 ;
-to-report compare-infrastructures [old-nw-config choices]
+to-report compare-infrastructures [old-nw-config choices decidor patchset]
   verbose (word "comparing " length choices " infras")
   
   recall-nw-config old-nw-config
   
   ; old mean accessibility
   compute-patches-accessibilities
-  let old-acc mean-accessibility
+  let old-acc mean-accessibility patchset
+  let olds (list mean-accessibility patches)
+  foreach sort-on [who] (mayors with [self != regional-authority]) [set olds lput (mean-accessibility patches with [governing-mayor = ?]) olds] 
+  
   verbose mean-travel-distance
   
-  let best-choice [] let delta-acc 0
+  let best-choice [] let delta-acc 0 let deltas []
   foreach choices [
     recall-nw-config old-nw-config
     let potential-infra new-infra ?
@@ -127,13 +130,20 @@ to-report compare-infrastructures [old-nw-config choices]
     update-effective-matrices
     ; recompute new accessibilities
     compute-patches-accessibilities
-    let new-acc mean-accessibility
+    let new-acc mean-accessibility patchset
+    let news (list mean-accessibility patches)
+    foreach sort-on [who] (mayors with [self != regional-authority]) [set news lput (mean-accessibility patches with [governing-mayor = ?]) news]
+    
     
     ; check if better delta-acc
     verbose (word "∆Z=" (new-acc - old-acc))
     verbose (word "mean-travel-distance = " mean-travel-distance)
     
-    if (new-acc - old-acc) > delta-acc [set best-choice ? set delta-acc (new-acc - old-acc)]
+    if (new-acc - old-acc) > delta-acc [
+      set best-choice ?
+      set delta-acc (new-acc - old-acc)
+      set deltas [] let i 0 foreach news [set deltas lput (? - item i olds) deltas set i i + 1]
+    ]
     
     ; kill the potential infra, will be reconstructed if indeed the best
     ask potential-infra [ask both-ends [die] die]
@@ -144,7 +154,7 @@ to-report compare-infrastructures [old-nw-config choices]
   
   verbose (word "best infra is " best-choice " with ∆Z=" delta-acc)
   
-  report (list best-choice delta-acc)
+  report (list best-choice deltas decidor)
 end
 
 
@@ -157,15 +167,26 @@ to-report game-result [best1 best2 best12]
    if game-type = "random" [
     ; Random = no game
     let r random 3
-    if r = 1 [report first best1]
-    if r = 2 [report first best2]
-    if r = 0 [report first best12]
+    if r = 1 [report (list first best1)]
+    if r = 2 [report (list first best2)]
+    if r = 0 [report (list first best12)]
    ]
    
    
    if game-type = "simple-nash" [
-      ; 
-     
+      ; probas are :
+      ;  p_j = Delta X_\bar{j} (Z^{\star}_\bar{j}) - alpha / Delta X_\bar{j} (Z^{\star}_tot) - delta_alpha 
+      let dec1 last best1 let dec2 last best2 let sortdec sort-by [[who] of first ?1 < [who] of first ?2] (list dec1 dec2)
+      let D11 item ((position dec1 sortdec) + 1) (item 1 best1) let D22 item ((position dec2 sortdec) + 1) (item 1 best2)
+      let Dc1 item ((position dec1 sortdec) + 1) (item 1 best12) let Dc2 item ((position dec2 sortdec) + 1) (item 1 best12)
+      let p2 (D11 - alpha-nash) / (Dc1 - delta-alpha-nash) verbose (word "p2 = " p2)
+      let p1 (D22 - alpha-nash) / (Dc2 - delta-alpha-nash) verbose (word "p1 = " p1)
+      let r1 random-float 1 let r2 random-float 1
+      if r1 < p1 and r2 < p2 [verbose (word "Game : C - C") report (list first best12)]
+      if r1 < p1 and r2 > p2 [verbose (word "Game : C - NC") report (list first best2)]
+      if r1 > p1 and r2 < p2 [verbose (word "Game : NC - C") report (list first best1)]
+      if r1 > p1 and r2 > p2 [verbose (word "Game : NC - NC") report (list first best1 first best2)]
+      report (list first best12)
    ]  
   
    
@@ -176,15 +197,21 @@ end
 
 
 ;;
-; Construct the given infrastructure
+; Construct the given infrastructures (list of infras)
 ;
 ; Update matrices distances etc here !
-to construct-infrastructure [infra old-config]
+to construct-infrastructure [infras old-config]
   
-  ; construct the infra if not empty
-  if infra != [] [
-    recall-nw-config old-config
+  recall-nw-config old-config
+  
+  foreach infras [
     
+    let infra ?
+    
+    if infra != [] [
+      
+      verbose (word "constructing : " infra)
+      
     let new-link new-infra infra
     
     ; update matrices
@@ -195,6 +222,7 @@ to construct-infrastructure [infra old-config]
     ; Beware, has to be done AFTER updating matrices, as nw updating needs footprint of the link (fastest way to get patches newly connected to the network
     ;  but planarizing before would kill the entire links, cutting it into smaller
     planarize-network transportation-nodes transportation-links
+    ]
   ]
   
 end
@@ -216,11 +244,13 @@ end
 
 to-report random-infra [patchset infra-length]
   let p1 one-of patchset
-  let p2 nobody if p1 != nobody [ask p1 [set p2 one-of patchset with [abs(distance myself - infra-length) < 1]]]
-  if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patchset with [distance myself < infra-length]]]]
-  ifelse p2 = nobody or p1 = nobody [report (list (list random-xcor random-ycor) (list random-xcor random-ycor))][
+  let p2 nobody
+  ask p1 [set p2 one-of other patches in-radius infra-length]
+  ;let p2 nobody if p1 != nobody [ask p1 [set p2 one-of patchset with [abs(distance myself - infra-length) < 1]]]
+  ;if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patchset with [distance myself < infra-length]]]]
+  ;ifelse p2 = nobody or p1 = nobody [report (list (list random-xcor random-ycor) (list random-xcor random-ycor))][
   report (list (list [pxcor] of p1 [pycor] of p1) (list [pxcor] of p2 [pycor] of p2))  
-  ]
+  ;]
 end
 
 

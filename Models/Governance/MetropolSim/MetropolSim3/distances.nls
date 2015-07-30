@@ -45,7 +45,7 @@ to update-effective-matrices
    
    ][
      ; if empty, just copy euclidian distance matrix
-     set effective-distance-matrix matrix:copy euclidian-distance-matrix
+     set effective-distance-matrix matrix:times euclidian-distance-matrix euclidian-min-pace
    ]
    
 end
@@ -667,7 +667,7 @@ to update-network-distance-matrix [everything]
   
   if everything [
   
-  set network-distance-matrix matrix:make-constant #-patches #-patches ((dmax + 1) * network-min-pace * (network-pace max patches-congestion))
+  set network-distance-matrix matrix:make-constant #-patches #-patches ((dmax + 1) * network-min-pace * (network-pace (max patches-congestion) (max patches-congestion)))
   
   ; compute path length
   let paths-length table:make
@@ -683,14 +683,14 @@ to update-network-distance-matrix [everything]
       let i1 table:get closest-nw-inters p1 let i2 table:get closest-nw-inters p2
       ifelse i1 = i2 or rev i1 = i2 [
         ; patches are on same link
-        set d (matrix:get euclidian-distance-matrix p1 p2) * network-min-pace * ((network-pace item p1 patches-congestion) + (network-pace item p2 patches-congestion)) / 2
+        set d (matrix:get euclidian-distance-matrix p1 p2) * network-min-pace * ((network-pace (item p1 patches-congestion) (max patches-congestion)) + (network-pace (item p2 patches-congestion) (max patches-congestion))) / 2
       ][
         ; otherwise go through nw
         foreach i1 [
           let n1 first ? foreach i2 [
              let n2 first ?
              if table:has-key? paths-length (list n1 n2) [ 
-                set d min (list d (((matrix:get euclidian-distance-matrix p1 n1) * network-min-pace * (network-pace item p1 patches-congestion)) +((matrix:get euclidian-distance-matrix p2 n2) * network-min-pace * (network-pace item p2 patches-congestion)) + table:get paths-length (list n1 n2))) 
+                set d min (list d (((matrix:get euclidian-distance-matrix p1 n1) * network-min-pace * (network-pace (item p1 patches-congestion) (max patches-congestion))) +((matrix:get euclidian-distance-matrix p2 n2) * network-min-pace * (network-pace (item p2 patches-congestion) (max patches-congestion))) + table:get paths-length (list n1 n2))) 
              ]
           ] 
         ]
@@ -757,7 +757,7 @@ to-report congested-distance [path]
     let current-patch first path
     foreach but-first path [
       let next-patch ?
-      set res res + (matrix:get euclidian-distance-matrix current-patch next-patch) * network-min-pace * ((network-pace item current-patch patches-congestion) + (network-pace item next-patch patches-congestion)) / 2
+      set res res + (matrix:get euclidian-distance-matrix current-patch next-patch) * network-min-pace * ((network-pace (item current-patch patches-congestion) (max patches-congestion)) + (network-pace (item next-patch patches-congestion) (max patches-congestion))) / 2
       set current-patch next-patch
     ]
   ]
@@ -767,11 +767,11 @@ end
 
 ;;
 ; Pace as a function of congestion
-to-report network-pace [cong]
+to-report network-pace [cong max-cong]
   
   ; Q : find a more elaborate function (such as BPR)
   
-  report cong * congestion-price
+  report (cong / max-cong) * congestion-price
 end
 
 
