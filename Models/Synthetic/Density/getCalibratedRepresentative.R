@@ -36,23 +36,23 @@ fileName<-function(params){
   # use integer keys : rep and diffSteps
   #inds=sapply(files,function(s){grepl(paste0(params["replication"],".csv"),s)})&sapply(files,function(s){grepl(paste0("_",params["diffusionsteps"],"_"),s)})
   #return(files[inds])
-  return(paste0(params["replication"],params["diffusionsteps"],".csv"))
+  return(paste0(params["replication"],params["diffusionsteps"]))
 }
 
 # test if the file exists
-z=read.csv(fileName(representatives[100,c(params_cols,9)]),sep=";",header=FALSE)
+z=read.csv(fileName(representatives[1,c(params_cols,9)]),sep=";",header=FALSE)
 z=read.csv(paste0("pop/",fileName(res[sample.int(nrow(res),1),c(params_cols,9)])),sep=";",header=FALSE)
-persp(x=1:20,y=1:20,z=as.matrix(z))
+persp(x=1:20,y=1:20,z=as.matrix(ztab))
 # check scala generation
 persp(x=1:20,y=1:20,z=as.matrix(read.csv("tmp/pop_15764867352.csv",sep=";",header=FALSE)))
 
 
 # now get configs and convert
 
-prefix=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/Output/ScalaImpl/20150729_Scala_SamplingLHS/'
+prefix=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/Output/ScalaImpl/20150729_Scala_SamplingLHS/')
 
 for(r in 1:nrow(representatives)){
-  ztab=read.csv(paste0(prefix,'pop/pop_',fileName(representatives[r,]),sep=";",header=FALSE)
+  ztab=read.csv(paste0(prefix,'pop/pop_',fileName(representatives[r,]),".csv"),sep=";",header=FALSE)
   x=c();y=c();z=c();
   for(i in 1:nrow(ztab)){
     for(j in 1:ncol(ztab)){
@@ -60,8 +60,8 @@ for(r in 1:nrow(representatives)){
       z=append(z,ztab[i,j])
     }
   }
-  write.csv(data.frame(x=x,y=y,z=z),file=paste0(prefix,'processed/',fileName(representatives[r,]),'_config.csv'),sep=";",row.names = FALSE)
-  write.csv(representatives[r,],file=paste0(prefix,'processed/',fileName(representatives[r,]),'_params.csv'),sep=";",row.names = FALSE)
+  write.csv(data.frame(x=x,y=y,z=z),file=paste0(prefix,'processed/',fileName(representatives[r,]),'_config.csv'),row.names = FALSE)
+  write.csv(data.frame(t(as.matrix(representatives[r,]))),file=paste0(prefix,'processed/',fileName(representatives[r,]),'_params.csv'),row.names = FALSE)
 }
 
 

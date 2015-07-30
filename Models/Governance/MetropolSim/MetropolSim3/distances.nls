@@ -19,20 +19,6 @@ to update-effective-matrices
    ; if network is not pathologic, we can make the approximation d_e(i,l_min)+d_n(l_min,l'_min)+d_e(l'_min,j) - in the case of a connex network !
    ;  (counter examples exist)
    
-   
-   ;let dmax sqrt ((world-width) ^ 2 + (world-height) ^ 2) ; already done before
-   ;let n count patches
-   ;let d-to-nw-patches matrix:times-element-wise (matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix) euclidian-distance-matrix
-   
-   ;let nw-patches-bool matrix:map [bool-to-int (?1 <= dmax)] network-distance-matrix
-   
-   ; not done here, but in network setup and/or update
-   ;set nw-patches [] let i 0
-   ;repeat n [if sum matrix:get-row nw-patches-bool i > 0 [set nw-patches lput i nw-patches] set i i + 1]
-   
-   ; not needed
-   ;set effective-shortest-paths table:make
-   
    ifelse nw-patches != [] [
      ;optimization : contruct a table giving index of nearest nw patch
      set nw-access-table table:make let i 0
@@ -97,7 +83,7 @@ to update-network [new-link]
   update-vertices-and-paths new-inters
   
   ; update distances accordingly
-  update-network-distance-matrix
+  update-network-distance-matrix true
   
   ; check if possible shorcuts through the newly created link
   update-shortest-paths new-inters
@@ -108,19 +94,17 @@ to update-network [new-link]
  
   update-nw-patches new-nw-patches
   
-  
   ;;;;;;;;;;;;;;;
-  ;; IV) Paths between connex components
-  ;;;;;;;;;;;;;;;
-  
-  compute-component-distances
-  
-  ;;;;;;;;;;;;;;;
-  ;; V) Update network distances
+  ;; IV) Update network distances
   ;;;;;;;;;;;;;;;
   
-  update-network-distance-matrix
+  update-network-distance-matrix true
+ 
+  ;;;;;;;;;;;;;;;
+  ;; V) Paths between connex components
+  ;;;;;;;;;;;;;;;
   
+  compute-component-distances 
   
   
 end
@@ -590,8 +574,8 @@ to compute-component-distances
   ; 2) compute component connectors
   set network-clusters-connectors components-connectors
   
-  
-
+  ; 3) update distance matrix
+  update-network-distance-matrix false
 
 end
 
@@ -662,11 +646,8 @@ to-report components-connectors
         repeat (length network-clusters - k1 - 1) [
           let c2 item k2 network-clusters
           let dmin (dmax + 1) let p1 0 let p2 0
-          ifelse length c1 < length c2 [
-            foreach c1 []
-          ][
-            foreach c2 []
-          ]
+          foreach c1 [let pp1 ? foreach c2[let d matrix:get euclidian-distance-matrix pp1 ? if d < dmin [set dmin d set p1 pp1 set p2 ?]]]
+          table:put res (list k1 k2) (list p1 p2)
           set k2 k2 + 1
         ]
         set k1 k1 + 1 
@@ -682,7 +663,10 @@ end
 ; update nw distance matrix
 ; assuming shortest paths have been computed
 ;
-to update-network-distance-matrix
+to update-network-distance-matrix [everything]
+  
+  if everything [
+  
   set network-distance-matrix matrix:make-constant #-patches #-patches ((dmax + 1) * network-min-pace * (network-pace max patches-congestion))
   
   ; compute path length
@@ -715,6 +699,36 @@ to update-network-distance-matrix
       matrix:set network-distance-matrix p1 p2 d
     ]
   ]
+  
+  
+  ]
+  
+  
+  ; inter clusters : 2-by-2 clusters
+  if network-clusters-connectors != 0 [
+     if length network-clusters > 1 [
+      let k1 0 let k2 1
+      repeat (length network-clusters - 1) [
+        let c1 item k1 network-clusters set k2 k1 + 1
+        repeat (length network-clusters - k1 - 1) [       
+          let c2 item k2 network-clusters
+          foreach c1 [let p1 ? foreach c2 [let p2 ?
+              let con table:get network-clusters-connectors (list k1 k2) let a1 first con let a2 last con
+              let d  (matrix:get network-distance-matrix p1 a1 + matrix:get network-distance-matrix p2 a2 + (matrix:get euclidian-distance-matrix a1 a2) * euclidian-min-pace)
+                if matrix:get network-distance-matrix p1 p2 > d [
+                   ; update the nw-distance
+                   matrix:set network-distance-matrix p1 p2 d
+                ]
+              ]
+          ]
+          set k2 k2 + 1
+        ]
+        set k1 k1 + 1
+      ]
+      
+     ]
+  ]
+  
   
 end
 
@@ -783,6 +797,8 @@ to recall-nw-config [old]
   set nw-inters item 3 old
   set nw-patches item 4 old
   set nw-access-table table:make foreach table:keys (item 5 old) [table:put nw-access-table ? table:get (item 5 old) ? ]
+  set network-clusters item 6 old
+  set network-clusters-connectors table:make foreach table:keys (item 7 old) [table:put network-clusters-connectors ? table:get (item 7 old) ? ]
 end
 
 
@@ -794,7 +810,8 @@ to-report save-nw-config
   let npaths table:make foreach table:keys network-shortest-paths [table:put npaths ? table:get network-shortest-paths ? ]
   let ninters table:make foreach table:keys closest-nw-inters [table:put ninters ? table:get closest-nw-inters ? ]
   let naccess table:make foreach table:keys nw-access-table [table:put naccess ? table:get nw-access-table ? ]
-  report (list nmat npaths ninters nw-inters nw-patches naccess)
+  let ninterclusters table:make foreach table:keys network-clusters-connectors [table:put ninterclusters ? table:get network-clusters-connectors ? ]
+  report (list nmat npaths ninters nw-inters nw-patches naccess network-clusters ninterclusters)
 end
 
 

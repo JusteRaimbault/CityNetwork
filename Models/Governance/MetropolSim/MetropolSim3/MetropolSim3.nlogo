@@ -400,7 +400,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-10
+9
 
 TEXTBOX
 11
@@ -808,7 +808,7 @@ CHOOSER
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
-0
+1
 
 SLIDER
 6
@@ -819,7 +819,7 @@ euclidian-min-pace
 euclidian-min-pace
 1
 50
-10
+5
 1
 1
 NIL
@@ -834,7 +834,7 @@ congestion-price
 congestion-price
 0
 100
-3
+1
 1
 1
 NIL
@@ -951,8 +951,8 @@ CHOOSER
 357
 game-type
 game-type
-"random"
-0
+"random" "simple-nash"
+1
 
 TEXTBOX
 174
@@ -1025,7 +1025,7 @@ BUTTON
 1306
 195
 test dist
-setup\ntest-network-effect (patches with [pxcor = 0])\ncheck-effective-distance 1180 684
+setup\ntest-network-effect (patches with [pxcor = 0])\n;check-effective-distance 1180 684
 NIL
 1
 T
@@ -1060,6 +1060,23 @@ BUTTON
 194
 test connex
 test-connex-components
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1225
+197
+1298
+230
+nw effect
+test-network-effect patches
 NIL
 1
 T
