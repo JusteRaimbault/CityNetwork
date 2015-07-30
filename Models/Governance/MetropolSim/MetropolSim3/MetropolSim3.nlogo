@@ -577,7 +577,7 @@ PENS
 
 OUTPUT
 957
-381
+319
 1415
 675
 10
@@ -611,7 +611,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-1
+0
 0.05
 1
 NIL
@@ -874,7 +874,7 @@ SLIDER
 #-explorations
 0
 1000
-100
+20
 1
 1
 NIL
@@ -962,7 +962,7 @@ CHOOSER
 game-type
 game-type
 "random" "simple-nash"
-0
+1
 
 TEXTBOX
 174
@@ -1102,27 +1102,12 @@ SLIDER
 359
 332
 392
-alpha-nash
-alpha-nash
+collaboration-cost
+collaboration-cost
 0
-20
-0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-184
-395
-332
-428
-delta-alpha-nash
-delta-alpha-nash
-0
-10
-0
-1
+0.01
+0.001209
+1e-6
 1
 NIL
 HORIZONTAL
