@@ -15,7 +15,7 @@ to luti
   compute-patches-variables
   
   ;; update ext
-  ;update-externalities
+  update-externalities
   
   
   ;; relocate A and E
@@ -69,11 +69,16 @@ end
 
 
 ;;
-; update employments in external facilities
+; update employments in external facilities, following an exponential growth
+; 
 to update-externalities
   
-  foreach external-facility [
-     ask patch-with-number ? [set employments ext-growth-factor * employments * prev-accessibility / (a-to-e-accessibility + e-to-a-accessibility)]
+  if with-externalities? [
+    
+    foreach external-facility [
+       ask patch-with-number ? [set employments ext-growth-factor * employments * prev-accessibility / current-accessibility]
+    ]
+    
   ]
   
 end

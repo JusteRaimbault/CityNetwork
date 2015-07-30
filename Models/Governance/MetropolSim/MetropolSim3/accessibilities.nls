@@ -27,12 +27,17 @@ to compute-patches-accessibilities
      set a-to-e-accessibility actives * scalar-product (patches-employments) map [exp (- lambda-accessibility * ?)] (matrix:get-row effective-distance-matrix number)
      set e-to-a-accessibility employments * scalar-product (patches-actives) map [exp (- lambda-accessibility * ?)] (matrix:get-row effective-distance-matrix number)
      
+     set current-accessibility a-to-e-accessibility + e-to-a-accessibility
+     
      ; update also travel distances
      set a-to-e-distance actives * scalar-product (patches-employments) (matrix:get-row effective-distance-matrix number)
      set e-to-a-distance employments * scalar-product (patches-actives) (matrix:get-row effective-distance-matrix number)
   ]
 end
 
+;;
+; Compute form factor, as couples [a-form-factor,e-form-factor]
+;
 to compute-patches-form-factor
   ; only one csp : nothing to do
   ask patches [
@@ -56,11 +61,17 @@ to compute-patches-utilities
 end
 
 
+;;
+; form factor for actives :
+;  they search to flee from density, both of actives and employments
 to-report actives-form-factor
   report 1 / (actives * employments)
 end
 
 
+;;
+; form factor for employments:
+;  take only accessibility into account (for now)
 to-report employments-form-factor
   report 1
 end
