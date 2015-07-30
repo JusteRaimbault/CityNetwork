@@ -386,10 +386,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-8
-610
-74
-643
+9
+611
+75
+644
 setup
 setup
 NIL
@@ -410,7 +410,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-3
+5
 
 TEXTBOX
 11
@@ -441,7 +441,7 @@ actives-spatial-dispersion
 actives-spatial-dispersion
 0
 100
-1
+4
 1
 1
 NIL
@@ -456,7 +456,7 @@ employments-spatial-dispersion
 employments-spatial-dispersion
 0
 100
-1
+2
 1
 1
 NIL
@@ -829,7 +829,7 @@ euclidian-min-pace
 euclidian-min-pace
 1
 50
-10
+5
 1
 1
 NIL
@@ -874,7 +874,7 @@ SLIDER
 #-explorations
 0
 1000
-20
+68
 1
 1
 NIL
@@ -905,9 +905,9 @@ SLIDER
 lambda-accessibility
 lambda-accessibility
 0
-1
-0.01
-0.005
+0.1
+0.05
+0.001
 1
 NIL
 HORIZONTAL
@@ -1000,9 +1000,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot mean-accessibility patches"
-"pen-1" 1.0 0 -7858858 true "" "plot max-accessibility"
-"pen-2" 1.0 0 -4757638 true "" "plot min-accessibility"
+"default" 1.0 0 -12186836 true "" "plot mean-accessibility patches"
 
 SLIDER
 6
@@ -1106,7 +1104,7 @@ collaboration-cost
 collaboration-cost
 0
 0.01
-0.001209
+0.007519
 1e-6
 1
 NIL

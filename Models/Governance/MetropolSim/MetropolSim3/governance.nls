@@ -60,15 +60,16 @@ end
 ;
 ;  FIND Heuristic in order to exploit reduced part of the space (already too long with very few patches if in O(n^2)
 ;  here no game, report indifferently common and alone infras ? or report with distinct feature ?
-to-report potential-infrastructures [decidors]
+to-report potential-infrastructures [decidors rlength]
   let res []
   ifelse decidors = regional-authority [
     repeat #-explorations [
-      set res lput (random-infra patches (2 * road-length)) res
+      set res lput (random-infra patches rlength) res
     ]
   ][
-    repeat #-explorations [
-      set res lput (random-infra (patches with [member? governing-mayor decidors]) road-length) res
+    ; number of infra to be explored scales as |decidors|^2, if number of patches is constant among decidors. (to fill 'same proportion' of territory)
+    repeat (#-explorations) * ((length decidors) ^ 2) [
+      set res lput (random-infra (patches with [member? governing-mayor decidors]) rlength) res
     ]
   ]
   report res
@@ -85,7 +86,7 @@ to-report best-infrastructure [decidors old-config]
   
   ifelse decidors = regional-authority [
     ; no game, find the best among the choices
-    report (list first compare-infrastructures old-config (potential-infrastructures regional-authority) regional-authority patches)
+    report (list first compare-infrastructures old-config (potential-infrastructures regional-authority (2 * road-length)) regional-authority patches)
   ][  
     ; generate potential infras here ?
     ; no, in the game, as different if random or nash game
@@ -164,7 +165,7 @@ to-report game-result [decidors old-config]
       let dec nobody
       let wtot sum [wealth] of decidors let s 0
       foreach decidors [set s s + ([wealth] of ?) / wtot if r < s and dec = nobody [set dec ?]]
-      let best compare-infrastructures old-config (potential-infrastructures (list dec)) (list dec) (patches with [governing-mayor = dec])
+      let best compare-infrastructures old-config (potential-infrastructures (list dec) road-length) (list dec) (patches with [governing-mayor = dec])
       report (list first best)
     ]
    
@@ -176,9 +177,9 @@ to-report game-result [decidors old-config]
      
       let dec1 first decidors let dec2 last decidors
      
-      let best1 compare-infrastructures old-config (potential-infrastructures (list dec1)) (list dec1) (patches with [governing-mayor = dec1])
-      let best2 compare-infrastructures old-config (potential-infrastructures (list dec2)) (list dec2) (patches with [governing-mayor = dec2])
-      let best12 compare-infrastructures old-config (potential-infrastructures decidors) regional-authority patches
+      let best1 compare-infrastructures old-config (potential-infrastructures (list dec1) road-length) (list dec1) (patches with [governing-mayor = dec1])
+      let best2 compare-infrastructures old-config (potential-infrastructures (list dec2) road-length) (list dec2) (patches with [governing-mayor = dec2])
+      let best12 compare-infrastructures old-config (potential-infrastructures regional-authority (2 * road-length)) regional-authority patches
       let sortdec sort-by [[who] of ?1 < [who] of ?2] (list dec1 dec2)
       let D11 item ((position dec1 sortdec) + 1) (item 1 best1) let D22 item ((position dec2 sortdec) + 1) (item 1 best2)
       let Dc1 item ((position dec1 sortdec) + 1) (item 1 best12) let Dc2 item ((position dec2 sortdec) + 1) (item 1 best12)
