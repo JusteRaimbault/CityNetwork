@@ -49,6 +49,11 @@ to setup-territories
   
   output-print "... Territories"
   
+  ; for now hardcoded path to setup file (unload gui)
+  set ext-file "setup/ext.csv"
+  
+  read-position-files
+  
   ; create mayors
   create-mayors #-initial-territories [
     initial-position-mayor
@@ -219,19 +224,29 @@ to setup-transportation
 end
 
 
-
+;;
+; default values ; for headless run
 to setup-headless-vars
+  
+  ; initial distributions
   set actives-max 500 set employments-max 500
-  set #-initial-territories 2
   set actives-spatial-dispersion 5
   set employments-spatial-dispersion 5
+  
+  set #-initial-territories 2
+  
+  ; luti params
   set gamma-cobb-douglas 0.8
   set beta-discrete-choices 1.1
   set lambda-accessibility 0.05
+  
+  ; governance params
   set regional-decision-proba 0.5
   set road-length 5
   set #-explorations 5
   set log-level "DEFAULT"
+  
+  ; transportation params
   set network-min-pace 1
   set euclidian-min-pace 2
   set congestion-price 50
@@ -241,6 +256,30 @@ to setup-headless-vars
   
 end
 
+
+
+;;
+; Get number of mayors and position from csv file
+to read-position-files
+  let lines read-file positions-file
+  set mayors-coordinates []
+  foreach but-first but-first lines [
+    let p []
+    foreach explode ";" ? [set p lput read-from-string ? p]
+    set mayors-coordinates lput p mayors-coordinates
+  ]
+  
+  ; corresponding number pf territories
+  set #-initial-territories length mayors-coordinates
+  
+  ; ext file : one only ?
+  set ext-position []
+  foreach explode ";" first but-first but-first read-file ext-file [
+     set ext-position lput read-from-string ? ext-position
+  ]
+  
+  
+end
 
 
 
