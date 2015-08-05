@@ -1,8 +1,8 @@
 package density
 
 import org.apache.commons.math3.complex._
-import org.apache.commons.math3.util.MathArrays
 import org.apache.commons.math3.transform._
+import org.apache.commons.math3.util.MathArrays
 
 import scala.util.Random
 
@@ -82,10 +82,28 @@ object Test extends App {
     //fastConvolution2D(x,k).foreach(row=>println(row.mkString(";")))
   }
 
-  testFFT()
+
+  def testConvolKernel():Unit = {
+    val rng = new Random
+    val x = Array.fill(8){rng.nextDouble()}
+    val k = Array.fill(16){rng.nextDouble()}
+    println("x : "+x.mkString(" "))
+    println("Direct   : "+(Convolution.directConvol(x,k).splitAt(k.length/2)._2.splitAt(x.length)._1).mkString(" "))
+    println("FFT      : "+Convolution.convolution(x,k).mkString(" "))
+    println("Built-In : "+(MathArrays.convolve(x, k).splitAt(k.length/2)._2.splitAt(x.length)._1).mkString(" "))
+  }
+
+
+  //testFFT()
 
   //testDistanceMatrix()
 
   //testConvol()
+
+  testConvolKernel()
+
+  //shitty tests
+  //println(Array.tabulate(10){i=>i}.splitAt(3)._2.mkString(" "))
+  //println(pow(2.0,ceil(log(9.0)/log(2.0))))
 
 }

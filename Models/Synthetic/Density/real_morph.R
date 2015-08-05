@@ -35,11 +35,11 @@ areasize = 500
 factor=0.2
 offset = 100
 
-#xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
-#yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
+xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
+yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
 #TEST //
-xvals=seq(from=20000,to=20800,by=offset)
-yvals=seq(from=20000,to=20800,by=offset)
+#xvals=seq(from=20000,to=20800,by=offset)
+#yvals=seq(from=20000,to=20800,by=offset)
 
 # coord matrix
 coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)))),nrow=length(xvals)*length(yvals))
