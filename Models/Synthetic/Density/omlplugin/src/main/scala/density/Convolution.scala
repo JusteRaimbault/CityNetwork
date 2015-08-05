@@ -11,6 +11,7 @@ object Convolution {
    * @return x*k (length of x)
    */
   def convolution(x:Array[Double],k:Array[Double]): Array[Double] = {
+
     Array.fill(x.length){0}
   }
 

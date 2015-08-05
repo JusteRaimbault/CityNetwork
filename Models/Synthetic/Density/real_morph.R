@@ -31,15 +31,15 @@ raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/popu01cl
 # 4) Frce 50km
 
 
-areasize = 200
-factor=0.1
-offset = 50
+areasize = 500
+factor=0.2
+offset = 100
 
-xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
-yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
+#xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
+#yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
 #TEST //
-#xvals=seq(from=20000,to=20800,by=offset)
-#yvals=seq(from=20000,to=20800,by=offset)
+xvals=seq(from=20000,to=20800,by=offset)
+yvals=seq(from=20000,to=20800,by=offset)
 
 # coord matrix
 coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)))),nrow=length(xvals)*length(yvals))
@@ -78,10 +78,12 @@ v = data.frame(vals_mat);colnames(v)=c("x","y","moran","distance","entropy","slo
 
 show(paste0("Ellapsed Time : ",proc.time()[3]-startTime))
 
+purpose = '_TEST_europe50km_10kmoffset_100x100grid'
+
 # store in data file
 write.table(
   v,
-  file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'_europe20km_5kmoffset_20x20grid.csv'),
+  file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),purpose,'.csv'),
   sep = ";",
   col.names=colnames(v)
 )
