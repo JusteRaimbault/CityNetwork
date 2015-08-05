@@ -33,6 +33,7 @@ Le chargement a nécessité le package : sp
 > # first source indicators
 > 
 > source('morpho.R')
+[1] "Loading rasters from temp_raster_dens.asc , temp_raster_pop.asc"
 > 
 > 
 > raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/popu01clcv5.tif"))
@@ -49,15 +50,15 @@ Le chargement a nécessité le package : sp
 > # 4) Frce 50km
 > 
 > 
-> areasize = 500
-> factor=0.2
-> offset = 100
+> areasize = 200
+> factor=0.1
+> offset = 50
 > 
 > xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
 > yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
 > #TEST //
-> #xvals=seq(from=20000,to=20200,by=offset)
-> #yvals=seq(from=20000,to=20200,by=offset)
+> #xvals=seq(from=20000,to=20800,by=offset)
+> #yvals=seq(from=20000,to=20800,by=offset)
 > 
 > # coord matrix
 > coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)))),nrow=length(xvals)*length(yvals))
@@ -98,12 +99,12 @@ Le chargement a nécessité le package : parallel
 > 
 > 
 > show(paste0("Ellapsed Time : ",proc.time()[3]-startTime))
-[1] "Ellapsed Time : 29098.202"
+[1] "Ellapsed Time : 33031.297"
 > 
 > # store in data file
 > write.table(
 +   v,
-+   file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/europe_50km_',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'.csv'),
++   file=paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'_europe20km_5kmoffset_20x20grid.csv'),
 +   sep = ";",
 +   col.names=colnames(v)
 + )
