@@ -3,11 +3,13 @@
 setwd(paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density'))
 source('morpho.R')
 
-r_pop = raster(matrix(data=unlist(read.csv('omlplugin/tmp/pop_02.csv',sep=";",header=FALSE)),nrow=50,byrow=TRUE))
+z=read.csv('omlplugin/tmp/pop_02.csv',sep=";",header=FALSE)
+r_pop = raster(matrix(data=unlist(z),nrow=nrow(z),byrow=TRUE))
 r_dens = r_pop/cellStats(r_pop,sum)
 
-moranIndex()
-averageDistance()
-entropy()
-rankSizeSlope()
+show(paste0('moran : ',moranIndex()))
+show(paste0('moran focal : ',convolMoran()))
+show(paste0('averageDistance : ',averageDistance()))
+show(paste0('entropy : ',entropy()))
+show(paste0('rankSizeSlope : ',rankSizeSlope()))
 

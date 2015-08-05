@@ -1,6 +1,7 @@
 package density
 
 import scala.util.Random
+import scala.sys.process._
 
 object TestGenerator extends App {
 
@@ -12,9 +13,11 @@ object TestGenerator extends App {
     val alphalocalization = 1.5
 
     val gen = new PADGeneratorLauncher
-    gen.main(50, population, diffusion, diffusionsteps, growthrate, alphalocalization, 0)
+    gen.main(20, population, diffusion, diffusionsteps, growthrate, alphalocalization, 0)
 
     //("R -e persp(x=1:50,y=1:50,z=as.matrix(read.csv(\"tmp_pop.csv\",sep=\";\",header=FALSE)))")!
+    ("R -e source('/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Morphology/testRMorpho.R')")!
+
   }
 
   def print_static(w: Array[Array[Double]]): Unit = {

@@ -59,8 +59,8 @@ class PADGeneratorLauncher {
     //val indics = r.readLine().split(";")
     */
 
-    //moran = Morphology.moran(world)
-    //distance = Morphology.distanceMean(world)
+    moran = Morphology.moran(world)
+    distance = Morphology.distanceMean(world)
     entropy = Morphology.entropy(world)
     val slopeVals = Morphology.slope(world)
     slope = slopeVals._1

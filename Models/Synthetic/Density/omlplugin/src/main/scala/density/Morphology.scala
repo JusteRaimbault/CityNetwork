@@ -105,8 +105,7 @@ object Morphology {
     def denominator =
       flatCells.map {
         cell =>
-          if (cell.population == 0) 0
-          else math.pow(cell.population - averagePop.toDouble, 2)
+          (cell.population - averagePop)*(cell.population - averagePop)
       }.sum
 
     if (denominator == 0) 0
