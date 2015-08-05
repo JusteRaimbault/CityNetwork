@@ -13,8 +13,8 @@ object Morphology {
    * @return
    */
   def slope(matrix: Seq[Seq[Cell]]) = {
-    def distribution = matrix.flatten.map(_.population).sorted(Ordering.Double.reverse).filter(_ > 0)
-    def distributionLog = distribution.zipWithIndex.map { case (q, i) => Array(log(i + 1), log(q)) }.toArray
+    def distribution = matrix.flatten.map(_.population).sorted(Ordering.Double.reverse).filter(_ > 1)
+    def distributionLog = distribution.zipWithIndex.map { case (q:Double, i:Int) => Array(log(i.toDouble + 1), log(q)) }.toArray
     val simpleRegression = new SimpleRegression(true)
     simpleRegression.addData(distributionLog)
     (simpleRegression.getSlope(), simpleRegression.getRSquare())

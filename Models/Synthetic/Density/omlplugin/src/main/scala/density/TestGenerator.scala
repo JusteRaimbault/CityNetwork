@@ -9,7 +9,7 @@ object TestGenerator extends App {
     val diffusion = 0.01
     val diffusionsteps = 2
     val growthrate = 100
-    val alphalocalization = 2.5
+    val alphalocalization = 1.5
 
     val gen = new PADGeneratorLauncher
     gen.main(50, population, diffusion, diffusionsteps, growthrate, alphalocalization, 0)
