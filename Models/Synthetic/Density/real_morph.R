@@ -46,7 +46,7 @@ coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(4)
+cl <- makeCluster(20)
 registerDoParallel(cl)
 
 startTime = proc.time()[3]
@@ -81,7 +81,7 @@ show(paste0("Ellapsed Time : ",proc.time()[3]-startTime))
 # store in data file
 write.table(
   v,
-  file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'_europe20km_5kmoffset_20x20grid.csv'),
+  file=paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'_europe20km_5kmoffset_20x20grid.csv'),
   sep = ";",
   col.names=colnames(v)
 )
