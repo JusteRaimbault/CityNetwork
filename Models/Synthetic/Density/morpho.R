@@ -63,7 +63,7 @@ distanceMatrix <- function(N,P){
 # uses focal instead as in Moran Index computation.
 #
 averageDistance <- function(){
-  return(cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0),sum) / ( cellStats(r_pop,sum)^2 * sqrt(nrow(r_pop)*ncol(r_pop)/pi)))
+  return(cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0)*r_pop,sum) / ( cellStats(r_pop,sum)^2 * sqrt(nrow(r_pop)*ncol(r_pop)/pi)))
 }
 
 

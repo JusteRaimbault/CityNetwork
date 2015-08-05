@@ -5,10 +5,10 @@ import scala.util.Random
 object TestGenerator extends App {
 
   def simpleTest = {
-    val population = 100
-    val diffusion = 0
+    val population = 100000
+    val diffusion = 0.01
     val diffusionsteps = 2
-    val growthrate = 10
+    val growthrate = 100
     val alphalocalization = 2.5
 
     val gen = new PADGeneratorLauncher

@@ -6,6 +6,12 @@ import scala.math._
 
 object Morphology {
 
+  /**
+   * Rank-size slope
+   *
+   * @param matrix
+   * @return
+   */
   def slope(matrix: Seq[Seq[Cell]]) = {
     def distribution = matrix.flatten.map(_.population).sorted(Ordering.Double.reverse).filter(_ > 0)
     def distributionLog = distribution.zipWithIndex.map { case (q, i) => Array(log(i + 1), log(q)) }.toArray
@@ -14,6 +20,12 @@ object Morphology {
     (simpleRegression.getSlope(), simpleRegression.getRSquare())
   }
 
+  /**
+   * Mean distance between individuals.
+   *
+   * @param matrix
+   * @return
+   */
   def distanceMean(matrix: Seq[Seq[Cell]]) = {
 
     def totalQuantity = matrix.flatten.map(_.population).sum
@@ -29,6 +41,13 @@ object Morphology {
     (numerator / (totalQuantity * (totalQuantity))) / normalisation
   }
 
+  /**
+   * Distance between two positions.
+   *
+   * @param p1
+   * @param p2
+   * @return
+   */
   def distance(p1: (Int, Int), p2: (Int, Int)): Double = {
     val (i1, j1) = p1
     val (i2, j2) = p2
@@ -44,6 +63,12 @@ object Morphology {
     } yield content -> (i, j)
   }
 
+  /**
+   * Entropy of population distribution.
+   *
+   * @param matrix
+   * @return
+   */
   def entropy(matrix: Seq[Seq[Cell]]) = {
     val totalQuantity = matrix.flatten.map(_.population).sum
     assert(totalQuantity > 0)
@@ -56,6 +81,13 @@ object Morphology {
     }.sum * (-1 / math.log(matrix.flatten.length))
   }
 
+  /**
+   * Moran Index.
+   *  (in O(N4))
+   *
+   * @param matrix
+   * @return
+   */
   def moran(matrix: Seq[Seq[Cell]]): Double = {
     def flatCells = matrix.flatten
     val totalPop = flatCells.map(_.population).sum
@@ -81,15 +113,35 @@ object Morphology {
     else (matrix.flatten.length / totalWeight) * (numerator / denominator)
   }
 
+  /**
+   * Decay distance for Moran.
+   *
+   * @param p1
+   * @param p2
+   * @return
+   */
   def decay(p1: (Int, Int), p2: (Int, Int)) = {
     if (p1 == p2) 0.0
     else 1 / distance(p1, p2)
   }
 
+
+  /**
+   * Moran index using fast convolution.
+   *
+   * @param matrix
+   * @return
+   */
   def moran_convol(matrix: Seq[Seq[Cell]]): Double = {
     0.0
   }
 
+  /**
+   * Mean distance using fast convolution.
+   *
+   * @param matrix
+   * @return
+   */
   def distance_convol(matrix: Seq[Seq[Cell]]): Double = {
 
     val flatMat = zipWithPosition(matrix)

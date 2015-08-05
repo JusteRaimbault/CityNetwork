@@ -66,7 +66,8 @@ class PADGeneratorLauncher {
     slope = slopeVals._1
     rsquared = slopeVals._2
 
-    println("Indicators : " + moran + " ; " + distance + " ; " + entropy + " ; " + slope + " ; " + rsquared)
+    println(gen.temp_file)
+    println("Indicators : Moran = " + moran + " ; D = " + distance + " ; E = " + entropy + " ; alpha = " + slope + " ; R2 = " + rsquared)
     println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0)
 
   }
