@@ -43,13 +43,21 @@ object Convolution {
 
   /**
    *  2D convolution
-   *  Using bijection [|1,N|]2 ~ [|1,N|]
+   *  Using bijection [|1,N|]2 ~ [|1,N|] by flattening, after having good paddling
    *
    * @param x
    * @param k
    */
   def convolution2D(x:Array[Array[Double]],k:Array[Array[Double]]): Array[Array[Double]] = {
-    Array.fill(x.length,x(0).length){0}
+    val xpad = x.map{row=>row.padTo(row.length+k(0).length,0.0).reverse.padTo(row.length+2*k(0).length,0.0).reverse}.padTo(x.length + k.length,Array.fill(x(0).length+2*k(0).length){0.0}).reverse.padTo(x.length + 2*k.length,Array.fill(x(0).length+2*k(0).length){0.0})
+    val kpad = k.map{row=>row.padTo(row.length+(xpad(0).length - row.length)/2,0.0).reverse.padTo(xpad(0).length,0.0).reverse}.padTo(k.length + (xpad.length - k.length)/2,Array.fill(xpad(0).length){0.0}).reverse.padTo(xpad.length,Array.fill(xpad(0).length){0.0})
+    xpad.map{r=>println(r.map{_.toInt}.mkString(" "))};println()
+    kpad.map{r=>println(r.map{_.toInt}.mkString(" "))};println()
+    println(xpad.flatten.map{_.toInt}.mkString(" ")+"\n")
+    println(kpad.flatten.map{_.toInt}.mkString(" ")+"\n")
+    val flatconv = convolution(xpad.flatten,kpad.flatten)
+    println(flatconv.map{_.toInt}.mkString(" ")+"\n")
+    flatconv.sliding(xpad(0).length,xpad.length).toArray
   }
 
 }
