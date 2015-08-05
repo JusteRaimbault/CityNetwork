@@ -63,6 +63,14 @@ object Morphology {
     } yield content -> (i, j)
   }
 
+  def zipDoubleArrayWithPosition(m: Array[Array[Double]]): Array[(Double, (Int, Int))] = {
+    for {
+      (row, i) <- m.zipWithIndex
+      (d, j) <- row.zipWithIndex
+    } yield d -> (i, j)
+  }
+
+
   /**
    * Entropy of population distribution.
    *

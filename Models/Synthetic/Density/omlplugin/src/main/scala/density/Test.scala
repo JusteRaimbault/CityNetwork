@@ -94,8 +94,8 @@ object Test extends App {
   }
 
   def testConvol2D():Unit={
-    val x = Array.fill(3,3){1.0}
-    val k = Array.fill(5,5){1.0}
+    val x = Array.fill(4,4){1.0}
+    val k = Array.fill(9,9){1.0}
     val conv = Convolution.convolution2D(x,k)
     conv.map{r=>println(r.map{_.round.toInt}.mkString(" "))}
   }
