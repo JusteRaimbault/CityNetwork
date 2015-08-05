@@ -85,17 +85,17 @@ object Test extends App {
 
   def testConvolKernel():Unit = {
     val rng = new Random
-    val x = Array.fill(8){1.0}
+    val x = Array.fill(15){1.0}
     val k = Array.fill(15){1.0}
     println("x : "+x.mkString(" "))
     println("Direct   : "+(Convolution.directConvol(x,k).splitAt(k.length/2)._2.splitAt(x.length)._1).mkString(" "))
-    println("FFT      : "+Convolution.convolution(x,k).mkString(" "))
+    println("FFT      : "+Convolution.convolution(x,k).map{_.round}.mkString(" "))
     println("Built-In : "+(MathArrays.convolve(x, k).splitAt(k.length/2)._2.splitAt(x.length)._1).mkString(" "))
   }
 
   def testConvol2D():Unit={
     val x = Array.fill(4,4){1.0}
-    val k = Array.fill(9,9){1.0}
+    val k = Array.fill(7,7){1.0}
     val conv = Convolution.convolution2D(x,k)
     conv.map{r=>println(r.map{_.round.toInt}.mkString(" "))}
   }
