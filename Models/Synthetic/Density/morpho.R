@@ -17,7 +17,7 @@ spatialWeights <- function (N,P){
   d_hor = (matrix(rep(cumsum(matrix(1,2*N+1,1)),2*P+1),nrow=2*N+1) - N - 1) ^ 2
   d_ver = (matrix(rep(cumsum(matrix(1,2*P+1,1)),2*N+1),ncol=2*P+1,byrow=TRUE) - P - 1) ^ 2
   w = 1 / sqrt(d_hor + d_ver )
-  w[w==Inf]=1
+  w[w==Inf]=0
   return(w)
 }
 
@@ -38,6 +38,13 @@ r_pop = raster(m)
 #moran index 
 moranIndex <- function(){
   return(Moran(r_dens,spatialWeights(nrow(r_dens)-1,ncol(r_dens)-1)))
+}
+
+# same with use of focal
+convolMoran <- function(){
+  meanPop = cellStats(r_pop,sum)/ncell(r_pop)
+  w = spatialWeights(nrow(r_pop)-1,ncol(r_pop)-1)
+  return(ncell(r_pop) * cellStats(focal(r_pop-meanPop,w,sum,pad=TRUE,padValue=0)*(r_pop - meanPop),sum) / cellStats((r_pop - meanPop)*(r_pop - meanPop),sum) / cellStats(focal(raster(matrix(data=rep(1,ncell(r_pop)),nrow=nrow(r_pop))),w,sum,pad=TRUE,padValue=0),sum))
 }
 
 
@@ -63,7 +70,7 @@ distanceMatrix <- function(N,P){
 # uses focal instead as in Moran Index computation.
 #
 averageDistance <- function(){
-  return(cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0),sum) / ( cellStats(r_pop,sum)^2 * sqrt(nrow(r_pop)*ncol(r_pop)/pi)))
+  return(cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0)*r_pop,sum) / ( cellStats(r_pop,sum)^2 * sqrt(nrow(r_pop)*ncol(r_pop)/pi)))
 }
 
 

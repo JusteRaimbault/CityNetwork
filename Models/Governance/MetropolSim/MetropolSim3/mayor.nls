@@ -9,11 +9,22 @@
 ; initial position in space
 ;  (different implementation possible)
 to initial-position-mayor
-  setxy random-xcor random-ycor
+  if setup-type = "random" [
+    setxy random-xcor random-ycor
+  ]
+  if setup-type = "from-file" [
+    ; index given by already existing number of mayors, different from the regional authority
+    ;let i count mayors with [self != regional-authority]
+    ; -- does not work as all created at once ?
+    ;  -> use position in sorted who list
+    let i position who sort [who] of mayors
+    let pos item i mayors-coordinates
+    setxy first pos last pos
+  ]
 end
 
 ;;
 ; ' constructor ' (basic characteristics)
 to new-mayor
-  set shape "house" set color 5 + (140 * (who + 1) / #-initial-territories)
+  set shape "building institution" set color 5 + (140 * (who + 1) / #-initial-territories)
 end

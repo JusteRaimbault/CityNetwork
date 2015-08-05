@@ -5,12 +5,15 @@
 
 
 to color-patches
+  ; basic
   if patches-display = "governance"[
      ask patches [set pcolor [color] of governing-mayor]
   ]
+  ; cor variables
   if member? patches-display ["actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility"] [
      color-gradient-patches patches-display "green"
   ]
+  ; distances
   if member? patches-display ["mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"] [
     let md []
     if patches-display = "mean-effective-distance" [set md map mean matrix:to-row-list effective-distance-matrix]
@@ -20,6 +23,17 @@ to color-patches
     let ma max md let mi min md
     let p 0 foreach md [ask patch-with-number p [set pcolor scale-color yellow ? mi ma] set p p + 1]
   ]
+  ; transportation
+  if patches-display = "congestion" [
+    ask patches [
+      ifelse member? self nw-patches [
+        color-gradient-patches "item who patches-congestion" "red"
+      ][
+        set pcolor black
+      ] 
+    ] 
+  ]
+  
   
 end
 

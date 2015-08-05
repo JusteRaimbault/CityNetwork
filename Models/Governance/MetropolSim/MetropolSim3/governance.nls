@@ -60,15 +60,16 @@ end
 ;
 ;  FIND Heuristic in order to exploit reduced part of the space (already too long with very few patches if in O(n^2)
 ;  here no game, report indifferently common and alone infras ? or report with distinct feature ?
-to-report potential-infrastructures [decidors]
+to-report potential-infrastructures [decidors rlength]
   let res []
   ifelse decidors = regional-authority [
     repeat #-explorations [
-      set res lput (random-infra patches (2 * road-length)) res
+      set res lput (random-infra patches rlength) res
     ]
   ][
-    repeat #-explorations [
-      set res lput (random-infra (patches with [member? governing-mayor decidors]) road-length) res
+    ; number of infra to be explored scales as |decidors|^2, if number of patches is constant among decidors. (to fill 'same proportion' of territory)
+    repeat (#-explorations) * ((length decidors) ^ 2) [
+      set res lput (random-infra (patches with [member? governing-mayor decidors]) rlength) res
     ]
   ]
   report res
@@ -85,17 +86,11 @@ to-report best-infrastructure [decidors old-config]
   
   ifelse decidors = regional-authority [
     ; no game, find the best among the choices
-    report (list first compare-infrastructures old-config (potential-infrastructures regional-authority) regional-authority patches)
+    report (list first compare-infrastructures old-config (potential-infrastructures regional-authority (2 * road-length)) regional-authority patches)
   ][  
-    ; generate potential infras here
-    ; assume 2 decidors
-    let dec1 first decidors let dec2 last decidors
-    let best1 compare-infrastructures old-config (potential-infrastructures (list dec1)) (list dec1) (patches with [governing-mayor = dec1])
-    let best2 compare-infrastructures old-config (potential-infrastructures (list dec2)) (list dec2) (patches with [governing-mayor = dec2])
-    let best12 compare-infrastructures old-config (potential-infrastructures decidors) regional-authority patches
-    
-    ; report game result given these explorations
-    report game-result best1 best2 best12
+    ; generate potential infras here ?
+    ; no, in the game, as different if random or nash game
+    report game-result decidors old-config
   ]
   
 end
@@ -104,10 +99,8 @@ end
 
 ;;
 ; raw comparison of infras : needs old configuration of a-e ? yes nw config for shortest paths
-;
-;  @TODO
 ;  -- NOTE -- for mean-acc ; shouldn't it be only on patches concerned by the decidor ?
-;    --> clarify this point
+;    --> OK
 ;
 to-report compare-infrastructures [old-nw-config choices decidor patchset]
   verbose (word "comparing " length choices " infras")
@@ -120,7 +113,7 @@ to-report compare-infrastructures [old-nw-config choices decidor patchset]
   let olds (list mean-accessibility patches)
   foreach sort-on [who] (mayors with [self != regional-authority]) [set olds lput (mean-accessibility patches with [governing-mayor = ?]) olds] 
   
-  verbose mean-travel-distance
+  verbose (word "Mean-travel-distance : " mean-travel-distance)
   
   let best-choice [] let delta-acc 0 let deltas []
   foreach choices [
@@ -161,37 +154,73 @@ end
 
 ;;
 ; Implement the game between the two actors
-to-report game-result [best1 best2 best12]
-    ; implement game : need to check proba formula.
+to-report game-result [decidors old-config]
   
-   if game-type = "random" [
-    ; Random = no game
-    let r random 3
-    if r = 1 [report (list first best1)]
-    if r = 2 [report (list first best2)]
-    if r = 0 [report (list first best12)]
-   ]
+    if game-type = "random" [
+      verbose "Random decidor choice..."
+      
+      ; Random = no game, choose one decidor proportionally to wealth
+      ; any number of decidors
+      let r random-float 1
+      let dec nobody
+      let wtot sum [wealth] of decidors let s 0
+      foreach decidors [set s s + ([wealth] of ?) / wtot if r < s and dec = nobody [set dec ?]]
+      let best compare-infrastructures old-config (potential-infrastructures (list dec) road-length) (list dec) (patches with [governing-mayor = dec])
+      report (list first best)
+    ]
    
    
-   if game-type = "simple-nash" [
-      ; probas are :
-      ;  p_j = Delta X_\bar{j} (Z^{\star}_\bar{j}) - alpha / Delta X_\bar{j} (Z^{\star}_tot) - delta_alpha 
-      let dec1 last best1 let dec2 last best2 let sortdec sort-by [[who] of first ?1 < [who] of first ?2] (list dec1 dec2)
+   ;; Mixed strategy nash eq (2 players)
+   if game-type = "simple-nash" and length decidors = 2 [
+     
+      verbose "Nash game..."
+     
+      let dec1 first decidors let dec2 last decidors
+     
+      let best1 compare-infrastructures old-config (potential-infrastructures (list dec1) road-length) (list dec1) (patches with [governing-mayor = dec1])
+      let best2 compare-infrastructures old-config (potential-infrastructures (list dec2) road-length) (list dec2) (patches with [governing-mayor = dec2])
+      let best12 compare-infrastructures old-config (potential-infrastructures regional-authority (2 * road-length)) regional-authority patches
+      let sortdec sort-by [[who] of ?1 < [who] of ?2] (list dec1 dec2)
       let D11 item ((position dec1 sortdec) + 1) (item 1 best1) let D22 item ((position dec2 sortdec) + 1) (item 1 best2)
       let Dc1 item ((position dec1 sortdec) + 1) (item 1 best12) let Dc2 item ((position dec2 sortdec) + 1) (item 1 best12)
-      let p2 (D11 - alpha-nash) / (Dc1 - delta-alpha-nash) verbose (word "p2 = " p2)
-      let p1 (D22 - alpha-nash) / (Dc2 - delta-alpha-nash) verbose (word "p1 = " p1)
+      
+      verbose (word "D11 = " D11 " ; D22 = " D22 " ; Dc1 = " Dc1 " ; Dc2 = " Dc2)
+      
+      let construction-cost 1
+      
+      let m1 (list (list (Dc1 - construction-cost - collaboration-cost) (D11 - construction-cost - collaboration-cost)) (list (D11 - construction-cost) (D11 - construction-cost)))
+      let m2 (list (list (Dc2 - construction-cost - collaboration-cost) (D22 - construction-cost - collaboration-cost)) (list (D22 - construction-cost) (D22 - construction-cost)))
+      
+      let eq generic-mixed-strategy-nash m1 m2
+      let p1 first eq let p2 last eq
+      
+      verbose (word "probas : p1 = " p1 " ; p2 = " p2)
+      
       let r1 random-float 1 let r2 random-float 1
       if r1 < p1 and r2 < p2 [verbose (word "Game : C - C") report (list first best12)]
-      if r1 < p1 and r2 > p2 [verbose (word "Game : C - NC") report (list first best2)]
-      if r1 > p1 and r2 < p2 [verbose (word "Game : NC - C") report (list first best1)]
+      if r1 < p1 and r2 > p2 [verbose (word "Game : C - NC") report (list first best1 first best2)]
+      if r1 > p1 and r2 < p2 [verbose (word "Game : NC - C") report (list first best1 first best2)]
       if r1 > p1 and r2 > p2 [verbose (word "Game : NC - NC") report (list first best1 first best2)]
       report (list first best12)
    ]  
   
+   ; report empty if conditions were not met
+   report [[]]
    
-   
-   
+end
+
+
+
+;;
+; Report probabilities for a 2 choice generic game
+;  
+;  @param mi [[Ui(C,C) Ui(A,C)][Ui(C,A) Ui(A,A)]]
+;  @returns [p1 = |P(C1 = C) ; p2 = |P(C2 = C)]
+;
+to-report generic-mixed-strategy-nash [m1 m2]
+  let p1 (last last m1 - first last m1) / (first first m1 + last last m1 - first last m1 - last first m1)
+  let p2 (last last m2 - last first m2) / (first first m2 + last last m2 - first last m2 - last first m2)
+  report (list p1 p2)
 end
 
 

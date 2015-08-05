@@ -95,7 +95,8 @@ __includes [
   "utils/network/Network.nls"
   "utils/io/Timer.nls"
   "utils/io/Logger.nls"
-  
+  "utils/io/FileUtilities.nls"
+  "utils/misc/String.nls"
   
   ;;;;;;;;;;;
   ;; Tests
@@ -140,9 +141,18 @@ globals[
   regional-authority
   
   
-  
+  ;; list of patches for the external facility
   external-facility
   
+  ;; coordinates of mayors, taken from setup file
+  mayors-coordinates
+  
+  ;; position of ext patch
+  ext-position
+  
+  ;; path to the setup files
+  ;positions-file
+  ext-file
   
   ;;;;;;;;;;;;;
   ;; Transportation
@@ -274,13 +284,15 @@ patches-own [
   ;; utilities and accessibilities
   ;;;;;
   
-  prev-accessibility
-  
   ; accessibility of jobs to actives
   a-to-e-accessibility
   
   ; accessibility of actives to employments
   e-to-a-accessibility
+   
+  ; previous and current cumulated accessibilities
+  prev-accessibility
+  current-accessibility
    
   ; travel distances
   a-to-e-distance
@@ -342,13 +354,13 @@ transportation-nodes-own[
 ]
 @#$#@#$#@
 GRAPHICS-WINDOW
-360
-34
-913
-608
-5
-5
-49.44444444444444
+368
+10
+919
+582
+10
+10
+25.8
 1
 10
 1
@@ -358,10 +370,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--5
-5
--5
-5
+-10
+10
+-10
+10
 0
 0
 1
@@ -370,24 +382,24 @@ ticks
 
 SLIDER
 9
-27
+33
 140
-60
+66
 #-initial-territories
 #-initial-territories
 0
 5
-2
+3
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-2
-499
-68
-532
+9
+611
+75
+644
 setup
 setup
 NIL
@@ -401,20 +413,20 @@ NIL
 1
 
 CHOOSER
-5
-600
-124
-645
+362
+611
+481
+656
 patches-display
 patches-display
-"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-2
+"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
+7
 
 TEXTBOX
 11
-7
+15
 161
-25
+33
 Setup parameters
 11
 0.0
@@ -432,26 +444,11 @@ Runtime parameters
 
 SLIDER
 9
-62
+71
 184
-95
+104
 actives-spatial-dispersion
 actives-spatial-dispersion
-0
-100
-5
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-8
-96
-184
-129
-employments-spatial-dispersion
-employments-spatial-dispersion
 0
 100
 2
@@ -461,10 +458,25 @@ NIL
 HORIZONTAL
 
 SLIDER
+8
+105
+184
+138
+employments-spatial-dispersion
+employments-spatial-dispersion
+0
+100
+1
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
 185
-62
+71
 294
-95
+104
 actives-max
 actives-max
 0
@@ -477,9 +489,9 @@ HORIZONTAL
 
 SLIDER
 184
-96
+105
 294
-129
+138
 employments-max
 employments-max
 0
@@ -499,17 +511,17 @@ gamma-cobb-douglas
 gamma-cobb-douglas
 0
 1
-0.6
-0.05
+0.85
+0.01
 1
 NIL
 HORIZONTAL
 
 BUTTON
-26
-538
-142
-571
+32
+649
+148
+682
 compute utils
 compute-patches-variables\ncolor-patches
 NIL
@@ -531,17 +543,17 @@ beta-discrete-choices
 beta-discrete-choices
 0
 2
-1.1
+2
 0.05
 1
 NIL
 HORIZONTAL
 
 BUTTON
-130
-500
-185
-533
+136
+611
+191
+644
 go
 go
 T
@@ -555,9 +567,9 @@ NIL
 1
 
 PLOT
-1006
+1149
 10
-1166
+1309
 130
 convergence
 NIL
@@ -574,10 +586,10 @@ PENS
 "pen-1" 1.0 0 -12087248 true "" "plot diff-actives"
 
 OUTPUT
-940
-283
-1398
-577
+957
+319
+1415
+675
 10
 
 TEXTBOX
@@ -609,7 +621,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-0
+1
 0.05
 1
 NIL
@@ -691,10 +703,10 @@ TEXTBOX
 1
 
 BUTTON
-1287
-15
-1400
-48
+1398
+19
+1511
+52
 setup test nw
 setup-test-nw-mat
 NIL
@@ -708,10 +720,10 @@ NIL
 1
 
 BUTTON
-1287
-51
-1342
-84
+1398
+55
+1453
+88
 grid
 test-nw-mat-grid-nw
 NIL
@@ -725,10 +737,10 @@ NIL
 1
 
 BUTTON
-1288
-89
-1398
-122
+1399
+93
+1509
+126
 test shortest
 test-shortest-path
 NIL
@@ -742,10 +754,10 @@ NIL
 1
 
 MONITOR
-1218
-13
-1286
-58
+1329
+17
+1397
+62
 nw patches
 length nw-patches
 17
@@ -753,10 +765,10 @@ length nw-patches
 11
 
 MONITOR
-1227
-61
-1281
-106
+1338
+65
+1392
+110
 eff paths
 length table:keys network-shortest-paths
 17
@@ -764,10 +776,10 @@ length table:keys network-shortest-paths
 11
 
 MONITOR
-1228
-109
-1279
-154
+1339
+113
+1390
+158
 inters
 length nw-inters
 17
@@ -775,10 +787,10 @@ length nw-inters
 11
 
 BUTTON
-1288
-125
-1382
-158
+1399
+129
+1493
+162
 test inters
 test-closest-inter
 NIL
@@ -792,10 +804,10 @@ NIL
 1
 
 BUTTON
-1345
-52
-1408
-85
+1454
+55
+1517
+88
 rnd
 test-nw-mat-random-nw
 NIL
@@ -809,10 +821,10 @@ NIL
 1
 
 CHOOSER
-126
-600
-264
-645
+483
+611
+621
+656
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
@@ -827,7 +839,7 @@ euclidian-min-pace
 euclidian-min-pace
 1
 50
-10
+5
 1
 1
 NIL
@@ -857,7 +869,7 @@ road-length
 road-length
 0
 20
-2
+3
 1
 1
 NIL
@@ -872,17 +884,17 @@ SLIDER
 #-explorations
 0
 1000
-98
+200
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-6
-652
-79
-685
+363
+663
+436
+696
 comp vars
 compute-patches-variables
 NIL
@@ -903,18 +915,18 @@ SLIDER
 lambda-accessibility
 lambda-accessibility
 0
-1
-0.01
-0.005
+0.1
+0.03
+0.001
 1
 NIL
 HORIZONTAL
 
 BUTTON
-1303
-245
-1397
-278
+955
+281
+1049
+314
 indicators
 compute-indicators
 NIL
@@ -928,10 +940,10 @@ NIL
 1
 
 SLIDER
-184
-438
-346
-471
+154
+649
+289
+682
 total-time-steps
 total-time-steps
 0
@@ -943,10 +955,10 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-180
-409
-416
-444
+182
+411
+334
+446
 __________________
 20
 0.0
@@ -960,7 +972,7 @@ CHOOSER
 game-type
 game-type
 "random" "simple-nash"
-0
+1
 
 TEXTBOX
 174
@@ -983,9 +995,9 @@ TEXTBOX
 1
 
 PLOT
-1007
+1150
 131
-1167
+1310
 251
 accessibility
 NIL
@@ -998,9 +1010,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot mean-accessibility patches"
-"pen-1" 1.0 0 -7858858 true "" "plot max-accessibility"
-"pen-2" 1.0 0 -4757638 true "" "plot min-accessibility"
+"default" 1.0 0 -12186836 true "" "plot mean-accessibility patches"
 
 SLIDER
 6
@@ -1018,20 +1028,20 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-7
-467
-194
-511
+13
+578
+200
+622
 __________________
 20
 0.0
 1
 
 BUTTON
-1225
-162
-1306
-195
+1336
+166
+1417
+199
 test dist
 setup\ntest-network-effect (patches with [pxcor = 0])\n;check-effective-distance 1180 684
 NIL
@@ -1045,10 +1055,10 @@ NIL
 1
 
 BUTTON
-82
-653
-174
-686
+439
+664
+531
+697
 update display
 color-patches
 NIL
@@ -1062,10 +1072,10 @@ NIL
 1
 
 BUTTON
-1309
-161
-1391
-194
+1420
+165
+1502
+198
 test connex
 test-connex-components
 NIL
@@ -1079,10 +1089,10 @@ NIL
 1
 
 BUTTON
-1225
-197
-1298
-230
+1336
+201
+1409
+234
 nw effect
 test-network-effect patches
 NIL
@@ -1100,46 +1110,31 @@ SLIDER
 359
 332
 392
-alpha-nash
-alpha-nash
+collaboration-cost
+collaboration-cost
 0
-20
-0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-184
-395
-332
-428
-delta-alpha-nash
-delta-alpha-nash
-0
-10
-0
-1
+0.01
+0.007519
+1e-6
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-146
-15
-284
-60
+143
+21
+235
+66
 setup-type
 setup-type
 "random" "from-file"
-0
+1
 
 SLIDER
-190
-479
-335
-512
+7
+550
+152
+583
 ext-growth-factor
 ext-growth-factor
 0
@@ -1151,10 +1146,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-72
-500
-127
-533
+78
+611
+133
+644
 go
 go
 NIL
@@ -1166,6 +1161,28 @@ NIL
 NIL
 NIL
 1
+
+SWITCH
+5
+514
+151
+547
+with-externalities?
+with-externalities?
+1
+1
+-1000
+
+INPUTBOX
+237
+10
+315
+70
+positions-file
+setup/triangle.csv
+1
+0
+String
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1237,6 +1254,38 @@ Circle -7500403 true true 110 127 80
 Circle -7500403 true true 110 75 80
 Line -7500403 true 150 100 80 30
 Line -7500403 true 150 100 220 30
+
+building institution
+false
+0
+Rectangle -7500403 true true 0 60 300 270
+Rectangle -16777216 true false 130 196 168 256
+Rectangle -16777216 false false 0 255 300 270
+Polygon -7500403 true true 0 60 150 15 300 60
+Polygon -16777216 false false 0 60 150 15 300 60
+Circle -1 true false 135 26 30
+Circle -16777216 false false 135 25 30
+Rectangle -16777216 false false 0 60 300 75
+Rectangle -16777216 false false 218 75 255 90
+Rectangle -16777216 false false 218 240 255 255
+Rectangle -16777216 false false 224 90 249 240
+Rectangle -16777216 false false 45 75 82 90
+Rectangle -16777216 false false 45 240 82 255
+Rectangle -16777216 false false 51 90 76 240
+Rectangle -16777216 false false 90 240 127 255
+Rectangle -16777216 false false 90 75 127 90
+Rectangle -16777216 false false 96 90 121 240
+Rectangle -16777216 false false 179 90 204 240
+Rectangle -16777216 false false 173 75 210 90
+Rectangle -16777216 false false 173 240 210 255
+Rectangle -16777216 false false 269 90 294 240
+Rectangle -16777216 false false 263 75 300 90
+Rectangle -16777216 false false 263 240 300 255
+Rectangle -16777216 false false 0 240 37 255
+Rectangle -16777216 false false 6 90 31 240
+Rectangle -16777216 false false 0 75 37 90
+Line -16777216 false 112 260 184 260
+Line -16777216 false 105 265 196 265
 
 butterfly
 true

@@ -101,7 +101,8 @@ __includes [
   "utils/network/Network.nls"
   "utils/io/Timer.nls"
   "utils/io/Logger.nls"
-  
+  "utils/io/FileUtilities.nls"
+  "utils/misc/String.nls"
   
   ;;;;;;;;;;;
   ;; Tests
@@ -146,6 +147,19 @@ globals[
   
   
   
+  positions-file
+  ext-file
+  setup-type
+  
+  external-facility
+  
+  mayors-coordinates
+  ext-position
+  
+  
+  with-externalities?
+  
+  ext-growth-factor
   
   ;;;;;;;;;;;;;
   ;; Transportation
@@ -161,7 +175,7 @@ globals[
   ;; maximal pace (inverse of speed) in the transportation network
   ;network-max-pace
   
-  
+  lambda-flows
   
   
   
@@ -211,6 +225,9 @@ globals[
   ; maximal distance in the world
   dmax
   
+  network-clusters
+  network-clusters-connectors
+  
   
   
   ;;;;;;;;;;;;;
@@ -248,6 +265,8 @@ globals[
   network-min-pace
   euclidian-min-pace
   congestion-price
+  game-type
+  collaboration-cost
   
   total-time-steps
   headless?
@@ -283,6 +302,9 @@ patches-own [
   
   ; accessibility of actives to employments
   e-to-a-accessibility
+   
+  prev-accessibility
+  current-accessibility 
    
   ; travel distances
   a-to-e-distance
