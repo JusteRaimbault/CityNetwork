@@ -72,6 +72,10 @@ object Test extends App {
     m.foreach(row => println(row.mkString(";")))
   }
 
+  def distanceMatrix(n:Int):Array[Array[Double]]= {
+    Array.tabulate(n,n){(i,j)=> Math.sqrt((i - n/2) * (i - n/2) + (j - n/2) * (j - n/2))}
+  }
+
   def testConvol(): Unit = {
     val k = Array.tabulate(8, 8) { (i: Int, j: Int) => Math.sqrt((i - 8.0) * (i - 8.0) + (j - 8.0) * (j - 8.0)) }
     val x = Array.fill(4, 4) { 1.0 }
@@ -100,6 +104,10 @@ object Test extends App {
     conv.map{r=>println(r.map{_.round.toInt}.mkString(" "))}
   }
 
+  def testDistanceMean(n:Int)={
+    Convolution.convolution2D(Array.fill(n,n){1.0},distanceMatrix(2*n-1)).map{r=>println(r.mkString(" "))}
+  }
+
 
   //testFFT()
 
@@ -113,8 +121,8 @@ object Test extends App {
   //println(Array.tabulate(10){i=>i}.splitAt(3)._2.mkString(" "))
   //println(pow(2.0,ceil(log(9.0)/log(2.0))))
 
-  testConvol2D()
+  //testConvol2D()
 
-
+  testDistanceMean(100)
 
 }
