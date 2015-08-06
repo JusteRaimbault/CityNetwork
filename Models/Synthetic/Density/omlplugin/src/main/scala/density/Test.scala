@@ -1,8 +1,8 @@
 package density
 
 import org.apache.commons.math3.complex._
-import org.apache.commons.math3.util.MathArrays
 import org.apache.commons.math3.transform._
+import org.apache.commons.math3.util.MathArrays
 
 import scala.util.Random
 
@@ -72,6 +72,10 @@ object Test extends App {
     m.foreach(row => println(row.mkString(";")))
   }
 
+  def distanceMatrix(n:Int):Array[Array[Double]]= {
+    Array.tabulate(n,n){(i,j)=> Math.sqrt((i - n/2) * (i - n/2) + (j - n/2) * (j - n/2))}
+  }
+
   def testConvol(): Unit = {
     val k = Array.tabulate(8, 8) { (i: Int, j: Int) => Math.sqrt((i - 8.0) * (i - 8.0) + (j - 8.0) * (j - 8.0)) }
     val x = Array.fill(4, 4) { 1.0 }
@@ -82,10 +86,43 @@ object Test extends App {
     //fastConvolution2D(x,k).foreach(row=>println(row.mkString(";")))
   }
 
-  testFFT()
+
+  def testConvolKernel():Unit = {
+    val rng = new Random
+    val x = Array.fill(15){1.0}
+    val k = Array.fill(15){1.0}
+    println("x : "+x.mkString(" "))
+    println("Direct   : "+(Convolution.directConvol(x,k).splitAt(k.length/2)._2.splitAt(x.length)._1).mkString(" "))
+    println("FFT      : "+Convolution.convolution(x,k).map{_.round}.mkString(" "))
+    println("Built-In : "+(MathArrays.convolve(x, k).splitAt(k.length/2)._2.splitAt(x.length)._1).mkString(" "))
+  }
+
+  def testConvol2D():Unit={
+    val x = Array.fill(4,4){1.0}
+    val k = Array.fill(7,7){1.0}
+    val conv = Convolution.convolution2D(x,k)
+    conv.map{r=>println(r.map{_.round.toInt}.mkString(" "))}
+  }
+
+  def testDistanceMean(n:Int)={
+    Convolution.convolution2D(Array.fill(n,n){1.0},distanceMatrix(2*n-1)).map{r=>println(r.mkString(" "))}
+  }
+
+
+  //testFFT()
 
   //testDistanceMatrix()
 
   //testConvol()
+
+  //testConvolKernel()
+
+  //shitty tests
+  //println(Array.tabulate(10){i=>i}.splitAt(3)._2.mkString(" "))
+  //println(pow(2.0,ceil(log(9.0)/log(2.0))))
+
+  //testConvol2D()
+
+  testDistanceMean(100)
 
 }

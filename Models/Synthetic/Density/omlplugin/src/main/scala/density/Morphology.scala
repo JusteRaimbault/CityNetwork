@@ -1,6 +1,7 @@
 package density
 
 import org.apache.commons.math3.stat.regression.SimpleRegression
+import org.apache.commons.math3.util.MathArrays
 
 import scala.math._
 
@@ -38,6 +39,8 @@ object Morphology {
 
     def normalisation = matrix.length / math.sqrt(math.Pi)
 
+    println(numerator)
+
     (numerator / (totalQuantity * (totalQuantity))) / normalisation
   }
 
@@ -62,6 +65,14 @@ object Morphology {
       (content, j) <- row.zipWithIndex
     } yield content -> (i, j)
   }
+
+  def zipDoubleArrayWithPosition(m: Array[Array[Double]]): Array[(Double, (Int, Int))] = {
+    for {
+      (row, i) <- m.zipWithIndex
+      (d, j) <- row.zipWithIndex
+    } yield d -> (i, j)
+  }
+
 
   /**
    * Entropy of population distribution.
@@ -135,6 +146,7 @@ object Morphology {
     0.0
   }
 
+
   /**
    * Mean distance using fast convolution.
    *
@@ -142,13 +154,24 @@ object Morphology {
    * @return
    */
   def distance_convol(matrix: Seq[Seq[Cell]]): Double = {
-
-    val flatMat = zipWithPosition(matrix)
-    val p = matrix(0).length
-    val n = matrix.length
-
-    //new FastFourierTransformer(DftNormalization.STANDARD).transform(matrix.flatten.toArray.map{c=>c.population},TransformType.FORWARD)
-
-    0.0
+     val conf = matrix.map{row=>row.map{_.population}.toArray}.toArray
+     val totPop = conf.flatten.sum
+     val dmat = distanceMatrix(2*conf.length-1)
+     printMat(dmat)
+     val conv = Convolution.convolution2D(conf,dmat)
+     printMat(conv)
+     println( MathArrays.ebeMultiply(conv.flatten,conf.flatten).sum)
+     math.sqrt(math.Pi) / (conf.length * totPop * totPop ) * MathArrays.ebeMultiply(conv.flatten,conf.flatten).sum
   }
+
+  def distanceMatrix(n:Int):Array[Array[Double]]= {
+    Array.tabulate(n,n){(i,j)=> Math.sqrt((i - n/2) * (i - n/2) + (j - n/2) * (j - n/2))}
+  }
+
+
+  def printMat(m:Array[Array[Double]])={
+    m.map{r=>println(r.mkString(" "))};println("\n")
+  }
+
+
 }

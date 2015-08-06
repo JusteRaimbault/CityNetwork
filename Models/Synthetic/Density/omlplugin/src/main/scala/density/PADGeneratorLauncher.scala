@@ -59,8 +59,8 @@ class PADGeneratorLauncher {
     //val indics = r.readLine().split(";")
     */
 
-    moran = Morphology.moran(world)
-    distance = Morphology.distanceMean(world)
+    //moran = Morphology.moran(world)
+    //distance = Morphology.distanceMean(world)
     entropy = Morphology.entropy(world)
     val slopeVals = Morphology.slope(world)
     slope = slopeVals._1
@@ -68,7 +68,12 @@ class PADGeneratorLauncher {
 
     println(gen.temp_file)
     println("Indicators : Moran = " + moran + " ; D = " + distance + " ; E = " + entropy + " ; alpha = " + slope + " ; R2 = " + rsquared)
-    println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0)
+    println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
+
+    world.map{r=>println(r.map{_.population}.mkString(" "))};println();
+
+    println("direct : "+ Morphology.distanceMean(world))
+    println("FFT : "+ Morphology.distance_convol(world))
 
   }
 
