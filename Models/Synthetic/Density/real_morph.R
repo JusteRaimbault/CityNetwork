@@ -35,18 +35,18 @@ areasize = 500
 factor=0.2
 offset = 100
 
-#xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
-#yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
+xvals=seq(from=1,to=nrow(raw)-areasize,by=offset)
+yvals=seq(from=1,to=ncol(raw)-areasize,by=offset)
 #TEST //
-xvals=seq(from=20000,to=20800,by=offset)
-yvals=seq(from=20000,to=20800,by=offset)
+#xvals=seq(from=20000,to=20800,by=offset)
+#yvals=seq(from=20000,to=20800,by=offset)
 
 # coord matrix
 coords = matrix(data=c(rep(xvals,length(yvals)),c(sapply(yvals,rep,length(xvals)))),nrow=length(xvals)*length(yvals))
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(4)
+cl <- makeCluster(20)
 registerDoParallel(cl)
 
 startTime = proc.time()[3]
@@ -78,12 +78,12 @@ v = data.frame(vals_mat);colnames(v)=c("x","y","moran","distance","entropy","slo
 
 show(paste0("Ellapsed Time : ",proc.time()[3]-startTime))
 
-purpose = '_TEST_europe50km_10kmoffset_100x100grid'
+purpose = '_europe50km_10kmoffset_100x100grid'
 
 # store in data file
 write.table(
   v,
-  file=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),purpose,'.csv'),
+  file=paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),purpose,'.csv'),
   sep = ";",
   col.names=colnames(v)
 )
