@@ -5,14 +5,14 @@ import scala.util.Random
 object TestGenerator extends App {
 
   def simpleTest = {
-    val population = 10
-    val diffusion = 0.01
+    val population = 1000000
+    val diffusion = 0.5
     val diffusionsteps = 2
-    val growthrate = 1
-    val alphalocalization = 1.5
+    val growthrate = 100
+    val alphalocalization = 2.1
 
     val gen = new PADGeneratorLauncher
-    gen.main(2, population, diffusion, diffusionsteps, growthrate, alphalocalization, 0)
+    gen.main(100, population, diffusion, diffusionsteps, growthrate, alphalocalization, 0)
 
     //("R -e persp(x=1:50,y=1:50,z=as.matrix(read.csv(\"tmp_pop.csv\",sep=\";\",header=FALSE)))")!
     //("R -e source('/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Morphology/testRMorpho.R')")!

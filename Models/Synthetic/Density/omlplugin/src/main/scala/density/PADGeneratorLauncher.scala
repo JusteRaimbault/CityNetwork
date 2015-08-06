@@ -16,13 +16,11 @@ class PADGeneratorLauncher {
 
     println("Params : " + pop + " ; " + diff + " ; " + diffSteps + " ; " + growth + " ; " + alpha + " ; " + replication)
 
-    //val UIR = (pop.toString + "_" + diff + "_" + diffSteps + "_" + growth + "_" + alpha + "_" + replication)
-    //println(UIR)
     // replication and diffsteps should be enough in 'small' explorations,
     // easier to retrieve later (exact int value)
     val UIR = replication.toString + diffSteps.toString
 
-    val t = System.currentTimeMillis()
+    var t = System.currentTimeMillis()
 
     implicit val rng = new Random
 
@@ -40,27 +38,8 @@ class PADGeneratorLauncher {
     val world = gen.world(rng)
     gen.export_static(world)
 
-    /*
-    Computation of indicators using R ;
-    Very painful in comp time - Why ? (pb with processor load) -
-
-    //println("Ellapsed Time generation : " + (System.currentTimeMillis() - t) / 1000.0)
-    //val s = new File("./").getAbsolutePath()
-    //println(s)
-    // external call to compute indicators
-    //("R -e source('csv2raster.R',chdir=TRUE);exportIndics('" + UIR + "')").!
-
-    //val s = new File("./").getAbsolutePath()
-    //println(s.substring(0, s.length() - 1))
-
-    //get back indicators
-    //val r = new BufferedReader(new FileReader("tmp/temp_indics_" + UIR + ".csv"))
-    //r.readLine();
-    //val indics = r.readLine().split(";")
-    */
-
-    //moran = Morphology.moran(world)
-    //distance = Morphology.distanceMean(world)
+    moran = Morphology.moran_convol(world)
+    distance = Morphology.distance_convol(world)
     entropy = Morphology.entropy(world)
     val slopeVals = Morphology.slope(world)
     slope = slopeVals._1
@@ -70,10 +49,26 @@ class PADGeneratorLauncher {
     println("Indicators : Moran = " + moran + " ; D = " + distance + " ; E = " + entropy + " ; alpha = " + slope + " ; R2 = " + rsquared)
     println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
 
-    //world.map{r=>println(r.map{_.population}.mkString(" "))};println();
+    /*
 
-    println("direct : "+ Morphology.distanceMean(world))
+    //t=System.currentTimeMillis()
+    //println("direct : "+ Morphology.distanceMean(world))
+    //println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
+
+
+    t=System.currentTimeMillis()
     println("FFT : "+ Morphology.distance_convol(world))
+    println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
+
+    //t=System.currentTimeMillis()
+    //println("moran : "+ Morphology.moran(world))
+    //println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
+
+    t=System.currentTimeMillis()
+    println("moran FFT : "+ Morphology.moran_convol(world))
+    println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
+
+    */
 
   }
 

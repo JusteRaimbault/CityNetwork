@@ -39,7 +39,7 @@ val task =
   ScalaTask(
     """
       | val gen = new PADGeneratorLauncher
-      | gen.main(20,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication)
+      | gen.main(100,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication)
       | val moran = gen.moran
       | val distance = gen.distance
       | val entropy = gen.entropy
@@ -75,8 +75,9 @@ val exploration = ExplorationTask (
     diffusion in Range(0.0, 0.3),
     alphalocalization in Range(0.6,2.0),
     growthrate in Range(1000.0,30000.0),
-    population in Range(10000.0,1000000.0)
-  ) x (replication in UniformDistribution[Int]() take 10) x (diffusionsteps in (1 to 3 by 1))
+    population in Range(10000.0,1000000.0),
+    (diffusionsteps in Range(1.0,5.0)
+  ) x (replication in UniformDistribution[Int]() take 10)
 )
 val purpose = "LHSsampling"
 
