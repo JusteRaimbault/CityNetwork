@@ -12,7 +12,7 @@ class PADGeneratorLauncher {
   var slope: Double = 0
   var rsquared: Double = 0
 
-  def main(worldwidth: Int, pop: Double, diff: Double, diffSteps: Int, growth: Double, alpha: Double, replication: Int) = {
+  def main(worldwidth: Int, pop: Double, diff: Double, diffSteps: Double, growth: Double, alpha: Double, replication: Int) = {
 
     println("Params : " + pop + " ; " + diff + " ; " + diffSteps + " ; " + growth + " ; " + alpha + " ; " + replication)
 
@@ -28,7 +28,7 @@ class PADGeneratorLauncher {
       override def size: Int = worldwidth
       override def totalPopulation: Double = pop
       override def diffusion: Double = diff
-      override def diffusionSteps: Int = diffSteps
+      override def diffusionSteps: Int = diffSteps.toInt
       override def growthRate: Double = growth
       override def alphaAtt: Double = alpha
       override def temp_file: String = "tmp/pop_" + UIR + ".csv"
@@ -45,30 +45,8 @@ class PADGeneratorLauncher {
     slope = slopeVals._1
     rsquared = slopeVals._2
 
-    println(gen.temp_file)
     println("Indicators : Moran = " + moran + " ; D = " + distance + " ; E = " + entropy + " ; alpha = " + slope + " ; R2 = " + rsquared)
-    println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
-
-    /*
-
-    //t=System.currentTimeMillis()
-    //println("direct : "+ Morphology.distanceMean(world))
-    //println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
-
-
-    t=System.currentTimeMillis()
-    println("FFT : "+ Morphology.distance_convol(world))
-    println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
-
-    //t=System.currentTimeMillis()
-    //println("moran : "+ Morphology.moran(world))
-    //println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
-
-    t=System.currentTimeMillis()
-    println("moran FFT : "+ Morphology.moran_convol(world))
-    println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
-
-    */
+    println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0 + "\n")
 
   }
 

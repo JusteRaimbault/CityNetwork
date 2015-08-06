@@ -15,7 +15,7 @@ object Morphology {
    */
   def slope(matrix: Seq[Seq[Cell]]) = {
     def distribution = matrix.flatten.map(_.population).sorted(Ordering.Double.reverse).filter(_ > 1)
-    def distributionLog = distribution.zipWithIndex.map { case (q:Double, i:Int) => Array(log(i.toDouble + 1), log(q)) }.toArray
+    def distributionLog = distribution.zipWithIndex.map { case (q: Double, i: Int) => Array(log(i.toDouble + 1), log(q)) }.toArray
     val simpleRegression = new SimpleRegression(true)
     simpleRegression.addData(distributionLog)
     (simpleRegression.getSlope(), simpleRegression.getRSquare())
@@ -73,7 +73,6 @@ object Morphology {
     } yield d -> (i, j)
   }
 
-
   /**
    * Entropy of population distribution.
    *
@@ -116,7 +115,7 @@ object Morphology {
     def denominator =
       flatCells.map {
         cell =>
-          (cell.population - averagePop)*(cell.population - averagePop)
+          (cell.population - averagePop) * (cell.population - averagePop)
       }.sum
 
     if (denominator == 0) 0
@@ -135,7 +134,6 @@ object Morphology {
     else 1 / distance(p1, p2)
   }
 
-
   /**
    * Moran index using fast convolution.
    *
@@ -143,21 +141,20 @@ object Morphology {
    * @return
    */
   def moran_convol(matrix: Seq[Seq[Cell]]): Double = {
-    val conf = matrix.map{row=>row.map{_.population}.toArray}.toArray
+    val conf = matrix.map { row => row.map { _.population }.toArray }.toArray
     val n = conf.length
     val flatConf = conf.flatten
     val popMean = flatConf.sum / flatConf.length
-    val centeredConf = conf.map{r=>r.map{d=>d-popMean}}
-    val variance = MathArrays.ebeMultiply(centeredConf.flatten,centeredConf.flatten).sum
-    val weights = spatialWeights(2*n-1)
-    val totWeight = Convolution.convolution2D(Array.fill(n,n){1.0},weights).flatten.sum
-    flatConf.length / (totWeight * variance) * MathArrays.ebeMultiply(centeredConf.flatten,Convolution.convolution2D(centeredConf,weights).flatten).sum
+    val centeredConf = conf.map { r => r.map { d => d - popMean } }
+    val variance = MathArrays.ebeMultiply(centeredConf.flatten, centeredConf.flatten).sum
+    val weights = spatialWeights(2 * n - 1)
+    val totWeight = Convolution.convolution2D(Array.fill(n, n) { 1.0 }, weights).flatten.sum
+    flatConf.length / (totWeight * variance) * MathArrays.ebeMultiply(centeredConf.flatten, Convolution.convolution2D(centeredConf, weights).flatten).sum
   }
 
-  def spatialWeights(n:Int):Array[Array[Double]]= {
-    Array.tabulate(n,n){(i,j)=> if(i==n/2&&j==n/2)0.0 else 1/Math.sqrt((i - n/2) * (i - n/2) + (j - n/2) * (j - n/2))}
+  def spatialWeights(n: Int): Array[Array[Double]] = {
+    Array.tabulate(n, n) { (i, j) => if (i == n / 2 && j == n / 2) 0.0 else 1 / Math.sqrt((i - n / 2) * (i - n / 2) + (j - n / 2) * (j - n / 2)) }
   }
-
 
   /**
    * Mean distance using fast convolution.
@@ -166,11 +163,11 @@ object Morphology {
    * @return
    */
   def distance_convol(matrix: Seq[Seq[Cell]]): Double = {
-     val conf = matrix.map{row=>row.map{_.population}.toArray}.toArray
-     val totPop = conf.flatten.sum
-     val dmat = distanceMatrix(2*conf.length-1)
-     val conv = Convolution.convolution2D(conf,dmat)
-     math.sqrt(math.Pi) / (conf.length * totPop * totPop ) * MathArrays.ebeMultiply(conv.flatten,conf.flatten).sum
+    val conf = matrix.map { row => row.map { _.population }.toArray }.toArray
+    val totPop = conf.flatten.sum
+    val dmat = distanceMatrix(2 * conf.length - 1)
+    val conv = Convolution.convolution2D(conf, dmat)
+    math.sqrt(math.Pi) / (conf.length * totPop * totPop) * MathArrays.ebeMultiply(conv.flatten, conf.flatten).sum
   }
 
   /**
@@ -179,14 +176,12 @@ object Morphology {
    * @param n
    * @return
    */
-  def distanceMatrix(n:Int):Array[Array[Double]]= {
-    Array.tabulate(n,n){(i,j)=> Math.sqrt((i - n/2) * (i - n/2) + (j - n/2) * (j - n/2))}
+  def distanceMatrix(n: Int): Array[Array[Double]] = {
+    Array.tabulate(n, n) { (i, j) => Math.sqrt((i - n / 2) * (i - n / 2) + (j - n / 2) * (j - n / 2)) }
   }
 
-
-  def printMat(m:Array[Array[Double]])={
-    m.map{r=>println(r.mkString(" "))};println("\n")
+  def printMat(m: Array[Array[Double]]) = {
+    m.map { r => println(r.mkString(" ")) }; println("\n")
   }
-
 
 }

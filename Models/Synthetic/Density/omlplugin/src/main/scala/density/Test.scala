@@ -72,8 +72,8 @@ object Test extends App {
     m.foreach(row => println(row.mkString(";")))
   }
 
-  def distanceMatrix(n:Int):Array[Array[Double]]= {
-    Array.tabulate(n,n){(i,j)=> Math.sqrt((i - n/2) * (i - n/2) + (j - n/2) * (j - n/2))}
+  def distanceMatrix(n: Int): Array[Array[Double]] = {
+    Array.tabulate(n, n) { (i, j) => Math.sqrt((i - n / 2) * (i - n / 2) + (j - n / 2) * (j - n / 2)) }
   }
 
   def testConvol(): Unit = {
@@ -86,47 +86,45 @@ object Test extends App {
     //fastConvolution2D(x,k).foreach(row=>println(row.mkString(";")))
   }
 
-
-  def testConvolKernel():Unit = {
+  def testConvolKernel(): Unit = {
     val rng = new Random
-    val x = Array.fill(15){1.0}
-    val k = Array.fill(15){1.0}
-    println("x : "+x.mkString(" "))
-    println("Direct   : "+(Convolution.directConvol(x,k).splitAt(k.length/2)._2.splitAt(x.length)._1).mkString(" "))
-    println("FFT      : "+Convolution.convolution(x,k).map{_.round}.mkString(" "))
-    println("Built-In : "+(MathArrays.convolve(x, k).splitAt(k.length/2)._2.splitAt(x.length)._1).mkString(" "))
+    val x = Array.fill(15) { 1.0 }
+    val k = Array.fill(15) { 1.0 }
+    println("x : " + x.mkString(" "))
+    println("Direct   : " + (Convolution.directConvol(x, k).splitAt(k.length / 2)._2.splitAt(x.length)._1).mkString(" "))
+    println("FFT      : " + Convolution.convolution(x, k).map { _.round }.mkString(" "))
+    println("Built-In : " + (MathArrays.convolve(x, k).splitAt(k.length / 2)._2.splitAt(x.length)._1).mkString(" "))
   }
 
-  def testConvol2D():Unit={
+  def testConvol2D(): Unit = {
     //val x = Array.fill(4,4){1.0}
 
-    val x = Array.tabulate(5,5){(i,j)=>(i+j).toDouble}
-    val k = Array.fill(3,3){1.0}
-    val conv = Convolution.convolution2D(x,k)
+    val x = Array.tabulate(5, 5) { (i, j) => (i + j).toDouble }
+    val k = Array.fill(3, 3) { 1.0 }
+    val conv = Convolution.convolution2D(x, k)
     Morphology.printMat(conv)
   }
 
-  def testDistanceMean(n:Int)={
+  def testDistanceMean(n: Int) = {
     val rng = new Random
-    val dm = distanceMatrix(2*n-1)
+    val dm = distanceMatrix(2 * n - 1)
     //val pop = Array.fill(n,n){rng.nextInt(10).toDouble}
     var k = 0
     //val pop =  Array.tabulate(n,n){(i,j)=>(i+j/2).toDouble}
-    val pop = Array.fill(n,n){k=k+1;k.toDouble}
+    val pop = Array.fill(n, n) { k = k + 1; k.toDouble }
     val totPop = pop.flatten.sum
-    val conv = Convolution.convolution2D(pop,dm)
+    val conv = Convolution.convolution2D(pop, dm)
     //Morphology.printMat(dm)
     Morphology.printMat(pop)
     Morphology.printMat(conv)
     //println(conv.flatten.mkString(" "))
     //println(pop.flatten.mkString(" "))
     //println(MathArrays.ebeMultiply(pop.flatten,conv.flatten).mkString(" "))
-    val res=MathArrays.ebeMultiply(pop.flatten,conv.flatten).sliding(pop(0).length,pop.length).toArray
+    val res = MathArrays.ebeMultiply(pop.flatten, conv.flatten).sliding(pop(0).length, pop.length).toArray
     Morphology.printMat(res)
-    println(res.flatten.sum * math.sqrt(math.Pi) / (pop.flatten.length * totPop * totPop ))
+    println(res.flatten.sum * math.sqrt(math.Pi) / (pop.flatten.length * totPop * totPop))
     println()
   }
-
 
   //testFFT()
 

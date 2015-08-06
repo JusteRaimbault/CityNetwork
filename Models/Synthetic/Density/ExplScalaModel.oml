@@ -2,16 +2,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import scala.sys.process._
 
-/*
-import density._
-import org.openmole.plugin.domain.collection._
-import org.openmole.plugin.domain.distribution._
-import org.openmole.plugin.domain.modifier._
-import org.openmole.plugin.sampling.combine._
-import org.openmole.plugin.task.scala._
-import org.openmole.plugin.hook.display._
-*/
-
 logger.level("FINE")
 
 // Parameters
@@ -32,7 +22,7 @@ val rsquared=Val[Double]
 // delete old tmp dir
 // this trick of tmp files with unique identifier is needed because scala task is embedded in main task
 // not copied in an external dir such as for a NetLogo task
-//("rm -r -f tmp/").!
+("rm -r -f tmp/").!
 ("mkdir tmp").!
 
 val task =
@@ -54,20 +44,19 @@ val task =
     )
 
 
-
-/*
 val exploration =  ExplorationTask(
-  (diffusion in (0.01 to 0.01 by 1)) x
-    (diffusionsteps in (2 to 2 by 1)) x
-    (alphalocalization in (1.2 to 1.2 by 1)) x
-    (growthrate in (1000.0 to 1000.0 by 1)) x
-    (population in (1000000.0 to 1000000.0 by 1)) x
-    (replication in (UniformDistribution[Int]() take 16))
+  (diffusion in (0.01 to 0.01 by 1.0)) x
+    (diffusionsteps in (2.0 to 2.0 by 1.0)) x
+    (alphalocalization in (1.2 to 1.2 by 1.0)) x
+    (growthrate in (1000.0 to 1000.0 by 1.0)) x
+    (population in (1000000.0 to 1000000.0 by 1.0)) x
+    (replication in (UniformDistribution[Int]() take 60))
 )
 val purpose = "TEST"
-*/
 
 
+
+/**
 // refined bounds from first exploration
 val exploration = ExplorationTask (
   LHS (
@@ -80,7 +69,7 @@ val exploration = ExplorationTask (
   ) x (replication in UniformDistribution[Int]() take 10)
 )
 val purpose = "LHSsampling"
-
+*/
 
 val h = AppendToCSVFileHook("res_oml_scala/"+((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
 
