@@ -157,8 +157,9 @@ object Morphology {
      val conf = matrix.map{row=>row.map{_.population}.toArray}.toArray
      val totPop = conf.flatten.sum
      val dmat = distanceMatrix(2*conf.length-1)
-     printMat(dmat)
+     //printMat(dmat)
      val conv = Convolution.convolution2D(conf,dmat)
+     printMat(conf)
      printMat(conv)
      println( MathArrays.ebeMultiply(conv.flatten,conf.flatten).sum)
      math.sqrt(math.Pi) / (conf.length * totPop * totPop ) * MathArrays.ebeMultiply(conv.flatten,conf.flatten).sum

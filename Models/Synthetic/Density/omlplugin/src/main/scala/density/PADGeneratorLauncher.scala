@@ -70,7 +70,7 @@ class PADGeneratorLauncher {
     println("Indicators : Moran = " + moran + " ; D = " + distance + " ; E = " + entropy + " ; alpha = " + slope + " ; R2 = " + rsquared)
     println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0+"\n")
 
-    world.map{r=>println(r.map{_.population}.mkString(" "))};println();
+    //world.map{r=>println(r.map{_.population}.mkString(" "))};println();
 
     println("direct : "+ Morphology.distanceMean(world))
     println("FFT : "+ Morphology.distance_convol(world))

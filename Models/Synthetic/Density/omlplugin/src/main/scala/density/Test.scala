@@ -98,14 +98,33 @@ object Test extends App {
   }
 
   def testConvol2D():Unit={
-    val x = Array.fill(4,4){1.0}
-    val k = Array.fill(7,7){1.0}
+    //val x = Array.fill(4,4){1.0}
+
+    val x = Array.tabulate(5,5){(i,j)=>(i+j).toDouble}
+    val k = Array.fill(3,3){1.0}
     val conv = Convolution.convolution2D(x,k)
-    conv.map{r=>println(r.map{_.round.toInt}.mkString(" "))}
+    Morphology.printMat(conv)
   }
 
   def testDistanceMean(n:Int)={
-    Convolution.convolution2D(Array.fill(n,n){1.0},distanceMatrix(2*n-1)).map{r=>println(r.mkString(" "))}
+    val rng = new Random
+    val dm = distanceMatrix(2*n-1)
+    //val pop = Array.fill(n,n){rng.nextInt(10).toDouble}
+    var k = 0
+    //val pop =  Array.tabulate(n,n){(i,j)=>(i+j/2).toDouble}
+    val pop = Array.fill(n,n){k=k+1;k.toDouble}
+    val totPop = pop.flatten.sum
+    val conv = Convolution.convolution2D(pop,dm)
+    //Morphology.printMat(dm)
+    Morphology.printMat(pop)
+    Morphology.printMat(conv)
+    //println(conv.flatten.mkString(" "))
+    //println(pop.flatten.mkString(" "))
+    //println(MathArrays.ebeMultiply(pop.flatten,conv.flatten).mkString(" "))
+    val res=MathArrays.ebeMultiply(pop.flatten,conv.flatten).sliding(pop(0).length,pop.length).toArray
+    Morphology.printMat(res)
+    println(res.flatten.sum * math.sqrt(math.Pi) / (pop.flatten.length * totPop * totPop ))
+    println()
   }
 
 
@@ -123,6 +142,6 @@ object Test extends App {
 
   //testConvol2D()
 
-  testDistanceMean(100)
+  testDistanceMean(3)
 
 }

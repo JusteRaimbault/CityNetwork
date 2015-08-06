@@ -58,7 +58,7 @@ object Convolution {
     //println(kpad.flatten.map{_.toInt}.mkString(" ")+"\n")
     val flatconv = convolution(xpad.flatten,kpad.flatten)
     //(flatconv.sliding(xpad(0).length,xpad.length).toArray).map{row=>println(row.map{_.round}.mkString(" "))}
-    flatconv.zipWithIndex.filter{case(_,j)=>xpos(j)>0}.map{case(d,_)=>d}.sliding(x(0).length,x.length).toArray
+    flatconv.zipWithIndex.filter{case(_,j)=>xpos(j)>0}.map{case(d,_)=>d}.sliding(x(0).length,x.length).toArray.reverse
   }
 
 }
