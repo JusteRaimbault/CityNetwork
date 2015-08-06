@@ -667,7 +667,7 @@ to update-network-distance-matrix [everything]
   
   if everything [
   
-  set network-distance-matrix matrix:make-constant #-patches #-patches ((dmax + 1) * network-min-pace * (network-pace (max patches-congestion) (max patches-congestion)))
+  set network-distance-matrix matrix:make-constant #-patches #-patches ((10 * dmax) * network-min-pace * (network-pace (max patches-congestion) (max patches-congestion)))
   
   ; compute path length
   let paths-length table:make
@@ -679,7 +679,7 @@ to update-network-distance-matrix [everything]
     let p1 ?
     foreach nw-patches[
       let p2 ?
-      let d (dmax + 1)
+      let d matrix:get network-distance-matrix p1 p2
       let i1 table:get closest-nw-inters p1 let i2 table:get closest-nw-inters p2
       ifelse i1 = i2 or rev i1 = i2 [
         ; patches are on same link

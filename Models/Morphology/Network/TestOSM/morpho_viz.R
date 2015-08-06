@@ -11,24 +11,15 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 # data
 
 real_raw = read.csv(
-  #paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/RealData/Numeric/france_20km_mar.-juin-09-23:46:42-2015.csv'),
-  paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/europe_50km_sam.-juin-27-03:00:19-2015.csv'),
+  paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/20150806_europe50km_10kmoffset_100x100grid.csv'),
   sep=";"
 )
 
 
 # no na
-real_raw =real_raw[!is.na(real_raw[,3])&!is.na(real_raw[,4])&!is.na(real_raw[,5])&!is.na(real_raw[,6])&!is.na(real_raw[,7])&!is.na(real_raw[,8])&!is.na(real_raw[,9]),]
+real =real_raw[!is.na(real_raw[,3])&!is.na(real_raw[,4])&!is.na(real_raw[,5])&!is.na(real_raw[,6])&!is.na(real_raw[,7])&!is.na(real_raw[,8])&!is.na(real_raw[,9]),]
 
-# # kill last quintile (only for distance)
-rows=rep(TRUE,nrow(real_raw))
-no_outsiders_cols=c(4)
-for(j in no_outsiders_cols){
-  rows=rows&(real_raw[,j]<quantile(real_raw[,j],0.95,na.rm=TRUE))
-}
-real=real_raw[rows,]
-
-# renormalize
+# renormalize -> if PCA needed
 #for(j in 1:ncol(real_raw)){
 #  real[,j]=(real[,j]-min(real[,j]))/(max(real[,j])-min(real[,j]))
 #}
@@ -70,7 +61,7 @@ multiplot(plotlist=plots,cols=2)
 # Descriptive Statistics
 ###########
 
-real=real_raw[pop>500000,]
+real=real[real$pop>500000,]
 
 plot(real[sample.int(nrow(real),size=2000),3:6],pch="+")
 plot(real[,3:6],pch="+")

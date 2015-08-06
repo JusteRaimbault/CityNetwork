@@ -6,7 +6,7 @@ logger.level("FINE")
 
 // Parameters
 val diffusion = Val[Double]
-val diffusionsteps = Val[Int]
+val diffusionsteps = Val[Double]
 val alphalocalization = Val[Double]
 val growthrate = Val[Double]
 val population = Val[Double]
@@ -50,7 +50,7 @@ val exploration =  ExplorationTask(
     (alphalocalization in (1.2 to 1.2 by 1.0)) x
     (growthrate in (1000.0 to 1000.0 by 1.0)) x
     (population in (1000000.0 to 1000000.0 by 1.0)) x
-    (replication in (UniformDistribution[Int]() take 60))
+    (replication in (UniformDistribution[Int]() take 16))
 )
 val purpose = "TEST"
 
@@ -76,7 +76,7 @@ val h = AppendToCSVFileHook("res_oml_scala/"+((new SimpleDateFormat("yyyy_MM_dd_
 val startTime = System.currentTimeMillis
 
 // environement
-val env = LocalEnvironment(20)
+val env = LocalEnvironment(4)
 
 val ex = exploration -< (task on env hook h) start
 

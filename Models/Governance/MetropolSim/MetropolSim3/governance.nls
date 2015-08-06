@@ -132,6 +132,8 @@ to-report compare-infrastructures [old-nw-config choices decidor patchset]
     verbose (word "∆Z=" (new-acc - old-acc))
     verbose (word "mean-travel-distance = " mean-travel-distance)
     
+    if (new-acc - old-acc) < 0 [user-message ""]
+    
     if (new-acc - old-acc) > delta-acc [
       set best-choice ?
       set delta-acc (new-acc - old-acc)
@@ -141,7 +143,7 @@ to-report compare-infrastructures [old-nw-config choices decidor patchset]
     ; kill the potential infra, will be reconstructed if indeed the best
     ask potential-infra [ask both-ends [die] die]
     
-    ; color patch here ? should be supressed for performance
+    ; color patch here
     color-patches
   ]
   

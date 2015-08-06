@@ -420,7 +420,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-7
+8
 
 TEXTBOX
 11
@@ -869,7 +869,7 @@ road-length
 road-length
 0
 20
-3
+5
 1
 1
 NIL
@@ -884,7 +884,7 @@ SLIDER
 #-explorations
 0
 1000
-200
+20
 1
 1
 NIL
@@ -1021,7 +1021,7 @@ lambda-flows
 lambda-flows
 0
 1
-0.5
+1
 0.005
 1
 NIL
