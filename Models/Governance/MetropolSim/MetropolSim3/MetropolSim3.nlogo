@@ -354,6 +354,9 @@ transportation-links-own [
   ; speed in the link, deduced from capacity and congestion
   speed
   
+  ; tick on which the infra has been constructed
+  age
+  
 ]
 
 ;; nodes of the transportation network
