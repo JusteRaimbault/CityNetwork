@@ -28,7 +28,9 @@ to setup
   ; setup initial configuration
   setup-initial-distributions
   
-  ;setup-externalities
+  if with-externalities? [
+    setup-externalities
+  ]
   
   ; setup initial network
   setup-initial-network
@@ -38,6 +40,9 @@ to setup
   
   ; cached distances
   setup-cached-distances
+  
+  ; initial accessibilities
+  setup-patch-variables
   
   ; display
   setup-display
@@ -123,18 +128,31 @@ end
 
 
 to setup-externalities
+  let ext-patch nobody
   if setup-type = "random" [
-    set external-facility []
-    ask one-of patches [
-      set external-facility lput number external-facility
-      sprout 1 [
-         set shape "airplane" set size 2 set color red set heading 0
-         
-      ] 
-      set employments employments-max / 2
-      ask neighbors [set employments employments-max / 2 set external-facility lput number external-facility]
-    ] 
+    set ext-patch one-of patches
+  ] 
+  if setup-type = "from-file" [
+    set ext-patch patch first ext-position last ext-position
   ]
+    
+  set external-facility []
+  ask ext-patch [
+    set external-facility lput number external-facility
+    sprout 1 [
+       set shape "airplane" set size 2 set color red set heading 0
+       
+    ]
+    
+    let by-patch-employment-number employments-max * ext-employments-proportion-of-max / 9   
+    set employments by-patch-employment-number
+    ask neighbors [
+      set employments by-patch-employment-number
+      set external-facility lput number external-facility
+    ]
+  ] 
+  
+  
 end
 
 
@@ -214,7 +232,8 @@ to setup-nw-matrices
   
   
   set nw-access-table table:make set i 0
-  if nw-patches != [] [repeat #-patches [table:put nw-access-table i (min-index (matrix:get-sparse-row euclidian-distance-matrix i nw-patches)) set i i + 1]]
+  ; ! NO INITIAL NW
+  ;if nw-patches != [] [repeat #-patches [table:put nw-access-table i (min-index (matrix:get-sparse-row euclidian-distance-matrix i nw-patches)) set i i + 1]]
   
   set network-clusters []
   set network-clusters-connectors table:make
@@ -230,6 +249,12 @@ to setup-transportation
 end
 
 
+;; initial utilities and accessibilities
+to setup-patch-variables
+  compute-patches-variables
+end
+
+
 ;;
 ; default values ; for headless run
 to setup-headless-vars
@@ -242,7 +267,8 @@ to setup-headless-vars
   set #-initial-territories 2
   
   ; luti params
-  set gamma-cobb-douglas 0.8
+  set gamma-cobb-douglas-e 0.75
+  set gamma-cobb-douglas-a 0.25
   set beta-discrete-choices 1.1
   set lambda-accessibility 0.05
   
