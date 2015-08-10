@@ -56,7 +56,7 @@ for(i in 1:3){for(j in (i+1):4){
 
 
 real_raw = read.csv(
-  paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/europe_50km_sam.-juin-27-03:00:19-2015.csv'),
+  paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/20150806_europe50km_10kmoffset_100x100grid.csv'),
   sep=";"
 )
 
@@ -155,7 +155,8 @@ prcomp(synth[,c(1,2,3,5)])
 # -- without right outsiders - distance ONLY --
 
 real =real_raw[!is.na(real_raw[,3])&!is.na(real_raw[,4])&!is.na(real_raw[,5])&!is.na(real_raw[,6])&!is.na(real_raw[,7])&!is.na(real_raw[,8])&!is.na(real_raw[,9]),]
-real=real[real[,3]<quantile(real[,3],0.9),3:6]
+#real=real[real[,3]<quantile(real[,3],0.9),3:6]
+real=real[,3:6]
 real=as.matrix(real[sample.int(length(real[,1]),1000),])
 synth = as.matrix(m[,c(3,1,2,5)])
 

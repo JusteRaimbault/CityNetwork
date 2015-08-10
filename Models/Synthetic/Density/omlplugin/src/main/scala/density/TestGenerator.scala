@@ -6,10 +6,10 @@ object TestGenerator extends App {
 
   def simpleTest = {
     val population = 1000000
-    val diffusion = 0.5
-    val diffusionsteps = 2
-    val growthrate = 100
-    val alphalocalization = 2.1
+    val diffusion = 0.01
+    val diffusionsteps = 2.0
+    val growthrate = 1000
+    val alphalocalization = 1.2
 
     val gen = new PADGeneratorLauncher
     gen.main(100, population, diffusion, diffusionsteps, growthrate, alphalocalization, 0)

@@ -4,6 +4,15 @@
 ;;;;;;;;;;;;;;;;
 
 
+
+
+to update-display
+  color-patches
+  update-nw-display
+end
+
+
+
 to color-patches
   ; basic
   if patches-display = "governance"[
@@ -19,9 +28,11 @@ to color-patches
     if patches-display = "mean-effective-distance" [set md map mean matrix:to-row-list effective-distance-matrix]
     if patches-display = "lbc-effective-distance" [set md matrix:get-column effective-distance-matrix 0]
     if patches-display = "center-effective-distance" [set md matrix:get-column effective-distance-matrix (floor (#-patches / 2))]
-    if patches-display = "lbc-network-distance" [let lbcn [number] of one-of (patches with [member? number nw-patches]) with-min [[pxcor] of self + [pycor] of self] set md matrix:get-column network-distance-matrix lbcn]
+    if patches-display = "lbc-network-distance" [if length nw-patches > 0 [let lbcn [number] of one-of (patches with [member? number nw-patches]) with-min [[pxcor] of self + [pycor] of self] set md matrix:get-column network-distance-matrix lbcn ]]
+    if length nw-patches > 0 or patches-display != "lbc-network-distance" [
     let ma max md let mi min md
     let p 0 foreach md [ask patch-with-number p [set pcolor scale-color yellow ? mi ma] set p p + 1]
+    ]
   ]
   ; transportation
   if patches-display = "congestion" [
@@ -37,6 +48,13 @@ to color-patches
   
 end
 
+
+
+
+
+to update-nw-display
+  ask transportation-links [set color red set thickness 0.4]
+end
 
 
 

@@ -13,6 +13,7 @@ to update-effective-matrices
   
   verbose "Updating effective distances"
   
+  tic
    ;; 
    ; d_eff = min(d_e,min_{l,l'}(d_e(i,l)+d_n(l,l')+d_e(l',j))
    ;
@@ -20,23 +21,51 @@ to update-effective-matrices
    ;  (counter examples exist)
    
    ifelse nw-patches != [] [
-     ;optimization : contruct a table giving index of nearest nw patch
-     set nw-access-table table:make let i 0
-     repeat #-patches [table:put nw-access-table i item (min-index (matrix-get-sparse-row euclidian-distance-matrix i nw-patches)) nw-patches set i i + 1]
+     
+     
+     set nw-access-table table:make
+     
+     let i 0
+     repeat #-patches [let k 0 repeat length network-clusters [table:put nw-access-table (list i k) item (min-index (matrix:get-sparse-row euclidian-distance-matrix i (item k network-clusters))) (item k network-clusters) set k k + 1] set i i + 1]
+   
+     ;construct nw distance submatrix (size #-nw-patches^2)
+     ;let nw-submatrix matrix:sparse-submatrix network-distance-matrix nw-patches nw-patches
    
      ;; fill effective distance matrix
      let p1 0 let p2 0
      repeat #-patches [
+       ;let p1-nw-access-matrix matrix:times (matrix:from-column-list (rep (matrix:get-sparse-row euclidian-distance-matrix p1 nw-patches) length nw-patches)) euclidian-min-pace
+       
        set p2 0
        repeat #-patches [
          
+;          let p2-nw-access-matrix matrix:times (matrix:from-row-list (rep (matrix:get-sparse-row euclidian-distance-matrix p2 nw-patches) length nw-patches)) euclidian-min-pace
+;          let m matrix:min (matrix:plus p1-nw-access-matrix nw-submatrix p2-nw-access-matrix)
+;          let dnwmin first m let deucl ((matrix:get euclidian-distance-matrix p1 p2) * euclidian-min-pace)
+;          
+;          ifelse deucl < dnwmin [
+;             matrix:set effective-distance-matrix p1 p2 deucl
+;          ][
+;             matrix:set effective-distance-matrix p1 p2 dnwmin
+;             table:put nw-access-table (list p1 p2) (last m)
+;          ]
+          
           ;;;;
           ;; Pb : here need to check for each connected cluster ?
           ;;  -> done in network-distance-matrix update
          
-          let a1 table:get nw-access-table p1 let a2 table:get nw-access-table p2
+          ;let a1 table:get nw-access-table p1 let a2 table:get nw-access-table p2
           ; connectivity of nw is taken into account : if a1->a2 does not exists in nw, will be initialized at dmax+ (\infty) and minimum will be euclidian distance
-          matrix:set effective-distance-matrix p1 p2 min list ((matrix:get euclidian-distance-matrix p1 p2) * euclidian-min-pace) (((matrix:get euclidian-distance-matrix p1 a1) + (matrix:get euclidian-distance-matrix p2 a2)) * euclidian-min-pace + (matrix:get network-distance-matrix a1 a2))
+          ;matrix:set effective-distance-matrix p1 p2 min list ((matrix:get euclidian-distance-matrix p1 p2) * euclidian-min-pace) (((matrix:get euclidian-distance-matrix p1 a1) + (matrix:get euclidian-distance-matrix p2 a2)) * euclidian-min-pace + (matrix:get network-distance-matrix a1 a2))
+          let k 0 let dmin ((matrix:get euclidian-distance-matrix p1 p2) * euclidian-min-pace)
+          repeat length network-clusters [
+            let a1 table:get nw-access-table (list p1 k) let a2 table:get nw-access-table (list p2 k)
+            let d (((matrix:get euclidian-distance-matrix p1 a1) + (matrix:get euclidian-distance-matrix p2 a2)) * euclidian-min-pace + (matrix:get network-distance-matrix a1 a2))
+            set dmin min (list d dmin)
+            set k k + 1
+          ]
+          
+          matrix:set effective-distance-matrix p1 p2 dmin
          
           set p2 p2 + 1
        ]
@@ -47,6 +76,8 @@ to update-effective-matrices
      ; if empty, just copy euclidian distance matrix
      set effective-distance-matrix matrix:times euclidian-distance-matrix euclidian-min-pace
    ]
+   
+   toc
    
 end
 
@@ -173,17 +204,19 @@ to update-inters-recompute [new-inters new-nw-patches]
   foreach footprints [
     let current-fp ? let current-inters []
     foreach current-fp [if position ? nw-inters != false [set current-inters lput ? current-inters]]
-    let k 1 let current-inter item 0 current-inters let next-inter item 1 current-inters
-    foreach current-fp [
-      let nints []
-      if ? = current-inter [set nints (list (list next-inter (matrix:get euclidian-distance-matrix current-inter next-inter)))]
-      if ? != current-inter and ? != next-inter [set nints (list (list current-inter (matrix:get euclidian-distance-matrix current-inter ?)) (list next-inter (matrix:get euclidian-distance-matrix ? next-inter)))]
-      if ? = next-inter [set nints (list (list current-inter (matrix:get euclidian-distance-matrix current-inter ?))) 
-          set current-inter next-inter if (k + 1) < length current-inters [set next-inter item (k + 1) current-inters set nints lput (list next-inter (matrix:get euclidian-distance-matrix ? next-inter)) nints set k k + 1]]
-      ifelse table:has-key? closest-nw-inters ? [
-         table:put closest-nw-inters ? (concatenate (list table:get closest-nw-inters ? nints))
-      ][
-         table:put closest-nw-inters ? nints
+    if length current-inters > 1 [
+      let k 1 let current-inter item 0 current-inters let next-inter item 1 current-inters
+      foreach current-fp [
+        let nints []
+        if ? = current-inter [set nints (list (list next-inter (matrix:get euclidian-distance-matrix current-inter next-inter)))]
+        if ? != current-inter and ? != next-inter [set nints (list (list current-inter (matrix:get euclidian-distance-matrix current-inter ?)) (list next-inter (matrix:get euclidian-distance-matrix ? next-inter)))]
+        if ? = next-inter [set nints (list (list current-inter (matrix:get euclidian-distance-matrix current-inter ?))) 
+            set current-inter next-inter if (k + 1) < length current-inters [set next-inter item (k + 1) current-inters set nints lput (list next-inter (matrix:get euclidian-distance-matrix ? next-inter)) nints set k k + 1]]
+        ifelse table:has-key? closest-nw-inters ? [
+           table:put closest-nw-inters ? (concatenate (list table:get closest-nw-inters ? nints))
+        ][
+           table:put closest-nw-inters ? nints
+        ]
       ]
     ]
   ]
@@ -554,7 +587,7 @@ to update-nw-patches [new-nw-patches]
   ]
   
   set nw-access-table table:make let i 0
-     repeat #-patches [table:put nw-access-table i item (min-index (matrix-get-sparse-row euclidian-distance-matrix i nw-patches)) nw-patches set i i + 1]
+     repeat #-patches [table:put nw-access-table i item (min-index (matrix:get-sparse-row euclidian-distance-matrix i nw-patches)) nw-patches set i i + 1]
    
   
   
@@ -667,7 +700,7 @@ to update-network-distance-matrix [everything]
   
   if everything [
   
-  set network-distance-matrix matrix:make-constant #-patches #-patches ((dmax + 1) * network-min-pace * (network-pace (max patches-congestion) (max patches-congestion)))
+  set network-distance-matrix matrix:make-constant #-patches #-patches ((10 * dmax) * network-min-pace * (network-pace (max patches-congestion) (max patches-congestion)))
   
   ; compute path length
   let paths-length table:make
@@ -679,9 +712,9 @@ to update-network-distance-matrix [everything]
     let p1 ?
     foreach nw-patches[
       let p2 ?
-      let d (dmax + 1)
+      let d matrix:get network-distance-matrix p1 p2
       let i1 table:get closest-nw-inters p1 let i2 table:get closest-nw-inters p2
-      ifelse i1 = i2 or rev i1 = i2 [
+      ifelse i1 = i2 or rev i1 = i2 or member? p1 (map first i2) or member? p2 (map first i1) [
         ; patches are on same link
         set d (matrix:get euclidian-distance-matrix p1 p2) * network-min-pace * ((network-pace (item p1 patches-congestion) (max patches-congestion)) + (network-pace (item p2 patches-congestion) (max patches-congestion))) / 2
       ][

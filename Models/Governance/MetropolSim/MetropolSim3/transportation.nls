@@ -48,7 +48,7 @@ to compute-flows
   ; then set flows as \phi_ij = p_i*q_j*A_i*E_j*exp( - \lambda * effective_distance(i,j) )
   ;   -> Q : here effective dist takes into account network
   
-  ; TODO : BORD EFFECTS ? : proportion of population that should go 'outside the world' is indeed redistributed to nearest patches,
+  ; WARNING : BORD EFFECTS : proportion of population that should go 'outside the world' is indeed redistributed to nearest patches,
   ;   causing sometimes highest flows to result of bord effects. -- for that, choose centers not to close from brod of the world ?
   
   set flow-matrix matrix:times-element-wise (matrix:times-element-wise (matrix:from-column-list (rep (list-times-element-wise p patches-actives) #-patches)) (matrix:from-row-list (rep (list-times-element-wise q patches-employments) #-patches))) (matrix:map [exp (- ? * lambda-flows)] effective-distance-matrix)
@@ -72,21 +72,19 @@ to transportation-affectation
   repeat #-patches [
     set p2 0
     repeat #-patches [
-      if table:has-key? nw-access-table p1 and table:has-key? nw-access-table p2 [
-         let a1 table:get nw-access-table p1 let a2 table:get nw-access-table p2
-         ; check if nw is taken or direct
-         ;
-         ifelse ((matrix:get euclidian-distance-matrix p1 p2) * euclidian-min-pace) > (((matrix:get euclidian-distance-matrix p1 a1) + (matrix:get euclidian-distance-matrix p2 a2)) * euclidian-min-pace + (matrix:get network-distance-matrix a1 a2)) and table:has-key? closest-nw-inters a1 and table:has-key? closest-nw-inters a2[
-           if table:has-key? network-shortest-paths (list a1 a2) [ ; need extended paths here !
-             let path table:get network-shortest-paths (list (one-of map [first ?] table:get closest-nw-inters a1) (one-of map [first ?] table:get closest-nw-inters a2))
-             foreach path [set patches-congestion replace-item ? patches-congestion (item ? patches-congestion + matrix:get flow-matrix p1 p2)]
-           ]
-         ][
-           ; euclidian congestion ?
-           
-           
-         ]
-      ]
+     
+;      if table:has-key? nw-access-table (list p1 p2) [
+;         let a1 first table:get nw-access-table (list p1 p2) let a2 last table:get nw-access-table (list p1 p2)
+;         
+;         ; need extended paths here !
+;           if table:has-key? network-shortest-paths (list a1 a2) [ 
+;             let path table:get network-shortest-paths (list (one-of map [first ?] table:get closest-nw-inters a1) (one-of map [first ?] table:get closest-nw-inters a2))
+;             foreach path [set patches-congestion replace-item ? patches-congestion (item ? patches-congestion + matrix:get flow-matrix p1 p2)]
+;           ]
+;       
+;      ]
+
+
        set p2 p2 + 2
     ]
     set p1 p1 + 1

@@ -248,6 +248,8 @@ globals[
   
   gridor
   
+  ;; infra constructed by hand
+  to-construct
   
   ;; HEADLESS
   headless?
@@ -356,11 +358,11 @@ transportation-nodes-own[
 GRAPHICS-WINDOW
 368
 10
-919
-582
+903
+566
 10
 10
-25.8
+25.0
 1
 10
 1
@@ -420,7 +422,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-7
+5
 
 TEXTBOX
 11
@@ -451,7 +453,7 @@ actives-spatial-dispersion
 actives-spatial-dispersion
 0
 100
-2
+1
 1
 1
 NIL
@@ -465,9 +467,9 @@ SLIDER
 employments-spatial-dispersion
 employments-spatial-dispersion
 0
-100
-1
-1
+10
+0.8
+0.1
 1
 NIL
 HORIZONTAL
@@ -854,7 +856,7 @@ congestion-price
 congestion-price
 0
 10
-0
+1
 0.1
 1
 NIL
@@ -884,7 +886,7 @@ SLIDER
 #-explorations
 0
 1000
-200
+100
 1
 1
 NIL
@@ -948,7 +950,7 @@ total-time-steps
 total-time-steps
 0
 20
-5
+6
 1
 1
 NIL
@@ -1021,7 +1023,7 @@ lambda-flows
 lambda-flows
 0
 1
-0.5
+1
 0.005
 1
 NIL
@@ -1072,10 +1074,10 @@ NIL
 1
 
 BUTTON
-1420
-165
-1502
-198
+1164
+283
+1246
+316
 test connex
 test-connex-components
 NIL
@@ -1183,6 +1185,23 @@ setup/triangle.csv
 1
 0
 String
+
+BUTTON
+1053
+280
+1145
+313
+construct
+if mouse-down? [\n  if length to-construct < 2[\n    set to-construct lput (list mouse-xcor mouse-ycor) to-construct\n  ]\n  if length to-construct = 2[\n    construct-infrastructure (list to-construct) save-nw-config\n    compute-patches-variables\n    update-display\n    set to-construct []\n    verbose (word \"mean-travel-distance : \" mean-travel-distance)\n    stop\n  ]\n  wait 0.2\n  \n]
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
