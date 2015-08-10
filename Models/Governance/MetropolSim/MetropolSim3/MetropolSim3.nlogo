@@ -363,9 +363,9 @@ transportation-nodes-own[
 ]
 @#$#@#$#@
 GRAPHICS-WINDOW
-368
+346
 10
-903
+881
 566
 10
 10
@@ -429,7 +429,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-5
+6
 
 TEXTBOX
 11
@@ -578,9 +578,9 @@ PENS
 "pen-1" 1.0 0 -12087248 true "" "plot diff-actives"
 
 OUTPUT
-957
+935
 319
-1415
+1393
 675
 10
 
@@ -861,7 +861,7 @@ road-length
 road-length
 0
 20
-1
+2
 1
 1
 NIL
@@ -876,7 +876,7 @@ SLIDER
 #-explorations
 0
 1000
-200
+30
 1
 1
 NIL
@@ -898,9 +898,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-955
+933
 281
-1049
+1027
 314
 indicators
 compute-indicators
@@ -1160,9 +1160,9 @@ setup/triangle.csv
 String
 
 BUTTON
-1053
+1031
 280
-1145
+1123
 313
 construct
 if mouse-down? [\n  if length to-construct < 2[\n    set to-construct lput (list mouse-xcor mouse-ycor) to-construct\n  ]\n  if length to-construct = 2[\n    construct-infrastructure (list to-construct) save-nw-config\n    compute-patches-variables\n    update-display\n    set to-construct []\n    verbose (word \"mean-travel-distance : \" mean-travel-distance)\n    stop\n  ]\n  wait 0.2\n  \n]
