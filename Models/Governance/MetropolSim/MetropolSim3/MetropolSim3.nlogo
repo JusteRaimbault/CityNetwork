@@ -85,6 +85,7 @@ __includes [
   
   "utils/math/SpatialKernels.nls"
   "utils/math/Statistics.nls"
+  "utils/math/EuclidianDistanceUtilities.nls"
   "utils/misc/List.nls"
   "utils/misc/Types.nls"
   "utils/misc/Matrix.nls"
@@ -391,7 +392,7 @@ SLIDER
 #-initial-territories
 0
 5
-2
+3
 1
 1
 NIL
@@ -422,7 +423,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-2
+10
 
 TEXTBOX
 11
@@ -861,15 +862,15 @@ NIL
 HORIZONTAL
 
 SLIDER
-185
-277
-333
-310
+186
+313
+334
+346
 #-explorations
 #-explorations
 0
 1000
-15
+30
 1
 1
 NIL
@@ -933,10 +934,10 @@ __________________
 1
 
 CHOOSER
-185
-312
-332
-357
+186
+348
+333
+393
 game-type
 game-type
 "random" "simple-nash"
@@ -1074,10 +1075,10 @@ NIL
 1
 
 SLIDER
-184
-359
-332
-392
+185
+395
+333
+428
 collaboration-cost
 collaboration-cost
 0
@@ -1137,7 +1138,7 @@ SWITCH
 547
 with-externalities?
 with-externalities?
-0
+1
 1
 -1000
 
@@ -1147,7 +1148,7 @@ INPUTBOX
 315
 70
 positions-file
-setup/positions.csv
+setup/triangle.csv
 1
 0
 String
@@ -1243,6 +1244,21 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot externality-employments"
+
+SLIDER
+185
+277
+335
+310
+infra-snapping-tolerance
+infra-snapping-tolerance
+0
+10
+2
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

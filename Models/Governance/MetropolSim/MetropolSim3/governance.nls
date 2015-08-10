@@ -275,14 +275,29 @@ end
 
 to-report random-infra [patchset infra-length]
   let p1 one-of patchset
-  ;let p2 nobody
-  ;ask p1 [set p2 one-of other patches in-radius infra-length]
   
   ; fixed infra length
   let p2 nobody if p1 != nobody [ask p1 [set p2 one-of patchset with [abs(distance myself - infra-length) < 1.5]]]
   if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patchset with [distance myself < infra-length]]]]
-  ifelse p2 = nobody or p1 = nobody [report (list (list random-xcor random-ycor) (list random-xcor random-ycor))][
-  report (list (list [pxcor] of p1 [pycor] of p1) (list [pxcor] of p2 [pycor] of p2))  
+  ifelse p2 = nobody or p1 = nobody [
+    report (list (list random-xcor random-ycor) (list random-xcor random-ycor))
+  ][
+    ; for each existing infrastructure, check if closer than snapping threshold, report projection if needed
+    let c1 (list [pxcor] of p1 [pycor] of p1) let c2 (list [pxcor] of p2 [pycor] of p2)
+    ask transportation-links [
+       ask p1 [
+         if distance-to-link myself < infra-snapping-tolerance [
+           ask myself [set c1 coord-of-projection-of first c1 last c1]
+         ]
+       ]
+       ask p2 [
+         if distance-to-link myself < infra-snapping-tolerance [
+           ask myself [set c2 coord-of-projection-of first c2 last c2]
+         ]
+       ]
+    ]
+    
+    report (list c1 c2)  
   ]
 end
 

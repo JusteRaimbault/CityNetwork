@@ -158,7 +158,7 @@ real =real_raw[!is.na(real_raw[,3])&!is.na(real_raw[,4])&!is.na(real_raw[,5])&!i
 #real=real[real[,3]<quantile(real[,3],0.9),3:6]
 real=real[,3:6]
 real=as.matrix(real[sample.int(length(real[,1]),500),])
-synth = as.matrix(m[sample.int(length(m[,1]),500),c(3,1,2,5)])
+synth = as.matrix(m[sample.int(length(m[,1]),4000),c(3,1,2,5)])
 
 # construct product using kronecker
 diffs = (real %x% rep(1,nrow(synth))) - (rep(1,nrow(real)) %x% synth)
