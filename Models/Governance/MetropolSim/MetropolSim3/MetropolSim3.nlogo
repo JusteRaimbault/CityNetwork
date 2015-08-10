@@ -13,7 +13,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table context nw]
+extensions[matrix table context nw shell]
 
 __includes [
   
@@ -75,6 +75,12 @@ __includes [
   ;;;;;;;;;;
   
   "indicators.nls"
+  
+  ;;;;;;;;;;
+  ;; visual exploration
+  ;;;;;;;;;;
+  
+  "exploration.nls"
   
   
   ;;;;;;;;;;
@@ -423,7 +429,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-10
+5
 
 TEXTBOX
 11
@@ -529,7 +535,7 @@ beta-discrete-choices
 beta-discrete-choices
 0
 2
-2
+1.8
 0.05
 1
 NIL
@@ -855,7 +861,7 @@ road-length
 road-length
 0
 20
-2
+1
 1
 1
 NIL
@@ -870,7 +876,7 @@ SLIDER
 #-explorations
 0
 1000
-30
+200
 1
 1
 NIL
@@ -917,7 +923,7 @@ total-time-steps
 total-time-steps
 0
 20
-6
+5
 1
 1
 NIL
