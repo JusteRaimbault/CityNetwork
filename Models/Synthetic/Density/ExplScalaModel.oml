@@ -6,7 +6,7 @@ logger.level("FINE")
 
 // Parameters
 val diffusion = Val[Double]
-val diffusionsteps = Val[Int]
+val diffusionsteps = Val[Double]
 val alphalocalization = Val[Double]
 val growthrate = Val[Double]
 val population = Val[Double]
@@ -44,6 +44,7 @@ val task =
     )
 
 
+/*
 val exploration =  ExplorationTask(
   (diffusion in (0.01 to 0.01 by 1.0)) x
     (diffusionsteps in (2.0 to 2.0 by 1.0)) x
@@ -53,23 +54,23 @@ val exploration =  ExplorationTask(
     (replication in (UniformDistribution[Int]() take 60))
 )
 val purpose = "TEST"
+*/
 
 
 
-/**
 // refined bounds from first exploration
 val exploration = ExplorationTask (
   LHS (
-    3000,
-    diffusion in Range(0.0, 0.3),
-    alphalocalization in Range(0.6,2.0),
-    growthrate in Range(1000.0,30000.0),
+    6000,
+    diffusion in Range(0.0, 0.5),
+    alphalocalization in Range(0.5,2.5),
+    growthrate in Range(500.0,30000.0),
     population in Range(10000.0,1000000.0),
-    (diffusionsteps in Range(1.0,5.0)
+    diffusionsteps in Range(1.0,5.0)
   ) x (replication in UniformDistribution[Int]() take 10)
 )
 val purpose = "LHSsampling"
-*/
+
 
 val h = AppendToCSVFileHook("res_oml_scala/"+((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
 
