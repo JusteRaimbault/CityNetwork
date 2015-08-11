@@ -21,6 +21,7 @@ to governance
   ;let infra-choices potential-infrastructures decidors
   
   let old-config save-nw-config
+  set old-config lput nw-age old-config ; add nw age
   ; construct the best one
   construct-infrastructure (best-infrastructure decidors old-config) old-config
   
@@ -120,8 +121,9 @@ to-report compare-infrastructures [old-nw-config choices decidor patchset]
   let best-choice [] let delta-acc 0 let deltas []
   foreach choices [
     recall-nw-config old-nw-config
+    verbose (word "Infra : " ? )
     let potential-infra new-infra ?
-    verbose (word "Infra : " ? " ; " potential-infra)
+    verbose (word " ; " potential-infra)
     if potential-infra != nobody [
     update-network potential-infra
     update-effective-matrices
@@ -258,21 +260,23 @@ to construct-infrastructure [infras old-config]
       
       verbose (word "constructing : " infra)
       
-    let new-link new-infra infra
+      let new-link new-infra infra
     
-    ; update matrices
-    if new-link != nobody [
-      update-network new-link
-    ]
+      ; update matrices
+      if new-link != nobody [
+        update-network new-link
+      ]
     
-    update-effective-matrices
+      update-effective-matrices
     
-    ; then correct the network by planarization if intersecting links.
-    ; Beware, has to be done AFTER updating matrices, as nw updating needs footprint of the link (fastest way to get patches newly connected to the network
-    ;  but planarizing before would kill the entire links, cutting it into smaller
-    planarize-network transportation-nodes transportation-links
+      ; then correct the network by planarization if intersecting links.
+      ; Beware, has to be done AFTER updating matrices, as nw updating needs footprint of the link (fastest way to get patches newly connected to the network
+      ;  but planarizing before would kill the entire links, cutting it into smaller
+      planarize-network transportation-nodes transportation-links
     ]
   ]
+  
+  update-network-age (last old-config)
   
 end
 

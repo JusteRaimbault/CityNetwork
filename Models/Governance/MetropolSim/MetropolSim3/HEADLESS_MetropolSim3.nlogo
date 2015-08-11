@@ -13,7 +13,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table context nw]
+extensions[matrix table context nw gradient]
 
 __includes [
   
@@ -103,6 +103,8 @@ __includes [
   "utils/io/Logger.nls"
   "utils/io/FileUtilities.nls"
   "utils/misc/String.nls"
+  "utils/math/Statistics.nls"
+  "utils/math/EuclidianDistanceUtilities.nls"
   
   ;;;;;;;;;;;
   ;; Tests
@@ -267,9 +269,15 @@ globals[
   congestion-price
   game-type
   collaboration-cost
+  ext-employments-proportion-of-max
+  gamma-cobb-douglas-a
+  gamma-cobb-douglas-e
+  infra-snapping-tolerance
   
   total-time-steps
   headless?
+  
+  to-construct
 ]
 
 
@@ -356,6 +364,8 @@ transportation-links-own [
   
   ; speed in the link, deduced from capacity and congestion
   speed
+  
+  age
   
 ]
 

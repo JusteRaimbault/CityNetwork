@@ -13,7 +13,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table context nw shell]
+extensions[matrix table context nw shell gradient]
 
 __includes [
   
@@ -368,11 +368,11 @@ transportation-nodes-own[
 GRAPHICS-WINDOW
 346
 10
-881
-566
-10
-10
-25.0
+856
+541
+2
+2
+100.0
 1
 10
 1
@@ -382,10 +382,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--10
-10
--10
-10
+-2
+2
+-2
+2
 0
 0
 1
@@ -432,7 +432,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-6
+1
 
 TEXTBOX
 11
@@ -523,7 +523,7 @@ gamma-cobb-douglas-a
 gamma-cobb-douglas-a
 0
 1
-0.85
+0.9
 0.01
 1
 NIL
@@ -550,7 +550,7 @@ BUTTON
 191
 644
 go
-go
+ifelse ticks < total-time-steps [\n  go\n][stop]
 T
 1
 T
@@ -559,7 +559,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 1149
@@ -879,7 +879,7 @@ SLIDER
 #-explorations
 0
 1000
-30
+20
 1
 1
 NIL
@@ -894,7 +894,7 @@ lambda-accessibility
 lambda-accessibility
 0
 0.1
-0.03
+0.0020
 0.001
 1
 NIL
@@ -926,7 +926,7 @@ total-time-steps
 total-time-steps
 0
 20
-5
+6
 1
 1
 NIL
@@ -1106,7 +1106,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file"
-1
+0
 
 SLIDER
 7
