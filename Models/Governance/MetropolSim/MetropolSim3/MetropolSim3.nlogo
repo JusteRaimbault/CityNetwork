@@ -368,11 +368,11 @@ transportation-nodes-own[
 GRAPHICS-WINDOW
 346
 10
-856
-541
-2
-2
-100.0
+881
+566
+10
+10
+25.0
 1
 10
 1
@@ -382,10 +382,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--2
-2
--2
-2
+-10
+10
+-10
+10
 0
 0
 1
@@ -432,7 +432,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-1
+5
 
 TEXTBOX
 11
@@ -823,7 +823,7 @@ CHOOSER
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
-1
+2
 
 SLIDER
 5
@@ -879,7 +879,7 @@ SLIDER
 #-explorations
 0
 1000
-20
+100
 1
 1
 NIL
@@ -926,7 +926,7 @@ total-time-steps
 total-time-steps
 0
 20
-6
+4
 1
 1
 NIL
@@ -1106,7 +1106,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file"
-0
+1
 
 SLIDER
 7
