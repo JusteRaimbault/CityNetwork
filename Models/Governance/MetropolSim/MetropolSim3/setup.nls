@@ -54,8 +54,7 @@ end
 
 to setup-vars
   set to-construct []
-  set collaborations-wanted []
-  set collaborations-realized []
+  set collaborations-wanted [] set collaborations-realized [] set collaborations-expected []
 end
 
 ;;
@@ -137,7 +136,7 @@ to setup-externalities
     ; with 2 mayors : equidistance
     let m to-list (mayors with [self != regional-authority])
     ifelse length m = 2 [
-      set ext-patch one-of patches with [abs (distance item 0 m - distance item 1 m) < sqrt 2]
+      set ext-patch one-of patches with [abs (distance item 0 m - distance item 1 m) < sqrt 2 and pxcor < max-pxcor and pxcor > min-pxcor and pycor < max-pycor and pycor > min-pycor ]
     ][ set ext-patch one-of patches]
   ] 
   if setup-type = "from-file" [
@@ -299,8 +298,8 @@ to setup-headless-vars
   
   ; general 
   set #-initial-territories 2
-  ;set log-level "DEFAULT"
-  set log-level "VERBOSE"
+  set log-level "DEFAULT"
+  ;set log-level "VERBOSE"
   set total-time-steps 4
   
   
@@ -336,7 +335,8 @@ to setup-headless-vars
  
   ; externalities
   set with-externalities? false
-  set ext-employments-proportion-of-max 1
+  set ext-employments-proportion-of-max 3
+  set ext-growth-factor 1
   
   
   
