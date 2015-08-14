@@ -118,7 +118,7 @@ to-report compare-infrastructures [old-nw-config choices decidor patchset]
   
   verbose (word "Mean-travel-distance : " mean-travel-distance)
   
-  let best-choice [] let delta-acc 0 let deltas []
+  let best-choice [] let delta-acc 0 let deltas rep 0 length olds
   foreach choices [
     recall-nw-config old-nw-config
     verbose (word "Infra : " ? )
@@ -189,7 +189,7 @@ to-report game-result [decidors old-config]
    ;; Mixed strategy nash eq (2 players)
    if game-type = "simple-nash" and length decidors = 2 [
      
-      verbose "Nash game..."
+      output-print "Nash game..."
      
       let dec1 first decidors let dec2 last decidors
      
@@ -206,21 +206,25 @@ to-report game-result [decidors old-config]
       
       verbose (word "D11 = " D11 " ; D22 = " D22 " ; Dc1 = " Dc1 " ; Dc2 = " Dc2)
       
+      ; no influence on nash result !
       let construction-cost 1
       
-      let m1 (list (list (Dc1 - construction-cost - collaboration-cost) (D11 - construction-cost - collaboration-cost)) (list (D11 - construction-cost) (D11 - construction-cost)))
-      let m2 (list (list (Dc2 - construction-cost - collaboration-cost) (D22 - construction-cost - collaboration-cost)) (list (D22 - construction-cost) (D22 - construction-cost)))
+      ;let m1 (list (list (Dc1 - construction-cost - collaboration-cost) (D11 - construction-cost - collaboration-cost)) (list (D11 - construction-cost) (D11 - construction-cost)))
+      ;let m2 (list (list (Dc2 - construction-cost - collaboration-cost) (D22 - construction-cost - collaboration-cost)) (list (D22 - construction-cost) (D22 - construction-cost)))
       
-      let eq generic-mixed-strategy-nash m1 m2
-      let p1 first eq let p2 last eq
+      ;let eq generic-mixed-strategy-nash m1 m2
+      ;let p1 first eq let p2 last eq
+      let p1 1 if (Dc2 - D22) != 0 [set p1 collaboration-cost / (Dc2 - D22)]
+      let p2 1 if (Dc1 - D11) != 0 [set p2 collaboration-cost / (Dc1 - D11)]
       
-      verbose (word "probas : p1 = " p1 " ; p2 = " p2)
+      verbose (word "denom : 1 : " (Dc2 - D22) " ; 2 : " (Dc1 - D11))
+      output-print (word "probas : p1 = " p1 " ; p2 = " p2)
       
       let r1 random-float 1 let r2 random-float 1
-      if r1 < p1 and r2 < p2 [verbose (word "Game : C - C") report (list first best12)]
-      if r1 < p1 and r2 > p2 [verbose (word "Game : C - NC") report (list first best1 first best2)]
-      if r1 > p1 and r2 < p2 [verbose (word "Game : NC - C") report (list first best1 first best2)]
-      if r1 > p1 and r2 > p2 [verbose (word "Game : NC - NC") report (list first best1 first best2)]
+      if r1 < p1 and r2 < p2 [output-print (word "Game : C - C") set collaborations-wanted lput 1 lput 1 collaborations-wanted set collaborations-realized lput 1 collaborations-realized report (list first best12)]
+      if r1 < p1 and r2 > p2 [output-print (word "Game : C - NC") set collaborations-wanted lput 1 lput 0 collaborations-wanted set collaborations-realized lput 0 collaborations-realized report (list first best1 first best2)]
+      if r1 > p1 and r2 < p2 [output-print (word "Game : NC - C") set collaborations-wanted lput 0 lput 1 collaborations-wanted set collaborations-realized lput 0 collaborations-realized report (list first best1 first best2)]
+      if r1 > p1 and r2 > p2 [output-print (word "Game : NC - NC") set collaborations-wanted lput 0 lput 0 collaborations-wanted set collaborations-realized lput 0 collaborations-realized report (list first best1 first best2)]
       report (list first best12)
    ]  
   

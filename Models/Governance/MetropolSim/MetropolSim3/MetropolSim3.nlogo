@@ -13,7 +13,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table context nw shell gradient]
+extensions[matrix table context nw shell gradient numanal]
 
 __includes [
   
@@ -175,6 +175,14 @@ globals[
   ;; maximal pace (inverse of speed) in the transportation network
   ;network-max-pace
   
+  
+  
+  ;;;;;;;;;;;;;
+  ;; governance
+  ;;;;;;;;;;;;;
+  
+  collaborations-wanted
+  collaborations-realized
   
   
   
@@ -368,11 +376,11 @@ transportation-nodes-own[
 GRAPHICS-WINDOW
 346
 10
-881
-566
-10
-10
-25.0
+811
+496
+6
+6
+35.0
 1
 10
 1
@@ -382,10 +390,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--10
-10
--10
-10
+-6
+6
+-6
+6
 0
 0
 1
@@ -432,7 +440,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-11
+6
 
 TEXTBOX
 11
@@ -616,7 +624,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-0.3
+0
 0.05
 1
 NIL
@@ -823,7 +831,7 @@ CHOOSER
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
-2
+1
 
 SLIDER
 5
@@ -879,7 +887,7 @@ SLIDER
 #-explorations
 0
 1000
-15
+53
 1
 1
 NIL
@@ -950,7 +958,7 @@ CHOOSER
 game-type
 game-type
 "random" "simple-nash"
-0
+1
 
 TEXTBOX
 174
@@ -1091,8 +1099,8 @@ SLIDER
 collaboration-cost
 collaboration-cost
 0
-0.01
-0.007519
+0.001
+3.68E-4
 1e-6
 1
 NIL
@@ -1147,7 +1155,7 @@ SWITCH
 547
 with-externalities?
 with-externalities?
-0
+1
 1
 -1000
 

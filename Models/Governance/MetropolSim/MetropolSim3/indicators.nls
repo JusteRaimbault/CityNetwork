@@ -13,6 +13,8 @@ to compute-indicators
   output-print (word "mean-accessibility : " mean-accessibility patches)
   output-print (word "mean-travel-distance : " mean-travel-distance)
   output-print (word "actives-entropy : " actives-entropy)
+  output-print (word "collaboration wanted : " wanted-collaboration-rate)
+  output-print (word "collaboration realized : " realized-collaboration-rate)
   ;output-print (word "mean-congestion : " mean-congestion)
 end
 
@@ -40,7 +42,7 @@ end
 
 ; mean travel distance
 to-report mean-travel-distance
-  report sum [a-to-e-distance] of patches / ((sum [actives] of patches) * (sum [employments] of patches))
+  report sum [a-to-e-distance + e-to-a-distance] of patches / (2 * (sum [actives] of patches) * (sum [employments] of patches))
 end
 
 ; mean nw distance between nw patches
@@ -85,6 +87,16 @@ to-report externality-employments
   ]
 end
 
+
+
+to-report wanted-collaboration-rate
+  report sum collaborations-wanted / length collaborations-wanted
+end
+
+
+to-report realized-collaboration-rate
+  report sum collaborations-realized / length collaborations-realized
+end
 
 
 

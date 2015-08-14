@@ -1,411 +1,246 @@
+extensions [numanal]
 
-;;;;;;;;;;;;;;;;;;;;;
-;; MetropolSim v3.0
-;;
-;; Major changes since v2
-;;   - matrix dynamic shortest path (euclidian and nw) computation
-;;   - simplified population structure (one csp)
-;;   - game-theoretical governance management
-;;
-;; TODO - possible extensions :
-;;    * add different transportation modes ?
-;;    * add csp ? not prioritary.
-;;
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table context nw gradient numanal]
+to Brent
+  
+  print " "
+  print "Find the minimum of y=-x*e^(-x) between -1 and 2 with tol = 10-6."
+  print "(The minimum is at x = 1.0.)"
+  let fnctn task [function1 ?]
+  let xAtMin numanal:Brent-minimize  fnctn  -1  2  1.0E-6
+  print xAtMin
+  print function1 xAtMin
 
-__includes [
+  print " "
+  print "Find the minimum of y=-x*e^(-x) between 2 and 3 with tol = 10-6."
+  print "(The minimum in this range is at x = 2.0, i.e., at the lower limit of the range.)"
+  set fnctn task [function1 ?]
+  set xAtMin numanal:Brent-minimize  fnctn  2  3  1.0E-6
+  print xAtMin
+  print function1 xAtMin
   
-  ; main
-  "main.nls"
+  print " "
+  print "Find the root of y= sin(x+90) between 0 and 180 with tol = 10-6."
+  print "(The root is at x = 90.)"
+  set fnctn task [function2 ?]
+  let xAtRoot numanal:Brent-root  fnctn  0  180 1.0E-6
+  print xAtRoot
+  print function2 xAtRoot
   
-  ; setup
-  "setup.nls"
-  
-  ;;;;;;;;;
-  ;; main modules
-  ;;;;;;;;;
-  
-  ;; transportation
-  "transportation.nls"
-  
-  ;; luti
-  "luti.nls"
-  
-  ;; governance
-  "governance.nls"
-  
-  ;;;;;;;;
-  ; agents
-  ;;;;;;;;
-  
-  ; mayors
-  "mayor.nls"
-  
-  ; patches
-  "patches.nls"
-  
-  ;;;;;;;;
-  ; transportation network
-  ;;;;;;;;
-  
-  ; network
-  "network.nls"
-  
-  ;;;;;;;;;
-  ; functions
-  ;;;;;;;;;
-  
-  ; functions to update distance matrices
-  "distances.nls"
-  
-  ; accessibilities
-  "accessibilities.nls"
-  
-  ;;;;;;;;;;
-  ; display
-  ;;;;;;;;;;
-  
-  "display.nls"
-  
-  
-  ;;;;;;;;;;
-  ; indicators
-  ;;;;;;;;;;
-  
-  "indicators.nls"
-  
-  
-  ;;;;;;;;;;
-  ; Experiments
-  ;;;;;;;;;;
-  
-  "experiment.nls"
-  
-  
-  ;;;;;;;;;;
-  ;; utils
-  ;;;;;;;;;;
-  
-  ; Q : package utils subpackages or all utils to have a simpler use ?
-  
-  "utils/math/SpatialKernels.nls"
-  "utils/misc/List.nls"
-  "utils/misc/Types.nls"
-  "utils/misc/Matrix.nls"
-  "utils/gui/Display.nls"
-  "utils/agent/Link.nls"
-  "utils/agent/AgentSet.nls"
-  "utils/agent/Agent.nls"
-  "utils/network/Network.nls"
-  "utils/io/Timer.nls"
-  "utils/io/Logger.nls"
-  "utils/io/FileUtilities.nls"
-  "utils/misc/String.nls"
-  "utils/math/Statistics.nls"
-  "utils/math/EuclidianDistanceUtilities.nls"
-  
-  ;;;;;;;;;;;
-  ;; Tests
-  ;;;;;;;;;;;
-  
-  "test/test-distances.nls"
-  
-]
+end
 
+to-report function1 [ x ]
+  report (- x) * exp(- x)
+end
 
+to-report function2 [ x ]
+  report sin (x + 90)
+  
+end
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-globals[
+to Simplex
   
-  ;;;;;;;;;;;;;
-  ;; Setup params
-  ;;;;;;;;;;;;;
+  print " "
+  print "Minimize y = ∑(x_i)^2  and then y = ∑(x_i + 1)^2, i = 1 ... 6, using the"
+  print "(unconstrained) simplex method. Note that first is minimized at [0 0 0 0 0 0]" 
+  print "with a return value of 0.0, while the second is minimized at [-1 -1 -1 -1 -1 -1],"
+  print "with a return value of 6.0. Use a tolerance of 10-6 and an initial delta of 10."
+  print "With a single minimum, the guess is abritrary."
   
-  ; initial number of territories
-  ;#-initial-territories
+  let guess [100 100 100 100 100 100]
+  let fnctn3  task [function3 ?]
+  let fnctn4  task [function4 ?]
+  let xlist numanal:simplex  guess  fnctn3  1.0E-6  10
+  print xlist
+  print function3 xlist
   
-  ; spatial distribution params
-  ;actives-spatial-dispersion
-  ;employments-spatial-distribution
+  set xlist numanal:simplex  guess  fnctn4  1.0E-6  10
+  print xlist
+  print function3 xlist
   
-  ;; global employments and actives list
-  patches-employments
-  patches-actives
+  print " "
+  print "Now minimize the same functions using the constrained simplex."
+  print "We get the same answer for function3, while the solution for function4"
+  print "is constrained to [0 0 0 0 0 0] with a value of 6.0."
   
-  ;; convergence variables
-  diff-actives
-  diff-employments
+  set xlist numanal:simplex-nonneg  guess  fnctn3  1.0E-6  10
+  print xlist
+  print function3 xlist
   
-  ; utility : cobb-douglas parameter
-  ;gamma-cobb-douglas
+  set xlist numanal:simplex-nonneg  guess  fnctn4  1.0E-6  10
+  print xlist
+  print function3 xlist
   
-  ; relocation : discrete choice parameter
-  ;beta-discrete-choices
+  print " "
+  print "Finally, change the number of restarts to 3; then change nrestarts to zero,"
+  print "nevals_mod to  40 and nevals_tolfactor to 5; and finally reset them all back"
+  print "to their defaults, minimizing function3 after each change."
   
-  ; governor of the region : particular mayor
-  regional-authority
+  numanal:simplex-set 3
+  show numanal:simplex  guess  fnctn3  1.0E-6  10
+  (numanal:simplex-set  0  1000  40  5)
+  show numanal:simplex  guess  fnctn3  1.0E-6  10
+  numanal:simplex-reset
+  show numanal:simplex  guess  fnctn3  1.0E-6  10
   
-  
-  
-  positions-file
-  ext-file
-  setup-type
-  
-  external-facility
-  
-  mayors-coordinates
-  ext-position
-  
-  
-  with-externalities?
-  
-  ext-growth-factor
-  
-  ;;;;;;;;;;;;;
-  ;; Transportation
-  ;;;;;;;;;;;;;
-  
-  ;; transportation flows \phi_ij between patches
-  flow-matrix
-  
-  ;; congestion in patches
-  ; list ordered by patch number
-  patches-congestion
-  
-  ;; maximal pace (inverse of speed) in the transportation network
-  ;network-max-pace
-  
-  lambda-flows
-  
-  
-  
-  ;;;;;;;;;;;;;
-  ;; governance
-  ;;;;;;;;;;;;;
-  
-  collaborations-wanted
-  collaborations-realized
-  
-  
-  
-  
-  ;;;;;;;;;;;;;
-  ;; Cached distances matrices
-  ;;
-  ;;  updated through dynamic programming rules
-  ;;;;;;;;;;;;;
-  
-  ;; Matrix of euclidian distances between patches
-  ; remains unchanged
-  euclidian-distance-matrix
-  
-  ;; network distance (without congestion)
-  network-distance-matrix
-  
-  ;; effective distance
-  ;  - with congestion in network -
-  effective-distance-matrix
-  
-  nw-access-table
-  
-  ;; cached shortest paths -> updated same time as distance
-  ; stored as table (num_patch_1,num_patch_2) -> [path-as-list]
-  ;
-  ; in network
-  network-shortest-paths
-  
-  ;; list of nw patches
-  nw-patches
-  
-  ;; number of patches
-  #-patches
-  
-  ;; for patches in nw, table caching closest nw inters (i.e. [end1,end2] of my-link )
-  closest-nw-inters
-  
-  ;; network intersections
-  nw-inters
-  
-  ; overall
-  ; stored as table (num_patch_1,num_patch_2) -> [[i,i1],[i1,i2],...,[in,j]] where couples are either (void-nw) or (nw-nw)
-  ; then effective path is [ik->i_k+1] or [ik->_nw i_k+1]
-  effective-shortest-paths
-  
-  ;;
-  ; maximal distance in the world
-  dmax
-  
-  network-clusters
-  network-clusters-connectors
-  
-  
-  
-  ;;;;;;;;;;;;;
-  ;; Utils
-  ;;;;;;;;;;;;;
-  
-  ; log level : defined in chooser
-  ;log-level
-  
-  
-  ;;;;;;;;;;;;;
-  ;; Tests
-  ;;;;;;;;;;;;;
-  
-  gridor
-  
-  
-  
-  ;;;;;;;;;;;;;;;
-  ;;;;;;;;;;;;;
-  ;; HEADLESS
-  actives-max
-  employments-max
-  #-initial-territories
-  actives-spatial-dispersion
-  employments-spatial-dispersion
-  gamma-cobb-douglas
-  beta-discrete-choices
-  lambda-accessibility
-  regional-decision-proba
-  road-length
-  #-explorations
-  log-level
-  patches-display ; no init in headless
-  network-min-pace
-  euclidian-min-pace
-  congestion-price
-  game-type
-  collaboration-cost
-  ext-employments-proportion-of-max
-  gamma-cobb-douglas-a
-  gamma-cobb-douglas-e
-  infra-snapping-tolerance
-  
-  total-time-steps
-  headless?
-  
-  to-construct
-]
+end
 
+to-report function3 [ x ]
+  report sum map [? ^ 2] x
+end
 
-patches-own [
-  
-  ; number of the patch (used as index in distance matrices)
-  number
-  
-  ; pointer to governing mayor
-  governing-mayor
-  
-  ; actives and employment
-  ; do not need mobile agents as deterministic evolution, considering at this time scale that random effect is averaged
-  ;  on the contrary to transportation infrastructure evolution, that evolves at a greater scale.
-  ;  -> patch variables and not agents
-  
-  ; number of actives on the patch
-  actives
-  
-  ; number of jobs on the patch
-  employments
-  
-  
-  ;;;;;
-  ;; utilities and accessibilities
-  ;;;;;
-  
-  ; accessibility of jobs to actives
-  a-to-e-accessibility
-  
-  ; accessibility of actives to employments
-  e-to-a-accessibility
-   
-  prev-accessibility
-  current-accessibility 
-   
-  ; travel distances
-  a-to-e-distance
-  e-to-a-distance
-   
-  ; utilities
-  ; for actives
-  a-utility
-  ; for employments
-  e-utility
-  
-  ; form factor
-  form-factor
-  
-  
-  
-]
+to-report function4 [ x ]
+  report sum map [(? + 1) ^ 2] x
+end
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;
-; abstract entity representing territorial governance
-breed[mayors mayor]
+to Newton
+  
+  print " "
+  print "Find the root of the system of equations"
+  print "2x_1 - x_2 - x_3 - e^(-x_1) = 0"
+  print "-x_1 + 3x_2 - x_3 - e^(-x_2 ) = 0"
+  print "-x_1 - x_2 + 4x_3 - e^(-x_3 ) = 0"
+  print "(The root is approximately at [0.7828  0.6088  0.4996])"
+  
+  let fnctn task [function5 ?]
+  let guess [10 20 30]
+  numanal:Newton-reset   ; just in case old changes are left over.
+  let rootList numanal:Newton-root guess fnctn
+  print  rootList
+  if numanal:Newton-failed? [print "This may not be a true root."]
+  print  function5  rootList
+  
+  print " "
+  print "Or function5 could be done in parts, as shown with function6 below."
+  print "(function-list could also be a global.)"
+  
+  set fnctn task [function6 ?]
+  set rootList numanal:Newton-root guess fnctn
+  print  rootList
+  if numanal:Newton-failed? [print "This may not be a true root."]
+  print  function6  rootList
+  
+  print " "  
+  print "Finally, change tolf and tolx to 10^-4; then change stpmax to 10 (keeping tolx,"
+  print "tolmin and max_its at their default values and epsilon and alpha"
+  print "at their current values), and finally reset all the parameters to their defaults."
+  
+  numanal:Newton-set 1.0E-4
+  show numanal:Newton-root guess fnctn
+  (numanal:Newton-set  1.0E-4  1.0E-8  1.0E-8  1000  10)
+  show numanal:Newton-root guess fnctn
+  numanal:simplex-reset
+  show numanal:Newton-root guess fnctn
+  
+end
 
-mayors-own[
-  
-  ; set of governed patches -> not needed ?
-  ;governed-patches
-  
-  ; wealth of the area
-  wealth
-  
-]
+to-report function5 [ x ]
+  let x1 item 0 x
+  let x2 item 1 x
+  let x3 item 2 x
+  let y []
+  set y lput ((2 * x1) - x2 - x3 - exp (- x1))  y
+  set y lput ((- x1) + (3 * x2) - x3 - exp (- x2))  y
+  set y lput ((- x1) - x2 + (4 * x3) - exp (- x3))  y
+  report y
+end
 
+to-report function6 [ x ]
+  let function-list (list task [function6.1 ?] task [function6.2 ?] task [function6.3 ?])
+  report map [(runresult ? x)] function-list
+end
 
-;;;;;;;;;
-;; Transportation Network
-;;;;;;;;;
+to-report function6.1 [ x ]
+  let x1 item 0 x
+  let x2 item 1 x
+  let x3 item 2 x
+  report (2 * x1) - x2 - x3 - exp (- x1)
+end
 
-;; transportation link
-undirected-link-breed[transportation-links transportation-link]
+to-report function6.2 [ x ]
+  let x1 item 0 x
+  let x2 item 1 x
+  let x3 item 2 x
+  report (- x1) + (3 * x2) - x3 - exp (- x2)
+end
 
-transportation-links-own [
-  
-  ; capacity of the link ; expressed as max trip per length unit 
-  capacity
-  
-  ; congestion : travels in the link
-  congestion
-  
-  ; speed in the link, deduced from capacity and congestion
-  speed
-  
-  age
-  
-]
+to-report function6.3 [ x ]
+  let x1 item 0 x
+  let x2 item 1 x
+  let x3 item 2 x
+  report (- x1) - x2 + (4 * x3) - exp (- x3)
+end
 
-;; nodes of the transportation network
-breed[transportation-nodes transportation-node]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-transportation-nodes-own[
-]
+to Broyden
+  
+  print " "
+  print "Find the root of the system of equations"
+  print "2x_1 - x_2 - x_3 - e^(-x_1) = 0"
+  print "-x_1 + 3x_2 - x_3 - e^(-x_2 ) = 0"
+  print "-x_1 - x_2 + 4x_3 - e^(-x_3 ) = 0"
+  print "(The root is approximately at [0.7828  0.6088  0.4996])"
+  
+  let fnctn task [function5 ?]
+  let guess [10 20 30]
+  numanal:Broyden-reset   ; just in case old changes are left over.
+  let rootList numanal:Broyden-root guess fnctn
+  print  rootList
+  if numanal:Broyden-failed? [print "This may not be a true root."]
+  print  function5  rootList
+  
+  print " "
+  print "Or function5 could be done in parts, as shown with function6 below."
+  print "(function-list could also be a global.)"
+  
+  set fnctn task [function6 ?]
+  set rootList numanal:Broyden-root guess fnctn
+  print  rootList
+  if numanal:Broyden-failed? [print "This may not be a true root."]
+  print  function6  rootList
+  
+  print " "  
+  print "Finally, change tolf and tolx to 10^-4; then change stpmax to 10 (keeping tolx,"
+  print "tolmin and max_its at their default values and epsilon and alpha"
+  print "at their current values), and finally reset all the parameters to their defaults."
+  
+  numanal:Broyden-set 1.0E-4
+  show numanal:Broyden-root guess fnctn
+  (numanal:Broyden-set  1.0E-4  1.0E-8  1.0E-8  1000  10)
+  show numanal:Broyden-root guess fnctn
+  numanal:simplex-reset
+  show numanal:Broyden-root guess fnctn
+  
+end
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @#$#@#$#@
 GRAPHICS-WINDOW
-833
-27
-1078
-240
-6
-6
-14.0
+210
+10
+649
+470
+16
+16
+13.0
 1
 10
 1
 1
 1
 0
-0
-0
 1
--6
-6
--6
-6
+1
+1
+-16
+16
+-16
+16
 0
 0
 1
@@ -415,7 +250,7 @@ ticks
 @#$#@#$#@
 ## WHAT IS IT?
 
-MetropolSim 3.0
+(a general understanding of what the model is trying to show or explain)
 
 ## HOW IT WORKS
 
@@ -482,38 +317,6 @@ Circle -7500403 true true 110 127 80
 Circle -7500403 true true 110 75 80
 Line -7500403 true 150 100 80 30
 Line -7500403 true 150 100 220 30
-
-building institution
-false
-0
-Rectangle -7500403 true true 0 60 300 270
-Rectangle -16777216 true false 130 196 168 256
-Rectangle -16777216 false false 0 255 300 270
-Polygon -7500403 true true 0 60 150 15 300 60
-Polygon -16777216 false false 0 60 150 15 300 60
-Circle -1 true false 135 26 30
-Circle -16777216 false false 135 25 30
-Rectangle -16777216 false false 0 60 300 75
-Rectangle -16777216 false false 218 75 255 90
-Rectangle -16777216 false false 218 240 255 255
-Rectangle -16777216 false false 224 90 249 240
-Rectangle -16777216 false false 45 75 82 90
-Rectangle -16777216 false false 45 240 82 255
-Rectangle -16777216 false false 51 90 76 240
-Rectangle -16777216 false false 90 240 127 255
-Rectangle -16777216 false false 90 75 127 90
-Rectangle -16777216 false false 96 90 121 240
-Rectangle -16777216 false false 179 90 204 240
-Rectangle -16777216 false false 173 75 210 90
-Rectangle -16777216 false false 173 240 210 255
-Rectangle -16777216 false false 269 90 294 240
-Rectangle -16777216 false false 263 75 300 90
-Rectangle -16777216 false false 263 240 300 255
-Rectangle -16777216 false false 0 240 37 255
-Rectangle -16777216 false false 6 90 31 240
-Rectangle -16777216 false false 0 75 37 90
-Line -16777216 false 112 260 184 260
-Line -16777216 false 105 265 196 265
 
 butterfly
 true
@@ -675,19 +478,12 @@ Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
 sheep
 false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
+0
+Rectangle -7500403 true true 151 225 180 285
+Rectangle -7500403 true true 47 225 75 285
+Rectangle -7500403 true true 15 75 210 225
+Circle -7500403 true true 135 75 150
+Circle -16777216 true false 165 76 116
 
 square
 false
@@ -773,13 +569,6 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
-
 x
 false
 0
@@ -787,7 +576,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.0RC4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -795,9 +584,9 @@ NetLogo 5.1.0
 @#$#@#$#@
 default
 0.0
--0.2 0 0.0 1.0
+-0.2 0 1.0 0.0
 0.0 1 1.0 0.0
-0.2 0 0.0 1.0
+0.2 0 1.0 0.0
 link direction
 true
 0
