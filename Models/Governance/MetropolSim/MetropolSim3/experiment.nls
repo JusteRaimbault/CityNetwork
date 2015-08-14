@@ -1,28 +1,35 @@
 ;;;;;
 ;; procedures for oml experiment
 
-to setup-openmole-experiment [regionalproba lambdaacc euclpace]
+to setup-openmole-experiment [regionalproba lambdaacc euclpace game]
   
   show (word "Params : " regionalproba " ; " lambdaacc " ; "  euclpace)
   
   setup-headless-vars
   set headless? true
+  set failed 0
   
   setup
   
   set regional-decision-proba regionalproba
   set lambda-accessibility lambdaacc
   set euclidian-min-pace euclpace
+  if game = 0 [set game-type "random"]
+  if game = 1 [set game-type "simple-nash"]
+  if game = 2 [set game-type "discrete-choices"]
   
 end
 
 
 to go-openmole-experiment
   ;; run
-  repeat total-time-steps [
-    go
-  ]
   
+  carefully[
+    repeat total-time-steps [
+      go
+    ]
+  ]
+  [set failed 1]
   ; indicators then called from openmole
   
 end

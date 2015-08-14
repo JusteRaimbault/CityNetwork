@@ -283,9 +283,12 @@ globals[
   gamma-cobb-douglas-a
   gamma-cobb-douglas-e
   infra-snapping-tolerance
+  construction-cost
+  beta-dc-game
   
   total-time-steps
   headless?
+  failed
   
   to-construct
 ]

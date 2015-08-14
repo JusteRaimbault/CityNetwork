@@ -5,7 +5,9 @@ import java.text.SimpleDateFormat
 val regionalproba = Val[Double]
 val lambdaacc = Val[Double]
 val euclpace = Val[Double]
+val game = Val[Int]
 val replication = Val[Int]
+
 
 // exploration task
 
@@ -13,10 +15,12 @@ val replication = Val[Int]
 // TEST
 val exploration =  ExplorationTask(
   (regionalproba in (0.5 to 0.5 by 1)) x
-    (lambdaacc in (0.01 to 0.01 by 1)) x
-    (euclpace in (5.0 to 5.0 by 1)) x
-      (replication in (UniformDistribution[Int]() take 4))
-  )
+  (lambdaacc in (0.05 to 0.05 by 1)) x
+  (euclpace in (2.0 to 2.0 by 1)) x
+  (game in (0 to 1 by 1)) x
+  (replication in (UniformDistribution[Int]() take 2))
+)
+
 val purpose = "test"
 
 //--------------------------------------------------------
@@ -40,11 +44,12 @@ val accessibility=Val[Double]
 val traveldistance=Val[Double]
 val entropy=Val[Double]
 val stability=Val[Double]
+val gametype=Val[String]
 
 
 //NetLogo go for one time step
 val cmds = List(
-  "setup-openmole-experiment ${regionalproba} ${lambdaacc} ${euclpace}",
+  "setup-openmole-experiment ${regionalproba} ${lambdaacc} ${euclpace} ${game}",
   "go-openmole-experiment"
 )
 
@@ -52,14 +57,16 @@ val cmds = List(
 val scriptPath = System.getenv("CN_HOME")+"/Models/Governance/MetropolSim/MetropolSim3/HEADLESS_MetropolSim3.nlogo"
 
 val model = NetLogo5Task(scriptPath,cmds,true) set (
-  inputs += (regionalproba, lambdaacc, euclpace),
+  inputs += (regionalproba, lambdaacc, euclpace,game),
   netLogoOutputs += ("mean-accessibility patches", accessibility),
   netLogoOutputs += ("mean-travel-distance", traveldistance),
   netLogoOutputs += ("actives-entropy", entropy),
   netLogoOutputs += ("stability",stability),
   netLogoOutputs += ("regional-decision-proba", regionalproba),
   netLogoOutputs += ("lambda-accessibility", lambdaacc),
-  netLogoOutputs += ("euclidian-min-pace", euclpace)  )
+  netLogoOutputs += ("euclidian-min-pace", euclpace),
+  netLogoOutputs += ("game-type", gametype)
+  )
 
 // output
 val h = AppendToCSVFileHook("res_oml/"+((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")

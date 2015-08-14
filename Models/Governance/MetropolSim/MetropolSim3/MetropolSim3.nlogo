@@ -439,8 +439,8 @@ CHOOSER
 656
 patches-display
 patches-display
-"governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-6
+"governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
+5
 
 TEXTBOX
 11
@@ -902,7 +902,7 @@ lambda-accessibility
 lambda-accessibility
 0
 0.1
-0.0020
+0.0050
 0.001
 1
 NIL
@@ -953,12 +953,12 @@ __________________
 CHOOSER
 186
 348
-333
+338
 393
 game-type
 game-type
-"random" "simple-nash"
-1
+"random" "simple-nash" "discrete-choices"
+2
 
 TEXTBOX
 174
@@ -1100,7 +1100,7 @@ collaboration-cost
 collaboration-cost
 0
 0.001
-3.68E-4
+1.05E-4
 1e-6
 1
 NIL
@@ -1155,7 +1155,7 @@ SWITCH
 547
 with-externalities?
 with-externalities?
-1
+0
 1
 -1000
 
@@ -1300,8 +1300,8 @@ SLIDER
 beta-dc-game
 beta-dc-game
 0
-100000
-100000
+1000
+500
 10
 1
 NIL

@@ -134,7 +134,11 @@ end
 to setup-externalities
   let ext-patch nobody
   if setup-type = "random" [
-    set ext-patch one-of patches
+    ; with 2 mayors : equidistance
+    let m to-list (mayors with [self != regional-authority])
+    ifelse length m = 2 [
+      set ext-patch one-of patches with [abs (distance item 0 m - distance item 1 m) < sqrt 2]
+    ][ set ext-patch one-of patches]
   ] 
   if setup-type = "from-file" [
     set ext-patch patch first ext-position last ext-position
@@ -321,6 +325,8 @@ to setup-headless-vars
   set game-type "simple-nash"
   set infra-snapping-tolerance 2
   set collaboration-cost 0.0001
+  set construction-cost 0.001 
+  set beta-dc-game 500
 
   ; transportation params
   set network-min-pace 1
