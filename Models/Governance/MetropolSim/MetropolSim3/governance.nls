@@ -177,7 +177,8 @@ to-report game-result [decidors old-config]
       ; any number of decidors
       let r random-float 1
       let dec nobody
-      let wtot sum [wealth] of decidors let s 0
+      let wtot sum map [[wealth] of ?] decidors
+      let s 0
       foreach decidors [set s s + ([wealth] of ?) / wtot if r < s and dec = nobody [set dec ?]]
       let patchset (patches with [governing-mayor = dec])
       let best compare-infrastructures old-config (potential-infrastructures (list dec) road-length patchset) (list dec) patchset

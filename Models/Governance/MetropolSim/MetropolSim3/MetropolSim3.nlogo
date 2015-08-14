@@ -401,7 +401,7 @@ SLIDER
 #-initial-territories
 0
 5
-3
+2
 1
 1
 NIL
@@ -432,7 +432,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-5
+11
 
 TEXTBOX
 11
@@ -616,7 +616,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-1
+0.3
 0.05
 1
 NIL
@@ -879,7 +879,7 @@ SLIDER
 #-explorations
 0
 1000
-100
+15
 1
 1
 NIL
@@ -950,7 +950,7 @@ CHOOSER
 game-type
 game-type
 "random" "simple-nash"
-1
+0
 
 TEXTBOX
 174
@@ -1106,7 +1106,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file"
-1
+0
 
 SLIDER
 7
@@ -1147,7 +1147,7 @@ SWITCH
 547
 with-externalities?
 with-externalities?
-1
+0
 1
 -1000
 
