@@ -1,0 +1,23 @@
+;;sorting utilities
+
+
+
+;;lexicographic comparison on a variable number of reporter tasks
+;;reporter list is sorted in decreasing importance order
+;;boolean reporter
+to-report lexcomp [ var1 var2 reporterTasksList]
+  let res true let fixed? false
+  foreach reporterTasksList[
+     if not fixed? [
+       ifelse [runresult ?] of var1 < [runresult ?] of var2 [set res true set fixed? true]
+       [ifelse [runresult ?] of var1 = [runresult ?] of var2 [set res true]
+         [set res false set fixed? true]
+         ]
+     ]
+  ]
+  report res
+end
+
+to test-lexcomp
+  foreach sort-by [lexcomp ?1 ?2 (list task [pxcor] task [pcolor])] patches [ask ? [show word word pxcor " - " pcolor]]
+end

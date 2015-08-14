@@ -1,0 +1,33 @@
+
+;;;;;;;;;;;;;
+;; Table utilities
+;;;;;;;;;;;;;
+
+;;
+; Gets a value from a hashtable with symmetric keys, i.e. couples for which order has no importance.
+;
+to-report get-symmetric-table [table key]
+  ;;key assumed as a two member list (==couple)
+  ifelse member? key table:keys table[
+    report table:get table key
+  ][
+    ifelse member? (list last key first key) table:keys table[
+      report table:get table (list last key first key)
+    ][
+      report 0
+    ]
+  ]
+end
+
+
+;;
+; Increment key counter in a counting table,
+; defined as a table <Object,Integer>
+;
+to incr-table [table key]
+  ifelse member? key table:keys table[
+    table:put table key ((table:get table key) + 1)
+  ][
+    table:put table key 1
+  ]
+end

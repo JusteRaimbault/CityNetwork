@@ -5,7 +5,9 @@
 ;; as generic as possible, to be called in several situations
 ;;
 ;; Needs :
+;;  - setup procedure (overall setup)
 ;;  - setup-exploration procedure
+;;  - setup-final-indicators procedure
 ;;  - go-for-one-time-step
 ;;  - total-time-steps variable
 ;;
@@ -42,10 +44,6 @@ to grid-exploration-time-series [n-repets export-time-step param-names-and-bound
           go-for-one-time-step
           if ticks mod export-time-step = 1 [foreach intermediate-reporter-names [set conf lput (list (word ? ticks) (runresult ?)) conf]]
         ]
-        
-        ;; !! Original file modified ¡¡ -> include this change in util ? may be useful when indicators computation needs setup
-        setup-final-indicators
-        
         foreach final-reporter-names [set conf lput (list ? (runresult ?)) conf]
         set res lput conf res
         ]

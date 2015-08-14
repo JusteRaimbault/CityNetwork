@@ -1,0 +1,69 @@
+
+;;;;;;;;;;;;;;;
+;; Matrix.nls
+;;;;;;;;;;;;;;;
+
+;;
+; Get sparse row given column indexes
+to-report matrix:get-sparse-row [m row col-inds]
+  let res []
+  foreach col-inds [
+    set res lput matrix:get m row ? res 
+  ]
+  report res
+end
+
+;;
+; Get sparse column
+to-report matrix:get-sparse-column [m column row-inds]
+  let res []
+  foreach row-inds [
+    set res lput matrix:get m column ? res 
+  ]
+  report res
+end
+
+
+
+;;
+; Sparse submatrix
+;
+; @reports matrix
+to-report matrix:sparse-submatrix [m rows columns]
+  let list-res []
+  foreach rows [
+    let i ?
+    let r []
+    foreach columns [
+      set r lput matrix:get m i ? r 
+    ]
+    set list-res lput r list-res
+  ]
+  report matrix:from-row-list list-res
+end
+
+;;
+; Minimum of a matrix
+;
+; @reports [min , [i_min,j_min]]
+to-report matrix:min [m]
+  let dims matrix:dimensions m let n first dims let p last dims
+  let mi matrix:get m 0 0 let imin 0 let jmin 0
+  let i 0 let j 0
+  repeat n [
+    set j 0
+    repeat p [
+      let v matrix:get m i j
+      if v < mi [set mi v set imin i set jmin j]
+      set j j + 1
+    ]
+    set i i + 1 
+  ]
+  report (list mi (list imin jmin))
+;  let rows matrix:to-row-list m
+;  let mins map min rows
+;  let mi min mins
+;  let imin position mi mins
+;  let jmin position mi (item imin rows)
+;  report (list mi (list imin jmin))
+end
