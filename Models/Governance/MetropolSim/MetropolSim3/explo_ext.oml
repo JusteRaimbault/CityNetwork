@@ -6,10 +6,6 @@ val regionalproba = Val[Double]
 val lambdaacc = Val[Double]
 val euclpace = Val[Double]
 val game = Val[Int]
-val constrcost = Val[Double]
-val collcost=Val[Double]
-val withext=Val[Double]
-val extgrowth=Val[Double]
 val replication = Val[Int]
 
 
@@ -17,25 +13,21 @@ val replication = Val[Int]
 
 //-------------------------------------------------------
 // TEST
-val exploration =  ExplorationTask(
+/*val exploration =  ExplorationTask(
   (regionalproba in (0.0 to 0.0 by 1)) x
   (lambdaacc in (0.05 to 0.05 by 1)) x
   (euclpace in (5.0 to 5.0 by 1)) x
   (game in (0 to 1 by 1)) x
-  (constrcost in (0.001 to 0.001 by 1)) x
-  (collcost in (0.0001 to 0.0001 by 1)) x
-  (withext in (1 to 1 by 1)) x
-  (extgrowth in (1.0 to 1.0 by 1)) x
-  (replication in (UniformDistribution[Int]() take 1))
+  (replication in (UniformDistribution[Int]() take 4))
 )
 
 val purpose = "test"
-
+*/
 //--------------------------------------------------------
 
 //-------------------------------------------------------
 // GRID
-/*val exploration =  ExplorationTask(
+val exploration =  ExplorationTask(
   LHS (
     200,
     lambdaacc in Range(0.001,0.01),
@@ -44,7 +36,7 @@ val purpose = "test"
 )
 
 val purpose = "lhsgrid"
-*/
+
 //--------------------------------------------------------
 
 
@@ -64,14 +56,15 @@ val failed=Val[Double]
 
 //NetLogo go for one time step
 val cmds = List(
-  "setup-openmole-experiment ${regionalproba} ${lambdaacc} ${euclpace} ${game} ${constrcost} ${collcost} ${withext} ${extgrowth}",
+  "setup-openmole-experiment ${regionalproba} ${lambdaacc} ${euclpace} ${game}",
   "go-openmole-experiment"
 )
+
 
 val scriptPath = System.getenv("CN_HOME")+"/Models/Governance/MetropolSim/MetropolSim3/HEADLESS_MetropolSim3.nlogo"
 
 val model = NetLogo5Task(scriptPath,cmds,true) set (
-  inputs += (regionalproba, lambdaacc, euclpace,game,constrcost,collcost,withext,extgrowth),
+  inputs += (regionalproba, lambdaacc, euclpace,game),
   netLogoOutputs += ("mean-accessibility patches", accessibility),
   netLogoOutputs += ("mean-travel-distance", traveldistance),
   netLogoOutputs += ("actives-entropy", activesentropy),
@@ -81,10 +74,6 @@ val model = NetLogo5Task(scriptPath,cmds,true) set (
   netLogoOutputs += ("lambda-accessibility", lambdaacc),
   netLogoOutputs += ("euclidian-min-pace", euclpace),
   netLogoOutputs += ("game-type", gametype),
-  netLogoOutputs += ("construction-cost", constrcost),
-  netLogoOutputs += ("collaboration-cost", collcost),
-  netLogoOutputs += ("with-externalities?", withext),
-  netLogoOutputs += ("ext-growth-factor", extgrowth),
   netLogoOutputs += ("expected-collaboration-rate", expcollab),
   netLogoOutputs += ("wanted-collaboration-rate", wantedcollab),
   netLogoOutputs += ("realized-collaboration-rate", realcollab),
@@ -100,7 +89,7 @@ val h = AppendToCSVFileHook("res_oml/"+((new SimpleDateFormat("yyyy_MM_dd_HH_mm_
 val startTime = System.currentTimeMillis
 
 // environement
-val env = LocalEnvironment(1)
+val env = LocalEnvironment(20)
 
 logger.level("FINE")
 
