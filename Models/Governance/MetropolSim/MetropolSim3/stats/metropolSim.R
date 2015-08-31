@@ -2,9 +2,15 @@
 # Analysis of results of exploration for MetropolSim model
 
 library(ggplot2)
+source(paste0(Sys.getenv("CN_HOME"),'/Models/Utils/R/plots.R'))
 
-res <- read.csv('Models/Governance/MetropolSim/MetropolSim3/res_oml/2015_07_02_00_53_52_grid.csv',sep=",",header=TRUE)
-raw = getSingleParamPoints(data = res,params_cols = c(3,4,5),indics_cols = c(1,2,6,7))
+
+res <- read.csv('Models/Governance/MetropolSim/MetropolSim3/res_oml/2015_08_17_02_38_36_lhsgrid.csv',sep=",",header=TRUE)
+raw = getSingleParamPoints(
+  data = res,
+  params_cols = c(3,4,6,8,9,11,12,14,18),
+  indics_cols = c(1,2,5,7,10,13,15,16,17)
+)
 
 param=matrix(data=unlist(raw$param),ncol=3,byrow=TRUE)
 mean=matrix(data=unlist(raw$mean),ncol=4,byrow=TRUE)

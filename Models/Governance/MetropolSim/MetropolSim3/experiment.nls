@@ -9,8 +9,6 @@ to setup-openmole-experiment [regionalproba lambdaacc euclpace game constr-cost 
   set headless? true
   set failed 0
   
-  setup
-  
   set regional-decision-proba regionalproba
   set lambda-accessibility lambdaacc
   set euclidian-min-pace euclpace
@@ -19,8 +17,11 @@ to setup-openmole-experiment [regionalproba lambdaacc euclpace game constr-cost 
   if game = 2 [set game-type "discrete-choices"]
   set construction-cost constr-cost
   set collaboration-cost coll-cost
-  set with-externalities? with-ext
+  ifelse with-ext = 1 [set with-externalities? true][set with-externalities? false]
   set ext-growth-factor ext-growth
+  
+  setup
+
 end
 
 
@@ -32,7 +33,7 @@ to go-openmole-experiment
       go
     ]
   ]
-  [set failed 1]
+  [show error-message set failed 1]
   ; indicators then called from openmole
   
 end
