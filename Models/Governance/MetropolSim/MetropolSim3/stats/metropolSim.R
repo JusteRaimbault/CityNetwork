@@ -6,15 +6,19 @@ source(paste0(Sys.getenv("CN_HOME"),'/Models/Utils/R/plots.R'))
 
 
 res <- read.csv('Models/Governance/MetropolSim/MetropolSim3/res_oml/2015_08_17_02_38_36_lhsgrid.csv',sep=",",header=TRUE)
+res <- read.csv('Models/Governance/MetropolSim/MetropolSim3/res_oml/2015_08_31_17_39_12_test.csv',sep=",",header=TRUE)
+
+params_cols = c(3,4,6,8,9,11,12,14,18)
+indics_cols = c(1,2,5,7,10,13,15,16,17)
 raw = getSingleParamPoints(
   data = res,
-  params_cols = c(3,4,6,8,9,11,12,14,18),
-  indics_cols = c(1,2,5,7,10,13,15,16,17)
+  params_cols = params_cols,
+  indics_cols = indics_cols
 )
 
-param=matrix(data=unlist(raw$param),ncol=3,byrow=TRUE)
-mean=matrix(data=unlist(raw$mean),ncol=4,byrow=TRUE)
-sd=matrix(data=unlist(raw$sd),ncol=4,byrow=TRUE)
+param=matrix(data=unlist(raw$param),ncol=length(params_cols),byrow=TRUE)
+mean=matrix(data=unlist(raw$mean),ncol=length(indics_cols),byrow=TRUE)
+sd=matrix(data=unlist(raw$sd),ncol=length(indics_cols),byrow=TRUE)
 
 
 plotWithBars<-function(param,mean,sd,fixed_par_cols,fixed_par_vals,indicator,x_param,varying_param,xlab="",ylab="",xlim=c(0,1)){
