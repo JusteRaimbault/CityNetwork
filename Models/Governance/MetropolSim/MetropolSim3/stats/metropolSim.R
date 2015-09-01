@@ -8,8 +8,8 @@ source(paste0(Sys.getenv("CN_HOME"),'/Models/Utils/R/plots.R'))
 #res <- read.csv('Models/Governance/MetropolSim/MetropolSim3/res_oml/2015_08_17_02_38_36_lhsgrid.csv',sep=",",header=TRUE)
 res <- read.csv('Models/Governance/MetropolSim/MetropolSim3/res_oml/2015_08_31_18_31_44_lhsgrid.csv',sep=",",header=TRUE)
 
-params_cols = c(3,4,6,8,9,11,12,14,18)
-indics_cols = c(1,2,5,7,10,13,15,16,17)
+params_cols = c(3,4,6,9,11,12,14,18)
+indics_cols = c(1,2,5,7,8,10,13,15,16,17)
 
 raw = getSingleParamPoints(
   data = res,
@@ -22,29 +22,70 @@ mean=matrix(data=unlist(raw$mean),ncol=length(indics_cols),byrow=TRUE);colnames(
 sd=matrix(data=unlist(raw$sd),ncol=length(indics_cols),byrow=TRUE);colnames(sd)<-colnames(res)[indics_cols]
 
 
-plotWithBars<-function(param,mean,sd,fixed_par_cols,fixed_par_vals,indicator,x_param,varying_param,xlab="",ylab="",xlim=c(0,1)){
+plotWithBars<-function(param,mean,sd,fixed_par_cols,fixed_par_vals,fixed_par_thresholds,indicator,x_param,varying_param,xlab="",ylab="",xlim=c(0,1)){
   # get concerned rows
   rows=rep(TRUE,nrow(param))
-  for(k in 1:length(fixed_par_cols)){rows=rows&(abs(param[,fixed_par_cols[k]]-fixed_par_vals[k])<0.0000001); }
-  p=ggplot(data.frame(x=param[rows,x_param],y=mean[rows,indicator],regdecision=param[rows,varying_param],
-                      ymin=mean[rows,indicator]-sd[rows,indicator],ymax=mean[rows,indicator]+sd[rows,indicator]),
-           aes(x=x,y=y,colour=regdecision))
+  for(k in 1:length(fixed_par_cols)){rows=rows&(abs(param[,fixed_par_cols[k]]-fixed_par_vals[k])<fixed_par_thresholds[k]); }
+  p=ggplot(data.frame(x=param[rows,x_param],
+                      y=mean[rows,indicator],
+                      group=param[rows,varying_param],
+                      ymin=mean[rows,indicator]-sd[rows,indicator],
+                      ymax=mean[rows,indicator]+sd[rows,indicator]),
+           aes(x=x,y=y,colour=group))
   p+geom_point()+geom_errorbar(aes(x=x,ymin=ymin,ymax=ymax),width=0.005)+xlab(xlab)+ylab(ylab)
+  return(p)
   #+xlim(xlim)
 }
 
-indics=c("accessibility","entropy","stability","travel-distance")
+#indics=c("accessibility","entropy","stability","travel-distance")
+indics=colnames(mean)
+indics_cols_toplot = c(1,2,3,4,5,7,8,9,10)
 plotlist=list();
-for(i in 1:length(indics)){
-plotlist[[i]]=plotWithBars(
+for(i in indics_cols_toplot){
+plotlist[[i]]=
+  plotWithBars(
   param,mean,sd,
-  fixed_par_cols=c(1),fixed_par_vals=c(2.5),
-  indicator=i,x_param=2,varying_param=3,
+  fixed_par_cols=c(1,2,3,6,7,8),
+  fixed_par_vals=c(2e-4,2e-3,3,5e-3,0.5,1),
+  fixed_par_thresholds=c(1e-4,1e-3,1,1e-3,0.1,0.1),
+  indicator=i,
+  x_param=4,
+  varying_param=5,
   xlab="lambda_acc",ylab=indics[i]#,xlim=c(0.25,1.25)
-)
+)+geom_point()+geom_errorbar(aes(x=x,ymin=ymin,ymax=ymax),width=0.005)
 }
 
 multiplot(plotlist=plotlist,cols=2)
+
+
+#########
+m_rand = mean[param[,5]==1,];sd_rand=sd[param[,5]==1,];p_rand=param[param[,5]==1,]
+m_dc = mean[param[,5]==2,];sd_dc=sd[param[,5]==2,];p_dc=param[param[,5]==2,]
+m_nash = mean[param[,5]==3,];sd_nash=sd[param[,5]==3,];p_nash=param[param[,5]==3,]
+
+indics=colnames(mean)
+indics_cols_toplot = c(1,2,3,4,5,7,8,9,10)
+
+x_col = 1;xlab="collaboration_cost"
+for(i in indics_cols_toplot){
+  plot(p_rand[,x_col],m_rand[,i],main=indics[i],
+       xlim=c(min(p_rand[,x_col],p_dc[,x_col],p_nash[,x_col]),max(p_rand[,x_col],p_dc[,x_col],p_nash[,x_col])),
+       ylim=c(min(m_rand[,i],m_dc[,i],m_nash[,i]),max(m_rand[,i],m_dc[,i],m_nash[,i])),
+       xlab=xlab,ylab=""
+       );
+  points(p_dc[,x_col],m_dc[,i],col="red");
+  points(p_nash[,x_col],m_nash[,i],col="green");
+}
+
+
+#######################
+#######################
+
+
+
+
+
+
 
 
 

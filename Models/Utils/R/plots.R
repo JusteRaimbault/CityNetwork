@@ -15,12 +15,11 @@ getSingleParamPoints <- function(data,params_cols,indics_cols){
   for(l in 1:nrow(data)){
     if(l%%1000==0){show(l)}
     pval = data[l,params_cols]
-    key = Reduce(function(p1,p2){paste(p1,p2,sep="-")},apply(pval,1,as.character),"")
+    key = Reduce(paste0,apply(pval,1,as.character),"")
     if(is.null(pkeys[[key]])){
       params = append(params,list(pval))
       indics = append(indics,list(list(as.numeric(data[l,indics_cols]))))
       pkeys[[key]] = length(params) # necessarily last element of the list
-      show(key);show(pkeys[[key]])
     }else{
       ind = pkeys[[key]]
       indics[[ind]]=append(indics[[ind]], list(as.numeric(data[l,indics_cols])))
