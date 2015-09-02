@@ -1103,7 +1103,7 @@ collaboration-cost
 collaboration-cost
 0
 0.001
-1.05E-4
+6.0E-5
 1e-6
 1
 NIL
