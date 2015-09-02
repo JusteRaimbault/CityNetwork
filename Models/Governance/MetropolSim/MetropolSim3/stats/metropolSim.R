@@ -7,6 +7,9 @@ source(paste0(Sys.getenv("CN_HOME"),'/Models/Utils/R/plots.R'))
 
 #res <- read.csv('Models/Governance/MetropolSim/MetropolSim3/res_oml/2015_08_17_02_38_36_lhsgrid.csv',sep=",",header=TRUE)
 res <- read.csv('Models/Governance/MetropolSim/MetropolSim3/res_oml/2015_08_31_18_31_44_lhsgrid.csv',sep=",",header=TRUE)
+res <- read.csv('Models/Governance/MetropolSim/MetropolSim3/res_oml/2015_09_01_21_46_14_targeted.csv',sep=",",header=TRUE)
+
+
 
 params_cols = c(3,4,6,9,11,12,14,18)
 indics_cols = c(1,2,5,7,8,10,13,15,16,17)
@@ -110,6 +113,39 @@ for(i in indics_cols_toplot){
 }
 
 
+
+
+#####################
+#####################
+# QuickNDirty : heatmaps for 2D param space
+
+#2015_09_01_21_46_14_targeted.csv
+
+library(RColorBrewer)
+
+par(mfrow=c(3,3))
+prefilter_rows = (param[,8]==2&param[,5]==1)
+plots=list()
+for(i in indics_cols_toplot){
+  indic=i
+  
+  #p=ggplot(data.frame(x=param[prefilter_rows,1],
+  #                    y=param[prefilter_rows,4],
+  #                    indic=mean[prefilter_rows,indic]),
+  #         aes(x=x,y=y,colour=indic))
+  #+geom_errorbar(aes(x=x,ymin=ymin,ymax=ymax),width=0.005)+xlab(xlab)+ylab(ylab)
+
+  #plots[[i]]=p+geom_point()#+title(indics[i])
+    
+    
+  plot(param[prefilter_rows,1],param[prefilter_rows,4],
+     col=heat.colors(50)[50*(mean[prefilter_rows,indic]-min(mean[prefilter_rows,indic]))/(max(mean[prefilter_rows,indic])-min(mean[prefilter_rows,indic]))+1],
+     pch=".",cex=40,xlab="collab",ylab="ext-growth",
+     main=indics[i]
+     )
+}
+
+#multiplot(plotlist=plots,cols=3)
 
 
 

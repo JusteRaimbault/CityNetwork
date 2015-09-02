@@ -138,6 +138,9 @@ globals[
   diff-actives
   diff-employments
   
+  
+  initial-max-acc
+  
   ; utility : cobb-douglas parameter
   ;gamma-cobb-douglas
   
@@ -183,7 +186,7 @@ globals[
   
   collaborations-wanted
   collaborations-realized
-  
+  collaborations-expected
   
   
   
@@ -1124,8 +1127,8 @@ SLIDER
 ext-growth-factor
 ext-growth-factor
 0
-1
-1
+20
+11.8
 0.1
 1
 NIL
@@ -1306,6 +1309,24 @@ beta-dc-game
 1
 NIL
 HORIZONTAL
+
+PLOT
+986
+135
+1146
+255
+externality mean acc
+NIL
+NIL
+0.0
+2.0
+0.0
+1.0
+true
+false
+"clear-plot" ""
+PENS
+"default" 1.0 0 -16777216 true "" "if external-facility != 0 [plot (mean [current-accessibility] of patches with [member? number external-facility]) / initial-max-acc]"
 
 @#$#@#$#@
 ## WHAT IS IT?

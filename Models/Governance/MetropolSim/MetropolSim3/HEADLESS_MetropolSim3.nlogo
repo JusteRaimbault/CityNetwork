@@ -286,6 +286,8 @@ globals[
   construction-cost
   beta-dc-game
   
+  initial-max-acc
+  
   total-time-steps
   headless?
   failed
