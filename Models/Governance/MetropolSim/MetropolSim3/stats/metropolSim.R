@@ -59,35 +59,55 @@ multiplot(plotlist=plotlist,cols=2)
 
 
 #########
-m_rand = mean[param[,5]==1,];sd_rand=sd[param[,5]==1,];p_rand=param[param[,5]==1,]
-m_dc = mean[param[,5]==2,];sd_dc=sd[param[,5]==2,];p_dc=param[param[,5]==2,]
-m_nash = mean[param[,5]==3,];sd_nash=sd[param[,5]==3,];p_nash=param[param[,5]==3,]
+#m_rand = mean[param[,5]==1,];sd_rand=sd[param[,5]==1,];p_rand=param[param[,5]==1,]
+#prefilter_rows = (param[,8]==2&param[,7]==0.5)
+prefilter_rows = (param[,8]==2)
+m_dc = mean[param[,5]==1&prefilter_rows,];sd_dc=sd[param[,5]==1&prefilter_rows,];p_dc=param[param[,5]==1&prefilter_rows,]
+m_nash = mean[param[,5]==3&prefilter_rows,];sd_nash=sd[param[,5]==3&prefilter_rows,];p_nash=param[param[,5]==3&prefilter_rows,]
 
 indics=colnames(mean)
 indics_cols_toplot = c(1,2,3,4,5,7,8,9,10)
 
-x_col = 1;xlab="collaboration_cost"
-for(i in indics_cols_toplot){
-  plot(p_rand[,x_col],m_rand[,i],main=indics[i],
-       xlim=c(min(p_rand[,x_col],p_dc[,x_col],p_nash[,x_col]),max(p_rand[,x_col],p_dc[,x_col],p_nash[,x_col])),
-       ylim=c(min(m_rand[,i],m_dc[,i],m_nash[,i]),max(m_rand[,i],m_dc[,i],m_nash[,i])),
-       xlab=xlab,ylab=""
-       );
-  points(p_dc[,x_col],m_dc[,i],col="red");
-  points(p_nash[,x_col],m_nash[,i],col="green");
+
+x_cols = c(1,2,3,4,6);xlabs=colnames(param)[x_cols]
+
+for(p in 1:length(x_cols)){
+  par(mfrow=c(3,3))
+  x_col=x_cols[p];xlab=xlabs[p]
+  for(i in indics_cols_toplot){
+    boxplot(formula=y~f,data=data.frame(y=m_dc[,i],f=cut(p_dc[,x_col],breaks=10)),
+            col="darkred",boxwex=0.5,main=indics[i],xlab=xlab)
+    #plot(p_dc[,x_col],m_dc[,i],col="red",main=indics[i],
+    #     xlim=c(min(p_dc[,x_col],p_nash[,x_col]),max(p_dc[,x_col],p_nash[,x_col])),
+    #     ylim=c(min(m_dc[,i],m_nash[,i]),max(m_dc[,i],m_nash[,i])),
+    #     xlab=xlab,ylab=""
+    #);
+    boxplot(formula=y~f,data=data.frame(y=m_nash[,i],f=cut(p_nash[,x_col],breaks=10))
+            ,add=TRUE,col="darkgreen",boxwex=0.5,at=(1:10)+0.5,names=rep("",10))
+    #points(p_nash[,x_col],m_nash[,i],col="green");
+  }
 }
 
-
 #######################
 #######################
 
 
+# special plots : indics = f(k/J)
 
-
-
-
-
-
+par(mfrow=c(3,3))
+xlab="extgrowth / collcost"
+for(i in indics_cols_toplot){
+  boxplot(formula=y~f,data=data.frame(y=m_dc[,i],f=cut(p_dc[,4]/p_dc[,1],breaks=10)),
+          col="darkred",boxwex=0.5,main=indics[i],xlab=xlab)
+  #plot(p_dc[,x_col],m_dc[,i],col="red",main=indics[i],
+  #     xlim=c(min(p_dc[,x_col],p_nash[,x_col]),max(p_dc[,x_col],p_nash[,x_col])),
+  #     ylim=c(min(m_dc[,i],m_nash[,i]),max(m_dc[,i],m_nash[,i])),
+  #     xlab=xlab,ylab=""
+  #);
+  boxplot(formula=y~f,data=data.frame(y=m_nash[,i],f=cut(p_nash[,4]/p_nash[,1],breaks=10))
+          ,add=TRUE,col="darkgreen",boxwex=0.5,at=(1:10)+0.5,names=rep("",10))
+  #points(p_nash[,x_col],m_nash[,i],col="green");
+}
 
 
 
