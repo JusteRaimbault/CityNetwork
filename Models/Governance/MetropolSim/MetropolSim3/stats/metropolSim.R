@@ -179,7 +179,17 @@ for(i in indics_cols_toplot){
 
 
 
+####################
+## QuickNDirty VolIII : Linear Regressions
+####################
 
+
+d=data.frame(param,mean)
+indics_cols_toplot=c(1,2,3,4,5,8,9)
+for(i in indics_cols_toplot){
+reg = lm(as.formula(paste0(indics[i],"~1+collcost+euclpace+extgrowth+gametype+lambdaacc")),data=d)
+show(summary(reg))
+}
 
 
 
