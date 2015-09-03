@@ -149,3 +149,35 @@ for(i in indics_cols_toplot){
 
 
 
+
+
+
+
+#######################
+## QuickNDirty VolII : Histograms convergence
+#######################
+
+res <- read.csv('Models/Governance/MetropolSim/MetropolSim3/res_oml/2015_09_02_19_13_54_stochasticity.csv',sep=",",header=TRUE)
+
+# raw = ...
+
+parvar = param[c(1,4),6:7]
+indics_cols_toplot=c(1,2,5,15)
+colors=c("darkred","darkgreen","yellow","blue")
+
+par(mfrow=c(2,2))
+for(i in indics_cols_toplot){
+  indic=i
+  for(l in 1:nrow(parvar)){
+    rows = rep(FALSE,nrow(res));for(r in 1:nrow(res)){if(res[r,12]==parvar[l,1]&res[r,14]==parvar[l,2]){rows[r]=TRUE}}
+    hist(res[rows,indic],breaks=25,col=colors[l],add=(l!=1),main=colnames(res)[indic],xlim=c(min(res[,indic]),max(res[,indic])))
+  }
+}
+
+
+
+
+
+
+
+
