@@ -33,6 +33,94 @@ $A_{max} = E_{max} = 500 ; r_A = 1 ; r_E = 0.8 ; \gamma_E = 0.9 ; \gamma_A = 0.6
 
 $N_{expl} = 25 ; I = 0.001 ; J = 0.0001 ; \nu = 5 ; E_{ext}(t_0) = 3E_{max} ; t_f = 4$
 
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+
+
+%%%%%%%%%%%%%%
+%% Reserve slides : model precise description
+%%%%%%%%%%%%%%
+
+Initial distribution of Actives and Employments around governance centers at positions $\vec{x}_i$ by
+\[
+A(\vec{x}) = A_{max} \cdot \exp{\left(\frac{\norm{\vec{x}-\vec{x}_i}}{r_A}\right)} ; 
+E(\vec{x}) = E_{max} \cdot \exp{\left(\frac{\norm{\vec{x}-\vec{x}_i}}{r_E}\right)}
+\]
+
+\bigskip
+\bigskip
+
+For facility patches, employments are added by $E(\vec{x}) = E(\vec{x})+\frac{k_{ext}\cdot E_{max}}{n_{ext}}$.
+
+
+\bigskip
+\bigskip
+
+
+Transportation module : computation of flows $\phi_{ij}$ by solving on $p_i,q_j$ by a fixed point method (Furness algorithm), the system of gravital flows
+\[
+\begin{cases}
+\phi_{ij} = p_i q_j A_i E_j \exp{\left(-\lambda_{tr} d_{ij}\right)}\\
+\sum_k \phi_{kj} = E_j ; \sum_k \phi_{ik} = A_i\\
+p_i = \frac{1}{\sum_k{q_k E_k \exp{(-\lambda_{tr}d_{ik})}}} ; q_j = \frac{1}{\sum_k{p_k A_k \exp{(-\lambda_{tr}d_{kj})}}} 
+\end{cases}
+\]
+
+Trajectories then attributed by effective shortest path, and corresponding congestion $c$ obtained (no Wardrop equilibrium). 
+
+Speed of network given by BPR function $v(c) = v_0 \left(1 - \frac{c}{\kappa}\right)^{\gamma_c}$. Congestion not used in current studies (infinite capacity $\kappa$).
+
+
+
+\bigskip
+\bigskip
+
+\newpage
+
+Land-Use module : we assume that residential/employments relocations are at equilibrium at the time scale of a tick, that corresponds to transportation infrastructure evolution time scale which is much larger (Bretagnolle, 2009).
+
+We take a Cobb-douglas function for utilities of actives/employments at a given cell
+\[
+U_i (A) = X_i(A)^{\gamma_A}\cdot {F_i(A)}^{1-\gamma_A} ; F_i(A) = \frac{1}{A_i E_i}
+\]
+\[
+U_j (E) = X_j(E)^{\gamma_E}\cdot {F_j(E)}^{1-\gamma_E} ; F_j(E) = 1
+\]
+
+where $X_i(A) = A_i\cdot \sum_j{E_j \exp{\left(-\lambda\cdot d_{ij}\right)}}$ and $X_j(E) = E_j\cdot \sum_i{A_i \exp{\left(-\lambda\cdot d_{ij}\right)}}$.
+
+Relocations are then done deterministically following a discrete choice model :
+\[
+A_i(t+1) = \sum_i{A_i(t)}\cdot\frac{\exp{(\beta U_i(A))}}{\sum_i{\exp{(\beta U_i(A))}}}
+\]
+\[
+E_j(t+1) = \sum_j{E_j(t)}\cdot\frac{\exp{(\beta U_j(E))}}{\sum_j{\exp{(\beta U_j(E))}}}
+\]
+
+
+
+%%%%%%%%%%%%%%%%%%%%%
+%% Dynamic programming
+%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+Effective distances computation
+
+\begin{itemize}
+\item Euclidian distance matrix $d(i,j)$ computed analytically
+\item Network shortest paths between network intersections (rasterized network) updated in a dynamic way (addition of new paths and update/change of old paths if needed when a link is added), correspondance between network patches and closest intersection also updated dynamically ; $O(N_{inters}^3)$
+\item Weak component clusters and distance between clusters updated ; $O(N_{nw}^2)$
+\item Network distances between network patches updated, through the heuristic of only minimal connexions between clusters ; $O(N_{nw}^2)$
+\item Effective distances (taking paces/congestion into account) updated as minimum between euclidian time and $\min_{C,C'}{d(i,C)+d_{nw}(p_C(i),p_C'(j))+d(C',j)}$ ; $O(N_{clusters}^2\cdot N^2)$ [Approximed with $\min_C$ only in the implementation, consistent within the interaction ranges $\sim$ 5 patches taken in the model]. 
+\end{itemize}
+
+
+
+
+
 
 
 \end{document}
