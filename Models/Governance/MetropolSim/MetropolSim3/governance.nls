@@ -226,8 +226,8 @@ to-report game-result [decidors old-config]
         set p2 min (list max (list p2 0) 1)
       ][
         ; discrete-choices
-        set p1 (numanal:brent-root (task [to-rootize-dc-game ? collaboration-cost (D11 - construction-cost) (Dc1 - D11) (D22 - construction-cost) (Dc2 - D22) beta-dc-game]) 0 1 0.01)
-        set p2 (numanal:brent-root (task [to-rootize-dc-game ? collaboration-cost (D22 - construction-cost) (Dc2 - D22) (D11 - construction-cost) (Dc1 - D11) beta-dc-game]) 0 1 0.01)
+        set p1 (numanal:brent-root (task [to-rootize-dc-game ? collaboration-cost (Dc1 - D11) (Dc2 - D22) beta-dc-game]) 0 1 0.01)
+        set p2 (numanal:brent-root (task [to-rootize-dc-game ? collaboration-cost (Dc2 - D22) (Dc1 - D11) beta-dc-game]) 0 1 0.01)
       ]
       
       
@@ -267,10 +267,10 @@ end
 
 
 
-to-report to-rootize-dc-game [p1 J deltaI1 deltaC1 deltaI2 deltaC2 beta]
+to-report to-rootize-dc-game [p1 J deltaC1 deltaC2 beta]
   ;let num exp (beta * ((exp (beta * (p1 * deltaC2 - J)) / (exp(beta * (p1 * deltaC2 - J)) + exp (beta * deltaI2))) * deltaC1 - J))
   ;report ((num / (num + exp (beta * deltaI1) )) - p1 )
-  report (1 / (1 + exp (- beta * (((deltaC1 - deltaI1)/(1 + exp (- beta * ((p1 * (deltaC2 - deltaI2)) - J)))) - J)))) - p1
+  report (1 / (1 + exp (- beta * (((deltaC1)/(1 + exp (- beta * ((p1 * (deltaC2)) - J)))) - J)))) - p1
 end
 
 

@@ -61,7 +61,7 @@ plotlist[[i]]=
 )+geom_point()+geom_errorbar(aes(x=x,ymin=ymin,ymax=ymax))+xlab(colnames(vpar)[xpars[x]])+ylab(indics[i])
 }
 
-multiplot(plotlist=plotlist,cols=2)
+multiplot(plotlist=plotlist,cols=3)
 }
 
 #########

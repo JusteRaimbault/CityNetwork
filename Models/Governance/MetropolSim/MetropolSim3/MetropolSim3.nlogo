@@ -890,7 +890,7 @@ SLIDER
 #-explorations
 0
 1000
-53
+23
 1
 1
 NIL
@@ -1103,7 +1103,7 @@ collaboration-cost
 collaboration-cost
 0
 0.001
-6.0E-5
+5.3E-5
 1e-6
 1
 NIL
@@ -1303,8 +1303,8 @@ SLIDER
 beta-dc-game
 beta-dc-game
 0
-1000
-500
+5000
+400
 10
 1
 NIL
