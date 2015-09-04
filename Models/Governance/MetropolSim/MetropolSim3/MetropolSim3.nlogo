@@ -573,15 +573,15 @@ NIL
 0
 
 PLOT
-1149
+1096
 10
-1309
-130
+1324
+174
 convergence
 NIL
 NIL
 0.0
-10.0
+2.0
 0.0
 10.0
 true
@@ -592,10 +592,10 @@ PENS
 "pen-1" 1.0 0 -12087248 true "" "plot diff-actives"
 
 OUTPUT
-935
-319
-1393
-675
+910
+477
+1368
+833
 10
 
 TEXTBOX
@@ -890,7 +890,7 @@ SLIDER
 #-explorations
 0
 1000
-23
+30
 1
 1
 NIL
@@ -912,10 +912,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-933
-281
-1027
-314
+908
+439
+1002
+472
 indicators
 compute-indicators
 NIL
@@ -937,7 +937,7 @@ total-time-steps
 total-time-steps
 0
 20
-4
+6
 1
 1
 NIL
@@ -984,17 +984,17 @@ TEXTBOX
 1
 
 PLOT
-1150
-131
-1310
-251
+1098
+177
+1326
+353
 accessibility
 NIL
 NIL
 0.0
-10.0
+2.0
 0.0
-10.0
+1.0
 true
 false
 "" ""
@@ -1061,10 +1061,10 @@ NIL
 1
 
 BUTTON
-1164
-283
-1246
-316
+1139
+441
+1221
+474
 test connex
 test-connex-components
 NIL
@@ -1174,10 +1174,10 @@ setup/triangle.csv
 String
 
 BUTTON
-1031
-280
-1123
-313
+1006
+438
+1098
+471
 construct
 if mouse-down? [\n  if length to-construct < 2[\n    set to-construct lput (list mouse-xcor mouse-ycor) to-construct\n  ]\n  if length to-construct = 2[\n    construct-infrastructure (list to-construct) save-nw-config\n    compute-patches-variables\n    update-display\n    set to-construct []\n    verbose (word \"mean-travel-distance : \" mean-travel-distance)\n    stop\n  ]\n  wait 0.2\n  \n]
 T
@@ -1248,15 +1248,15 @@ NIL
 1
 
 PLOT
-983
+862
 10
-1143
-130
+1093
+173
 externalities
 NIL
 NIL
 0.0
-10.0
+2.0
 0.0
 10.0
 true
@@ -1311,17 +1311,17 @@ NIL
 HORIZONTAL
 
 PLOT
-986
-135
-1146
-255
+863
+179
+1093
+355
 externality mean acc
 NIL
 NIL
 0.0
 2.0
 0.0
-1.0
+0.1
 true
 false
 "clear-plot" ""
