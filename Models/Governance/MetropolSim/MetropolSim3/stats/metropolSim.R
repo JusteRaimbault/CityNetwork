@@ -45,23 +45,23 @@ indics=colnames(mean)
 indics_cols_toplot = c(1,2,3,4,5,8,9)
 vpar=param[,c(1,3,4,5,6)]
 plotlist=list();
-xpars=c(1,2,3,5);fixedxpars=c(5e-4,4,9,0.006)
+xpars=c(1,2,3,5);fixedxpars=c(1.1e-4,4,9,0.006)
 for(x in 1:length(xpars)){
-for(i in indics_cols_toplot){
+for(i in 1:length(indics_cols_toplot)){
 plotlist[[i]]=
   plotWithBars(
     param = vpar,mean=mean,sd=sd,
     fixed_par_cols = xpars[-x],
     fixed_par_vals = fixedxpars[-x],
     fixed_par_thresholds = rep(1e-5,3),
-    indicator = i,
+    indicator = indics_cols_toplot[i],
     x_param = xpars[x],
-    varying_param =  4,
-  xlab=colnames(vpar)[x],ylab=indics[i]
-)+geom_point()+geom_errorbar(aes(x=x,ymin=ymin,ymax=ymax))+xlab(colnames(vpar)[xpars[x]])+ylab(indics[i])
+    varying_param = 4,
+  xlab=colnames(vpar)[x],ylab=indics[indics_cols_toplot[i]]
+)+geom_point()+geom_errorbar(aes(x=x,ymin=ymin,ymax=ymax))+xlab(colnames(vpar)[xpars[x]])+ylab(indics[indics_cols_toplot[i]])
 }
 
-multiplot(plotlist=plotlist,cols=3)
+multiplot(plotlist=plotlist,cols=4)
 }
 
 #########
@@ -187,6 +187,7 @@ for(i in indics_cols_toplot){
 d=data.frame(param,mean)
 indics_cols_toplot=c(1,2,3,4,5,8,9)
 for(i in indics_cols_toplot){
+  show(indics[i])
 reg = lm(as.formula(paste0(indics[i],"~1+collcost+euclpace+extgrowth+gametype+lambdaacc")),data=d)
 show(summary(reg))
 }

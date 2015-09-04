@@ -890,7 +890,7 @@ SLIDER
 #-explorations
 0
 1000
-30
+100
 1
 1
 NIL
@@ -937,7 +937,7 @@ total-time-steps
 total-time-steps
 0
 20
-6
+3
 1
 1
 NIL
