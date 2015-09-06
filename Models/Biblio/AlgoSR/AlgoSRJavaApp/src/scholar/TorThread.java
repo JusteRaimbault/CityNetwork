@@ -85,6 +85,43 @@ public class TorThread extends Thread {
 	
 	
 	/**
+	 * Forcing stop Torpool through PID files.
+	 * 
+	 * @param p1 start port
+	 * @param p2 end port
+	 */
+	public static void forceStop(int p1,int p2){
+		for(int port=p1;port<=p2;port++){
+			try{
+			String pid = new BufferedReader(new FileReader(new File("/Users/Juste/.torpid"+port))).readLine();
+			System.out.println("sending SIGTERM to tor... PID : "+pid);
+			Process p=Runtime.getRuntime().exec("kill -SIGTERM "+pid);p.waitFor();
+			}catch(Exception e){e.printStackTrace();}
+		}
+		
+	}
+	
+	
+	/**
+	 * force stop for pid range
+	 * (when pid file fails)
+	 * 
+	 * @param pid1 start pid
+	 * @param pid2 end pid
+	 */
+	public static void forceStopPID(int pid1,int pid2){
+		for(int pid=pid1;pid<=pid2;pid++){
+			try{
+			System.out.println("sending SIGTERM to tor... PID : "+pid);
+			Process p=Runtime.getRuntime().exec("kill -SIGTERM "+pid);p.waitFor();
+			}catch(Exception e){e.printStackTrace();}
+		}
+		
+	}
+	
+	
+	
+	/**
 	 * Start a new pool of tor threads given a port range (included) and thread number
 	 * 
 	 * @param r1
@@ -112,8 +149,17 @@ public class TorThread extends Thread {
 			//System.out.println(t.port);
 			t.start();
 		}
+		
 		// heuristic of required waiting time
-		Thread.sleep(10000*torthreads.size());
+		
+		/**
+		 * 
+		 * TODO : surely not linear, as depend - on Java multi Thread mgt ; on tor common conf ?
+		 * -> find temporal profile ; implement heuristic.
+		 * 
+		 */
+		
+		Thread.sleep(5000*torthreads.size());
 		}catch(Exception e){e.printStackTrace();}
 	}
 	

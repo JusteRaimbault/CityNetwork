@@ -30,7 +30,7 @@ public class TestTor {
 	
 	
 	public static void testCircuitsIP(){
-		TorThread.initPool(9050, 9100, 25);
+		TorThread.initPool(9050, 9200, 100);
 		TorThread.runPool();
 		System.setProperty("socksProxyHost", "127.0.0.1");
 		
@@ -55,7 +55,7 @@ public class TestTor {
 	
 	public static void testScholarAvailability(){
 		
-		int totalIps = 50;
+		int totalIps = 100;
 		int successCount = 0;
 		
 		TorThread.initPool(9050, 9050+totalIps, totalIps);
@@ -86,6 +86,8 @@ public class TestTor {
 		//TorThread.stopPool();	
 		System.out.println("Success Ratio : "+successCount*1.0/(totalIps*1.0));	
 		
+		TorThread.stopPool();
+		
 	}
 	
 	
@@ -96,6 +98,8 @@ public class TestTor {
 		//testTorPool();
 		
 		//testCircuitsIP();
+		
+		TorThread.forceStopPID(9112,9211);
 		
 		testScholarAvailability();
 		
