@@ -9,6 +9,7 @@ import java.util.LinkedList;
 
 import scholar.ScholarAPI;
 import utils.CSVWriter;
+import utils.GEXFWriter;
 import utils.RISReader;
 
 /**
@@ -33,12 +34,13 @@ public class CitationNetwork {
 	 * For different reference files, load each and constructs citation network.
 	 * Outputs "clustering coefs" in file.
 	 */
-	public static void buildGeneralizedNetwork(String prefix,String[] keywords,String outFile,int maxIt){
+	public static void buildGeneralizedNetwork(String prefix,String[] keywords,String outPrefix,int maxIt){
 		// setup
 		Main.setup("conf/default.conf");
 		ScholarAPI.init();
 		
 		//initialize orig tables and load initial references
+		System.out.println("Reconstructing References from file");
 		LinkedList<HashSet<Reference>> originals = new LinkedList<HashSet<Reference>>();
 		for(int i=0;i<keywords.length;i++){originals.addLast(new HashSet<Reference>(RISReader.read(getLastIteration(prefix,keywords[i],maxIt))));}
 	
@@ -61,7 +63,12 @@ public class CitationNetwork {
 		}
 		
 		// output in csv file
-		CSVWriter.write(outFile, interClusterLinks, ";");
+		CSVWriter.write(outPrefix+".csv", interClusterLinks, ";");
+		
+		// output in GEXF to be used by graph processing softwares
+		GEXFWriter.write(outPrefix+".gexf", Reference.references.keySet());
+		
+		
 		
 	}
 	
@@ -92,7 +99,11 @@ public class CitationNetwork {
 	 */
 	public static void main(String[] args) {
 		String[] keywords = {"land+use+transport+interaction","city+system+network","network+urban+modeling","population+density+transport","transportation+network+urban+growth","urban+morphogenesis+network"};
-		buildGeneralizedNetwork("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/cit/refs_",keywords,"nw.csv",20);
+		buildGeneralizedNetwork(
+				"/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/cit/refs_",
+				keywords,
+				"res/citation/citations",
+				20);
 		/*Main.setup("conf/default.conf");ScholarAPI.setup("");
 		
 		// test if nw building

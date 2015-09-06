@@ -51,6 +51,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import utils.Log;
+import utils.tor.TorPool;
 import utils.tor.TorThread;
 
 /**
@@ -73,9 +74,16 @@ public class ScholarAPI {
 	/**
 	 * Init a scholar client
 	 * 
+	 * Independent from TorPool initialization ; 
+	 * TODO : clarify setup function ¡¡
+	 * 
+	 * 
 	 */
 	public static void init(){
 		try{
+			
+			System.out.println("(Re)-initializing scholar API...");
+			
 		    client = new DefaultHttpClient();
 
 		    //context
@@ -219,11 +227,13 @@ public class ScholarAPI {
 			if(dom.getElementsByClass("gs_hatr").size()==0){
 				System.out.println(dom.html());
 				while(dom.getElementsByClass("gs_hatr").size()==0){
-				    //System.out.println("Waiting for fucking google to stop blocking... sleep 5sec");
-				    //Thread.sleep(5000);
+					
+				    System.out.println("Current IP blocked by ggl fuckers ; switching currentTorThread.");
 				    
+				    TorPool.switchPort();
 					
 					init();
+					
 				    //note : interfer with other APIs --> may be useful to separate them for a more stable archi.
 				    //dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
 				    dom = request("scholar.google.com","scholar?cites="+r.scholarID);

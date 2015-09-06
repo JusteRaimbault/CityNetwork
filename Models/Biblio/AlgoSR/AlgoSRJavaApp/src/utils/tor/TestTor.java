@@ -25,8 +25,8 @@ public class TestTor {
 			System.out.println(t.port);
 		}*/
 		
-		//TorThread.runPool();
-		//TorThread.stopPool();
+		TorPool.runPool();
+		TorPool.stopPool();
 		
 	}
 	
@@ -36,7 +36,7 @@ public class TestTor {
 		TorPool.runPool();
 		System.setProperty("socksProxyHost", "127.0.0.1");
 		
-		for(Integer p:TorThread.used_ports.keySet()){
+		for(Integer p:TorPool.used_ports.keySet()){
 			try{
 			  System.out.println(p.intValue());
 				
@@ -63,7 +63,7 @@ public class TestTor {
 		TorPool.initPool(9050, 9050+totalIps, totalIps);
 		TorPool.runPool();
 		System.setProperty("socksProxyHost", "127.0.0.1");
-		for(Integer p:TorThread.used_ports.keySet()){
+		for(Integer p:TorPool.used_ports.keySet()){
 			try{
 			  System.out.println("Port : "+p.intValue());
 			  System.setProperty("socksProxyPort",p.toString());
@@ -97,11 +97,11 @@ public class TestTor {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//testTorPool();
+		testTorPool();
 		
 		//testCircuitsIP();
 		
-		TorPool.forceStopPID(9411,9510);
+		//TorPool.forceStopPID(9929,9953);
 		
 		//testScholarAvailability();
 		
