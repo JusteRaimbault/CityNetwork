@@ -11,6 +11,7 @@ import scholar.ScholarAPI;
 import utils.CSVWriter;
 import utils.GEXFWriter;
 import utils.RISReader;
+import utils.tor.TorPool;
 
 /**
  * 
@@ -37,6 +38,9 @@ public class CitationNetwork {
 	public static void buildGeneralizedNetwork(String prefix,String[] keywords,String outPrefix,int maxIt){
 		// setup
 		Main.setup("conf/default.conf");
+		
+		TorPool.setupConnectionPool(50);
+		
 		ScholarAPI.init();
 		
 		//initialize orig tables and load initial references

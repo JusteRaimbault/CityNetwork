@@ -125,7 +125,9 @@ public class ScholarAPI {
 			//HttpGet httpGet = new HttpGet("http://scholar.google.fr/scholar?q="+request);
 			//HttpResponse resp = client.execute(httpGet,context);
 			//org.jsoup.nodes.Document dom = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
-			Document dom = request("scholar.google.com","scholar?q="+request);
+			
+			Document dom=ensureConnection(new Document(""),request);
+			//Document dom = request("scholar.google.com","scholar?q="+request);
 			
 			// a query result is elements of class gs_ri
 			Elements e = dom.getElementsByClass("gs_ri");
@@ -169,12 +171,14 @@ public class ScholarAPI {
 				System.out.println("Getting cit for ref "+r.toString());
 				// first get scholar ID
 				//System.out.println(r.scholarID);
+				// scholar request ensures connexion ?
 				scholarRequest(r.title.replace(" ", "+"),1);
 				Thread.sleep(2000);
 				//System.out.println(r.scholarID);
 				// while still results on cluster page, iterate
 				//Document dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
 				Document dom = request("scholar.google.com","scholar?cites="+r.scholarID);
+				System.out.println("ID : "+r.scholarID);
 				
 				//check if first response is empty
 				//if(e.size()==0){System.out.println(dom.html());}
@@ -182,7 +186,7 @@ public class ScholarAPI {
 				// need to handle google blocking
 				//System.out.println(dom.getElementsByClass("gs_hatr").size());
 				
-				dom=ensureConnection(dom,r);
+				dom=ensureConnection(dom,"scholar?cites="+r.scholarID);
 				
 				Elements e = dom.getElementsByClass("gs_ri");
 				
@@ -221,11 +225,11 @@ public class ScholarAPI {
 	 * @param r
 	 * @return
 	 */
-	private static Document ensureConnection(Document d,Reference r) {
+	private static Document ensureConnection(Document d,String request) {
 		Document dom=d;
 		try{
 			if(dom.getElementsByClass("gs_hatr").size()==0){
-				System.out.println(dom.html());
+				//System.out.println(dom.html());
 				while(dom.getElementsByClass("gs_hatr").size()==0){
 					
 				    System.out.println("Current IP blocked by ggl fuckers ; switching currentTorThread.");
@@ -236,7 +240,10 @@ public class ScholarAPI {
 					
 				    //note : interfer with other APIs --> may be useful to separate them for a more stable archi.
 				    //dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
-				    dom = request("scholar.google.com","scholar?cites="+r.scholarID);
+				    //dom = request("scholar.google.com","scholar?cites="+r.scholarID);
+					dom = request("scholar.google.com",request);
+					
+					
 				}
 			}
 		}catch(Exception e){e.printStackTrace();}

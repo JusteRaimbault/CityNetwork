@@ -97,11 +97,12 @@ public class TestTor {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		testTorPool();
+		//testTorPool();
 		
 		//testCircuitsIP();
 		
-		//TorPool.forceStopPID(9929,9953);
+		TorPool.forceStopPID(10257,10306);
+		//TorPool.forceStop(9050, 9100);
 		
 		//testScholarAvailability();
 		
