@@ -38,6 +38,7 @@ public class TorThread extends Thread {
 		// pick a port to run the new thread
 		// assumed to be totally free if in list of available ports
 		port = TorPool.available_ports.keySet().iterator().next().intValue();
+		
 		while(TorPool.used_ports.contains(new Integer(port))){
 		  port = TorPool.available_ports.keySet().iterator().next().intValue();
 		}
@@ -59,6 +60,10 @@ public class TorThread extends Thread {
 			BufferedReader r = new BufferedReader(new InputStreamReader(s));
 
 			// must run in background
+			
+			// Really necessary ?
+			
+			
 			while(true){
 				sleep(100);
 				String l= r.readLine();
@@ -67,6 +72,8 @@ public class TorThread extends Thread {
 					break;
 				}
 			}
+			
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -83,11 +90,16 @@ public class TorThread extends Thread {
 			System.out.println("running: "+running+" ; sending SIGTERM to tor... PID : "+pid);
 			Process p=Runtime.getRuntime().exec("kill -SIGTERM "+pid);p.waitFor();
 			
-			new File("tmp/.torpid"+port).delete();
-			
 			//put port again in list of available ports
 			TorPool.available_ports.put(new Integer(port), new Integer(port));
 			TorPool.used_ports.remove(new Integer(port));
+			
+			
+			Thread.sleep(500);
+			
+			new File("tmp/.torpid"+port).delete();
+			
+			
 			
 		}catch(Exception e){e.printStackTrace();}
 	}

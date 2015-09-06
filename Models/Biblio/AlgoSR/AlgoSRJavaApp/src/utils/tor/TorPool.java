@@ -101,8 +101,8 @@ public class TorPool {
 				// create the new
 				TorThread t = new TorThread();
 				torthreads.addLast(t);
-				t.run();
-				Thread.sleep(100);
+				t.start();
+				
 			}
 			// pick the first, list never empty
 			currentThread = torthreads.pollFirst();
@@ -140,7 +140,7 @@ public class TorPool {
 		 * 
 		 */
 		
-		Thread.sleep(3000*torthreads.size());
+		Thread.sleep(1000*torthreads.size());
 		}catch(Exception e){e.printStackTrace();}
 	}
 	

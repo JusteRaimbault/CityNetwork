@@ -39,7 +39,7 @@ public class CitationNetwork {
 		// setup
 		Main.setup("conf/default.conf");
 		
-		TorPool.setupConnectionPool(50);
+		TorPool.setupConnectionPool(20);
 		
 		ScholarAPI.init();
 		
@@ -102,7 +102,9 @@ public class CitationNetwork {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String[] keywords = {"land+use+transport+interaction","city+system+network","network+urban+modeling","population+density+transport","transportation+network+urban+growth","urban+morphogenesis+network"};
+		//String[] keywords = {"land+use+transport+interaction","city+system+network","network+urban+modeling","population+density+transport","transportation+network+urban+growth","urban+morphogenesis+network"};
+		String[] keywords = {"land+use+transport+interaction"};
+		
 		buildGeneralizedNetwork(
 				"/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/cit/refs_",
 				keywords,

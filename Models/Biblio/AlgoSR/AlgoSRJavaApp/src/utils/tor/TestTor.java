@@ -101,7 +101,7 @@ public class TestTor {
 		
 		//testCircuitsIP();
 		
-		TorPool.forceStopPID(10457,10506);
+		TorPool.forceStopPID(11332,11364);
 		//TorPool.forceStop(9050, 9100);
 		
 		//testScholarAvailability();
