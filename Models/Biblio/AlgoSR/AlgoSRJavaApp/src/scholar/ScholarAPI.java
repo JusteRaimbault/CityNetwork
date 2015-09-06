@@ -51,6 +51,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import utils.Log;
+import utils.tor.TorThread;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
@@ -66,19 +67,6 @@ public class ScholarAPI {
 	
 	
 	
-	
-	
-	/**
-	 * Initialize the pool of tor connexion used to avoid ggl blocking.
-	 */
-	public static void setupConnectionPool(int nPorts){
-		System.setProperty("socksProxyHost", "127.0.0.1");
-		TorThread.initPool(9050, 9050+nPorts, nPorts);
-		TorThread.runPool();
-		
-		// switch the port to the first working
-		TorThread.switchPort();
-	}
 	
 	
 	

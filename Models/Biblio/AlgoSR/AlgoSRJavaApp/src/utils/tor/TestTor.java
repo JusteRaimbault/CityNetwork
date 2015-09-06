@@ -1,7 +1,7 @@
 /**
  * 
  */
-package scholar;
+package utils.tor;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,6 +10,8 @@ import java.net.URLConnection;
 
 import org.jsoup.nodes.Document;
 
+import scholar.ScholarAPI;
+
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
  *
@@ -17,7 +19,7 @@ import org.jsoup.nodes.Document;
 public class TestTor {
 
 	public static void testTorPool(){
-		TorThread.initPool(9050, 9100, 25);
+		TorPool.initPool(9050, 9100, 25);
 		
 		/*for(TorThread t:TorThread.torthreads.keySet()){
 			System.out.println(t.port);
@@ -30,8 +32,8 @@ public class TestTor {
 	
 	
 	public static void testCircuitsIP(){
-		TorThread.initPool(9050, 9200, 100);
-		TorThread.runPool();
+		TorPool.initPool(9050, 9200, 100);
+		TorPool.runPool();
 		System.setProperty("socksProxyHost", "127.0.0.1");
 		
 		for(Integer p:TorThread.used_ports.keySet()){
@@ -49,7 +51,7 @@ public class TestTor {
 			}catch(Exception e){e.printStackTrace();}
 		}
 		
-		TorThread.stopPool();
+		TorPool.stopPool();
 	}
 	
 	
@@ -58,8 +60,8 @@ public class TestTor {
 		int totalIps = 100;
 		int successCount = 0;
 		
-		TorThread.initPool(9050, 9050+totalIps, totalIps);
-		TorThread.runPool();
+		TorPool.initPool(9050, 9050+totalIps, totalIps);
+		TorPool.runPool();
 		System.setProperty("socksProxyHost", "127.0.0.1");
 		for(Integer p:TorThread.used_ports.keySet()){
 			try{
@@ -86,7 +88,7 @@ public class TestTor {
 		//TorThread.stopPool();	
 		System.out.println("Success Ratio : "+successCount*1.0/(totalIps*1.0));	
 		
-		TorThread.stopPool();
+		TorPool.stopPool();
 		
 	}
 	
@@ -99,9 +101,9 @@ public class TestTor {
 		
 		//testCircuitsIP();
 		
-		TorThread.forceStopPID(9112,9211);
+		TorPool.forceStopPID(9411,9510);
 		
-		testScholarAvailability();
+		//testScholarAvailability();
 		
 	}
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package scholar;
+package utils.tor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -163,19 +163,10 @@ public class TorThread extends Thread {
 		}catch(Exception e){e.printStackTrace();}
 	}
 	
-	public static void stopPool(){
-		for(TorThread t:torthreads){
-			t.cleanStop();
-		}
-	}
 	
 	
-	/**
-	 * Switch the current port, by taking thread from the list, testing it and setting it if needed.
-	 */
-	public static void switchPort(){
-		
-	}
+	
+
 	
 	
 	
