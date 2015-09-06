@@ -102,6 +102,7 @@ public class TorPool {
 				TorThread t = new TorThread();
 				torthreads.addLast(t);
 				t.run();
+				Thread.sleep(100);
 			}
 			// pick the first, list never empty
 			currentThread = torthreads.pollFirst();
