@@ -8,6 +8,7 @@ import java.util.HashSet;
 import mendeley.MendeleyAPI;
 import utils.CSVWriter;
 import utils.Log;
+import utils.RISReader;
 import utils.RISWriter;
 import utils.SortUtils;
 import utils.Zipper;
@@ -20,6 +21,21 @@ import cortext.CortextAPI;
  */
 public class Main {
 
+	
+	/**
+	 * 
+	 * TODO
+	 * 
+	 *   - idea : interactive shiny app where the algo can be run ; and with which we can interact at each iteration ?
+	 *   -> more robustness from expert knowledge on keyword ; but beware may become a bias.
+	 *    ; can either choose kept keywords and/or refs at each step ; then rerun from a given step
+	 *     -> more modular iteration archi ?
+	 * 
+	 * 
+	 */
+	
+	
+	
 	/**
 	 * Absolute path to file containing different API access ids and codes
 	 * File must ABSOLUTELY be protected (although readable by application), e.g. if in git repository, imperatively has to be put in .gitignore
@@ -32,8 +48,11 @@ public class Main {
 	public static String cortextCorpusPath;
 	public static String cortextPassword;
 	
+	
 	/**
-	 * Set global variables
+	 * Set global variables.
+	 * 
+	 * @param pathConfFile
 	 */
 	public static void setup(String pathConfFile){
 		//read conf file of the form
@@ -56,6 +75,54 @@ public class Main {
 			cortextCorpusPath = confsMap.get("cortextCorpusPath");
 		}catch(Exception e){e.printStackTrace();}
 	}
+	
+	
+	
+	
+	/**
+	 * Initialize references in that case.
+	 * 
+	 * (demi-iteration in fact)
+	 * 
+	 * @param referenceFile RIS ref file
+	 * @param filePref prefix for ref,kw files
+	 * @return corresponding new query from extracted keywords.
+	 */
+	public static String setupInitialRefs(String filePref,int kwLimit){
+		
+		// read file to construct refs if not done before
+		// during construction refs are added to global map
+		HashSet<Reference> initialRefs = RISReader.read(filePref+".ris");
+		
+		//zip ref file
+		Zipper.zip(filePref+".zip");
+		
+		CortextAPI.setupAPI();
+		CortextAPI.deleteAllCorpuses();
+		//upload corpus and get keywords
+		CortextAPI.getKeywords(CortextAPI.extractKeywords(CortextAPI.parseCorpus(CortextAPI.uploadCorpus(filePref+".zip"))),filePref+"_keywords.csv");
+		
+		//read kw file
+		String[][] kwFile = CSVReader.read(filePref+"/refs_"+filePref+"_0_keywords.csv","\t");
+		
+		//construct new request
+		String[] stems = new String[kwFile.length-1];
+		double[] cValues = new double[kwFile.length-1];
+		for(int i=1;i<kwFile.length;i++){cValues[i-1]=Double.parseDouble(kwFile[i][7].replace(",", "."));stems[i-1]=kwFile[i][0].replace(" ", "+");}
+		int[] perm = SortUtils.sortDesc(cValues);
+		
+		String query="";
+		
+		for(int k=0;k<kwLimit;k++){
+			String sep = "";
+			if(k>0){sep="+";}
+			query=query+sep+stems[perm[k]];
+		}
+		
+		return query;
+	}
+	
+	
 	
 	
 	/**
@@ -91,8 +158,18 @@ public class Main {
 	}
 	
 	
-	
-	public static void run(String confFile,String initialQuery,String resFold,int numIteration,int kwLimit){
+	/**
+	 * Run the algorithm.
+	 * 
+	 * @param confFile Path to configuration file
+	 * @param kwInit if true, initialization through initial set of keywords (as a string) ; else path to initial references file.
+	 * @param initialConfiguration : initial catalog query OR path to reference file.
+	 * 		  Rq : java is not here that adapted, can not give init function as arg.
+	 * @param resFold where result files are written
+	 * @param numIteration maximal number of iterations
+	 * @param kwLimit keywords number to keep at each iteration.
+	 */
+	public static void run(String confFile,boolean kwInit,String initialConfiguration,String resFold,int numIteration,int kwLimit){
 		//log to file
 		//Log.initLog("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/log");
 		//log to a default dir log, from where jar is called
@@ -102,6 +179,11 @@ public class Main {
 		setup(confFile);
 		
 		//initial query
+		
+		String initialQuery = initialConfiguration;
+		
+		if(!kwInit){initialQuery = setupInitialRefs(initialConfiguration,kwLimit);}
+		
 		String query = initialQuery;
 		
 		// run data
@@ -200,7 +282,7 @@ public class Main {
 		 * 
 		 * 	   - 
 		 */
-		String folder="",query="",confFile="";
+		String folder="",query="",confFile="";boolean initkw=true;
 		int numIterations = 0,kwLimit=0;
 		if(args.length==0){
 			// for tests : store results in runs folder in results.
@@ -208,13 +290,14 @@ public class Main {
 			query = "urban+geography+transportation+planning";
 			numIterations = 10;kwLimit = 5;
 		}
-		else if(args.length>=4){
+		else if(args.length>=5){
+			initkw = Boolean.parseBoolean(args[1]);
 			query = args[0];
-			folder=args[1];
-			numIterations = Integer.parseInt(args[2]);
-			kwLimit = Integer.parseInt(args[3]);
-			if(args.length==5){
-				confFile = args[4];
+			folder=args[2];
+			numIterations = Integer.parseInt(args[3]);
+			kwLimit = Integer.parseInt(args[4]);
+			if(args.length==6){
+				confFile = args[5];
 			}else{//default conf file
 				confFile = "/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/conf/default.conf";
 			}
@@ -225,7 +308,7 @@ public class Main {
 		   //run("city+development+transportation+network","data/testRun",10,10);			
 			//create dir if does not exists
 			(new File(folder)).mkdir();
-			run(confFile,query,folder,numIterations,kwLimit);
+			run(confFile,initkw,query,folder,numIterations,kwLimit);
 		}catch(Exception e){e.printStackTrace();Log.exception(e.getStackTrace());}
 	}
 

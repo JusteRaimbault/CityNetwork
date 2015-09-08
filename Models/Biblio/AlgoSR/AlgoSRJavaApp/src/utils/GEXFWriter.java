@@ -30,12 +30,12 @@ import java.util.Set;
 public class GEXFWriter{
 	
 	/**
-	 * Write the graph of References to gexf file.
+	 * Write the graph of References to gexf file, with link as citation network.
 	 * 
 	 * @param filepath
 	 * @param refs
 	 */
-	public static void write(String filepath,Set<Reference> refs){
+	public static void writeCitationNetwork(String filepath,Set<Reference> refs){
 		
 		Gexf gexf = new GexfImpl();		
 		//gexf.getMetadata().setCreator("").setDescription(");
@@ -95,6 +95,20 @@ public class GEXFWriter{
 		
 		
 	}
+	
+	
+	
+	/**
+	 * Write the kw network to gexf graph file ; in time ?
+	 * PB : do not have occurence of kws in papers, should be recalculated
+	 * 
+	 * @TODO
+	 * 
+	 */
+	public static void writeKeywordsNetwork(){
+		
+	}
+	
 	
 	
 	

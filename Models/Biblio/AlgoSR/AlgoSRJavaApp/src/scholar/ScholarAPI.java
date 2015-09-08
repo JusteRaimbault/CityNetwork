@@ -67,7 +67,15 @@ public class ScholarAPI {
 	public static TorThread tor;
 	
 	
-	
+	/**
+	 * 
+	 * TODO
+	 * 
+	 *   - more robust archi for requests : any request (initial, or citations ?) must go through
+	 *   scholarRequest function to ensureConnection ; request and ensureConnection being called only in scholarRequest
+	 *   
+	 * 
+	 */
 	
 	
 	

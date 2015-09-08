@@ -9,11 +9,12 @@ setwd(paste0(Sys.getenv('CN_HOME'),"/Models/Biblio/AlgoSR"))
 ## Utils functions
 
 # returns data frame of results
-executeAlgo <- function(query,resDir,numIteration,kwLimit){
+#   by default from initial request (intikw = "true") 
+executeAlgo <- function(query,resDir,numIteration,kwLimit,initkw="true"){
   #java command to execute algo from jar
   # providing query and result directory
   conf <- read.table('confRScript.conf',sep=";",header=TRUE)
-  command <- paste0('java -jar ',conf$jar,' ',query,' ',resDir,' ',numIteration,' ',kwLimit,' ',conf$conf)
+  command <- paste0('java -jar ',conf$jar,' ',query,' ',initkw,' ',resDir,' ',numIteration,' ',kwLimit,' ',conf$conf)
   show(paste('Executing ',command))
   system(command)
   res = read.table(paste0(resDir,"/stats.csv"),header=FALSE,sep=";")
