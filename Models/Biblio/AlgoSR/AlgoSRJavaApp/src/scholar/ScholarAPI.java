@@ -129,10 +129,6 @@ public class ScholarAPI {
 		HashSet<Reference> refs = new HashSet<Reference>();
 		
 		try{
-			//first request and define vars
-			//HttpGet httpGet = new HttpGet("http://scholar.google.fr/scholar?q="+request);
-			//HttpResponse resp = client.execute(httpGet,context);
-			//org.jsoup.nodes.Document dom = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
 			
 			Document dom=ensureConnection(new Document(""),request);
 			//Document dom = request("scholar.google.com","scholar?q="+request);
@@ -143,9 +139,6 @@ public class ScholarAPI {
 			
 		    addPage(refs,e,maxNumResponses);
 			int resultsNumber = refs.size();
-		    
-		    // No need to consume here
-		    //EntityUtils.consumeQuietly(resp.getEntity());
 		    
 			 // try successive requests without sleeping
 		     // iterate previous operation with start option in query
@@ -177,49 +170,53 @@ public class ScholarAPI {
 		try{
 			for(Reference r:refs){
 				System.out.println("Getting cit for ref "+r.toString());
-				// first get scholar ID
-				//System.out.println(r.scholarID);
-				// scholar request ensures connexion ?
-				scholarRequest(r.title.replace(" ", "+"),1);
-				Thread.sleep(2000);
-				//System.out.println(r.scholarID);
-				// while still results on cluster page, iterate
-				//Document dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
-				Document dom = request("scholar.google.com","scholar?cites="+r.scholarID);
-				System.out.println("ID : "+r.scholarID);
-				
-				//check if first response is empty
-				//if(e.size()==0){System.out.println(dom.html());}
-				
-				// need to handle google blocking
-				//System.out.println(dom.getElementsByClass("gs_hatr").size());
-				
-				dom=ensureConnection(dom,"scholar?cites="+r.scholarID);
-				
-				Elements e = dom.getElementsByClass("gs_ri");
-				
-				
-				for(Element c:e){
-			    	String cluster = getCluster(c);
-		    		String title = c.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]","");
-		    		r.citing.add(Reference.construct("", title, "", "", cluster));
-			    }
-				int l=10;
-				while(e.size()>0){
-					//dom = Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID+"&start="+l),context).getEntity().getContent(),"UTF-8","");
-					System.out.println(l);
-					dom = request("scholar.google.com","scholar?cites="+r.scholarID+"&start="+l);
-					Thread.sleep(10000);
-					e = dom.getElementsByClass("gs_ri");
-					for(Element c:e){
-				    	String cluster = getCluster(c);
-			    		String title = c.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]","");
-			    		r.citing.add(Reference.construct("", title, "", "", cluster));
-				    }
-				    //System.out.println(l);
-					l=l+10;
+
+				if(r.citing.size()>0){
+					System.out.println("Citing refs already filled !");
 				}
-				System.out.println("Citing refs : "+r.citing.size());
+				else{
+					// first get scholar ID
+					// scholar request ensures connexion ?
+					scholarRequest(r.title.replace(" ", "+"),1,"direct",1);
+					Thread.sleep(2000);//TODO needed ?
+					//System.out.println(r.scholarID);
+					// while still results on cluster page, iterate
+					//Document dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
+					//Document dom = request("scholar.google.com","scholar?cites="+r.scholarID);
+					System.out.println("ID : "+r.scholarID);
+
+					//check if first response is empty
+					//if(e.size()==0){System.out.println(dom.html());}
+
+					// need to handle google blocking
+					//System.out.println(dom.getElementsByClass("gs_hatr").size());
+
+					HashSet<Reference> citing = scholarRequest(r.scholarID,10,"cites",1);
+					for(Reference c:citing){r.citing.add(c);}
+							/*
+					dom=ensureConnection(dom,"scholar?cites="+r.scholarID);
+
+					Elements e = dom.getElementsByClass("gs_ri");
+
+
+					for(Element c:e){
+						String cluster = getCluster(c);
+						String title = c.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]","");
+						r.citing.add(Reference.construct("", title, "", "", cluster));
+					}
+					*/
+					
+					
+					
+					int l=10;
+					while(citing.size()>0){
+						System.out.println("start : "+l);
+						citing = scholarRequest(r.scholarID,10,"cites",1);
+						for(Reference c:citing){r.citing.add(c);}
+						l=l+10;
+					}
+					System.out.println("Citing refs : "+r.citing.size());
+				}
 			}
 		}catch(Exception e){e.printStackTrace();}
 	}
@@ -227,31 +224,25 @@ public class ScholarAPI {
 	
 	
 	/**
-	 * Sleeps to ensure scholar connection (google blocking).
+	 * Switch TOR port to ensure scholar connection (google blocking).
 	 * 
 	 * @param d
 	 * @param r
 	 * @return
 	 */
-	private static Document ensureConnection(Document d,String request) {
-		Document dom=d;
+	private static Document ensureConnection(String request) {
+		Document dom = request("scholar.google.com",request);
 		try{
 			if(dom.getElementsByClass("gs_hatr").size()==0){
 				//System.out.println(dom.html());
 				while(dom.getElementsByClass("gs_hatr").size()==0){
-					
+					// swith TOR port
 				    System.out.println("Current IP blocked by ggl fuckers ; switching currentTorThread.");
-				    
 				    TorPool.switchPort();
-					
+					// reinit scholar API
 					init();
-					
-				    //note : interfer with other APIs --> may be useful to separate them for a more stable archi.
-				    //dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
-				    //dom = request("scholar.google.com","scholar?cites="+r.scholarID);
+					//update the request
 					dom = request("scholar.google.com",request);
-					
-					
 				}
 			}
 		}catch(Exception e){e.printStackTrace();}
@@ -286,7 +277,7 @@ public class ScholarAPI {
 	/**
 	 * Get cluster from an element
 	 * 
-	 * @param e
+	 * @param org.jsoup.nodes.Element e
 	 */
 	private static String getCluster(Element e){
 		String cluster = "";
@@ -302,60 +293,29 @@ public class ScholarAPI {
 	}
 	
 	
-	public static Document request(String host,String url){
-		
+	/**
+	 * Simple HTTP Get request to host, url.
+	 * 
+	 * @param String host
+	 * @param String url
+	 * @return org.jsoup.nodes.Document dom
+	 */
+	public static Document request(String host,String url){	
 		Document res = null;
-		
-		/*
-		Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory>create()
-		        .register("http", PlainConnectionSocketFactory.INSTANCE)
-		        .register("https", new MyConnectionSocketFactory(SSLContexts.createSystemDefault()))
-		        .build();
-		PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(reg);
-		CloseableHttpClient httpclient = HttpClients.custom()
-		        .setConnectionManager(cm)
-		        .build();
-		*/
-		        
 		try {
-		    //InetSocketAddress socksaddr = new InetSocketAddress("localhost", 9050);
-		    
-		    
-		    //HttpClientContext context = HttpClientContext.create();
-		    //context.setAttribute("socks.address", socksaddr);
-
-		    //HttpHost target = new HttpHost(host, 80, "http");
-		    
-			
-			
-		    //HttpGet request = new HttpGet("/"+url);
-
-		    //System.out.println("Executing request " + request + " to " + target + " via SOCKS proxy " + socksaddr);
-		    //System.out.println(context.getAttribute("socks.address"));
-		    //CloseableHttpResponse response = httpclient.execute(target, request);
-		    
-			//client.getParams().setParameter("socksProxyHost", "127.0.0.1");
-			//client.getParams().setParameter("socksProxyPort",9050);
-			
 		    HttpResponse response = client.execute(new HttpGet("http://"+host+"/"+url));
 		    try {
-		        //System.out.println("----------------------------------------");
-		        //System.out.println(response.getStatusLine());
-		        
-		    	//EntityUtils.consume(response.getEntity());
 		    	res= Jsoup.parse(response.getEntity().getContent(),"UTF-8","");
 		    	EntityUtils.consume(response.getEntity());
 		    }catch(Exception e){e.printStackTrace();}
 		} catch(Exception e){e.printStackTrace();}
-		
 		return res;
-		
-		
-		
 	}
 	
 	
 	/**
+	 * Tests.
+	 * 
 	 * @param args
 	 * @throws Exception 
 	 */
