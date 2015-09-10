@@ -75,11 +75,11 @@ public class TestTor {
 			  while(currentLine!= null){System.out.println(currentLine);currentLine=r.readLine();};
 			  
 			  ScholarAPI.init();
-			  Document d = ScholarAPI.request("scholar.google.com","scholar?q=urban+network&lookup=0&start=0");
+			  Document d = ScholarAPI.request("scholar.google.com","scholar?q=transfer+theorem+probability&lookup=0&start=0");
 			  try{
 				  System.out.println(d.getElementsByClass("gs_rt").first().text());
 				  successCount++;
-			  }catch(Exception e){System.out.println("Connexion refused by ggl fuckers");}
+			  }catch(Exception e){e.printStackTrace();System.out.println("Connexion refused by ggl fuckers");}
 			  
 			  
 			}catch(Exception e){e.printStackTrace();}
@@ -101,10 +101,10 @@ public class TestTor {
 		
 		//testCircuitsIP();
 		
-		TorPool.forceStopPID(11332,11364);
+		//TorPool.forceStopPID(675,774);
 		//TorPool.forceStop(9050, 9100);
 		
-		//testScholarAvailability();
+		testScholarAvailability();
 		
 	}
 

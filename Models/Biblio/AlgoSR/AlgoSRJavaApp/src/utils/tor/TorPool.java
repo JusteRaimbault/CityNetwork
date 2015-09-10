@@ -140,7 +140,7 @@ public class TorPool {
 		 * 
 		 */
 		
-		Thread.sleep(1000*torthreads.size());
+		Thread.sleep(10000*torthreads.size());
 		}catch(Exception e){e.printStackTrace();}
 	}
 	
