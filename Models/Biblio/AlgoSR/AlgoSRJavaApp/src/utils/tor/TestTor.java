@@ -57,7 +57,7 @@ public class TestTor {
 	
 	public static void testScholarAvailability(){
 		
-		int totalIps = 100;
+		int totalIps = 50é;
 		int successCount = 0;
 		
 		TorPool.initPool(9050, 9050+totalIps, totalIps);
