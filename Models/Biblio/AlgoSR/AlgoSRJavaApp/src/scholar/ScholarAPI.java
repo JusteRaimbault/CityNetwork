@@ -121,37 +121,30 @@ public class ScholarAPI {
 	/**
 	 * Get references from a scholar request - citations not filled for more flexibility.
 	 * 
-	 * @param request
+	 * 
+	 * @param request : either title, keywords, or ID in citing case
 	 * @param maxNumResponses
+	 * @param requestType "direct" or "cites"
 	 * @return
 	 */
-	public static HashSet<Reference> scholarRequest(String request,int maxNumResponses){
+	public static HashSet<Reference> scholarRequest(String request,int maxNumResponses,String requestType){
 		HashSet<Reference> refs = new HashSet<Reference>();
+		
+		String query = "";
+		
+		switch (requestType){
+		   case "direct": query="scholar?q="+request;break;
+		   case "cites": query="scholar?cites="+request;break;
+		}
+		
 		
 		try{
 			
-			Document dom=ensureConnection(new Document(""),request);
-			//Document dom = request("scholar.google.com","scholar?q="+request);
-			
-			// a query result is elements of class gs_ri
-			Elements e = dom.getElementsByClass("gs_ri");
-			
-			
-		    addPage(refs,e,maxNumResponses);
+		    addPage(refs,ensureConnection(query),maxNumResponses);
 			int resultsNumber = refs.size();
-		    
-			 // try successive requests without sleeping
-		     // iterate previous operation with start option in query
-		     
+		   
 			 for(int l=10;l<maxNumResponses;l=l+10){
-			     //httpGet = new HttpGet("http://scholar.google.fr/scholar?q="+request+"&lookup=0&start="+l);
-			     //resp = client.execute(httpGet,context);
-			     // construct dom
-			     //dom = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
-			     dom = request("scholar.google.com","scholar?q="+request+"&lookup=0&start="+l);
-				 
-				 e = dom.getElementsByClass("gs_ri");
-			     addPage(refs,e,maxNumResponses-resultsNumber);
+			     addPage(refs,ensureConnection(query+"&lookup=0&start="+l),maxNumResponses-resultsNumber);
 			     resultsNumber = refs.size();
 			 }
 		}catch(Exception e){e.printStackTrace();}
@@ -176,45 +169,13 @@ public class ScholarAPI {
 				}
 				else{
 					// first get scholar ID
-					// scholar request ensures connexion ?
-					scholarRequest(r.title.replace(" ", "+"),1,"direct",1);
-					Thread.sleep(2000);//TODO needed ?
-					//System.out.println(r.scholarID);
-					// while still results on cluster page, iterate
-					//Document dom=Jsoup.parse(client.execute(new HttpGet("http://scholar.google.fr/scholar?cites="+r.scholarID),context).getEntity().getContent(),"UTF-8","");
-					//Document dom = request("scholar.google.com","scholar?cites="+r.scholarID);
+					scholarRequest(r.title.replace(" ", "+"),1,"direct");
+									
 					System.out.println("ID : "+r.scholarID);
 
-					//check if first response is empty
-					//if(e.size()==0){System.out.println(dom.html());}
-
-					// need to handle google blocking
-					//System.out.println(dom.getElementsByClass("gs_hatr").size());
-
-					HashSet<Reference> citing = scholarRequest(r.scholarID,10,"cites",1);
+					HashSet<Reference> citing = scholarRequest(r.scholarID,10,"cites");
 					for(Reference c:citing){r.citing.add(c);}
-							/*
-					dom=ensureConnection(dom,"scholar?cites="+r.scholarID);
-
-					Elements e = dom.getElementsByClass("gs_ri");
-
-
-					for(Element c:e){
-						String cluster = getCluster(c);
-						String title = c.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]","");
-						r.citing.add(Reference.construct("", title, "", "", cluster));
-					}
-					*/
 					
-					
-					
-					int l=10;
-					while(citing.size()>0){
-						System.out.println("start : "+l);
-						citing = scholarRequest(r.scholarID,10,"cites",1);
-						for(Reference c:citing){r.citing.add(c);}
-						l=l+10;
-					}
 					System.out.println("Citing refs : "+r.citing.size());
 				}
 			}
@@ -233,12 +194,13 @@ public class ScholarAPI {
 	private static Document ensureConnection(String request) {
 		Document dom = request("scholar.google.com",request);
 		try{
-			if(dom.getElementsByClass("gs_hatr").size()==0){
-				//System.out.println(dom.html());
-				while(dom.getElementsByClass("gs_hatr").size()==0){
+			if(dom.getElementsByClass("gs_res_bdy").size()==0){
+				System.out.println(dom.html());
+				while(dom.getElementsByClass("gs_res_bdy").size()==0){
 					// swith TOR port
 				    System.out.println("Current IP blocked by ggl fuckers ; switching currentTorThread.");
 				    TorPool.switchPort();
+				    Thread.sleep(2000);
 					// reinit scholar API
 					init();
 					//update the request
@@ -253,11 +215,12 @@ public class ScholarAPI {
 	/**
 	 * Local function parsing a scholar response.
 	 * @param refs
-	 * @param e
+	 * @param Document dom
 	 * @param remResponses
 	 */
-	private static void addPage(HashSet<Reference> refs,Elements e,int remResponses){
+	private static void addPage(HashSet<Reference> refs,Document dom,int remResponses){
 		int resultsNumber = 0;
+		Elements e = dom.getElementsByClass("gs_ri");
 		for(Element r:e){
 	    	if(resultsNumber<remResponses){
 	    		//creates ref
