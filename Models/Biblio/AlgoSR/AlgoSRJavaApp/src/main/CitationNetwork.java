@@ -140,7 +140,11 @@ public class CitationNetwork {
 		
 		//import database
 		Set<Reference> initialRefs = CybergeoImport.importBase();
-				
+		
+		// construct network
+		buildCitationNetwork();
+		
+		
 		
 	}
 	
@@ -153,7 +157,7 @@ public class CitationNetwork {
 	public static void main(String[] args) {
 		
 		
-		//TorPool.forceStopPID(5836, 5885);
+		TorPool.forceStopPID(6849, 6897);
 		
 		buildCitationNetworkFromRefFile("data/bib/physics.ris","res/citation/test3.gexf");
 		

@@ -86,10 +86,12 @@ public class TorThread extends Thread {
 	public void cleanStop(){
 		try{
 			running=false;
-			String pid = new BufferedReader(new FileReader(new File("tmp/.torpid"+port))).readLine();
-			System.out.println("running: "+running+" ; sending SIGTERM to tor... PID : "+pid);
-			Process p=Runtime.getRuntime().exec("kill -SIGTERM "+pid);p.waitFor();
-			
+			try{
+				String pid = new BufferedReader(new FileReader(new File("tmp/.torpid"+port))).readLine();
+				System.out.println("running: "+running+" ; sending SIGTERM to tor... PID : "+pid);
+				Process p=Runtime.getRuntime().exec("kill -SIGTERM "+pid);p.waitFor();
+			}catch(Exception e){e.printStackTrace();}
+
 			//put port again in list of available ports
 			TorPool.available_ports.put(new Integer(port), new Integer(port));
 			TorPool.used_ports.remove(new Integer(port));
@@ -98,8 +100,6 @@ public class TorThread extends Thread {
 			Thread.sleep(500);
 			
 			new File("tmp/.torpid"+port).delete();
-			
-			this.interrupt();
 			
 		}catch(Exception e){e.printStackTrace();}
 	}

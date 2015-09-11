@@ -138,5 +138,14 @@ public class MendeleyAPI{
 		}catch(Exception e){e.printStackTrace();return null;}
 	}
 	
+	
+	/**
+	 * Get abstracts 
+	 */
+	public static void getAbstracts(){
+		
+	}
+	
+	
 
 }
