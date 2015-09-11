@@ -132,19 +132,25 @@ public class CitationNetwork {
 	/**
 	 * Build the network 
 	 */
-	public static void buildCitationNetworkFromSQL(){
+	public static void buildCitationNetworkFromSQL(String outFile){
 		
 		Main.setup("conf/default.conf");
 		TorPool.setupConnectionPool(50,false);
 		ScholarAPI.init();
 		
 		//import database
+		System.out.println("Setting up from sql...");
+		CybergeoImport.setupSQL();
 		Set<Reference> initialRefs = CybergeoImport.importBase();
+		System.out.println("References :  : "+Reference.references.size());
+		
 		
 		// construct network
 		buildCitationNetwork();
 		
+        GEXFWriter.writeCitationNetwork(outFile, Reference.references.keySet());
 		
+		TorPool.stopPool();
 		
 	}
 	
@@ -157,9 +163,11 @@ public class CitationNetwork {
 	public static void main(String[] args) {
 		
 		
-		TorPool.forceStopPID(6849, 6897);
+		TorPool.forceStopPID(7535, 7754);
 		
-		buildCitationNetworkFromRefFile("data/bib/physics.ris","res/citation/test3.gexf");
+		//buildCitationNetworkFromSQL("res/citation/cybergeo.gexf");
+		
+		buildCitationNetworkFromRefFile("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle.ris","res/citation/cybergeo.gexf");
 		
 		//buildCitationNetworkFromRefFile("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_frenchTitles_fullbase.ris","res/citation/cybergeo.gexf");
 		

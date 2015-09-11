@@ -21,6 +21,7 @@ import main.Main;
 import main.Reference;
 import mendeley.MendeleyAPI;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
@@ -170,17 +171,25 @@ public class ScholarAPI {
 					System.out.println("Citing refs already filled !");
 				}
 				else{
-					// first get scholar ID
-					Reference rr = null;
-					for(Reference nr:scholarRequest(r.title.replace(" ", "+" ),1,"exact")){rr=nr;};
-									
-					System.out.println("ID : "+rr.scholarID);
-					r.scholarID=rr.scholarID;
-					
-					HashSet<Reference> citing = scholarRequest(r.scholarID,10000,"cites");
-					for(Reference c:citing){r.citing.add(c);}
-					
-					System.out.println("Citing refs : "+r.citing.size());
+					try{
+						// first get scholar ID
+						Reference rr = null;
+						for(Reference nr:scholarRequest(r.title.replace(" ", "+" ),1,"exact")){rr=nr;};
+						//try direct if no result
+						if(rr==null){for(Reference nr:scholarRequest(r.title.replace(" ", "+" ),1,"direct")){rr=nr;};}	
+
+						if(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(rr.title),StringUtils.lowerCase(r.title))<4){
+
+							System.out.println("ID : "+rr.scholarID);
+							r.scholarID=rr.scholarID;
+
+							HashSet<Reference> citing = scholarRequest(r.scholarID,10000,"cites");
+							for(Reference c:citing){r.citing.add(c);}
+
+						}
+						System.out.println("Citing refs : "+r.citing.size());
+
+					}catch(Exception e){e.printStackTrace();}
 				}
 			}
 		}catch(Exception e){e.printStackTrace();}
