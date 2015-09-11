@@ -99,7 +99,7 @@ public class TorThread extends Thread {
 			
 			new File("tmp/.torpid"+port).delete();
 			
-			
+			this.interrupt();
 			
 		}catch(Exception e){e.printStackTrace();}
 	}

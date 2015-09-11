@@ -41,6 +41,10 @@ public class RISReader {
 			   if(currentLine.startsWith("PY")){currentYear=currentLine.split("PY  - ")[1];}
 			   currentLine = reader.readLine();
 		   }
+		   
+		   //add the last ref
+		   refs.add(Reference.construct("", currentTitle, currentAbstract, currentYear, ""));
+		   
 		   reader.close();
 		   
 		}catch(Exception e){e.printStackTrace();return null;}

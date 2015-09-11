@@ -56,11 +56,13 @@ public class GEXFWriter{
 		// create nodes - maintaining a HashMap Ref -> Node
 		HashMap<Reference,Node> nodes = new HashMap<Reference,Node>();
 		
+		int i=0;
 		for(Reference ref:refs){
 			String authors = "";for(String a:ref.authors){authors=authors+a+" and ";}if(authors.length()>5)authors=authors.substring(0, authors.length()-5);
 			String keywords = "";for(String k:ref.keywords){keywords=keywords+k+" ; ";}if(keywords.length()>3)keywords=keywords.substring(0, keywords.length()-3);
+			ref.id=new Integer(i).toString();
 			
-			Node node = graph.createNode("0").setLabel(ref.id);
+			Node node = graph.createNode(ref.id).setLabel(ref.title);
 			node.getAttributeValues()
 			  .addValue(attID, ref.id)
 			  .addValue(attSchID, ref.scholarID)
@@ -71,6 +73,7 @@ public class GEXFWriter{
 			  .addValue(attYear, ref.year)
 			  ;
 			nodes.put(ref, node);
+			i++;
 		}
 		
 		// create citation links
@@ -78,7 +81,7 @@ public class GEXFWriter{
 			Node d = nodes.get(ref);
 			for(Reference c:ref.citing){
 				//all refs must be in table (set consistency) and are therefore in node table
-				nodes.get(c).connectTo(d);
+				if(!d.hasEdgeTo(c.id)){nodes.get(c).connectTo(d);}
 			}
 		}
 		

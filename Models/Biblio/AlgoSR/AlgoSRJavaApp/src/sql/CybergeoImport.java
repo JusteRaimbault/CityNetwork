@@ -57,6 +57,7 @@ public class CybergeoImport {
 			      if(author.next()){r.authors.add(author.getString(1)+" , "+author.getString(2));}
 			   }
 			   res.add(r);
+			   System.out.println(r.toString());
 		   }
 		   
 		}catch(Exception e){
@@ -89,10 +90,20 @@ public class CybergeoImport {
 	 */
 	public static String rawTitle(String title,String altertitle){
 		// find english title : if not in altertitle, then must be the main title
-		Document d = Jsoup.parse(altertitle);
+		//Document ad = Jsoup.parse(altertitle);
+		Document d = Jsoup.parse(title);
+		return d.text();
+		/*
 		try{
-		return d.getElementsByAttributeValue("lang", "fr").first().text();
-		}catch(Exception e){return title;}
+		    return d.getElementsByAttributeValue("lang", "en").first().text();
+		}catch(Exception e){
+			try{
+				return ad.getElementsByAttributeValue("lang", "en").first().text();
+			}catch(Exception ee){
+			   return d.getElementsByTag("span").text();
+			}
+		}
+		*/
 	}
 	
 	
@@ -103,7 +114,7 @@ public class CybergeoImport {
 	public static void main(String[] args) {
 		setupSQL();
 		//GEXFWriter.write("res/test_cyb_gexf.gexf", importBase());
-		RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_frenchTitles_fullbase.ris", importBase());
+		RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle.ris", importBase());
 		
 		/*
 		try{

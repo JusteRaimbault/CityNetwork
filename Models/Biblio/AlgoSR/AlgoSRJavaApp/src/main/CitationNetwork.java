@@ -6,8 +6,11 @@ package main;
 import java.io.File;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
+import mendeley.MendeleyAPI;
 import scholar.ScholarAPI;
+import sql.CybergeoImport;
 import utils.CSVWriter;
 import utils.GEXFWriter;
 import utils.RISReader;
@@ -97,6 +100,52 @@ public class CitationNetwork {
 	}
 	
 	
+	/**
+	 * Given a RIS ref file, builds its corresponding citation network.
+	 */
+	public static void buildCitationNetworkFromRefFile(String refFile,String outFile){
+        Main.setup("conf/default.conf");
+		TorPool.setupConnectionPool(50,false);
+		ScholarAPI.init();
+		
+		System.out.println("Reconstructing References from file...");
+		RISReader.read(refFile);
+		
+		System.out.println("Initial Refs : ");for(Reference r:Reference.references.keySet()){System.out.println(r.toString());}
+		
+		System.out.println("Getting Citation Network...");
+		buildCitationNetwork();
+		
+		System.out.println("Getting Abstracts...");
+		MendeleyAPI.setupAPI();
+		for(Reference r:Reference.references.keySet()){
+			System.out.println(r.title.replace(" ", "+"));
+			//MendeleyAPI.catalogRequest(r.title.replace(" ", "+"), 1);
+		}
+		
+		GEXFWriter.writeCitationNetwork(outFile, Reference.references.keySet());
+		
+		TorPool.stopPool();
+	}
+	
+	
+	/**
+	 * Build the network 
+	 */
+	public static void buildCitationNetworkFromSQL(){
+		
+		Main.setup("conf/default.conf");
+		TorPool.setupConnectionPool(50,false);
+		ScholarAPI.init();
+		
+		//import database
+		Set<Reference> initialRefs = CybergeoImport.importBase();
+				
+		
+	}
+	
+	
+	
 	
 	/**
 	 * @param args
@@ -104,27 +153,24 @@ public class CitationNetwork {
 	public static void main(String[] args) {
 		
 		
-		//String[] keywords = {"land+use+transport+interaction","city+system+network","network+urban+modeling","population+density+transport","transportation+network+urban+growth","urban+morphogenesis+network"};
-		String[] keywords = {"land+use+transport+interaction"};
+		//TorPool.forceStopPID(5836, 5885);
 		
-		TorPool.forceStopPID(2820, 2893);
+		buildCitationNetworkFromRefFile("data/bib/physics.ris","res/citation/test3.gexf");
+		
+		//buildCitationNetworkFromRefFile("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_frenchTitles_fullbase.ris","res/citation/cybergeo.gexf");
+		
+		/*
+		//String[] keywords = {"land+use+transport+interaction","city+system+network","network+urban+modeling","population+density+transport","transportation+network+urban+growth","urban+morphogenesis+network"};
+		
+		String[] keywords = {"land+use+transport+interaction"};
 		
 		buildGeneralizedNetwork(
 				"/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/cit/refs_",
 				keywords,
 				"res/citation/citations",
 				20);
-		/*Main.setup("conf/default.conf");ScholarAPI.setup("");
-		
-		// test if nw building
-		RISReader.read("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/junk/refs_land+use+transport+interaction_8.ris");
-		//clones table to keep original refs
-		HashSet<Reference> orig = new HashSet<Reference>(Reference.references.keySet());
-		buildCitationNetwork();
-		//count effective links
-		int links = 0;
-		for(Reference r:orig){for(Reference c:r.citing){if(orig.contains(c)){links++;System.out.println(c);}}}
-		System.out.println("links : "+links);*/
+				
+		*/
 	}
 
 }

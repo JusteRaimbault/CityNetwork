@@ -134,6 +134,7 @@ public class ScholarAPI {
 		
 		switch (requestType){
 		   case "direct": query="scholar?q="+request;break;
+		   case "exact" : query="scholar?as_q="+request;break;
 		   case "cites": query="scholar?cites="+request;break;
 		}
 		
@@ -171,7 +172,7 @@ public class ScholarAPI {
 				else{
 					// first get scholar ID
 					Reference rr = null;
-					for(Reference nr:scholarRequest(r.title.replace(" ", "+"),1,"direct")){rr=nr;};
+					for(Reference nr:scholarRequest(r.title.replace(" ", "+" ),1,"exact")){rr=nr;};
 									
 					System.out.println("ID : "+rr.scholarID);
 					r.scholarID=rr.scholarID;
@@ -195,7 +196,9 @@ public class ScholarAPI {
 	 * @return
 	 */
 	private static Document ensureConnection(String request) {
-		Document dom = request("scholar.google.com",request);
+		Document dom = new Document("");
+		try{dom=request("scholar.google.com",request);}
+		catch(Exception e){e.printStackTrace();}
 		System.out.println("Request : "+request);
 		try{System.out.println(dom.getElementsByClass("gs_rt").first().text());}catch(Exception e){}
 		try{System.out.println(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
