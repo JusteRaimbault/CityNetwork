@@ -43,18 +43,26 @@ public class TorPool {
 	 */
 	public static TorThread currentThread = null;
 	
+	/**
+	 * Are TOR threads verbose ?
+	 */
+	public static boolean verbose;
+	
+	public static final int initialThreadSleepingTime = 2000;
+	
 	
 
 	/**
 	 * Initialize the pool of tor connexion used to avoid ggl blocking.
 	 */
-	public static void setupConnectionPool(int nPorts){
+	public static void setupConnectionPool(int nPorts,boolean v){
+		verbose=v;
 		System.setProperty("socksProxyHost", "127.0.0.1");
 		initPool(9050, 9050+nPorts, nPorts);
 		runPool();
 		
 		// switch the port to the first working
-		switchPort();
+		switchPort(false);
 	}
 	
 	
@@ -92,16 +100,19 @@ public class TorPool {
 	 * [0.5 sucess rate, may need many ?]
 	 * 
 	 */
-	public static void switchPort(){
+	public static void switchPort(boolean createNew){
 		
 		try{
 			// current thread may be null when called at initialization.
 			if(currentThread != null){
 				currentThread.cleanStop();
 				// create the new
-				TorThread t = new TorThread();
-				torthreads.addLast(t);
-				t.start();
+				if(createNew){
+					TorThread t = new TorThread();
+					torthreads.addLast(t);
+					t.start();
+					Thread.sleep(initialThreadSleepingTime);
+				}	
 				
 			}
 			// pick the first, list never empty
@@ -137,10 +148,12 @@ public class TorPool {
 		 * 
 		 * TODO : surely not linear, as depend - on Java multi Thread mgt ; on tor common conf ?
 		 * -> find temporal profile ; implement heuristic.
+		 * PB : depends also on connexion ; memory ; etc
 		 * 
 		 */
 		
-		Thread.sleep(10000*torthreads.size());
+		int sleepingTime = initialThreadSleepingTime*torthreads.size();
+		for(int t=0;t<torthreads.size();t++){Thread.sleep(initialThreadSleepingTime);System.out.println("Sleeping : rem. "+(sleepingTime-t*initialThreadSleepingTime)/1000+"sec");}
 		}catch(Exception e){e.printStackTrace();}
 	}
 	

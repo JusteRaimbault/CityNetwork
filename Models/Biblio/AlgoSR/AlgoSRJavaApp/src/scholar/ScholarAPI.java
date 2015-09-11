@@ -140,11 +140,12 @@ public class ScholarAPI {
 		
 		try{
 			
-		    addPage(refs,ensureConnection(query),maxNumResponses);
+		    addPage(refs,ensureConnection(query+"&lookup=0&start=0"),maxNumResponses);
 			int resultsNumber = refs.size();
-		   
+		    
 			 for(int l=10;l<maxNumResponses;l=l+10){
 			     addPage(refs,ensureConnection(query+"&lookup=0&start="+l),maxNumResponses-resultsNumber);
+			     if(refs.size()==resultsNumber){break;}
 			     resultsNumber = refs.size();
 			 }
 		}catch(Exception e){e.printStackTrace();}
@@ -169,11 +170,13 @@ public class ScholarAPI {
 				}
 				else{
 					// first get scholar ID
-					scholarRequest(r.title.replace(" ", "+"),1,"direct");
+					Reference rr = null;
+					for(Reference nr:scholarRequest(r.title.replace(" ", "+"),1,"direct")){rr=nr;};
 									
-					System.out.println("ID : "+r.scholarID);
-
-					HashSet<Reference> citing = scholarRequest(r.scholarID,10,"cites");
+					System.out.println("ID : "+rr.scholarID);
+					r.scholarID=rr.scholarID;
+					
+					HashSet<Reference> citing = scholarRequest(r.scholarID,10000,"cites");
 					for(Reference c:citing){r.citing.add(c);}
 					
 					System.out.println("Citing refs : "+r.citing.size());
@@ -193,18 +196,24 @@ public class ScholarAPI {
 	 */
 	private static Document ensureConnection(String request) {
 		Document dom = request("scholar.google.com",request);
+		System.out.println("Request : "+request);
+		try{System.out.println(dom.getElementsByClass("gs_rt").first().text());}catch(Exception e){}
+		try{System.out.println(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
+		
 		try{
-			if(dom.getElementsByClass("gs_res_bdy").size()==0){
-				System.out.println(dom.html());
-				while(dom.getElementsByClass("gs_res_bdy").size()==0){
+			if(dom.getElementById("gs_res_bdy")==null){
+				//System.out.println(dom.html());
+				while(dom.getElementById("gs_res_bdy")==null){
 					// swith TOR port
 				    System.out.println("Current IP blocked by ggl fuckers ; switching currentTorThread.");
-				    TorPool.switchPort();
-				    Thread.sleep(2000);
+				    TorPool.switchPort(true);
+				    
 					// reinit scholar API
 					init();
 					//update the request
 					dom = request("scholar.google.com",request);
+					try{System.out.println(dom.getElementsByClass("gs_rt").first().text());}catch(Exception e){}
+					try{System.out.println(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
 				}
 			}
 		}catch(Exception e){e.printStackTrace();}
@@ -214,6 +223,7 @@ public class ScholarAPI {
 	
 	/**
 	 * Local function parsing a scholar response.
+	 * 
 	 * @param refs
 	 * @param Document dom
 	 * @param remResponses
@@ -223,15 +233,7 @@ public class ScholarAPI {
 		Elements e = dom.getElementsByClass("gs_ri");
 		for(Element r:e){
 	    	if(resultsNumber<remResponses){
-	    		//creates ref
-	    		//System.out.println(r.getElementsByClass("gs_rt").text());
-	    		
-	    		//get citation link
-	    		String cluster = getCluster(r);
-	    		//get title using regex matching to eliminate types in brackets
-	    		String title = r.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]","");
-	    		//System.out.println(cluster+" - "+title);
-	    		refs.add(Reference.construct("", title, "", "", cluster));
+	    		refs.add(Reference.construct("", getTitle(r), "", getYear(r), getCluster(r)));
 	    		resultsNumber++;
 	    	}
 	    }
@@ -255,6 +257,36 @@ public class ScholarAPI {
 		return cluster;
 	}
 	
+	/**
+	 * Get title given the element.
+	 * 
+	 * @param e
+	 * @return
+	 */
+	private static String getTitle(Element e){
+		try{
+		  return e.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]","");
+		}catch(Exception ex){ex.printStackTrace();return "";}
+	}
+	
+	
+	/**
+	 * Get year
+	 * 
+	 * @param e
+	 * @return
+	 */
+	private static String getYear(Element e){
+		try{
+			String t = e.getElementsByClass("gs_a").first().text();
+			String y = "";
+			for(int i=0;i<t.length()-4;i++){
+				if(t.substring(i, i+4).matches("\\d\\d\\d\\d")){y=t.substring(i, i+4);};
+			}
+			return y;
+		}catch(Exception ex){ex.printStackTrace();return "";}
+	}
+
 	
 	/**
 	 * Simple HTTP Get request to host, url.
@@ -283,6 +315,19 @@ public class ScholarAPI {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
+		
+		
+		
+		/*
+		// test regex --> dirty
+		String t="abc - 1998 - azerty";
+		for(int i=0;i<t.length()-4;i++){
+		  System.out.println(t.substring(i, i+4).matches("\\d\\d\\d\\d"));
+		}
+		*/
+		
+		
+		/*
 		init();
 		//tor.running=false;
 		//tor=new TorThread();tor.start();
@@ -296,6 +341,9 @@ public class ScholarAPI {
 		//tor.running=false;
 		//Thread.sleep(1000);
 		}
+		
+		*/
+		
 		// test setup
 		//setup("");
 		

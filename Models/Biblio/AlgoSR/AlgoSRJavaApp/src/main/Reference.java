@@ -129,15 +129,19 @@ public class Reference {
 	/**
 	 * Static constructor used to construct objects only one time.
 	 * 
-	 * @param i
-	 * @return
+	 * @param i : id
+	 * @param t : title
+	 * @param r : resume
+	 * @param y : year
+	 * @param schID : scholar ID
+	 * @return the Reference object, ensuring overall unicity through HashConsing
 	 */
 	public static Reference construct(String i,String t,String r,String y,String schID){
 		Reference ref = new Reference(t);
 		if(references.containsKey(ref)){
 			Reference existingRef = references.get(ref);
 			//override existing records if not empty fields provided --> the function can be used as a table updater --
-			//ref in table has thus always the lastest requested values. NO ?		
+			//ref in table has thus always the latest requested values. NO ?		
 			if(i.length()>0){existingRef.id=i;}
 			if(r.length()>0){existingRef.resume=r;}
 			if(y.length()>0){existingRef.year=y;}

@@ -67,7 +67,7 @@ public class TorThread extends Thread {
 			while(true){
 				sleep(100);
 				String l= r.readLine();
-				if(l!= null)System.out.println(l);
+				if(l!= null&&TorPool.verbose)System.out.println(l);
 				if(!running){
 					break;
 				}
