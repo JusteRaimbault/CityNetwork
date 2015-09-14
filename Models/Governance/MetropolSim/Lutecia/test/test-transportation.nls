@@ -1,0 +1,73 @@
+
+;;;;;;;;;
+;; test of transportation affectation
+;;;;;;;;;
+
+
+
+
+
+;;
+; Visualize flows : debug procedure to check validity of transportation flows
+;
+;  -- BUG ? --
+;   -> pb in flow determination algo ? seems to be ponderated by distance, and not gravital function of distance :: check formula !
+;
+to check-flows [q]
+  setup
+  transportation
+  
+  let ma max map [max ?] matrix:to-row-list flow-matrix
+  let quant quantile (concatenate matrix:to-row-list flow-matrix) q
+  
+  let i 0
+  repeat (#-patches - 1) [
+    let j (i + 1)
+    repeat (#-patches - i - 1)[
+      if (matrix:get flow-matrix i j) > quant [
+        ask patch-with-number i [
+          sprout 1 [
+            set hidden? true let o self
+            ask patch-with-number j [
+              sprout 1 [
+                set hidden? true  create-link-with o [set thickness ((matrix:get flow-matrix i j) - quant) / (ma - quant) * 2 set color scale-color yellow (((matrix:get flow-matrix i j) - quant) / (ma - quant)) 0 1]
+              ] 
+            ]
+          ] 
+        ]
+      ]
+      set j j + 1
+    ]
+    set i i + 1
+  ]
+  
+end
+
+
+
+;;
+; test network effect on distances
+;
+; requires setup
+to test-network-effect [patchset]
+  construct-infrastructure (random-infra patchset 15) save-nw-config
+  color-patches
+end
+
+;;
+; 
+to check-effective-distance [p1 p2]
+  let a1 table:get nw-access-table p1 let a2 table:get nw-access-table p2
+  foreach nw-patches [ask patch-with-number ? [set pcolor green]]
+  ask patch-with-number a1 [set pcolor red] ask patch-with-number a2 [set pcolor red]
+  ask patch-with-number p1 [set pcolor blue] ask patch-with-number p2 [set pcolor blue]
+  output-print (word "Effective distance : " matrix:get effective-distance-matrix p1 p2)
+  output-print (word "Euclidian distance : " ((matrix:get euclidian-distance-matrix p1 p2) * euclidian-min-pace)) 
+  output-print (word "Via NW : " (((matrix:get euclidian-distance-matrix p1 a1) + (matrix:get euclidian-distance-matrix p2 a2)) * euclidian-min-pace) " + "  (matrix:get network-distance-matrix a1 a2))
+          
+end
+
+
+
+
+

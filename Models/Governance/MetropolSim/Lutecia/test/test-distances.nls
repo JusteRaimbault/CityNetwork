@@ -1,0 +1,155 @@
+
+;;;;;;;;;;;;;;;;
+;; Test dynamic programming shortest distance computation
+;;;;;;;;;;;;;;;;
+
+
+
+to test-closest-inter
+  ask patches [set pcolor black]
+  ;foreach nw-patches [ask patch-with-number ? [set pcolor green]]
+  let p one-of nw-patches ask patch-with-number p [set pcolor yellow]
+  let i table:get closest-nw-inters p
+  output-print (word "patch " p " : inters ")
+  foreach i [
+     ask patch-with-number first ? [set pcolor pink]
+     output-print (first ?)
+  ]
+  
+end
+
+
+;;
+; test update of nw matrices
+to setup-test-nw-mat
+  ca
+  setup-patches
+  setup-transportation
+  setup-cached-distances
+  set gridor true
+end
+
+to test-nw-mat-grid-nw
+  tic
+  ask patches [set pcolor black]
+  
+  let new-link nobody
+  create-transportation-nodes 1 [
+    new-transportation-node set hidden? true
+    ;setxy random-xcor random-ycor 
+    ;test a random grid
+    ifelse gridor [ 
+    move-to one-of patches with [(pxcor = max-pxcor or pxcor = min-pxcor) and count transportation-nodes in-radius 1.5  = 0]
+    ][move-to one-of patches with [(pycor = min-pycor or pycor = max-pycor) and count transportation-nodes in-radius 1.5  = 0]]
+    hatch 1 [
+      ;setxy random-xcor random-ycor
+      new-transportation-node 
+      let x [xcor] of myself let y [ycor] of myself
+      if x = max-pxcor [setxy min-pxcor y] if x = min-pxcor [setxy max-pxcor y] if y = min-pycor [setxy x max-pycor] if y = max-pycor [setxy x min-pycor]
+      create-transportation-link-with myself [new-transportation-link set new-link self set color green
+        ;one-of [yellow blue red] set hidden? true
+        ]
+    ]
+  ]
+  
+  update-network new-link
+  
+  foreach nw-patches [
+    ask patch-with-number ? [
+      set pcolor green
+      ;set plabel number
+      ] 
+  ]
+  
+  foreach nw-inters [
+    ask patch-with-number ? [
+      set plabel number
+      ] 
+  ]
+  
+  ask transportation-links [set hidden? true]
+  
+  toc
+  set gridor not gridor
+end
+
+
+to test-nw-mat-random-nw
+  tic
+  ask patches [set pcolor black]
+  
+  let new-link nobody
+  create-transportation-nodes 1 [
+    new-transportation-node set hidden? true
+    setxy random-xcor random-ycor
+    let o self
+    ;test a random grid
+    hatch 1 [
+      move-to one-of patches with [distance o > 20]
+      new-transportation-node 
+      create-transportation-link-with myself [new-transportation-link set new-link self set color green
+        ;one-of [yellow blue red] set hidden? true
+        ]
+    ]
+  ]
+  
+  update-network new-link
+  
+  foreach nw-patches [
+    ask patch-with-number ? [
+      ;set pcolor green
+      ;set plabel number
+      ] 
+  ]
+  
+  toc
+  
+end
+
+
+
+to test-shortest-path
+  ask patches [set pcolor black set plabel ""]
+  
+  foreach nw-patches [
+    ask patch-with-number ? [
+      set pcolor green
+      ; set plabel number
+      ] 
+  ]
+  
+  let k  (one-of table:keys network-shortest-paths)
+  output-print (word k " : " table:get network-shortest-paths k )
+  
+  foreach table:get network-shortest-paths k [    
+    ask patch-with-number ? [set pcolor pink set plabel number] 
+  ]
+  
+  ask patch-with-number first k [set pcolor blue]
+  ask patch-with-number last k [set pcolor blue]
+  
+end
+
+
+
+
+to test-connex-components
+  let col 5
+  foreach connex-components [
+    foreach ? [
+      ask patch-with-number ? [
+        set pcolor col
+      ] 
+    ]
+    set col col + 20
+    ;show col
+  ]
+end
+
+
+
+
+
+
+
+

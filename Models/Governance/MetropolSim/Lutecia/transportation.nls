@@ -1,0 +1,113 @@
+
+;;;;;;;;;;;;;
+;; transportation
+;;;;;;;;;;;;;
+
+
+
+;;
+;  Transportation module of the luti model
+;
+;  Uses cached shortest paths to compute congestion.
+to transportation
+  
+  output-print "transportation"
+  
+  ; compute patch to patch flows through furness algorithm
+  compute-flows
+  
+  ; use effective paths matrix to compute wardrop ?
+  transportation-affectation
+  
+  ; update congestion given the affectation
+  update-congestion
+  
+end
+
+
+;;
+; Furness algo
+to compute-flows
+  
+  verbose "... flows"
+  
+  ; initial weights
+  let p rep (1 / #-patches) #-patches let q rep (1 / #-patches) #-patches
+  ; reinitialize matrix
+  set flow-matrix matrix:make-constant #-patches #-patches 0
+  
+  ; compute (equilibrium ?) weights
+  ; how many iterations needed ?
+  let n-iter-furness 10
+  repeat n-iter-furness [    
+    let ptemp p let qtemp q
+    set p map [1 / ?] first matrix:to-column-list (matrix:times (matrix:map [exp (- ? * lambda-flows)] effective-distance-matrix) (matrix:from-column-list (list list-times-element-wise qtemp patches-employments)))
+    set q map [1 / ?] first matrix:to-column-list (matrix:times (matrix:map [exp (- ? * lambda-flows)] effective-distance-matrix) (matrix:from-column-list (list list-times-element-wise ptemp patches-actives)))
+  ]
+  
+  ; then set flows as \phi_ij = p_i*q_j*A_i*E_j*exp( - \lambda * effective_distance(i,j) )
+  ;   -> Q : here effective dist takes into account network
+  
+  ; WARNING : BORD EFFECTS : proportion of population that should go 'outside the world' is indeed redistributed to nearest patches,
+  ;   causing sometimes highest flows to result of bord effects. -- for that, choose centers not to close from brod of the world ?
+  
+  set flow-matrix matrix:times-element-wise (matrix:times-element-wise (matrix:from-column-list (rep (list-times-element-wise p patches-actives) #-patches)) (matrix:from-row-list (rep (list-times-element-wise q patches-employments) #-patches))) (matrix:map [exp (- ? * lambda-flows)] effective-distance-matrix)
+    
+end
+
+
+;;
+; compute the affectation of user trajectories though iterated wardrop eq determination (?)
+;
+; Initial flow matrix as argument ? not needed as global var.
+to transportation-affectation
+  
+  verbose "... affectation"
+  
+  ; reinitialize
+  set patches-congestion rep 1 (count patches)
+  
+  ; repeat on all couples of patches, now that flows are known
+  let p1 0 let p2 0
+  repeat #-patches [
+    set p2 0
+    repeat #-patches [
+     
+;      if table:has-key? nw-access-table (list p1 p2) [
+;         let a1 first table:get nw-access-table (list p1 p2) let a2 last table:get nw-access-table (list p1 p2)
+;         
+;         ; need extended paths here !
+;           if table:has-key? network-shortest-paths (list a1 a2) [ 
+;             let path table:get network-shortest-paths (list (one-of map [first ?] table:get closest-nw-inters a1) (one-of map [first ?] table:get closest-nw-inters a2))
+;             foreach path [set patches-congestion replace-item ? patches-congestion (item ? patches-congestion + matrix:get flow-matrix p1 p2)]
+;           ]
+;       
+;      ]
+
+
+       set p2 p2 + 2
+    ]
+    set p1 p1 + 1
+  ]
+  
+end
+
+
+
+;;
+; update congestion
+to update-congestion
+  
+  verbose "... travel times update"
+  
+  ; depends on affectation
+  ; update the matrices, including newly computed congestion
+  
+  update-network-distance-matrix true
+  update-effective-matrices
+  
+  
+end
+
+
+

@@ -1,0 +1,65 @@
+
+;;;;;;;;;;;;;;
+;; Transportation Network functions
+;;;;;;;;;;;;;;
+
+
+
+
+
+to new-transportation-node
+  set shape "circle" set size 0.4 set color red
+end
+
+
+to new-transportation-link
+  set color red set thickness 0.4
+  
+  ; define capacity ?
+  
+  
+  ; age -> done at the end of construction
+  ;set age ticks
+  
+end
+
+
+;;
+;  memorize links age in a table
+to-report nw-age
+  let res table:make
+  ask transportation-links [
+    foreach footprint [
+      ask ? [
+        table:put res number ([age] of myself)
+      ]
+    ] 
+  ]
+  report res
+end
+
+
+;;
+;  Update age variable of links
+;    with memorized nw-age in table patch -> age
+to update-network-age [old-nw-age]
+  ask transportation-links [
+    let new-age 0 let ages rep 0 (ticks + 1); ages memorized in a list
+    foreach footprint [
+      ask ? [
+         ifelse table:has-key? old-nw-age number [
+           let a table:get old-nw-age number
+           set ages replace-item a ages ((item a ages) + 1)
+         ][
+           set ages replace-item ticks ages ((item ticks ages) + 1)
+         ]
+      ]
+    ]
+    ; age is element with max value
+    set age max-index ages
+  ]
+  
+  update-nw-display
+  
+  
+end

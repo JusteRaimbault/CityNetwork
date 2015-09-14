@@ -1,0 +1,353 @@
+
+;;;;;;;;;;;;;;;;;;;;;
+;; setup.nls
+;;;;;;;;;;;;;;;;;;;;;
+
+
+;;
+; General setup
+to setup
+  
+  ; if headless, no need to reset as all patch vars will be 0 and no agents (different model instances).
+  if headless? = 0 [
+    clear-all
+  ]
+  
+  set setup-type "random"
+   
+  reset-ticks
+  
+  output-print "Setting up"
+  
+  setup-vars
+  
+  ; setup patches
+  setup-patches
+  
+  ; setup initial governance
+  setup-territories
+  
+  ; setup initial configuration
+  setup-initial-distributions
+  
+  if with-externalities? [
+    setup-externalities
+  ]
+  
+  ; setup initial network
+  setup-initial-network
+  
+  ; setup transportation
+  setup-transportation
+  
+  ; cached distances
+  setup-cached-distances
+  
+  ; initial accessibilities
+  setup-patch-variables
+  
+  ; display
+  setup-display
+  
+end
+
+
+to setup-vars
+  set to-construct []
+  set collaborations-wanted [] set collaborations-realized [] set collaborations-expected []
+end
+
+;;
+; setup mayors and governed patches
+to setup-territories
+  
+  output-print "... Territories"
+  
+  ; for now hardcoded path to setup file (unload gui)
+  set ext-file "setup/ext.csv"
+  
+  read-position-files
+  
+  ; create mayors
+  create-mayors #-initial-territories [
+    initial-position-mayor
+    new-mayor
+  ]
+  
+  ; setup governance areas
+  ask patches [set governing-mayor one-of mayors with-min [distance myself] set pcolor [color] of governing-mayor]
+  ; no need to cache governed patches, quickly accessed ?
+  
+  ; create regional authority
+  create-mayors 1 [set regional-authority self set hidden? true]
+  
+end
+
+
+;;
+; setup patches
+to setup-patches
+  
+  ; setup patches number
+  let p 0
+  repeat count patches [
+    let x (floor (p / world-width)) + min-pxcor let y (p - world-width * floor (p / world-width)) + min-pycor
+    ask (patch x y) [set number p] set p p + 1
+  ]
+end
+
+
+;;
+;  Setup initial distributions of actives and employments (polycentric Bussiere model)
+to setup-initial-distributions
+  
+  output-print "... Distributions"
+  
+  ; use monocentric kernel application function
+  let centers [patch-here] of mayors with [self != regional-authority]
+  foreach centers [
+    apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" ?
+    apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" ?
+  ]
+  
+  
+  ; setup global lists
+  set patches-employments rep 0 count patches
+  set patches-actives rep 0 count patches
+  ask patches [
+    set patches-employments replace-item number patches-employments employments
+    set patches-actives replace-item number patches-actives actives
+  ]
+  
+end
+
+;;
+; Setup display
+to setup-display
+  color-patches
+  draw-boundaries
+end
+
+
+
+to setup-externalities
+  let ext-patch nobody
+  if setup-type = "random" [
+    ; with 2 mayors : equidistance
+    let m to-list (mayors with [self != regional-authority])
+    ifelse length m = 2 [
+      set ext-patch one-of patches with [abs (distance item 0 m - distance item 1 m) < sqrt 2 and pxcor < max-pxcor and pxcor > min-pxcor and pycor < max-pycor and pycor > min-pycor ]
+    ][ set ext-patch one-of patches]
+  ] 
+  if setup-type = "from-file" [
+    set ext-patch patch first ext-position last ext-position
+  ]
+    
+  set external-facility []
+  ask ext-patch [
+    set external-facility lput number external-facility
+    sprout 1 [
+       set shape "airplane" set size 2 set color red set heading 0
+       
+    ]
+    
+    let by-patch-employment-number employments-max * ext-employments-proportion-of-max / 9   
+    set employments by-patch-employment-number
+    ask neighbors [
+      set employments by-patch-employment-number
+      set external-facility lput number external-facility
+    ]
+  ] 
+  
+  
+end
+
+
+
+;;
+; Initial network
+;
+;  - no nw for now ? -
+to setup-initial-network
+  
+  ;; try a radioconcentric network ? or use slime mould ?
+  
+end
+
+
+;;
+; Cached distances : initialize matrices
+;
+to setup-cached-distances
+  
+  output-print "Caching distances"
+  
+  set #-patches count patches
+  set dmax sqrt ((world-width ^ 2) + (world-height ^ 2))  
+  
+  ; euclidian distance matrix
+  set euclidian-distance-matrix matrix:make-constant #-patches #-patches 0
+  let p1 0 let p2 0
+  repeat #-patches [
+     let x1 (floor (p1 / world-width)) + min-pxcor let y1 (p1 - world-width * floor (p1 / world-width)) + min-pycor
+     
+     ; profite of this loop to set correspondance number <-> coordinates ? NO has to be done before !
+     ;ask (patch x1 y1) [set number p1] 
+     
+     set p2 0
+     repeat #-patches [
+        let x2 (floor (p2 / world-width)) + min-pxcor let y2 (p2 - world-width * floor (p2 / world-width)) + min-pycor
+        matrix:set euclidian-distance-matrix p1 p2 sqrt ((x1 - x2) ^ 2 + (y1 - y2) ^ 2) 
+        set p2 p2 + 1
+     ]
+     set p1 p1 + 1
+  ]
+  
+  ; setup nw matrices, needed in particular if initial nw
+  setup-nw-matrices
+  
+  ; use generic function
+  update-effective-matrices
+ 
+  
+end
+
+;;
+; setup initial network matrices
+to setup-nw-matrices
+  tic output-print "...NW shortest distances"
+  set #-patches count patches
+  ifelse count transportation-nodes = 0 [
+    ; initialize nw distance at -1 if no nw
+    set network-distance-matrix matrix:make-constant #-patches #-patches -1
+    ; for paths, put in table only if in nw
+    set network-shortest-paths table:make
+    
+    ; nw intersections
+    set closest-nw-inters table:make
+    set nw-inters []
+    
+    
+    
+  ][
+    
+  ]
+  
+  let nw-patches-bool matrix:map [bool-to-int (?1 > 0)] network-distance-matrix
+  set nw-patches [] let i 0
+  repeat #-patches [if sum matrix:get-row nw-patches-bool i > 0 [set nw-patches lput i nw-patches] set i i + 1]
+  
+  
+  set nw-access-table table:make set i 0
+  ; ! NO INITIAL NW
+  ;if nw-patches != [] [repeat #-patches [table:put nw-access-table i (min-index (matrix:get-sparse-row euclidian-distance-matrix i nw-patches)) set i i + 1]]
+  
+  set network-clusters []
+  set network-clusters-connectors table:make
+  
+  toc
+end
+
+
+;;
+; transportation
+to setup-transportation
+  set patches-congestion rep 1 (count patches)
+end
+
+
+;; initial utilities and accessibilities
+to setup-patch-variables
+  compute-patches-variables
+  set initial-max-acc max [current-accessibility] of patches
+end
+
+
+
+;;
+; Get number of mayors and position from csv file
+to read-position-files
+  if setup-type = "from-file"[
+  let lines read-file positions-file
+  set mayors-coordinates []
+  foreach but-first but-first lines [
+    let p []
+    foreach explode ";" ? [set p lput read-from-string ? p]
+    set mayors-coordinates lput p mayors-coordinates
+  ]
+  
+  ; corresponding number pf territories
+  set #-initial-territories length mayors-coordinates
+  
+  ; ext file : one only ?
+  set ext-position []
+  foreach explode ";" first but-first but-first read-file ext-file [
+     set ext-position lput read-from-string ? ext-position
+  ]
+  
+  ]
+end
+
+
+
+
+
+
+;;
+; default values ; for headless run
+to setup-headless-vars
+  
+  ; general 
+  set #-initial-territories 2
+  set log-level "DEFAULT"
+  ;set log-level "VERBOSE"
+  set total-time-steps 4
+  
+  
+  ; initial distributions
+  set actives-max 500 set employments-max 500
+  set actives-spatial-dispersion 1
+  set employments-spatial-dispersion 0.8
+  
+  
+  
+  ; luti params
+  set gamma-cobb-douglas-e 0.9
+  set gamma-cobb-douglas-a 0.65
+  set beta-discrete-choices 1.8
+  set lambda-accessibility 0.001
+  
+  ; governance params
+  set regional-decision-proba 0.5
+  set road-length 2
+  set #-explorations 25
+  ;set game-type "random"
+  set game-type "simple-nash"
+  set infra-snapping-tolerance 2
+  set collaboration-cost 0.0001
+  set construction-cost 0.001 
+  set beta-dc-game 400
+
+  ; transportation params
+  set network-min-pace 1
+  set euclidian-min-pace 5
+  set congestion-price 50
+  
+ 
+  ; externalities
+  ;set with-externalities? false
+  set ext-employments-proportion-of-max 3
+  set ext-growth-factor 1
+  
+  
+  
+  
+  
+  
+  
+end
+
+
+
+
+

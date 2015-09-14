@@ -1,0 +1,58 @@
+
+;;;;;;;;;;;;;;;
+;; Exploration and partial validations
+;;;;;;;;;;;;;;;
+
+
+;;
+;  visualize many final network, for a fixed value of parameters
+to vis-network-shape [resdir r]
+  setup
+  repeat total-time-steps [
+    go 
+  ]
+  export-view (word resdir "/" r ".png")
+end
+
+;; hardcoded exploration
+to explore-network-shapes [#-repets dir]
+  ;let resdir (word shell:pwd "/res/networkValidation/20150810")
+  ;let resdir (word (shell:getenv "CN_HOME") "/Results/Governance/Validation/InfrastructureOptimality/20150811_global_rlength2_expl50")
+  let resdir (word (shell:getenv "CN_HOME") "/Results/Governance/Validation/InfrastructureOptimality/" dir)
+  ;output-print shell:exec (word "mkdir " resdir)
+  export-interface (word resdir "/_INTERFACE.png" )
+  let r 0
+  let nwpos [] let meanacc []
+  repeat #-repets [
+    vis-network-shape resdir r
+    set r r + 1
+    set nwpos lput nw-patches nwpos
+    set meanacc lput ([(list number (a-to-e-accessibility + e-to-a-accessibility))] of patches) meanacc
+  ]
+  
+  ; vis mean nw and mean acc and export csv
+  setup
+  let nwfreq rep 0 #-patches
+  foreach nwpos [
+     foreach ? [
+       set nwfreq replace-item ? nwfreq ((item ? nwfreq) + 1)
+     ]
+  ]
+  let ma max nwfreq let mi min nwfreq
+  print-in-file (word resdir "/_NW_FREQ.csv") "x;y;freq"
+  let p 0 foreach nwfreq [ask patch-with-number p [set pcolor scale-color red ? mi ma print-in-file (word resdir "/_NW_FREQ.csv") implode-with-delimiter (list pxcor pycor (? / #-repets)) ";"] set p p + 1]
+  export-view (word resdir "/_NW_FREQ.png")
+  
+  setup
+  let macc rep 0 #-patches
+  foreach meanacc [
+     foreach ? [
+       set macc replace-item (first ?) macc ((item (first ?) macc) + (last ?))
+     ]
+  ]
+  set ma max macc set mi min macc
+  print-in-file (word resdir "/_MEAN_ACC.csv") "x;y;mean-acc"
+  set p 0 foreach macc [ask patch-with-number p [set pcolor scale-color red ? mi ma print-in-file (word resdir "/_MEAN_ACC.csv") implode-with-delimiter (list pxcor pycor (? / #-repets)) ";"] set p p + 1]
+  export-view (word resdir "/_MEAN_ACC.png")
+  
+end

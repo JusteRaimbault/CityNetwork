@@ -1,0 +1,93 @@
+
+;;;;;;;;;;;;;;;;
+;; display.nls
+;;;;;;;;;;;;;;;;
+
+
+
+
+to update-display
+  color-patches
+  update-nw-display
+end
+
+
+
+to color-patches
+  ; basic
+  if patches-display = "governance"[
+     ask patches [set pcolor [color] of governing-mayor]
+  ]
+  if patches-display = "accessibility"[
+     color-gradient-patches "(a-to-e-accessibility + e-to-a-accessibility)" "green"
+  ]
+  ; cor variables
+  if member? patches-display ["actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility"] [
+     color-gradient-patches patches-display "green"
+  ]
+  ; distances
+  if member? patches-display ["mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"] [
+    let md []
+    if patches-display = "mean-effective-distance" [set md map mean matrix:to-row-list effective-distance-matrix]
+    if patches-display = "lbc-effective-distance" [set md matrix:get-column effective-distance-matrix 0]
+    if patches-display = "center-effective-distance" [set md matrix:get-column effective-distance-matrix (floor (#-patches / 2))]
+    if patches-display = "lbc-network-distance" [if length nw-patches > 0 [let lbcn [number] of one-of (patches with [member? number nw-patches]) with-min [[pxcor] of self + [pycor] of self] set md matrix:get-column network-distance-matrix lbcn ]]
+    if length nw-patches > 0 or patches-display != "lbc-network-distance" [
+    let ma max md let mi min md
+    let p 0 foreach md [ask patch-with-number p [set pcolor scale-color yellow ? mi ma] set p p + 1]
+    ]
+  ]
+  ; transportation
+  if patches-display = "congestion" [
+    ask patches [
+      ifelse member? self nw-patches [
+        color-gradient-patches "item who patches-congestion" "red"
+      ][
+        set pcolor black
+      ] 
+    ] 
+  ]
+  
+  
+end
+
+
+
+
+;;
+; Update nw display, with link age coloring
+to update-nw-display
+  ask transportation-links [
+    set thickness 0.4
+    set color gradient:scale [[255 0 0] [255 255 0]] age 0 (ticks + 1) 
+  ]
+end
+
+
+
+;;;;
+; Draw boundary between regions
+; it is drawn permanently
+to draw-boundaries
+  
+  ;; dirty way : ask each patch to sprout someone drawing its border with neighbors of different area
+  
+  ask patches with [count neighbors4 with [[governing-mayor] of myself != governing-mayor] > 0] [
+    let p self
+    sprout 1 [
+      set color pink set shape "circle" ;set size patch-size / 2
+      foreach to-list [neighbors4 with [[governing-mayor] of p != governing-mayor]] of myself [
+          let xp [pxcor] of p let yp [pycor] of p let xn [pxcor] of ? let yn [pycor] of ?
+          ifelse xp = xn [
+            setxy xp - 0.499 (yp + yn) / 2 pen-down setxy xp + 0.499 (yp + yn) / 2 pen-up
+          ][
+            setxy (xp + xn) / 2  yp - 0.499 pen-down setxy (xp + xn) / 2  yp + 0.499 pen-up
+          ]
+      ]
+      die 
+    ]
+  ]
+  
+end
+
+

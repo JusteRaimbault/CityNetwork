@@ -1,0 +1,124 @@
+
+;;;;;;;;;;;;;;;;;;;
+;; Indicators of system performance
+;;;;;;;;;;;;;;;;;;;
+
+;-> convergence ? == stability ?
+;-> distance moyenne deplacements == weighted mean by actives, employments of effective distance
+;-> delta configs successives  ok diff-*
+;-> hierarchy case, population, evol hierarchy.  -- TODO --
+
+
+to compute-indicators
+  output-print (word "mean-accessibility : " mean-accessibility patches)
+  output-print (word "mean-travel-distance : " mean-travel-distance)
+  output-print (word "actives-entropy : " actives-entropy)
+  output-print (word "collaboration wanted : " wanted-collaboration-rate)
+  output-print (word "collaboration realized : " realized-collaboration-rate)
+  output-print (word "externality-decrep : " externality-decrepitude)
+  ;output-print (word "mean-congestion : " mean-congestion)
+end
+
+
+;;
+; mean accessibility of employments and actives
+;  normalized by total quantities of employment and actives ? YES but not on patchset, all patches !
+;
+;  -- symmetric a-e --
+to-report mean-accessibility [patchset]
+  ifelse sum [actives] of patches > 0 and sum [employments] of patches > 0 and count patchset > 0 [
+    report (sum [a-to-e-accessibility + e-to-a-accessibility] of patchset) / (2 * (sum [actives] of patches) * (sum [employments] of patches))
+  ][report 0]
+end
+
+; min / max access
+to-report max-accessibility
+   report max [max (list a-to-e-accessibility e-to-a-accessibility)] of patches
+end
+
+to-report min-accessibility
+   report min [min (list a-to-e-accessibility e-to-a-accessibility)] of patches
+end
+
+
+; mean travel distance
+to-report mean-travel-distance
+  report sum [a-to-e-distance + e-to-a-distance] of patches / (2 * (sum [actives] of patches) * (sum [employments] of patches))
+end
+
+; mean nw distance between nw patches
+to-report mean-network-distance
+  
+end
+
+
+; mean congestion in network
+to-report mean-congestion
+  report mean [congestion] of transportation-links
+end
+
+
+;; last variability of relocation process
+to-report stability
+  report ((diff-employments / sum [employments] of patches) + (diff-actives / sum [actives] of patches) ) / 2
+end
+
+
+;; entropy of distribution of actives
+to-report actives-entropy
+  let atot sum [actives] of patches
+  report (- 1 / (ln count patches) * sum [actives / atot * ln (actives / atot)] of patches)
+end
+
+;; entropy of distribution of employments
+to-report employments-entropy
+  let etot sum [employments] of patches
+  report (- 1 / (ln count patches) * sum [employments / etot * ln (employments / etot)] of patches)
+end
+
+
+
+;;
+; Sum of employments in the external facility
+to-report externality-employments
+  ifelse external-facility = 0 or length external-facility = 0 [
+    report 0 
+  ][
+    report sum [employments] of patches with [member? number external-facility]
+  ]
+end
+
+
+
+to-report wanted-collaboration-rate
+  ifelse length collaborations-wanted = 0 [
+    report 0
+  ][
+    report sum collaborations-wanted / length collaborations-wanted
+  ]
+end
+
+
+to-report realized-collaboration-rate
+  ifelse length collaborations-wanted = 0 [
+    report 0
+  ][
+    report sum collaborations-realized / length collaborations-realized
+  ]
+end
+
+to-report expected-collaboration-rate
+  ifelse length collaborations-wanted = 0 [
+    report 0
+  ][
+    report mean collaborations-expected
+  ]
+end
+
+
+to-report externality-decrepitude
+  report externality-employments / (employments-max * ext-employments-proportion-of-max)
+end
+  
+
+

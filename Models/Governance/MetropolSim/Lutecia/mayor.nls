@@ -1,0 +1,37 @@
+
+;;;;;;;;;;;;;;;;;;
+;; mayor.nls
+;;;;;;;;;;;;;;;;;;
+
+
+
+;;
+; initial position in space
+;  (different implementation possible)
+to initial-position-mayor
+  if setup-type = "random" [
+    let m other mayors with [self != regional-authority]
+    let p nobody let potp patches with [pxcor < max-pxcor - 1 and pxcor > min-pxcor + 1 and pycor < max-pycor - 1 and pycor > min-pycor + 1]
+    ifelse m != nobody [
+      set p one-of potp with [distance one-of m > 5]
+    ][
+      set p one-of potp
+    ]
+    setxy [pxcor] of p [pycor] of p
+  ]
+  if setup-type = "from-file" [
+    ; index given by already existing number of mayors, different from the regional authority
+    ;let i count mayors with [self != regional-authority]
+    ; -- does not work as all created at once ?
+    ;  -> use position in sorted who list
+    let i position who sort [who] of mayors
+    let pos item i mayors-coordinates
+    setxy first pos last pos
+  ]
+end
+
+;;
+; ' constructor ' (basic characteristics)
+to new-mayor
+  set shape "building institution" set color 5 + (140 * (who + 1) / #-initial-territories)
+end

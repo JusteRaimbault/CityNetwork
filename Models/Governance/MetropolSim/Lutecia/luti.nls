@@ -1,0 +1,93 @@
+
+;;;;;;;;;;;;;;
+;; luti
+;;;;;;;;;;;;;;
+
+
+
+;;
+; compute accessibilities, utilities and relocates actives and employments
+to luti
+  
+  output-print "luti module"
+  
+  ;; compute acc and utilities
+  compute-patches-variables
+  
+  ;; update ext
+  update-externalities
+  
+  
+  ;; relocate A and E
+  relocate
+  
+  ;; update wealths
+  update-wealth
+  
+end
+
+
+;;
+; Relocate employments and actives
+;   given a DC model 
+to relocate
+
+  output-print "... relocalization"
+  
+  ; discrete choice model following utilities for employments and actives
+  let actives-number sum [actives] of patches let employments-number sum [employments] of patches
+  let a-dc-norm-factor sum [exp (beta-discrete-choices * a-utility)] of patches
+  let e-dc-norm-factor sum [exp (beta-discrete-choices * e-utility)] of patches
+  
+  set diff-actives 0 set diff-employments 0
+  ; diff used as a conv check var, not necessary.
+  
+  ask patches [
+    let prev-a actives let prev-e employments
+    set actives actives-number * exp (beta-discrete-choices * a-utility) / a-dc-norm-factor
+    set employments employments-number * exp (beta-discrete-choices * e-utility) / e-dc-norm-factor
+    set diff-actives diff-actives + abs (prev-a - actives) set diff-employments diff-employments + abs (prev-e - employments)
+    ; update global lists
+    set patches-employments replace-item number patches-employments employments
+    set patches-actives replace-item number patches-actives actives
+  ]
+  
+end
+
+
+
+;;
+; Aggregate wealth at mayor level : sum of employments (?)
+to update-wealth
+  ask mayors [set wealth 0]
+  ask patches [
+    ask governing-mayor [set wealth wealth + [employments] of myself]
+    ask regional-authority [set wealth wealth + [employments] of myself]
+  ]
+  
+end
+
+
+;;
+; update employments in external facilities, following an exponential growth
+; 
+to update-externalities
+  
+  if with-externalities? [
+    
+    foreach external-facility [
+       ask patch-with-number ? [
+         set employments ext-growth-factor * employments * current-accessibility / initial-max-acc
+       ]
+    ]
+    
+  ]
+  
+end
+  
+  
+  
+  
+
+  
+  
