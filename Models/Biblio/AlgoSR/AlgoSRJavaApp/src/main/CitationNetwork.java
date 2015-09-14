@@ -103,7 +103,7 @@ public class CitationNetwork {
 	/**
 	 * Given a RIS ref file, builds its corresponding citation network.
 	 */
-	public static void buildCitationNetworkFromRefFile(String refFile,String outFile){
+	public static void buildCitationNetworkFromRefFile(String refFile,String outFile,int depth){
         Main.setup("conf/default.conf");
 		TorPool.setupConnectionPool(50,false);
 		ScholarAPI.init();
@@ -113,15 +113,19 @@ public class CitationNetwork {
 		
 		System.out.println("Initial Refs : ");for(Reference r:Reference.references.keySet()){System.out.println(r.toString());}
 		
-		System.out.println("Getting Citation Network...");
-		buildCitationNetwork();
+		for(int d=1;d<=depth;d++){
+		  System.out.println("Getting Citation Network, depth "+d);
+		  buildCitationNetwork();
+		}
 		
+		/*
 		System.out.println("Getting Abstracts...");
 		MendeleyAPI.setupAPI();
 		for(Reference r:Reference.references.keySet()){
 			System.out.println(r.title.replace(" ", "+"));
 			//MendeleyAPI.catalogRequest(r.title.replace(" ", "+"), 1);
 		}
+		*/
 		
 		GEXFWriter.writeCitationNetwork(outFile, Reference.references.keySet());
 		
@@ -163,11 +167,11 @@ public class CitationNetwork {
 	public static void main(String[] args) {
 		
 		
-		TorPool.forceStopPID(7535, 7754);
+		//TorPool.forceStopPID(1971, 2020);
 		
 		//buildCitationNetworkFromSQL("res/citation/cybergeo.gexf");
 		
-		buildCitationNetworkFromRefFile("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle.ris","res/citation/cybergeo.gexf");
+		buildCitationNetworkFromRefFile("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle.ris","res/citation/cybergeo_depth2.gexf",2);
 		
 		//buildCitationNetworkFromRefFile("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_frenchTitles_fullbase.ris","res/citation/cybergeo.gexf");
 		

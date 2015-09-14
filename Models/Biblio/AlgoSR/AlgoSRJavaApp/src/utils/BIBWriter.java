@@ -22,7 +22,7 @@ import main.Reference;
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
  *
  */
-public class RISWriter {
+public class BIBWriter {
 	
 	/**
 	 * Write a set of refs to text file
@@ -43,9 +43,9 @@ public class RISWriter {
 					writer.write("AU  - "+a+"\n");
 				}
 				for(String k:r.keywords){
-					writer.write("KW  - "+k+"\n");
+					writer.write("AU  - "+k+"\n");
 				}
-				//writer.write("KW  -\n");
+				writer.write("KW  -\n");
 				
 				writer.write("T1  - "+r.title+"\n");
 				

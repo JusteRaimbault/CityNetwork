@@ -56,6 +56,21 @@ public class CybergeoImport {
 			      ResultSet author = sqlDB.createStatement().executeQuery("SELECT `nomfamille`,`prenom` FROM `auteurs` WHERE `idperson` = "+authorsIds.getString(1)+" ;");
 			      if(author.next()){r.authors.add(author.getString(1)+" , "+author.getString(2));}
 			   }
+			   
+			   // get keywords
+			   ResultSet keywordsIds = sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +sqlrefs.getString(5)+" AND  `nature` LIKE  'E' ORDER BY  `degree` ASC ;");
+			   while(keywordsIds.next()){
+			      ResultSet keywords = sqlDB.createStatement().executeQuery("SELECT `nom` FROM `indexes` WHERE `identry` = "+keywordsIds.getString(1)+" ;");
+			      while(keywords.next()){r.keywords.add(keywords.getString(1));}
+			   }
+			   
+			   // get cited refs, from textes.`bibliographie` -> each ref as <p class="bibliographie">...</p>
+			   // title as <em>...</em>
+			   
+			   
+			   
+			   
+			   
 			   res.add(r);
 			   System.out.println(r.toString());
 		   }
@@ -114,7 +129,7 @@ public class CybergeoImport {
 	public static void main(String[] args) {
 		setupSQL();
 		//GEXFWriter.write("res/test_cyb_gexf.gexf", importBase());
-		RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle.ris", importBase());
+		RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle_withKeywords.ris", importBase());
 		
 		/*
 		try{

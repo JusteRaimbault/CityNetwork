@@ -70,6 +70,12 @@ public class Reference {
 	 */
 	public HashSet<Reference> citing;
 	
+	/**
+	 * Refs cited by this ref - filled with cybergeo database ; or WoS corpus
+	 */
+	public HashSet<Reference> cited;
+	
+	
 	
 	/**
 	 * Constructor
@@ -82,8 +88,10 @@ public class Reference {
 	public Reference(String i,String t,String r,String y,String schID){
 		id=i;
 		title=t;resume=r;year=y;scholarID=schID;
-		authors = new HashSet<String>();keywords = new HashSet<String>();
+		authors = new HashSet<String>();
+		keywords = new HashSet<String>();
 		citing=new HashSet<Reference>();
+		cited=new HashSet<Reference>();
 	}
 	
 	/**
