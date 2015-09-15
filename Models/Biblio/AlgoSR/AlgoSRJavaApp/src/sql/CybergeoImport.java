@@ -150,9 +150,9 @@ public class CybergeoImport {
 				   }
 				   
 				   ResultSet res = sqlDB.createStatement().executeQuery("SELECT `resume` FROM textes WHERE `identity` = "+id+" LIMIT 1 ; ");
-				   if(rawText.next()){
+				   if(res.next()){
 					   LinkedList<String> t = new LinkedList<String>();
-					   t.add(rawAbstract(rawText.getString(1)));
+					   t.add(rawAbstract(res.getString(1)));
 					   BasicWriter.write(outDir+"/texts/"+id+"_abstract.txt", t);
 				   }
 				   
