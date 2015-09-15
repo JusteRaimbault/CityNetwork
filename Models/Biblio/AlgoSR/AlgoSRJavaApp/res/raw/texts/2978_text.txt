@@ -1,0 +1,193 @@
+Bien que l’arrivée des premières voitures dans les villes américaines remonte aux années 1930, ce n’est qu’à partir de 1950 que l’automobile se généralise aux Etats-Unis et en 1960 en Europe créant une véritable dépendance de la ville à l’égard cette dernière (Dupuy 1999). Auparavant limitée dans son expansion, la ville de la seconde moitié du XIXe siècle connaît un étalement urbain spectaculaire comme en attestent les premières études de J.Gottman  et R. Harper (1967). Cette croissance ne se limite plus alors à la seule agglomération mais s’étend à l’espace rural (Mac Inko 1983). S’inquiétant de cette extension toujours plus rapide des villes, les géographes, économistes et sociologues tentent aujourd’hui de mesurer la croissance de l’urbain (Nicot 1997, Bonnafous et Tabourin 1998, Torrens and Alberti 2000, Peguy 2000) pour prévoir son évolution dans les années à venir (Bussière 1975, Bailly 1995, Batty, Xie and Sun 1999, Enault 2004) et proposer des solutions (Dwight 1995, Newman and Kenworthy 1996, Ryon 2003).
+Basées généralement sur les hypothèses d’une poursuite des tendances actuelles, ces simulations de l’étalement font fi malgré tout d’un élément fondamental : celui des transports. Depuis quelques années, de nombreuses études d’abord américaines puis européennes ont tenté de comprendre la logique de l’étalement à travers le prisme des transports et plus particulièrement la question de la vitesse (Newman & Kenworthy 1992, Muller 1995, Newman and Kenworthy 1996, Badoe and Miller 2000, Kenworthy and Laube, 1996, 1999, Mindali and alii. 2004, Marchetti 1991, Wiel 1999, Dupuy 2001, Wiel 2002, Beaucire 2002, Enault 2003, Pouyanne 2004). Cette mécanique de croissance de vitesse en lien avec l’extension des villes est analysée sur le long terme comme « contraction de l’espace temps » (Bretagnolle 1999a, 1999b, 2003). Jusqu’à ce jour, peu de « modèles prévisionnistes » de l’étalement ont été proposés en intégrant une dimension transport au cœur même des processus de croissance de la ville (Enault 2005) par manque de données de vitesse. Ce paramètre est en lui-même une problématique tant il est difficile de l’évaluer. Aussi, la plupart des travaux raisonnant sur les vitesses restent à des niveaux très agrégés (commune, agglomération ou aire urbaine). Cette absence de précision des données s’explique aisément par la multiplicité de paramètres nécessaires pour le calcul des vitesses.
+Cet article propose une méthodologie capable de produire des cartes infra-communales précises des vitesses, qui couple une approche classique utilisant le SIG avec un ensemble de procédures produites dans un tableur. Ces calculs peuvent être réduits à un modèle hybride constitué de trois modules : un premier évalue les relevés en proposant une première relation caractéristique de type logistique, un second fait intervenir le trafic en usant du modèle macroscopique de trafic de Greenshields (1935), enfin le dernier fait intervenir le hasard avec une approche stochastique des vitesses.
+La suite de l’article propose de répondre à quelques questionnements généraux sur les vitesses et positionne le modèle de Greenshields dans un ensemble plus vaste : celui des modèles d’écoulement du trafic. Il est alors possible d'entrer plus précisément dans les détails du modèle en le décomposant en trois ensembles assez distincts. Le premier adopte une posture relevant davantage des statistiques. A l’opposé, le second et le troisième introduisent une démarche bien plus abstraite (modèle de trafic et modèle stochastique). L’utilisation de ces procédures aboutit à une application à l’aire urbaine dijonnaise.
+Définie comme le rapport de la distance sur le temps mis pour la parcourir, la vitesse est un des paramètres les plus représentatifs des réseaux de transport. Pour la calculer, un certain nombre d’éléments sont nécessaires. Le premier et sans doute le plus important est le trafic.
+Au-delà d’un comportement purement individuel où ce serait l’automobiliste qui maîtriserait sa propre vitesse, la conduite est en réalité largement le fait de l’environnement extérieur, le nombre de véhicules présents sur la chaussée, les limitations de vitesse induites par le code de la route ou permises par la voie elle-même. Il en résulte une circulation relevant plus de la mécanique collective qu’individuelle. Sur ce point les travaux de A.Dusutour et alii (2004) sont tout à fait éclairants. On observe alors que les comportements individuels peuvent engendrer une véritable auto-organisation à l’échelle d’un groupe (choix d’une voie unique puis de deux afin de limiter la congestion). Pour le trafic routier, nous observons des mécanismes identiques à ceux observés à propos des fourmis. En somme, la vitesse de l’automobiliste est régulée par celle de ses voisins (Ferrari 1989).
+Les conducteurs ont-ils pourtant conscience de cela ? Dans une enquête menée par P. Delhomme et J. P. Cauzard (2000), on observe que près de 52.4% considèrent rouler à la même vitesse que les autres contre 20.5% plus vite et 27.1% plus lentement.
+Pour comprendre les vitesses, il convient de bien ajouter d’autres éléments tels que la géométrie de la route ou sa signalisation. En premier lieu, la largeur accroît donc sensiblement la vitesse. De la même manière, les sinuosités, les virages ont des effets importants sur la vitesse. A cela s’ajoutent les limitations de vitesse (en agglomération, par temps de pluie) ou les feux tricolores, les stops et autres signalisations au sol.
+Comme la vitesse semble plus le fait d’un comportement collectif qu’individuel, pour l’analyser, il convient de raisonner sur des tronçons plutôt que sur des véhicules particuliers.
+D’un point de vue technique, il existe trois grands types de modèle de trafic : microscopiques, macroscopiques ou mésoscopiques (CERTU 2000, Helbing and Nagel 2004).
+Les modèles microscopiques prennent comme unité de base le véhicule et en déduisent des valeurs telles que l’accélération, la vitesse ou encore la position. Certains auteurs ont montré que l’accélération adoptait l’expression suivante en fonction du temps (Akcelik and Biggs 1987) [1]:
+     [1]
+où a(t) représente l’accélération à un instant t, am, l’accélération maximale, ta, l’instant de fin de l’accélération et m, n et r des paramètres à évaluer.
+Graphiquement, le modèle de l’accélération correspond à la figure 1 et se traduit pour la vitesse par une fonction de type logistique (figure 2).
+A l’autre bout du tronçon, l’automobiliste va ralentir jusqu'à ce que sa vitesse atteigne 0 selon un profil équivalent à celui qui a pu être présenté mais en sens inverse.
+
+Figure 1 : Profil de l’accélération en fonction du temps
+
+Figure 2 : Profil de la vitesse en fonction du temps
+Un autre façon d’aborder la circulation consiste en une étude plus générale faisant usage de variables globales de trafic telles que le débit (en véhicules par heure), la densité ou concentration et la vitesse du flot (Berthier 1998, Helbing 1997 2001). Trois relations vont alors faire intervenir trois variables dans les modèles dits macroscopiques.
+La première est dite équation de conservation des masses où le nombre de véhicules à un instant t est égal au nombre de véhicules à un instant t + dt plus le nombre de véhicules entrés entre t et dt moins le nombre de véhicules sortis entre t et dt.
+Une deuxième équation relie le débit et la densité en définissant la vitesse comme le rapport entre le débit et la densité.
+Enfin la troisième équation est dite relation d’équilibre ou fondamentale utilisée dans les modèles de premier ordre  entre débit et densité supposée vraie à tout instant et en tout point.
+       [2]
+où est la variation de la concentration par rapport au temps, est la variation du débit par rapport à la distance x.
+La seconde équation peut se définir ainsi :
+           [3]
+où Q est le débit, V la vitesse et K la concentration.
+Dans le modèle de premier ordre, « on suppose que le trafic est en permanence en état d’équilibre sur les portions de réseau homogène. Le système d’équation représentant l’écoulement est alors complété par une relation d’équilibre entre le débit et la concentration, appelée diagramme fondamental Qe » (Leclercq 2002). Le modèle STRADA, développé par le LICIT (Buisson 1996), propose un diagramme formé par deux arcs de paraboles (figure 3).
+
+Figure 3 : diagramme fondamental de STRADA
+D’autres auteurs (Masson 2000) considèrent en revanche pour cette troisième relation une unique parabole liant la concentration au débit, s’annulant en 0 et dont on peut aisément exprimer l’équation par un changement de repère :
+             [4]
+Q est toujours le débit , K la concentration, Qe le débit maximum et Ke la concentration critique.
+Notons que le modèle exposé est déjà connu depuis B.D.Greenshields (1935) qui fut le premier à le mettre au point à partir des données de trafics sur les grandes voies routières de Chicago.
+Graphiquement, l’équation correspond à la figure 4.
+
+Figure 4 : Le modèle débit/concentration de Greenshields
+Le programme se compose de trois modules (figure 5).
+le premier calcule la vitesse dans des conditions de circulation optimales (temps sec, jour et flux routier faible). On obtient alors une relation de base liant la courbure des infrastructures avec leur vitesse et cela modulé par le type de véhicule (poids lourds PL ou véhicules légers VL).
+Toujours dans le même module, on fait intervenir le type de milieu (urbain ou non urbain)
+un second module, le plus complexe, intègre le trafic et ainsi évalue les conséquences sur la vitesse du module précédent.
+enfin un dernier module permet d’évaluer le nombre de feux ainsi que les temps d’attente.
+
+Figure 5 : Schéma de la méthode de calcul des vitesses
+Nous faisons alors comme hypothèse qu’il existe une relation liant courbure et vitesse, cette dernière étant dépendante de la largeur de l’infrastructure et du type de voie.
+En premier lieu, il existe deux types de véhicules circulant sur la chaussée : les poids lourds ainsi que les voitures particulières, ce qui nous donne alors deux arborescences. Ensuite, pour chaque véhicule, on envisage qu’il existe quatre types d’infrastructures : très larges (autoroutes), larges, moyennes et étroites soit un total de 2*4 relations soit 8 arborescences. Pour l’autoroute, les courbures étant faibles, on peut estimer que la vitesse est constante égale à un maximum (Vmaxtrèslarge).
+Comment évaluer la relation fondamentale liant vitesse et courbure ? Nous faisons comme hypothèse, avant de le vérifier expérimentalement, qu'il existe une fonction de type logistique décroissante faisant osciller la vitesse entre deux bornes (minimum et maximum) dépendant à la fois du véhicule pour lequel on évalue la relation et du type de voie.
+La relation logistique prend alors la forme [7] :
+               [5]
+La relation [7] est équivalente à :
+                        [6]
+où c est la courbure, V1 est la vitesse fonction de la courbure de l’infrastructure, Vmax la vitesse maximale lorsque la courbure est proche de 0, Vmin la vitesse lorsque la courbure est proche de 180 et et des paramètres à évaluer.
+La première partie de ce module peut être représentée par la figure 6.
+
+Figure 6 : Description de l’algorithme de la première étape du premier module
+A l’issue de cette opération, on dispose de deux fonctions : une pour chaque type de véhicule
+Ce type de programme élémentaire reposant sur des emboîtements de conditionnelles peut être réalisé sous EXCEL en utilisant la fonction =SI()
+Ce petit algorithme est implémenté de la façon suivante :
+Les modalités d’évaluation des paramètres , , Vmin et Vmax seront exposées dans la suite de notre étude
+On fait ensuite l’hypothèse que la vitesse moyenne observée sur le tronçon est proportionnelle au pourcentage de chaque type de véhicule. [7] :
+                              [7]
+où %VL est le pourcentage de véhicules légers, VVL est la vitesse calculée selon la formule [8] pour les véhicules légers , %PL est le pourcentage de poids lourds et enfin VPL la vitesse elle aussi calculée selon la formule [8] pour les poids lourds.
+L’étape suivante fait intervenir le type de milieu, à savoir l’urbain ou le rural. L’idée générale est alors de construire un programme qui permet de limiter la vitesse à 50 km/h en agglomération.
+Hors milieu urbain, la vitesse reste fixée par le type de la route. Elle variera par conséquent entre 0 et 90 pour les routes classiques et 0 et 130 pour les autoroutes. En revanche lorsque l’on se trouve en agglomération, on peut mettre en évidence les deux cas suivants : soit la vitesse calculée précédemment (V2) est supérieure à 50, alors le programme fixe une vitesse arbitraire à 50 ou au contraire cette dernière est inférieure. Dans cette éventualité, la vitesse V2 est alors conservée à l’identique
+Graphiquement il est possible d’exposer la démarche par la figure 7.
+
+Figure 7 : Description de l’algorithme de la troisième étape du premier module
+L’implémentation prend également la forme de conditionnelles emboîtées.
+
+Ce module est, de loin le plus complexe, car il nécessite la construction d’un modèle mathématique faisant intervenir la concentration en véhicules, le débit ainsi que la vitesse.
+L’idée générale est de partir de la vitesse V3 du module précédent et de la faire décroître lorsque cela est nécessaire en fonction du débit. Cela n’est possible que si l’on est en mesure d’évaluer la concentration critique de l’infrastructure ou concentration observée lorsque le débit est maximal (Ke).
+Expression de la concentration critique Ke
+La concentration critique est selon le graphique de B.D.Greenshields (1935) égale à la moitié de la concentration maximale (Kmax). Pour évaluer cette dernière, on suppose que l’ensemble de la chaussée est occupé par les véhicules et que ces derniers ont alors une vitesse nulle.
+
+Figure 8 : Décomposition d’un tronçon saturé
+On peut ainsi écrire la somme DAB
+                [8]
+En faisant intervenir le pourcentage de chaque type de véhicule (%VL et %PL) et en notant le nombre de véhicules présents sur le tronçon Nmax, il devient possible d’exprimer les différentes sommes.
+     [9]
+En calculant à présent Nmax en fonction des autres paramètres, on montre que :
+               [10]
+Nmax est ainsi le nombre maximal de véhicules que le tronçon est en mesure d’accueillir. Pour évaluer la concentration maximale, c’est-à-dire le nombre maximum de véhicules par kilomètre, il suffit de diviser Nmax par DAB.
+         [11]
+On en déduit que la concentration critique est :
+
+Expression de la vitesse en fonction du débit
+La relation [6] met en évidence une expression liant capacité (K) et débit (Q). Par ailleurs une seconde formule [3] permet de calculer la vitesse en fonction des deux paramètres précédents.
+En admettant que le débit est la variable, exprimons la concentration.
+On obtient deux racines pour une même valeur de débit.
+    [12]
+ [13]
+Ces deux expressions signifient que pour une même valeur de débit, on peut soit se trouver en phase de saturation, soit au contraire être sur un tronçon fonctionnant en-deçà du seuil critique.
+Pour la suite de notre étude, nous ne considérerons que la forme décroissante [13]. On est en mesure d’estimer la vitesse par l’intermédiaire de [3].
+          [14]
+La fonction [14] adopte la courbe suivante :
+
+Figure 9 : Profil de la vitesse en fonction du débit
+Expression de la vitesse prenant en compte la circulation (V4)
+La vitesse varie donc en fonction du débit entre une valeur maximale (qui est égale à V3) et un minimum toujours égal à la moitié du maximum (soit ½ V3). On peut donc écrire, lorsque le tronçon atteint le débit critique (Qe), une relation liant Qe, Ke et Ve.1
+                                           [15]
+La relation [18] peut donc être réécrite en exprimant Qe en fonction de V3, Q et Ke.
+                 [16]
+Troisième module : influence des feux de circulation sur la vitesse
+En toute logique, on définit le temps mis pour se rendre d’un point A à un point B par la somme d’un :
+temps où l’on circule à la vitesse autorisée à la fois par le profil de l’infrastructure routière mais également par la circulation (Tcirculation = DAB/V4)
+temps global d’attente aux feux (Tfeux = nombre de feux rouges (nf) * le temps d’attente à un feu (tf))
+              [17]
+Dans l’expression précédente, la seule valeur que l’on ne peut déterminer est le nombre de feux rouges nF). En supposant qu’il existe une stricte équiprobabilité entre le vert et le rouge d’un feu de circulation, on démontre que :
+où n représente le nombre de feux rouges et p le nombre de feux. Cette expression est plus connue sous le nom de loi binomiale.
+L’application de la loi binomiale sous Excel en introduisant le hasard (alea()) conduit à une formalisation du modèle de type stochastique. On obtient alors l’expression suivante [21] :
+        [18]
+Où Ent() est la partie entière de la parenthèse, Arrondi(), l’arrondi de la parenthèse, Nbfeux le nombre de feux, nf le nombre de feux rouges et enfin Aléa() un nombre aléatoire entre 0 et 1
+Nous observerons tout de même que le calcul ne reste qu’une approximation du réel dans la mesure où le temps des feux rouges est directement corrélé avec la géométrie du carrefour et le trafic de la voie.
+Cette phase de calcul par les trois procédures intervient au milieu de la chaîne du raisonnement après l’exportation des différents paramètres issus du SIG et avant la cartographie des vitesses se réalisant dans ce même logiciel (Mapinfo).
+La première étape consiste à appliquer le modèle de vitesse afin de déterminer en quelque sorte la rugosité des différents axes. Pour cela, il convient dans un premier temps de calibrer les différents paramètres des trois modules.
+Calibrage du modèle de vitesse
+La relation courbure/vitesse
+Des relevés de vitesse en conditions optimales (faible circulation, beau temps) ont été menées sur des routes de campagnes de l’aire urbaine dijonnaise. Le test fut effectué sur les trois types de routes présentes dans le modèle : petites routes, routes départementales et routes nationales.
+Il convient par la suite d’ajuster le modèle associant la courbure des routes mesurées sur les cartes IGN avec les relevés de vitesse en choisissant la relation de [8]. L’ajustement est possible en fixant une limite haute de vitesse et une limite basse. On utilise alors une linéarisation de l’expression [8] :
+      [19]
+Les résultats sont un peu décevants avec un coefficient de détermination de 0.45.
+
+Figure 10 : Données de vitesse en fonction de la courbure (petites, moyennes et grandes routes)
+
+Figure 11 : Régression logistique de la vitesse par rapport à la courbure (petites, moyennes et grandes routes)
+Source : Calcul d’après carte IGN 1/25 000 et relevés
+
+Figure 12 : Courbes dérivées des régressions pour les trois types de voies
+Conscient que les valeurs de vitesses (dérivant de l’accélération, du poids) ne sont pas les mêmes pour les poids lourds et les véhicules légers, nous simplifions la réalité en considérant des véhicules qui ont le même type de comportement, soit les mêmes limites en termes de vitesse d’où :
+
+Tableau 1 : Valeurs des limites de vitesse pour les poids lourds
+Les coefficients et sont identiques à ceux des véhicules légers.
+Les paramètres des deux derniers modules
+Dans les deux modules suivants du calcul de vitesse, on doit évaluer cinq paramètres : la distance minimale intervéhiculaire (EIVO), le coefficient de croissance de la distance de sécurité (), la longueur moyenne d’une voiture (LVL), la longueur moyenne d’un camion (LPL) et enfin le temps d’attente moyen à un feu (tf).
+LVL et LPL sont faciles à déterminer car la plupart des ouvrages spécialisés sur les transports et les livres de conduite donnent les valeurs suivantes : LVL  4 m = 0.004 km et LPL  0.012 km. En revanche les autres paramètres nécessitent une certaine réflexion.
+Le dernier des paramètres à évaluer pour notre modèle est le temps moyen d’attente aux feux. Pour cela, nous avons effectué des relevés sur les boulevards péricentriques de Dijon en période de vacances.
+Nous avons pu observer de très fortes disparités des temps, principalement pour des raisons de trafic.
+Il apparaît que sur l’ensemble des feux observés, la plus forte durée était de 72 secondes et la plus faible de 9. La moyenne, valeur que nous retiendrons est à 33.33 secondes (soit 0,00926 en heure), elle correspond également à un des deux modes et est donc assez représentative de la distribution statistique.
+Le troisième module évalue un nombre de feux aléatoire, ce qui contribue à faire varier assez sensiblement la vitesse résultante du tronçon. Fort de cette observation, nous avons jugé nécessaire d’effectuer une suite de 50 calculs de vitesse, échantillon qui a servi de base pour l’analyse de la moyenne, l’écart type, le minimum, le maximum et l’étendue.
+Les résultats cartographiques du modèle appliqué à l'aire urbaine dijonnaise ne semblent pas particulièrement déroutants compte tenu des éléments intégrés. Il semble ainsi se dégager une logique de type centre périphérie, déformée par l’opposition plaine plateau (figure 13).
+au centre, les vitesses les plus faibles se trouvent comprises entre 0 et 35 km/h. A mesure que l’on s’éloigne des boulevards centraux, les vitesses s’accroissent de manière significative sans toutefois dépasser 40-50 km/h et ce, jusqu’à une distance moyenne de 3,5 à 4 km du centre ville.
+au-delà, les vitesses augmentent pour se stabiliser en moyenne vers 60-70 km/h dans l’espace périurbain. Ainsi, c’est à partir de 6 km du centre ville que s’observent les vitesses les plus rapides où vont cependant alterner les axes lourds de transit aux vitesses proches de 90km/h, les traversées de villages et les petites routes plus rugueuses. La vitesse moyenne sur cette partie du réseau tend vers un maximum proche de 60-65 km/h, ce qui donne une certaine homogénéité des vitesses en milieu périurbain.
+
+Figure 13
+Cependant, la distance au centre n’est pas seule à intervenir dans la vitesse : le relief a manifestement de fortes répercussions sur la structure du réseau, donc sur la vitesse.
+ à l’ouest, l’alternance de plateaux et de vallées encaissées multiplie les virages, rend les routes plus tortueuses et moins roulantes et limite la vitesse à 40 km/h dans les « épingles à cheveux ». L’ensemble du réseau est affecté, qu’il s’agisse de départementales ou de nationales. Au sud, l’itinéraire Pont-de-Pany/Nuits-Saint-Georges nous en donne un des plus beaux exemples : sur la D 35, 7 virages à 40 km/h accidentent le parcours. Au nord de la vallée de l’Ouche, la D 104 est elle aussi très sinueuse notamment à partir de Blaisy-Bas. Plus au nord, la D 996 ainsi que la N 71 subissent également des ralentissements comme dans le creux de Val Suzon (N 71) ou au delà de Saussy (D 996). Seule l’A 38 permet une vitesse de 120-130 km/h.
+ à l’est en revanche, sur des routes de plaine plus rectilignes, les vitesses varient généralement entre 50 et 90 km/h. Les ralentissements proviennent cependant de la traversée de villages et de villes comme Genlis où la vitesse décroît assez rapidement sur une petite portion à 20 km/h. Sur la partie méridionale de la N 74, de sérieux ralentissements proviennent de la limitation de vitesse à 50 km/h dans les traversées de villages ou, comme à Gevrey-Chambertin, de l’existence de feux. Observons également que les forts trafics ont un impact important sur la vitesse puisque les valeurs n’excèdent pas les 70 y compris en rase campagne. Dans la partie septentrionale, la vitesse moyenne se situe vers 90 km/h ou même 120-130 km/h sur la portion non payante de l’A 39.
+Enfin, les entrées d’agglomération influent de manière décisive sur les vitesses : ainsi les entrées sud et nord-est sont manifestement des points noirs du réseau routier dijonnais. Sur la N 74, dans sa partie méridionale, de nombreux feux contribuent à diminuer considérablement les vitesses du faisceau : 7 feux ramènent à 35-50 km/h la vitesse sur les trois tronçons concernés, ce qui est peu même si l’on sait que le modèle ne prend pas en compte les feux en parallèles. Au nord-est, sur la D 70, 9 feux réduisent la vitesse à 28 km/h sur le tronçon du boulevard de Champagne et à proximité de la place de la République.
+Alors que le paragraphe précédent se place dans une perspective unique, celle d’une situation à une date, une heure donnée, les cartes suivantes sont au contraire une image de la circulation moyenne.
+Nous avons ainsi testé 50 fois de suite le modèle de calcul de vitesse. A partir de cette nouvelle base de données, il nous était possible de construire facilement quelques indicateurs statistiques élémentaires pour ensuite les cartographier.
+ la moyenne : un choix à long terme
+Le premier et le plus simple est la moyenne.
+De l’ensemble des indicateurs, elle est sans doute le plus intéressant.
+En somme, la moyenne est ici le reflet de la situation actuelle dans l’aire urbaine et ne doit en aucun cas être considérée comme une cartographie des vitesses réellement pratiquées ou encore un instantané. Il pourra arriver bien sûr qu’un individu ait des vitesses comparables mais cela sera certainement exceptionnel et signifiera qu’il aura eu systématiquement un feu rouge sur deux.
+Nous pouvons commenter cette carte et en tirer des conclusions sur le fonctionnement global de la circulation actuelle dans l’aire urbaine dijonnaise.
+La plus importante des remarques est sans doute la logique centre périphérie des vitesses déjà mis en évidence dans la carte test. Ici, on retrouve le même type d’organisation mais bien plus marquée. On distingue parfaitement trois voire quatre couronnes, ce qui n’était pas possible auparavant.
+1- les boulevards centraux disposent des vitesses les plus faibles (entre 20 et 35 km/h) et forment en quelque sorte le point noir de la circulation. Il conviendra toutefois d’opposer les faubourgs nord et sud qui n’ont semble-t-il pas le même type de fonctionnement. La rue Devosge et le boulevard de Brosses sont a priori les axes les plus rugueux car dotés d’une impressionnante quantité de feux. A l’inverse, la partie sud est moins contrôlée donc plus roulante (les vitesses varient entre 35 et 50).
+2- lorsque l’on s’éloigne de cet hypercentre, on entre dans un domaine relativement homogène où les vitesses varient entre 35 et 50 km/h. Les axes de la partie ouest sont peut être légèrement plus rapides.
+3- à une distance approximative de 4 km, ne subsistent que des radiales et la rocade, les vitesses sont ainsi comprises entre 50 et 110 voire 120 km/h.
+4- enfin, à partir de 5 km, on entre dans le périurbain aux vitesses alternant entre 35 et 90. Deux remarques peuvent être dégagées :
+les grandes radiales de l’aire urbaine dijonnaise disposent des vitesses les plus importantes (comprises entre 50 et 90) et s’opposent aux routes départementales plus locales où la moyenne tombe généralement à 50 ou 60.
+localement, on constate d’importantes variations de vitesses dues à la traversée de villages.
+La vitesse moyenne de cette couronne est donc fortement hétérogène même si la moyenne reste stable.
+Cette carte met également en lumière un élément que nous avions déjà évoqué : l’opposition plaine plateau.
+
+Figure 14
+ Le maximum
+Cette carte n’est utile que dans la mesure où elle permet de calculer les temps d’accès minimum dans l’hypothèse où un individu n’ait pratiquement aucun feu rouge, ce qui là encore est fortement improbable. Cette situation tend à annuler l’influence des feux de circulation sur la vitesse.
+La différence essentielle avec la carte précédente est l’absence ou la quasi-absence de logique centre-périphérie qui est alors remplacée par une suite de tronçons, où l’on pratique les plus fortes vitesses possibles, à savoir 50 km/h en ville en dehors de quelques zones de faibles vitesses comme vers la place Darcy.
+Le reste de l’aire urbaine conserve les mêmes vitesses que pour la situation moyenne.
+ Le minimum
+Cette carte est peut être plus représentative car elle fait à nouveau apparaître un semblant de logique centre périphérie tout en envisageant que l’automobiliste sera automatiquement bloqué par les feux rouges.
+Il s’agit de la situation inverse de la précédente où le rôle des feux est renforcé.
+Une autre façon d’appréhender les variations de vitesse est d’envisager les paramètres de distribution, à savoir l'étendue et l’écart type de l’échantillon.
+
+Figure 15
+
+Figure 16
+
+Figure 17
+ L’écart type
+Il est possible de raisonner en termes d’écart type pour obtenir une image encore plus juste des variations de vitesses pour les 50 essais (figure 17).
+Le résultat semble plus intéressant que pour l’étendue car on peut assez nettement, cette fois ci dégager une structure dans l’agglomération.
+- les routes de la partie ouest paraissent les plus stables, c’est-à-dire que leur vitesse varie en moyenne assez peu même si les extremums sont manifestement éloignés.
+à l’inverse l’est présente des écarts types plus importants, preuve que les vitesses peuvent être assez mobiles.
+- les boulevards centraux poursuivent la tendance de la périphérie, à savoir des écarts types plus forts pour les infrastructures nord (boulevard de Brosses, Rue Devosge) que sud (rue Tivoli, Boulevard Carnot).
+- enfin, les plus faibles écarts types, comme pour les étendues, se retrouvent sur les radiales : N 74 (sud), route d’Ahuy, D 28, N5 (ouest), rue de Corcelles et D 996. Ces routes ont ainsi des vitesses relativement stables.
+Les paramètres influant sur la vitesse sont nombreux. Il est toutefois possible de les regrouper en deux catégories : ceux dépendant directement des véhicules (type de conduite, type de véhicules ou trafic) et ceux provenant de la géométrie de la route ou de la signalisation (largeur, feux, stop, cedez-le-passage ou courbure).
+De l’échelle d’observation dépend le type de modèle que l’on utilisera. Ainsi, au niveau d’une aire urbaine, il semble préférable de raisonner à une échelle macroscopique.
+C’est à partir d’un modèle hybride reposant sur la courbe logistique, la courbe de congestion débit-vitesse (modèle de Greenshields) et une dimension stochastique associée à la loi binomiale qu’il nous a été possible de calculer des vitesses intégrables dans le SIG Mapinfo.
+Les résultats montrent une organisation de type centre périphérie, logique visible à partir des moyennes de vitesse.
+Ces calculs peuvent servir pour des études plus poussées sur les temps d’accès ou l’étalement urbain. On parvient, alors, par l’algèbre et la géométrie à démontrer un modèle de temps d’accès dynamique au centre capable de simuler l’espace potentiellement urbanisable. Cette approche prospective n’est que l’amorce d’études plus formelles couplant la vitesse à l’étalement urbain. Ces dernières, utilisant à nouveau les résultats de cet article, démontrent par un raisonnement purement déductif la forme de la relation vitesse-étalement et son évolution au cours du temps à partir des lois de Newton.

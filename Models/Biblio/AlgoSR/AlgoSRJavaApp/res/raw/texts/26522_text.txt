@@ -1,0 +1,447 @@
+In the event of an accident producing a toxic cloud, safety guidelines recommend that residents take shelter by staying indoors with the windows closed, wherever the exact location of the accident might be. Nonetheless, rules and regulations have not proven to be very effective (Hale 1990). Individuals’ decisions and collective behaviours render complex the prevention or evacuation in real time as they interact with each other and/or with their environment (Fioretti 2001; Bonnet 2002; Liu 2007). Human behaviour remains the main ambiguous and unpredictable factor in the event of a disaster and this behaviour can have an enormous effect on the aftermath of catastrophes (Chen et al., 2012). Some people run away from the affected zone, ask neighbours what to do, walk towards the scene of the accident to see what has happened or even leave buildings where they could have remained in a safe environment (CIEU 2001). While people must protect themselves, an increased number of victims has been observed because people do not apply the safety regulations in the event of a disaster (CRED 2011). Inadequate behaviours have been observed, notably when the hazardous phenomenon is not well known, when the perception of risk does not correspond with the catastrophe, when safety regulations are unknown, when the alert phase is inefficient, or when panic, unsafe or undesired behaviours due to fear take place (Howarth 1987).
+Individual motivation, local knowledge, abilities (Janssen and de Vries 1998) or possibilities (Zimolong and Duda 1992), risk awareness, and implementation of safety regulations (Bonnet 2002) can strongly reduce the vulnerability of the population and consequently the effects of a major accident. The more people are able to identify the hazardous phenomenon (fire, cloud or explosion) and its features (spread diffusion), the more likely they are to implement appropriate safety measures. This involves a process of assimilation of information delivered by schools, education in the home and official leaflets. Other vectors of education sometimes have a greater impact, such as either experiencing a crisis or participating in a real-time and real-scale exercise simulating a crisis. Moreover, safety measures and risk awareness are not assimilated by people in identical fashion. Social characteristics like gender or age have a strong influence on risk perception (Flynn et al. 1994; Dosman et al. 2001). Conversely, one’s level of education has a strong impact on the knowledge of safety measures (Beck et al. 2012). Thus, internal and external factors influence individual behaviours and people are not equals when faced with a crisis because these behaviours depend on the vectors of assimilation they have been confronted with, amongst others.
+Measuring and assessing interactions between these vectors and behaviours still remains difficult. Real observations are limited by the scarcity of events and by the fact that the location, date and gravity of accidents cannot be predicted. Other possibilities consist in observing people during simulation exercises (Johnston et al. 2011). Computer simulation is also a good alternative means of obtaining valuable information.
+In this study, our objective is to develop a specific Agent-Based Model (ABM), named TOXI-CITY, in order: i) to explore the relationship between the global survival rate and the individual behaviour of agents in the event of an accident that produces a toxic cloud; ii) to detect a possible emergent patterns (as the percent of minimum agent with good behaviours to save maximum agents) resulting from the individual interactions (local scale) in a specific configuration; iii) to measure the impacts of the spatial configuration on the global survival rate; iv) see if a minimum number of ″aware″ agents could save a maximum number of people by mimetic for example. Our theoretical model and experiments aim to answer two principal questions:
+Do the survival rates depend on risk awareness and the level of knowledge of a safety plan?
+Do the emergent patterns change according to the initial spatial configuration?
+The forthcoming sections of this paper are organised as follows. Section 2 reviews the previous modelling approaches, paying attention to the dynamics of the physical process or to individual behaviours rather than complex interactions between them. Section 3 describes the basic features of TOXI-CITY following the ODD (Overview, Design concepts, Details) protocol suggested by Grimm et al. (2006; 2010). Section 4 presents the simulation experiments with predefined scenarios, and the results obtained through a sensitivity analysis of different parameters. Section 5 discusses the lessons learned from the model, especially the emergence of patterns in survival rates, and the impact of the initial structure of the population or the spatial configuration, before providing concluding remarks and plans for further study.
+In the context of industrial accidents, most previous models were developed to improve knowledge of spatial dynamics of toxic clouds, focusing on variables influencing the chemical concentration (including wind and volatility of products) and its severity. Some of them focused on damage and the spatial dispersion of processes (cloud or fire), whereas others had a more operational objective as they were aimed at helping to manage the evacuation of people. In a general manner, mathematical and stochastic models focused on instances of a various number of possible industrial hazards. For instance, EXPSYS was designed to estimate the areas potentially impacted by industrial accidents such as explosions, fires, toxic or flammable gases (Quaranta et al. 2002). LTK3 and the associated Decision Support System (DSS) were developed to provide useful tools to test the efficiency of a crisis management policy (Quaranta et al. 2002). TOXFLAM enabled the simulation of atmospheric dispersions of light vapours (Bellasio and Tamponi 1994). Other predictive models relate to the complex spatial and temporal dynamics of phenomena in a pre-planning phase (e.g. Georgiadou et al. 2007). These models are useful for assessing the impacts of potential disasters, but they do not provide an understanding and simulation of individual behaviour patterns during the accident, and have never taken into account complex interactions from individual to collective behaviours (including herding or flocking; see Reynolds 1987; Wachowicz et al. 2011). In addition, they often require considerable data and important expert knowledge. For example, in EXPSYS, the users need to know the molar weight, pressure and critical temperature before explosion in order to calculate the vapour heat capacity depending on variations in temperature (Bellasio and Bianconi, 2005).
+Over the last decade, more dynamical models have appeared and, in particular, agent-based models. The latter have been developed to better simulate human behaviours and crowd movements in emergency and panic situations. However, most of them dealt with the problem of evacuation from buildings or a closed environment (Gwynne et al. 1999; Helbing et al. 2000; Helbing et al. 2002; Santos and Aguirre 2004; Pan et al. 2007; Zhou 2008). Some of them focused on evacuation simulations in urban environments (Chen et al. 2012) and the existing models are generally dedicated to the analysis of traffic flow and the collective patterns that emerge from individual vehicles (Chen and Zhan 2008; Daudé et al. 2009). Pedestrians’ behaviours remain largely unexplored (Lyell and Becker 2006; Wachowicz et al. 2011), particularly in the case of a toxic cloud and, in a more general way, the occurrence of industrial disasters. In addition, very little research has been devoted to the analysis of the impacts of the spatial configuration on the aftermath of a catastrophic event. Our proposed theoretical model aims to help in bridging this gap. It could be compared, thus completely theoretically, to the industrial disaster of Bhopal (India) that occurs in 1984 in a pesticide plant, using methyl isocyanate (MIC) (as dangerous as chlorine). The gas spread at night within one hour and killed thousands of people within few hours (Eckerman 2005). This example illustrate specific security advices related to toxic gas spreads or explosion (to remain inside e.g. when some other hazards require different behaviours, as going upstairs a building when a flash flood occurs).
+The structure and components of TOXI-CITY are presented according to the ODD protocol defined by Grimm and colleagues (2006 and 2010). ODD is a standard protocol designed to facilitate duplication or comparison and to make reading and understanding of ABM easier. The model was designed using the NetLogo 4.1RC5 platform developed by Wilensky (1999; Tissue and Wilensky 2004) (http://ccl.northwestern.edu/netlogo).
+Purpose: The model is a spatially explicit ABM designed to simulate several behaviours of inhabitants with their interactions in the case of a major industrial accident. The accident is a chemical explosion creating a highly toxic cloud with a lethal concentration. The model involves a population of reactive agents located in a simplified urban environment (composed of buildings and roads) over which a toxic cloud gradually spreads. The individual behaviours depend both on their degree of assimilation of the official emergency regulations and, for some of them, on their propensity to be influenced by their neighbours.
+Entities, state variables and scale: TOXI-CITY incorporates agents (the social entities) and patches (the spatial entities). Four archetypal categories have been defined for the agents: C1, C2, C3, C4 (Figure 1). The C1 agents have been well informed about safety regulations. In the event of a toxic cloud, their aim is to shut themselves up in a building. The C2 agents are less informed about safety regulations but they remain calm, trying to escape and run away from the cloud whose location they are aware of. The C3 agents are ignorant of the emergency procedures: their behaviours depend on their closest neighbours, they follow other agents (C1, C2, C3 or C4) or move to a random destination. Finally, the C4 agents represent individuals who do not change their behaviour and act obstinately as if no accident had occurred. They remain calm, and make their way to a predefined destination, outside or inside a building. Concerning spatial entity, the patch is the spatial base unit (i.e. the cell in the grid-based spatial representation) with each patch making up a part of a road or building which can be either open or closed. Each agent is explicitly located on one of these two entities (Figure 1). The last entity in the model is the toxic cloud: it spreads through the city only along roads. We consider that buildings are perfectly airtight to toxic gas. The list of the state variables included in the model is presented in Table 1. As suggested by the ODD protocol, these base variables are not computed from other variables.
+Figure 1
+
+Class diagram (in Unified Modelling Language UML) showing the structure of TOXI-CITY.
+Table 1
+Entities
+Variable name
+Description
+Patch
+Land cover
+Land-cover category: road or building
+Contamination
+Contaminated or not : Boolean.
+Agent
+Id Agent
+Agent identifier
+Alive
+Alive or not : Boolean
+Behaviour
+The agent’s category of behaviour
+Speed
+Walking or running (meters / second)
+Building
+Id Building
+Building Identifier
+Open ?
+Building open or not to the agents: Boolean
+State variables defined in TOXI-CITY.
+By default, the spatial environment of the model is composed of a regular grid of ten-meter resolution cells, and has an area of 1 km² (assumed to represent a significant part of an urban space). The model’s users can import their own data using the GIS extension existing on the platform. Thus, the predefined environment can refer to real or theoretical situations. The temporal scale (or basic time step) is equal to 4 seconds. It corresponds to the required time for running agents to cover a distance of 10 meters (patch size). The simulation runs until all the road patches are contaminated by the cloud. The duration in time of the model depends on the initial conditions (i.e. the initial location of the accident, the speed of the toxic cloud, the density of buildings and spatial configuration of the environment since the cloud only spreads along roads). It takes 7 to 53 minutes on average. In case of a real toxic cloud, the lethal zone is the area where concentration of a product such as Chlorine is higher than 400 ppm (Parts per million) in the air (death occurs within 30 minutes).
+Process overview and scheduling: The order of processes (at each time step) is defined as follows: 1) the cloud spreads on road patches; 2) dead and living agents are counted (the agents die when they are located over contaminated patches; they remain alive if they are in a non-contaminated patch, if they are inside a building or if they go out of the grid); 3) remaining agents act according to their predefined behaviour; 4) the simulation stops when the toxic cloud has spread throughout the environment.
+Basic principles: Archetypical behaviours are implemented in TOXI-CITY in order to render analysis easier. We can recall here the two fundamental hypotheses this work follows: i) do the survival rates depend on risk awareness and on the levels of knowledge of a safety plan in the event of a toxic cloud? and ii) do the emergent survival rate patterns evolve if we change the initial spatial configurations? To answer such questions, we make the assumption that using theoretical experiments could enable us to test different scenarios and to assess more effectively the interactions between simplified individual behaviours. The behaviour rules of the four categories of agents were constructed, previously, through empirical observations based on field surveys (Bonnet 2002; Beck et al., 2012).
+Emergence: Emergent phenomena can be observed during simulation: relationships between the survival rates of C3 agents and the initial proportion of other agents show an unexpected non-linear pattern. Such emergent property will be detailed in the results.
+Adaptation: The agents’ behaviour remains constant during the simulation. No adaptation mechanism has been integrated into the model allowing an agent to shift from one behaviour to another.
+Objectives: The main objective of each agent is to stay alive.
+Learning: The agents have no ability to learn over time.
+Prediction: The agents do not estimate the consequence of a decision. They have a deterministic and single behaviour pattern. Thus, there is no particular rule for predicting future conditions. They act according to their archetypical behaviour towards destinations perceived as safe.
+Sensing: Agents perceive their environment. They can situate themselves and have a limited visibility of neighbouring individuals. The C2 agents who run away from the cloud know the position of the source of the cloud and know the direction they have to take to run away from it. The C1 agents also know the location and take shelter as quickly as possible.
+Interaction: The ″followers″ (C3 agents) interact with their neighbours as they follow the agents located in their surroundings. These interactions are not reciprocal.
+Stochasticity: Randomness is included in TOXI-CITY to introduce variability in the following procedures: initialisation of agents’ positions, initialisation of buildings’ positions (if the urban environment is not imported by users into the model), initialisation of the toxic cloud (i.e. definition of the starting point) and its spread (a non-symmetric diffusion process), choice of the neighbour to follow (for C3), and selection of a destination to reach (for C4).
+Collectives: Groups of agents appear during the simulation due to the predisposition of the C3 agents to follow their neighbours.
+Observation: A window shows the number of dead and living agents during the simulation. Two graphs display the percentages of dead and living agents according to their category and their position on a road, in a building or outside the grid. The agents’ tracks and links can be displayed by means of the buttons (i.e. the link between follower and person followed) (Figure 2).
+Figure 2
+
+Graphical user interface of TOXI-CITY.
+Initialisation and input data: The simulation starts with simple default parameters. The user selects the spatial configuration (Figure 2) and chooses between several environments: a random built-up environment (around 10% density), a regular grid (Manhattan lattice) or a pre-existing raster data set. He can determine: the origin of the toxic cloud and its propagation velocity, the initial number of agents (0-1,000) and their relative distribution according to the four predefined behaviours (C1, C2, C3, C4), as well as the percentage of agents located indoors or outside buildings. Other default settings may be assumed to be optimal: initial speed of an agent is 9 km/h for runners (C1 and C2 agents) and 4.5 km/h for other walkers (C3 and C4 agents); the destination for C4 agents is a random destination. The velocities for the agents and the cloud have been defined pragmatically in such a way that the walking speed is close to a free velocity under normal conditions (i.e. between 1 and 1.5 m/s, Helbing et al. 2000) and that slow/fast entities respectively cover 0.5/1 patch in one time step.
+Sub-models: Five sub-models were distinguished, one for the cloud propagation process and one for each category of behaviour. The cloud spreads by neighbouring contact: one of its randomly selected neighbouring patches becomes contaminated if it affects a road (and if this patch is not yet contaminated), simulating a non-symmetric diffusion process. Concerning the agents, the four sub-models are presented in Figure 3.
+Figure 3
+
+Activity diagrams for one simulation step, presenting the sub-models of the four archetypal behaviours defined for the agents in TOXI-CITY.
+The C1 agents know the safety regulations. Consequently, when they are not already indoors, they seek shelter and run to the nearest building, enter it and stay there until the end of the simulation (Figure 3, top left). If they are inside already, they do not move. The C2 agents try to escape, thus running away from the toxic cloud by moving in the opposite direction from the cloud’s starting point and avoiding buildings. If they are indoors, they first leave the building (Figure 3, top right). The C3 agents randomly select the closest, visible neighbour (i.e. not standing inside or behind a building and if the neighbour is not further than 50 m away). They run after the C1 or C2 agents or walk towards a random destination like the C4 agents (Figure 3, bottom left). A ″leader-follower″ relationship leads to group formation. The leader cannot follow an agent belonging to his own group (in order to prevent loops), but if he or a member of the group meets a member of another group, then the two groups can merge with a new temporary leader. According to this mechanism, a group may have only one leader. Finally, the C4 agents go to a predefined random destination (Figure 3, bottom right) and keep moving until they die or reach their destination.
+To observe the model’s behaviour and the influence of the initial parameter values, a sensitivity analysis was conducted through exploration of four scenarios. Tables showing the parameters used in each scenario are shown in the next sub-sections. A replication of simulations (fixed at 50 after experiments) was carried out due to the stochastic nature of the model. The section finally aims to detect regularities and patterns in survival rates.
+In the first scenario, the objective was to explore the model, increasing the population size step-by-step (by 100), from 100 to 900 agents. On the one hand, we explored the behaviour of each category one by one (100% for one category, 0% for the other ones) (Table 2), enabling verification of the coherence of predefined behaviours. On the other hand, we measured the impact of an equally distributed number of agents (25% for each category). In the second scenario, we studied the effects of the structure of the population (and more specifically the impact of the percentage of C1 and C2 on C3 agent survival rates), given several distributions of categories of agents. For this scenario, the size of the population remained stable (500 agents). In the third scenario, influences of cloud velocity and its source position on the survival rates were explored and studied for each category of agents (for homogeneous populations). The last scenario aimed at a better assessment of the influence of the spatial configuration. The results obtained with a random lattice were compared to a Manhattan-like configuration for one homogeneous population.
+Table 2
+Experimentnumber #
+Number of Agents*
+ % C1
+ % C2
+ % C3
+ % C4
+Spatial Config.
+Speed of Cloud
+Source location of the Cloud
+S1-c1
+100,100,900
+100
+0
+0
+0
+random
+normal
+centre
+S1-c2
+100,100,900
+0
+100
+0
+0
+random
+normal
+centre
+S1-c3
+100,100,900
+0
+0
+100
+0
+random
+normal
+centre
+S1-c4
+100,100,900
+0
+0
+0
+100
+random
+normal
+centre
+S1-c5
+100,100,900
+25
+25
+25
+25
+random
+normal
+centre
+* [100,100,900] indicates the implementation (100) on the interval of extreme values (100,900) used for scenario. Parameter values for the first scenario aimed at exploring the impact of the population size for a homogeneous population of agents and for an equally distributed population of agents.
+Considered independently (see parameters in Table 2), each category of agents shows different survival rates in this scenario. The C1 agents (looking for a shelter) and C2 agents (running away) present the highest rates (around 99.9% for C1 and around 99.8% for C2) while the C3 (following a neighbour) and C4 agents (moving to their destination) have the lowest, ranging from 0.7% to 1.7% for C3 and from 2.1% to 2.4% for C4. To measure the influence of the initial number of agents on these mean survival rates, one analysis of variance (ANOVA) was conducted using different population sizes. This one-way statistical test measures the impacts of one explicative variable, the Factor of variability, named F. In our case, the differences between survival rates were only statistically significant for the C1 agents: with a number N of 50 agents, this factor of variability F equals 3.151 (with values only changing for 100 and 900 agents) and the low p-value indicates that the result is robust, (p= 0.015). The F difference was not higher with a greater number of agents (2000).
+The results for an equal distribution of agents in each category demonstrated that the survival rate progressively increases with the total number of agents. The analysis of variance shows that the increase in survival rates was only due to the variations in the survival rate of the C3 agents (Figure 4). With a number of 50 agents, the factor of variability F equals 404.26, revealing a survival rate evolution from 55.7% (100 agents) to almost 100% (900 agents). The differences between other survival rates (for C1, C2 or C4 agents) were not statistically significant. Such results can be explained by the fact that the more agents there are, the more the C3 agents are likely to see someone they can imitate. With a low density of agents, the probability for the C3 agents to find a neighbour (and thus to follow him) is low, therefore the probability of walking towards a random destination is high.
+The ANOVAs were followed by Tukey-B post-hoc tests (pairwise multiple comparisons) in order to identify homogeneous subgroups within the initial numbers of agents. In other words, the aim is to check whether the survival rate in each category significantly differs from the rates in the other categories. Results showed that both the total and C3 survival rates for 500, 700 and 900 agents did not differ significantly between them but significantly differ from the rates for 100 and 300 agents (with a p-value < 0.05). Consequently, we made a decision to test the other variables with the lowest number of agents only (500).
+Figure 4
+
+Average survival rates for all the agents (left) and for C3 agents (right) for the S1-c5 scenario.
+Scenarios S2-c1, S2-c2 and S2-c3 were designed to study the influence of the distribution of C1 and C2 agents on survival rates of the C3 agents, while scenarios S2-c4, S2-c5, S2-c6 and S2-c7 were aimed at finding which proportion of C1 could optimise the survival rates for the C3 agents (Table 3). We wished to know if a minimum of well-informed people (C1) could save a maximum of followers. As with the previous results, we observed that the C3 agents’ survival rate became much higher when other agents were more numerous (Figure 5).
+Figure 5
+
+Survival rates for C3 agents depending on the proportion of C1 agents.
+Table 3
+Experiment number #
+Agents
+ % C1
+ % C2
+ % C3
+ % C4
+Spatial Config.
+Speed of Cloud
+Source location of the Cloud
+S2-c1
+500
+50
+0
+50
+0
+random
+normal
+centre
+S2-c2
+500
+0
+50
+50
+0
+random
+normal
+centre
+S2-c3
+500
+25
+25
+50
+0
+random
+normal
+centre
+S2-c4
+500
+10
+0
+90
+0
+random
+normal
+centre
+S2-c5
+500
+30
+0
+70
+0
+random
+normal
+centre
+S2-c6
+500
+70
+0
+30
+0
+random
+normal
+centre
+S2-c7
+500
+90
+0
+10
+0
+random
+normal
+centre
+Parameter values for the second scenario aimed at exploring the influence of the population structure of agents on survival rates.
+The C2 agents, running away from the cloud, greatly increased the chances of survival of the C3 agents because they remained visible longer than the C1 agents, who confined themselves rapidly and so became invisible to the C3 agents (Table 4). Hence, following the majority without respecting the rules of prevention seems an advantage. This is especially true as they are not faced with crowd effects. Their survival rate increased from almost 87% in the S2-c1 scenario (50% of C1) to almost 100% for the intermediate (25% of C1, 25% of C2 and 50% of C3; S2-c3) or for the reverse situation (50% C2 – S2-c2). This result (detailed in Table 4) is certainly due to the fact that the C1 search for the nearest building whatever the direction and that may lead them towards the cloud. On the contrary, the C2 agents run directly away from the cloud in the opposite, safe direction. Moreover, C2 are more frequently located on roads while C1 can enter a building quickly. Consequently, the proportion of C2 agents (among all the visible agents located on the roads and likely to be followed by C3 agents), progressively increased during the simulation, as some C1 agents may enter buildings (and consequently no be longer visible). Thus, a higher proportion of C2 is more favourable to C3 than C1 agents. This result is of course mainly driven by the strong hypothesis made for C2: they know the location and source of the toxic cloud, so they know which direction is safer, and this fact is not the case in reality.
+Table 4
+Experiment number #
+ % C1
+ % C2
+ % C3
+ % C4
+ %C3 alive (mean)
+Standard deviation ( %C3 alive)
+S2-c1
+50
+0
+50
+0
+86.67
+4.68
+S2-c2
+0
+50
+50
+0
+99.67
+3.10
+S2-c3
+25
+25
+50
+0
+98.14
+2.28
+S2-c4
+10
+0
+90
+0
+58.40
+10.81
+S2-c5
+30
+0
+70
+0
+75.33
+7.87
+S2-c6
+70
+0
+30
+0
+93.22
+3.44
+S2-c7
+90
+0
+10
+0
+94.40
+3.73
+Survival rates for C3 agents according to different population structures.
+Conversely, the C3 survival rates strongly increase when informed agent rates (C1) increase in the lowest proportions (between 10% and 30%), while increasing the percentages of informed agents (from 50% to 90%) seems to improve their chances of survival only slightly. A threshold was observed for 70% of C1 agents (Figure 5). The analysis of variance followed by a Tukey’s B post-hoc test statistically confirmed these results (with a p-value < 0.001): the C3 agent survival rates differed significantly according to the initial proportion of C1 agents, with a high factor of variability (F= 477.461) when the number of agents was fixed at 250 agents. But increasing this proportion from 70 to 90% does not significantly improve survival rates (with p-value < 0.05).
+Unpaired t-tests were conducted to assess the effects of the cloud velocity (scenario S3a: slow vs. normal speed) and of the source location (scenario S3b: central vs. peripheral position) on survival rates for each category of agents (parameter values are given in Table 5). The differences were not significant for the C1 agents for scenario S3a, due to the high density of surrounding buildings, and were low yet significant for the C2 (mean= 0.176%; t= 2.674; p-value= 0.01) and C3 agents (mean= 1.008; t= 2.122; p-value= 0.036).
+Table 5
+Experiment number #
+Number of Agents
+ % C1
+ % C2
+ % C3
+ % C4
+Spatial Config.
+Speed of Cloud
+Source location of the Cloud
+S3a-c1
+500
+100
+0
+0
+0
+random
+slow
+centre
+S3a-c2
+500
+0
+100
+0
+0
+random
+slow
+centre
+S3a-c3
+500
+0
+0
+100
+0
+random
+slow
+centre
+S3a-c4
+500
+0
+0
+0
+100
+random
+slow
+centre
+S3b-c1
+500
+100
+0
+0
+0
+random
+normal
+periphery
+S3b-c2
+500
+0
+100
+0
+0
+random
+normal
+periphery
+S3b-c3
+500
+0
+0
+100
+0
+random
+normal
+periphery
+S3b-c4
+500
+0
+0
+0
+100
+random
+normal
+periphery
+Parameter values for the third scenario aimed at exploring the influence of the characteristics of the toxic cloud (speed and source location)
+The differences became greater for the C4 agents (mean= 2.656; t= 9.188; p-value < 0.001). This result can be explained by the fact that the C4 agents made no change in their activity or their behaviour as the cloud spread, whatever its speed. When the cloud spreads slowly, they have more time to reach their destination and are therefore less likely to be contaminated. In the same way, the survival rates were higher for the C3 (mean= 1.760; t= 5.110; p-value < 0.001) and C4 agents (mean= 2.832; t= 9.113; p-value < 0.001) when the cloud source was peripheral (for scenario S3b). Therefore, the difference was not statistically significant for the C2 agents and was relatively small for the C1 agents (mean= 0.080; t= 2.333; p-value= 0.024).
+Two types of spatial configurations were tested: random and regular (Figure 6). These two configurations have the same surface area for roads and buildings. The experiments were carried out using a homogeneous population of agents (Table 6 and Figure 7).
+Figure 6: Predefined spatial configurations of the environment: regular (on the left) and random (on the right).
+Figure 6
+
+Predefined spatial configurations of the environment: regular (on the left) and random (on the right).
+Table 6
+Experiment number #
+Number of Agents
+ % C1
+ % C2
+ % C3
+ % C4
+Spatial Config.
+Speed of Cloud
+Source location of the Cloud
+S4a-c1
+500
+100
+0
+0
+0
+grid
+normal
+centre
+S4a-c2
+500
+0
+100
+0
+0
+grid
+normal
+centre
+S4a-c3
+500
+0
+0
+100
+0
+grid
+normal
+centre
+S4a-c4
+500
+0
+0
+0
+100
+grid
+normal
+centre
+S4b-c1
+500
+100
+0
+0
+0
+random
+normal
+centre
+S4b-c2
+500
+0
+100
+0
+0
+random
+normal
+centre
+S4b-c3
+500
+0
+0
+100
+0
+random
+normal
+centre
+S4b-c4
+500
+0
+0
+0
+100
+random
+normal
+centre
+Parameter values for the fourth scenario aimed at exploring the impact of the spatial structure for a homogeneous population of agents.
+Figure 7
+
+Survival rates for agents for a random (left) or a regular (right) spatial configuration for each category of agents.
+High survival rates (> 99.6%) for the C1 and C2 agents were observed for both situations. Unpaired t-tests were also conducted to explain the differences between survival rates. The percentages for the C2 agents appear strongly homogeneous (~100%) within the regular grid configuration, and the mean difference with the random configuration, although statistically significant, was very slight (mean= 0.208; t= 2.648; p-value= 0.011). On the contrary, survival rates for the C3 agents presented higher values in a random situation (ranging from 92% to 100%, with a mean value of 96.6%) than with the regular grid (from 84% to 99% with a mean value of 92.4%; mean difference between configurations= -5.2; t= -7.649; p-value < 0.001).
+The survival rates for the C4 agents were the lowest and presented major differences. The simulations done with the random situation presented lower mean survival rates (2.5%, with a standard-deviation of 0.5%) than in the grid case (15.5% with a variation of 2.3%; mean difference between configurations= 13.856; t= 27.048; p-value < 0.001).
+These results may be explained in two ways. Firstly, with the same velocity, the toxic cloud spreads more slowly in the case of the regular grid (Manhattan configuration) because of the limited number of straight lines. On average, 241 iterations are required to complete the simulation while the process generally ends in 109 iterations with a random configuration. Consequently, C1 and C2 agents have better survival rates. Even if the C4 agents need more time to reach their destinations, their survival rates are fairly good as agents do not stay on roads or continue moving for a great length of time. But this reason is not enough to explain the survival rates of C3 agents. Secondly, these results may be due to reduced visibility in the regular grid case. C3 agents should be disadvantaged because they have a lower probability of following a C1 or a C2 agent. They see fewer people. Consequently, they spend much more time on roads and become intensely exposed to contamination.
+TOXI-CITY is a theoretical ABM aimed at exploring interactions between possible individual behaviours in the case of a toxic cloud with different characteristics for the population size and the spatial structure configuration. We made the choice of a simple and parsimonious model, considering four categories of agents that represent archetypal behaviours. Complex psychological considerations and/or adaptive traits were not implemented in this version. Each agent acts as a ″medium agent″ and interactions are mainly modelled through imitation. A simplified view of the reality was adopted, taking into account that the cloud spreads uniformly without considering any distortion (such as wind, topography or building’ rigidity, for example).
+The model is fairly limited to only a few of the components of reality in the case of industrial risk. However, the main interest lies in its theoretical contribution to the modelling of risk perception and population behaviours. Exploration of these agents in a position of competition, cooperation and/or coexistence reveals interesting statistics in term of a population’s vulnerability, and enables the testing of various hypotheses that would not be possible in reality. Since industrial accidents are dangerous and violent, the culture of risk or the degree of assimilation of information by a certain population has to be tested and this model could aim at detecting possible deficiencies in emergency plans using an ABM approach. One example would look for different spatial configurations of locations of buildings open to the public to maximise the preservation of populations. The model also pursues a pedagogical objective. Indeed, TOXI-CITY could be used to support the development of serious games, such as those seen in the areas of health or the economy (Briot, 2010). The use of such models by the public (schools or individuals) may lead to a better understanding of information than if they were presented in paper form. They may facilitate learning of safety regulations in an amusing way.
+TOXI-CITY provides a first line of response regarding the two objectives initially mentioned. The first was to explore the interaction between global survival rates and the distribution of behaviours in the agents’ population. Exploratory analyses presented in this paper have shown that the chances of survival from a deadly toxic cloud do not change for an initial population greater than 500 agents. The initial proportion of people knowing the rules of prevention plays a key role in the survival of mimetic people (C3). A threshold was observed for the informed population: small variations of this category in the whole population produced a high variation in the preservation of the mimetic agents. Over a certain value (around 70%), the effects on the overall population were negligible. The second point we explored was the effects of spatial configuration in the global behaviour of the model. We have demonstrated that spatial configurations (random or regular grid) strongly influence the survival rates of the modeled agents. The influence varies according to the categories of agents. A random configuration will save more mimetic agents, while a regular grid is more favourable to people who continue moving to their predefined destination.
+As a follow-up to these results, further studies have been planned. The first one concerns the environmental aspect. Our work on cloud diffusion would be continued so as to make the model evolve towards reality. For example, the propagation process will have to take into account more effectively the environmental variables such as wind and the topography on a local scale (Scargliali et al. 2005). Concerning buildings, one idea is to develop new scenarios where buildings are open or not (allowing us to introduce changes between night and day, or commercial and residential areas, for instance). For example, we already noticed that decreasing the number of open buildings could play a key role, introducing strong variability in survival rates. In regard to the behavioural aspect, the agents are characterised by a deterministic and single behaviour, which did not change during the simulation. Here, we adopted the KISS (Keep It Simple, Stupid) philosophy and, therefore, a ″follower″ (C3 agents) will always be a ″follower″. This strong hypothesis reflects the fact that in a very short period of time and in a very risky situation, people do not adapt their behaviour based on their previous actions but apply their initial strategy (Goya, 2009). However, in reality, people may change their behaviour based on the perception of the cloud, on the perception of terrified people and of victims, or on their interactions with neighbouring agents (communication between individuals). Their propensity to change their behaviour is also related to the degree to which they can be influenced. Indeed, those who change their behaviour, like self-confident and refractory neighbours, can influence people. In this range of ideas we can also suggest that human densities in urban area play a key role in the vulnerability of people: crowd effects, decreasing in velocity of people due to increasing interactions should affect the outputs. Consequently, in the short-term, we suggest exploring more precisely the congestion effects by adding speed-density function and incorporating the possibility of changing behaviour during the iterative process.
+Finally, in the longer term, the issue of social networks could be integrated (like the emergency network, volunteers, fire-fighters) since they have a role in leading stressed people. Integrating different information sources (for the moment, we consider that all the agents are alerted by a siren at the beginning of the simulation and at the same time) and taking into account individual densities in the streets and buildings will also be attempted. Once the optimal social configuration of the model has been determined it will be possible to take into account the duration of the simulation in order to evaluate the efficacy of the crisis mitigation. Therefore, TOXI-CITY could participate in the development of ABM tools in supporting risk management.

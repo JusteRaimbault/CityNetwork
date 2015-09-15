@@ -1,0 +1,352 @@
+La cohésion urbaine est définie comme la coexistence harmonieuse de catégories sociales différenciées dans un même espace (Fitoussi et al., 2004). Elle constitue en France un objectif politique éminent, régulièrement à la source de politiques publiques. La loi relative à la solidarité et au renouvellement urbain de 2000, par exemple, impose à toutes les grandes communes un seuil de 20 % de logements sociaux (relevé à 25 % en 2013) dans le but de favoriser la mixité sociale. C’est aussi l’objectif du programme national pour la rénovation urbaine, initié en 2003 et régulièrement renouvelé, dont les moyens s’élèvent à près de 45 milliards d’euros. C’est enfin une préoccupation partagée par la grande majorité des collectivités territoriales chargées de définir et mettre en œuvre les politiques locales d’urbanisme. Dans ce contexte, nous proposons un nouvel outil web visant à rendre la mesure de la ségrégation et des inégalités spatiales plus accessible et plus complète.
+OASIS (Outil d’Analyse de la Ségrégation et des Inégalités Spatiales) est une interface web automatisée – disponible sur http://oasis.irstea.fr/– qui offre un large éventail d’outils statistiques et cartographiques standards et originaux pour l’analyse des variables spatialisées. Il est destiné à un public très large, d’un niveau basique en statistique jusqu’à un niveau élevé : étudiants, autorités locales, chercheurs, etc. Par rapport à l’existant, OASIS présente plusieurs avantages. Premièrement, c’est une plateforme internet complète (sans installation nécessaire en local), qui regroupe et automatise des outils standards actuellement dispersés sur plusieurs logiciels et interfaces : applications pour le calcul des indices de ségrégation (Wong et Chong, 1998 ; Apparicio, 2000 ; Wong, 2003 ; Apparicio, 2008), logiciels et modules de statistiques spatiales (PySAL, GeoDa, packages R, modules GIS, etc.), GIS et interfaces web cartographiques (MapInfo, ArcGIS, outils web de l’Insee et de la Datar, etc.). Ensuite, OASIS propose une originalité méthodologique : des outils de simulation Monte Carlo permettent de tester la significativité statistique des indices de ségrégation et d’autocorrélation spatiale. À notre connaissance, de tels outils totalement automatisés ne sont disponibles nulle part, malgré l’importance de s’assurer de la fiabilité statistique des analyses spatiales. Enfin, OASIS donne un accès direct à une série de variables utilisées fréquemment dans la littérature sur la ségrégation et les inégalités spatiales (population, ménages, familles, etc.), qui sont disponibles au niveau communal pour l’ensemble de la France métropolitaine (fonds de cartes inclus).
+Les outils proposés sont regroupés par thèmes. Tout d’abord, des statistiques descriptives usuelles peuvent être calculées à l’aide d’un outil standard et visualisées grâce à un puissant module cartographique, qui permet d’obtenir très rapidement des cartes thématiques entièrement personnalisables : choix des indicateurs, du mode de représentation des données (choroplèthes, cercles classés ou proportionnels), du nombre de classes et des seuils de discrétisation (quantile, Jenks, manuel), des couleurs, des couches d’habillage (réseaux, villes, etc.). L’analyse de la ségrégation (intragroupe, intergroupes et multigroupes) est organisée selon les cinq dimensions habituellement identifiées par la littérature (Massey et Denton, 1988) : l’égalité, l’exposition, la concentration, le regroupement et la centralité. Les résultats sont présentés sous forme de tables et de représentations graphiques pour partie inédites, permettant par exemple d’obtenir une image rapide et claire de l’intensité de la séparation spatiale entre différents groupes sociaux. Le module « cartographie de la ségrégation » propose en outre le calcul d’indices de ségrégation locale et une visualisation sur des cartes thématiques également personnalisables. L’analyse de l’autocorrélation spatiale inclut les indices statistiques et leurs tests standards de significativité. Les nuages de points et les droites de régression sur lesquelles reposent ces tests sont représentés graphiquement. Le module « cartographie de l’autocorrélation » établit les cartes personnalisables des indices d’autocorrélation locale significatifs en fonction de leur type : autocorrélation positive ou négative.
+Finalement, les outils les plus originaux d’OASIS sont les tests Monte Carlo de significativité des indices de ségrégation et d’autocorrélation spatiale. Deux types de simulations sont effectués. D’une part, des simulations de permutations de données entre unités spatiales permettent de tester spécifiquement la significativité de la composante spatiale des indices spatialisés. D’autre part, des simulations d’affectation aléatoire (avec ou sans contraintes spatiales) des individus au sein de la zone d’étude permettent de tester la significativité globale de tous les indices, spatialisés ou non, disponibles dans OASIS. Un autre outil totalement inédit est le module « évolution des indicateurs principaux », qui permet d’accéder en quelques clics aux graphiques et tableaux des séries temporelles d’une sélection d’indicateurs descriptifs, de ségrégation et d’autocorrélation spatiale.
+Sur le plan informatique, OASIS fait appel à des modules de calcul développés en php, interrogeant une base de données PostgreSQL9/PostGIS1.5. Le langage procédural pl-R utilisant le logiciel R permet la réalisation de calculs statistiques et le package spdep élaboré par Roger Bivand et ses collaborateurs a été mobilisé pour le calcul de certains indices d’autocorrélation spatiale. Les modules de cartographie dynamique ont été développés avec le langage php-mapscript pour Mapserver 6. Enfin, le site web a été monté sous le gestionnaire de contenu WordPress.
+La section suivante expose les modalités de sélection des données et les outils de statistiques descriptives et de cartographie ; la troisième section est consacrée aux outils de mesure de la ségrégation et la quatrième décrit les tests Monte Carlo de significativité des indices de ségrégation ; la cinquième section porte sur l’autocorrélation spatiale (définition des interactions spatiales, calcul des indicateurs et tests de significativité) ; l’avant-dernière section présente l’analyse des évolutions temporelles et la dernière est conclusive.
+Lors de l’activation du menu Outils (Figure 1), vous êtes invités à introduire dans un premier temps la zone d’étude. Dans la version actuelle de la plateforme, l’échelle des unités spatiales est communale et couvre la France métropolitaine.
+Figure 1 : Introduction de la zone d’étude
+
+Vous avez la possibilité de choisir entre deux modalités : par import de fichier ou par sélection manuelle. Lors de la sélection manuelle, une liste déroulante offre le choix entre départements entiers, parties des départements, grands pôles d’aires urbaines et grands pôles et couronnes d’aires urbaines. La plateforme permet de faire des sélections multiples en utilisant un ou plusieurs critères de sélection. Nous allons illustrer le fonctionnement d’OASIS en prenant comme exemple l’analyse de la ségrégation et des inégalités spatiales dans le pôle urbain de Grenoble (telle que défini par l’INSEE), mais l’objectif de cet article n’est pas de détailler ou analyser tous les résultats.
+Une fois la sélection de la zone d’étude validée, vous passez à l’étape d’introduction des données. Tout d’abord, nous vous demandons de sélectionner une commune-centre (nécessaire pour le calcul d’indices de centralisation) dans la liste déroulante des communes de la zone d’étude, triées en ordre décroissant en fonction de leur population. Nous vous proposons ensuite une liste de variables d’étude, regroupées par thème (population, ménages, logements, etc.). Les variables sont issues des enquêtes de recensement de la population de l’INSEE, à partir de 1990 et jusqu’aux plus récentes. Pour certaines variables, nous vous proposons également une agrégation, afin d’homogénéiser les données en termes de structure et permettre des comparaisons temporelles. Une fois le groupe de variables sélectionné, une liste des variables vous est proposée à droite de la fenêtre, avec différentes années disponibles, comme on peut le voir sur la figure 2. C’est à ce niveau aussi que peut être activé le module « Évolution des indicateurs principaux », qui charge les données de plusieurs années pour calculer des indicateurs en série temporelle. Lorsque qu’une année particulière est retenue, vous avez le choix de garder l’ensemble des données ou seulement celles qui vous intéressent le plus. La version actuelle ne permet pas l’importation de données propres, mais cette composante sera développée ultérieurement. Une fois la sélection validée, la plateforme dispose d’une option « Restitution des données », qui permet de visualiser et de sauvegarder les données de la zone d’étude.
+Figure 2 : Introduction des données
+
+Les analyses descriptives sont regroupées en deux types d’outils. Premièrement, OASIS permet de calculer et exporter diverses statistiques descriptives pour les données en valeurs absolues ou relatives. Comme pour tous les autres outils, la fenêtre d’affichage présente une série de résultats principaux, tandis que l’enregistrement des résultats sur le disque dur permet d’accéder à la liste complète des indicateurs disponibles. L’outil de statistiques descriptives fournit les indicateurs les plus usuels sous forme de tables et de graphiques (indicateurs de position : min, max, moyenne, quartiles, BoxPlot ; indicateurs de dispersion : variance, écart-type, coefficient de variation ; coefficients de corrélation). Un exemple est présenté dans la figure 3, avec les boîtes à moustaches des parts de chaque groupe socioprofessionnel dans les communes du pôle urbain de Grenoble en 2010. La possibilité de traitements en valeurs relatives, illustrée par cet exemple, est particulièrement utile pour les variables sociodémographiques, et cette option est disponible également pour les outils cartographiques et d’analyse de l’autocorrélation spatiale.
+Figure 3 : Exemple de statistiques descriptives – graphique de type BoxPlot
+
+Calculs et graphique : auteurs ; Données : INSEE
+Le second outil disponible est le module cartographique, qui permet de réaliser des cartes thématiques des variables analysées, comme on peut le voir sur l’exemple de la carte 1. Ces cartes sont personnalisables : choix des indicateurs, du mode de représentation des données (choroplèthes, cercles classés, cercles proportionnels), des couleurs et de la taille des cercles, du nombre de classes et de la méthodologie de calcul des seuils de discrétisation (quantile, Jenks, manuel), des couches d’habillage (réseaux hydrologique et routier, villes et contours administratifs, etc.). L’outil autorise la représentation simultanée de deux variables, comme c’est le cas dans notre exemple où la couleur des polygones représente la proportion de cadres dans la population totale et la taille des cercles la taille de la population de cadres en valeur absolue. Un export rapide de la carte est possible au format pdf. La donnée source peut être téléchargée au format shapefile, ce qui donne la possibilité d’effectuer un traitement graphique ultérieur plus poussé à l’aide d’un SIG.
+Carte 1 : Répartition spatiale des cadres dans le pôle urbain de Grenoble en 2010
+
+Réalisation : auteurs ; Données : INSEE, IGN ; Jeu de couleurs : ColorBrewer
+Les indices de ségrégation permettent de mesurer la ségrégation spatiale d’une population formée de plusieurs classes ou groupes. Ils sont mobilisés dans des champs d’analyse très divers, tels que la géographie, l’économie, la sociologie, la biologie, l’écologie, etc.
+Dans un article de langue française souvent cité, Apparicio (2000) propose une présentation synthétique de leurs origines et de leurs principes. Les recherches sur la ségrégation trouvent leur commencement aux États-Unis, où le thème de la concentration des groupes ethniques est abordé dès les années 1920. Mais c’est à partir des années 1940 qu’une série de travaux quantitatifs débouche sur un ensemble d’indicateurs de ségrégation sociale. Parmi ces indicateurs, on trouve par exemple l’indice de dissimilarité de Duncan et Duncan (1955) et l’indice d’interaction de Bell (1954), dorénavant classiques. Ultérieurement, dans les années 1980-1990, d’autres chercheurs américains (Morgan, 1975 ; White, 1983 ; Morill, 1993 ; Wong, 1993) développent de nouveaux indices intégrant plus explicitement la dimension spatiale – notamment la proximité géographique entre unités spatiales – dans la mesure de la ségrégation. Ces indices, initialement conçus pour étudier la ségrégation d’un seul groupe par rapport au reste de la population ou entre deux groupes, ont été généralisés pour permettre l’étude la ségrégation multigroupes (Morgan, 1975 ; Sakoda, 1981 ; Massey et Denton, 1988 ; Carlson 1992 ; Reardon, 1998 ; Reardon et Firebaugh, 2002 ; Reardon et O’Sullivan, 2004).
+Dans un article canonique de cette littérature, Massey et Denton (1988) regroupent les manifestations de la ségrégation en cinq dimensions bien distinctes : l’égalité, l’exposition, la concentration, le regroupement (ou agrégation spatiale) et la centralisation. L’égalité renvoie à la répartition de la population entre les unités spatiales de la zone d’étude : plus un groupe est inégalement réparti entre ces unités (surreprésenté dans certaines et sous-représenté dans d’autres), plus il est ségrégué. L’exposition correspond aux possibilités d’interactions au sein de la population : plus la probabilité est élevée pour deux membres d’un même groupe de partager une même unité spatiale, plus ce groupe est ségrégué. La concentration a trait à l’espace occupé par la population : moins la superficie occupée par un groupe est grande, plus il est ségrégué. Le regroupement fait référence à la formation d’enclaves au sein de la zone d’étude : plus les membres d’un groupe occupent des unités spatiales voisines (contiguës ou peu distantes), plus ce groupe est ségrégué. La centralisation est le degré de proximité au centre de la zone étudiée : plus un groupe est localisé près du centre-ville, plus il est ségrégué.
+Ces définitions de la ségrégation sont celles correspondant aux (i) indices intragroupes, qui mesurent la ségrégation d’un groupe au sein de la population, mais il existe également des (ii) indices intergroupes, qui comparent la répartition d’un groupe à celle d’un second groupe, et des (iii) indices multigroupes, qui évaluent un niveau de ségrégation pour l’ensemble des groupes qui composent la population. Tous ces indices caractérisent la ségrégation « globale » au niveau de la zone d’étude dans son ensemble. Par ailleurs, des indices de ségrégation « locale » donnent une information sur la répartition spatiale de ce phénomène au sein de la zone d’étude. La ségrégation peut être plus intense dans certaines unités spatiales que dans d’autres : ces indices fournissent une valeur pour chaque unité spatiale ; ils permettent ainsi d’obtenir une image spatialisée de la ségrégation à l’aide de cartes thématiques. L’ensemble des indices de ségrégation disponibles dans OASIS est présenté dans l’annexe où sont reportées également leurs définitions formelles.
+Les résultats des indices intragroupes sont présentés sous formes de tables ou histogrammes. La table 1 donne l’exemple des valeurs des indices intragroupe d’égalité correspondant à la ségrégation des groupes socioprofessionnels dans le pôle urbain de Grenoble en 2010 (Duncan et Duncan, 1955 ; Morill, 1991 ; Wong, 1993 ; Gorard, 2000 ; Gini, 1920).
+Table 1 : Résultats des indices intragroupes pour la dimension égalité
+IS Duncan
+IS Morill
+IS Wong
+IS Gorard
+Gini
+cadres10
+0,1663
+0,1176
+0,1519
+0,1442
+0,2203
+ouvriers10
+0,1561
+0,1157
+0,1444
+0,1396
+0,2105
+sans_activite10
+0,1449
+0,1099
+0,1346
+0,1165
+0,1789
+indep_agr10
+0,123
+0,1104
+0,119
+0,1194
+0,1601
+retraites10
+0,0963
+0,0466
+0,0808
+0,0741
+0,123
+employes10
+0,0779
+0,042
+0,0671
+0,0661
+0,1135
+intermediaires10
+0,049
+0,0211
+0,0404
+0,0415
+0,0669
+Calculs : auteurs ; Données : INSEE, IGN
+Pour les indices de ségrégation intergroupes, les valeurs sont fournies sous forme de tables et de matrices thématiques, en nuance de gris pour les indices prenant des valeurs positives ou en deux couleurs (rouge et bleu) pour les indices pouvant prendre également des valeurs négatives. L’avantage d’une telle représentation est sa facilité d’interprétation : l’identification des disparités de localisation les plus fortes est très rapide, comme on peut le voir sur la figure 4, où la séparation spatiale maximale au sein du pôle urbain de Grenoble, exprimée par l’indice de dissimilarité de Duncan (Duncan et Duncan, 1955), est celle entre les ouvriers et les cadres. À l’opposé, la diagonale principale ne contient que des valeurs nulles, puisqu’il y a une similitude parfaite de localisation entre les membres d’un même groupe.
+Figure 4 : L’indice de dissimilarité de Duncan
+
+Calculs et graphique : auteurs ; Données : INSEE, IGN
+L’indice de centralisation relative (Duncan et Duncan, 1955) est un exemple de matrice thématique à deux couleurs. Ses éléments prennent des valeurs positives (en rouge) si les membres du premier groupe (représenté en vertical) ont des localisations plus centrales que les membres du deuxième groupe (représenté en horizontal) et des valeurs négatives (bleu) dans le cas contraire. Comme dans la figure 5, la lecture de la matrice peut être faite par lignes, où le groupe des personnes sans activité – qui inclut les étudiants – est plus centralisé que les autres groupes (dernière ligne en rouge), ou par colonnes, où la dernière colonne en bleu, correspondant à la même catégorie, implique que tous les autres groupes sont moins centralisés. À l’opposé, on trouve les personnes des professions indépendantes et agricoles, qui sont moins centralisés que celles de tous les autres groupes. Comme pour les matrices en nuances de gris, la diagonale ne contient que des valeurs nulles (blanc) : un groupe a un niveau de centralisation identique à lui-même.
+Figure 5 : L’indice de centralisation relative
+
+Calculs et graphique : auteurs ; Données : INSEE, IGN
+Quand on s’intéresse à la variation de la ségrégation à l’intérieure de la zone d’étude, on utilise les indices locaux, qui peuvent être présentés sous forme cartographique. La carte 2 est un exemple de visualisation disponible dans OASIS (voir plus haut la présentation du module cartographique). Elle décrit la diversité sociale locale dans les communes du pôle urbain de Grenoble, à l’aide d’un indice d’entropie ou de diversité (Theil et Finezza, 1971 ; Theil, 1972). L’indicateur varie de 0 à 1 ; une valeur plus élevée indique une population locale plus diversifiée.
+Carte 2 : L’indice de diversité locale dans le pôle urbain de Grenoble en 2010
+
+Réalisation : auteurs ; Données : INSEE, IGN ; Jeu de couleurs : ColorBrewer
+Cette section décrit l’outil original d’OASIS permettant de tester la significativité statistique des indices de ségrégation à l’aide de simulations Monte Carlo. Le test considère l’hypothèse que la valeur d’un indicateur est le résultat d’un processus aléatoire : si cette hypothèse est rejetée, alors la valeur de l’indicateur est jugée statistiquement significative.
+Le principe de base de ce test est relativement simple. La population est d’abord distribuée de manière « aléatoire » – c’est-à-dire suivant un critère de répartition aléatoire choisi – entre les unités spatiales. Nous pouvons alors calculer la « valeur simulée » de l’indice associée à cette répartition spatiale simulée. Les simulations sont répétées un nombre suffisamment élevé de fois pour que les valeurs simulées puissent être approximées par une loi de distribution (loi normale). Cette distribution des valeurs simulées sera utilisée comme base de comparaison avec la valeur « observée » de l’indicateur, c’est-à-dire celle calculée à partir des données d’enquête de la zone d’étude. Si la valeur observée se trouve à l’intérieur des valeurs critiques données par les seuils de significativité, on conclut qu’elle n’est pas statistiquement significative. Si au contraire la valeur observée de l’indicateur se trouve en dehors des valeurs critiques, on peut considérer qu’elle n’apparaît pas comme étant le résultat d’un processus aléatoire et qu’elle est donc statistiquement significative.
+Deux types de simulations sont disponibles dans OASIS, qui diffèrent par le critère de répartition aléatoire choisi. Le premier type de simulation permet de tester la significativité de la composante spatiale de l’indicateur : il repose sur des permutations aléatoires de données entre unités spatiales. Cette méthode est basée sur les travaux de Fisher (1935) et Pitman (1937), appliqués par Feitosa et al. (2007) aux indices de ségrégation. Le second type de simulation permet de tester la significativité globale de l’indicateur : il utilise une méthode consistant à localiser aléatoirement (avec ou sans contraintes spatiales) chaque individu au sein de la zone d’étude.
+Dans le cas des permutations, la structure d’ensemble des données est conservée, mais à chaque simulation, les données sont permutées aléatoirement entre les unités spatiales. L’indicateur observé peut être comparé avec la distribution des valeurs simulées : son rang dans cette distribution permet de calculer une pseudo p-value (Anselin, 2003) et de conclure quant à la significativité de sa composante spatiale. Bien entendu, les indices qui ne tiennent pas compte de manière explicite des caractéristiques de l’espace sont insensibles à ce test et ont toujours la même valeur simulée, égale à l’indice observé. Ce test n’a de sens que pour les indices dotés par définition d’une composante spatiale : ceux qui tiennent compte de la forme des unités spatiale (périmètres et superficies) ou des interactions spatiales (distances, frontières communes, contiguïté).
+Les résultats sont fournis sous forme de tables ou de figures. La table 2 est un exemple de résultats portant sur la répartition spatiale de la population par groupe socioprofessionnel au sein du pôle urbain grenoblois en 2010. L’indice testé est une version spatialisée de l’indice de ségrégation « classique » de Duncan (Duncan et Duncan, 1955). Il s’agit de l’indice de Morill (Morill, 1991), qui tient compte des interactions spatiales permises par le voisinage entre unités spatiales. La comparaison entre l’indice observé et la distribution simulée est donnée par le rang de la valeur observée dans cette distribution, qui détermine la pseudo p-value et le degré de confiance qui en résulte. Pour la majorité des groupes, la composante spatiale de l’indice est significative, sauf pour les professions intermédiaires et les retraités.
+Table 2 : Résultats des tests des permutations pour l’indice de Morill
+IS Morill
+E(ISMorill)
+Rang
+p-value
+Confiance ( %)
+cadres10
+0,1176
+0,1028
+100
+0,01
+99
+ouvriers10
+0,1157
+0,1066
+100
+0,01
+99
+indep_agr10
+0,1104
+0,1077
+100
+0,01
+99
+employes10
+0,042
+0,0337
+100
+0,01
+99
+sans_activite10
+0,1099
+0,1037
+98
+0,02
+98
+intermediaires10
+0,0211
+0,0202
+66
+0,34
+66
+retraites10
+0,0466
+0,0457
+59
+0,41
+59
+Calculs : auteurs ; Données : INSEE, IGN
+La figure 6 montre les représentations graphiques de ce test pour les cadres (graphique de gauche correspondant à un test significatif) et pour les intermédiaires (graphique de droite correspondant à un test non-significatif). Chaque graphique représente simultanément la distribution (courbe rouge) et la moyenne (droite rouge) des valeurs simulées de l’indice testé, ainsi que sa valeur observée (droite bleu). Pour les cadres, on constate que la valeur observée est située à l’extérieur de la distribution simulée, ce qui implique un rang maximal, donc une pseudo p-value très faible. Au contraire, pour les intermédiaires, la valeur calculée se trouve à l’intérieur de la distribution simulée et la p-value est par conséquent élevée.
+Figure 6 : Test des permutations de l’indice de Morill
+
+Calculs et graphiques : auteurs ; Données : INSEE, IGN
+Il faut faire attention dans l’interprétation de ces résultats : ces tests n’indiquent pas que la ségrégation spatiale est inexistante pour certains groupes, mais seulement que la composante spatiale de l’indice testé n’est pas significative pour les groupes en question. Comme nous allons le voir par la suite, les tests de significativité globale indiquent que l’indice de Morill est significatif pour tous les groupes.
+Le test de significativité globale des indices de ségrégation repose sur des simulations d’affectation aléatoire des individus au sein de la zone d’étude. Ces localisations aléatoires sont simulées sans contraintes spatiales (avec des probabilités d’affectation égales pour toutes unités spatiales) ou avec contraintes spatiales (avec des probabilités d’affectation dans les unités spatiales déterminées par leurs superficies totales ou alternativement par leurs superficies artificialisées). Pour déterminer la répartition spatiale aléatoire, on part du principe que chaque individu d’un groupe fait un tirage aléatoire entre les choix de localisation disponibles, selon les probabilités correspondant à chaque unité spatiale pi. Ce tirage est donc répété de manière indépendante n fois, où n est le nombre d’individus du groupe. La distribution obtenue correspond à une loi multinomiale, ce qui nous permet de simuler le nombre d’individus de chaque unité spatiale i par une approximation d’une loi normale de moyenne npi et avec une variance égale à npi(1-pi). Comme pour le test de significativité de la composante spatiale, la valeur calculée de l’indice est ensuite comparée à la distribution des valeurs simulées, afin de conclure si cette valeur s’apparente au résultat d’un processus aléatoire ou d’un schéma de localisation déterminé.
+Reprenons l’exemple de l’indice de Morill, dont la composante spatiale, testée par le test des permutations, n’était pas significative pour les intermédiaires. Les tests de localisations aléatoires (avec ou sans contraintes) montrent en revanche que l’indice dans sa globalité est significatif y compris pour ce groupe (figure 7, graphique de gauche). Ce résultat s’explique aisément : l’indice de Morill est égal à l’indice de Duncan diminué par les interactions spatiales, or le test de localisations aléatoires appliqué à l’indice de Duncan fait clairement apparaître la significativité de ce dernier (figure 7, graphique de droite).
+Figure 7 : Test de localisations aléatoires sans contraintes de l’indice de Morill
+
+Calculs et graphiques : auteurs ; Données : INSEE, IGN
+L’autocorrélation spatiale est l’absence d’indépendance entre observations géographiques. On constate très souvent que les variables spatialisées sont soumises à des dépendances spatiales, d’autant plus fortes que les localisations sont plus proches : « everything is related to everything else, but near things are more related than distant things » (Tobler, 1970).
+Les mesures d’autocorrélation spatiale estiment le degré de dépendance entre les valeurs prises par une variable en différents endroits de l’espace. On fait la distinction entre la mesure de l’autocorrélation spatiale globale d’une variable sur un territoire donné et celle de l’autocorrélation spatiale locale au niveau de chaque unité spatiale qui compose ce territoire. Cette dernière précise l’intensité de la dépendance locale entre la valeur d’une variable dans une unité spatiale et les valeurs de cette même variable dans les unités spatiales environnantes.
+OASIS propose le calcul des indices d’autocorrélation spatiale pour les données en valeurs absolues (par ex. effectifs de cadres dans les unités spatiales), ainsi qu’en valeurs relatives (par ex. proportion de cadres dans la population totale des unités spatiales). Selon les variables auxquelles on s’intéresse, l’une ou l’autre de ces possibilités peut être plus pertinente. Les indices calculés sont ceux de Moran et de Geary. Dans la littérature, le coefficient de Moran est souvent préféré à celui de Geary, en raison d’une stabilité plus grande (Upton et Fingleton, 1985). Pour calculer ces indices, il est nécessaire de définir d’abord les interactions spatiales prises en compte.
+Comme son nom l’indique, la matrice d’interactions spatiales est une matrice carrée qui permet de mesurer les interactions entre les unités spatiales, indépendamment de la variable étudiée. Le nombre de lignes et de colonnes est égal au nombre d’unités spatiales dans la zone d’étude : sur la diagonale, la matrice a des valeurs nulles ; par ailleurs, chaque élément de la matrice mesure le degré d’interaction entre les unités spatiales correspondantes en ligne et en colonne, avec une valeur d’autant plus élevée que la « proximité spatiale » entre les unités est forte. Pour utiliser une matrice d’interactions spatiales, il est nécessaire de donner a priori une forme fonctionnelle spécifique aux interactions spatiales. Nous proposons les trois formes les plus utilisées dans la littérature :
+La matrice de contiguïté : les éléments de la matrice de contigüité d’ordre k sont définis comme le nombre minimal de frontières qu’il faut franchir pour aller d’une unité spatiale à l’autre. La matrice de contiguïté la plus utilisé est d’ordre 1 : les éléments de la matrice sont égaux à 1 si deux unités sont voisines, et sont nuls dans le cas contraire. C’est la forme la plus simple d’interactions spatiales, souvent suffisante pour déterminer les niveaux d’autocorrélation spatiale d’une variable. La matrice des distances : pour des données spatialisées sous forme de points, l’intensité des interactions spatiales peut être mesurée par une distance géographique. Lorsqu’on étudie des unités spatiales, la distance prise en compte est généralement la distance entre leurs centroïdes. Cette distance peut être intégrée sous différentes formes : linéaire, quadratique ou logarithmique. Dans OASIS, la matrice d’interactions spatiales basée sur la distance utilise les distances linéaires. Une autre manière plus détaillée de décrire les interactions spatiales consiste à tenir compte non seulement du voisinage (avec des valeurs 0 ou 1 selon qu’il y ait ou non contiguïté d’ordre 1), mais aussi de l’importance de la frontière commune, considérée également comme une mesure de l’intensité des interactions spatiales de voisinage. Les éléments de la matrice sont ainsi des coefficients proportionnels à longueur de la frontière commune.
+Dans OASIS, l’utilisateur peut choisir la définition des interactions spatiales qui lui paraît la plus appropriée parmi les modalités proposées : tous les indices d’autocorrélation (globale ou locale) sont disponibles en trois versions.
+L’indice de Moran (1950) permet de mesurer le niveau d’autocorrélation spatiale d’une variable et de tester sa significativité. Il est égal au ratio entre la covariance des observations contigües, définies par la matrice d’interactions spatiales, et la variance totale de l’échantillon (Jayet, 2001). Ses valeurs sont comprises entre -1 et 1. Une valeur nulle signifie que la répartition spatiale de la variable étudiée est aléatoire. Une valeur négative (positive) indique une autocorrélation spatiale négative (positive). Pour tester la significativité de l’autocorrélation spatiale, l’indice I de Moran doit être transformé en Z-score. Si la valeur de ce score est plus grande que le seuil de significativité positive, ou a contrario plus petite que le seuil de significativité négative, alors l’autocorrélation spatiale peut être considérée comme statistiquement significative, avec un taux d’erreur correspondant au seuil retenu.
+La table 3 présente l’exemple d’une analyse de la répartition spatiale des groupes socioprofessionnels au sein du pôle urbain de Grenoble en 2010, effectuée à partir des variables communales en valeurs relatives. L’indice de Moran est calculé en utilisant la matrice d’interactions spatiales définie selon les trois critères : contiguïté, frontières communes et distances entre centroïdes. Les résultats obtenus avec les trois matrices apparaissent cohérents : l’autocorrélation spatiale est forte et significative pour presque toutes les catégories sociales, à l’exception des professions intermédiaires et des retraités, qui semblent s’être localisés de manière « aléatoire » au sein de la zone d’étude. Quelques différences apparaissent néanmoins et le classement des groupes selon leurs niveaux d’autocorrélation spatiale diffère légèrement d’une matrice à l’autre. Notons que ces résultats sont également cohérents avec ceux du test de significativité de la composante spatiale de l’indice de ségrégation de Morill présentés plus haut (table 2), qui montraient déjà une absence d’interactions spatiales pour les intermédiaires et les retraités.
+Table 3 : Résultats des statistiques de Moran pour le pôle urbain de Grenoble
+Contiguïté
+Frontière commune
+Distance centroïdes
+I
+Z-score
+p-value
+I
+Z-score
+p-value
+I
+Z-score
+p-value
+cadres10
+0,31
+3,40
+0,00
+0,40
+3,81
+0,00
+0,25
+4,76
+0,00
+ouvriers10
+0,29
+3,12
+0,00
+0,39
+3,68
+0,00
+0,25
+4,72
+0,00
+sans_activite10
+0,32
+3,59
+0,00
+0,38
+3,78
+0,00
+0,21
+4,15
+0,00
+indep_agr10
+0,24
+2,67
+0,01
+0,19
+1,90
+0,06
+0,25
+4,79
+0,00
+employes10
+0,18
+2,05
+0,04
+0,23
+2,26
+0,02
+0,13
+2,73
+0,01
+retraites10
+-0,14
+-1,22
+0,22
+-0,09
+-0,68
+0,50
+-0,07
+-0,97
+0,33
+intermediaires10
+-0,06
+-0,45
+0,65
+-0,02
+0,02
+0,98
+-0,05
+-0,62
+0,54
+Calculs : auteurs ; Données : INSEE, IGN
+Le diagramme de Moran permet une visualisation de ces résultats. Pour chaque variable, ce diagramme montre le nuage de points des couples associant la valeur (indiquée en abscisse) de la variable dans une unité spatiale et la moyenne (indiquée en ordonnée et appelée spatial lag ou décalage spatial) des valeurs de la variable dans les zones en interaction avec cette unité spatiale, d’après la matrice d’interactions spatiales. Le graphique est complété par la droite de régression linéaire, dont la pente est égale à l’indice de Moran. Une pente négative (positive) signifie une autocorrélation spatiale négative (positive).
+La figure 8 présente les diagrammes de Moran des cadres (graphique de gauche) et des intermédiaires (graphique de droite) dans le pôle urbain grenoblois, calculés en utilisant la matrice de contiguïté. Les pentes des droites de régression tracées sur ces graphiques sont celles indiqués dans la première et la dernière ligne de la table 3, au croisement de la première colonne (i.e. 0,31 pour les cadres et -0,06 pour les intermédiaires). À la vue des deux nuages de points, on comprend aisément pourquoi la première valeur apparaît statistiquement significative, tandis que la seconde ne l’est pas. Au-delà de la représentation de l’autocorrélation spatiale globale, ce graphique a aussi l’intérêt de signaler les unités spatiales où l’autocorrélation spatiale locale (cf. section suivante) est significative. Ces unités spatiales sont représentées par des losanges et sont libellés avec leur nom, tandis que les autres sont indiquées simplement par des cercles.
+Figure 8 : Le diagramme de Moran pour la localisation des cadres dans le pôle urbain de Grenoble
+
+Calculs et graphiques : auteurs ; Données : INSEE, IGN
+L’analyse de l’autocorrélation spatiale locale a été introduite par Anselin (1995). L’indice de Moran local mesure le degré d’autocorrélation spatiale locale pour chaque unité spatiale. Comme dans le cas de l’indice I de Moran, on peut calculer les Z-scores et tester sa significativité statistique. Les unités spatiales avec une autocorrélation spatiale locale significative peuvent être visualisées sous forme cartographique, comme le montre l’exemple de la carte 3 (voir plus haut la présentation du module cartographique ; sur la présente carte, les unités spatiales avec « absence de données » sont celles où l’autocorrélation spatiale locale n’est pas significative).
+Carte 3 : L’autocorrélation spatiale locale des cadres dans le pôle urbain de Grenoble en 2010
+
+Réalisation : auteurs ; Données : INSEE, IGN ; Jeu de couleurs : ColorBrewer
+Comme pour les indices de ségrégation, la significativité statistique des indicateurs d’autocorrélation spatiale peut être testée à l’aide de simulations Monte Carlo. Le principe est identique : la valeur calculée de l’indice est comparée à la distribution des valeurs simulées. À nouveau, deux types de simulations sont disponibles : les permutations aléatoires de données entre unités spatiales et les localisations aléatoires des individus au sein de la zone d’étude (avec ou sans contraintes spatiales).
+Contrairement aux indicateurs de ségrégation, les indicateurs d’autocorrélation spatiale sont nécessairement dotés d’une composante spatiale et celle-ci est toujours définie par une matrice de décalage spatial. Ainsi, les tests de significativités de la composante spatiale des indices (test de permutations) sont disponibles pour chacune des trois formes d’interactions spatiales présentées précédemment : matrice de contiguïté, matrice de distances et matrice des frontières communes. Une comparaison entre les résultats obtenus pour chaque définition des interactions spatiales permet de déterminer la (les) meilleure(s) matrice(s) dans le calcul des indices.
+Les résultats peuvent être représentés sous formes de tables ou des graphiques. Comme on le constate dans la table 4, les tests de permutations confirment le test de Moran (table 3) et montrent un degré de significativité important pour les mêmes catégories, quelle que soit la forme de la matrice d’interactions spatiales utilisée. La figure 9 montre l’exemple graphique du test des permutations pour les cadres et les intermédiaires, avec une matrice d’interactions spatiales basée sur la frontière commune.
+Table 4 : Tests des permutations de l’indice de Moran pour le pôle urbain de Grenoble
+Contiguïté
+Frontière commune
+Distance centroïdes
+I
+Rang
+p-value
+I
+Rang
+p-value
+I
+Rang
+p-value
+cadres10
+0,31
+100
+0,01
+0,40
+100
+0,01
+0,25
+100
+0,01
+ouvriers10
+0,29
+99
+0,01
+0,39
+100
+0,01
+0,25
+100
+0,01
+sans_activite10
+0,32
+100
+0,01
+0,38
+100
+0,01
+0,21
+100
+0,01
+indep_agr10
+0,24
+100
+0,01
+0,19
+98
+0,02
+0,25
+100
+0,01
+employes10
+0,18
+97
+0,03
+0,23
+99
+0,01
+0,13
+99
+0,01
+retraites10
+-0,14
+11
+0,11
+-0,09
+27
+0,27
+-0,07
+14
+0,14
+intermediaires10
+-0,06
+32
+0,32
+-0,02
+60
+0,60
+-0,05
+25
+0,25
+Calculs : auteurs ; Données : INSEE, IGN
+Figure 9 : Test des permutations de l’indice d’autocorrélation spatiale de Moran
+
+Calculs et graphiques : auteurs ; Données : INSEE, IGN
+Comme pour les indices de ségrégation, OASIS permet également de réaliser des simulations Monte Carlo de localisation aléatoire (avec ou sans contraintes) qui permettent de tester la significativité globale de l’indicateur. Dans notre exemple, ces tests confirment les résultats des tests des permutations et de Moran : les mêmes groupes se caractérisent par une autocorrélation spatiale significative, quelle que soit la définition des interactions spatiales.
+L’ensemble des modules présentés jusqu’ici travaillent à partir des données d’une année particulière sélectionnée au début du processus d’analyse. Pour étudier une évolution temporelle, il serait donc nécessaire d’effectuer des analyses successives sur plusieurs années et d’enregistrer les résultats obtenus à chaque étape sous forme de table pour pouvoir finalement les compiler, et éventuellement les représenter graphiquement à l’aide d’un autre logiciel.
+Pour accélérer ce processus, OASIS dispose d’un module d’analyse des évolutions temporelles. Son intérêt réside avant tout dans sa simplicité et son automaticité. Dès l’étape de l’intégration des données, juste après avoir sélectionné la zone d’étude, quelques clics suffisent pour obtenir l’affichage des graphiques des séries temporelles d’une sélection d’indicateurs synthétiques : valeurs absolues et relatives de chaque variable d’intérêt, indices de ségrégation intragroupe les plus usuels pour chaque dimensions de la ségrégation (IS, Eta2, ACO, ACL, ACE), indices de ségrégation multigroupes standards (ID, Gini multigroupes, isolement normalisé, diversité relative), indice d’autocorrélation spatiale (calculée avec une matrice de contiguïté) pour les variables en valeurs absolues et relatives. Comme toujours, les graphiques et les tables correspondantes peuvent être immédiatement téléchargés.
+La figure 10 montre l’exemple des séries temporelles 1999-2010 des indices intragroupe de regroupement des catégories socioprofessionnelles dans le pôle urbain de Grenoble, présentés sous une forme relative, avec 1999 pour année de référence. On constate notamment une augmentation au cours du temps de l’agrégation spatiale des cadres dans le pôle urbain de Grenoble1
+Figure 10 : Évolution relative de l’indice de regroupement dans le pôle urbain de Grenoble
+
+Calculs et graphique : auteurs ; Données : INSEE, IGN
+Comme le soulignent Stiglitz, Sen et Fitoussi dans leurs réflexions sur la mesure des performances économiques et du progrès social : « ce que nous mesurons et la manière dont nous le mesurons importe à la fois pour le choix des politiques à mener, pour la formation de nos jugements et pour déterminer ce qui fonctionne et ce qui ne fonctionne pas dans nos sociétés » (Stiglitz et al., 2009). Dans le cas présent, mesurer la ségrégation et les inégalités spatiales est déjà une invitation à les combattre. Nous pensons qu’offrir des outils de mesures plus accessibles et plus fiables peut y contribuer utilement.
+Des logiciels et des interfaces web sont disponibles pour les analyses des variables spatialisées, mais ces outils sont dispersés et nécessitent un temps de formation et d’utilisation important de la part des usagers. C’est pourquoi il nous a semblé judicieux de rassembler ces outils sur une plateforme web unique, complètement automatisée, ne nécessitant aucune installation sur l’ordinateur des utilisateurs et donnant accès à une batterie de données fréquemment utilisées. Au-delà de cette facilité d’utilisation et de son caractère intégrateur, OASIS propose une nouveauté importante pour garantir la fiabilité statistique des analyses spatiales : des outils de simulations Monte Carlo permettent de tester la significativité globale et la significativité des composantes spatiales de tous les indices de ségrégation et d’autocorrélation spatiale.
+OASIS se trouve à sa première version et des améliorations et développements seront opérés prochainement. Dans un premier temps, l’outil sera développé pour proposer différentes échelles spatiales et autoriser l’importation de fonds de carte et de données propres, de manière à ce que les analyses ne soient plus limitées à l’échelon communal et à la France métropolitaine. Par la suite, de nouveaux indices et tests statistiques seront inclus régulièrement. En parallèle, les possibilités offertes par le module cartographique seront étendues et les jeux de données disponibles seront enrichis et actualisés. La création d’une version collaborative « open source » est également à l’étude.

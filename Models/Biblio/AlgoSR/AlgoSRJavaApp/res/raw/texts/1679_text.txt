@@ -1,0 +1,360 @@
+Dès l’origine, le Programme Télédétection SHS s’est fixé, entre autres objectifs, celui de promouvoir au sein de la communauté des chercheurs utilisant la télédétection et relevant du secteur SHS des méthodes de travail rigoureuses et reproductibles, permettant en cela un rapprochement avec les méthodes de travail en vigueur chez les chercheurs relevant des sciences "dures". La pratique du traitement radiométrique (étalonnage et correction des effets de l’atmosphère) des données de télédétection en provenance des capteurs à haute résolution est un exemple de ces méthodes encore trop peu pratiquées par les chercheurs SHS.
+La diffusion dans le cadre du programme Télédétection-SHS d’une version exécutable sur PC du logiciel 5S du Laboratoire d’Optique Atmosphérique répond à cette volonté de promouvoir la pratique de l’étalonnage et du traitement radiométrique des données, y compris auprès d’équipes ne disposant que d’un matériel limité. Mis au point en 1985-86 et aujourd’hui largement diffusé en France et à l’étranger, 5S (Simulation du Signal Satellitaire dans le Spectre Solaire) est un modèle de simulation du transfert radiatif à travers l’atmosphère non-nuageuse dans des conditions réalistes, qui permet d’évaluer l’importance des effets de l’atmosphère sur les images satellitaires d’usage courant (SPOT, TM, NOAA, etc...) et de les corriger partiellement. Composé à l’origine de plus de 7200 lignes de code écrites en Fortran, 5S a été légèrement simplifié, francisé et compilé sur PC par François CUQ au laboratoire "Géosystèmes" (Brest).
+Agé aujourd’hui de plus de 10 ans, 5S est considéré par les spécialistes et par ses auteurs comme partiellement obsolète. Le logiciel 6S (Seconde Simulation du Signal Satellitaire dans le Spectre Solaire) qui le remplace a été amélioré sur plusieurs points, parmi lesquels la prise en compte de la réflectance bidirectionnelle des surfaces observées et de leur altitude, mais cette amélioration est faite au prix d’une complexité d’utilisation croissante. Même avec la version ancienne de 5S, la pratique des corrections atmosphériques par des chercheurs non-physiciens n’est pas évidente et requiert un savoir-faire encore peu répandu parmi les équipes SHS. Le manuel d’utilisation de 5S (Tanré et al., 1986) s’adresse en premier lieu à des spécialistes et constitue une description, d’un formalisme physique rigoureux, du modèle de transfert radiatif et du logiciel plutôt qu’un guide d’utilisation s’adressant à des novices en la matière.
+L’objectif du présent texte est précisément de répondre aux besoins de ces non-spécialistes, en décrivant à partir d’un exemple une stratégie d’utilisation du logiciel dans les cas relativement simples que sont susceptibles d’affronter les chercheurs SHS. Pour le rédiger, nous avons bénéficié de l’expérience acquise par un enseignant-chercheur géographe qui a été accueilli depuis maintenant 10 ans au sein du Laboratoire d’Optique Atmosphérique. Que tous les membres du L.O.A. qui, à un moment ou à un autre, ont contribué à forger cette expérience, soient ici remerciés, et en premier lieu Didier Tanré, le maître d’ouvrage de 5S, qui a autorisé sa diffusion dans le cadre du programme Télédétection SHS.
+Un rapide tour d’horizon des différents aspects des effets atmosphériques en télédétection est indispensable à la compréhension du fonctionnement du logiciel 5S.
+Les capteurs installés à bord des satellites météorologiques ou d’observation de la Terre opérant dans le domaine spectral de l’émission solaire (longueurs d’onde de 0,2 à 4 µm) sont des radiomètres qui mesurent la luminance réfléchie par l’ensemble Terre + Atmosphère éclairé par le Soleil. En atmosphère non-nuageuse, le signal radiométrique dépend de la réflectance de la surface terrestre mais aussi des effets de l’atmosphère qui interviennent au cours des deux trajets (descendant, du Soleil vers la surface, et montant, de la surface vers le capteur) effectués par le rayonnement solaire à travers l’atmosphère. Le simple étalonnage des données d’un capteur, en luminances (valeurs absolues mesurées en Wm-2sr-1 µm-1) ou en réflectances (valeurs relatives) dites "exo-atmosphériques", ne fournit donc pas une information sur la surface mais un signal composite ; l’objet des corrections atmosphériques est d’extraire de ce signal une information indépendante des effets de l’atmosphère, variables dans le temps et l’espace, et concernant la seule surface terrestre, qui est l’objet à étudier.
+Les effets atmosphériques résultent de deux processus, l’absorption et la diffusion, exercées conjointement par les deux constituants majeurs de l’atmosphère, les gaz et les aérosols ; ce dernier terme désigne l’ensemble des particules, liquides ou solides, en suspension dans l’atmosphère.
+Si l’on considère le rayonnement solaire comme un flux de particules élémentaires d’énergie radiative (les "photons"), l’absorption par les molécules gazeuses ou les particules d’aérosols correspond à la transformation d’une partie des photons en chaleur ; elle se traduit donc par une diminution du nombre des photons et un affaiblissement du signal mesuré. Dans le spectre du Soleil, entre 0,2 et 4 µm, les principaux gaz atmosphériques responsables de l’absorption sont l’oxygène (O2), l’ozone (O3), la vapeur d’eau (H2O) et le dioxyde de carbone (CO2). L’ozone et la vapeur d’eau sont en proportion beaucoup plus variables que les deux autres gaz ; pour la vapeur d’eau, la répartition verticale de cette vapeur d’eau dans la "colonne" atmosphérique joue également un rôle important. Au total, les effets de l’absorption gazeuse apparaissent faibles dans la plupart des bandes spectrales utilisées par les capteurs de télédétection qui correspondent à des "fenêtres" atmosphériques. Les différents types d’aérosols contribuent de façon variable à l’absorption du rayonnement solaire par l’atmosphère : cette contribution est sensiblement plus élevée pour les aérosols d’origine anthropique, tels que les suies de carbone, que pour la plupart des aérosols d’origine naturelle (liquides, poussières). Elle est dans l’ensemble plus faible que l’absorption gazeuse.
+La diffusion est le résultat des changements de trajectoire des photons après interaction avec les molécules gazeuses et les particules des aérosols. La diffusion par les molécules gazeuses, dont la dimension est très faible par rapport à la longueur d’onde est une diffusion de type Rayleigh, c’est à dire isotrope : elle peut se faire à probabilité égale dans toutes les directions. Elle est en revanche très dépendante de la longueur d’onde et affecte fortement les courtes longueurs d’onde du spectre solaire. En revanche, la diffusion par les aérosols, particules dont la dimension est du même ordre que celle de la longueur d’onde, est anisotrope. Elle obéit à la théorie de Mie : le changement de direction de propagation se fait de façon préférentielle dans la direction de propagation initiale, ce qui donne une grande importance aux problèmes d’angles qui seront évoqués par la suite. Elle est beaucoup moins sensible à la longueur d’onde que la diffusion Rayleigh.
+Les effets de la diffusion sont fortement dépendants de la concentration des molécules ou particules responsables dans l’atmosphère et de leur répartition sur la verticale. La concentration en molécules ou particules diffusantes est mesurée par l’épaisseur optique  de l’atmosphère, une grandeur qui dépend à la fois de la longueur du trajet atmosphérique et de la concentration en gaz et aérosols diffusants. L’épaisseur optique totale de l’atmosphère est la somme des épaisseurs optiques de ses composantes (gaz et aérosols).
+
+Figure 1 : Trajet atmosphérique et effets de l’atmosphère sur la mesure radiométrique.
+Si l’on cherche à analyser (figure 1) le devenir possible des photons constituant le rayonnement solaire réfléchi par la portion de surface terrestre (cible ou pixel) visé par le radiomètre au cours du double trajet à travers l’atmosphère (Soleil-surface terrestre et surface-capteur), on peut distinguer les cas suivants :
+une partie des photons peut être absorbée (absorption gazeuse ou par les aérosols) au cours de l’un des deux trajets. Il s’ensuit un affaiblissement du signal utile (luminance) reçu par le capteur en provenance de la surface et donc de la réflectance apparente de la cible. Cet affaiblissement par absorption peut être cependant partiellement compensé par le fait que la cible reçoit un éclairement solaire diffus qui lui provient indirectement du Soleil après diffusion et s’ajoute à son "éclairement" direct,
+une partie des photons diffusés par les gaz et les aérosols peut parvenir au capteur sans avoir atteint la surface terrestre. Les photons constituent alors un signal parasite qui vient s’ajouter au signal utile (luminance ou réflectance propre de l’atmosphère). Dans le cas d'une surface peu réfléchissante telles que comme la mer, cette réflectance atmosphérique peut constituer l’essentiel ou la totalité du signal.
+dans le cas d’une surface terrestre hétérogène, faisant voisiner des pixels de réflectance contrastée, la diffusion simple ou multiple des photons au cours des deux trajets aboutit à un affaiblissement des contrastes entre les pixels plus ou moins réfléchissants, les plus réfléchissants contribuant par diffusion à l’éclairement indirect des moins réfléchissants et au signal apparent reçu des pixels les plus sombres par le capteur. Ces effets d’environnement dus à l’atmosphère, qui s’ajoutent aux effets directs de la fonction de transfert de modulation du capteur peuvent être un obstacle important à l’interprétation ou à la classification des images.
+Les angles jouent un rôle important dans l’importance des effets atmosphériques. Lors de l’étalonnage des données radiométriques en réflectances "exo-atmosphériques" et en supposant comme le fait 5S une réflectance isotrope ("Lambertienne") de la surface, le seul angle important à considérer est l’élévation solaire (mesurée par rapport à l’horizon) ou son complémentaire l’angle zénithal solaire s , qui détermine l’éclairement reçu par la surface du sol (figure 2). La réflectance exo-atmosphérique est en effet obtenue ainsi :
+
+Figure 2 : Angles importants pour l’étalonnage et la correction des effets atmosphériques en télédétection.
+(Source : Tanré et al., 1986)
+où l est la luminance obtenue par transformation linéaire des comptes numériques, Es est l’éclairement solaire hors atmosphère et cosθs le cosinus de l’angle zénithal solaire. Les effets atmosphériques obligent à considérer en outre l’angle de visée du capteur θv quand celui-ci est différent de la verticale, et la différence des azimuths φv entre angle zénithal solaire et angle de visée. Ces différents angles déterminent en effet la longueur du trajet atmosphérique effectué par le rayonnement, et permettent d’évaluer l’angle de diffusion qui est le paramètre essentiel de la diffusion de Mie par les aérosols.
+Pour les chercheurs en Sciences de l’Homme et de la Société utilisant la télédétection, la pratique des corrections atmosphériques est une étape difficile et peu naturelle du traitement des images. Certains, avant de l’avoir pratiquée, imaginent qu’elle va supprimer les défauts d’images de qualité médiocre, voire nuageuses ; d’autres abandonnent rapidement devant la complexité apparente de la méthode. Il est donc indispensable de s’interroger sur l’intérêt mais aussi sur les limites des méthodes de correction atmosphérique.
+Deux remarques préliminaires s’imposent :
+la correction des effets de l’atmosphère sur une image est toujours associée à un étalonnage en grandeurs physiques (réflectances) des comptes numériques, qu’elle complète en vue d’accéder à une propriété physique propre à la surface.
+dans l’état actuel des méthodes, la correction atmosphérique est toujours partielle et approximative ; elle est inopérante lorsque les effets de l’atmosphère sont trop importants. Elle repose le plus souvent sur des hypothèses simplificatrices. L’usage d’un logiciel tel que 5S conduira souvent à une évaluation des effets de l’atmosphère sur l’image traitée plutôt qu’à une correction effective.
+D’une manière générale, on peut affirmer que la pratique d’un traitement radiométrique incluant la correction atmosphérique n’est pas nécessaire, et même parfois gênante pour :
+l’utilisation d’une seule image fondée sur l’interprétation ou l’analyse visuelle, avec ou sans travail préliminaire d’amélioration de l’image,
+la pratique des classifications dirigées à partir d’échantillons pris sur l’image à classer,
+les travaux de traitement d’image à base de morphologie mathématique.
+Elle devient en revanche indispensable dès que le traitement d’images de télédétection a pour but :
+d’accéder à des propriétés quantifiées (grandeurs physiques) des surfaces,
+de comparer ces grandeurs physiques tirées de l’image à des mesures radiométriques de terrain,
+d’effectuer des comparaisons multidates entre des images provenant du même capteur ou de capteurs et de satellites différents, -assurer une reproductilité de méthodes d’identification ou de classification des surfaces, sans devoir reprendre l’analyse d’échantilllons pris sur l’image à traiter.
+Le logiciel 5S est un logiciel destiné à simuler le signal mesuré par le satellite visant une cible (surface au sol) de réflectance connue et dans des conditions géométriques, atmosphériques et spectrales définies. Il s’agit donc d’un modèle physique destiné à résoudre un problème direct, alors que la correction des effets d’atmosphère en télédétection est un problème de type inverse : calculer la réflectance de la surface connaissant le signal satellitaire fourni par étalonnage en réflectance des données. Là réside la principale difficulté concrète d’utilisation du logiciel.
+La structure générale du logiciel est définie en figure 3. En entrée, l’utilisateur définit successivement :
+les conditions géométriques : celles-ci sont définies soit par l’entrée directe au clavier des angles solaires (zénithal et azimuthal) et des angles de visée radiométrique, soit par l’entrée des date, heure, longitude et latitude nécessaires au calcul des angles solaires et des conditions de visée propres à un satellite donné. Pour Landsat et SPOT, la visée du satellite est supposée verticale. Dans le cas d’une image SPOT en visée dépointée, il est donc nécessaire d’utiliser la première option ;
+les conditions atmosphériques qui déterminent l’absorption et la diffusion : pour les composants gazeux, l’utilisateur a le choix entre un modèle d’atmosphère (tropical, latitude moyenne d’hiver ou d’été, subarctique d’hiver ou d’été, et standard US 62), l’entrée de données de radiosondage ou l’entrée de données des contenus intégrés en vapeur d’eau et en ozone de l’atmosphère (exprimés respectivement en g/cm2 et en cm.atm), pour les aérosols, l’utilisateur choisit un modèle d’aérosols (continental, maritime ou urbain) ou définit son propre modèle à partir des proportions (%) des constituants possibles (poussières, constituants solubles, particules océaniques et suies de carbone). Il définit également le paramètre le plus important, la concentration des aérosols, à partir soit de la visibilité horizontale, soit de l’épaisseur optique des aérosols à lalongueur d’onde de 550 nanomètres ;
+les conditions spectrales : l’utilisateur a de nouveau le choix entre des conditions spectrales prédéfinies correspondant aux canaux des satellites et capteurs les plus usuels (en particulier NOAA, Landsat MSS, TM et SPOT HRV en mode multispectral) et l’entrée de conditions spectrales définies par une longueur d’onde, une bande spectrale définie par ses bornes supérieure et inférieure et éventuellement par une fonction-filtre entrée au clavier par intervalle de 0,005 µm
+les conditions de surface. La surface peut être considérée comme homogène ou hétérogène (pour la détermination des effets d’environnement). Dans le premier cas, la réflectance de la surface peut être considérée comme constante sur l’intervalle spectral préalablement déterminé ou spectralement variable  : il faut alors entrer la réflectance par intervalle de 0,005 µm. L’utilisateur a également la possibilité d’utiliser des courbes de réflectance prédéfinies pour l’eau claire, l’eau de lac, le sable et la végétation verte.
+Dans le second cas, l’hétérogénéité est simulée en supposant une cible circulaire de rayon à fournir et de réflectance à définir dans les mêmes conditions que pour une surface homogène, dans un environnement de réflectance différente à définir également.
+Après calcul, le logiciel fournit en sortie (voir exemple figure 4) les éléments suivants :
+des valeurs intégrées de la réflectance apparente (en %) de la surface visée, de la luminance totale (W.m-2.sr-1) mesurée par le capteur et de la transmittance gazeuse ;
+les valeurs normalisées (en %) de l’irradiation solaire au niveau du sol (% de rayonnement direct, diffus et en provenance de l’environnement de la cible) et de la réflectance mesurée au niveau du satellite (contributions de l’atmosphère, de l’environnement et de la cible) ;
+les valeurs absolues correspondantes en W.m-2 pour l’irradiation au niveau du sol et en W.m-2.sr-1 pour les luminances au niveau du satellite ;
+la fonction-filtreet l’éclairement solaire (hors atmosphère)intégrés sur la bande spectrale considérée.
+A partir de ces valeurs calculées par le modèle 5S, on peut donc reconstituer l’évolution du signal de son entrée dans l’atmosphère à la surface et au capteur à bord du satellite, ce qui constitue l’objectif des physiciens. Pour la plupart des utilisateurs SHS en revanche, la difficulté réside dans l’absence de données précises concernant l’atmosphère et la nécessité d’inverser le problème pour déterminer les conditions de la surface à partir du signal satellitaire. L’exemple traité par la suite présente une stratégie simple d’utilisation du logiciel dans un cas proche de ceux qu’auront généralement à pratiquer les chercheurs SHS.
+Entrées :
+Date, heure, coordonnées géographiques, coordonnées du pixel
+--> conditions géométriques
+(angles solaire et angle de
+visée, zénithal et azimuthal)
+  
+  
+Modèle d'atmosphère ou radio-sondage ou concentrations en H2O et 03
+--> conditions atmosphériques (absorption et diffusion gazeuses)
+  
+  
+Modèle d'aérosols, épaisseur optique ou visibilité
+--> conditions atmosphériques
+(absorption et diffusion par les
+aérosols)
+  
+Satellite, capteur, canal ou bande spectrale
+--> conditions spectrales (longueur d'ondes min max, fonction filtre)
+  
+  
+Type de surface, homogène/non homogène, réflectance(s)
+--> conditions de surface
+  
+  
+Sorties:
+  
+Signal satellitaire simulé:Réflectance apparente, luminance apparente, transmittance gazeuse totaleComposition de l'éclairement solaire au sol (val absolues en W/m2 et %)
+Composition du signal satellitaire (luminances W/m2/sr et réflectances)
+Figure 3 - Structure générale du logiciel 5S
+SPOT 1 h.r.v. 1
+Jour : 135 (14 mai 92) heure T.U. : 10.9100 (hh.dddd)
+Latitude : 50.47 deg longitude : 1.62 deg (Merlimont-Plage)
+Entrées :
+conditions géométriques
+angle solaire zénithal : 33.40 deg angle solaire azimuthal : 155.89 deg
+angle d'obs zénithal : .00 deg angle d'obs azimuthal : .00 deg
+angle de diffusion : 146.60 deg différence angles azimuth : 155.89 deg
+description du modèle atmosphérique
+modele atmosphérique : été latitudes moyennes (uh2o=2.93 g/cm2, uo3=.319 cm-atm)
+type d'aérosols : maritime
+conditions optiques : épaisseur optique à 550 nm : .7200
+conditions spectrales
+hrv 2 fonction filtre wl inf= .590 micron wl sup= .760 micron
+type de surface cible
+homogène réflectance mer claire .041
+Sorties :
+Eclairement solaire reçu au sol :
+  
+Valeurs normalisées
+(%)
+Valeurs absolues
+(W/m2)
+Eclairement direct :
+45.97
+32.907
+Eclairement diffus :
+53.35
+38.191
+Contribution environnement :
+0.67
+0.483
+Signal reçu au niveau du satellite :
+Réflectances
+(%)
+Luminances
+(W/m2/sr)
+Contribution atmosphère :
+4.9
+1.303
+Contribution environnement :
+1.5
+0.402
+Cible (pixel) :
+1.6
+0.433
+Total :
+8.1
+2.138
+Spectre solaire intégré (w/m2) 99.836 Fonction filtre intégrée (en mic) .064
+Transmittance gazeuze totale .931
+Figure 4 - Entrées/Sorties du logiciel 5S : un exemple pour une image SPOT
+Pour cet exemple, nous avons choisi le traitement de deux images SPOT extraites de scènes SPOT 1 et SPOT 2 acquises en mode multispectral avec un angle de visée quasi-vertical. Nous nous sommes placés volontairement dans le cas, fréquent pour les chercheurs SHS, où les données exogènes pour l’évaluation des conditions atmosphériques (radiosondages, etc..) sont totalement absentes, et où les seules données utilisables pour un étalonnage sont celles fournies par les en-tête des scènes fournies sur CD-ROM.
+Les images SPOT ont été achetées dans le cadre d’un programme de recherche sur la Réserve Biologique Domaniale de Merlimont (62) gérée par l’O.N.F. Les images (figure 5) couvrent une gamme de surfaces très variées, de la mer à l’Ouest au plateau cultivé à l’Est. La Réserve Biologique proprement dite, au centre, est un espace complexe comprenant des dunes vives, des dunes à végétation herbacée (oyats) ou arbustive (argousiers), et un espace interdunaire humide avec des étangs, des prairies, des fourrés hygrophiles, une forêt "naturelle" à prédominance de bouleaux et des plantations de résineux. Les deux scènes SPOT, acquises en janvier et mai 1992, sont utilisées en vue d’une classification des types de végétation à partir des variations saisonnières de l’indice de végétation par différence normalisée (NDVI) calculé à partir des canaux XS2 (rouge) et XS3 (proche infra-rouge) :
+
+Rr = réflectance XS2
+Rpir = réflectance XS3
+
+Figure 5 : les images SPOT traitées :
+En haut : SPOT 1 hvr 1 KJ 37-248 14/05/1992
+En bas : SPOT 2 hvr 1 KJ 37-248 22/01/1992
+A gauche, compositions colorées
+A droite, indices de végétation par différence normalisée (NDVI) calculée à partir des données brutes (sans étalonnage ni correction atmosphérique). Représentation en échelle de couleur type «arc-enciel». Le noir correspond aux valeurs de NDVI inférieures à 0
+Le calcul de l’indice de végétation effectué à partir des données brutes -comptes numériques sans étalonnage ni correction atmosphérique- (figure 5) s’avère peu satisfaisant : la comparaison des images obtenues aux deux dates (22 janvier et 14 mai) montre en effet des variations saisonnières normales pour les surfaces végétalisées, mais on observe également des variations importantes sur des surfaces non-végétales telles que les plages, dunes vives ou espaces urbanisés (ville de Berck) où l’indice est négatif (noir) sur l’image de mai et positif sur l’image de janvier. Le traitement radiométrique proposé ici a donc pour objet de rétablir des valeurs de NDVI plus précises par étalonnage et correction des effets d’atmosphère.
+L’étalonnage des comptes numériques en réflectances dites "exo-atmosphériques" c’est à dire réflectances de l’ensemble Terre + Atmosphère, est effectué selon la méthode proposée par le Guide des Utilisateurs SPOT. Il est obtenu par une transformation linéaire des comptes numériques en luminances :
+l= Cn / G
+oùl est la luminance en W/m2/sr, Cn le compte numérique (0-255) et G le gain d’étalonnage absolu du capteur. Le gain utilisé ici est celui qui est fourni par les en-tête des images.
+
+La réflectance, en supposant que la surface est lambertienne (réflexion isotrope), est obtenue par les deux formules  :
+oùEs est l’éclairement solaire équivalent correspondant à la bande spectrale considérée et cosθs le cosinus de l’angle zénithal solaire (équivalent au sinus de l’élévation solaire).
+Pour nos deux scènes SPOT, les valeurs nécessaires sont fournies par les en-tête et le Guide des Utilisateurs SPOT. L’angle solaire zénithal pour le centre de notre image a été calculé par 5S à partir des coordonnées (latitude, longitude) du centre de notre image, de la date et de l’heure.
+Image SPOT 1 hrv 1 KJ 37-248 92/05/14 :
+Jour : 14 mai 92
+heure T.U. : 10h54mn29s (10.91h)
+Merlimont Latitude : 50° 28' (50.47)
+Longitude : 1° 37’E (1.62)
+—> Angle solaire zénithal : 33.4 °
+Gains d’étalonnage absolu G
+(En-tête de bande ou CD-ROM) :
+XS1 : 0.95036
+XS2 : 0.91141
+XS3 : 0.89140
+Eclairement solaire équivalent Es
+(guide utlisateur SPOT) en W/m2
+XS1 : 1855
+XS2 : 1615
+XS3 : 1090
+Image SPOT 2 hrv 1 KJ 37-248 92/01/22 :
+Jour 22 janvier 1992
+heure T.U. 11h09mn12s (11.15h)
+Merlimont Latitude : 50° 28' (50.47)
+Longitude : 1° 37’E (1.62)
+—> Angle solaire zénithal 71.2 °
+Gains d’étalonnage absolu G
+(En-tête de bande ou CD-ROM) :
+XS1 : 1.75871
+XS2 : 1.50473
+XS3 : 2.18171
+Eclairement solaire équivalent Es
+(guide utlisateur SPOT) :
+XS1 : 1865
+XS2 : 1620
+XS3 : 1085
+On obtient ainsi (tableau ci-contre) pour chaque image et chaque canal une relation linéaire entre les comptes numériques et les réflectances (en %).
+14 mai 1992 :
+XS1 : R=Cn*0.2135
+XS2 : R=Cn*0.2557
+XS3 : R=Cn*0.3873
+22 janvier 1992 :
+XS1 : R=Cn*0.2972
+XS2 : R=Cn*0.3999
+XS3 : R=Cn*0.4118
+Un nouveau calcul de l’indice de végétation NDVI à partir des données étalonnées apporte déjà une nette correction aux valeurs calculées à partir des données brutes (figure 6).
+
+Figure 6 : les images SPOT traitées :
+En haut, SPOT 1 hvr 1 KJ 37-248 14/05/1992
+En bas : SPOT 2 hvr 1 KJ 37-248 22/01/1992
+A gauche, indices de végétation par différence normalisée (NVDI) calculés à partir des données étalonnées en réflectances «exo-atmosphériques»
+A droite, indices de végétation par différence normalisée (NVDI) calculés à partir des données partiellement corrigées des effets de l’atmosphère. Le noir correspond aux valeurs de NVDI inférieures à 0
+Le facteur d’étalonnage plus élevé pour le canal XS3 que pour le canal XS2 aboutit à une sensible augmentation des valeurs de NDVI calculées, en particulier pour le 14 mai où l’écart des facteurs d’étalonnage est très important. Cette augmentation aboutit à faire disparaître les valeurs négatives de NDVI qui apparaissaient sur terre dans l’image obtenue à partir des canaux bruts (figure 5).
+L’évaluation des effets de l’atmosphère sur chacune des deux images à partir de 5S est la première étape d’une stratégie de correction. Nous supposons en effet que nous ne disposons d’aucune donnée exogène (radiosondage, etc...) sur l’atmosphère pour ces deux jours. L’information nécessaire à la correction doit être extraite de l’image elle-même ; la présence de la mer sur les scènes SPOT étudiées simplifie le problème puisque la mer (en évitant les zones trop proches de la côte, trop peu profondes et affectées d’une importante turbidité) présente une réflectance nulle dans le canal proche infrarouge XS3. Pour cette bande spectrale, le signal enregistré correspond uniquement à l’effet de l’atmosphère et permet donc d’en mesurer les caractéristiques.
+Comptes numériques et réflectances apparentes mesurées sur la mer au large de Merlimont :
+SPOT 1 hrv 1 KJ37-248 14 mai 92
+SPOT 1 hrv 1 KJ37-248 22 jan 92
+XS1 : Cn 42 Réf = 9,0%
+XS2 : Cn 23 Réf = 5,9%
+XS3 : Cn 10 Réf = 3,9%
+XS1 Cn 54 Réf = 16,0%
+XS2 Cn 27 Réf = 10,8%
+XS3 Cn 17 Réf = 7,0%
+Pour déterminer les propriétés de l’atmosphère, il est nécessaire d’utiliser le logiciel 5S de façon itérative, en faisant varier les caractéristiques de l’atmosphère jusqu’à retrouver le signal mesuré sur mer, la réflectance réelle de la surface dans le canal XS3 de SPOT étant supposée nulle. Les conditions angulaires sont définies à partir des date et heure de la scène, et des coordonnées géographiques (latitude, longitude) de la région étudiée.
+Prenons l’exemple du 22 janvier 92 :
+Entrées :
+Jour : 22 (22 janvier 1992) heure T.U. : 11.1500 (hh.dddd)
+Latitude : 50.47 deg longitude : 1.62 deg (Merlimont)
+conditions géométriques calculées par 5S :
+angle solaire zenithal : 71.18 deg angle solaire azimuthal : 166.15 deg
+angle d’obs zenithal : .00 deg angle d’obs azimuthal : .00 deg
+angle de diffusion : 108.82 deg difference angles azimuth : 166.15 deg
+conditions atmosphériques :
+Choix d’un modèle d’atmosphère et d’un type d’aérosols :
+modèle atmosphérique : hiver latitudes moyennes
+type d’aérosols : modèle continental
+La concentration des aérosols est obtenue par itération :
+Visibilité horizontale : 6 km ou épaisseur optique à 550 nm : .66
+conditions spectrales :
+hrv 3 fonction filtre wl inf= .740 micron wl sup= .950 micron
+type de cible :
+homogène réflectance mer claire réflectance réelle : 0
+Sorties :
+Eclairement solaire reçu au sol :
+  
+Valeurs absolues
+(W/m2)
+Valeurs normalisées
+(%)
+Eclairement direct :
+9.317
+41.76
+Eclairement diffus :
+12.978
+58.24
+Contribution environnement :
+0.000
+0.00
+Signal reçu au niveau du satellite :
+  
+Luminances
+(W/m2/sr
+Réflectances
+(%)
+Atmosphère :
+0.787
+7.0
+Contribution environnement :
+0.000
+0.0
+Cible (pixel) :
+0.000
+0.0
+Total :
+0.787
+7.0
+Spectre solaire intégré (w/m2) 108.842 Fonction filtre intégrée (en mic) .100
+Transmittance gazeuse totale .954
+L’atmosphère est définie à partir de trois caractéristiques :
+un profil vertical standard qui détermine les contenus en gaz absorbants (vapeur d’eau et ozone principalement) et l’importance de la diffusion moléculaire. Le choix du modèle Hiver latitudes moyennes s’imposait ici mais des essais montrent qu’un autre choix, sauf celui, peu réaliste, d’une atmosphère tropicale, n’a qu’une incidence très limitée sur le résultat ;
+un type d’aérosols : le choix effectué ici est celui d’un type continental caractérisé par une proportion importante de poussières et justifié par le fait que la situation atmosphérique du jour était marquée par un vent de terre ;
+la concentration des aérosols, qui est définie par l’épaisseur optique à 550 nm ou par la visibilité horizontale en km. C’est le seul paramètre susceptible de varier etdonc celui sur lequel se fait l’ajustement des effets atmosphériques. Les valeurs obtenues ici correspondent à une atmosphère relativement brumeuse.
+Afin d’évaluer l’importance des choix effectués, il est intéressant de comparer les résultats obtenus avec d’autres choix, apparemment moins judicieux, de modèles d’atmosphère et d’aérosols et d’examiner leurs incidences sur les paramètres atmosphériques qui seront ensuite utilisés pour la correction atmosphérique des images :
+Modèle d'atmosphère
+Modèle d'aérosols
+Visibilité/épaisseur optique
+Réflectance atmosphérique
+XS3-XS2
+Transmittance gazeuse totale
+XS3-XS2
+Hiver Moy Lat.
+Continental
+6 km / 0.66
+7%-10,2%
+0.954-0.879
+US stand. 62
+Continental
+5,9 km / 0.67
+7%-10,3%
+0.937-0.887
+Hiver Moy Lat.
+Maritime
+7,2 km / 0.57
+7%-8,5%
+0.954-0.879
+US stand. 62
+Maritime
+6,9 km / .59
+7%-8,8%
+0.937-0.887
+Eté Moy Lat.
+Continental
+5,6 km / 0.71
+7%-10,6%
+0.905-0.881
+La lecture de ce tableau montre que le choix du type d’atmosphère a une incidence privilégiée sur la transmittance gazeuse, tandis que le choix du modèle d’aérosols a une incidence assez marquée sur la répartition spectrale de la diffusion : si la réflectance atmosphérique dans le canal XS3 est en effet constante parce qu’ajustée grâce aux variations de l’épaisseur optique, la réflectance atmosphérique dans le canal XS2 varie assez sensiblement selon le type d’aérosols.
+Dans notre exemple, les choix effectués peuvent être confortés par la comparaison assez satisfaisante entre les réflectances apparentes mesurées sur la mer dans l’image pour les 3 canaux de SPOT et celles qui sont prédites par 5S avec l’atmosphère Hiver Latitudes moyennes, le modèle d’aérosols continental, et une visibilité de 6 km (tableau ci-dessous). Ce sont donc ces paramètres atmosphériques qui seront utilisés pour la correction atmosphérique.
+  
+XS3
+XS2
+XS1
+Valeurs mesurées
+7%
+10,8%
+16%
+Valeurs 5S
+dont réf atmosphère
+7%
+7%
+12%
+10,2%
+15,9%
+13,9%
+L’utilisation des caractéristiques de l’atmosphère ainsi déterminées par 5S pour une correction repose sur le postulat que ces effets sont constants sur l’image à traiter. On fait ainsi l’hypothèse que, sur une image d’environ 10 x 10 km2, les angles solaires et de visée sont constants, de même que les propriétés de l’atmosphère.
+La correction atmosphérique effectuée est obligatoirement partielle : elle porte uniquement sur les effets supposés constants sur l’image, à savoir :
+la réflectance propre de l’atmosphère, évaluée pour chaque canal par 5S, qui est à déduire du signal mesuré,
+les effets de l’absorption gazeuse : la réflectance de la surface est à corriger en fonction de la transmission gazeuse totale déterminée pour chaque canal par 5S.
+La correction des effets d’environnement, qui supposerait un traitement lourd, pixel par pixel, ne sera pas effectuée. La correction atmosphérique se réduit ainsi à une transformation linéaire des réflectances "exo-atmosphériques" :
+où ρ*est la réflectance exo-atmosphérique obtenue par l’étalonnage des comptes numériques,atmest la réflectance propre de l’atmosphère, etg est la transmission gazeuse totale pour le canal considéré.
+Pour l’image du 22 janvier 1992, on utilisera donc :
+  
+XS3
+XS2
+ρatm
+7%
+10,2%
+τg
+0,954
+0,879
+Appliquée à l’image du 14 mai 1992, la même méthode d’évaluation des effets de l’atmosphère aboutit à la détermination des paramètres atmosphériques suivants :
+atmosphère : US Standard 62 (elle correspond à une situation intermédiaire à celles des atmosphères Hiver et Eté Latitudes moyennes)
+aérosols : maritime
+épaisseur optique : 0.8 Visibilité : 4,9 km
+Elle fournit les valeurs du tableau ci-dessous :
+  
+XS3
+XS2
+ρatm
+3,9%
+5,3%
+τg
+0,957
+0,935
+Cette méthode simple de correction atmosphérique partielle peut donc se résumer ainsi :
+Détermination des caractéristiques de l’atmosphère :
+la détermination est faite à partir de la mesure de la réflectance apparente d’une "cible" de réflectance réelle connue dans l’image :
+—> mer "claire" (au large) : réflectance XS3=0
+choix d’un modèle d’atmosphère,
+choix d’un type d’aérosols,
+ajustement (itérations) de l’épaisseur optique des aérosols jusqu’à retrouver la réflectance apparente
+Correction partielle des effets atmosphériques :
+déduction de la contribution atmosphérique (dans chaque canal)
+correction de la transmittance gazeuse totale
+Elle revient à substituer à la relation linéaire d’étalonnage (cf figure 5) une autre relation linéaire (figure 7).
+
+Figure 7 : la relation linéaire d’étalonnage en réflectance, avant et après correctin des effets atmosphériques.
+Appliquée aux deux images SPOT du 14 mai et du 22 janvier 1992 (figure 6), cette nouvelle relation d’étalonnage aboutit à rapprocher sensiblement les valeurs de NDVI calculées pour les surfaces non-végétales de l’image (urbain, dunes vives) et d’apprécier de façon plus précise les changements saisonniers qui affectent les surfaces végétalisées de différents types. Il est à noter cependant qu’elle aboutit à calculer une valeur de NDVI supérieure à 0 pour certaines surfaces marines le 14 mai, ce qui peut s’expliquer en partie par l’état de surface de la mer (miroitement), ou encore par une charge planctonique élevée au printemps.
+L’application des corrections atmosphériques effectuées dans l’exemple précédent repose sur le postulat que les conditions géométriques (angles solaires et de la visée radiométrique) et atmosphériques (nature et concentration des aérosols en particulier) ne connaissent qu’une variation négligeable sur un espace étudié d’environ 10 x 10 km2. Ce type d’hypothèse, valable pour le traitement d’images partielles extraites de scènes SPOT ou Landsat, cesse de l’être pour le traitement de scènes entières ou d’images issues de radiomètres à champ large et faible résolution du type NOAA-AVHRR. Dans ces cas, le logiciel 5S-PC peut rester un outil d’évaluation des effets atmosphériques et d’analyse fine des réflectances réelles de cibles isolées, mais la mise en œuvre d’une correction des effets d’atmosphère valable pour l’ensemble de l’image devient impossible. Il devient dans ce cas nécessaire de faire appel à une programmation intégrant de façon plus ou moins précise des éléments du modèle 5S ; le code informatique original, écrit en FORTRAN, peut être obtenu sur demande adressée à :

@@ -1,0 +1,36 @@
+La recherche présentée a pour but de déterminer une méthode d'analyse du bâti qui soit généralisable, c'est à dire applicable à toute agglomération urbaine, plus précisément, qui permette de délimiter, de façon automatique et fiable, les contours du bâti et ce, quelles que soient les définitions des agglomérations et les seuils du bâti des pays.
+La démarche choisie prend appui sur l'analyse d'images. La méthode retenue est appliquée à la détermination du contour urbain de l'agglomération niçoise. A partir d'une image binaire représentant le bâti communal, nous proposons un ensemble de traitements permettant d'une part de déterminer toutes les composantes appartenant au bâti continu, d'autre part, de définir une frange urbaine. La limite de l'agglomération et obtenue en additionnant les composantes du bâti continu à celle de la frange urbaine.
+L'obtention d'une image binaire (bâti/non bâti) est la seconde étape à réaliser. L'extraction des objets urbains nécessite un travail qu'il est difficile d'automatiser. Le plus souvent, c'est une intelligence humaine qui doit reconnaître les objets urbains et les marquer. Cette opération consiste a relever ce que l'on voit sur la carte et non pas à juger si tel point appartient ou non à l'agglomération.
+Dans cet exemple nous avons utilisé une carte au 1/50000. C'est la région de Nice qui est représentée à la date de 1936. Le logiciel de traitement morphologique d'image MicroMorph © étant limité à 256X256 pixels, nous avons donc réduit la matrice à cette taille, diminuant la résolution et donc le nombre d'informations. In fine, un pixel représente environ 35,27 mètres. La figure 1 nous en présente le résultat.
+
+Image 1 : Nice 1936 256X256 pixels
+Il est à noter que les figures ne sont pas à l'échelle en raison de la mise en page de l'article
+Le principe central de cette méthode se fonde sur une relation de distance entre les points. En effet, nous définissons comme ensemble urbain tous les pixels se touchant à partir du noyau. Ensuite notre problématique repose sur l'intégration des objets bâtis situés à une distance théorique de cet ensemble. Nous devons donc définir à quelle distance doit au plus se situer un objet bâti pour qu'il soit intégré dans un ensemble urbain. Plusieurs chercheurs proposent un éloignement compris entre 150 et 200 mètres. La distance est donc une variable clefs que nous pourrons nuancer lors de l'analyse d'image. Celle ci est effectuée à l'aide des techniques de morphologie mathématique.
+Voici les différentes opérations de morphologie mathématique que nous employons :
+la dilatation, l'érosion et les différences ensemblistes constituent des opérations élémentaires. Ces dernières sont au nombre de quatre : l'union, l'intersection , l'union moins l'intersection et la différence ensembliste.
+Une séquence composée d'une érosion suivie d'une dilatation est appelée une ouverture. Lorsque l'on procède à des ouvertures de taille croissante on effectue une granulométrie, qui, comme son nom l'indique a pour objet de tamiser les composantes de l'image.
+Il nous faut différencier deux types d'espace. L'espace euclidien est celui qui se réfère à la distance à vol d'oiseau. Les voies de communication, les barrières physiques conditionnent nos implantations et nos déplacements. C'est ce que l'on appelle l'espace géodésique. Les opérations morphologiques définies plus haut peuvent donc être conditionnelles à l'espace géodésique.
+"Une agglomération urbaine est un ensemble d'immeubles habités ou fréquentés, jointifs ou très rapprochés, se distinguant collectivement d'un environnement nettement moins dense.". Nous allons délimiter l'ensemble urbain pour ensuite y intégrer le mitage urbain compris dans une frange de moins de 200 mètres.
+Le noyau urbain est caractérisé par l'ensemble des points reliés au noyau central. Ce dernier sera mis en évidence grâce à une étude granulométrique. Les images qui suivent (notées 2.x) sont toutes issues d'un traitement de granulométrie, à partir d'un élément structurant hexagonal dont la taille croit progressivement.
+
+Image 2.1 : Granulométrie de taille 1.
+
+Image 2.2 : Granulométrie de taille 6
+A partir de l'image 2.2 qui représente donc le groupe de densité urbain le plus important, on peut effectuer une reconstruction géodésique. Avec cette opération nous dilatons le noyau conditionnellement à l'image principale (Image 1). Le résultat est représenté par l'image 3.
+En clôturant les vacuités à l'aide d'une transformation à base de reconstruction et d'addition, on obtient l'image 4. On pourra l'utiliser pour différentes études (calculs de périmètres, de centres, de dimension fractale ...).
+Ce premier résultat ne correspond toujours pas à notre définition de l'agglomération mais nous permet déjà la visualisation d'une première forme générale de la ville.
+
+Image 3 : L'ensemble urbain
+
+Image 4 : Vacuités fermées
+Il nous faut maintenant intégrer le mitage urbain compris dans une distance pouvant varier de 150 à 200 mètres. Nous utilisons le processus de dilatation. Un pixel ayant une taille d'environ 35 mètres, nous dilatons notre image avec un élément structurant de forme hexagonale et de taille 5 (environ 175 mètres).
+Nous obtenons par la différence entre l'image 5 et l'image 4 une bande. Pour récupérer toutes les entités urbaines qu'elle contient, on intersecte l'image de la bande avec l'image 1.
+
+Image 5 : L'ensemble urbain dilaté
+
+Image 6 : Les pixels appartenant à la bande
+L'union de l'Image 3 et de l'Image 6 nous donne le résultat final, c'est à dire tous les pixels formant l'agglomération.
+
+Image 7 : L'Agglomération.
+En conclusion, quels sont les intérêts et les limites de la démarche proposée. Cette dernière souffre de quelques limites qui tiennent en premier lieu, à l'extraction des entités urbaines à partir d'une carte topographique. En effet, cette opération est longue, délicate et présente de nombreuses difficultés pouvant entraîner des erreurs. En deuxième lieu figurent les contraintes liées à la taille des images traitées par l'actuelle version du logiciel MicroMorph : 256 X 256 pixels. Notons cependant que cette limitation n'influe pas sur notre méthode qui est indépendante de la taille de la matrice. Par ailleurs, une nouvelle version de cet outil devrait permettre l'utilisation de matrices plus importantes et amener donc à plus de précision. Nous pourrons alors utiliser une numérisation à 144 DPI, donnant un pixel équivalent à environ 9 mètres de résolution.
+L'intérêt de cette méthode est qu'elle est généralisable, automatique et fiable. L'enchaînement des opérations de morphologie mathématique qui détectent le noyau de plus forte densité à partir duquel le bâti continu est reconstruit puis intersecté avec le bâti discontinu situé à moins de 200 mètres, réduit considérablement la part de subjectivité, liée aux divergences d'appréciation suivant les chercheurs. Ceci devrait faciliter la comparaison de résultats entre différentes équipes de recherche. Cette méthode s'inscrit dans une recherche des structures et des dynamiques spatiales urbaines de pays différents. Alors que les définitions de l'agglomération sont différentes selon les pays, elle permet de retenir les mêmes critères et donc d'homogénéiser les données.

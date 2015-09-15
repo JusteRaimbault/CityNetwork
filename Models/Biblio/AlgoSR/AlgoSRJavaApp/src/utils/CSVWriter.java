@@ -15,12 +15,12 @@ public class CSVWriter {
 	public static void write(String filePath,String[][] data,String delimiter){
 		try{
 			FileWriter writer = new FileWriter(new File(filePath));
-			Log.output("Writing with "+writer.toString(),"debug");
-			Log.output("Data : "+data.toString());Log.output(" to File "+filePath,"debug");
+			//Log.output("Writing with "+writer.toString(),"debug");
+			//Log.output("Data : "+data.toString());Log.output(" to File "+filePath,"debug");
 			for(int i=0;i<data.length;i++){
 				//same row size requirement not checked
 				for(int j=0;j<data[i].length;j++){
-					Log.output(data[i][j],"debug");
+					//Log.output(data[i][j],"debug");
 					writer.write(data[i][j]);
 					if(j!=(data[i].length-1)){writer.write(delimiter);}
 				}
