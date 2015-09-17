@@ -4,8 +4,87 @@
 ;;
 
 
+
+
+;;
+; speed of links depends on time period
+to-report current-speed
+  let speed-date 0
+  if ticks <= 2000  [set speed-date speed3]
+  if ticks <= 1960  [set speed-date speed2]
+  if ticks <= 1860  [set speed-date speed1]
+  report speed-date
+end
+
+
+;;
+; link coloring according to period
+;  (thematic periods)
+to-report current-color
+  let color-date 0
+  if ticks <= 2000  [set color-date red]
+  if ticks <= 1960  [set color-date yellow]
+  if ticks <= 1860  [set color-date blue]
+  report color-date
+end
+
+
+
+
+
+  
+;******************************************************************************
+
+;;
+; Network growth
+to grow-network
+  if (Network-growth = "scenario")     [grow-net-scenario]
+  if (Network-growth = "coevolution")  [grow-net-coevolution]
+end
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Network Growth Scenario ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to grow-net-scenario
+  
+  if ticks = 1802 [ ask city 48 [ create-link-with city 58 [ actualisation-of-link ] ]]
+  if ticks = 1805 [ ask link 58 38 [ actualisation-of-link ] ]
+  if ticks = 1810 [ ask city 48 [ create-link-with city 91 [ actualisation-of-link ] ]]
+  if ticks = 1812 [ ask city 48 [ create-link-with city 76 [ actualisation-of-link ] ]]
+  if ticks = 1818 [ ask city 38 [ create-link-with city 6 [ actualisation-of-link ] ]]
+  if ticks = 1820 [ ask link 58 8 [ actualisation-of-link ] ]
+  if ticks = 1825 [ ask city 48 [ create-link-with city 65 [ actualisation-of-link ] ]]
+  if ticks = 1830 [ ask city 48 [ create-link-with city 3 [ actualisation-of-link ] ]]
+  if ticks = 1840 [ ask city 3 [ create-link-with city 61 [ actualisation-of-link ] ]]
+  if ticks = 1846 [ ask city 61 [ create-link-with city 6 [ actualisation-of-link ] ]]
+    
+  if ticks = 1865 [ ask link 48 91 [ actualisation-of-link ] ]
+  if ticks = 1870 [ ask city 91 [ create-link-with city 11 [ actualisation-of-link ] ]]
+  if ticks = 1880 [ ask link 48 58 [ actualisation-of-link ] ]
+  if ticks = 1889 [ ask link 6 61 [ actualisation-of-link ] ]
+  if ticks = 1905 [ ask city 6 [ create-link-with city 3 [ actualisation-of-link ] ]]
+  if ticks = 1912 [ ask city 46 [ create-link-with city 48 [ actualisation-of-link ] ]]
+  
+  if ticks = 1964 [ ask link 48 58 [ actualisation-of-link ] ]
+  if ticks = 1969 [ ask link 48 91 [ actualisation-of-link ] ]
+  if ticks = 1972 [ ask link 48 3 [ actualisation-of-link ] ]
+  if ticks = 1912 [ ask city 3 [ create-link-with city 6 [ actualisation-of-link ] ]]
+  
+end
+
+
+
+
+
+
 ;*******************************************
 ; graph reconstruction when crossing
+;; -> utils ?
 ;*******************************************
 
 to adapt-graph

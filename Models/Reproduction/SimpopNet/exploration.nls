@@ -1,0 +1,102 @@
+
+
+;;;;
+; explo
+;;;;
+
+
+
+
+
+;*******************************************
+; Fichier export de simulation...
+;*******************************************
+
+
+
+;; export indics/confs ?
+to export-listes
+  ; On crée nos csv
+  if (file-exists? "z-out_populations.csv" = True) [file-delete "z-out_populations.csv"]
+  if (file-exists? "z-out_accessibility.csv" = True) [file-delete "z-out_accessibility.csv"]
+  if (file-exists? "z-out_attraction.csv" = True) [file-delete "z-out_attraction.csv"]
+   if (file-exists? "z-out_network-info.csv" = True) [file-delete "z-out_network-info.csv"]
+  if (file-exists? "z-out_linksspeed.csv" = True) [file-delete "z-out_linksspeed.csv"]
+  
+  let listeTemps []
+  set listeTemps lput "Cities" listeTemps
+  let iTemps 0
+  while [iTemps <= ticks] 
+  [
+    set listeTemps lput iTemps listeTemps
+    set iTemps (iTemps + 1)
+  ]
+  
+  let listeTemps10 []
+  set listeTemps10 lput "Cities" listeTemps10
+  let iTemps10 0
+  while [iTemps10 <= ticks] 
+  [
+    set listeTemps10 lput iTemps10 listeTemps10
+    set iTemps10 (iTemps10 + 10)
+  ]
+  
+  file-open  "z-out_populations.csv"
+  foreach listeTemps [file-type (word ? ",")]
+  file-close
+  file-open  "z-out_accessibility.csv"
+  foreach listeTemps [file-type (word ? ",")]
+  file-close
+  file-open  "z-out_attraction.csv"
+  foreach listeTemps [file-type (word ? ",")]
+  file-close
+ 
+  file-open  "z-out_network-info.csv"
+  file-type "Ville,DateNW1,PopNW1,DateNW2,PopNW2,DateNW3,PopNW3"
+  file-close
+  
+    file-open  "z-out_network-info.csv"
+  file-type "Ville,DateNW1,PopNW1,DateNW2,PopNW2,DateNW3,PopNW3"
+  file-close
+  
+    file-open  "z-out_linksspeed.csv"
+  foreach listeTemps [file-type (word ? ",")]
+  file-close
+  
+  
+  foreach sort cities
+  [
+    ask ?
+    [
+      file-open  "z-out_populations.csv"
+      file-print ""
+      file-type (word "City" who ",")
+      foreach list-population [file-type (word ?1 ",")]
+      file-close
+      file-open  "z-out_accessibility.csv"
+      file-print ""
+      file-type (word "City" who ",")
+      foreach list-accessibility [file-type (word ?1 ",")]
+      file-close
+      file-open  "z-out_attraction.csv"
+      file-print ""
+      file-type (word "City" who ",")
+      foreach list-attraction [file-type (word ?1 ",")]
+      file-close
+      
+      file-open  "z-out_network-info.csv"
+      file-print ""
+      file-type (word "City" who "," item 0 network1 "," item 1 network1 "," item 0 network2 "," item 1 network2 "," item 0 network3 "," item 1 network3)
+      file-close
+      
+      file-open  "z-out_linksspeed.csv"
+      file-print ""
+      file-type (word "City" who ",")
+      foreach list-mean-linksspeed [file-type (word ?1 ",")]
+      file-close
+      
+    ]
+  ]
+  
+
+end

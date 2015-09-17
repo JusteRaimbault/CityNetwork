@@ -1,0 +1,88 @@
+
+
+;;;;
+;; coevolution module
+;;;;
+
+
+
+;*********************************************
+;                                            *
+;           coevolution                      *
+;                                            *
+;*********************************************
+  
+
+to grow-coevolution
+    
+;  compute-min-time-network
+  compute-city-pot-int
+  compute-system-pot-int
+  compute-tempor-pop
+  
+  
+; In order to procede to synchronous population comutation, we use a temporary population variable
+  ask cities
+  [ set population tmp-pop]
+    
+end
+  
+  
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Coevolution Network Growth ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to grow-net-coevolution
+
+ 
+   ; Update globals
+ set sumpop sum [population] of cities
+ set sumlottery sum [population ^ lottery-power] of cities
+  
+   ; Lottery random selection of a city (I) amongs all cities, according to their population
+ let cityI city-1pick
+   ; Lottery random selection of another city (J) amongs all other cities, according to their interaction potentiel with city I
+ let cityJ lottery-potentiel cityI
+    
+ 
+ 
+ 
+ ifelse link ([who] of cityI) ([who] of cityJ) != Nobody
+  ; If the a link between I and J existes, the weight of the link is actualised
+  [
+    ask link ([who] of cityI) ([who] of cityJ) 
+    [ actualisation-of-link ]
+    
+    update-networks-info cityI
+    update-networks-info cityJ
+    
+  ]
+  
+
+  ; If the a link between I and J does not existe, the sinuosity index (IS) is computed 
+  [
+    let efficacityIJ Efficacity-index cityI cityJ
+    
+    ifelse ( 
+             efficacityIJ < (IS)  ; The existing network is allready efficient enought if  the (sinuosity index < threshold sinuosity index).
+             )
+    [
+      ; nothing is done
+    ]
+   
+    ; if  the (sinuosity index > threshold sinuosity index), the network is not efficient enough : 
+    ; A link between the cities I and J is created and initialised according the the present paramters
+    [
+      ask cityI 
+      [ create-link-with cityJ 
+         [ actualisation-of-link ] 
+      ]
+      update-networks-info cityI
+      update-networks-info cityJ
+    ]
+  ]
+
+end
+

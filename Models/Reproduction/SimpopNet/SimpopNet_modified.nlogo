@@ -7,7 +7,8 @@ __includes[
    "main.nls"
    "network.nls"
    "cities.nls"
-   
+   "coevol.nls"
+   "indicators.nls"
    
    ;;;;
    ; utils
@@ -17,11 +18,24 @@ __includes[
 
 
 globals[
-  infinity          ; Because it does not exist Parce que ça n'existe pas natively in NetLogo
-  sumlottery        ; Global needed for the computation of city-picking (network-growth)
-  sumpop            ; Global needed for the computation of city-picking (network-growth)
-  ;min-time-network  ; the shortest possible time travel between two cities in the network at the tick t
+  ; Because it does not exist natively in NetLogo
+  infinity
+  
+  ; Global needed for the computation of city-picking (network-growth)         
+  sumlottery      
+  
+  ; Global needed for the computation of city-picking (network-growth)  
+  sumpop     
+  
+  ; the shortest possible time travel between two cities in the network at the tick t       
+  ;min-time-network  
   system-pot-int    ;
+  
+  
+  ;;;;;;;
+  ;; crossing links variables
+  ;;;;;;;
+  
   x-cross           ;
   y-cross           ;
   crossing-link1    ;
@@ -32,7 +46,10 @@ globals[
 
 breed [cities city]
 
+
 cities-own [
+  
+  
   ; population of the city
   population            
   
@@ -54,10 +71,18 @@ cities-own [
   ; 
   accessibility         
   
-  potentiel-interaction ; temporary-attribut for the computation of lotery-potentiel
-  tmp-pop               ; temporary-attribut for the computation of city-growth
-  attraction            ; force of attraction of the city over all the other in net migration of individuals
-  categorie             ; only for the world creation
+  ; temporary-attribut for the computation of lotery-potentiel
+  potentiel-interaction 
+  
+  ; temporary-attribut for the computation of city-growth
+  tmp-pop     
+  
+  ; force of attraction of the city over all the other in net migration of individuals          
+  attraction     
+  
+  ; only for the world creation       
+  categorie             
+  
   network1
   network2
   network3
@@ -87,69 +112,13 @@ crosses-own [ me? ]
 
 
 
-;*********************************************
-;                                            *
-;           Gibrat                           *
-;                                            *
-;*********************************************
-
-to grow-gibrat
-  ask cities
-  [
-    let previous-pop population
-    set population max list 0 ((previous-pop * (1 + gibrat-growthrate)))
-    if population < 1 [die]
-  ]
-end
-
-to-report gibrat-growthrate
-  let rand-nb 0
-  set rand-nb random-normal gibrat-mean gibrat-std
-  report rand-nb
-end
-
-
-
-
-;*********************************************
-;                                            *
-;           coevolution                      *
-;                                            *
-;*********************************************
-  
-
-to grow-coevolution
-    
-;  compute-min-time-network
-  compute-city-pot-int
-  compute-system-pot-int
-  compute-tempor-pop
-  
-  
-; In order to procede to synchronous population comutation, we use a temporary population variable
-  ask cities
-  [ set population tmp-pop]
-    
-end
-  
-  
-to compute-tempor-pop
-    ask cities [ 
-      set N-city-pot-int (lambda ^ beta * ((count cities) / system-pot-int) * city-pot-int)
-      set  tmp-pop (population * (1 + N-city-pot-int))
-      ]
-end 
-  
-
 to compute-system-pot-int
   set system-pot-int (sum [city-pot-int] of cities)
 end  
   
   
 to compute-city-pot-int
-   ask cities [
-     set city-pot-int value-city-pot-int
-     ]
+   ask cities [set city-pot-int value-city-pot-int]
 end
  
  
@@ -196,111 +165,6 @@ to-report value-city-pot-int
 
   
  
-  
-;******************************************************************************
-
-
-to grow-network
-  
-  if (Network-growth = "scenario")       [grow-net-scenario]
-  if (Network-growth = "coevolution")  [grow-net-coevolution]
-
-end
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Network Growth Scenario ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-To grow-net-scenario
-  
-  if ticks = 1802 [ ask city 48 [ create-link-with city 58 [ actualisation-of-link ] ]]
-  if ticks = 1805 [ ask link 58 38 [ actualisation-of-link ] ]
-  if ticks = 1810 [ ask city 48 [ create-link-with city 91 [ actualisation-of-link ] ]]
-  if ticks = 1812 [ ask city 48 [ create-link-with city 76 [ actualisation-of-link ] ]]
-  if ticks = 1818 [ ask city 38 [ create-link-with city 6 [ actualisation-of-link ] ]]
-  if ticks = 1820 [ ask link 58 8 [ actualisation-of-link ] ]
-  if ticks = 1825 [ ask city 48 [ create-link-with city 65 [ actualisation-of-link ] ]]
-  if ticks = 1830 [ ask city 48 [ create-link-with city 3 [ actualisation-of-link ] ]]
-  if ticks = 1840 [ ask city 3 [ create-link-with city 61 [ actualisation-of-link ] ]]
-  if ticks = 1846 [ ask city 61 [ create-link-with city 6 [ actualisation-of-link ] ]]
-    
-  if ticks = 1865 [ ask link 48 91 [ actualisation-of-link ] ]
-  if ticks = 1870 [ ask city 91 [ create-link-with city 11 [ actualisation-of-link ] ]]
-  if ticks = 1880 [ ask link 48 58 [ actualisation-of-link ] ]
-  if ticks = 1889 [ ask link 6 61 [ actualisation-of-link ] ]
-  if ticks = 1905 [ ask city 6 [ create-link-with city 3 [ actualisation-of-link ] ]]
-  if ticks = 1912 [ ask city 46 [ create-link-with city 48 [ actualisation-of-link ] ]]
-  
-  if ticks = 1964 [ ask link 48 58 [ actualisation-of-link ] ]
-  if ticks = 1969 [ ask link 48 91 [ actualisation-of-link ] ]
-  if ticks = 1972 [ ask link 48 3 [ actualisation-of-link ] ]
-  if ticks = 1912 [ ask city 3 [ create-link-with city 6 [ actualisation-of-link ] ]]
-  
-end
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Coevolution Network Growth ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-to grow-net-coevolution
-
- 
-   ; Update globals
- set sumpop sum [population] of cities
- set sumlottery sum [population ^ lottery-power] of cities
-  
-   ; Lottery random selection of a city (I) amongs all cities, according to their population
- let cityI city-1pick
-   ; Lottery random selection of another city (J) amongs all other cities, according to their interaction potentiel with city I
- let cityJ lottery-potentiel cityI
-    
- 
- 
- 
- ifelse link ([who] of cityI) ([who] of cityJ) != Nobody
-  ; If the a link between I and J existes, the weight of the link is actualised
-  [
-    ask link ([who] of cityI) ([who] of cityJ) 
-    [ actualisation-of-link ]
-    
-    update-networks-info cityI
-    update-networks-info cityJ
-    
-  ]
-  
-
-  ; If the a link between I and J does not existe, the sinuosity index (IS) is computed 
-  [
-    let efficacityIJ Efficacity-index cityI cityJ
-    
-    ifelse ( 
-             efficacityIJ < (IS)  ; The existing network is allready efficient enought if  the (sinuosity index < threshold sinuosity index).
-             )
-    [
-      ; nothing is done
-    ]
-   
-    ; if  the (sinuosity index > threshold sinuosity index), the network is not efficient enough : 
-    ; A link between the cities I and J is created and initialised according the the present paramters
-    [
-      ask cityI 
-      [ create-link-with cityJ 
-         [ actualisation-of-link ] 
-      ]
-      update-networks-info cityI
-      update-networks-info cityJ
-    ]
-  ]
-
-end
-
 
 
 ;******************************************************
@@ -313,22 +177,6 @@ to actualisation-of-link
     set weight (link-length / speed)
     set color current-color 
     set thickness 0.5
-end
-
-to-report current-speed
-  let speed-date 0
-  if ticks <= 2000  [set speed-date speed3]
-  if ticks <= 1960  [set speed-date speed2]
-  if ticks <= 1860  [set speed-date speed1]
-  report speed-date
-end
-
-to-report current-color
-  let color-date 0
-  if ticks <= 2000  [set color-date red]
-  if ticks <= 1960  [set color-date yellow]
-  if ticks <= 1860  [set color-date blue]
-  report color-date
 end
 
 
@@ -352,6 +200,9 @@ to-report city-1pick
 end
 
 
+
+;;
+; Preferential attachment growth mechanism ? (depending on interaction potential ?)
 to-report lottery-potentiel [#1pick]
   ; The random election is made accroding to the interaction potentiel of each cities with the first city picked
   calcul-potentiels #1pick
@@ -373,49 +224,6 @@ to-report lottery-potentiel [#1pick]
 end
 
 
-;***************************************************************************
-; Indexes computation (journey time, sinuosity, intercation potential, etc)
-;******************************************************************************
-
-
-;; Interctaion potential = (Pi*Pj)^beta-pop / (Tij)^beta-time
-to calcul-potentiels [#1pick]
-  ask cities with [who != [who] of #1pick]
-  [
-  let pipj [population] of self * [population] of #1pick
-  let tij time-eucl #1pick self
-  set potentiel-interaction ( (pipj) / (tij ^ beta))
-  ]
-end
-
-
-to-report time-eucl [#startpoint #destination]
-  let DistEucl False  
-  ask #startpoint [set DistEucl distance #destination]
-  set DistEucl (DistEucl * (1 / current-speed))
-  report DistEucl
-end
-
-
-to-report Efficacity-index [#startpoint #destination]
-  ; Calcul de l'indice de sinuosité
-  let IndS (time-network #startpoint #destination) / (time-eucl #startpoint #destination)
-  report IndS
-end
-
-to-report time-network [#startpoint #destination]
-  let DistNetwork false
-  set DistNetwork [ nw:weighted-distance-to #startpoint "weight" ] of #destination
-  report DistNetwork
-end
-
-
-
-
-
-
-
-  
 
 
 to update-lists-cities
@@ -431,139 +239,6 @@ to update-lists-cities
 end
 
 
-
-;*******************************************
-; calcul de l'indice d'accessibilité d'un noeud
-;*******************************************
-
- to calculate-accessibility
-   ask cities [
-     set accessibility value-accessibility
-     ]
-   map-accesibility
- end
- 
-to map-accesibility
-  let max-accesibility 0
-  set max-accesibility max [accessibility] of cities
-  ask cities
-  [set color scale-color green accessibility 0 max-accesibility 
-    ]
-end
-
-  
-to-report value-accessibility
-     let acc -1
-     let listpcc []
-     let compteur 1
-      ask other cities [
-       ;print (word "Appellé : " self)
-       let tpspcc 0
-       set tpspcc time-network self myself
-       set listpcc lput tpspcc listpcc
-       set compteur compteur + 1 
-       ]
-     set acc sum listpcc
-;     print "-> !" 
-     report acc  
- end
-
-
-
-
-
-;*******************************************
-; Fichier export de simulation...
-;*******************************************
-
-
-
-
-to export-listes
-  ; On crée nos csv
-  if (file-exists? "z-out_populations.csv" = True) [file-delete "z-out_populations.csv"]
-  if (file-exists? "z-out_accessibility.csv" = True) [file-delete "z-out_accessibility.csv"]
-  if (file-exists? "z-out_attraction.csv" = True) [file-delete "z-out_attraction.csv"]
-   if (file-exists? "z-out_network-info.csv" = True) [file-delete "z-out_network-info.csv"]
-  if (file-exists? "z-out_linksspeed.csv" = True) [file-delete "z-out_linksspeed.csv"]
-  
-  let listeTemps []
-  set listeTemps lput "Cities" listeTemps
-  let iTemps 0
-  while [iTemps <= ticks] 
-  [
-    set listeTemps lput iTemps listeTemps
-    set iTemps (iTemps + 1)
-  ]
-  
-  let listeTemps10 []
-  set listeTemps10 lput "Cities" listeTemps10
-  let iTemps10 0
-  while [iTemps10 <= ticks] 
-  [
-    set listeTemps10 lput iTemps10 listeTemps10
-    set iTemps10 (iTemps10 + 10)
-  ]
-  
-  file-open  "z-out_populations.csv"
-  foreach listeTemps [file-type (word ? ",")]
-  file-close
-  file-open  "z-out_accessibility.csv"
-  foreach listeTemps [file-type (word ? ",")]
-  file-close
-  file-open  "z-out_attraction.csv"
-  foreach listeTemps [file-type (word ? ",")]
-  file-close
- 
-  file-open  "z-out_network-info.csv"
-  file-type "Ville,DateNW1,PopNW1,DateNW2,PopNW2,DateNW3,PopNW3"
-  file-close
-  
-    file-open  "z-out_network-info.csv"
-  file-type "Ville,DateNW1,PopNW1,DateNW2,PopNW2,DateNW3,PopNW3"
-  file-close
-  
-    file-open  "z-out_linksspeed.csv"
-  foreach listeTemps [file-type (word ? ",")]
-  file-close
-  
-  
-  foreach sort cities
-  [
-    ask ?
-    [
-      file-open  "z-out_populations.csv"
-      file-print ""
-      file-type (word "City" who ",")
-      foreach list-population [file-type (word ?1 ",")]
-      file-close
-      file-open  "z-out_accessibility.csv"
-      file-print ""
-      file-type (word "City" who ",")
-      foreach list-accessibility [file-type (word ?1 ",")]
-      file-close
-      file-open  "z-out_attraction.csv"
-      file-print ""
-      file-type (word "City" who ",")
-      foreach list-attraction [file-type (word ?1 ",")]
-      file-close
-      
-      file-open  "z-out_network-info.csv"
-      file-print ""
-      file-type (word "City" who "," item 0 network1 "," item 1 network1 "," item 0 network2 "," item 1 network2 "," item 0 network3 "," item 1 network3)
-      file-close
-      
-      file-open  "z-out_linksspeed.csv"
-      file-print ""
-      file-type (word "City" who ",")
-      foreach list-mean-linksspeed [file-type (word ?1 ",")]
-      file-close
-      
-    ]
-  ]
-  
-
-end
 
 to update-networks-info [#city]
   let citiesPop reverse sort [population] of cities

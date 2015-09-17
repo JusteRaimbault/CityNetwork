@@ -1,0 +1,43 @@
+
+;;;;
+;; indicators
+;;;;
+
+
+
+;***************************************************************************
+; Indexes computation (journey time, sinuosity, intercation potential, etc)
+;******************************************************************************
+
+
+;; Interctaion potential = (Pi*Pj)^beta-pop / (Tij)^beta-time
+to calcul-potentiels [#1pick]
+  ask cities with [who != [who] of #1pick]
+  [
+  let pipj [population] of self * [population] of #1pick
+  let tij time-eucl #1pick self
+  set potentiel-interaction ( (pipj) / (tij ^ beta))
+  ]
+end
+
+
+to-report time-eucl [#startpoint #destination]
+  let DistEucl False  
+  ask #startpoint [set DistEucl distance #destination]
+  set DistEucl (DistEucl * (1 / current-speed))
+  report DistEucl
+end
+
+
+to-report Efficacity-index [#startpoint #destination]
+  ; Calcul de l'indice de sinuosité
+  let IndS (time-network #startpoint #destination) / (time-eucl #startpoint #destination)
+  report IndS
+end
+
+to-report time-network [#startpoint #destination]
+  let DistNetwork false
+  set DistNetwork [ nw:weighted-distance-to #startpoint "weight" ] of #destination
+  report DistNetwork
+end
+
