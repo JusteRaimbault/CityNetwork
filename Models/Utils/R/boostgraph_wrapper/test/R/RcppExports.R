@@ -10,6 +10,8 @@ rcpp_testvoid <- function() {
     .Call('run_testvoid', PACKAGE = 'test')
 }
 
-rcpp_computeGCD <- function(a,b) {
-    .Call('run_computeGCD',a,b, PACKAGE = 'test')
-}
+
+#
+#rcpp_computeGCD <- function(a,b) {
+#    .Call('run_computeGCD',a,b, PACKAGE = 'test')
+#}

@@ -28,13 +28,15 @@ BEGIN_RCPP
 END_RCPP
 }
 
+/*
 // rcpp_testvoid
-int computeGCD();
-RcppExport SEXP run_computeGCD() {
+int computeGCD(int a,int b);
+RcppExport SEXP run_computeGCD(int a,int b) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    __result = Rcpp::wrap(computeGCD());
+    __result = Rcpp::wrap(computeGCD(a,b));
     return __result;
 END_RCPP
 }
+*/

@@ -26,9 +26,10 @@ int testvoid(){
 }
 
 // [[Rcpp::export]]
-int computeGCD(int a, int b) {
+/*int computeGCD(int a, int b) {
     return boost::math::gcd(a, b);
 }
+*/
 
 // [[Rcpp::export]]
 bool rcpp_boyer_myrvold_planar_test(){

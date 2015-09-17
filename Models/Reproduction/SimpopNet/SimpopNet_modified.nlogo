@@ -1,8 +1,11 @@
 extensions [nw]
 
+__includes[
+   "setup.nls"
+]
 
-globals
-[
+
+globals[
   infinity          ; Because it does not exist Parce que ça n'existe pas natively in NetLogo
   sumlottery        ; Global needed for the computation of city-picking (network-growth)
   sumpop            ; Global needed for the computation of city-picking (network-growth)
@@ -16,52 +19,6 @@ globals
 
 
   
-
-;****************************************************************************************************************************
-
-to setup
-  
-  clear-all
-  
-  let init_network_filename (word "initial-state.csv")
- 
-    import-world init_network_filename
-    ; The import-world procedure also import the Random Number Generator (seed) which is associated to the file imported (Snet-init-appli.csv)
-    ; With the next procedure, we produce a new random-seed at each initialisation
-    random-seed new-seed
-    reset-ticks
-    
- ; ask patches [set pcolor 3]
-  
-  ask links
-    [
-      set speed 1
-      set weight (link-length / speed)
-     ]
-    
-  ask cities 
-    [
-      set list-population []
-      set list-accessibility []
-      set list-attraction[]
-      set list-mean-linksspeed []
-      set network1 ["" ""]
-      set network2 ["" ""]
-      set network3 ["" ""]
-      ]
-     
-      set x-cross false
-      set y-cross false
-      set crossing-link1 false
-      set  crossing-link2 false
-    
-   reset-ticks
-   tick-advance 1800
-   
-end
-
-
-;****************************************************************************************************************************
 
 to go
   
