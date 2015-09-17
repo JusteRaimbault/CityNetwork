@@ -1,0 +1,73 @@
+
+
+;; link utilities
+
+
+to-report not-neighbors [l1 l2]
+  ifelse [end1] of l1 != [end1] of l2
+  and 
+  [end1] of l1 != [end2] of l2
+  and 
+  [end2] of l1 != [end1] of l2
+  and 
+  [end2] of l1 != [end2] of l2
+  
+  [report true]
+  [report false]
+end
+
+
+;; reports a two-item list of x and y coordinates, or an empty list if no intersection is found
+to-report intersection [t1 t2]
+  let m1 [tan (90 - link-heading)] of t1
+  let m2 [tan (90 - link-heading)] of t2
+  ;; treat parallel/collinear lines as non-intersecting
+  if m1 = m2 [ report [] ]
+  ;; is t1 vertical? if so, swap the two turtles
+  if abs m1 = tan 90
+  [
+    ifelse abs m2 = tan 90
+      [ report [] ]
+      [ report intersection t2 t1 ]
+  ]
+  ;; is t2 vertical? if so, handle specially
+  if abs m2 = tan 90 [
+     ;; represent t1 line in slope-intercept form (y=mx+c)
+      let c1 [link-ycor - link-xcor * m1] of t1
+      ;; t2 is vertical so we know x already
+      let x [link-xcor] of t2
+      ;; solve for y
+      let y m1 * x + c1
+      ;; check if intersection point lies on both segments
+      if not [x-within? x] of t1 [ report [] ]
+      if not [y-within? y] of t2 [ report [] ]
+      report (list x y t1 t2)
+  ]
+  ;; now handle the normal case where neither turtle is vertical;
+  ;; start by representing lines in slope-intercept form (y=mx+c)
+  let c1 [link-ycor - link-xcor * m1] of t1
+  let c2 [link-ycor - link-xcor * m2] of t2
+  ;; now solve for x
+  let x (c2 - c1) / (m1 - m2)
+  ;; check if intersection point lies on both segments
+  if not [x-within? x] of t1 [ report [] ]
+  if not [x-within? x] of t2 [ report [] ]
+  report (list x (m1 * x + c1) t1 t2)
+end
+
+to-report x-within? [x]  ;; turtle procedure
+  report abs (link-xcor - x) <= abs (link-length / 2 * sin link-heading)
+end
+
+to-report y-within? [y]  ;; turtle procedure
+  report abs (link-ycor - y) <= abs (link-length / 2 * cos link-heading)
+end
+
+to-report link-xcor
+  report ([xcor] of end1 + [xcor] of end2) / 2
+end
+
+to-report link-ycor
+  report ([ycor] of end1 + [ycor] of end2) / 2
+end
+

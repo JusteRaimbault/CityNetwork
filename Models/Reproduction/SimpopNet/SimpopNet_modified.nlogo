@@ -1,7 +1,18 @@
+
 extensions [nw]
 
 __includes[
+   
    "setup.nls"
+   "main.nls"
+   "network.nls"
+   "cities.nls"
+   
+   
+   ;;;;
+   ; utils
+   ;;;;
+   "local_utils/Link.nls"
 ]
 
 
@@ -18,54 +29,30 @@ globals[
 ]
 
 
-  
-
-to go
-  
- if (ticks > 2000) 
-   [
-    show (
-      word "liens," (count links) 
-      ",new," (count links with [color != 5]) 
-      ",pc_new," precision ( ((count links with [color != 5]) / (count links) ) * 100)2)
-    
-    ;export-listes
-    stop
-   ]
-   
-   
-   
- nw:set-context turtles links  ; For a new snapshot of the network at each step
-  
- grow-cities                ; according to the present network
-
- calculate-accessibility    ; according to the present network
- 
- ;ask cities [set size (5 * population / max [population] of cities)]
- ask cities [set size ( log (1000 * population / max [population] of cities) 10)]
-  
-  
- grow-network               ; according to the present city-size distribution
- 
- adapt-graph                ; Procedure that creates interscation (new nodes on the network) where to links of the same speed cross
- 
- update-lists-cities
- 
- tick 
-    
-end
 
 breed [cities city]
 
-cities-own 
-[
-  population            ; population of the city
+cities-own [
+  ; population of the city
+  population            
   
-  city-pot-int          ; potential interaction of the city with all the other-city of the system
-  N-city-pot-int        ; normalized potential interaction of the city with all the other-city of the system
-  min-time-neighbor     ; the journey time to go the nearest neighbor of this city
+  ;;
+  ; potential interaction of the city with all the other-city of the system
+  ; @type list
+  city-pot-int
+           
+  ;;
+  ; Normalized potential interaction of the city with all the other-city of the system
+  ; @type list 
+  N-city-pot-int  
   
-  accessibility         ; accessibility of the city (shimbel index)
+  ; the journey time to go the nearest neighbor of this city      
+  min-time-neighbor     
+  
+  ;;
+  ; accessibility of the city (shimbel index)
+  ; 
+  accessibility         
   
   potentiel-interaction ; temporary-attribut for the computation of lotery-potentiel
   tmp-pop               ; temporary-attribut for the computation of city-growth
@@ -86,12 +73,15 @@ cities-own
 
 
 
-to grow-cities
-  
-  if (city-growth-model = "Gibrat")       [grow-gibrat]
-  if (city-growth-model = "coevolution")  [grow-coevolution]
-  
-end
+links-own [
+  speed        ; 
+  weight       ; lenght / speed
+  list-speed   ;
+]
+
+breed [crosses cross]
+
+crosses-own [ me? ]
 
 
 
@@ -207,17 +197,6 @@ to-report value-city-pot-int
   
  
   
-  
-  
-  links-own [
-  speed        ; 
-  weight       ; lenght / speed
-  list-speed   ;
-]
-
-breed [crosses cross]
-crosses-own [ me? ]
-
 ;******************************************************************************
 
 
@@ -430,129 +409,6 @@ to-report time-network [#startpoint #destination]
   report DistNetwork
 end
 
-
-
-;*******************************************
-; graph reconstruction when crossing
-;*******************************************
-
-to adapt-graph
-  find-crossing
-  if x-cross != false [ create-intersection]
-end
-
-
-to find-crossing
-  
- ;; each pair of segments checks for intersections once
-  ask links [
-    ;; performing this check on the who numbers keeps us from checking every pair twice
-    ;; we only check links with similiar speed
-    ask links with [(self > myself) and ([speed] of self = [speed] of myself) and (not-neighbors self myself) and ([speed] of self != 1)][
-      let result intersection self myself
-      if not empty? result [
-       ;  print result
-        set x-cross (item 0 result)
-        set y-cross (item 1 result)  
-        set crossing-link1 (item 2 result)
-        set crossing-link2 (item 3 result)      
-        ]
-    ]
-            ]
-end
-
-
-to create-intersection
- ; print "hatching"
-  create-crosses 1 [
-          set shape "x"
-          set color (current-color + 2)
-          set size 1
-          setxy (x-cross) (y-cross)
-          set me? true]
-  
-   ask crossing-link1   [ask both-ends [ create-links-with crosses with [me? = true]
-                                         [actualisation-of-link]]]
-   ask crossing-link2 [ask both-ends [ create-links-with crosses with [me? = true]
-                                       [actualisation-of-link]]]
-
-   ask crossing-link1 [die]
-   ask crossing-link2 [die]
-   ask crosses with [me? = true] [set me? false]
-   set crossing-link1 false
-   set crossing-link2 false
-   set x-cross false
-   set y-cross false
-   adapt-graph
-end
-
-to-report not-neighbors [l1 l2]
-  ifelse [end1] of l1 != [end1] of l2
-  and 
-  [end1] of l1 != [end2] of l2
-  and 
-  [end2] of l1 != [end1] of l2
-  and 
-  [end2] of l1 != [end2] of l2
-  
-  [report true]
-  [report false]
-end
-
-
-;; reports a two-item list of x and y coordinates, or an empty list if no intersection is found
-to-report intersection [t1 t2]
-  let m1 [tan (90 - link-heading)] of t1
-  let m2 [tan (90 - link-heading)] of t2
-  ;; treat parallel/collinear lines as non-intersecting
-  if m1 = m2 [ report [] ]
-  ;; is t1 vertical? if so, swap the two turtles
-  if abs m1 = tan 90
-  [
-    ifelse abs m2 = tan 90
-      [ report [] ]
-      [ report intersection t2 t1 ]
-  ]
-  ;; is t2 vertical? if so, handle specially
-  if abs m2 = tan 90 [
-     ;; represent t1 line in slope-intercept form (y=mx+c)
-      let c1 [link-ycor - link-xcor * m1] of t1
-      ;; t2 is vertical so we know x already
-      let x [link-xcor] of t2
-      ;; solve for y
-      let y m1 * x + c1
-      ;; check if intersection point lies on both segments
-      if not [x-within? x] of t1 [ report [] ]
-      if not [y-within? y] of t2 [ report [] ]
-      report (list x y t1 t2)
-  ]
-  ;; now handle the normal case where neither turtle is vertical;
-  ;; start by representing lines in slope-intercept form (y=mx+c)
-  let c1 [link-ycor - link-xcor * m1] of t1
-  let c2 [link-ycor - link-xcor * m2] of t2
-  ;; now solve for x
-  let x (c2 - c1) / (m1 - m2)
-  ;; check if intersection point lies on both segments
-  if not [x-within? x] of t1 [ report [] ]
-  if not [x-within? x] of t2 [ report [] ]
-  report (list x (m1 * x + c1) t1 t2)
-end
-
-to-report x-within? [x]  ;; turtle procedure
-  report abs (link-xcor - x) <= abs (link-length / 2 * sin link-heading)
-end
-
-to-report y-within? [y]  ;; turtle procedure
-  report abs (link-ycor - y) <= abs (link-length / 2 * cos link-heading)
-end
-
-to-report link-xcor
-  report ([xcor] of end1 + [xcor] of end2) / 2
-end
-
-to-report link-ycor
-  report ([ycor] of end1 + [ycor] of end2) / 2
-end
 
 
 
@@ -802,9 +658,9 @@ Number
 
 INPUTBOX
 110
-173
+185
 163
-233
+245
 speed1
 5
 1
@@ -823,9 +679,9 @@ city-growth-model
 
 SLIDER
 3
-173
+185
 107
-206
+218
 lottery-power
 lottery-power
 0
@@ -867,9 +723,9 @@ PENS
 
 INPUTBOX
 163
-173
+185
 214
-233
+245
 speed2
 20
 1
@@ -878,9 +734,9 @@ Number
 
 INPUTBOX
 215
-173
+185
 265
-233
+245
 speed3
 75
 1
@@ -1014,10 +870,10 @@ Network-growth
 1
 
 SLIDER
-5
-294
-128
-327
+6
+308
+129
+341
 gibrat-mean
 gibrat-mean
 0
@@ -1029,10 +885,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-127
-294
-250
-327
+128
+308
+251
+341
 gibrat-std
 gibrat-std
 0
@@ -1045,9 +901,9 @@ HORIZONTAL
 
 SLIDER
 3
-211
+223
 108
-244
+256
 IS
 IS
 0
@@ -1059,10 +915,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-131
-384
-255
-417
+128
+398
+252
+431
 beta
 beta
 0
@@ -1074,10 +930,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-6
-384
-130
-417
+3
+398
+127
+431
 lambda
 lambda
 0
