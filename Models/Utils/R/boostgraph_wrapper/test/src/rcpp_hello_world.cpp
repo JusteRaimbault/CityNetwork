@@ -1,6 +1,9 @@
 
+// [[Rcpp::depends(BH)]]
 #include <Rcpp.h>
 #include <iostream>
+//#include <boost/graph/boyer_myrvold_planar_test.hpp>
+#include <boost/math/common_factor.hpp>
 using namespace Rcpp;
 
 // [[Rcpp::export]]
@@ -19,4 +22,20 @@ int testvoid(){
   while (i<100) {
     std::cout << i ;i++;
   }
+  return 0;
+}
+
+// [[Rcpp::export]]
+int computeGCD(int a, int b) {
+    return boost::math::gcd(a, b);
+}
+
+// [[Rcpp::export]]
+bool rcpp_boyer_myrvold_planar_test(){
+  //construct the graph from the adjacency matrix
+  // function matrix_as_graph
+
+  return true;
+  //return boyer_myrvold_planar_test(g);
+
 }
