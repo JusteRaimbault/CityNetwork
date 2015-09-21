@@ -13,8 +13,14 @@ extensions []
 
 __includes [
   
+  ;; network in itself
   "synth-eucl-nw.nls"
-   
+  
+  ;; cities distribution
+  "synth-cities.nls"
+  
+  ;; tests 
+   "test/test_includes.nls"
    
    ;;;;
    ;; Utils
@@ -27,10 +33,23 @@ __includes [
    ;  -> def of includes possible in .nls includes -> check if no conflict.
    
    "../../../../Softwares/NetLogo/utils/network/Network.nls"
-   
+   "../../../../Softwares/NetLogo/utils/agent/Agent.nls"
    
 ]
 
+
+globals [
+  
+  ;; network generation parameters
+  
+  
+  
+  ;; cities generation parameters
+  
+  
+   
+  
+]
 
 
 breed [cities city]
@@ -38,15 +57,30 @@ breed [cities city]
 ;; compatibility with nw utils ?
 breed [nw-nodes nw-node]
 
+undirected-link-breed [roads road]
+
+
+
+
+cities-own [
+  ; population
+  population 
+]
+
+
+roads-own [
+  capacity 
+]
+
 
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+4
 10
-649
-470
-16
-16
+781
+704
+29
+25
 13.0
 1
 10
@@ -54,18 +88,38 @@ GRAPHICS-WINDOW
 1
 1
 0
+0
+0
 1
-1
-1
--16
-16
--16
-16
+-29
+29
+-25
+25
 0
 0
 1
 ticks
 30.0
+
+CHOOSER
+891
+19
+1076
+64
+cities-generation-method
+cities-generation-method
+"zipf-christaller"
+0
+
+CHOOSER
+891
+69
+1076
+114
+network-generation-method
+network-generation-method
+"simple-connexification"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
