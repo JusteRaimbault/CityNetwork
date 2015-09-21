@@ -45,14 +45,30 @@ public class CybergeoImport {
 	}
 	
 	
-	public static Set<Reference> importBase(){
+	
+	
+	/**
+	 * Imports the SQL base as a set of References.
+	 * 
+	 * @param filter : additional SQL request filter
+	 *   	"	WHERE  `datepubli` >=  '2003-01-01' AND  `resume` !=  '' AND  `titre` != ''   "
+	 *      append to the basic sql request.
+	 *      
+	 * @return Set of refs
+	 */
+	public static Set<Reference> importBase(String filter){
+		
 		HashSet<Reference> res = new HashSet<Reference>();
+		
 		try{
 		   ResultSet sqlrefs = sqlDB.createStatement().executeQuery(
-				"SELECT `titre`,`altertitre`,`resume`,`datepubli`,`identity`,`langue` "
+				"SELECT `titre`,`altertitre`,`resume`,`datepubli`,`identity`,`langue`,`bibliographie` "
 				+ "FROM  `textes` "
-				+ "WHERE  `datepubli` >=  '2003-01-01' AND  `resume` !=  '' AND  `titre` != '';");
+				+ filter +";");
 		   while(sqlrefs.next()){
+			   
+			   String biblio = sqlrefs.getString(7);
+			   
 			   Reference r = Reference.construct("", rawTitle(sqlrefs.getString(1),sqlrefs.getString(2),sqlrefs.getString(6))[0], rawAbstract(sqlrefs.getString(3)), sqlrefs.getString(4), "");
 				
 			   // get authors
@@ -71,8 +87,12 @@ public class CybergeoImport {
 			   
 			   // get cited refs, from textes.`bibliographie` -> each ref as <p class="bibliographie">...</p>
 			   // title as <em>...</em>
-			   
-			   
+			   Document parsedBib = Jsoup.parse(biblio);
+			   for(Element bibitem:parsedBib.getElementsByClass("bibliographie")){
+				   System.out.println(bibitem.html());
+				   System.out.println(titleFromCybRef(bibitem.text()));
+				   System.out.println();
+			   }			   
 			   
 			   
 			   
@@ -176,6 +196,27 @@ public class CybergeoImport {
 	}
 	
 	
+	/**
+	 * Specific procedure to extract references title from the html-formatted cybergeo bibliography.
+	 * 
+	 * Heuristic : first element after date ?
+	 * 
+	 * @param html
+	 * @return
+	 */
+	public static String titleFromCybRef(String t){
+		int yIndex = 0;
+		for(int i=0;i<t.length()-4;i++){
+			if(t.substring(i, i+4).matches("\\d\\d\\d\\d")){yIndex=i+4;break;};
+		}
+		String[] end = t.substring(yIndex).split(",")[1].split(".");
+		String res="";
+		//for(int i=1;i<end.length;i++){res+=end[i]+" ";}
+		return end[0];
+	}
+	
+	
+	
 	
 	/**
 	 * Get english raw text from xml multiling structure
@@ -266,25 +307,12 @@ public class CybergeoImport {
 		setupSQL();
 		//GEXFWriter.write("res/test_cyb_gexf.gexf", importBase());
 		//RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle_withKeywords.ris", importBase());
-		directExport("res/raw/");
+		//directExport("res/raw/");
 		
-		/*
-		try{
-			   ResultSet sqlrefs = sqlDB.createStatement().executeQuery(
-					"SELECT `titre`,`resume`,`datepubli`,`altertitre` "
-					+ "FROM  `textes` "
-					+ "WHERE  `datepubli` >=  '2003-01-01';");
-			   for(int i=0;i<10;i++){
-			   sqlrefs.next();
-				 System.out.println(rawText(sqlrefs.getString(1)));
-				 System.out.println(rawText(sqlrefs.getString(2)));
-				 System.out.println(rawText(sqlrefs.getString(3)));
-				 System.out.println(rawText(sqlrefs.getString(4)));
-			   }
-			   
-			   
-			}catch(Exception e){e.printStackTrace();}
-		*/
+		importBase("WHERE  `datepubli` >=  '2003-01-01' LIMIT 20");
+		
+		
+		
 		
 	}
 

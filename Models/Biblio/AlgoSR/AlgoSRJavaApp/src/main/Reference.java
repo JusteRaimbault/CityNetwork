@@ -74,7 +74,7 @@ public class Reference {
 	 * Refs cited by this ref - filled with cybergeo database ; or WoS corpus
 	 */
 	public HashSet<Reference> cited;
-	
+
 	
 	
 	/**

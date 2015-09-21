@@ -145,7 +145,7 @@ public class CitationNetwork {
 		//import database
 		System.out.println("Setting up from sql...");
 		CybergeoImport.setupSQL();
-		Set<Reference> initialRefs = CybergeoImport.importBase();
+		Set<Reference> initialRefs = CybergeoImport.importBase("WHERE  `datepubli` >=  '2003-01-01' AND  `resume` !=  '' AND  `titre` != ''");
 		System.out.println("References :  : "+Reference.references.size());
 		
 		
