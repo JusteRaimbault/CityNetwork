@@ -75,6 +75,15 @@ public class Reference {
 	 */
 	public HashSet<Reference> cited;
 
+	/**
+	 * Titles of cited refs, used for intermediate construction of the citation network
+	 * 
+	 *  -- NOTE -- SHITTY modularity in architecture ; difficult to do better because of sources heterogeneity ?
+	 *   -> generic interface with citing/cited provision method provided as argument ; needs functional programming, scala archi :/
+	 *   Functional in Java done through Interfacing, Factories etc. try to clean that.
+	 */
+	public HashSet<String> citedTitles;
+	
 	
 	
 	/**

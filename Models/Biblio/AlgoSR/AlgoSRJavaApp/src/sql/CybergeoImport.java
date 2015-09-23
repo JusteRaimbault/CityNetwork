@@ -56,7 +56,7 @@ public class CybergeoImport {
 	 *      
 	 * @return Set of refs
 	 */
-	public static Set<Reference> importBase(String filter){
+	public static HashSet<Reference> importBase(String filter){
 		
 		HashSet<Reference> res = new HashSet<Reference>();
 		
@@ -90,7 +90,19 @@ public class CybergeoImport {
 			   Document parsedBib = Jsoup.parse(biblio);
 			   for(Element bibitem:parsedBib.getElementsByClass("bibliographie")){
 				   System.out.println(bibitem.html());
-				   System.out.println(titleFromCybRef(bibitem.text()));
+				   String t = titleFromCybRef(bibitem.html());
+				   //System.out.println(t);
+				   //System.out.println(t.indexOf("<em>"));
+				   int emIndex = t.indexOf("<em>");
+				   if(emIndex==-1){
+					   System.out.println(titleFromCybRef(bibitem.text()).split(",")[0]);
+				   }else{
+					   if(emIndex < 3){
+						   System.out.println(bibitem.getElementsByTag("em").text());
+					   }
+					   else{System.out.println(titleFromCybRef(bibitem.text()).split(",")[0]);}
+				   }
+				   
 				   System.out.println();
 			   }			   
 			   
@@ -209,10 +221,11 @@ public class CybergeoImport {
 		for(int i=0;i<t.length()-4;i++){
 			if(t.substring(i, i+4).matches("\\d\\d\\d\\d")){yIndex=i+4;break;};
 		}
-		String[] end = t.substring(yIndex).split(",")[1].split(".");
-		String res="";
+		//String[] end = t.substring(yIndex).split(",")[1].split(".");
+		//String res="";
 		//for(int i=1;i<end.length;i++){res+=end[i]+" ";}
-		return end[0];
+		//return end[0];
+		return t.substring(yIndex+2);
 	}
 	
 	
@@ -309,7 +322,7 @@ public class CybergeoImport {
 		//RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle_withKeywords.ris", importBase());
 		//directExport("res/raw/");
 		
-		importBase("WHERE  `datepubli` >=  '2003-01-01' LIMIT 20");
+		importBase("WHERE  `datepubli` >=  '2003-01-01' LIMIT 10");
 		
 		
 		
