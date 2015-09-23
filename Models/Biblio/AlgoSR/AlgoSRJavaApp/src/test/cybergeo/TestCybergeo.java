@@ -10,6 +10,7 @@ import main.corpuses.CybergeoCorpus;
 import main.corpuses.CybergeoFactory;
 import scholar.ScholarAPI;
 import sql.CybergeoImport;
+import utils.RISWriter;
 import utils.tor.TorPool;
 
 /**
@@ -18,6 +19,13 @@ import utils.tor.TorPool;
  */
 public class TestCybergeo {
 
+	
+	public static void exportCybergeoAsRIS(){
+		CybergeoImport.setupSQL();
+		CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("",-1)).getCorpus();
+		RISWriter.write(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase.ris", cybergeo.references);
+	}
+	
 	
 	
 	public static void testCitedRefConstruction(){
@@ -46,7 +54,8 @@ public class TestCybergeo {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		testCitedRefConstruction();
+		exportCybergeoAsRIS();
+		//testCitedRefConstruction();
 	}
 
 }

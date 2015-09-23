@@ -204,18 +204,19 @@ public class CybergeoImport {
 		for(Element bibitem:parsedBib.getElementsByClass("bibliographie")){
 			//System.out.println(bibitem.html());
 			String t = titleFromCybRef(bibitem.html());
-			//System.out.println(t);
-			//System.out.println(t.indexOf("<em>"));
-			int emIndex = t.indexOf("<em>");
-			if(emIndex==-1){
-				res.add(titleFromCybRef(bibitem.text()).split(",")[0]);
-			}else{
-				if(emIndex < 3){
-					res.add(bibitem.getElementsByTag("em").text());
+			if(t.length()>0){
+				//System.out.println(t);
+				//System.out.println(t.indexOf("<em>"));
+				int emIndex = t.indexOf("<em>");
+				if(emIndex==-1){
+					res.add(titleFromCybRef(bibitem.text()).split(",")[0]);
+				}else{
+					if(emIndex < 3){
+						res.add(bibitem.getElementsByTag("em").text());
+					}
+					else{res.add(titleFromCybRef(bibitem.text()).split(",")[0]);}
 				}
-				else{res.add(titleFromCybRef(bibitem.text()).split(",")[0]);}
 			}
-
 		}
 		
 		return res;
@@ -233,6 +234,7 @@ public class CybergeoImport {
 	 * @return
 	 */
 	public static String titleFromCybRef(String t){
+		try{
 		int yIndex = 0;
 		for(int i=0;i<t.length()-4;i++){
 			if(t.substring(i, i+4).matches("\\d\\d\\d\\d")){yIndex=i+4;break;};
@@ -242,6 +244,7 @@ public class CybergeoImport {
 		//for(int i=1;i<end.length;i++){res+=end[i]+" ";}
 		//return end[0];
 		return t.substring(yIndex+2);
+		}catch(Exception e){e.printStackTrace();return "";}
 	}
 	
 	
