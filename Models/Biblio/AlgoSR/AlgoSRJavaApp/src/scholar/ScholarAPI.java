@@ -155,6 +155,30 @@ public class ScholarAPI {
 		return refs;
 	}
 	
+	
+	/**
+	 * Get the ref constructed from scholar ; null if no result.
+	 * 
+	 * @param title
+	 * @return
+	 */
+	public static Reference getScholarRef(String title){
+		Reference res = null;
+		for(Reference nr:scholarRequest(title.replace(" ", "+" ),1,"exact")){res=nr;};
+		//try direct if no result
+		if(res==null){for(Reference nr:scholarRequest(title.replace(" ", "+" ),1,"direct")){res=nr;};}	
+		
+		if(res!=null){
+			if(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(res.title),StringUtils.lowerCase(title))<2){
+				return res;
+			}
+			else{System.out.println("TITLE MISMATCH : \n   "+res.title+"\n    "+title);}
+		}
+		return null;
+	}
+	
+	
+	
 	/**
 	 * Queries and constructs citing refs for a set of refs, and fills scholar id.
 	 * 
@@ -173,19 +197,13 @@ public class ScholarAPI {
 				else{
 					try{
 						// first get scholar ID
-						Reference rr = null;
-						for(Reference nr:scholarRequest(r.title.replace(" ", "+" ),1,"exact")){rr=nr;};
-						//try direct if no result
-						if(rr==null){for(Reference nr:scholarRequest(r.title.replace(" ", "+" ),1,"direct")){rr=nr;};}	
-
-						if(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(rr.title),StringUtils.lowerCase(r.title))<4){
-
+						Reference rr = getScholarRef(r.title);
+						
+						if(rr!=null){
 							System.out.println("ID : "+rr.scholarID);
-							r.scholarID=rr.scholarID;
-
+							r.scholarID=rr.scholarID;//no need as rr and r should be same pointer ?
 							HashSet<Reference> citing = scholarRequest(r.scholarID,10000,"cites");
 							for(Reference c:citing){r.citing.add(c);}
-
 						}
 						System.out.println("Citing refs : "+r.citing.size());
 

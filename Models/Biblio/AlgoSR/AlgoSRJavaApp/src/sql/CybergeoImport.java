@@ -85,28 +85,7 @@ public class CybergeoImport {
 			      while(keywords.next()){r.keywords.add(keywords.getString(1));}
 			   }
 			   
-			   // get cited refs, from textes.`bibliographie` -> each ref as <p class="bibliographie">...</p>
-			   // title as <em>...</em>
-			   Document parsedBib = Jsoup.parse(biblio);
-			   for(Element bibitem:parsedBib.getElementsByClass("bibliographie")){
-				   System.out.println(bibitem.html());
-				   String t = titleFromCybRef(bibitem.html());
-				   //System.out.println(t);
-				   //System.out.println(t.indexOf("<em>"));
-				   int emIndex = t.indexOf("<em>");
-				   if(emIndex==-1){
-					   System.out.println(titleFromCybRef(bibitem.text()).split(",")[0]);
-				   }else{
-					   if(emIndex < 3){
-						   System.out.println(bibitem.getElementsByTag("em").text());
-					   }
-					   else{System.out.println(titleFromCybRef(bibitem.text()).split(",")[0]);}
-				   }
-				   
-				   System.out.println();
-			   }			   
-			   
-			   
+			   r.citedTitles = parseBibliography(biblio);
 			   
 			   res.add(r);
 			   System.out.println(r.toString());
@@ -206,6 +185,43 @@ public class CybergeoImport {
 			
 		
 	}
+	
+	
+	
+	/**
+	 * Extract biblio titles
+	 * 
+	 * @param biblio
+	 * @return
+	 */
+	public static HashSet<String> parseBibliography(String biblio){
+		// get cited refs, from textes.`bibliographie` -> each ref as <p class="bibliographie">...</p>
+		// title as <em>...</em>
+		
+		HashSet<String> res = new HashSet<String>();
+		
+		Document parsedBib = Jsoup.parse(biblio);
+		for(Element bibitem:parsedBib.getElementsByClass("bibliographie")){
+			//System.out.println(bibitem.html());
+			String t = titleFromCybRef(bibitem.html());
+			//System.out.println(t);
+			//System.out.println(t.indexOf("<em>"));
+			int emIndex = t.indexOf("<em>");
+			if(emIndex==-1){
+				res.add(titleFromCybRef(bibitem.text()).split(",")[0]);
+			}else{
+				if(emIndex < 3){
+					res.add(bibitem.getElementsByTag("em").text());
+				}
+				else{res.add(titleFromCybRef(bibitem.text()).split(",")[0]);}
+			}
+
+		}
+		
+		return res;
+
+	}
+	
 	
 	
 	/**
