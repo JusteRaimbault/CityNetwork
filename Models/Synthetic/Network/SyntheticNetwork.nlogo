@@ -33,7 +33,7 @@ __includes [
    ;  -> def of includes possible in .nls includes -> check if no conflict.
    
    "../../../../Softwares/NetLogo/utils/network/Network.nls"
-   "../../../../Softwares/NetLogo/utils/agent/Agent.nls"
+   "../../../../Softwares/NetLogo/utils/agent/AgentSet.nls"
    
 ]
 
@@ -117,14 +117,14 @@ CHOOSER
 114
 network-generation-method
 network-generation-method
-"simple-connexification" "random"
-0
+"simple-connexification" "neighborhood-gravity" "random"
+2
 
 SLIDER
-896
-206
-1068
-239
+858
+211
+1030
+244
 city-max-pop
 city-max-pop
 0
@@ -136,10 +136,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-897
-243
-1069
-276
+859
+248
+1031
+281
 #-cities
 #-cities
 0
@@ -151,10 +151,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-897
-278
-1068
-311
+859
+283
+1030
+316
 rank-size-exponent
 rank-size-exponent
 0
@@ -181,6 +181,21 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+1055
+210
+1244
+243
+random-network-density
+random-network-density
+0
+0.1
+0.024
+0.001
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

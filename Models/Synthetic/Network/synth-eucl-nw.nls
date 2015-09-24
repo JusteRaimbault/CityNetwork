@@ -27,18 +27,55 @@ end
 to generate-network [generation-method]
   
   if generation-method = "random"[
+    random-network
+    planarize-network cities roads
+  ]
+  
+  
+  ;; TODO : locally random ; proba = f(distance) ? === gravity approach.
+  ; neigborhood size determines size of local clusters ?
+  
+  if generation-method = "gravity"[
     
   ]
   
   if generation-method = "simple-connexification"[
-    connexify-network cities roads
+    simple-connexification
   ]
+  
+  
+  if generation-method = "neighborhood-gravity"[
+    ; first do a simple connexification
+    simple-connexification
+    ; then locally add links
+    
+    
+  ]
+  
+  
   
 end
 
 
+to random-network
+  let #-link floor (random-network-density * #-cities * (#-cities - 1) / 2)
+  repeat #-link [
+    ask one-of cities [
+      create-road-with one-of (other cities) with [not road-neighbor? myself]
+    ]
+  ]
+end
 
 
+to simple-connexification
+  ; we need to trick here the connexify network function, as its generic implementation fails with empty edgeset
+    ; -> connects the closest cities, what the algo should do in first step  - not exactly, depends on connex comps order (not deterministic ?)
+    
+    ; totally dirty : O(n^2)
+    ask one-of cities with-min [min map [distance ?] to-list (other cities)] [create-road-with one-of ((other cities) with-min [distance myself])]
+    
+    connexify-network cities roads
+end
 
 
 
