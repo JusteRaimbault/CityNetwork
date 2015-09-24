@@ -72,7 +72,6 @@ roads-own [
   capacity 
 ]
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 4
@@ -108,8 +107,8 @@ CHOOSER
 64
 cities-generation-method
 cities-generation-method
-"zipf-christaller"
-0
+"zipf-christaller" "random"
+1
 
 CHOOSER
 891
@@ -118,8 +117,70 @@ CHOOSER
 114
 network-generation-method
 network-generation-method
-"simple-connexification"
+"simple-connexification" "random"
 0
+
+SLIDER
+896
+206
+1068
+239
+city-max-pop
+city-max-pop
+0
+10000
+1000
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+897
+243
+1069
+276
+#-cities
+#-cities
+0
+100
+100
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+897
+278
+1068
+311
+rank-size-exponent
+rank-size-exponent
+0
+2
+0.4
+0.05
+1
+NIL
+HORIZONTAL
+
+BUTTON
+897
+343
+983
+376
+generate
+ca\ngenerate-synthetic-euclidian-network
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

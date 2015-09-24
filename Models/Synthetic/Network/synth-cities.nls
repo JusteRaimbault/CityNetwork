@@ -10,17 +10,48 @@
 
 
 to generate-cities [generation-method]
-  if generation-method = "zipf-christaller" [
-     
+  
+  let populations population-distribution
+  
+  if generation-method = "random" [
+     foreach populations [
+       create-cities 1 [set population ? setxy random-xcor random-ycor new-city] 
+     ]
   ]
+  
+  
+  if generation-method = "zipf-christaller" [
+     foreach populations [
+       create-cities 1 [
+         set population ?
+         ;move-to one-of patches with-max []
+         new-city
+       ] 
+     ]
+  ]
+  
+  
 end
 
 
 
 
+;;
+; get list of cities population
+;  for now rank-size law
+;  P_i : P_max / i^alpha
+to-report population-distribution
+  let populations []
+  let i 1
+  repeat #-cities [
+    set populations lput (city-max-pop / (i ^ rank-size-exponent)) populations
+    set i i + 1 
+  ]
+  report populations
+end
 
 
 to new-city
-  set color green
-  set size 3 * 
+  set color green set shape "circle"
+  set size 3 * population / city-max-pop
 end
