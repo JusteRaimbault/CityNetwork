@@ -191,7 +191,7 @@ random-network-density
 random-network-density
 0
 0.1
-0.024
+0.019
 0.001
 1
 NIL
