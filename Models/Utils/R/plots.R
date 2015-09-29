@@ -51,6 +51,7 @@ getRepresentatives<-function(raw_results,aggregated_results,
   r=1
   
   for(p in parameter_rows){
+    show(p)
     values = raw_results[as.logical(apply(raw_results[,raw_params_cols]==kronecker(rep(1,nrow(raw_results)),as.matrix(aggregated_results[p,aggregated_params_cols])),1,prod)),]
     d=apply((values[,raw_indics_cols]-kronecker(rep(1,nrow(values)),as.matrix(aggregated_results[p,aggregated_indics_cols]))),1,function(x){sum(x^2)})
     #show(as.matrix(values[d==min(d)[1],]))

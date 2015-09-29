@@ -42,8 +42,9 @@ persp(x=1:20,y=1:20,z=as.matrix(read.csv("tmp/pop_15764867352.csv",sep=";",heade
 
 prefix=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/Output/ScalaImpl/20150806_Scala_SamplingLHS/')
 
-for(r in 1:nrow(representatives)){
-  ztab=read.csv(paste0(prefix,'pop/pop_',fileName(representatives[8,]),".csv"),sep=";",header=FALSE)
+#for(r in 1:nrow(representatives)){
+for(r in 1:100){
+  ztab=read.csv(paste0(prefix,'pop/pop_',fileName(representatives[r,]),".csv"),sep=";",header=FALSE)
   #x=c();y=c();z=c();
   persp(x=1:100,y=1:100,z=as.matrix(ztab))
   #for(i in 1:nrow(ztab)){
