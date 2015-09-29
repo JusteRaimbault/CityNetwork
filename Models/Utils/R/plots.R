@@ -37,6 +37,39 @@ getSingleParamPoints <- function(data,params_cols,indics_cols){
 
 
 
+##
+# given a param and indics means, must find representative closest to this centroid
+# 
+#
+getRepresentatives<-function(raw_results,aggregated_results,
+                             parameter_rows,
+                             raw_params_cols,aggregated_params_cols,
+                             raw_indics_cols,aggregated_indics_cols
+){
+  
+  repres = matrix(0,length(parameter_rows),ncol(raw_results))
+  r=1
+  
+  for(p in parameter_rows){
+    values = raw_results[as.logical(apply(raw_results[,raw_params_cols]==kronecker(rep(1,nrow(raw_results)),as.matrix(aggregated_results[p,aggregated_params_cols])),1,prod)),]
+    d=apply((values[,raw_indics_cols]-kronecker(rep(1,nrow(values)),as.matrix(aggregated_results[p,aggregated_indics_cols]))),1,function(x){sum(x^2)})
+    #show(as.matrix(values[d==min(d)[1],]))
+    repres[r,]=as.matrix(values[d==min(d)[1],])
+    r=r+1
+  }
+  
+  colnames(repres)<-colnames(res)
+  
+  return(repres)
+  
+}
+
+
+
+
+
+
+
 
 # multiplot
 
