@@ -98,7 +98,7 @@ sp-diffusion
 sp-diffusion
 0
 0.5
-0.205
+0.262
 0.001
 1
 NIL
@@ -113,7 +113,7 @@ sp-growth-rate
 sp-growth-rate
 0
 10000
-510
+127
 1
 1
 NIL
