@@ -18,10 +18,10 @@ __includes [
   ;; plots
   "plots.nls"
   
-  "utils/ListUtilities.nls"
-  "utils/ViewUtilities.nls"
-  "utils/ExplorationUtilities.nls"
-  "utils/FileUtilities.nls"
+  "utils/misc/List.nls"
+  "utils/gui/ViewUtilities.nls"
+  "utils/exploration/ExplorationUtilities.nls"
+  "utils/io/FileUtilities.nls"
   ;"utils/Timer.nls"
   
 ]
@@ -113,7 +113,7 @@ sp-growth-rate
 sp-growth-rate
 0
 10000
-5350
+510
 1
 1
 NIL
@@ -231,7 +231,7 @@ sp-max-pop
 sp-max-pop
 0
 100000
-50960
+5730
 10
 1
 NIL

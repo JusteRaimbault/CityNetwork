@@ -67,15 +67,32 @@ for(i in 1:3){for(j in (i+1):4){
 #####################
 
 # histograms
+rows = spec_regime_rows
+#rows = 1:nrow(res)
 par(mfrow=c(2,2))
 for(indic_num in c(1:3,5)){
-  hist(res[,indics_cols[indic_num]],breaks=1000,main=indics[indic_num],xlab="")
+  hist(res[rows,indics_cols[indic_num]],breaks=1000,main=indics[indic_num],xlab="")
 }
 
 # separate modes ?
 par(mfrow=c(1,1))
+#distance
 dist = res[,indics_cols[1]]
-hist(dist[dist<0.8],breaks=200,main="distance",xlab="")
+hist(dist[dist>0.85&dist<1],breaks=300,main="distance",xlab="")
+#entropy
+entr = res[,indics_cols[2]]
+hist(entr[entr<0.9],breaks=300,main="entropy",xlab="")
+
+# histograms with fit ? 
+#TODO
+
+
+# histograms for points where distance has a gaussian distrib
+#spec_regime_rows = which(dist>0.85)
+spec_regime_rows = which(dist<0.85)
+# -> relaunch hists
+
+
 
 
 ####################

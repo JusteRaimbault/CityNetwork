@@ -6,7 +6,7 @@
 # best_params_rows = ...
 # best_params = ...
 
-best_params_rows = 1:1000
+best_params_rows = sample.int(6000,size=1000)
 
 representatives = getRepresentatives(res,m,best_params_rows,params_cols,6:10,indics_cols[c(1,2,3,5)],indics_cols_m[c(1,2,3,5)])
 
@@ -46,12 +46,13 @@ prefix=paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/Output/ScalaImpl
 xmax=c();ymax=c();
 for(r in 1:nrow(representatives)){
   show(r)
+  if(representatives[r,"moran"]>0.15){
   ztab=read.csv(paste0(prefix,'pop/pop_',fileName(representatives[r,]),".csv"),sep=";",header=FALSE)
   #show(which(ztab==max(ztab)))
   imax = which(ztab==max(ztab))
   xmax = append( xmax , floor(imax / 100));ymax = append(ymax , imax%%100)
   #x=c();y=c();z=c();
-  #persp(x=1:100,y=1:100,z=as.matrix(ztab))
+  persp(x=1:100,y=1:100,z=as.matrix(ztab))
   #for(i in 1:nrow(ztab)){
   #  for(j in 1:ncol(ztab)){
   #    x=append(x,i);y=append(y,j);
@@ -60,6 +61,7 @@ for(r in 1:nrow(representatives)){
   #}
   #write.csv(data.frame(x=x,y=y,z=z),file=paste0(prefix,'processed/',fileName(representatives[r,]),'_config.csv'),row.names = FALSE)
   #write.csv(data.frame(t(as.matrix(representatives[r,]))),file=paste0(prefix,'processed/',fileName(representatives[r,]),'_params.csv'),row.names = FALSE)
+  }
 }
 
 summary(xmax);summary(ymax);

@@ -101,7 +101,14 @@ to go-synth-pattern
   
   repeat sp-diffusion-steps [
     diffuse sp-occupants sp-diffusion
+    
+    ; adjustement for bord effects
+    ;  -> bord patches loose (missing-#-of-neighs * alpha ) % of population, that should have propagated outside the world
+    ask patches with [count neighbors < 8] [set sp-occupants (sp-occupants * (1 - sp-diffusion * (8 - count neighbors) / 8))]
+    
   ]
+  
+  
   
   ; update density
   set sp-population sum [sp-occupants] of patches

@@ -149,5 +149,25 @@ normalize<-function(m){
 
 
 
+################
+# Fitted histogram
+#   plots hist with fitted distribution, of the given type.
+#
+fittedHist<-function(x,distribution,breaks=10,xlab="",main=""){
+  
+  
+  
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
