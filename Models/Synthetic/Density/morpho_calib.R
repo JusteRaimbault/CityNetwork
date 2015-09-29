@@ -14,8 +14,8 @@ library(ggplot2)
 
 #############################
 #############################
-
-
+# Prepare the Data
+############################
 
 
 # load result
@@ -32,20 +32,25 @@ indics_cols_m = 1:5
 params_cols_m = 6:9
 m=data.frame(matrix(data=unlist(p$mean),ncol=5,byrow=TRUE),matrix(data=unlist(p$param),ncol=5,byrow=TRUE));names(m)<- c("distance","entropy","moran","rsquared","slope","alphalocalization","diffusion","diffusionsteps","growthrate","population")
 s=data.frame(matrix(data=unlist(p$sd),ncol=5,byrow=TRUE));names(s)<- c("distance","entropy","moran","rsquared","slope")
-
+params=m[,params_cols_m]
 
 # indicators
-indics = c("distance","entropy","moran","slope")
+indics = c("distance","entropy","moran","rsquared","slope")
 
 
+
+
+#################
+## First tests
+#################
 
 #plotPoints(m,m[1:10,],"entropy","slope","diffusion")
 # ok additional points features works
-plotPoints(d1=m,d2=real,xstring="slope",ystring="moran",colstring="population")
-plotPoints(m,xstring="entropy",ystring="moran",colstring="diffusion")
-plotPoints(m,"slope","distance","diffusion")
-plotPoints(m,"slope","moran","diffusion")
-plotPoints(m,"distance","moran","diffusion")
+#plotPoints(d1=m,d2=real,xstring="slope",ystring="moran",colstring="population")
+#plotPoints(m,xstring="entropy",ystring="moran",colstring="diffusion")
+#plotPoints(m,"slope","distance","diffusion")
+#plotPoints(m,"slope","moran","diffusion")
+#plotPoints(m,"distance","moran","diffusion")
 
 
 #par(mfrow=c(2,3))
@@ -53,6 +58,9 @@ for(i in 1:3){for(j in (i+1):4){
   show(paste(i,j))
   plotPoints(m,real,indics[i],indics[j],"rate")
 }}
+
+####################
+
 
 
 real_raw = read.csv(
@@ -80,7 +88,7 @@ real = real[sample.int(length(real[,1]),500),]
 
 plotPoints(m,real,"moran","entropy","diffusion")
 
-####--------------
+################
 # Check independance of objectives
 ##
 
@@ -119,14 +127,16 @@ for(col_par_name in c("diffusion","diffusionsteps","growthrate","alphalocalizati
   multiplot(plotlist=plots,cols=3)
 #savePlot(filename=paste0(Sys.getenv("$CN_HOME"),"/Results/Synthetic/Density/Calibration/",col_par_name,".png"))
 }
-
+########################
 
 
 ####################
 ## Calib using prcomp analysis
 ####################
 
+##################
 # prcomp on real
+##################
 real =real_raw[!is.na(real_raw[,3])&!is.na(real_raw[,4])&!is.na(real_raw[,5])&!is.na(real_raw[,6])&!is.na(real_raw[,7])&!is.na(real_raw[,8])&!is.na(real_raw[,9]),]
 real=real[real[,3]<quantile(real[,3],0.9)&real[,3]>quantile(real[,3],0.1)&real[,4]<quantile(real[,4],0.9)&real[,4]>quantile(real[,4],0.1)&real[,5]<quantile(real[,5],0.9)&real[,5]>quantile(real[,5],0.1)&real[,6]<quantile(real[,6],0.9)&real[,6]>quantile(real[,6],0.1),]
 real=real[real$pop>500000,]
@@ -134,8 +144,13 @@ for(j in 1:ncol(real)){real[,j]=(real[,j]-min(real[,j]))/(max(real[,j])-min(real
 
 summary(prcomp(real[,3:9]))
 prcomp(real[,3:6])
+##################
 
+
+
+#################
 # prcomp on results
+#################
 
 synth = m[,c(1,2,3,4,5,10)]
 
@@ -150,6 +165,30 @@ prcomp(synth[,c(1,2,3,5)])
 #  ~ synth in our case as union of both is not really bigger
 #  (for big cities)
 
+##############
+# Visualization in (PC1,PC2) for model results only
+##############
+
+pr <- prcomp(synth[,c(1,2,3,5)]);rot=pr$rotation
+pcsynth = as.matrix(synth[,c(1,2,3,5)])%*%pr$rotation
+
+# test plot
+plot(pcsynth[,1],pcsynth[,2])
+plotPoints(d1=data.frame(pcsynth[,1:2],m[,params_cols_m]),d2=NULL,"PC1","PC2","growthrate")
+# and same with other params...
+
+# visualize grids corresponding to extreme values.
+# -> getRepresentative() function needed
+
+
+
+
+
+#############
+## Calibration
+#############
+
+#############
 #############
 # OR test : prcomp on set { (R_i - S_j)_k | R_i \in sample(Real), S_j \in Synth, k \in indics }
 # -- without right outsiders - distance ONLY --
@@ -193,7 +232,7 @@ for(threshold in c(1e-6,1e-5,1e-4,1e-3)){
 
 # get the corresponding parameters
 params=m[,params_cols_m]
-best_params_rows = d<threshold
+best_params_rows = which(d<threshold)
 best_params = m[best_params_rows,]#params[best_params_rows,];nrow(best_params)
 
 # check distance

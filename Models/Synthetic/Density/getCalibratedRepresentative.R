@@ -6,24 +6,34 @@
 # best_params_rows = ...
 # best_params = ...
 
+##
 # given a param and indics means, must find representative closest to this centroid
-
-representatives = matrix(0,nrow(best_params),ncol(res))
-r=1
-
-for(p in 1:nrow(params)){
-  if(best_params_rows[p]){
-    show(p)
-    values = res[as.logical(apply(res[,params_cols]==kronecker(rep(1,nrow(res)),as.matrix(m[p,6:10])),1,prod)),]
-    d=apply((values[,indics_cols[c(1,2,3,5)]]-kronecker(rep(1,nrow(values)),as.matrix(m[p,indics_cols_m[c(1,2,3,5)]]))),1,function(x){sum(x^2)})
-    show(as.matrix(values[d==min(d)[1],]))
-    representatives[r,]=as.matrix(values[d==min(d)[1],])
-    r=r+1
+# 
+#
+getRepresentatives<-function(raw_results,aggregated_results,
+                             parameter_rows,
+                             raw_params_cols,aggregated_params_cols,
+                             raw_indics_cols,aggregated_indics_cols
+                             ){
+ 
+  repres = matrix(0,length(parameter_rows),ncol(raw_results))
+  r=1
+  
+  for(p in parameter_rows){
+      values = raw_results[as.logical(apply(raw_results[,raw_params_cols]==kronecker(rep(1,nrow(raw_results)),as.matrix(aggregated_results[p,aggregated_params_cols])),1,prod)),]
+      d=apply((values[,raw_indics_cols]-kronecker(rep(1,nrow(values)),as.matrix(aggregated_results[p,aggregated_indics_cols]))),1,function(x){sum(x^2)})
+      #show(as.matrix(values[d==min(d)[1],]))
+      repres[r,]=as.matrix(values[d==min(d)[1],])
+      r=r+1
   }
+  
+  colnames(repres)<-colnames(res)
+  
+  return(repres)
+  
 }
 
-colnames(representatives)<-colnames(res)
-
+representatives = getRepresentatives(res,m,best_params_rows,params_cols,6:10,indics_cols[c(1,2,3,5)],indics_cols_m[c(1,2,3,5)])
 
 files<-list.files(paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/Output/ScalaImpl/20150729_Scala_SamplingLHS/pop'))
 
