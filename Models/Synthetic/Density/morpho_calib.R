@@ -37,7 +37,7 @@ params=m[,params_cols_m]
 # indicators
 indics = c("distance","entropy","moran","rsquared","slope")
 
-
+##########################
 
 
 #################
@@ -62,7 +62,30 @@ for(i in 1:3){for(j in (i+1):4){
 ####################
 
 
+#####################
+## Simple stats on raw
+#####################
 
+# histograms
+par(mfrow=c(2,2))
+for(indic_num in c(1:3,5)){
+  hist(res[,indics_cols[indic_num]],breaks=1000,main=indics[indic_num],xlab="")
+}
+
+# separate modes ?
+par(mfrow=c(1,1))
+dist = res[,indics_cols[1]]
+hist(dist[dist<0.8],breaks=200,main="distance",xlab="")
+
+
+####################
+
+
+##################
+## Real Data
+##################
+
+# load real_raw
 real_raw = read.csv(
   paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/20150806_europe50km_10kmoffset_100x100grid.csv'),
   sep=";"
@@ -83,14 +106,17 @@ for(j in 1:ncol(real)){real[,j]=(real[,j]-min(real[,j]))/(max(real[,j])-min(real
 # : disjoint areas - offset/gridSize
 real = real[5*(0:(nrow(real)/5))+1,]
 
-#sample :: no need
-real = real[sample.int(length(real[,1]),500),]
+#sample :: needed for quick plotting
+real = real[sample.int(length(real[,1]),1000),]
 
-plotPoints(m,real,"moran","entropy","diffusion")
+# check graph
+plotPoints(m,real,"entropy","slope","diffusion")
+##################
+
 
 ################
 # Check independance of objectives
-##
+#################
 
 cor(real[,3:9])
 pr=prcomp(real[,3:9])
