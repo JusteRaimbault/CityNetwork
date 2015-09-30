@@ -19,12 +19,16 @@ text = nltk.Text(tokens)
 
 # POS tagging ?
 
+text.similar('simulation')
+
+tagged = nltk.pos_tag(text)
+print(tagged)
 
 ###########
 
 # test stemmers
 
-porter = nltk.PorterStemmer()
-lancaster = nltk.LancasterStemmer()
+#porter = nltk.PorterStemmer()
+#lancaster = nltk.LancasterStemmer()
 #test the porter
-print([porter.stem(t) for t in tokens])
+#print([porter.stem(t) for t in tokens])
