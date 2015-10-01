@@ -1,5 +1,7 @@
 package density
 
+import java.io.File
+
 import scala.util.Random
 
 class PADGeneratorLauncher {
@@ -12,13 +14,13 @@ class PADGeneratorLauncher {
   var slope: Double = 0
   var rsquared: Double = 0
 
-  def main(worldwidth: Int, pop: Double, diff: Double, diffSteps: Double, growth: Double, alpha: Double, replication: Int) = {
+  def main(worldwidth: Int, pop: Double, diff: Double, diffSteps: Double, growth: Double, alpha: Double, replication: Int, f: File) = {
 
     println("Params : " + pop + " ; " + diff + " ; " + diffSteps + " ; " + growth + " ; " + alpha + " ; " + replication)
 
     // replication and diffsteps should be enough in 'small' explorations,
     // easier to retrieve later (exact int value)
-    val UIR = replication.toString + diffSteps.toString
+    //val UIR = replication.toString + diffSteps.toString
 
     var t = System.currentTimeMillis()
 
@@ -31,12 +33,15 @@ class PADGeneratorLauncher {
       override def diffusionSteps: Int = diffSteps.toInt
       override def growthRate: Double = growth
       override def alphaAtt: Double = alpha
-      override def temp_file: String = "tmp/pop_" + UIR + ".csv"
+      //override def temp_file: String = "tmp/pop_" + UIR + ".csv"
+      override def export_file: File = f
     }
 
     // compute
     val world = gen.world(rng)
-    gen.export_static(world)
+
+    // export to file variable, created by openmole
+    gen.export_static(world, gen.export_file)
 
     moran = Morphology.moran_convol(world)
     distance = Morphology.distance_convol(world)

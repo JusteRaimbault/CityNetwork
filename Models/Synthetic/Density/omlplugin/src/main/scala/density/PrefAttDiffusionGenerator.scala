@@ -77,14 +77,14 @@ trait PrefAttDiffusionGenerator extends Generator {
     val newVals = a.clone()
     for (i <- 0 to size - 1; j <- 0 to size - 1) {
       // diffuse in neigh cells
-      if (i >= 1) { newVals(i - 1)(j).population = newVals(i - 1)(j).population + (alpha / 8) * a(i)(j).population}
-      if (i < size - 1) { newVals(i + 1)(j).population = newVals(i + 1)(j).population + (alpha / 8) * a(i)(j).population}
+      if (i >= 1) { newVals(i - 1)(j).population = newVals(i - 1)(j).population + (alpha / 8) * a(i)(j).population }
+      if (i < size - 1) { newVals(i + 1)(j).population = newVals(i + 1)(j).population + (alpha / 8) * a(i)(j).population }
       if (j >= 1) { newVals(i)(j - 1).population = newVals(i)(j - 1).population + (alpha / 8) * a(i)(j).population }
-      if (j < size - 1) { newVals(i)(j + 1).population = newVals(i)(j + 1).population + (alpha / 8) * a(i)(j).population}
-      if (i >= 1 && j >= 1) { newVals(i - 1)(j - 1).population = newVals(i - 1)(j - 1).population + (alpha / 8) * a(i)(j).population}
-      if (i >= 1 && j < size - 1) { newVals(i - 1)(j + 1).population = newVals(i - 1)(j + 1).population + (alpha / 8) * a(i)(j).population}
-      if (i < size - 1 && j >= 1) { newVals(i + 1)(j - 1).population = newVals(i + 1)(j - 1).population + (alpha / 8) * a(i)(j).population}
-      if (i < size - 1 && j < size - 1) { newVals(i + 1)(j + 1).population = newVals(i + 1)(j + 1).population + (alpha / 8) * a(i)(j).population}
+      if (j < size - 1) { newVals(i)(j + 1).population = newVals(i)(j + 1).population + (alpha / 8) * a(i)(j).population }
+      if (i >= 1 && j >= 1) { newVals(i - 1)(j - 1).population = newVals(i - 1)(j - 1).population + (alpha / 8) * a(i)(j).population }
+      if (i >= 1 && j < size - 1) { newVals(i - 1)(j + 1).population = newVals(i - 1)(j + 1).population + (alpha / 8) * a(i)(j).population }
+      if (i < size - 1 && j >= 1) { newVals(i + 1)(j - 1).population = newVals(i + 1)(j - 1).population + (alpha / 8) * a(i)(j).population }
+      if (i < size - 1 && j < size - 1) { newVals(i + 1)(j + 1).population = newVals(i + 1)(j + 1).population + (alpha / 8) * a(i)(j).population }
       //delete in the cell (¡ bord effect : lost portion is the same even for bord cells !)
       // to implement diffuse as in NL, put deletion inside boundary conditions checking
       newVals(i)(j).population = newVals(i)(j).population - alpha * a(i)(j).population

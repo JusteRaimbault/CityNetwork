@@ -10,14 +10,15 @@ trait Generator {
 
   def world(implicit rng: Random): Seq[Seq[Cell]]
 
-  def temp_file: String
+  //def temp_file: String
+  def export_file: File
 
   /**
    * computes config and exports it
    */
   def export(rng: Random): Unit = {
     val w = world(rng)
-    val writer: FileWriter = new FileWriter(new File(temp_file))
+    val writer: FileWriter = new FileWriter(export_file)
     w.foreach(
       row => {
         writer.write(row.map { c => c.population }.mkString(";") + "\n");
@@ -32,8 +33,8 @@ trait Generator {
    *
    * @param w : world
    */
-  def export_static(w: Seq[Seq[Cell]]): Unit = {
-    val writer: FileWriter = new FileWriter(new File(temp_file))
+  def export_static(w: Seq[Seq[Cell]], f: File): Unit = {
+    val writer: FileWriter = new FileWriter(f)
     w.foreach(
       row => {
         writer.write(row.map { c => c.population }.mkString(";") + "\n");

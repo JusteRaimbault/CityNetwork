@@ -1,6 +1,7 @@
 package density
 
 import scala.util.Random
+import java.io.File
 
 object TestGenerator extends App {
 
@@ -11,8 +12,10 @@ object TestGenerator extends App {
     val growthrate = 1000
     val alphalocalization = 1.2
 
+    val config = new File("")
+
     val gen = new PADGeneratorLauncher
-    gen.main(100, population, diffusion, diffusionsteps, growthrate, alphalocalization, 0)
+    gen.main(100, population, diffusion, diffusionsteps, growthrate, alphalocalization, 0, config)
 
     //("R -e persp(x=1:50,y=1:50,z=as.matrix(read.csv(\"tmp_pop.csv\",sep=\";\",header=FALSE)))")!
     //("R -e source('/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Morphology/testRMorpho.R')")!
@@ -42,7 +45,8 @@ object TestGenerator extends App {
         override def diffusionSteps: Int = 2
         override def growthRate: Double = 10
         override def alphaAtt: Double = 1.2
-        override def temp_file: String = "tmp_pop.csv" //"tmp/temp_pop_" + UIR + ".csv"
+        override def export_file: File = null
+        //override def temp_file: String = "tmp_pop.csv" //"tmp/temp_pop_" + UIR + ".csv"
       }
 
       // compute
