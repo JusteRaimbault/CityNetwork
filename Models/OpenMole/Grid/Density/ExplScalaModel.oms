@@ -63,13 +63,13 @@ val purpose = "TEST_GRID"
 // refined bounds from first exploration
 val exploration = ExplorationTask (
   LHS (
-    5,
+    10,
     diffusion in Range(0.0, 0.5),
     alphalocalization in Range(0.5,2.5),
     growthrate in Range(500.0,30000.0),
     population in Range(10000.0,1000000.0),
     diffusionsteps in Range(1.0,5.0)
-  ) x (replication in UniformDistribution[Int]() take 5)
+  ) x (replication in UniformDistribution[Int]() take 10)
 )
 
 val purpose = "TEST_GRID"
@@ -81,9 +81,9 @@ val indics_hook = AppendToCSVFileHook(
 val config_hook = CopyFileHook(config,workDirectory / "pop/config${replication}${growthrate}.csv")
 
 // environement
-val local = LocalEnvironment(4)
-//val grid = EGIEnvironment("vo.complex-systems.eu", openMOLEMemory = 1200, wallTime = 1 hours)
+//val local = LocalEnvironment(4)
+val grid = EGIEnvironment("vo.complex-systems.eu", openMOLEMemory = 1200, wallTime = 1 hours)
 
-exploration -< (task on local hook (indics_hook,config_hook))
+exploration -< (task on grid hook (indics_hook,config_hook))
 
 
