@@ -54,8 +54,13 @@ public class TorThread extends Thread {
 	 */
 	public void run(){
 		try{
-			new File("tmp/.torpid"+port).delete();
-			Process p=Runtime.getRuntime().exec("/opt/local/bin/tor --SOCKSPort "+port+" --DataDirectory ~/.tor_tmp_"+port+" --PidFile tmp/.torpid"+port);
+			try{
+				new File(".tor_tmp/torpid"+port).delete();
+				File pidfile = new File(".tor_tmp/torpid"+port);
+				pidfile.createNewFile();
+				//System.out.println(pidfile.getAbsolutePath());
+			}catch(Exception e){e.printStackTrace();}
+			Process p=Runtime.getRuntime().exec("/opt/local/bin/tor --SOCKSPort "+port+" --DataDirectory .tor_tmp/data"+port+" --PidFile .tor_tmp/torpid"+port);
 			InputStream s = p.getInputStream();
 			BufferedReader r = new BufferedReader(new InputStreamReader(s));
 
@@ -65,10 +70,19 @@ public class TorThread extends Thread {
 			
 			
 			while(true){
-				sleep(100);
-				String l= r.readLine();
-				if(l!= null&&TorPool.verbose)System.out.println(l);
+				sleep(1000);
+				//String l= r.readLine(); // issue with reading lines : wait for next line ; can't catch stop signal.
+				//if(l!= null&&TorPool.verbose)System.out.println(l);
+				
+				//check if the Thread has to be stopped
+				//System.out.println((new File("~/.tor_tmp/kill_"+port)).exists());
+				//File dir=new File(".tor_tmp");System.out.println(dir.getAbsolutePath());
+				//System.out.println(dir.isDirectory());
+				//if(dir!=null){for(String f:dir.list()){System.out.println(f);}}
+				if((new File(".tor_tmp/kill"+port)).exists()){running = false;}
+				
 				if(!running){
+					cleanStop();
 					break;
 				}
 			}
@@ -86,10 +100,19 @@ public class TorThread extends Thread {
 	public void cleanStop(){
 		try{
 			running=false;
+			//opens the lock
+			(new File(".tor_tmp/lock")).createNewFile();
 			try{
-				String pid = new BufferedReader(new FileReader(new File("tmp/.torpid"+port))).readLine();
+				//delete stopping signal
+				try{(new File(".tor_tmp/kill"+port)).delete();}catch(Exception e){}
+				
+				// kill tor process
+				String pid = new BufferedReader(new FileReader(new File(".tor_tmp/torpid"+port))).readLine();
 				System.out.println("running: "+running+" ; sending SIGTERM to tor... PID : "+pid);
 				Process p=Runtime.getRuntime().exec("kill -SIGTERM "+pid);p.waitFor();
+				
+				// delete port from communication file ? not needed, done at reading.
+				
 			}catch(Exception e){e.printStackTrace();}
 
 			//put port again in list of available ports
@@ -99,9 +122,20 @@ public class TorThread extends Thread {
 			
 			Thread.sleep(500);
 			
-			new File("tmp/.torpid"+port).delete();
+			//launch a new thread to replace this one
+			TorPool.newThread();
 			
-		}catch(Exception e){e.printStackTrace();}
+			// no need to remove pidfile, deleted at a clean tor thread stop
+			//try{new File(".tor_tmp/.torpid"+port).delete();}catch(Exception e){e.printStackTrace();}
+			
+			// unlock the pool action
+			(new File(".tor_tmp/lock")).delete();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			// delete the lock however in case of an issue
+			(new File(".tor_tmp/lock")).delete();
+		}
 	}
 	
 	

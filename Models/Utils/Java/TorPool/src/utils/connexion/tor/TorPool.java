@@ -75,6 +75,10 @@ public class TorPool {
 	 * @param r2
 	 */
 	public static void initPool(int p1,int p2,int nThreads){
+		//create .tor_tmp dir if does not exists
+		(new File(".tor_tmp")).mkdir();
+		
+		System.setProperty("socksProxyHost", "127.0.0.1");
 		// verbose running
 		verbose = true;
 		
@@ -103,7 +107,7 @@ public class TorPool {
 	 * [0.5 sucess rate, may need many ?]
 	 * 
 	 */
-	public static void switchPort(boolean createNew){
+	/*public static void switchPort(boolean createNew){
 		
 		try{
 			// current thread may be null when called at initialization.
@@ -133,7 +137,32 @@ public class TorPool {
 		}catch(Exception e){e.printStackTrace();}
 			
 	}
+	*/
 	
+	
+	/**
+	 * Start a new thread.
+	 * 
+	 */
+	public static void newThread(){
+		try{
+			TorThread t = new TorThread();
+			torthreads.addLast(t);
+			registerThread(t);
+			t.start();
+			Thread.sleep(initialThreadSleepingTime);
+		}catch(Exception e){e.printStackTrace();}
+	}
+	
+	
+	/**
+	 * Register a thread in the communication file.
+	 * 
+	 * @param t
+	 */
+	public static void registerThread(TorThread t){
+		//TODO
+	}
 	
 	
 	/**
