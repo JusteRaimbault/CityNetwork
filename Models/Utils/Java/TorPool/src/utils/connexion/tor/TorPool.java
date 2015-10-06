@@ -4,8 +4,10 @@
 package utils.connexion.tor;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.LinkedList;
@@ -92,6 +94,7 @@ public class TorPool {
 		for(int k=0;k<nThreads;k++){
 			TorThread t = new TorThread();
 			torthreads.addLast(t);
+			registerThread(t);
 		}
 		
 	}
@@ -161,7 +164,12 @@ public class TorPool {
 	 * @param t
 	 */
 	public static void registerThread(TorThread t){
-		//TODO
+		//The TorPool is assumed to be used with TorPoolManager class, hence no pb on locking/concurrency on port file
+		try{
+			BufferedWriter w = new BufferedWriter(new FileWriter(new File(".tor_tmp/ports"),true));
+			w.write(new Integer(t.port).toString());w.newLine();
+			w.close();
+		}catch(Exception e){System.out.println("Error while registring TorThread : ");e.printStackTrace();}
 	}
 	
 	
