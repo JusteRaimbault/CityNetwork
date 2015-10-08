@@ -95,6 +95,8 @@ public class TorPoolManager {
 		
 		// set the new port
 		System.setProperty("socksProxyPort",newPort);
+		currentPort = Integer.parseInt(newPort);
+		
 	}
 	
 	
