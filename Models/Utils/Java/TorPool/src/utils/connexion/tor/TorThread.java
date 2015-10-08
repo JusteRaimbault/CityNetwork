@@ -60,7 +60,15 @@ public class TorThread extends Thread {
 				pidfile.createNewFile();
 				//System.out.println(pidfile.getAbsolutePath());
 			}catch(Exception e){e.printStackTrace();}
-			Process p=Runtime.getRuntime().exec("/opt/local/bin/tor --SOCKSPort "+port+" --DataDirectory .tor_tmp/data"+port+" --PidFile .tor_tmp/torpid"+port);
+			
+			String torCommand = "/opt/local/bin/tor";//default tor command
+			if(new File("conf/torcommand").exists()){//try to read a replacement tor command in conf file
+				// TODO command as java task arg ?
+				BufferedReader r = new BufferedReader(new FileReader(new File("conf/torcommand")));
+				torCommand = r.readLine();r.close();
+			}
+			
+			Process p=Runtime.getRuntime().exec(torCommand+" --SOCKSPort "+port+" --DataDirectory .tor_tmp/data"+port+" --PidFile .tor_tmp/torpid"+port);
 			InputStream s = p.getInputStream();
 			BufferedReader r = new BufferedReader(new InputStreamReader(s));
 
