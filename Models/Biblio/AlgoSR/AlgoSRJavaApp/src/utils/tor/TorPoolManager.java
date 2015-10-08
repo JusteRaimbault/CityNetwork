@@ -20,6 +20,11 @@ import java.util.LinkedList;
  */
 public class TorPoolManager {
 
+	/**
+	 * TODO : Concurrent access from diverse apps to a single pool ?
+	 * Difficult as would need listener on this side...
+	 * 
+	 */
 	
 	/**
 	 * the port currently used.
@@ -32,10 +37,7 @@ public class TorPoolManager {
 	public static void setupTorPoolConnexion() throws Exception {
 		
 		// check if pool is running.
-		
-		System.out.println("Setting up TorPool connection...");
-		if(!new File(".tor_tmp/ports").exists()){throw new Exception("NO RUNNING TOR POOL !"); }
-		
+		checkRunningPool();
 		
 		System.setProperty("socksProxyHost", "127.0.0.1");
 		
@@ -44,6 +46,21 @@ public class TorPoolManager {
 			changePortFromFile(new BufferedReader(new FileReader(new File(".tor_tmp/ports"))));
 		}catch(Exception e){e.printStackTrace();}
 	}
+	
+	
+	/**
+	 * Send a stop signal to the whole pool -> needed ? Yes to avoid having tasks going on running on server e.g.
+	 */
+	public static void closePool(){
+		
+	}
+	
+	
+	private static void checkRunningPool() throws Exception{
+		System.out.println("Setting up TorPool connection...");
+		if(!new File(".tor_tmp/ports").exists()){throw new Exception("NO RUNNING TOR POOL !"); }
+	}
+	
 	
 	/**
 	 * Switch the current port to the oldest living TorThread.
