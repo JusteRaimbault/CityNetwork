@@ -53,6 +53,7 @@ import org.jsoup.select.Elements;
 
 import utils.Log;
 import utils.tor.TorPool;
+import utils.tor.TorPoolManager;
 import utils.tor.TorThread;
 
 /**
@@ -236,7 +237,10 @@ public class ScholarAPI {
 				while(dom.getElementById("gs_res_bdy")==null){
 					// swith TOR port
 				    System.out.println("Current IP blocked by ggl fuckers ; switching currentTorThread.");
-				    TorPool.switchPort(true);
+				    
+				    //TorPool.switchPort(true);
+				    // use TorPoolManager instead
+				    TorPoolManager.switchPort();
 				    
 					// reinit scholar API
 					init();
