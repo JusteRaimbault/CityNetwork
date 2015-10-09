@@ -49,7 +49,7 @@ public class CitationNetwork {
 		//initialize orig tables and load initial references
 		System.out.println("Reconstructing References from file");
 		LinkedList<HashSet<Reference>> originals = new LinkedList<HashSet<Reference>>();
-		for(int i=0;i<keywords.length;i++){originals.addLast(new HashSet<Reference>(RISReader.read(getLastIteration(prefix,keywords[i],maxIt))));}
+		for(int i=0;i<keywords.length;i++){originals.addLast(new HashSet<Reference>(RISReader.read(getLastIteration(prefix,keywords[i],maxIt),-1)));}
 	
 		// build the cit nw
 		buildCitationNetwork();
@@ -109,7 +109,7 @@ public class CitationNetwork {
 		ScholarAPI.init();
 		
 		System.out.println("Reconstructing References from file...");
-		RISReader.read(refFile);
+		RISReader.read(refFile,-1);
 		
 		System.out.println("Initial Refs : ");for(Reference r:Reference.references.keySet()){System.out.println(r.toString());}
 		

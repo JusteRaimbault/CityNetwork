@@ -26,7 +26,7 @@ public class RISReader {
 	 * @param filePath
 	 * @return
 	 */
-	public static HashSet<Reference> read(String filePath){
+	public static HashSet<Reference> read(String filePath,int size){
 		HashSet<Reference> refs = new HashSet<Reference>();
 		try{
 		   BufferedReader reader = new BufferedReader(new FileReader(new File(filePath)));
@@ -35,15 +35,26 @@ public class RISReader {
 		   while(currentLine!= null){
 			   // check new ref criterium : TY -
 			   if(currentLine.startsWith("TY")&&currentTitle.length()>0){
-				   refs.add(Reference.construct("", currentTitle, currentAbstract, currentYear, ""));}
-			   if(currentLine.startsWith("AB")){currentAbstract=currentLine.split("AB  - ")[1];}
-			   if(currentLine.startsWith("T1")){currentTitle=currentLine.split("T1  - ")[1];}
-			   if(currentLine.startsWith("PY")){currentYear=currentLine.split("PY  - ")[1];}
+				   refs.add(Reference.construct("", currentTitle, currentAbstract, currentYear, ""));
+				   if(refs.size()==size){break;}
+			   }
+			   if(currentLine.startsWith("AB")){
+				   String[] t = currentLine.split("AB  - ");
+				   if(t.length>1){currentAbstract=t[1];}
+			   }
+			   if(currentLine.startsWith("T1")){
+				   String[] t = currentLine.split("T1  - ");
+				   if(t.length>1){currentTitle=t[1];}
+			   }
+			   if(currentLine.startsWith("PY")){
+				   String[] t = currentLine.split("PY  - ");
+				   if(t.length>1){currentYear=t[1];}
+			   }
 			   currentLine = reader.readLine();
 		   }
 		   
 		   //add the last ref
-		   refs.add(Reference.construct("", currentTitle, currentAbstract, currentYear, ""));
+		   if(refs.size()<size||size==-1){refs.add(Reference.construct("", currentTitle, currentAbstract, currentYear, ""));}
 		   
 		   reader.close();
 		   
@@ -54,7 +65,7 @@ public class RISReader {
 	
 	
 	public static void main(String[] args){
-		read("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/junk/refs_transportation+network+urban+growth_14.ris");
+		read("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/junk/refs_transportation+network+urban+growth_14.ris",-1);
 		for(Reference r:Reference.references.keySet()){System.out.println(r);}
 	}
 	

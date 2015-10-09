@@ -92,7 +92,7 @@ public class Main {
 		
 		// read file to construct refs if not done before
 		// during construction refs are added to global map
-		HashSet<Reference> initialRefs = RISReader.read(filePref+".ris");
+		HashSet<Reference> initialRefs = RISReader.read(filePref+".ris",-1);
 		
 		//zip ref file
 		Zipper.zip(filePref+".zip");
