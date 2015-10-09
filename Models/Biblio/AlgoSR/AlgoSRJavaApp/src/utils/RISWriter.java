@@ -51,6 +51,11 @@ public class RISWriter {
 				
 				writer.write("PY  - "+r.year+"\n");
 				
+				//customized tag : references
+				for(String t:r.citedTitles){
+					writer.write("BI  - "+t+"\n");
+				}
+				
 				//do not forget the end of ref tag
 				writer.write("ER  -\n");
 				

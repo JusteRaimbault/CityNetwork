@@ -31,11 +31,17 @@ public class RISReader {
 		try{
 		   BufferedReader reader = new BufferedReader(new FileReader(new File(filePath)));
 		   String currentTitle="",currentAbstract="",currentYear="";
+		   HashSet<String> currentKeywords=new HashSet<String>();
+		   HashSet<String> currentCitedTitles=new HashSet<String>();
 		   String currentLine = reader.readLine();
 		   while(currentLine!= null){
 			   // check new ref criterium : TY -
 			   if(currentLine.startsWith("TY")&&currentTitle.length()>0){
-				   refs.add(Reference.construct("", currentTitle, currentAbstract, currentYear, ""));
+				   Reference newRef = Reference.construct("", currentTitle, currentAbstract, currentYear, "");
+				   newRef.keywords=currentKeywords;
+				   newRef.citedTitles=currentCitedTitles;
+				   currentKeywords=new HashSet<String>();currentCitedTitles=new HashSet<String>();
+				   refs.add(newRef);
 				   if(refs.size()==size){break;}
 			   }
 			   if(currentLine.startsWith("AB")){
@@ -50,11 +56,22 @@ public class RISReader {
 				   String[] t = currentLine.split("PY  - ");
 				   if(t.length>1){currentYear=t[1];}
 			   }
+			   if(currentLine.startsWith("KW")){
+				   String[] t = currentLine.split("KW  - ");
+				   if(t.length>1){currentKeywords.add(t[1]);}
+			   }
+			   if(currentLine.startsWith("BI")){
+				   String[] t = currentLine.split("BI  - ");
+				   if(t.length>1){currentCitedTitles.add(t[1]);}
+			   }
 			   currentLine = reader.readLine();
 		   }
 		   
 		   //add the last ref
-		   if(refs.size()<size||size==-1){refs.add(Reference.construct("", currentTitle, currentAbstract, currentYear, ""));}
+		   if(refs.size()<size||size==-1){
+			   Reference newRef = Reference.construct("", currentTitle, currentAbstract, currentYear, ""); newRef.keywords=currentKeywords;newRef.citedTitles=currentCitedTitles;
+			   refs.add(newRef);
+		   }
 		   
 		   reader.close();
 		   
