@@ -17,7 +17,10 @@ public class StringUtils {
 	 * @return
 	 */
 	public static String deleteSpecialCharacters(String s){
-		return s.replaceAll("[^\\p{L}\\p{Nd}]+", " ");
+		String res = s.replaceAll("[^\\p{L}\\p{Nd}]+", " ");
+		if(res.startsWith(" ")){res=res.substring(1);}
+		if(res.endsWith(" ")){res=res.substring(0, res.length()-1);}
+		return res;
 	}
 	
 }
