@@ -21,7 +21,7 @@ public class StreamDisplayer extends Thread {
 	public void run(){
 		try{
 			String currentLine=reader.readLine();
-			while(true){
+			while(true&&currentLine!=null){
 				System.out.println(currentLine);currentLine = reader.readLine();
 			}
 		}catch(Exception e){e.printStackTrace();}

@@ -111,8 +111,10 @@ public class ScholarAPI {
 			 HttpConnectionParams.setConnectionTimeout(params, 10000);
 			 HttpConnectionParams.setSoTimeout(params, 10000);
 			 
-			 HttpGet httpGet = new HttpGet("http://scholar.google.com");
+			 HttpGet httpGet = new HttpGet("http://scholar.google.com/scholar?q=transfer+theorem");
 			 HttpResponse resp = client.execute(httpGet,context);
+			 
+			 try{System.out.println("Accepted : "+Jsoup.parse(resp.getEntity().getContent(),"UTF-8","").getElementsByClass("gs_r").size());}catch(Exception e){e.printStackTrace();}
 			 
 			 //System.out.println("Connected to scholar, persistent through cookies. ");
 			 //for(int i=0;i<cookieStore.getCookies().size();i++){System.out.println(cookieStore.getCookies().get(0).toString());}
@@ -228,7 +230,7 @@ public class ScholarAPI {
 	 * @return
 	 */
 	private static Document ensureConnection(String request) {
-		Document dom = new Document("");
+		Document dom = new Document("<html><head></head><body></body></html>");
 		try{dom=request("scholar.google.com",request);}
 		catch(Exception e){e.printStackTrace();}
 		System.out.println("Request : "+request);
@@ -236,11 +238,13 @@ public class ScholarAPI {
 		try{System.out.println(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
 		
 		try{
-			if(dom.getElementById("gs_res_bdy")==null){
+			//if(dom.getElementById("gs_res_bdy")==null){
 				//System.out.println(dom.html());
-				while(dom.getElementById("gs_res_bdy")==null){
+				while(dom==null||dom.getElementById("gs_res_bdy")==null){
 					// swith TOR port
 				    System.out.println("Current IP blocked by ggl fuckers ; switching currentTorThread.");
+				    
+				    // TODO : write ip in file for systematic stats of blocked adress (may have patterns in google-fuckers blocking policy)
 				    
 				    //TorPool.switchPort(true);
 				    // use TorPoolManager instead
@@ -253,7 +257,7 @@ public class ScholarAPI {
 					try{System.out.println(dom.getElementsByClass("gs_rt").first().text());}catch(Exception e){}
 					try{System.out.println(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
 				}
-			}
+			//}
 		}catch(Exception e){e.printStackTrace();}
 		return dom;
 	}
