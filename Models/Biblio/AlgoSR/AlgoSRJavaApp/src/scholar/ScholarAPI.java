@@ -29,6 +29,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.URIUtils;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.params.ConnRoutePNames;
@@ -50,6 +51,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import org.apache.commons.httpclient.util.URIUtil;
 
 import utils.Log;
 import utils.tor.TorPool;
@@ -333,7 +336,9 @@ public class ScholarAPI {
 	public static Document request(String host,String url){	
 		Document res = null;
 		try {
-		    HttpResponse response = client.execute(new HttpGet("http://"+host+"/"+url));
+			String encodedURL = URIUtil.encodePath("http://"+host+"/"+url);
+			
+		    HttpResponse response = client.execute(new HttpGet(encodedURL));
 		    try {
 		    	res= Jsoup.parse(response.getEntity().getContent(),"UTF-8","");
 		    	EntityUtils.consume(response.getEntity());
