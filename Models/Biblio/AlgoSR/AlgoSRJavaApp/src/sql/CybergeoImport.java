@@ -21,6 +21,7 @@ import utils.BasicWriter;
 import utils.CSVWriter;
 import utils.GEXFWriter;
 import utils.RISWriter;
+import utils.StringUtils;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
@@ -219,7 +220,11 @@ public class CybergeoImport {
 			}
 		}
 		
-		return res;
+		// dirty
+		HashSet<String> r = new HashSet<String>();
+		for(String s:res){r.add(StringUtils.deleteSpecialCharacters(s));}
+		
+		return r;
 
 	}
 	
@@ -234,6 +239,7 @@ public class CybergeoImport {
 	 * @return
 	 */
 	public static String titleFromCybRef(String t){
+		String res = "";
 		try{
 		int yIndex = 0;
 		for(int i=0;i<t.length()-4;i++){
@@ -243,8 +249,9 @@ public class CybergeoImport {
 		//String res="";
 		//for(int i=1;i<end.length;i++){res+=end[i]+" ";}
 		//return end[0];
-		return t.substring(yIndex+2);
+		res=t.substring(yIndex+2);
 		}catch(Exception e){e.printStackTrace();return "";}
+		return res;
 	}
 	
 	

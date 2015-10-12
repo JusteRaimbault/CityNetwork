@@ -136,7 +136,8 @@ public class ScholarAPI {
 		
 		switch (requestType){
 		   case "direct": query="scholar?q="+request;break;
-		   case "exact" : query="scholar?as_q="+request;break;
+		   //case "exact" : query="scholar?as_q="+request;break;
+		   case "exact" : query="scholar?q=\""+request+"\"";break;
 		   case "cites": query="scholar?cites="+request;break;
 		}
 		
