@@ -76,17 +76,12 @@ public class TorThread extends Thread {
 			
 			// Really necessary ?
 			
+			new StreamDisplayer(r).start();
 			
 			while(true){
 				sleep(1000);
-				//String l= r.readLine(); // issue with reading lines : wait for next line ; can't catch stop signal.
-				//if(l!= null&&TorPool.verbose)System.out.println(l);
 				
 				//check if the Thread has to be stopped
-				//System.out.println((new File("~/.tor_tmp/kill_"+port)).exists());
-				//File dir=new File(".tor_tmp");System.out.println(dir.getAbsolutePath());
-				//System.out.println(dir.isDirectory());
-				//if(dir!=null){for(String f:dir.list()){System.out.println(f);}}
 				if((new File(".tor_tmp/kill"+port)).exists()){running = false;}
 				
 				if(!running){

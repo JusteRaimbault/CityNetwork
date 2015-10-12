@@ -77,10 +77,15 @@ public class TorPool {
 	 * @param r2
 	 */
 	public static void initPool(int p1,int p2,int nThreads){
+		
+		System.setProperty("socksProxyHost", "127.0.0.1");
+		
 		//create .tor_tmp dir if does not exists
 		(new File(".tor_tmp")).mkdir();
 		
-		System.setProperty("socksProxyHost", "127.0.0.1");
+		// remove old ports file
+		(new File(".tor_tmp/ports")).delete();
+		
 		// verbose running
 		verbose = true;
 		

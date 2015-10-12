@@ -40,7 +40,7 @@ public class TestCybergeo {
 		 //CybergeoImport.setupSQL();
 		 
 		 //CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("2010-01-01",2)).getCorpus();
-		 CybergeoCorpus cybergeo = new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs.ris",10)).getCorpus().references);
+		 CybergeoCorpus cybergeo = new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs.ris",1)).getCorpus().references);
 					 
 		 // test cited refs reconstruction
 		 cybergeo.fillCitedRefs();

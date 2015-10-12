@@ -45,6 +45,8 @@ public class TorPoolManager {
 		try{
 			changePortFromFile(new BufferedReader(new FileReader(new File(".tor_tmp/ports"))));
 		}catch(Exception e){e.printStackTrace();}
+		
+		showIP();
 	}
 	
 	
@@ -95,6 +97,9 @@ public class TorPoolManager {
 			BufferedWriter w = new BufferedWriter(new FileWriter(new File(".tor_tmp/ports")));
 			for(String p:queue){w.write(p);w.newLine();}
 			w.close();
+			
+			// show ip to check
+			showIP();
 			
 		}catch(Exception e){e.printStackTrace();}
 	}
