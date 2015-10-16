@@ -139,6 +139,9 @@ public class ScholarAPI {
 		
 		String query = "";
 		
+		// encode query here ?
+		try{request = URIUtil.encodePath(request);}catch(Exception e){}
+		
 		switch (requestType){
 		   case "direct": query="scholar?q="+request;break;
 		   case "exact" : query="scholar?as_q="+request;break;
@@ -148,6 +151,7 @@ public class ScholarAPI {
 		
 		
 		try{
+			
 			
 		    addPage(refs,ensureConnection(query+"&lookup=0&start=0"),maxNumResponses);
 			int resultsNumber = refs.size();
@@ -340,7 +344,13 @@ public class ScholarAPI {
 	public static Document request(String host,String url){	
 		Document res = null;
 		try {
-			String encodedURL = URIUtil.encodePath("http://"+host+"/"+url);
+			
+			//String encodedURL = URIUtil.encodeWithinPath("http://"+host+"/"+url);
+			// needs to be done before.
+			
+			String encodedURL = "http://"+host+"/"+url;
+			
+			System.out.println("Request : "+encodedURL);
 			
 		    HttpResponse response = client.execute(new HttpGet(encodedURL));
 		    try {
