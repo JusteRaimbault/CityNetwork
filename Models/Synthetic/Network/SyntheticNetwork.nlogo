@@ -124,7 +124,7 @@ CHOOSER
 network-generation-method
 network-generation-method
 "simple-connexification" "neighborhood-gravity" "random"
-0
+2
 
 SLIDER
 858
