@@ -22,18 +22,36 @@ to generate-cities [generation-method]
   
   if generation-method = "zipf-christaller" [
      foreach populations [
+       let current-city nobody
        create-cities 1 [
-         set population ?
-         ;move-to one-of patches with-max []
-         new-city
-       ] 
+         set population ? set current-city self new-city
+       ]
+       update-patches-weighted-pop
+       let p next-christaller-patch
+       ask current-city [move-to p]
      ]
   ]
-  
-  
 end
 
 
+;;
+; Updates patch variables which are distance-weighted sum of population
+;  (to be used for christaller patch selection)
+to update-patches-weighted-pop
+  ask patches [
+    set distance-weighted-total-pop sum [distance myself / population] of cities
+  ]
+end
+
+;;
+;  Get randomly the next christaller patch
+;  drawn according to proba prop to distance-weighted sum of pop
+;   Q : filter on bord patches for example ?
+to-report next-christaller-patch
+  let tot sum [distance-weighted-total-pop] of patches let s 0 let r random-float 1 let found? false let res one-of patches
+  ask patches [set s s + distance-weighted-total-pop / tot if s > r and not found? [set res self set found? true]]
+  report res
+end
 
 
 ;;

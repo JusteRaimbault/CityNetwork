@@ -60,6 +60,13 @@ breed [nw-nodes nw-node]
 undirected-link-breed [roads road]
 
 
+patches-own [
+ 
+ 
+ ;; cities generation
+ distance-weighted-total-pop
+  
+]
 
 
 cities-own [
@@ -71,7 +78,6 @@ cities-own [
 roads-own [
   capacity 
 ]
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 4
@@ -108,7 +114,7 @@ CHOOSER
 cities-generation-method
 cities-generation-method
 "zipf-christaller" "random"
-1
+0
 
 CHOOSER
 891
@@ -118,7 +124,7 @@ CHOOSER
 network-generation-method
 network-generation-method
 "simple-connexification" "neighborhood-gravity" "random"
-2
+0
 
 SLIDER
 858
@@ -191,7 +197,7 @@ random-network-density
 random-network-density
 0
 0.1
-0.019
+0.01
 0.001
 1
 NIL
