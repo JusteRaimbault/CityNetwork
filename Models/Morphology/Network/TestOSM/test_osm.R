@@ -13,9 +13,10 @@ osmosis <- osmsource_osmosis(file = paste0(Sys.getenv('CN_HOME'),'Data//OSM/')
 
 # OLG : (2.3815,48.8265)
 # height,width of box are in meters ; coordinates as decimal geographical
-area <- center_bbox(2.3815,48.8265,500,500)
+area <- center_bbox(2.3815,48.8265,2000,2000)
 
 data <- get_osm(area,source = api)
+plot_ways(data,col="red")
 
 # request
 hways <- find(data, way(tags(k == "highway")))
@@ -23,8 +24,46 @@ hways <- find(data, way(tags(k == "highway")))
 names(data$ways)
 # -> use dataframe to get objects
 
-data$ways$attrs
+#data_ways = data$ways$attrs[sapply(hways,function(x){which(data_ways$id == x)}),]
+#as_osmar(data_ways)
+# does not work this way
 
+hways <- find(data, way(tags(k == "highway")))
+data_ways = subset(data,way_ids=hways)
+ids = find(data_ways,way(tags(k == "name")))
+ids = find_down(data,way(ids))
+data_ways = subset(data,ids=ids)
+
+graph = as_igraph(data_ways)
+
+
+# tests
+clusters(graph)
+bigcomponent = decompose.graph(graph)[[1]]
+hist(betweenness(bigcomponent),breaks=500)
+
+
+plot(degree.distribution(bigcomponent),type="l")
+
+
+# measures
+betweenness(bigcomponent)
+mean(betweenness(bigcomponent))
+radius(bigcomponent)
+
+
+# communities
+leading.eigenvector.community(bigcomponent)
+
+com <- membership(edge.betweenness.community(bigcomponent))
+
+lay<-layout.fruchterman.reingold(bigcomponent)
+# try a plot
+plot.igraph(bigcomponent,layout=lay)
+
+#
+library(rgexf)
+igraph.to.gexf(bigcomponent)
 
 
 
