@@ -21,7 +21,7 @@ plot_ways(data,col="red")
 # request
 hways <- find(data, way(tags(k == "highway")))
 
-names(data$ways)
+names(data$ways$attrs)
 # -> use dataframe to get objects
 
 #data_ways = data$ways$attrs[sapply(hways,function(x){which(data_ways$id == x)}),]
@@ -34,7 +34,28 @@ ids = find(data_ways,way(tags(k == "name")))
 ids = find_down(data,way(ids))
 data_ways = subset(data,ids=ids)
 
+names(data_ways$nodes$attrs)
+data_ways$nodes$attrs$id
+
+x = data_ways$nodes$attrs$lat
+y = data_ways$nodes$attrs$lon
+
 graph = as_igraph(data_ways)
+V(graph)$name
+# ok, vertices are in order compared to osm object ; can dirtily get coordinates to put in igraph object
+V(graph)$x=x
+
+names(edge.attributes(graph))
+names(vertex.attributes(graph))
+
+
+# as_igraph DOES NOT WORK --
+# use directly edgeList
+graph = graph.edgelist(as.matrix(data_ways$ways$refs))
+# NO
+
+# refs : way -> node ? or node -> way
+# clarify that shit
 
 
 # tests
@@ -59,7 +80,7 @@ com <- membership(edge.betweenness.community(bigcomponent))
 
 lay<-layout.fruchterman.reingold(bigcomponent)
 # try a plot
-plot.igraph(bigcomponent,layout=lay)
+plot.igraph(bigcomponent,layout=layout.auto,vertex.color=com,vertex.label=NA)
 
 #
 library(rgexf)
