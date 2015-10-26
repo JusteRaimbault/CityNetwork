@@ -1,0 +1,90 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+import scala.sys.process._
+import density._
+
+logger.level("FINE")
+
+// Parameters
+val diffusion = Val[Double]
+val diffusionsteps = Val[Double]
+val alphalocalization = Val[Double]
+val growthrate = Val[Double]
+val population = Val[Double]
+val replication = Val[Int]
+val id=Val[Int]
+
+// Reporters
+val moran=Val[Double]
+val distance=Val[Double]
+val entropy=Val[Double]
+val slope=Val[Double]
+val rsquared=Val[Double]
+
+// config file
+val config=Val[File]
+
+
+val task =
+  ScalaTask(
+    """
+      | val config = newFile()
+      | val gen = new PADGeneratorLauncher
+      | gen.main(100,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication,config)
+      | val moran = gen.moran
+      | val distance = gen.distance
+      | val entropy = gen.entropy
+      | val slope = gen.slope
+      | val rsquared = gen.rsquared
+    """.stripMargin
+  ) set (
+    imports += "density._",
+    plugins += pluginsOf[PADGeneratorLauncher],
+    inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,id),
+    outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,id),
+    outputs += (moran,distance,entropy,slope,rsquared),
+    outputs += config
+  )
+
+
+/*
+val exploration =  ExplorationTask(
+  (diffusion in (0.01 to 0.01 by 1.0)) x
+    (diffusionsteps in (2.0 to 2.0 by 1.0)) x
+    (alphalocalization in (1.2 to 1.2 by 1.0)) x
+    (growthrate in (1000.0 to 1000.0 by 1.0)) x
+    (population in (1000000.0 to 1000000.0 by 1.0)) x
+    (replication in (UniformDistribution[Int]() take 64))
+)
+val purpose = "TEST_GRID"
+*/
+
+
+
+// refined bounds from first exploration
+val exploration = ExplorationTask (
+  LHS (
+    10,
+    diffusion in Range(0.0, 0.5),
+    alphalocalization in Range(0.5,2.5),
+    growthrate in Range(500.0,30000.0),
+    population in Range(10000.0,1000000.0),
+    diffusionsteps in Range(1.0,5.0)
+  ) x (replication in UniformDistribution[Int]() take 10) withIndex id
+)
+
+val purpose = "TEST_LOCAL"
+
+val indics_hook = AppendToCSVFileHook(
+    workDirectory / "res" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv"
+  ) set (inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,moran,distance,entropy,slope,rsquared))
+
+val config_hook = CopyFileHook(config,workDirectory / "pop/config_${id}.csv")
+
+// environement
+val local = LocalEnvironment(8)
+//val grid = EGIEnvironment("vo.complex-systems.eu", openMOLEMemory = 1200, wallTime = 1 hours)
+
+exploration -< (task on local hook (indics_hook,config_hook))
+
+
