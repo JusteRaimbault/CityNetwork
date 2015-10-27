@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -36,6 +37,14 @@ public class GEXFWriter{
 	 * @param refs
 	 */
 	public static void writeCitationNetwork(String filepath,Set<Reference> refs){
+		
+		// ids can be unfilled or non-consistent : we must copy the set and add consistent ids
+		//refs = new HashSet<Reference>(refs);
+		int currentID=1;//start at 1
+		for(Reference r:Reference.references.keySet()){// do on hashconsing table ? DIRTYYYY
+			r.id = new Integer(currentID).toString();currentID++;
+		}
+		
 		
 		Gexf gexf = new GexfImpl();		
 		//gexf.getMetadata().setCreator("").setDescription(");
@@ -56,11 +65,11 @@ public class GEXFWriter{
 		// create nodes - maintaining a HashMap Ref -> Node
 		HashMap<Reference,Node> nodes = new HashMap<Reference,Node>();
 		
-		int i=0;
+		//int i=0;
 		for(Reference ref:refs){
 			String authors = "";for(String a:ref.authors){authors=authors+a+" and ";}if(authors.length()>5)authors=authors.substring(0, authors.length()-5);
 			String keywords = "";for(String k:ref.keywords){keywords=keywords+k+" ; ";}if(keywords.length()>3)keywords=keywords.substring(0, keywords.length()-3);
-			ref.id=new Integer(i).toString();
+			//ref.id=new Integer(i).toString();
 			
 			Node node = graph.createNode(ref.id).setLabel(ref.title);
 			node.getAttributeValues()
@@ -72,15 +81,34 @@ public class GEXFWriter{
 			  .addValue(attKeywords,keywords)
 			  .addValue(attYear, ref.year)
 			  ;
+			
 			nodes.put(ref, node);
-			i++;
+			//i++;
 		}
+		
+		// before creating links, add nodes corresponding to citing refs.
+		HashMap<Reference,Node> prov = new HashMap<Reference,Node>();
+		for(Reference ref:nodes.keySet()){
+			for(Reference c:ref.citing){
+				if(!nodes.containsKey(c)){
+					Node node = graph.createNode(c.id).setLabel(c.title);
+					node.getAttributeValues()
+					  .addValue(attID, c.id)
+					  .addValue(attSchID, c.scholarID)
+					  .addValue(attTitle, c.title)
+					  .addValue(attResume,c.resume)
+					  .addValue(attYear, c.year)
+					  ;
+					prov.put(c, node);
+				}
+			}
+		}
+		for(Reference r:prov.keySet()){nodes.put(r, prov.get(r));}
 		
 		// create citation links
 		for(Reference ref:nodes.keySet()){
 			Node d = nodes.get(ref);
 			for(Reference c:ref.citing){
-				//all refs must be in table (set consistency) and are therefore in node table
 				if(!d.hasEdgeTo(c.id)){nodes.get(c).connectTo(d);}
 			}
 		}
@@ -97,6 +125,19 @@ public class GEXFWriter{
 		
 		
 		
+	}
+	
+	/**
+	 * does not work as all attributes are needed
+	 * 
+	 * @param graph
+	 * @param ref
+	 * @return
+	 */
+	private static Node refToNode(Graph graph,Reference ref){
+
+		
+		return null;
 	}
 	
 	

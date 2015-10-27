@@ -29,10 +29,8 @@ public class TestCybergeo {
 	}
 	
 	
-	
-	public static void testCitedRefConstruction(){
-		
-		
+	public static Corpus setupTest(){
+
 		 Main.setup("conf/default.conf");
 		 try{TorPoolManager.setupTorPoolConnexion();}catch(Exception e){e.printStackTrace();}
 		 ScholarAPI.init();
@@ -40,14 +38,28 @@ public class TestCybergeo {
 		 //CybergeoImport.setupSQL();
 		 
 		 //CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("2010-01-01",2)).getCorpus();
-		 CybergeoCorpus cybergeo = new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs.ris",1)).getCorpus().references);
-					 
+		 return new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs.ris",-1)).getCorpus().references);
+			 
+	}
+	
+	
+	public static void testCitedRefConstruction(){
+		
+		 CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest();
 		 // test cited refs reconstruction
 		 cybergeo.fillCitedRefs();
 		 
 		 //
-		 for(Reference r:cybergeo.references){System.out.println(r.toString()+"\n CITES : ");for(Reference cr:r.cited){System.out.println(cr.toString());}}
+		 for(Reference r:cybergeo.references){System.out.println(r.toString()+"\n CITES : ");for(Reference cr:r.citing){System.out.println(cr.toString());}}
 		 
+	}
+	
+	
+	public static void testCitingRefs(){
+		 CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest();
+		 System.out.println("Corpus size : "+Reference.references.keySet().size());	
+		 cybergeo.getCitingRefs();
+		 cybergeo.gexfExport(System.getenv("CS_HOME")+"/Cybergeo/Data/processed/networks/test_citingNW.gexf");
 	}
 	
 	
@@ -67,7 +79,10 @@ public class TestCybergeo {
 		}
 		*/
 		
-		testCitedRefConstruction();
+		//testCitedRefConstruction();
+		
+		testCitingRefs();
+		
 	}
 
 }

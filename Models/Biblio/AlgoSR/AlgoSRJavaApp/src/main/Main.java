@@ -52,6 +52,8 @@ public class Main {
 	/**
 	 * Set global variables.
 	 * 
+	 * TODO : refactorization/suppression of cortext requests -> not needed anymore ?
+	 * 
 	 * @param pathConfFile
 	 */
 	public static void setup(String pathConfFile){

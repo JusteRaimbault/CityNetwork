@@ -72,6 +72,8 @@ public class ScholarAPI {
 	public static TorThread tor;
 	
 	
+	
+	
 	/**
 	 * 
 	 * TODO
@@ -174,12 +176,21 @@ public class ScholarAPI {
 	 * @return
 	 */
 	public static Reference getScholarRef(String title){
+		
+		// first need to format title (html tags eg)
+		title = Jsoup.parse(title).text();
+		
 		Reference res = null;
-		for(Reference nr:scholarRequest(title.replace(" ", "+" ),1,"exact")){res=nr;};
+		// go up to 5 refs in case of an unclustered ref (cf Roger Dion paper !)
+		res=matchRef(title,scholarRequest(title.replace(" ", "+" ),5,"exact"));
+		
 		//try direct if no result
-		if(res==null){for(Reference nr:scholarRequest(title.replace(" ", "+" ),1,"direct")){res=nr;};}	
+		if(res==null){
+			res=matchRef(title,scholarRequest(title.replace(" ", "+" ),5,"direct"));
+		}	
 		
 		if(res!=null){
+			// final check on title
 			if(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(res.title),StringUtils.lowerCase(title))<2){
 				return res;
 			}
@@ -188,6 +199,21 @@ public class ScholarAPI {
 		return null;
 	}
 	
+	/**
+	 * Match a ref to a set, looking at title and if refs have sch ids
+	 * 
+	 * @param refs
+	 * @return
+	 */
+	public static Reference matchRef(String title,HashSet<Reference> refs){
+		Reference res = null;
+		for(Reference nr:refs){
+			if(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(nr.title),StringUtils.lowerCase(title))<2&&nr.scholarID!=""){
+			   res=nr;
+			}
+		};
+		return res;
+	}
 	
 	
 	/**
@@ -208,6 +234,16 @@ public class ScholarAPI {
 				else{
 					try{
 						// first get scholar ID
+						
+						/**
+						 * TODO : some refs are only in VO (eg french -> must have both titles and try request on list of titles)
+						 * 
+						 * TODO : write a generic distance function, binary, taking title and authors, title being compared on
+						 * non special characters (-> levenstein on non special ?)
+						 * AND with good language title
+						 * 
+						 */
+						
 						Reference rr = getScholarRef(r.title);
 						
 						if(rr!=null){

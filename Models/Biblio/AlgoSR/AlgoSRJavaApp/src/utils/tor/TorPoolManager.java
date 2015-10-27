@@ -31,10 +31,16 @@ public class TorPoolManager {
 	 */
 	public static int currentPort;
 	
+	
+	public static boolean hasTorPoolConnexion = false;
+	
+	
 	/**
 	 * Checks if a pool is currently running, and setup initial port correspondingly.
 	 */
 	public static void setupTorPoolConnexion() throws Exception {
+		
+		System.out.println("Setting up TorPool connection...");
 		
 		// check if pool is running.
 		checkRunningPool();
@@ -47,6 +53,8 @@ public class TorPoolManager {
 		}catch(Exception e){e.printStackTrace();}
 		
 		showIP();
+		
+		hasTorPoolConnexion = true;
 	}
 	
 	
@@ -59,7 +67,6 @@ public class TorPoolManager {
 	
 	
 	private static void checkRunningPool() throws Exception{
-		System.out.println("Setting up TorPool connection...");
 		if(!new File(".tor_tmp/ports").exists()){throw new Exception("NO RUNNING TOR POOL !"); }
 	}
 	

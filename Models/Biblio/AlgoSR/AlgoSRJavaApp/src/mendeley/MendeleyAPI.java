@@ -43,6 +43,10 @@ public class MendeleyAPI{
 	 */
 	public static HttpContext context;
 	
+	
+	public static boolean isSetup = false;
+	
+	
 	/**
 	 * Initialize API requests, by setting client and context.
 	 */
@@ -65,6 +69,8 @@ public class MendeleyAPI{
 
 		//context
 		context = new BasicHttpContext();
+		
+		isSetup=true;
 		
 		}catch(Exception e){e.printStackTrace();}
 	}
@@ -140,9 +146,9 @@ public class MendeleyAPI{
 	
 	
 	/**
-	 * Get abstracts 
+	 * Get abstracts for the given set of References
 	 */
-	public static void getAbstracts(){
+	public static void getAbstracts(HashSet<Reference> corpus){
 		
 	}
 	

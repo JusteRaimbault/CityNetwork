@@ -304,7 +304,7 @@ public class CybergeoImport {
 		System.out.println("--"+lang+"--");
 		
 		if(lang.compareTo("en")==0){
-			res[1] = "1";
+			res[1] = "1";//translated
 			try{
 				res[0]= d.getElementsByAttributeValue("lang", "en").first().text();
 				
@@ -314,7 +314,7 @@ public class CybergeoImport {
 			return res;
 		}
 		else{
-
+			//not translated
 			try{
 				res[0]= d.getElementsByAttributeValue("lang", "en").first().text();
 				res[1] = "1";
