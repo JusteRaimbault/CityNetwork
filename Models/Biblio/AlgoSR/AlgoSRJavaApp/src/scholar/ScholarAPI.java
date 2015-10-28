@@ -17,8 +17,10 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLContext;
 
+import main.Abstract;
 import main.Main;
 import main.Reference;
+import main.Title;
 import mendeley.MendeleyAPI;
 
 import org.apache.commons.lang3.StringUtils;
@@ -51,7 +53,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import org.apache.commons.httpclient.util.URIUtil;
 
 import utils.Log;
@@ -175,29 +176,49 @@ public class ScholarAPI {
 	 * @param title
 	 * @return
 	 */
-	public static Reference getScholarRef(String title){
+	public static Reference getScholarRef(String title,String author){
 		
 		// first need to format title (html tags eg)
 		title = Jsoup.parse(title).text();
 		
 		Reference res = null;
 		// go up to 5 refs in case of an unclustered ref (cf Roger Dion paper !)
-		res=matchRef(title,scholarRequest(title.replace(" ", "+" ),5,"exact"));
+		res=matchRef(title,author,scholarRequest(title.replace(" ", "+" ),5,"exact"));
 		
 		//try direct if no result
 		if(res==null){
-			res=matchRef(title,scholarRequest(title.replace(" ", "+" ),5,"direct"));
+			res=matchRef(title,author,scholarRequest(title.replace(" ", "+" ),5,"direct"));
 		}	
 		
+		// try exact pattern with "title"
+		if(res==null){
+			res=matchRef(title,author,scholarRequest("\""+title.replace(" ", "+" )+"\"",5,"direct"));
+		}	
+		
+		/*
 		if(res!=null){
 			// final check on title
-			if(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(res.title),StringUtils.lowerCase(title))<2){
+			if(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(res.title.title),StringUtils.lowerCase(title))<2){
 				return res;
 			}
 			else{System.out.println("TITLE MISMATCH : \n   "+res.title+"\n    "+title);}
 		}
-		return null;
+		*/
+		
+		return res;
 	}
+	
+	/**
+	 * Overload the method : call on title and concatenated authors.
+	 * 
+	 * @param ref
+	 * @return
+	 */
+	public static Reference getScholarRef(Reference ref){
+		String authors = "";for(String a:ref.authors){authors = authors+" "+a;}
+		return getScholarRef(ref.title.title,authors);
+	}
+	
 	
 	/**
 	 * Match a ref to a set, looking at title and if refs have sch ids
@@ -205,10 +226,15 @@ public class ScholarAPI {
 	 * @param refs
 	 * @return
 	 */
-	public static Reference matchRef(String title,HashSet<Reference> refs){
+	public static Reference matchRef(String title,String author,HashSet<Reference> refs){
 		Reference res = null;
 		for(Reference nr:refs){
-			if(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(nr.title),StringUtils.lowerCase(title))<2&&nr.scholarID!=""){
+			System.out.println(nr.year);
+			String t1 = StringUtils.lowerCase(nr.title.title).replaceAll("[^\\p{L}\\p{Nd}]+", "");
+			String t2 = StringUtils.lowerCase(title).replaceAll("[^\\p{L}\\p{Nd}]+", "");
+			System.out.println("      "+t1);
+			System.out.println("      "+t2);
+			if(StringUtils.getLevenshteinDistance(t1,t2)<3&&nr.scholarID!=""){
 			   res=nr;
 			}
 		};
@@ -244,7 +270,7 @@ public class ScholarAPI {
 						 * 
 						 */
 						
-						Reference rr = getScholarRef(r.title);
+						Reference rr = getScholarRef(r);
 						
 						if(rr!=null){
 							System.out.println("ID : "+rr.scholarID);
@@ -315,7 +341,7 @@ public class ScholarAPI {
 		Elements e = dom.getElementsByClass("gs_ri");
 		for(Element r:e){
 	    	if(resultsNumber<remResponses){
-	    		refs.add(Reference.construct("", getTitle(r), "", getYear(r), getCluster(r)));
+	    		refs.add(Reference.construct("", getTitle(r), Abstract.EMPTY, getYear(r), getCluster(r)));
 	    		resultsNumber++;
 	    	}
 	    }
@@ -345,10 +371,10 @@ public class ScholarAPI {
 	 * @param e
 	 * @return
 	 */
-	private static String getTitle(Element e){
+	private static Title getTitle(Element e){
 		try{
-		  return e.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]","");
-		}catch(Exception ex){ex.printStackTrace();return "";}
+		  return new Title(e.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]",""));
+		}catch(Exception ex){ex.printStackTrace();return Title.EMPTY;}
 	}
 	
 	
@@ -390,119 +416,13 @@ public class ScholarAPI {
 			
 		    HttpResponse response = client.execute(new HttpGet(encodedURL));
 		    try {
-		    	res= Jsoup.parse(response.getEntity().getContent(),"UTF-8","");
+		    	//res= Jsoup.parse(response.getEntity().getContent(),"UTF-8","");
+		    	res= Jsoup.parse(EntityUtils.toString(response.getEntity(),"UTF-8"));
 		    	EntityUtils.consume(response.getEntity());
 		    }catch(Exception e){e.printStackTrace();}
 		} catch(Exception e){e.printStackTrace();}
 		return res;
 	}
-	
-	
-	/**
-	 * Tests.
-	 * 
-	 * @param args
-	 * @throws Exception 
-	 */
-	public static void main(String[] args) throws Exception {
-		
-		
-		
-		/*
-		// test regex --> dirty
-		String t="abc - 1998 - azerty";
-		for(int i=0;i<t.length()-4;i++){
-		  System.out.println(t.substring(i, i+4).matches("\\d\\d\\d\\d"));
-		}
-		*/
-		
-		
-		/*
-		init();
-		//tor.running=false;
-		//tor=new TorThread();tor.start();
-		//Thread.sleep(1000);
-		for(int i=0;i<5;i=i+10){
-		//tor=new TorThread();tor.start();
-		Thread.sleep(5000);
-		Document d = request("scholar.google.com","scholar?q=urban+network&lookup=0&start="+i);
-		System.out.println(d.html());
-		System.out.println(d.getElementsByClass("gs_rt").first().html());
-		//tor.running=false;
-		//Thread.sleep(1000);
-		}
-		
-		*/
-		
-		// test setup
-		//setup("");
-		
-		// test request
-		//HashSet<Reference> refs = scholarRequest("Co-evolution+of+density+and+topology+in+a+simple+model+of+city+formation",1);
-		//for(Reference r:refs){System.out.println(r);}
-		//fillIdAndCitingRefs(refs);
-		//for(Reference r:refs){System.out.println(r);for(Reference c:r.citing){System.out.println(c);}}
-		
-		// test to fill a mendeley ref
-		/*Main.setup("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/AlgoSRJavaApp/conf/default.conf");
-		
-		MendeleyAPI.setupAPI();
-		HashSet<Reference> refs = MendeleyAPI.catalogRequest("transportation+network", 1);
-		fillIdAndCitingRefs(refs);
-		for(Reference r:refs){System.out.println(r);for(Reference c:r.citing){System.out.println(c);}}*/
-		/*
-		Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory>create()
-		        .register("http", PlainConnectionSocketFactory.INSTANCE)
-		        .register("https", new MyConnectionSocketFactory(SSLContexts.createSystemDefault()))
-		        .build();
-		PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(reg);
-		CloseableHttpClient httpclient = HttpClients.custom()
-		        .setConnectionManager(cm)
-		        .build();
-		try {
-		    InetSocketAddress socksaddr = new InetSocketAddress("127.0.0.1", 9050);
-		    HttpClientContext context = HttpClientContext.create();
-		    context.setAttribute("socks.address", socksaddr);
-
-		    HttpHost target = new HttpHost("scholar.google.com", 80, "http");
-		    HttpGet request = new HttpGet("/");
-
-		    System.out.println("Executing request " + request + " to " + target + " via SOCKS proxy " + socksaddr);
-		    CloseableHttpResponse response = httpclient.execute(target, request);
-		    try {
-		        System.out.println("----------------------------------------");
-		        System.out.println(response.getStatusLine());
-		        EntityUtils.consume(response.getEntity());
-		    } finally {
-		        response.close();
-		    }
-		} catch(Exception e){e.printStackTrace();} 
-		finally {
-		    //httpclient.close();
-		}
-	*/
-		
-		
-	}
-	
-	
-	
-	static class MyConnectionSocketFactory extends SSLConnectionSocketFactory {
-
-	    public MyConnectionSocketFactory(final SSLContext sslContext) {
-	        super(sslContext);
-	    }
-
-	    @Override
-	    public Socket createSocket(final HttpContext context) throws IOException {
-	        InetSocketAddress socksaddr = new InetSocketAddress("localhost",9050); //context.getAttribute("socks.address");
-	        Proxy proxy = new Proxy(Proxy.Type.SOCKS, socksaddr);
-	        
-	        return new Socket(proxy);
-	    }
-
-	}
-	
 	
 	
 	

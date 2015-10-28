@@ -9,6 +9,8 @@ package main;
  */
 public class Abstract {
 	
+	public static final Abstract EMPTY = new Abstract("");
+	
 	public String resume;
 	
 	/**

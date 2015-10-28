@@ -25,7 +25,9 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
 import utils.Connexion;
+import main.Abstract;
 import main.Reference;
+import main.Title;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
@@ -137,7 +139,7 @@ public class MendeleyAPI{
 			for(int i=0;i<entries.size();i++){
 				JsonObject entry = entries.getJsonObject(i);
 				// add reference using construct -- no scholar ID
-				refs.add(Reference.construct(entry.getString("id"), entry.getString("title"), entry.getString("abstract"),Integer.toString(entry.getInt("year")),""));
+				refs.add(Reference.construct(entry.getString("id"), new Title(entry.getString("title")), new Abstract(entry.getString("abstract")),Integer.toString(entry.getInt("year")),""));
 			}			
 			return refs;
 			

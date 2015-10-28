@@ -1,7 +1,9 @@
 /**
  * 
  */
-package test.cybergeo;
+package cybergeo;
+
+import java.util.Date;
 
 import main.Main;
 import main.Reference;
@@ -19,13 +21,13 @@ import utils.tor.TorPoolManager;
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
  *
  */
-public class TestCybergeo {
+public class Cybergeo {
 
 	
-	public static void exportCybergeoAsRIS(){
+	public static void exportCybergeoAsRIS(String outFile){
 		CybergeoImport.setupSQL();
 		CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("",-1)).getCorpus();
-		RISWriter.write(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs.ris", cybergeo.references);
+		RISWriter.write(outFile, cybergeo.references);
 	}
 	
 	
@@ -38,7 +40,7 @@ public class TestCybergeo {
 		 //CybergeoImport.setupSQL();
 		 
 		 //CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("2010-01-01",2)).getCorpus();
-		 return new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs.ris",-1)).getCorpus().references);
+		 return new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs_origTitles.ris",20)).getCorpus().references);
 			 
 	}
 	
@@ -59,7 +61,8 @@ public class TestCybergeo {
 		 CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest();
 		 System.out.println("Corpus size : "+Reference.references.keySet().size());	
 		 cybergeo.getCitingRefs();
-		 cybergeo.gexfExport(System.getenv("CS_HOME")+"/Cybergeo/Data/processed/networks/test_citingNW.gexf");
+		 cybergeo.gexfExport(System.getenv("CS_HOME")+"/Cybergeo/Data/processed/networks/test_citingNW_"+(new Date().toString().replaceAll(" ", "-"))+".gexf");
+	
 	}
 	
 	
@@ -68,7 +71,7 @@ public class TestCybergeo {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//exportCybergeoAsRIS();
+		//exportCybergeoAsRIS(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs_origTitles.ris");
 		
 		// check ris export
 		//CybergeoCorpus cybergeo = new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase.ris",10)).getCorpus().references);
@@ -82,7 +85,6 @@ public class TestCybergeo {
 		//testCitedRefConstruction();
 		
 		testCitingRefs();
-		
 	}
 
 }

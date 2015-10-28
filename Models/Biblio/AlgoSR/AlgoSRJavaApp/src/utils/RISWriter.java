@@ -38,7 +38,7 @@ public class RISWriter {
 			
 			
 			for(Reference r:refs){
-				writer.write("TY  - JOUR\nAB  - "+r.resume+"\n");
+				writer.write("TY  - JOUR\nAB  - "+r.resume.resume+"\n");
 				for(String a:r.authors){
 					writer.write("AU  - "+a+"\n");
 				}
@@ -47,7 +47,11 @@ public class RISWriter {
 				}
 				//writer.write("KW  -\n");
 				
-				writer.write("T1  - "+r.title+"\n");
+				writer.write("T1  - "+r.title.title+"\n");
+				if(r.title.translated){
+					writer.write("TT  - "+r.title.en_title+"\n");
+				}
+				
 				
 				writer.write("PY  - "+r.year+"\n");
 				

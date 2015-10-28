@@ -71,13 +71,13 @@ public class GEXFWriter{
 			String keywords = "";for(String k:ref.keywords){keywords=keywords+k+" ; ";}if(keywords.length()>3)keywords=keywords.substring(0, keywords.length()-3);
 			//ref.id=new Integer(i).toString();
 			
-			Node node = graph.createNode(ref.id).setLabel(ref.title);
+			Node node = graph.createNode(ref.id).setLabel(ref.title.title);
 			node.getAttributeValues()
 			  .addValue(attID, ref.id)
 			  .addValue(attSchID, ref.scholarID)
-			  .addValue(attTitle, ref.title)
+			  .addValue(attTitle, ref.title.title)
 			  .addValue(attAuthors, authors)
-			  .addValue(attResume,ref.resume)
+			  .addValue(attResume,ref.resume.resume)
 			  .addValue(attKeywords,keywords)
 			  .addValue(attYear, ref.year)
 			  ;
@@ -91,12 +91,12 @@ public class GEXFWriter{
 		for(Reference ref:nodes.keySet()){
 			for(Reference c:ref.citing){
 				if(!nodes.containsKey(c)){
-					Node node = graph.createNode(c.id).setLabel(c.title);
+					Node node = graph.createNode(c.id).setLabel(c.title.title);
 					node.getAttributeValues()
 					  .addValue(attID, c.id)
 					  .addValue(attSchID, c.scholarID)
-					  .addValue(attTitle, c.title)
-					  .addValue(attResume,c.resume)
+					  .addValue(attTitle, c.title.title)
+					  .addValue(attResume,c.resume.resume)
 					  .addValue(attYear, c.year)
 					  ;
 					prov.put(c, node);

@@ -3,7 +3,9 @@
  */
 package sql;
 
+import main.Abstract;
 import main.Reference;
+import main.Title;
 
 import java.io.File;
 import java.sql.Connection;
@@ -69,8 +71,8 @@ public class CybergeoImport {
 		   while(sqlrefs.next()){
 			   
 			   String biblio = sqlrefs.getString(7);
-			   
-			   Reference r = Reference.construct("", rawTitle(sqlrefs.getString(1),sqlrefs.getString(2),sqlrefs.getString(6))[0], rawAbstract(sqlrefs.getString(3)), sqlrefs.getString(4), "");
+			   Title title = getTitle(sqlrefs.getString(1),sqlrefs.getString(2),sqlrefs.getString(6));
+			   Reference r = Reference.construct("",title, getAbstract(sqlrefs.getString(3)), sqlrefs.getString(4), "");
 				
 			   // get authors
 			   ResultSet authorsIds = sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +sqlrefs.getString(5)+" AND  `nature` LIKE  'G' ORDER BY  `degree` ASC ;");
@@ -122,13 +124,13 @@ public class CybergeoImport {
 			   while(sqlrefs.next()){
 				   String id = sqlrefs.getString(1);
 				   String lang = sqlrefs.getString(4);
-				   String[] proc_title = rawTitle(sqlrefs.getString(2),sqlrefs.getString(3),lang);
-				   String title_en = proc_title[0];
+				   Title proc_title = getTitle(sqlrefs.getString(2),sqlrefs.getString(3),lang);
+				   String title_en = proc_title.en_title;
 				   
 				   String date = sqlrefs.getString(5);
-				   String translated = proc_title[1];
+				   boolean translated = proc_title.translated;
 				   
-				   String[] row = {id,title_en,"","",date,lang,translated};
+				   String[] row = {id,title_en,"","",date,lang,new Boolean(translated).toString()};
 				   
 				   // get authors
 				   String authors = "";
@@ -164,7 +166,7 @@ public class CybergeoImport {
 				   ResultSet res = sqlDB.createStatement().executeQuery("SELECT `resume` FROM textes WHERE `identity` = "+id+" LIMIT 1 ; ");
 				   if(res.next()){
 					   LinkedList<String> t = new LinkedList<String>();
-					   t.add(rawAbstract(res.getString(1)));
+					   t.add(getAbstract(res.getString(1)).resume);
 					   BasicWriter.write(outDir+"/texts/"+id+"_abstract.txt", t);
 				   }
 				   
@@ -241,15 +243,15 @@ public class CybergeoImport {
 	public static String titleFromCybRef(String t){
 		String res = "";
 		try{
-		int yIndex = 0;
-		for(int i=0;i<t.length()-4;i++){
-			if(t.substring(i, i+4).matches("\\d\\d\\d\\d")){yIndex=i+4;break;};
-		}
-		//String[] end = t.substring(yIndex).split(",")[1].split(".");
-		//String res="";
-		//for(int i=1;i<end.length;i++){res+=end[i]+" ";}
-		//return end[0];
-		res=t.substring(yIndex+2);
+			int yIndex = 0;
+			for(int i=0;i<t.length()-4;i++){
+				if(t.substring(i, i+4).matches("\\d\\d\\d\\d")){yIndex=i+4;break;};
+			}
+			//String[] end = t.substring(yIndex).split(",")[1].split(".");
+			//String res="";
+			//for(int i=1;i<end.length;i++){res+=end[i]+" ";}
+			//return end[0];
+			res=t.substring(yIndex+2);
 		}catch(Exception e){e.printStackTrace();return "";}
 		return res;
 	}
@@ -263,11 +265,11 @@ public class CybergeoImport {
 	 * @param xml
 	 * @return
 	 */
-	public static String rawAbstract(String xml){
+	public static Abstract getAbstract(String xml){
 		Document d = Jsoup.parse(xml);
 		try{
-		return d.getElementsByAttributeValue("lang", "en").first().text();
-		}catch(Exception e){return xml;}
+		return new Abstract(d.getElementsByAttributeValue("lang", "en").first().text());
+		}catch(Exception e){return new Abstract(xml);}
 	}
 	
 	/**
@@ -287,54 +289,41 @@ public class CybergeoImport {
 	
 	
 	/**
-	 * Get eng title from title, aletrtitle fields
+	 * Get eng title from title, altertitle fields
 	 * 
 	 * @param title
 	 * @param altertitle
 	 * @return
 	 */
-	public static String[] rawTitle(String title,String altertitle,String lang){
+	public static Title getTitle(String title,String altertitle,String lang){
 		// find english title : if not in altertitle, then must be the main title
 		Document ad = Jsoup.parse(altertitle);
 		Document d = Jsoup.parse(title);
 		//return d.text();
 		
-		String[] res = new String[2];
-		
-		System.out.println("--"+lang+"--");
-		
-		if(lang.compareTo("en")==0){
-			res[1] = "1";//translated
-			try{
-				res[0]= d.getElementsByAttributeValue("lang", "en").first().text();
-				
-			}catch(Exception e){
-				try{res[0] = d.getElementsByTag("span").first().text();}catch(Exception ee){res[0]=title;}
-			}
-			return res;
+		String restitle="",resentitle="";
+
+
+		// original language is english
+		// no need to fill en_title field
+		try{
+			restitle = d.getElementsByAttributeValue("lang", lang).first().text();				
+		}catch(Exception e){
+			try{restitle = d.getElementsByTag("span").first().text();}catch(Exception ee){restitle=title;}
 		}
-		else{
-			//not translated
+		
+		if(lang.compareTo("en")!=0){
+			//other language or not filled
 			try{
-				res[0]= d.getElementsByAttributeValue("lang", "en").first().text();
-				res[1] = "1";
+				resentitle = d.getElementsByAttributeValue("lang", "en").first().text();
 			}catch(Exception e){
 				try{
-					res[0]=  ad.getElementsByAttributeValue("lang", "en").first().text();
-					res[1] = "1";
-				}catch(Exception ee){
-					try{
-						res[0] = d.getElementsByTag("span").first().text();
-						res[1] = "0";
-					}catch(Exception eee){
-						res[0] = title;
-						res[1] = "0";
-					}
-					
-				}
+					resentitle =  ad.getElementsByAttributeValue("lang", "en").first().text();
+				}catch(Exception ee){}
 			}
-			return res;
 		}
+		
+		return new Title(restitle,resentitle,lang);
 	}
 	
 	

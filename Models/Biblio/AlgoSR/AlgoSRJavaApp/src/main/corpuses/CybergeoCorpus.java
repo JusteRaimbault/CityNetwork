@@ -31,7 +31,7 @@ public class CybergeoCorpus extends Corpus {
 		for(Reference r:references){
 			for(String title:r.citedTitles){
 				System.out.println("   cited : "+title);
-				Reference cr = ScholarAPI.getScholarRef(title);
+				Reference cr = ScholarAPI.getScholarRef(title,"");
 				if(cr!=null){r.cited.add(cr);}
 			}
 			
@@ -41,7 +41,7 @@ public class CybergeoCorpus extends Corpus {
 			
 			//recompute citedTitles : may slightly differ after scholar request
 			r.citedTitles.clear();
-			for(Reference cr:r.cited){r.citedTitles.add(cr.title);}
+			for(Reference cr:r.cited){r.citedTitles.add(cr.title.title);}
 		}
 	}
 	

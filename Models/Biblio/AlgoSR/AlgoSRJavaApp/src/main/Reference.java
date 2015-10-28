@@ -42,7 +42,7 @@ public class Reference {
 	/**
 	 * Title
 	 */
-	public String title;
+	public Title title;
 	
 	/**
 	 * Authors
@@ -53,7 +53,7 @@ public class Reference {
 	/**
 	 * Abstract. (abstract is a java keyword)
 	 */
-	public String resume;
+	public Abstract resume;
 	
 	/**
 	 * Keywords
@@ -94,9 +94,11 @@ public class Reference {
 	 * @param t title
 	 * @param r abstract
 	 */
-	public Reference(String i,String t,String r,String y,String schID){
+	public Reference(String i,Title t,Abstract r,String y,String schID){
 		id=i;
-		title=t;resume=r;year=y;scholarID=schID;
+		title=t;
+		resume=r;
+		year=y;scholarID=schID;
 		authors = new HashSet<String>();
 		keywords = new HashSet<String>();
 		citing=new HashSet<Reference>();
@@ -107,7 +109,7 @@ public class Reference {
 	 * Ghost constructor
 	 */
 	public Reference(String t){
-		title=t;
+		title=new Title(t);
 	}
 	
 	/**
@@ -127,7 +129,7 @@ public class Reference {
 	 * -- ARCHITECTURAL ISSUE --
 	 */
 	public Reference(String t,String schid){//,boolean retrieveAllInfos){
-		title=t;
+		title=new Title(t);
 		
 		/*
 		if(retrieveAllInfos){
@@ -153,14 +155,14 @@ public class Reference {
 	 * @param schID : scholar ID
 	 * @return the Reference object, ensuring overall unicity through HashConsing
 	 */
-	public static Reference construct(String i,String t,String r,String y,String schID){
-		Reference ref = new Reference(t);
+	public static Reference construct(String i,Title t,Abstract r,String y,String schID){
+		Reference ref = new Reference(t.title);
 		if(references.containsKey(ref)){
 			Reference existingRef = references.get(ref);
 			//override existing records if not empty fields provided --> the function can be used as a table updater --
 			//ref in table has thus always the latest requested values. NO ?		
 			if(i.length()>0){existingRef.id=i;}
-			if(r.length()>0){existingRef.resume=r;}
+			if(r.resume.length()>0){existingRef.resume=r;}
 			if(y.length()>0){existingRef.year=y;}
 			if(schID.length()>0){existingRef.scholarID=schID;}
 			
@@ -180,7 +182,7 @@ public class Reference {
 		//dirty, has to go through all table to find through Levenstein close ref
 		// that way hashconsing may be (is surely) suboptimal
 		// -> in O(n^2)
-		for(Reference r:references.keySet()){if(r.equals(this)){return r.title.hashCode();}}
+		for(Reference r:references.keySet()){if(r.equals(this)){return r.title.title.hashCode();}}
 		return this.title.hashCode();
 	}
 	
@@ -188,7 +190,7 @@ public class Reference {
 	 * Idem with equals
 	 */
 	public boolean equals(Object o){
-		return (o instanceof Reference)&&(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(((Reference)o).title),StringUtils.lowerCase(this.title))<4);
+		return (o instanceof Reference)&&(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(((Reference)o).title.title),StringUtils.lowerCase(this.title.title))<4);
 	}
 	
 	

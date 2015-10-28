@@ -9,7 +9,9 @@ import java.io.FileReader;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import main.Abstract;
 import main.Reference;
+import main.Title;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
@@ -30,14 +32,14 @@ public class RISReader {
 		HashSet<Reference> refs = new HashSet<Reference>();
 		try{
 		   BufferedReader reader = new BufferedReader(new FileReader(new File(filePath)));
-		   String currentTitle="",currentAbstract="",currentYear="";
+		   String currentTitle="",currentENTitle="",currentAbstract="",currentYear="";
 		   HashSet<String> currentKeywords=new HashSet<String>();
 		   HashSet<String> currentCitedTitles=new HashSet<String>();
 		   String currentLine = reader.readLine();
 		   while(currentLine!= null){
 			   // check new ref criterium : TY -
 			   if(currentLine.startsWith("TY")&&currentTitle.length()>0){
-				   Reference newRef = Reference.construct("", currentTitle, currentAbstract, currentYear, "");
+				   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
 				   newRef.keywords=currentKeywords;
 				   newRef.citedTitles=currentCitedTitles;
 				   currentKeywords=new HashSet<String>();currentCitedTitles=new HashSet<String>();
@@ -51,6 +53,10 @@ public class RISReader {
 			   if(currentLine.startsWith("T1")){
 				   String[] t = currentLine.split("T1  - ");
 				   if(t.length>1){currentTitle=t[1];}
+			   }
+			   if(currentLine.startsWith("TT")){
+				   String[] t = currentLine.split("TT  - ");
+				   if(t.length>1){currentENTitle=t[1];}
 			   }
 			   if(currentLine.startsWith("PY")){
 				   String[] t = currentLine.split("PY  - ");
@@ -69,7 +75,11 @@ public class RISReader {
 		   
 		   //add the last ref
 		   if(refs.size()<size||size==-1){
-			   Reference newRef = Reference.construct("", currentTitle, currentAbstract, currentYear, ""); newRef.keywords=currentKeywords;newRef.citedTitles=currentCitedTitles;
+			   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
+			   // add additionary fields by hand. Dirty dirty, must have set/get methods
+			   newRef.keywords=currentKeywords;
+			   newRef.citedTitles=currentCitedTitles;
+			   newRef.title.en_title=currentENTitle;
 			   refs.add(newRef);
 		   }
 		   

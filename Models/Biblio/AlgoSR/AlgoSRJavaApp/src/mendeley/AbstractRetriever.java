@@ -37,7 +37,7 @@ public class AbstractRetriever {
 		//at most one element
 		Reference r = refs.iterator().next();
 		String qTitle = StringUtils.lowerCase(title.replaceAll("\\+", " ").replaceAll("\\{", "").replaceAll("\\}", ""));
-		String rTitle = StringUtils.lowerCase(r.title);
+		String rTitle = StringUtils.lowerCase(r.title.title);
 		
 		try{
 		   if(StringUtils.getLevenshteinDistance(qTitle,rTitle)< 4){

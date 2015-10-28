@@ -10,6 +10,11 @@ package main;
 public class Title {
 	
 	/**
+	 * Empty title.
+	 */
+	public static final Title EMPTY = new Title("");
+	
+	/**
 	 * title in itself
 	 */
 	public String title;
@@ -37,14 +42,23 @@ public class Title {
 	public Title(String t,String e){
 		title = t;
 		en_title = e;
-		translated = true;
+		translated = (en_title != "");
 	}
 	
 	public Title(String t,String e,String l){
 		title = t;
 		en_title = e;
 		language = l;
-		translated = true;
+		translated = (en_title != "");
 	}
+	
+	
+	@Override
+	public String toString(){
+		return title;
+	}
+	
+	
+	
 	
 }
