@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 /**
@@ -62,6 +63,21 @@ public class GEXFWriter{
 		Attribute attKeywords = attrList.createAttribute("5", AttributeType.STRING, "keywords");
 		Attribute attYear = attrList.createAttribute("6", AttributeType.STRING, "year");
 		
+		// construct the set of additional attributes
+		HashMap<String,Attribute> additionalAttributes = new HashMap<String,Attribute>();
+		HashSet<String> addAttrNames = new HashSet<String>();
+		int id = 7;
+		for(Reference ref:refs){
+			for(String att:ref.attributes.keySet()){
+				if(!addAttrNames.contains(att)){//new attribute
+					addAttrNames.add(att);
+					Attribute nextAttr = attrList.createAttribute(new Integer(id).toString(), AttributeType.STRING, att);
+					additionalAttributes.put(att,nextAttr);
+					id++;
+				}
+			}
+		}
+		
 		// create nodes - maintaining a HashMap Ref -> Node
 		HashMap<Reference,Node> nodes = new HashMap<Reference,Node>();
 		
@@ -81,6 +97,14 @@ public class GEXFWriter{
 			  .addValue(attKeywords,keywords)
 			  .addValue(attYear, ref.year)
 			  ;
+			
+			for(String addAttName:additionalAttributes.keySet()){
+				if(ref.attributes.containsKey(addAttName)){
+					node.getAttributeValues().addValue(additionalAttributes.get(addAttName),ref.attributes.get(addAttName));
+				}else{//NULL default value
+					node.getAttributeValues().addValue(additionalAttributes.get(addAttName),"NULL");
+				}
+			}
 			
 			nodes.put(ref, node);
 			//i++;

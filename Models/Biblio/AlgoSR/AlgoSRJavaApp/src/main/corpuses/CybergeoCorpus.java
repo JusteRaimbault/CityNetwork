@@ -21,6 +21,11 @@ public class CybergeoCorpus extends Corpus {
 	 */
 	public CybergeoCorpus(HashSet<Reference> refs){
 		references = refs;
+		
+		// add attribute
+		for(Reference r:references){
+			r.attributes.put("cybergeo", "1");
+		}
 	}
 
 	
@@ -31,7 +36,7 @@ public class CybergeoCorpus extends Corpus {
 		for(Reference r:references){
 			for(String title:r.citedTitles){
 				System.out.println("   cited : "+title);
-				Reference cr = ScholarAPI.getScholarRef(title,"");
+				Reference cr = ScholarAPI.getScholarRef(title,"","");
 				if(cr!=null){r.cited.add(cr);}
 			}
 			

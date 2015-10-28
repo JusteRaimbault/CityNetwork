@@ -176,23 +176,23 @@ public class ScholarAPI {
 	 * @param title
 	 * @return
 	 */
-	public static Reference getScholarRef(String title,String author){
+	public static Reference getScholarRef(String title,String author,String year){
 		
 		// first need to format title (html tags eg)
 		title = Jsoup.parse(title).text();
 		
 		Reference res = null;
 		// go up to 5 refs in case of an unclustered ref (cf Roger Dion paper !)
-		res=matchRef(title,author,scholarRequest(title.replace(" ", "+" ),5,"exact"));
+		res=matchRef(title,author,year,scholarRequest(title.replace(" ", "+" ),5,"exact"));
 		
 		//try direct if no result
 		if(res==null){
-			res=matchRef(title,author,scholarRequest(title.replace(" ", "+" ),5,"direct"));
+			res=matchRef(title,author,year,scholarRequest(title.replace(" ", "+" ),5,"direct"));
 		}	
 		
 		// try exact pattern with "title"
 		if(res==null){
-			res=matchRef(title,author,scholarRequest("\""+title.replace(" ", "+" )+"\"",5,"direct"));
+			res=matchRef(title,author,year,scholarRequest("\""+title.replace(" ", "+" )+"\"",5,"direct"));
 		}	
 		
 		/*
@@ -216,7 +216,15 @@ public class ScholarAPI {
 	 */
 	public static Reference getScholarRef(Reference ref){
 		String authors = "";for(String a:ref.authors){authors = authors+" "+a;}
-		return getScholarRef(ref.title.title,authors);
+		String year = ref.year;
+		if(year.contains("-")){year = year.split("-")[0];}
+		Reference res = getScholarRef(ref.title.title,authors,year);
+		if(res==null){
+			ref.attributes.put("failed_req", "1");
+		}else{
+			ref.attributes.put("failed_req", "0");
+		}
+		return res;
 	}
 	
 	
@@ -226,15 +234,15 @@ public class ScholarAPI {
 	 * @param refs
 	 * @return
 	 */
-	public static Reference matchRef(String title,String author,HashSet<Reference> refs){
+	public static Reference matchRef(String title,String author,String year,HashSet<Reference> refs){
 		Reference res = null;
 		for(Reference nr:refs){
-			System.out.println(nr.year);
+			System.out.println(nr.year+"  --  "+year);
 			String t1 = StringUtils.lowerCase(nr.title.title).replaceAll("[^\\p{L}\\p{Nd}]+", "");
 			String t2 = StringUtils.lowerCase(title).replaceAll("[^\\p{L}\\p{Nd}]+", "");
 			System.out.println("      "+t1);
 			System.out.println("      "+t2);
-			if(StringUtils.getLevenshteinDistance(t1,t2)<3&&nr.scholarID!=""){
+			if(StringUtils.getLevenshteinDistance(t1,t2)<3&&nr.scholarID!=""&&year.compareTo(nr.year)==0){
 			   res=nr;
 			}
 		};

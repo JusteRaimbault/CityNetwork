@@ -85,6 +85,12 @@ public class Reference {
 	public HashSet<String> citedTitles;
 	
 	
+	/**
+	 * Free attributes, stored under the form <key,value>
+	 */
+	public HashMap<String,String> attributes;
+	
+	
 	
 	/**
 	 * Constructor
@@ -103,6 +109,7 @@ public class Reference {
 		keywords = new HashSet<String>();
 		citing=new HashSet<Reference>();
 		cited=new HashSet<Reference>();
+		attributes = new HashMap<String,String>();
 	}
 	
 	/**
