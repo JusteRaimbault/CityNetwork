@@ -5,7 +5,7 @@ package mendeley;
 
 import java.util.HashSet;
 
-import main.Reference;
+import main.reference.Reference;
 
 
 /**

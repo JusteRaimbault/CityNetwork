@@ -11,7 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Set;
 
-import main.Reference;
+import main.reference.Reference;
 
 
 /**
@@ -56,7 +56,7 @@ public class RISWriter {
 				writer.write("PY  - "+r.year+"\n");
 				
 				//customized tag : references
-				for(String t:r.citedTitles){
+				for(String t:r.biblio.citedTitles){
 					writer.write("BI  - "+t+"\n");
 				}
 				

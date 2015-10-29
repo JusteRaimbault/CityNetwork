@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 import org.apache.commons.lang3.StringUtils;
 
-import main.Reference;
+import main.reference.Reference;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>

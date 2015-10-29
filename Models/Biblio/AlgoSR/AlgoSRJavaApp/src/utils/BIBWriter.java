@@ -11,7 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Set;
 
-import main.Reference;
+import main.reference.Reference;
 
 
 /**

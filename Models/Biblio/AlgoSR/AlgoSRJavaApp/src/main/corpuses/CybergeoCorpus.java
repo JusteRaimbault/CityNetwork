@@ -6,7 +6,7 @@ package main.corpuses;
 import java.util.HashSet;
 
 import scholar.ScholarAPI;
-import main.Reference;
+import main.reference.Reference;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
@@ -34,10 +34,10 @@ public class CybergeoCorpus extends Corpus {
 	 */
 	public void fillCitedRefs(){
 		for(Reference r:references){
-			for(String title:r.citedTitles){
+			for(String title:r.biblio.citedTitles){
 				System.out.println("   cited : "+title);
 				Reference cr = ScholarAPI.getScholarRef(title,"","");
-				if(cr!=null){r.cited.add(cr);}
+				if(cr!=null){r.biblio.cited.add(cr);}
 			}
 			
 			/**
@@ -45,8 +45,8 @@ public class CybergeoCorpus extends Corpus {
 			 */
 			
 			//recompute citedTitles : may slightly differ after scholar request
-			r.citedTitles.clear();
-			for(Reference cr:r.cited){r.citedTitles.add(cr.title.title);}
+			r.biblio.citedTitles.clear();
+			for(Reference cr:r.biblio.cited){r.biblio.citedTitles.add(cr.title.title);}
 		}
 	}
 	

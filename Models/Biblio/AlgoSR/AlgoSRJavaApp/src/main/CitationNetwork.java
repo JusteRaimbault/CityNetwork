@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import main.reference.Reference;
 import mendeley.MendeleyAPI;
 import scholar.ScholarAPI;
 import sql.CybergeoImport;

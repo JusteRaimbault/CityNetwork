@@ -6,11 +6,11 @@ package cybergeo;
 import java.util.Date;
 
 import main.Main;
-import main.Reference;
 import main.corpuses.Corpus;
 import main.corpuses.CybergeoCorpus;
 import main.corpuses.CybergeoFactory;
 import main.corpuses.RISFactory;
+import main.reference.Reference;
 import scholar.ScholarAPI;
 import sql.CybergeoImport;
 import utils.RISWriter;
@@ -26,7 +26,7 @@ public class Cybergeo {
 	
 	public static void exportCybergeoAsRIS(String outFile){
 		CybergeoImport.setupSQL();
-		CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("",10)).getCorpus();
+		CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("",-1)).getCorpus();
 		RISWriter.write(outFile, cybergeo.references);
 	}
 	
@@ -40,7 +40,7 @@ public class Cybergeo {
 		 //CybergeoImport.setupSQL();
 		 
 		 //CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("2010-01-01",2)).getCorpus();
-		 return new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs_origTitles.ris",10)).getCorpus().references);
+		 return new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs_origTitles.ris",-1)).getCorpus().references);
 			 
 	}
 	
@@ -52,7 +52,7 @@ public class Cybergeo {
 		 cybergeo.fillCitedRefs();
 		 
 		 //
-		 for(Reference r:cybergeo.references){System.out.println(r.toString()+"\n CITES : ");for(Reference cr:r.cited){System.out.println(cr.toString());}}
+		 for(Reference r:cybergeo.references){System.out.println(r.toString()+"\n CITES : ");for(Reference cr:r.biblio.cited){System.out.println(cr.toString());}}
 		 
 	}
 	
@@ -77,7 +77,7 @@ public class Cybergeo {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		exportCybergeoAsRIS(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_verifRefs_origTitles.ris");
+		exportCybergeoAsRIS(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_rawRefs_origTitles.ris");
 		
 		// check ris export
 		//CybergeoCorpus cybergeo = new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase.ris",10)).getCorpus().references);
