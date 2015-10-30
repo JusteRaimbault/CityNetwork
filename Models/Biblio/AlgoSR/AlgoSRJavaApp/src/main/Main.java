@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import main.reference.Reference;
 import mendeley.MendeleyAPI;
 import utils.CSVWriter;
 import utils.Log;

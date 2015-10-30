@@ -3,9 +3,10 @@
  */
 package sql;
 
-import main.Abstract;
-import main.Reference;
-import main.Title;
+import main.reference.Abstract;
+import main.reference.CybergeoBiblioParser;
+import main.reference.Reference;
+import main.reference.Title;
 
 import java.io.File;
 import java.sql.Connection;
@@ -88,7 +89,7 @@ public class CybergeoImport {
 			      while(keywords.next()){r.keywords.add(keywords.getString(1));}
 			   }
 			   
-			   r.citedTitles = parseBibliography(biblio);
+			   r.biblio = new CybergeoBiblioParser().parse(biblio);
 			   
 			   res.add(r);
 			   System.out.println(r.toString());
@@ -189,73 +190,7 @@ public class CybergeoImport {
 		
 	}
 	
-	
-	
-	/**
-	 * Extract biblio titles
-	 * 
-	 * @param biblio
-	 * @return
-	 */
-	public static HashSet<String> parseBibliography(String biblio){
-		// get cited refs, from textes.`bibliographie` -> each ref as <p class="bibliographie">...</p>
-		// title as <em>...</em>
-		
-		HashSet<String> res = new HashSet<String>();
-		
-		Document parsedBib = Jsoup.parse(biblio);
-		for(Element bibitem:parsedBib.getElementsByClass("bibliographie")){
-			//System.out.println(bibitem.html());
-			String t = titleFromCybRef(bibitem.html());
-			if(t.length()>0){
-				//System.out.println(t);
-				//System.out.println(t.indexOf("<em>"));
-				int emIndex = t.indexOf("<em>");
-				if(emIndex==-1){
-					res.add(titleFromCybRef(bibitem.text()).split(",")[0]);
-				}else{
-					if(emIndex < 3){
-						res.add(bibitem.getElementsByTag("em").text());
-					}
-					else{res.add(titleFromCybRef(bibitem.text()).split(",")[0]);}
-				}
-			}
-		}
-		
-		// dirty
-		HashSet<String> r = new HashSet<String>();
-		for(String s:res){r.add(StringUtils.deleteSpecialCharacters(s));}
-		
-		return r;
 
-	}
-	
-	
-	
-	/**
-	 * Specific procedure to extract references title from the html-formatted cybergeo bibliography.
-	 * 
-	 * Heuristic : first element after date ?
-	 * 
-	 * @param html
-	 * @return
-	 */
-	public static String titleFromCybRef(String t){
-		String res = "";
-		try{
-			int yIndex = 0;
-			for(int i=0;i<t.length()-4;i++){
-				if(t.substring(i, i+4).matches("\\d\\d\\d\\d")){yIndex=i+4;break;};
-			}
-			//String[] end = t.substring(yIndex).split(",")[1].split(".");
-			//String res="";
-			//for(int i=1;i<end.length;i++){res+=end[i]+" ";}
-			//return end[0];
-			res=t.substring(yIndex+2);
-		}catch(Exception e){e.printStackTrace();return "";}
-		return res;
-	}
-	
 	
 	
 	

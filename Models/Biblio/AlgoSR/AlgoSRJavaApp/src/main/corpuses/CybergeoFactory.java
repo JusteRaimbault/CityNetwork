@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import sql.CybergeoImport;
-import main.Reference;
+import main.reference.Reference;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>

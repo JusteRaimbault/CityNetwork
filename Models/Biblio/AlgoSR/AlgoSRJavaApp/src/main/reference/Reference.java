@@ -1,7 +1,7 @@
 /**
  * 
  */
-package main;
+package main.reference;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,18 +71,9 @@ public class Reference {
 	public HashSet<Reference> citing;
 	
 	/**
-	 * Refs cited by this ref - filled with cybergeo database ; or WoS corpus
+	 * Bibliography
 	 */
-	public HashSet<Reference> cited;
-
-	/**
-	 * Titles of cited refs, used for intermediate construction of the citation network
-	 * 
-	 *  -- NOTE -- SHITTY modularity in architecture ; difficult to do better because of sources heterogeneity ?
-	 *   -> generic interface with citing/cited provision method provided as argument ; needs functional programming, scala archi :/
-	 *   Functional in Java done through Interfacing, Factories etc. try to clean that.
-	 */
-	public HashSet<String> citedTitles;
+	public Bibliography biblio;
 	
 	
 	/**
@@ -108,7 +99,7 @@ public class Reference {
 		authors = new HashSet<String>();
 		keywords = new HashSet<String>();
 		citing=new HashSet<Reference>();
-		cited=new HashSet<Reference>();
+		biblio=Bibliography.EMPTY;
 		attributes = new HashMap<String,String>();
 	}
 	

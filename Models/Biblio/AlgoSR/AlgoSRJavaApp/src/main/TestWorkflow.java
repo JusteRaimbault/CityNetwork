@@ -8,6 +8,7 @@ import java.util.HashSet;
 import utils.RISWriter;
 import utils.Zipper;
 import cortext.CortextAPI;
+import main.reference.Reference;
 import mendeley.MendeleyAPI;
 
 /**

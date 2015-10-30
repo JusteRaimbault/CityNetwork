@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 import scholar.ScholarAPI;
 import utils.GEXFWriter;
-import main.Reference;
+import main.reference.Reference;
 
 /**
  * A corpus is a set of references

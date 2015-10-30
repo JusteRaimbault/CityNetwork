@@ -17,10 +17,10 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLContext;
 
-import main.Abstract;
 import main.Main;
-import main.Reference;
-import main.Title;
+import main.reference.Abstract;
+import main.reference.Reference;
+import main.reference.Title;
 import mendeley.MendeleyAPI;
 
 import org.apache.commons.lang3.StringUtils;

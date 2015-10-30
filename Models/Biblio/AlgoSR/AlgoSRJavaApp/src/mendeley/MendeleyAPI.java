@@ -25,9 +25,9 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
 import utils.Connexion;
-import main.Abstract;
-import main.Reference;
-import main.Title;
+import main.reference.Abstract;
+import main.reference.Reference;
+import main.reference.Title;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>

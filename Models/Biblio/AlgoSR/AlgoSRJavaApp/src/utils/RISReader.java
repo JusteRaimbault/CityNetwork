@@ -9,9 +9,9 @@ import java.io.FileReader;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import main.Abstract;
-import main.Reference;
-import main.Title;
+import main.reference.Abstract;
+import main.reference.Reference;
+import main.reference.Title;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
@@ -41,7 +41,7 @@ public class RISReader {
 			   if(currentLine.startsWith("TY")&&currentTitle.length()>0){
 				   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
 				   newRef.keywords=currentKeywords;
-				   newRef.citedTitles=currentCitedTitles;
+				   newRef.biblio.citedTitles=currentCitedTitles;
 				   currentKeywords=new HashSet<String>();currentCitedTitles=new HashSet<String>();
 				   refs.add(newRef);
 				   if(refs.size()==size){break;}
@@ -78,7 +78,7 @@ public class RISReader {
 			   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
 			   // add additionary fields by hand. Dirty dirty, must have set/get methods
 			   newRef.keywords=currentKeywords;
-			   newRef.citedTitles=currentCitedTitles;
+			   newRef.biblio.citedTitles=currentCitedTitles;
 			   newRef.title.en_title=currentENTitle;
 			   refs.add(newRef);
 		   }

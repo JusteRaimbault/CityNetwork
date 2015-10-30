@@ -3,7 +3,7 @@
  */
 package utils;
 
-import main.Reference;
+import main.reference.Reference;
 import it.uniroma1.dis.wsngroup.gexf4j.core.EdgeType;
 import it.uniroma1.dis.wsngroup.gexf4j.core.Gexf;
 import it.uniroma1.dis.wsngroup.gexf4j.core.Graph;
