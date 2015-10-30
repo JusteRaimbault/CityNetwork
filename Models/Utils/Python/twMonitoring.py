@@ -25,6 +25,20 @@ def validate_tweet(text):
     return(False)
 
 
+# read a conf file under the format key:value
+# , returns a dictionary
+def read_conf(file):
+    conf = open('conf','r')
+    res=dict()
+    currentLine = conf.readline().replace('\n','')
+    while currentLine != '' :
+        t=str.split(currentLine,':')
+        if len(t) != 2 : raise Exception('error in conf file')
+        res[t[0]]=t[1]
+        currentLine = conf.readline().replace('\n','')
+        #print(t[0]+' : '+t[1])
+    return(res)
+
 
 def main():
 
@@ -36,11 +50,11 @@ def main():
 
         tso.set_keywords([s.replace('\n','') for s in keywords])
 
-        conf = open('conf','r')
-        key = conf.readline().replace('\n','')
-        secret = conf.readline().replace('\n','')
-        token = conf.readline().replace('\n','')
-        token_secret = conf.readline().replace('\n','')
+        conf = read_conf('conf')
+        key = conf['key']
+        secret = conf['secret']
+        token = conf['token']
+        token_secret = conf['token_secret']
 
         ts = TwitterSearch(
                 consumer_key = key,
@@ -60,11 +74,9 @@ def main():
         #print(search.keys())
         prev_write = open('previous','w')
 
-        #reg_mail = re.compile(reduce(lambda s1,s2 : s1+s2,[s[:-1] for s in open('regex_mail','r').readlines()]))
-
-        mail = open('mail','r').readline().replace('\n','')
-        pwd = open('pwd','r').readline().replace('\n','')
-        s = smtplib.SMTP('smtp.gmail.com',587)
+        mail =  conf['mail']
+        pwd = conf['pwd']
+        s = smtplib.SMTP(conf['smtp_host'],int(conf['smtp_port']))
         s.starttls()
         s.login(mail,pwd)
 
@@ -93,8 +105,6 @@ def main():
 
     except TwitterSearchException as e:
         print(e)
-
-
 
 
 
