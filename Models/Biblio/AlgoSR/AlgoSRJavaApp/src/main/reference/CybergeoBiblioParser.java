@@ -83,6 +83,13 @@ public class CybergeoBiblioParser implements BiblioParser {
 			for(int i=0;i<t.length()-4;i++){
 				if(t.substring(i, i+4).matches("\\d\\d\\d\\d")&&!found){yIndex=i+4;found=true;};
 			}
+			
+			// TODO : PB : some biblio have year AFTER title -> count split[,] elements before year elem ?
+			// ~ approximate heuristic.
+			//  !! do not use yIndex + 2 -> split with , also ?
+			//    quotes -> ?
+			
+			
 			//String[] end = t.substring(yIndex).split(",")[1].split(".");
 			//String res="";
 			//for(int i=1;i<end.length;i++){res+=end[i]+" ";}
