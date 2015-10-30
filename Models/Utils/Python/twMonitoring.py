@@ -10,10 +10,8 @@ from TwitterSearch import *
 #from validate_email import validate_email
 import re
 import smtplib
+from email.mime.text import MIMEText
 
-s = smtplib.SMTP('smtp.gmail.com',465)
-s.login('icanhazpdf.raimbaultjwin@gmail.com',open('pwd','r').readline().replace('\n',''))
-s.send('icanhazpdf.raimbaultjwin@gmail.com','icanhazpdf.raimbaultjwin@gmail.com','test')
 
 
 
@@ -62,19 +60,34 @@ def main():
         #print(search.keys())
         prev_write = open('previous','w')
 
-        reg_mail = re.compile(reduce(lambda s1,s2 : s1+s2,[s[:-1] for s in open('regex_mail','r').readlines()]))
+        #reg_mail = re.compile(reduce(lambda s1,s2 : s1+s2,[s[:-1] for s in open('regex_mail','r').readlines()]))
+
+        mail = open('mail','r').readline().replace('\n','')
+        pwd = open('pwd','r').readline().replace('\n','')
+        s = smtplib.SMTP('smtp.gmail.com',587)
+        s.starttls()
+        s.login(mail,pwd)
+
+        mail_text = ''
 
         for tweet in ts.search_tweets_iterable(tso):
             prev_write.write(str(tweet['id'])+'\n')
             if not str(tweet['id']) in prev :
                 if len(tweet['entities']['urls']) > 0 and validate_tweet(tweet['text']):
-                    print('\n\nTWEET : ')
-                    print(tweet['text'])
-
-                    # here send mail alert
-
+                    #print(tweet)
+                    mail_text=mail_text+'\n\nTWEET AT '+tweet['created_at']
+                    mail_text=mail_text+tweet['text']
 
         prev_write.close()
+
+        if len(mail_text) > 0 :
+            msg = MIMEText(mail_text.encode('utf-8'), 'plain', 'utf-8')
+            msg['Subject'] = 'Latest #ICanHazPdf requests...'
+            msg['From'] = mail
+            msg['To'] = mail
+            s.sendmail(mail,mail,msg.as_string())
+
+        s.close()
 
 
 
@@ -85,4 +98,4 @@ def main():
 
 
 
-#main()
+main()
