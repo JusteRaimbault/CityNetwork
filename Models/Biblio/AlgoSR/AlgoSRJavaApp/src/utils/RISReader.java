@@ -40,9 +40,10 @@ public class RISReader {
 			   // check new ref criterium : TY -
 			   if(currentLine.startsWith("TY")&&currentTitle.length()>0){
 				   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
-				   newRef.keywords=currentKeywords;
-				   newRef.biblio.citedTitles=currentCitedTitles;
-				   currentKeywords=new HashSet<String>();currentCitedTitles=new HashSet<String>();
+				   newRef.keywords=(HashSet<String>)currentKeywords.clone();
+				   newRef.biblio.citedTitles=(HashSet<String>)currentCitedTitles.clone();
+				   currentKeywords=new HashSet<String>();
+				   currentCitedTitles=new HashSet<String>();
 				   refs.add(newRef);
 				   if(refs.size()==size){break;}
 			   }
