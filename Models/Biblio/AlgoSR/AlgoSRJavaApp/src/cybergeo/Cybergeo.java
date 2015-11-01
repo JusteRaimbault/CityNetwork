@@ -74,7 +74,7 @@ public class Cybergeo {
 	}
 	
 	public static void fullNetwork(){
-		CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest(2);
+		CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest(-1);
 		
 		cybergeo.fillCitedRefs();
 		
