@@ -75,6 +75,7 @@ public class Cybergeo {
 	
 	public static void fullNetwork(){
 		CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest(2);
+		
 		cybergeo.fillCitedRefs();
 		
 		// must construct by hand set of cited ?
@@ -91,6 +92,7 @@ public class Cybergeo {
 		
 		// export
 		(new DefaultCorpus(Reference.references.keySet())).gexfExport(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/fullNW_"+(new Date().toString().replaceAll(" ", "-"))+".gexf");
+	
 	}
 	
 	

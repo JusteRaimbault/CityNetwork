@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import main.corpuses.RISFactory;
 import main.reference.Abstract;
 import main.reference.Reference;
 import main.reference.Title;
@@ -36,18 +37,21 @@ public class RISReader {
 		   HashSet<String> currentKeywords=new HashSet<String>();
 		   HashSet<String> currentCitedTitles=new HashSet<String>();
 		   String currentLine = reader.readLine();
-		   Reference currentRef = null;
+		  
 		   while(currentLine!= null){
 			   // check new ref criterium : TY -
 			   if(currentLine.startsWith("TY")&&currentTitle.length()>0){
-				   //newRef.keywords=(HashSet<String>)currentKeywords.clone();
-				   //newRef.biblio.citedTitles=(HashSet<String>)currentCitedTitles.clone();
-				   //currentKeywords=new HashSet<String>();
-				   //currentCitedTitles=new HashSet<String>();
-				   currentRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
+				   //
+				   //
+				   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
+				   for(String s:currentKeywords){newRef.keywords.add(s);};
+				   for(String s:currentCitedTitles){newRef.biblio.citedTitles.add(s);}
 				   
+				   currentKeywords.clear();
+				   currentCitedTitles.clear();
 				   
-				   refs.add(currentRef);
+				   refs.add(newRef);  
+				   
 				   if(refs.size()==size){break;}
 			   }
 			   if(currentLine.startsWith("AB")){
@@ -68,26 +72,29 @@ public class RISReader {
 			   }
 			   if(currentLine.startsWith("KW")){
 				   String[] t = currentLine.split("KW  - ");
-				   if(t.length>1){currentRef.keywords.add(t[1]);}
+				   if(t.length>1){currentKeywords.add(t[1]);}
 			   }
 			   if(currentLine.startsWith("BI")){
 				   String[] t = currentLine.split("BI  - ");
-				   if(t.length>1){currentRef.biblio.citedTitles.add(t[1]);}
+				   if(t.length>1){
+					   currentCitedTitles.add(t[1]);
+					   
+				   }
 			   }
 			   currentLine = reader.readLine();
 		   }
 		   
 		   //add the last ref
 		   if(refs.size()<size||size==-1){
-			   refs.add(currentRef);
-			   
-			   /*Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
+			   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
 			   // add additionary fields by hand. Dirty dirty, must have set/get methods
 			   newRef.keywords=currentKeywords;
 			   newRef.biblio.citedTitles=currentCitedTitles;
 			   newRef.title.en_title=currentENTitle;
-			   refs.add(newRef);*/
+			   refs.add(newRef);
 		   }
+		   
+		   
 		   
 		   reader.close();
 		   
@@ -98,8 +105,13 @@ public class RISReader {
 	
 	
 	public static void main(String[] args){
-		read("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/junk/refs_transportation+network+urban+growth_14.ris",-1);
-		for(Reference r:Reference.references.keySet()){System.out.println(r);}
+		HashSet<Reference> refs = read(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs_origTitles.ris",3);
+		for(Reference r:refs){
+			System.out.println(r);
+			for(String t:r.biblio.citedTitles){
+				System.out.println(t);
+			}
+		}
 	}
 	
 	

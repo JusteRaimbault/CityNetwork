@@ -99,7 +99,7 @@ public class Reference {
 		authors = new HashSet<String>();
 		keywords = new HashSet<String>();
 		citing=new HashSet<Reference>();
-		biblio=Bibliography.EMPTY;
+		biblio=new Bibliography(new HashSet<Reference>());
 		attributes = new HashMap<String,String>();
 	}
 	
