@@ -36,15 +36,18 @@ public class RISReader {
 		   HashSet<String> currentKeywords=new HashSet<String>();
 		   HashSet<String> currentCitedTitles=new HashSet<String>();
 		   String currentLine = reader.readLine();
+		   Reference currentRef = null;
 		   while(currentLine!= null){
 			   // check new ref criterium : TY -
 			   if(currentLine.startsWith("TY")&&currentTitle.length()>0){
-				   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
-				   newRef.keywords=(HashSet<String>)currentKeywords.clone();
-				   newRef.biblio.citedTitles=(HashSet<String>)currentCitedTitles.clone();
-				   currentKeywords=new HashSet<String>();
-				   currentCitedTitles=new HashSet<String>();
-				   refs.add(newRef);
+				   //newRef.keywords=(HashSet<String>)currentKeywords.clone();
+				   //newRef.biblio.citedTitles=(HashSet<String>)currentCitedTitles.clone();
+				   //currentKeywords=new HashSet<String>();
+				   //currentCitedTitles=new HashSet<String>();
+				   currentRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
+				   
+				   
+				   refs.add(currentRef);
 				   if(refs.size()==size){break;}
 			   }
 			   if(currentLine.startsWith("AB")){
@@ -65,23 +68,25 @@ public class RISReader {
 			   }
 			   if(currentLine.startsWith("KW")){
 				   String[] t = currentLine.split("KW  - ");
-				   if(t.length>1){currentKeywords.add(t[1]);}
+				   if(t.length>1){currentRef.keywords.add(t[1]);}
 			   }
 			   if(currentLine.startsWith("BI")){
 				   String[] t = currentLine.split("BI  - ");
-				   if(t.length>1){currentCitedTitles.add(t[1]);}
+				   if(t.length>1){currentRef.biblio.citedTitles.add(t[1]);}
 			   }
 			   currentLine = reader.readLine();
 		   }
 		   
 		   //add the last ref
 		   if(refs.size()<size||size==-1){
-			   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
+			   refs.add(currentRef);
+			   
+			   /*Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
 			   // add additionary fields by hand. Dirty dirty, must have set/get methods
 			   newRef.keywords=currentKeywords;
 			   newRef.biblio.citedTitles=currentCitedTitles;
 			   newRef.title.en_title=currentENTitle;
-			   refs.add(newRef);
+			   refs.add(newRef);*/
 		   }
 		   
 		   reader.close();
