@@ -4,11 +4,13 @@
 package cybergeo;
 
 import java.util.Date;
+import java.util.HashSet;
 
 import main.Main;
 import main.corpuses.Corpus;
 import main.corpuses.CybergeoCorpus;
 import main.corpuses.CybergeoFactory;
+import main.corpuses.DefaultCorpus;
 import main.corpuses.RISFactory;
 import main.reference.Reference;
 import scholar.ScholarAPI;
@@ -31,7 +33,7 @@ public class Cybergeo {
 	}
 	
 	
-	public static Corpus setupTest(){
+	public static Corpus setupTest(int numRefs){
 
 		 Main.setup("conf/default.conf");
 		 try{TorPoolManager.setupTorPoolConnexion();}catch(Exception e){e.printStackTrace();}
@@ -40,14 +42,14 @@ public class Cybergeo {
 		 //CybergeoImport.setupSQL();
 		 
 		 //CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("2010-01-01",2)).getCorpus();
-		 return new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs_origTitles.ris",-1)).getCorpus().references);
+		 return new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs_origTitles.ris",numRefs)).getCorpus().references);
 			 
 	}
 	
 	
 	public static void testCitedRefConstruction(){
 		
-		 CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest();
+		 CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest(-1);
 		 // test cited refs reconstruction
 		 cybergeo.fillCitedRefs();
 		 
@@ -58,7 +60,7 @@ public class Cybergeo {
 	
 	
 	public static void testCitingRefs(){
-		 CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest();
+		 CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest(-1);
 		 System.out.println("Corpus size : "+Reference.references.keySet().size());	
 		 cybergeo.getCitingRefs();
 		 cybergeo.gexfExport(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/test_citingNW_"+(new Date().toString().replaceAll(" ", "-"))+".gexf");
@@ -71,13 +73,32 @@ public class Cybergeo {
 		 
 	}
 	
+	public static void fullNetwork(){
+		CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest(2);
+		cybergeo.fillCitedRefs();
+		
+		// must construct by hand set of cited ?
+		HashSet<Reference> cited = new HashSet<Reference>();
+		for(Reference r:cybergeo.references){
+			for(Reference c:r.biblio.cited){cited.add(c);}
+		}
+		System.out.println("Total cited "+cited.size());
+		(new DefaultCorpus(cited)).getCitingRefs();
+		
+		// 2nd level
+		(new DefaultCorpus(Reference.references.keySet())).getCitingRefs();
+		System.out.println("Final refs : "+Reference.references.keySet().size());
+		
+		// export
+		(new DefaultCorpus(Reference.references.keySet())).gexfExport(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/fullNW_"+(new Date().toString().replaceAll(" ", "-"))+".gexf");
+	}
 	
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		exportCybergeoAsRIS(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_rawRefs_origTitles.ris");
+		//exportCybergeoAsRIS(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_rawRefs_origTitles.ris");
 		
 		// check ris export
 		//CybergeoCorpus cybergeo = new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase.ris",10)).getCorpus().references);
@@ -91,6 +112,8 @@ public class Cybergeo {
 		//testCitedRefConstruction();
 		
 		//testCitingRefs();
+		
+		fullNetwork();
 	}
 
 }

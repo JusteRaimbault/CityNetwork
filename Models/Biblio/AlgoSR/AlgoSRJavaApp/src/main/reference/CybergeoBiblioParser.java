@@ -31,26 +31,26 @@ public class CybergeoBiblioParser implements BiblioParser {
 		for(Element bibitem:parsedBib.getElementsByClass("bibliographie")){
 			//System.out.println(bibitem.html());
 			
-			String t = titleFromCybRef(bibitem.text());
-			
-			
-			res.add(t);
-			/*
+			//String t = titleFromCybRef(bibitem.text());
+			String r = "";
 			String t = titleFromCybRef(bibitem.html());
 			if(t.length()>0){
 				//System.out.println(t);
 				//System.out.println(t.indexOf("<em>"));
 				int emIndex = t.indexOf("<em>");
 				if(emIndex==-1){
-					res.add(titleFromCybRef(bibitem.text()).split(",")[0]);
+					r = titleFromCybRef(bibitem.text()).split(",")[0];
 				}else{
 					if(emIndex < 3){
-						res.add(bibitem.getElementsByTag("em").text());
+						r=bibitem.getElementsByTag("em").text();
 					}
-					else{res.add(titleFromCybRef(bibitem.text()).split(",")[0]);}
+					else{r=titleFromCybRef(bibitem.text()).split(",")[0];}
 				}
 			}
-			*/
+			r=cleanString(r);
+			res.add(r);
+			
+			
 		}
 
 		// dirty
@@ -63,6 +63,13 @@ public class CybergeoBiblioParser implements BiblioParser {
 	}
 
 
+	private static String cleanString(String s){
+		String res=s.replaceAll("\"", "").replaceAll("“", "").replaceAll("”", "").replaceAll("«", "").replaceAll("»", "");
+		while(res.startsWith(" ")){res=res.substring(1);}
+		while(res.endsWith(" ")){res=res.substring(0, res.length()-1);}
+		
+		return res;
+	}
 
 
 	
@@ -94,7 +101,7 @@ public class CybergeoBiblioParser implements BiblioParser {
 			//String res="";
 			//for(int i=1;i<end.length;i++){res+=end[i]+" ";}
 			//return end[0];
-			res=t.substring(yIndex+2);
+			res=t.substring(yIndex+1);
 		}catch(Exception e){e.printStackTrace();return "";}
 		return res;
 	}
