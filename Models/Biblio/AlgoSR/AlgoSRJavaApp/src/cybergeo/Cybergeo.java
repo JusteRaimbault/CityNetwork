@@ -73,8 +73,8 @@ public class Cybergeo {
 		 
 	}
 	
-	public static void fullNetwork(){
-		CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest(-1);
+	public static void fullNetwork(int numrefs){
+		CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest(numrefs);
 		
 		cybergeo.fillCitedRefs();
 		
@@ -100,6 +100,7 @@ public class Cybergeo {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
 		//exportCybergeoAsRIS(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_rawRefs_origTitles.ris");
 		
 		// check ris export
@@ -115,7 +116,8 @@ public class Cybergeo {
 		
 		//testCitingRefs();
 		
-		fullNetwork();
+		
+		fullNetwork(Integer.parseInt(args[0]));
 	}
 
 }
