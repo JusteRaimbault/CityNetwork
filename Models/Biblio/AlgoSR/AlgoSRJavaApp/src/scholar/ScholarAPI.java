@@ -262,8 +262,8 @@ public class ScholarAPI {
 			for(Reference r:refs){
 				System.out.println("Getting cit for ref "+r.toString());
 
-				if(r.citing.size()>0){
-					System.out.println("Citing refs already filled !");
+				if(r.citing.size()>1){
+					System.out.println("Citing refs already filled : "+r.citing.size()+" refs");
 				}
 				else{
 					try{
@@ -278,7 +278,8 @@ public class ScholarAPI {
 						 * 
 						 */
 						
-						Reference rr = getScholarRef(r);
+						Reference rr;
+						if(r.scholarID==null){rr = getScholarRef(r);}else{rr=r;}
 						
 						if(rr!=null){
 							System.out.println("ID : "+rr.scholarID);

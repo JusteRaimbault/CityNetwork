@@ -66,6 +66,9 @@ public class Bibliography {
 	 */
 	public Bibliography(HashSet<String> ti,HashSet<String> raw){
 		citedTitles=ti;citedRaw=raw;
+		// fill cited with ghost refs
+		cited = new HashSet<Reference>();
+		for(String t:citedTitles){cited.add(new GhostReference(t,""));}
 	}
 	
 	

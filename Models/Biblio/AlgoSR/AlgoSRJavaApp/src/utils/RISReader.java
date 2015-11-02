@@ -11,6 +11,7 @@ import java.util.LinkedList;
 
 import main.corpuses.RISFactory;
 import main.reference.Abstract;
+import main.reference.BibTeXParser;
 import main.reference.Reference;
 import main.reference.Title;
 
@@ -35,7 +36,7 @@ public class RISReader {
 		   BufferedReader reader = new BufferedReader(new FileReader(new File(filePath)));
 		   String currentTitle="",currentENTitle="",currentAbstract="",currentYear="";
 		   HashSet<String> currentKeywords=new HashSet<String>();
-		   HashSet<String> currentCitedTitles=new HashSet<String>();
+		   HashSet<Reference> currentCitedGhostRefs=new HashSet<Reference>();
 		   String currentLine = reader.readLine();
 		  
 		   while(currentLine!= null){
@@ -45,10 +46,10 @@ public class RISReader {
 				   //
 				   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
 				   for(String s:currentKeywords){newRef.keywords.add(s);};
-				   for(String s:currentCitedTitles){newRef.biblio.citedTitles.add(s);}
+				   for(Reference r:currentCitedGhostRefs){newRef.biblio.cited.add(r);}
 				   
 				   currentKeywords.clear();
-				   currentCitedTitles.clear();
+				   currentCitedGhostRefs.clear();
 				   
 				   refs.add(newRef);  
 				   
@@ -77,8 +78,7 @@ public class RISReader {
 			   if(currentLine.startsWith("BI")){
 				   String[] t = currentLine.split("BI  - ");
 				   if(t.length>1){
-					   currentCitedTitles.add(t[1]);
-					   
+					   currentCitedGhostRefs.add(BibTeXParser.parseBibtexString(t[1]));   
 				   }
 			   }
 			   currentLine = reader.readLine();
@@ -89,7 +89,7 @@ public class RISReader {
 			   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
 			   // add additionary fields by hand. Dirty dirty, must have set/get methods
 			   newRef.keywords=currentKeywords;
-			   newRef.biblio.citedTitles=currentCitedTitles;
+			   newRef.biblio.cited=currentCitedGhostRefs;
 			   newRef.title.en_title=currentENTitle;
 			   refs.add(newRef);
 		   }
@@ -105,10 +105,10 @@ public class RISReader {
 	
 	
 	public static void main(String[] args){
-		HashSet<Reference> refs = read(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs_origTitles.ris",3);
+		HashSet<Reference> refs = read(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib.ris",3);
 		for(Reference r:refs){
 			System.out.println(r);
-			for(String t:r.biblio.citedTitles){
+			for(Reference t:r.biblio.cited){
 				System.out.println(t);
 			}
 		}

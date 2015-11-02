@@ -25,7 +25,7 @@ import main.reference.Reference;
 public class BIBWriter {
 	
 	/**
-	 * Write a set of refs to text file
+	 * Write a set of refs to text file - TODO use jbibtex
 	 * 
 	 * @param filePath
 	 * @param refs
@@ -62,4 +62,17 @@ public class BIBWriter {
 			
 		}catch(Exception e){e.printStackTrace();}
 	}
+	
+	
+	/**
+	 * Ref as bibtex string record
+	 * 
+	 * @param r
+	 * @return
+	 */
+	public static String minimalBibTeXString(Reference r){
+		return("@ref{title={"+r.title.title+"},year={"+r.year+"}}");
+	}
+	
+	
 }
