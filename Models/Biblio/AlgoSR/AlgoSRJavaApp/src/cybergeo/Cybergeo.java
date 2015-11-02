@@ -84,14 +84,17 @@ public class Cybergeo {
 			for(Reference c:r.biblio.cited){cited.add(c);}
 		}
 		System.out.println("Total cited "+cited.size());
+		
+		/*
 		(new DefaultCorpus(cited)).getCitingRefs();
 		
 		// 2nd level
 		(new DefaultCorpus(Reference.references.keySet())).getCitingRefs();
 		System.out.println("Final refs : "+Reference.references.keySet().size());
+		*/
 		
 		// export
-		(new DefaultCorpus(Reference.references.keySet())).gexfExport(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/fullNW_"+(new Date().toString().replaceAll(" ", "-"))+".gexf");
+		(new DefaultCorpus(Reference.references.keySet())).gexfExport(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/testOnlyCited_"+(new Date().toString().replaceAll(" ", "-"))+".gexf");
 	
 	}
 	
