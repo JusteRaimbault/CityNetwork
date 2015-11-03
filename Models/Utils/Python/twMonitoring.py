@@ -93,14 +93,18 @@ def main():
 
         prev_write.close()
 
+        # get mail adresses
+        mails = open('mails','r').readlines()
+
         if len(mail_text) > 0 :
-            msg = MIMEText(mail_text.encode('utf-8'), 'plain', 'utf-8')
-            msg['Subject'] = 'Latest #ICanHazPdf requests...'
-            msg['From'] = mail
-            msg['To'] = mail
-            s.sendmail(mail,mail,msg.as_string())
-	
-	print(mail_text)
+            for to_mail in mails :
+                msg = MIMEText(mail_text.encode('utf-8'), 'plain', 'utf-8')
+                msg['Subject'] = 'Latest #ICanHazPdf requests...'
+                msg['From'] = mail
+                msg['To'] = to_mail
+                s.sendmail(mail,mail,msg.as_string())
+
+	    #print(mail_text)
         s.close()
 
 
