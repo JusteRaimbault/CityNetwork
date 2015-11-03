@@ -42,7 +42,7 @@ def read_conf(file):
 
 
 def main():
-	
+
     print('running main')
 
     try:
@@ -58,7 +58,7 @@ def main():
         secret = conf['secret']
         token = conf['token']
         token_secret = conf['token_secret']
-	
+
 	print('conf read')
 
         ts = TwitterSearch(
