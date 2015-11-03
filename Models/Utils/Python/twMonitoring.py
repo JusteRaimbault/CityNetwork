@@ -13,7 +13,7 @@ import re
 import smtplib
 from email.mime.text import MIMEText
 
-
+#print('test')
 
 
 def validate_tweet(text):
@@ -42,6 +42,8 @@ def read_conf(file):
 
 
 def main():
+	
+    print('running main')
 
     try:
         tso = TwitterSearchOrder()
@@ -56,6 +58,8 @@ def main():
         secret = conf['secret']
         token = conf['token']
         token_secret = conf['token_secret']
+	
+	print('conf read')
 
         ts = TwitterSearch(
                 consumer_key = key,
@@ -66,6 +70,8 @@ def main():
 
         search = ts.search_tweets_iterable(tso)
 
+	print('search ok')
+
         # get previous request ids from file --DIRTY--
         previous = open('previous','r')
         prev = dict()
@@ -75,10 +81,15 @@ def main():
         #print(search.keys())
         prev_write = open('previous','w')
 
+	print('prev ok')
+
         mail =  conf['mail']
         pwd = conf['pwd']
         s = smtplib.SMTP(conf['smtp_host'],int(conf['smtp_port']))
         s.starttls()
+
+	print('smtp started')
+
         s.login(mail,pwd)
 
         mail_text = ''
@@ -100,7 +111,7 @@ def main():
             msg['To'] = mail
             s.sendmail(mail,mail,msg.as_string())
 	
-	print(mail_text)
+	#print(mail_text)
         s.close()
 
 
@@ -109,5 +120,6 @@ def main():
         print(e)
 
 
+print('test')
 
 main()
