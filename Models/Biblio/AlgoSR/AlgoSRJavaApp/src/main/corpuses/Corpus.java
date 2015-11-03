@@ -25,10 +25,28 @@ public abstract class Corpus {
 	 * 
 	 * @return this corpus
 	 */
-	public Corpus getCitingRefs(){
+	public Corpus fillCitingRefs(){
 		ScholarAPI.fillIdAndCitingRefs(references);
 		return this;
 	}
+	
+	
+	/**
+	 * Get the corpus of refs citing - assumes citing refs have been filled,
+	 * only construct a wrapper around a new hashSet.
+	 * 
+	 * @return
+	 */
+	public Corpus getCitingCorpus(){
+		HashSet<Reference> citing = new HashSet<Reference>();
+		for(Reference r:references){
+			for(Reference c:r.citing){
+				citing.add(c);
+			}
+		}
+		return new DefaultCorpus(citing);
+	}
+	
 	
 	
 	/**

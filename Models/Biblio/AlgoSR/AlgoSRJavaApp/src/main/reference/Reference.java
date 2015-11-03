@@ -196,7 +196,7 @@ public class Reference {
 	 * Override to string
 	 */
 	public String toString(){
-		return "Ref "+id+" - schID : "+scholarID+"- t : "+title;
+		return "Ref "+id+" - schID : "+scholarID+" - t : "+title+" - year : "+year;
 	}
 	
 }

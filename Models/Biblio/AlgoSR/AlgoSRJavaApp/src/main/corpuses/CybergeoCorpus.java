@@ -34,11 +34,18 @@ public class CybergeoCorpus extends Corpus {
 	 */
 	public void fillCitedRefs(){
 		for(Reference r:references){
-			for(String title:r.biblio.citedTitles){
-				System.out.println("   cited : "+title);
-				Reference cr = ScholarAPI.getScholarRef(title,"","");
-				if(cr!=null){r.biblio.cited.add(cr);}
+			HashSet<Reference> verifiedCited=new HashSet<Reference>();
+			for(Reference ghost:r.biblio.cited){
+				System.out.println("     Cited : "+ghost.title.title);
+				Reference cr = ScholarAPI.getScholarRef(ghost.title.title,"",ghost.year);
+				if(cr!=null){
+					verifiedCited.add(cr);
+					cr.citing.add(r);
+				}
 			}
+			
+			// dirty dirty
+			r.biblio.cited = verifiedCited;
 			
 			/**
 			 * TODO : write a generic constructor from ref title, combining mendeley and scholar requests to have most info possible ?

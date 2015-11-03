@@ -25,7 +25,7 @@ public class CybergeoBiblioParser implements BiblioParser {
 		// get cited refs, from textes.`bibliographie` -> each ref as <p class="bibliographie">...</p>
 		// title as <em>...</em>
 
-		HashSet<String> res = new HashSet<String>();
+		HashSet<Reference> res = new HashSet<Reference>();
 
 		Document parsedBib = Jsoup.parse(biblio);
 		for(Element bibitem:parsedBib.getElementsByClass("bibliographie")){
@@ -34,6 +34,7 @@ public class CybergeoBiblioParser implements BiblioParser {
 			//String t = titleFromCybRef(bibitem.text());
 			String r = "";
 			String t = titleFromCybRef(bibitem.html());
+			String y = yearFromCybRef(bibitem.html());
 			if(t.length()>0){
 				//System.out.println(t);
 				//System.out.println(t.indexOf("<em>"));
@@ -47,8 +48,10 @@ public class CybergeoBiblioParser implements BiblioParser {
 					else{r=titleFromCybRef(bibitem.text()).split(",")[0];}
 				}
 			}
+			
+			// supp string cleaning (ex quotes)
 			r=cleanString(r);
-			res.add(r);
+			res.add(new GhostReference(r,y));
 			
 			
 		}
@@ -59,7 +62,8 @@ public class CybergeoBiblioParser implements BiblioParser {
 		for(String s:res){r.add(StringUtils.deleteSpecialCharacters(s));}
 		*/
 		
-		return new Bibliography(res,new HashSet<String>());
+		// bibliography of ghost refs
+		return new Bibliography(res);
 	}
 
 
@@ -106,6 +110,18 @@ public class CybergeoBiblioParser implements BiblioParser {
 		return res;
 	}
 	
+	private static String yearFromCybRef(String t){
+		String res = "";
+		try{
+			int yIndex = 0;
+			boolean found = false;
+			for(int i=0;i<t.length()-4;i++){
+				if(t.substring(i, i+4).matches("\\d\\d\\d\\d")&&!found){yIndex=i;found=true;};
+			}
+			res=t.substring(yIndex,yIndex+4);
+		}catch(Exception e){e.printStackTrace();return "";}
+		return res;
+	}
 	
 	
 	

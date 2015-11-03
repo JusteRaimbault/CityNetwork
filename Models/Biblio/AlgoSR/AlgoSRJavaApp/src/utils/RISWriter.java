@@ -56,8 +56,8 @@ public class RISWriter {
 				writer.write("PY  - "+r.year+"\n");
 				
 				//customized tag : references
-				for(String t:r.biblio.citedTitles){
-					writer.write("BI  - "+t+"\n");
+				for(Reference t:r.biblio.cited){
+					writer.write("BI  - "+BIBWriter.minimalBibTeXString(t)+"\n");
 				}
 				
 				//do not forget the end of ref tag

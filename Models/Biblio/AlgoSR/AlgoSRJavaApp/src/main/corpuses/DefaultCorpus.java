@@ -31,4 +31,21 @@ public class DefaultCorpus extends Corpus {
 		references = new HashSet<Reference>(refs);
 	}
 	
+	
+	/**
+	 * Fusion of corpuses
+	 * 
+	 * @param corpuses
+	 */
+	public DefaultCorpus(Set<Corpus> corpuses,int t){
+		references = new HashSet<Reference>();
+		for(Corpus c:corpuses){
+			System.out.println(c.references.size());
+			for(Reference r:c.references){
+				references.add(r);
+			}
+		}
+	}
+	
+	
 }
