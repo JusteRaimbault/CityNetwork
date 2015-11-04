@@ -124,7 +124,7 @@ CHOOSER
 network-generation-method
 network-generation-method
 "simple-connexification" "neighborhood-gravity" "random"
-2
+1
 
 SLIDER
 858
@@ -199,6 +199,21 @@ random-network-density
 0.1
 0.01
 0.001
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1061
+277
+1245
+310
+neigh-gravity-radius
+neigh-gravity-radius
+0
+100
+10
+1
 1
 NIL
 HORIZONTAL

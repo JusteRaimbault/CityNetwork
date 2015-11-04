@@ -110,12 +110,12 @@ public class CybergeoImport {
 	 * 
 	 * @param outDir
 	 */
-	public static void directExport(String outDir){
+	public static void directExport(String outDir,boolean writeFullTexts){
 		LinkedList<String[]> table = new LinkedList<String[]>();
-		new File(outDir+"/texts").mkdir();
+		
 		try{
 			// add header
-			   String[] header = {"id","title_en","keywords_en","authors","date","langue","translated"};
+			   String[] header = {"id","title","title_en","keywords_en","keywords_fr","authors","date","langue","translated"};
 			   table.add(header);
 			
 			   ResultSet sqlrefs = sqlDB.createStatement().executeQuery(
@@ -126,12 +126,13 @@ public class CybergeoImport {
 				   String id = sqlrefs.getString(1);
 				   String lang = sqlrefs.getString(4);
 				   Title proc_title = getTitle(sqlrefs.getString(2),sqlrefs.getString(3),lang);
+				   String title = proc_title.title;
 				   String title_en = proc_title.en_title;
 				   
 				   String date = sqlrefs.getString(5);
 				   boolean translated = proc_title.translated;
 				   
-				   String[] row = {id,title_en,"","",date,lang,new Boolean(translated).toString()};
+				   String[] row = {id,title,title_en,"","","",date,lang,new Boolean(translated).toString()};
 				   
 				   // get authors
 				   String authors = "";
@@ -140,7 +141,7 @@ public class CybergeoImport {
 				      ResultSet author = sqlDB.createStatement().executeQuery("SELECT `nomfamille`,`prenom` FROM `auteurs` WHERE `idperson` = "+authorsIds.getString(1)+" ;");
 				      if(author.next()){if(authors.length()>0){authors+=",";}authors+=author.getString(1)+" "+author.getString(2);}
 				   }
-				   row[3]=authors;
+				   row[5]=authors;
 				   
 				   // get keywords
 				   
@@ -156,22 +157,34 @@ public class CybergeoImport {
 				      ResultSet kw = sqlDB.createStatement().executeQuery("SELECT `g_name` FROM `entries` WHERE `id` = "+kwIds.getString(1)+" AND `idtype`=34 ;");
 				      while(kw.next()){if(keywords.length()>0){keywords+=",";}keywords+=kw.getString(1);}
 				   }
-				   row[2]=keywords;
+				   row[3]=keywords;
 				   
-				   // print text and abstract in files
-				   ResultSet rawText = sqlDB.createStatement().executeQuery("SELECT `texte` FROM textes WHERE `identity` = "+id+" LIMIT 1 ; ");
-				   if(rawText.next()){
-					   BasicWriter.write(outDir+"/texts/"+id+"_text.txt", rawText(rawText.getString(1)));
+				   // keywords fr
+				   String keywords_fr = "";
+				   ResultSet kwFRIds = sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +id+" AND  `nature` LIKE  'E' ORDER BY  `degree` ASC ;");
+				   while(kwFRIds.next()){
+				      ResultSet kw = sqlDB.createStatement().executeQuery("SELECT `g_name` FROM `entries` WHERE `id` = "+kwFRIds.getString(1)+" AND `idtype`=33 ;");
+				      while(kw.next()){if(keywords_fr.length()>0){keywords_fr+=",";}keywords_fr+=kw.getString(1);}
+				   }
+				   row[4]=keywords_fr;
+				   
+				   if(writeFullTexts){
+					   new File(outDir+"/texts").mkdir();
+					   // print text and abstract in files
+					   ResultSet rawText = sqlDB.createStatement().executeQuery("SELECT `texte` FROM textes WHERE `identity` = "+id+" LIMIT 1 ; ");
+					   if(rawText.next()){
+						   BasicWriter.write(outDir+"/texts/"+id+"_text.txt", rawText(rawText.getString(1)));
+					   }
+
+					   ResultSet res = sqlDB.createStatement().executeQuery("SELECT `resume` FROM textes WHERE `identity` = "+id+" LIMIT 1 ; ");
+					   if(res.next()){
+						   LinkedList<String> t = new LinkedList<String>();
+						   t.add(getAbstract(res.getString(1)).resume);
+						   BasicWriter.write(outDir+"/texts/"+id+"_abstract.txt", t);
+					   }
 				   }
 				   
-				   ResultSet res = sqlDB.createStatement().executeQuery("SELECT `resume` FROM textes WHERE `identity` = "+id+" LIMIT 1 ; ");
-				   if(res.next()){
-					   LinkedList<String> t = new LinkedList<String>();
-					   t.add(getAbstract(res.getString(1)).resume);
-					   BasicWriter.write(outDir+"/texts/"+id+"_abstract.txt", t);
-				   }
-				   
-				   System.out.println(title_en);
+				   System.out.println(title);
 				   
 				   table.add(row);
 				   
@@ -181,7 +194,7 @@ public class CybergeoImport {
 			   String[][] csv = new String[table.size()][table.get(0).length];
 			   for(int i=0;i<csv.length;i++){csv[i]=table.get(i);}
 			   
-			   CSVWriter.write(outDir+"cybergeo.csv", csv, "\t");
+			   CSVWriter.write(outDir+"cybergeo_withFR.csv", csv, "\t");
 			   
 			}catch(Exception e){
 				e.printStackTrace();
@@ -270,9 +283,9 @@ public class CybergeoImport {
 		setupSQL();
 		//GEXFWriter.write("res/test_cyb_gexf.gexf", importBase());
 		//RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle_withKeywords.ris", importBase());
-		//directExport("res/raw/");
+		directExport(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/raw/",false);
 		
-		importBase("WHERE  `datepubli` >=  '2003-01-01' LIMIT 10");
+		//importBase("WHERE  `datepubli` >=  '2003-01-01' LIMIT 10");
 		
 		
 		
