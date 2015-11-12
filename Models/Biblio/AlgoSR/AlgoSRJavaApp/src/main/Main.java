@@ -147,7 +147,7 @@ public class Main {
 		
 		//export them to ris and zip
 		Log.output("Writing to ris and zipping...");
-		RISWriter.write(filePref+".ris", Reference.references.keySet());
+		RISWriter.write(filePref+".ris", Reference.references.keySet(),false);
 		Zipper.zip(filePref+".ris");
 		
 		//Cortext

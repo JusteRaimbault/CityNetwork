@@ -128,6 +128,31 @@ public class ScholarAPI {
 	}
 	
 	
+	
+	
+	/**
+	 * @param references
+	 */
+	public static void fillIds(HashSet<Reference> references) {
+
+		for(Reference r:references){
+			try{
+				if(r.scholarID==null||r.scholarID==""){
+					Reference rr = getScholarRef(r);
+					if(rr!=null){
+						r.scholarID=rr.scholarID;
+						System.out.println("Retrieved ID for Ref "+r);
+					}
+				}
+			}catch(Exception e){e.printStackTrace();}
+		}
+
+	}
+
+	
+	
+	
+	
 	/**
 	 * Get references from a scholar request - citations not filled for more flexibility.
 	 * 
@@ -432,6 +457,8 @@ public class ScholarAPI {
 		} catch(Exception e){e.printStackTrace();}
 		return res;
 	}
+
+
 	
 	
 	

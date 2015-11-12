@@ -27,10 +27,11 @@ public class RISWriter {
 	/**
 	 * Write a set of refs to text file
 	 * 
-	 * @param filePath
-	 * @param refs
+	 * @param filePath : file to write
+	 * @param refs : references to be written
+	 * @param strictIDPolicy : do we apply a strict scholar ID policy == do not write refs without id
 	 */
-	public static void write(String filePath,Set<Reference> refs){
+	public static void write(String filePath,Set<Reference> refs,boolean strictIDPolicy){
 		try{
 			File file = new File(filePath);
 			//Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "ISO-8859-1"));
@@ -38,6 +39,7 @@ public class RISWriter {
 			
 			
 			for(Reference r:refs){
+				if(strictIDPolicy&&(r.scholarID==null||r.scholarID=="")){continue;}
 				writer.write("TY  - JOUR\nAB  - "+r.resume.resume+"\n");
 				for(String a:r.authors){
 					writer.write("AU  - "+a+"\n");
@@ -52,8 +54,11 @@ public class RISWriter {
 					writer.write("TT  - "+r.title.en_title+"\n");
 				}
 				
-				
+				// year
 				writer.write("PY  - "+r.year+"\n");
+				
+				// write scholar ID
+				writer.write("ID  - "+r.scholarID+"\n");
 				
 				//customized tag : references
 				for(Reference t:r.biblio.cited){

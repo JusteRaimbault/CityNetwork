@@ -34,7 +34,7 @@ public class RISReader {
 		HashSet<Reference> refs = new HashSet<Reference>();
 		try{
 		   BufferedReader reader = new BufferedReader(new FileReader(new File(filePath)));
-		   String currentTitle="",currentENTitle="",currentAbstract="",currentYear="";
+		   String currentTitle="",currentENTitle="",currentAbstract="",currentYear="",currentID="";
 		   HashSet<String> currentKeywords=new HashSet<String>();
 		   HashSet<Reference> currentCitedGhostRefs=new HashSet<Reference>();
 		   String currentLine = reader.readLine();
@@ -44,12 +44,13 @@ public class RISReader {
 			   if(currentLine.startsWith("TY")&&currentTitle.length()>0){
 				   //
 				   //
-				   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
+				   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, currentID);
 				   for(String s:currentKeywords){newRef.keywords.add(s);};
 				   for(Reference r:currentCitedGhostRefs){newRef.biblio.cited.add(r);}
 				   
 				   currentKeywords.clear();
 				   currentCitedGhostRefs.clear();
+				   currentAbstract="";currentTitle="";currentENTitle="";currentYear="";currentID="";
 				   
 				   refs.add(newRef);  
 				   
@@ -71,6 +72,10 @@ public class RISReader {
 				   String[] t = currentLine.split("PY  - ");
 				   if(t.length>1){currentYear=t[1];}
 			   }
+			   if(currentLine.startsWith("ID")){
+				   String[] t = currentLine.split("ID  - ");
+				   if(t.length>1){currentID=t[1];}
+			   }
 			   if(currentLine.startsWith("KW")){
 				   String[] t = currentLine.split("KW  - ");
 				   if(t.length>1){currentKeywords.add(t[1]);}
@@ -86,7 +91,7 @@ public class RISReader {
 		   
 		   //add the last ref
 		   if(refs.size()<size||size==-1){
-			   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, "");
+			   Reference newRef = Reference.construct("", new Title(currentTitle), new Abstract(currentAbstract), currentYear, currentID);
 			   // add additionary fields by hand. Dirty dirty, must have set/get methods
 			   newRef.keywords=currentKeywords;
 			   newRef.biblio.cited=currentCitedGhostRefs;

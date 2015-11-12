@@ -26,14 +26,25 @@ import utils.tor.TorPoolManager;
 public class Cybergeo {
 
 	
+	/**
+	 * SQL -> RIS conversion
+	 * 
+	 * @param outFile
+	 */
 	public static void exportCybergeoAsRIS(String outFile){
 		CybergeoImport.setupSQL();
 		CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("",-1)).getCorpus();
-		RISWriter.write(outFile, cybergeo.references);
+		RISWriter.write(outFile, cybergeo.references,false);
 	}
 	
 	
-	public static Corpus setupTest(int numRefs){
+	/**
+	 * Setup initial cybergeo corpus from RIS
+	 * 
+	 * @param numRefs
+	 * @return
+	 */
+	public static Corpus setup(String bibFile,int numRefs){
 
 		 Main.setup("conf/default.conf");
 		 try{TorPoolManager.setupTorPoolConnexion();}catch(Exception e){e.printStackTrace();}
@@ -42,14 +53,25 @@ public class Cybergeo {
 		 //CybergeoImport.setupSQL();
 		 
 		 //CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("2010-01-01",2)).getCorpus();
-		 return new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib.ris",numRefs)).getCorpus().references);
+		 return new CybergeoCorpus((new RISFactory(bibFile,numRefs)).getCorpus().references);
 			 
 	}
 	
 	
-	public static void testCitedRefConstruction(){
+	
+	/**
+	 * Get and fill schIDS for all cyb refs ; reexports as ris (-> for consistent environment with refs hashed through schID)
+	 */
+	public static void fillScholarIDS(String inFile,int numRefs,String outFile){
+		CybergeoCorpus cybergeo = (CybergeoCorpus) setup(inFile,numRefs);
+		cybergeo.fillScholarIDs();
+		RISWriter.write(outFile, cybergeo.references,true);
+	}
+	
+	
+	public static void testCitedRefConstruction(String bibFile){
 		
-		 CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest(-1);
+		 CybergeoCorpus cybergeo = (CybergeoCorpus) setup(bibFile,-1);
 		 // test cited refs reconstruction
 		 cybergeo.fillCitedRefs();
 		 
@@ -59,8 +81,8 @@ public class Cybergeo {
 	}
 	
 	
-	public static void testCitingRefs(){
-		 CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest(-1);
+	public static void testCitingRefs(String bibFile){
+		 CybergeoCorpus cybergeo = (CybergeoCorpus) setup(bibFile,-1);
 		 System.out.println("Corpus size : "+Reference.references.keySet().size());	
 		 cybergeo.fillCitingRefs();
 		 cybergeo.gexfExport(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/test_citingNW_"+(new Date().toString().replaceAll(" ", "-"))+".gexf");
@@ -73,8 +95,8 @@ public class Cybergeo {
 		 
 	}
 	
-	public static void fullNetwork(int numrefs){
-		CybergeoCorpus cybergeo = (CybergeoCorpus) setupTest(numrefs);
+	public static void fullNetwork(String bibFile,int numrefs){
+		CybergeoCorpus cybergeo = (CybergeoCorpus) setup(bibFile,numrefs);
 		
 		cybergeo.fillCitedRefs();
 		
@@ -107,7 +129,11 @@ public class Cybergeo {
 	 */
 	public static void main(String[] args) {
 		
+		String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib.ris";
+		
 		//exportCybergeoAsRIS(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib.ris");
+		
+		fillScholarIDS(bibFile,-1,System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris");
 		
 		// check ris export
 		//CybergeoCorpus cybergeo = new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase.ris",10)).getCorpus().references);
@@ -124,7 +150,7 @@ public class Cybergeo {
 		
 		
 		//fullNetwork(Integer.parseInt(args[0]));
-		fullNetwork(3);
+		//fullNetwork(3);
 	}
 
 }

@@ -20,6 +20,12 @@ public abstract class Corpus {
 	public HashSet<Reference> references;
 
 	
+	public Corpus fillScholarIDs(){
+		ScholarAPI.fillIds(references);
+		return this;
+	}
+	
+	
 	/**
 	 * Get citing refs.
 	 * 
