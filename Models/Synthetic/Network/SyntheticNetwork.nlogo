@@ -8,7 +8,7 @@
 ;;;;
 
 
-extensions []
+extensions [table]
 
 
 __includes [
@@ -18,6 +18,8 @@ __includes [
   
   ;; cities distribution
   "synth-cities.nls"
+  ; or density
+  "../Density/embedded-synth-pattern.nls"
   
   ;; tests 
    "test/test_includes.nls"
@@ -45,9 +47,18 @@ globals [
   
   
   ;; cities generation parameters
+  populations
   
+  cities-interaction-table
   
-   
+  ;; density generation params
+  total-time-steps
+  sp-max-pop
+  ;sp-growth-rate
+  ;sp-alpha-localization
+  ;sp-diffusion-steps
+  ;sp-diffusion
+  sp-population
   
 ]
 
@@ -65,7 +76,13 @@ patches-own [
  
  ;; cities generation
  distance-weighted-total-pop
-  
+ 
+ 
+ ;; density generation
+ sp-density
+ sp-occupants
+ 
+ 
 ]
 
 
@@ -107,24 +124,24 @@ ticks
 30.0
 
 CHOOSER
-891
+890
 19
 1076
 64
 cities-generation-method
 cities-generation-method
-"zipf-christaller" "random"
-0
+"zipf-christaller" "random" "prefAtt-diffusion-density"
+2
 
 CHOOSER
 891
-69
-1076
 114
+1076
+159
 network-generation-method
 network-generation-method
-"simple-connexification" "neighborhood-gravity" "random"
-1
+"simple-connexification" "neighborhood-gravity" "random" "none"
+3
 
 SLIDER
 858
@@ -172,10 +189,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-897
-343
-983
-376
+887
+623
+973
+656
 generate
 ca\ngenerate-synthetic-euclidian-network
 NIL
@@ -217,6 +234,130 @@ neigh-gravity-radius
 1
 NIL
 HORIZONTAL
+
+SLIDER
+1200
+349
+1372
+382
+sp-growth-rate
+sp-growth-rate
+0
+1000
+1000
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1200
+385
+1386
+418
+sp-alpha-localization
+sp-alpha-localization
+0
+2
+1.2
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1201
+421
+1373
+454
+sp-diffusion-steps
+sp-diffusion-steps
+0
+4
+2
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1201
+456
+1373
+489
+sp-diffusion
+sp-diffusion
+0
+0.5
+0.05
+0.05
+1
+NIL
+HORIZONTAL
+
+MONITOR
+1277
+16
+1369
+61
+cities pop
+sum populations
+17
+1
+11
+
+MONITOR
+1277
+66
+1370
+111
+patches-pop
+sum [sp-occupants] of patches
+17
+1
+11
+
+CHOOSER
+890
+66
+1076
+111
+density-to-cities-method
+density-to-cities-method
+"hierarchical-aggreg" "random-aggreg"
+0
+
+CHOOSER
+1079
+65
+1228
+110
+cities-interaction-method
+cities-interaction-method
+"basic-gravity"
+0
+
+SLIDER
+859
+322
+1031
+355
+basic-gravity-exponent
+basic-gravity-exponent
+0
+3
+2
+0.1
+1
+NIL
+HORIZONTAL
+
+OUTPUT
+1047
+529
+1396
+714
+10
 
 @#$#@#$#@
 ## WHAT IS IT?
