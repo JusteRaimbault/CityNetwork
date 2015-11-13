@@ -319,7 +319,7 @@ public class ScholarAPI {
 					}catch(Exception e){e.printStackTrace();}
 				}
 				
-				Log.progress("Corpus "+corpus.name+" : citing refs : "+(100 * p / totalRefs)+ " %");p++;
+				Log.progress("Corpus "+corpus.name+" : citing refs : "+(100.0 * (1.0*p) / (1.0*totalRefs))+ " % ; ref "+r.toString());p++;
 				
 			}
 		}catch(Exception e){e.printStackTrace();}

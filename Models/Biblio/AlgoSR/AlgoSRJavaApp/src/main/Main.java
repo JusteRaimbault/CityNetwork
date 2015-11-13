@@ -67,10 +67,13 @@ public class Main {
 		 */
 		try{
 			HashMap<String,String> confsMap = CSVReader.readMap(pathConfFile, ":");
-			mendeleyAppId = confsMap.get("appID");mendeleyAppSecret=confsMap.get("appSecret");
-			cortextUser = confsMap.get("cortextUser");cortextPassword = confsMap.get("cortextPassword");
-			cortextUserID = confsMap.get("cortextUserID");cortextProjectID = confsMap.get("cortextProjectID");
-			cortextCorpusPath = confsMap.get("cortextCorpusPath");
+			if(confsMap.containsKey("appID")){mendeleyAppId = confsMap.get("appID");}
+			if(confsMap.containsKey("appSecret")){mendeleyAppSecret=confsMap.get("appSecret");}
+			if(confsMap.containsKey("cortextUser")){cortextUser = confsMap.get("cortextUser");}
+			if(confsMap.containsKey("cortextPassword")){cortextPassword = confsMap.get("cortextPassword");}
+			if(confsMap.containsKey("cortextUserID")){cortextUserID = confsMap.get("cortextUserID");}
+			if(confsMap.containsKey("cortextProjectID")){cortextProjectID = confsMap.get("cortextProjectID");}
+			if(confsMap.containsKey("cortextCorpusPath")){cortextCorpusPath = confsMap.get("cortextCorpusPath");}
 			
 			// manage log
 			if(confsMap.containsKey("logdir")){Log.initLog(confsMap.get("logdir"));}

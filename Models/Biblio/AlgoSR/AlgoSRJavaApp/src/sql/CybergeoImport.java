@@ -33,22 +33,6 @@ import utils.StringUtils;
 public class CybergeoImport {
 
 	
-	public static Connection sqlDB;
-	
-	/**
-	 * connects to the database
-	 */
-	public static void setupSQL(){
-		try{
-	      Class.forName("com.mysql.jdbc.Driver");
-	      // !! localhost config only, ok to leak is here ¡¡ //
-		  sqlDB = DriverManager.getConnection("jdbc:mysql://localhost:3306/Cybergeo","root","root");
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-	
-	
 	
 	
 	/**
@@ -65,7 +49,7 @@ public class CybergeoImport {
 		HashSet<Reference> res = new HashSet<Reference>();
 		
 		try{
-		   ResultSet sqlrefs = sqlDB.createStatement().executeQuery(
+		   ResultSet sqlrefs = SQLConnection.sqlDB.createStatement().executeQuery(
 				"SELECT `titre`,`altertitre`,`resume`,`datepubli`,`identity`,`langue`,`bibliographie` "
 				+ "FROM  `textes` "
 				+ filter +";");
@@ -76,16 +60,16 @@ public class CybergeoImport {
 			   Reference r = Reference.construct("",title, getAbstract(sqlrefs.getString(3)), sqlrefs.getString(4), "");
 				
 			   // get authors
-			   ResultSet authorsIds = sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +sqlrefs.getString(5)+" AND  `nature` LIKE  'G' ORDER BY  `degree` ASC ;");
+			   ResultSet authorsIds = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +sqlrefs.getString(5)+" AND  `nature` LIKE  'G' ORDER BY  `degree` ASC ;");
 			   while(authorsIds.next()){
-			      ResultSet author = sqlDB.createStatement().executeQuery("SELECT `nomfamille`,`prenom` FROM `auteurs` WHERE `idperson` = "+authorsIds.getString(1)+" ;");
+			      ResultSet author = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `nomfamille`,`prenom` FROM `auteurs` WHERE `idperson` = "+authorsIds.getString(1)+" ;");
 			      if(author.next()){r.authors.add(author.getString(1)+" , "+author.getString(2));}
 			   }
 			   
 			   // get keywords
-			   ResultSet keywordsIds = sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +sqlrefs.getString(5)+" AND  `nature` LIKE  'E' ORDER BY  `degree` ASC ;");
+			   ResultSet keywordsIds = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +sqlrefs.getString(5)+" AND  `nature` LIKE  'E' ORDER BY  `degree` ASC ;");
 			   while(keywordsIds.next()){
-			      ResultSet keywords = sqlDB.createStatement().executeQuery("SELECT `nom` FROM `indexes` WHERE `identry` = "+keywordsIds.getString(1)+" ;");
+			      ResultSet keywords = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `nom` FROM `indexes` WHERE `identry` = "+keywordsIds.getString(1)+" ;");
 			      while(keywords.next()){r.keywords.add(keywords.getString(1));}
 			   }
 			   
@@ -118,7 +102,7 @@ public class CybergeoImport {
 			   String[] header = {"id","title","title_en","keywords_en","keywords_fr","authors","date","langue","translated"};
 			   table.add(header);
 			
-			   ResultSet sqlrefs = sqlDB.createStatement().executeQuery(
+			   ResultSet sqlrefs = SQLConnection.sqlDB.createStatement().executeQuery(
 					"SELECT `identity`,`titre`,`altertitre`,`langue`,`datepubli` "
 					+ "FROM  `textes`;");
 			   			   
@@ -136,9 +120,9 @@ public class CybergeoImport {
 				   
 				   // get authors
 				   String authors = "";
-				   ResultSet authorsIds = sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +id+" AND  `nature` LIKE  'G' ORDER BY  `degree` ASC ;");
+				   ResultSet authorsIds = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +id+" AND  `nature` LIKE  'G' ORDER BY  `degree` ASC ;");
 				   while(authorsIds.next()){
-				      ResultSet author = sqlDB.createStatement().executeQuery("SELECT `nomfamille`,`prenom` FROM `auteurs` WHERE `idperson` = "+authorsIds.getString(1)+" ;");
+				      ResultSet author = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `nomfamille`,`prenom` FROM `auteurs` WHERE `idperson` = "+authorsIds.getString(1)+" ;");
 				      if(author.next()){if(authors.length()>0){authors+=",";}authors+=author.getString(1)+" "+author.getString(2);}
 				   }
 				   row[5]=authors;
@@ -152,18 +136,18 @@ public class CybergeoImport {
 				    * ... -> get only en keywords ?
 				    */
 				   String keywords = "";
-				   ResultSet kwIds = sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +id+" AND  `nature` LIKE  'E' ORDER BY  `degree` ASC ;");
+				   ResultSet kwIds = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +id+" AND  `nature` LIKE  'E' ORDER BY  `degree` ASC ;");
 				   while(kwIds.next()){
-				      ResultSet kw = sqlDB.createStatement().executeQuery("SELECT `g_name` FROM `entries` WHERE `id` = "+kwIds.getString(1)+" AND `idtype`=34 ;");
+				      ResultSet kw = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `g_name` FROM `entries` WHERE `id` = "+kwIds.getString(1)+" AND `idtype`=34 ;");
 				      while(kw.next()){if(keywords.length()>0){keywords+=",";}keywords+=kw.getString(1);}
 				   }
 				   row[3]=keywords;
 				   
 				   // keywords fr
 				   String keywords_fr = "";
-				   ResultSet kwFRIds = sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +id+" AND  `nature` LIKE  'E' ORDER BY  `degree` ASC ;");
+				   ResultSet kwFRIds = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +id+" AND  `nature` LIKE  'E' ORDER BY  `degree` ASC ;");
 				   while(kwFRIds.next()){
-				      ResultSet kw = sqlDB.createStatement().executeQuery("SELECT `g_name` FROM `entries` WHERE `id` = "+kwFRIds.getString(1)+" AND `idtype`=33 ;");
+				      ResultSet kw = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `g_name` FROM `entries` WHERE `id` = "+kwFRIds.getString(1)+" AND `idtype`=33 ;");
 				      while(kw.next()){if(keywords_fr.length()>0){keywords_fr+=",";}keywords_fr+=kw.getString(1);}
 				   }
 				   row[4]=keywords_fr;
@@ -171,12 +155,12 @@ public class CybergeoImport {
 				   if(writeFullTexts){
 					   new File(outDir+"/texts").mkdir();
 					   // print text and abstract in files
-					   ResultSet rawText = sqlDB.createStatement().executeQuery("SELECT `texte` FROM textes WHERE `identity` = "+id+" LIMIT 1 ; ");
+					   ResultSet rawText = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `texte` FROM textes WHERE `identity` = "+id+" LIMIT 1 ; ");
 					   if(rawText.next()){
 						   BasicWriter.write(outDir+"/texts/"+id+"_text.txt", rawText(rawText.getString(1)));
 					   }
 
-					   ResultSet res = sqlDB.createStatement().executeQuery("SELECT `resume` FROM textes WHERE `identity` = "+id+" LIMIT 1 ; ");
+					   ResultSet res = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `resume` FROM textes WHERE `identity` = "+id+" LIMIT 1 ; ");
 					   if(res.next()){
 						   LinkedList<String> t = new LinkedList<String>();
 						   t.add(getAbstract(res.getString(1)).resume);
@@ -280,7 +264,7 @@ public class CybergeoImport {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		setupSQL();
+		SQLConnection.setupSQL("Cybergeo");
 		//GEXFWriter.write("res/test_cyb_gexf.gexf", importBase());
 		//RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle_withKeywords.ris", importBase());
 		directExport(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/raw/",false);

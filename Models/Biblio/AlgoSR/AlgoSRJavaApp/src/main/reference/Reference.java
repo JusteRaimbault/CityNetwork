@@ -111,34 +111,14 @@ public class Reference {
 	}
 	
 	/**
-	 * DEPRECATED
-	 * 
-	 * Specific scholar constructor, returns 'ghost' references.
-	 * 
-	 * --DEP
-	 * --Note that if full fill option is activated, will also fill global ref table as a catalog request is done.
-	 * --Else this constructor retrieves "ghost" references, in the sense of not hard-coded in static table (hash-counsed reference)
-	 * 
+	 * Ghost constructor with ID.
 	 * 
 	 * @param t title
 	 * @param schid scholar id as String
-	 * 
-	 * -- DEPRECATED @param retrieveAllInfos : option to request mendeley to have a full ref. - activated or not depending on performance wanted
-	 * -- ARCHITECTURAL ISSUE --
 	 */
-	public Reference(String t,String schid){//,boolean retrieveAllInfos){
+	public Reference(String t,String schid){
 		title=new Title(t);
-		
-		/*
-		if(retrieveAllInfos){
-			HashSet<Reference> mendeleyReq = MendeleyAPI.catalogRequest(t.replace(" ", "+"), 1);
-			Reference mendRef = (Reference) mendeleyReq.toArray()[0];
-			id=mendRef.id;
-		}
-		*/
-		
 		scholarID=schid;
-		
 	}
 	
 	
@@ -154,7 +134,7 @@ public class Reference {
 	 * @return the Reference object, ensuring overall unicity through HashConsing
 	 */
 	public static Reference construct(String i,Title t,Abstract r,String y,String schID){
-		Reference ref = new Reference(t.title);
+		Reference ref = new Reference(t.title,schID);
 		if(references.containsKey(ref)){
 			Reference existingRef = references.get(ref);
 			//override existing records if not empty fields provided --> the function can be used as a table updater --
@@ -184,7 +164,7 @@ public class Reference {
 		 * If scholarID is set, use it -> O(n) thanks to O(1) for hashcode computation
 		 */
 		
-		if(scholarID!=null||scholarID!=""){
+		if(scholarID!=null&&scholarID!=""){
 			return scholarID.hashCode();
 		}else{
 			for(Reference r:references.keySet()){if(r.equals(this)){return r.title.title.hashCode();}}

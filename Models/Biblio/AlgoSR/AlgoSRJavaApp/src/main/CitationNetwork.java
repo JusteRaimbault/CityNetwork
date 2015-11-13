@@ -8,10 +8,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import main.corpuses.DefaultCorpus;
 import main.reference.Reference;
 import mendeley.MendeleyAPI;
 import scholar.ScholarAPI;
 import sql.CybergeoImport;
+import sql.SQLConnection;
 import utils.CSVWriter;
 import utils.GEXFWriter;
 import utils.RISReader;
@@ -31,7 +33,7 @@ public class CitationNetwork {
 	 * Build first order network : foreach ref, find citing refs
 	 */
 	public static void buildCitationNetwork(){
-		ScholarAPI.fillIdAndCitingRefs(new HashSet<Reference>(Reference.references.keySet()));
+		ScholarAPI.fillIdAndCitingRefs(new DefaultCorpus(new HashSet<Reference>(Reference.references.keySet())));
 	}
 	
 	
@@ -145,7 +147,7 @@ public class CitationNetwork {
 		
 		//import database
 		System.out.println("Setting up from sql...");
-		CybergeoImport.setupSQL();
+		SQLConnection.setupSQL("Cybergeo");
 		Set<Reference> initialRefs = CybergeoImport.importBase("WHERE  `datepubli` >=  '2003-01-01' AND  `resume` !=  '' AND  `titre` != ''");
 		System.out.println("References :  : "+Reference.references.size());
 		

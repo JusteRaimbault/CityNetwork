@@ -15,6 +15,7 @@ import main.corpuses.RISFactory;
 import main.reference.Reference;
 import scholar.ScholarAPI;
 import sql.CybergeoImport;
+import sql.SQLConnection;
 import utils.RISWriter;
 import utils.tor.TorPool;
 import utils.tor.TorPoolManager;
@@ -32,7 +33,7 @@ public class Cybergeo {
 	 * @param outFile
 	 */
 	public static void exportCybergeoAsRIS(String outFile){
-		CybergeoImport.setupSQL();
+		SQLConnection.setupSQL("Cybergeo");
 		CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("",-1)).getCorpus();
 		RISWriter.write(outFile, cybergeo.references,false);
 	}
@@ -110,6 +111,7 @@ public class Cybergeo {
 		// must construct by hand set of cited ?
 		HashSet<Reference> cited = new HashSet<Reference>();
 		for(Reference r:cybergeo.references){
+			//Corpus cited = new DefaultCorpus(r.biblio.cited);
 			for(Reference c:r.biblio.cited){cited.add(c);}
 		}
 		Corpus citedCorpus = new DefaultCorpus(cited);

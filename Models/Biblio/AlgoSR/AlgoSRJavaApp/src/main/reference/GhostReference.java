@@ -28,4 +28,14 @@ public class GhostReference extends Reference {
 		year=y;
 	}
 	
+	@Override
+	public int hashCode(){
+		return title.title.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		return(o instanceof GhostReference)&&(((Reference)o).title.title.equals(title.title));
+	}
+	
 }
