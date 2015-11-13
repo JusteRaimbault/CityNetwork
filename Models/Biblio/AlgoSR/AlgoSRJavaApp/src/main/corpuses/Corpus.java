@@ -17,8 +17,16 @@ import main.reference.Reference;
  */
 public abstract class Corpus {
 	
+	/**
+	 * References in the corpus
+	 */
 	public HashSet<Reference> references;
 
+	/**
+	 * Name of the corpus
+	 */
+	public String name;
+	
 	
 	public Corpus fillScholarIDs(){
 		ScholarAPI.fillIds(references);
@@ -32,7 +40,7 @@ public abstract class Corpus {
 	 * @return this corpus
 	 */
 	public Corpus fillCitingRefs(){
-		ScholarAPI.fillIdAndCitingRefs(references);
+		ScholarAPI.fillIdAndCitingRefs(this);
 		return this;
 	}
 	

@@ -6,6 +6,7 @@ package utils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
@@ -31,6 +32,15 @@ public class CSVReader {
 		   for(int i=0;i<res.length;i++){res[i]=listRes.get(i);}
 		   return res;
 		}catch(Exception e){e.printStackTrace();return null;}
+	}
+	
+	public static HashMap<String,String> readMap(String file,String delimiter){
+		HashMap<String,String> res = new HashMap<String,String>();
+		String[][] tab = read(file,delimiter);
+		for(int r=0;r<tab.length;r++){
+			res.put(tab[r][0], tab[r][1]);
+		}
+		return res;
 	}
 	
 	

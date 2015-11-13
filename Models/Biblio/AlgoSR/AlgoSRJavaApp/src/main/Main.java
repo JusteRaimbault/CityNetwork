@@ -66,16 +66,17 @@ public class Main {
 		 * 
 		 */
 		try{
-			String[][] confs = CSVReader.read(pathConfFile, ":");
-			//for(int i=0;i<confs.length;i++){for(int j=0;j<confs[i].length;j++){System.out.print(confs[i][j] + " - ");}System.out.println();}
-			HashMap<String,String> confsMap = new HashMap<String,String>();
-			for(int r=0;r<confs.length;r++){
-				confsMap.put(confs[r][0], confs[r][1]);
-			}
+			HashMap<String,String> confsMap = CSVReader.readMap(pathConfFile, ":");
 			mendeleyAppId = confsMap.get("appID");mendeleyAppSecret=confsMap.get("appSecret");
 			cortextUser = confsMap.get("cortextUser");cortextPassword = confsMap.get("cortextPassword");
 			cortextUserID = confsMap.get("cortextUserID");cortextProjectID = confsMap.get("cortextProjectID");
 			cortextCorpusPath = confsMap.get("cortextCorpusPath");
+			
+			// manage log
+			if(confsMap.containsKey("logdir")){Log.initLog(confsMap.get("logdir"));}
+			if(confsMap.containsKey("progress-log")){Log.initProg(confsMap.get("progress-log"));}
+			
+			
 		}catch(Exception e){e.printStackTrace();}
 	}
 	

@@ -6,6 +6,7 @@ package main.corpuses;
 import java.util.HashSet;
 
 import scholar.ScholarAPI;
+import utils.Log;
 import main.reference.Reference;
 
 /**
@@ -33,6 +34,7 @@ public class CybergeoCorpus extends Corpus {
 	 * Construct cited refs of cybergeo corpus
 	 */
 	public void fillCitedRefs(){
+		int totalRefs = references.size();int p=0;
 		for(Reference r:references){
 			HashSet<Reference> verifiedCited=new HashSet<Reference>();
 			for(Reference ghost:r.biblio.cited){
@@ -54,6 +56,8 @@ public class CybergeoCorpus extends Corpus {
 			//recompute citedTitles : may slightly differ after scholar request
 			r.biblio.citedTitles.clear();
 			for(Reference cr:r.biblio.cited){r.biblio.citedTitles.add(cr.title.title);}
+			
+			Log.progress("Corpus "+name+" : cited refs : "+(100 * p / totalRefs)+ " %");p++;
 		}
 	}
 	

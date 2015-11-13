@@ -28,6 +28,32 @@ public class Log {
 	private static File f;
 	
 	
+	private static String progressFile;
+	
+	public static  void progress(String s){
+		try{
+			BufferedWriter w = new BufferedWriter(new FileWriter(new File(progressFile),true));
+			w.write(s);w.newLine();w.close();
+		}catch(Exception e){}
+	}
+	
+	
+	
+	
+
+	/**
+	 * @param string
+	 */
+	public static void initProg(String string) {
+		progressFile=string;
+		try{
+			File f = new File(string);
+			f.delete();f.createNewFile();
+		}catch(Exception e){}
+	}
+	
+	
+	
 	/**
 	 * Inits the log file.
 	 * 
@@ -142,6 +168,7 @@ public class Log {
 			for(int i=0;i<n;i++)w.newLine();w.close();}
 		catch(Exception e){System.out.println();}
 	}
-	
+
+
 }
 

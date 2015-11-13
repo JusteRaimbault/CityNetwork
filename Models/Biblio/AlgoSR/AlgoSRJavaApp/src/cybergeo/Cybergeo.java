@@ -95,8 +95,15 @@ public class Cybergeo {
 		 
 	}
 	
-	public static void fullNetwork(String bibFile,int numrefs){
+	/**
+	 * Get the whole 3-level network
+	 * 
+	 * @param bibFile
+	 * @param numrefs
+	 */
+	public static void fullNetwork(String bibFile,String outfile,int numrefs){
 		CybergeoCorpus cybergeo = (CybergeoCorpus) setup(bibFile,numrefs);
+		cybergeo.name="cybergeo";
 		
 		cybergeo.fillCitedRefs();
 		
@@ -106,6 +113,7 @@ public class Cybergeo {
 			for(Reference c:r.biblio.cited){cited.add(c);}
 		}
 		Corpus citedCorpus = new DefaultCorpus(cited);
+		citedCorpus.name="cited";
 		System.out.println("Total cited "+cited.size());
 		
 		// citing refs for cited (== cybergeo level)
@@ -113,13 +121,14 @@ public class Cybergeo {
 		
 		// TODO 2nd level !! do not use all refs - (some title calls should be ghostized ? )
 		cybergeo.fillCitingRefs();
-		citedCorpus.getCitingCorpus().fillCitingRefs();
+		Corpus citingCited = citedCorpus.getCitingCorpus();citingCited.name="citing-cited";
+		citingCited.fillCitingRefs();
 		System.out.println("Final refs : "+Reference.references.keySet().size());
 		
 		HashSet<Corpus> all = new HashSet<Corpus>();
 		all.add(cybergeo);all.add(citedCorpus);all.add(citedCorpus.getCitingCorpus());
 		// export
-		(new DefaultCorpus(all,0)).gexfExport(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/testfull_4refs_"+(new Date().toString().replaceAll(" ", "-"))+".gexf");
+		(new DefaultCorpus(all,0)).gexfExport(outfile);
 	
 	}
 	
@@ -129,11 +138,10 @@ public class Cybergeo {
 	 */
 	public static void main(String[] args) {
 		
-		String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib.ris";
 		
 		//exportCybergeoAsRIS(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib.ris");
 		
-		fillScholarIDS(bibFile,-1,System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris");
+		//fillScholarIDS(bibFile,-1,System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris");
 		
 		// check ris export
 		//CybergeoCorpus cybergeo = new CybergeoCorpus((new RISFactory(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase.ris",10)).getCorpus().references);
@@ -150,7 +158,10 @@ public class Cybergeo {
 		
 		
 		//fullNetwork(Integer.parseInt(args[0]));
-		//fullNetwork(3);
+		String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris";
+		String outfile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/testfull_1refs_"+(new Date().toString().replaceAll(" ", "-"))+".gexf"; 
+		
+		fullNetwork(bibFile,outfile,1);
 	}
 
 }

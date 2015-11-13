@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLContext;
 
 import main.Main;
+import main.corpuses.Corpus;
 import main.reference.Abstract;
 import main.reference.Reference;
 import main.reference.Title;
@@ -282,9 +283,10 @@ public class ScholarAPI {
 	 * 
 	 * @param refs
 	 */
-	public static void fillIdAndCitingRefs(HashSet<Reference> refs){
+	public static void fillIdAndCitingRefs(Corpus corpus){
 		try{
-			for(Reference r:refs){
+			int totalRefs = corpus.references.size();int p=0;
+			for(Reference r:corpus.references){
 				System.out.println("Getting cit for ref "+r.toString());
 
 				if(r.citing.size()>1){
@@ -304,7 +306,7 @@ public class ScholarAPI {
 						 */
 						
 						Reference rr;
-						if(r.scholarID==null){rr = getScholarRef(r);}else{rr=r;}
+						if(r.scholarID==null||r.scholarID==""){rr = getScholarRef(r);}else{rr=r;}
 						
 						if(rr!=null){
 							System.out.println("ID : "+rr.scholarID);
@@ -316,6 +318,9 @@ public class ScholarAPI {
 
 					}catch(Exception e){e.printStackTrace();}
 				}
+				
+				Log.progress("Corpus "+corpus.name+" : citing refs : "+(100 * p / totalRefs)+ " %");p++;
+				
 			}
 		}catch(Exception e){e.printStackTrace();}
 	}

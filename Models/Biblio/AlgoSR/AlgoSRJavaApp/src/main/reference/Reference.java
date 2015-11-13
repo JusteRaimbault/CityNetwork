@@ -177,18 +177,33 @@ public class Reference {
 	 * Override hashcode to take account of only ID.
 	 */
 	public int hashCode(){
-		//dirty, has to go through all table to find through Levenstein close ref
-		// that way hashconsing may be (is surely) suboptimal
-		// -> in O(n^2)
-		for(Reference r:references.keySet()){if(r.equals(this)){return r.title.title.hashCode();}}
-		return this.title.hashCode();
+		/**
+		 * dirty, has to go through all table to find through Levenstein close ref
+		 * that way hashconsing may be (is surely) suboptimal -> in O(n^2)
+		 * 
+		 * If scholarID is set, use it -> O(n) thanks to O(1) for hashcode computation
+		 */
+		
+		if(scholarID!=null||scholarID!=""){
+			return scholarID.hashCode();
+		}else{
+			for(Reference r:references.keySet()){if(r.equals(this)){return r.title.title.hashCode();}}
+			return this.title.hashCode();
+		}
 	}
 	
 	/**
 	 * Idem with equals
 	 */
 	public boolean equals(Object o){
-		return (o instanceof Reference)&&(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(((Reference)o).title.title),StringUtils.lowerCase(this.title.title))<4);
+		if(!(o instanceof Reference)){return false;}
+		else{
+			Reference r = (Reference) o;
+			if((r.scholarID!=null||r.scholarID!="")&&(scholarID!=null||scholarID!="")){return r.scholarID.equals(scholarID);}
+			else{
+				return (StringUtils.getLevenshteinDistance(StringUtils.lowerCase(r.title.title),StringUtils.lowerCase(title.title))<4);			
+			}
+		}
 	}
 	
 	
