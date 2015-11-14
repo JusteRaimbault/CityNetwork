@@ -13,16 +13,33 @@ import java.sql.DriverManager;
 public class SQLConnection {
 	
 	
+	private static String sqlUser;
+	
+	private static String sqlPassword;
+	
 	public static Connection sqlDB;
 	
+	
+	
 	/**
-	 * connects to the database
+	 * Setup sql credentials
+	 * 
+	 * @param user
+	 * @param pass
+	 */
+	public static void setupSQLCredentials(String user,String pass){
+		sqlUser = user;sqlPassword = pass;
+	}
+	
+	
+	/**
+	 * Connects to the database ; assumed on localhost, at standard port 3306.
 	 */
 	public static void setupSQL(String database){
 		try{
 	      Class.forName("com.mysql.jdbc.Driver");
-	      // !! localhost config only, ok to leak is here ¡¡ //
-		  sqlDB = DriverManager.getConnection("jdbc:mysql://localhost:3306/"+database,"root","root");
+	      
+		  sqlDB = DriverManager.getConnection("jdbc:mysql://localhost:3306/"+database,sqlUser,sqlPassword);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

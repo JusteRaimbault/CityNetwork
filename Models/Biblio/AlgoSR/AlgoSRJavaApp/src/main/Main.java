@@ -7,6 +7,7 @@ import java.util.HashSet;
 
 import main.reference.Reference;
 import mendeley.MendeleyAPI;
+import sql.SQLConnection;
 import utils.CSVWriter;
 import utils.Log;
 import utils.RISReader;
@@ -67,8 +68,12 @@ public class Main {
 		 */
 		try{
 			HashMap<String,String> confsMap = CSVReader.readMap(pathConfFile, ":");
+			
+			// mendeley
 			if(confsMap.containsKey("appID")){mendeleyAppId = confsMap.get("appID");}
 			if(confsMap.containsKey("appSecret")){mendeleyAppSecret=confsMap.get("appSecret");}
+			
+			// cortext vars
 			if(confsMap.containsKey("cortextUser")){cortextUser = confsMap.get("cortextUser");}
 			if(confsMap.containsKey("cortextPassword")){cortextPassword = confsMap.get("cortextPassword");}
 			if(confsMap.containsKey("cortextUserID")){cortextUserID = confsMap.get("cortextUserID");}
@@ -78,6 +83,11 @@ public class Main {
 			// manage log
 			if(confsMap.containsKey("logdir")){Log.initLog(confsMap.get("logdir"));}
 			if(confsMap.containsKey("progress-log")){Log.initProg(confsMap.get("progress-log"));}
+			
+			// manage sql credentials
+			if(confsMap.containsKey("sqlUser")&&confsMap.containsKey("sqlPassword")){
+				SQLConnection.setupSQLCredentials(confsMap.get("sqlUser"), confsMap.get("sqlPassword"));
+			}
 			
 			
 		}catch(Exception e){e.printStackTrace();}
