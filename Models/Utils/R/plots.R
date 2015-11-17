@@ -30,6 +30,7 @@ getSingleParamPoints <- function(data,params_cols,indics_cols){
     list(
        param=params,
        mean=lapply(indics,function(ll){colMeans(matrix(unlist(ll),nrow=length(ll),byrow=TRUE))}),
+       med=lapply(indics,function(ll){apply(matrix(unlist(ll),nrow=length(ll),byrow=TRUE),2,median)}),
        sd=lapply(indics,function(ll){apply(matrix(unlist(ll),nrow=length(ll),byrow=TRUE),2,sd)})
          )
    )
