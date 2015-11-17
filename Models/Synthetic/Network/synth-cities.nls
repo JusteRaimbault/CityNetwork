@@ -28,7 +28,7 @@ to generate-cities [generation-method]
        ]
        update-patches-weighted-pop
        let p next-christaller-patch
-       ask current-city [move-to p]
+       ask current-city [move-to p setxy (xcor - 0.5 + random-float 1) (ycor - 0.5 + random-float 1)]
      ]
   ]
   
@@ -44,6 +44,8 @@ to generate-cities [generation-method]
      density-to-cities
      
   ]
+  
+  set max-pop max [population] of cities
   
 end
 
@@ -103,14 +105,52 @@ to density-to-cities
        ]
      ]
      
-     init-cities-interaction-table
+     ;init-cities-interaction-table
      
-     cluster-cities
+     ;cluster-cities
       
+     randomly-cluster-cities
   ]
   
 end
 
+
+
+;;
+; random heuristic to cluster cities
+to randomly-cluster-cities
+  reset-ticks
+  while [count cities > #-cities] [
+    ; draw a city at random given its population
+    let c1 random-city cities let c2 random-city ([other cities in-radius gravity-radius] of c1)
+    if c2 != nobody [
+      let p1 [population] of c1 let p2 [population] of c2 let t p1 / (p1 + p2)
+      let nc nobody create-cities 1 [set nc self set population (p1 + p2) setxy (([xcor] of c1)* t + (1 - t) * ([xcor] of c2)) (([ycor] of c1)* t + (1 - t) * ([ycor] of c2) ) new-city]
+      ;output-print (word c1 c2)
+      ask c1 [die] ask c2 [die]
+    ]
+    tick
+  ]
+end
+
+to-report random-city [cityset]
+  ifelse any? cityset [
+    let stot sum [population] of cityset
+    let r random-float 1
+    let s 0 let l to-list cityset let res first l let i 0
+    while [s < r] [
+      set res item i l
+      set s s + ([population] of res) / stot
+    ]
+    report res
+  ][
+    report nobody
+  ]
+end
+
+;;
+; iterative deterministic clustering of cities.
+;  too slow, in O(n2) -> use a random heuristic
 to cluster-cities
   table:remove cities-interaction-table "max-value" table:remove cities-interaction-table "max-key"
   ; cluster cities
@@ -132,43 +172,43 @@ end
 
 
 
-to init-cities-interaction-table
-  set cities-interaction-table table:make
-  let city-list to-list cities
-  let i 0 let m 0 let m-key []
-  foreach but-last city-list [
-    output-print (word "interaction-table : " i)
-    let c1 ?
-    ask c1 [
-      let k1 who
-      ask (other cities in-radius 20) [ ; approximation radius computed as : r~ 1/sqrt(espilon) * Pmax / Pmin * rmin
-        let c2 self
-        let k2 who let key (list k1 k2) let revkey (list k2 k1)
-        if not (table:has-key? cities-interaction-table key or table:has-key? cities-interaction-table revkey) [
-          let p12 cities-interaction-force c1 c2
-          if p12 > m [set m p12 set m-key key]
-          table:put cities-interaction-table key p12
-        ]
-      ]
-    ]
-    
-;    let j i + 1 while [j < length city-list][
-;      let c2 item j city-list let key (list [who] of c1 [who] of c2) ;let revkey (list [who] of c2 [who] of c1)
-;      let p12 cities-interaction-force c1 c2 ; interaction force
-;      if p12 > m [set m p12 set m-key key]
-;      table:put cities-interaction-table key p12
-;      ;table:put cities-interaction-table revkey p12 ; Q is revkey needed ? NO as couple matters
-;      set j j + 1 
+;to init-cities-interaction-table
+;  set cities-interaction-table table:make
+;  let city-list to-list cities
+;  let i 0 let m 0 let m-key []
+;  foreach but-last city-list [
+;    output-print (word "interaction-table : " i)
+;    let c1 ?
+;    ask c1 [
+;      let k1 who
+;      ask (other cities in-radius 20) [ ; approximation radius computed as : r~ 1/sqrt(espilon) * Pmax / Pmin * rmin
+;        let c2 self
+;        let k2 who let key (list k1 k2) let revkey (list k2 k1)
+;        if not (table:has-key? cities-interaction-table key or table:has-key? cities-interaction-table revkey) [
+;          let p12 cities-interaction-force c1 c2
+;          if p12 > m [set m p12 set m-key key]
+;          table:put cities-interaction-table key p12
+;        ]
+;      ]
 ;    ]
-    set i i + 1
-  ]
-  
-  ; add special entries
-  ;table:put cities-interaction-table "max-value" m
-  ;table:put cities-interaction-table "max-key" m-key
-  
-  ;show table:keys cities-interaction-table
-end
+;    
+;;    let j i + 1 while [j < length city-list][
+;;      let c2 item j city-list let key (list [who] of c1 [who] of c2) ;let revkey (list [who] of c2 [who] of c1)
+;;      let p12 cities-interaction-force c1 c2 ; interaction force
+;;      if p12 > m [set m p12 set m-key key]
+;;      table:put cities-interaction-table key p12
+;;      ;table:put cities-interaction-table revkey p12 ; Q is revkey needed ? NO as couple matters
+;;      set j j + 1 
+;;    ]
+;    set i i + 1
+;  ]
+;  
+;  ; add special entries
+;  ;table:put cities-interaction-table "max-value" m
+;  ;table:put cities-interaction-table "max-key" m-key
+;  
+;  ;show table:keys cities-interaction-table
+;end
 
 
 ;;
@@ -191,20 +231,6 @@ to update-cities-interaction-table [n1 n2 newcity]
     ]
   ]
 end
-
-
-to-report cities-interaction-force [city1 city2]
-  report runresult (word cities-interaction-method " city1 city2")
-end
-
-
-to-report basic-gravity [city1 city2]
-  ; tunable gravity-exponent ?
-  let d12 0 ask city1 [set d12 distance city2] ; not optimized, may be quicker to use potential vector and distance matrix
-  report [population] of city1 * [population] of city2 / (d12 ^ basic-gravity-exponent)
-end
-
-
 
 
 to new-city

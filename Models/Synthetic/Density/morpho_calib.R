@@ -31,6 +31,7 @@ p = getSingleParamPoints(res,params_cols,indics_cols)
 indics_cols_m = 1:5
 params_cols_m = 6:9
 m=data.frame(matrix(data=unlist(p$mean),ncol=5,byrow=TRUE),matrix(data=unlist(p$param),ncol=5,byrow=TRUE));names(m)<- c("distance","entropy","moran","rsquared","slope","alphalocalization","diffusion","diffusionsteps","growthrate","population")
+med=data.frame(matrix(data=unlist(p$med),ncol=5,byrow=TRUE),matrix(data=unlist(p$param),ncol=5,byrow=TRUE));names(med)<- c("distance","entropy","moran","rsquared","slope","alphalocalization","diffusion","diffusionsteps","growthrate","population")
 s=data.frame(matrix(data=unlist(p$sd),ncol=5,byrow=TRUE));names(s)<- c("distance","entropy","moran","rsquared","slope")
 params=m[,params_cols_m]
 

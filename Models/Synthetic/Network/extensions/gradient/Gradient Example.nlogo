@@ -1,432 +1,234 @@
+globals [counter start-color end-color]
+extensions [gradient]
 
-;;;;
-;; Synthetic euclidian network generation
-;;
-;; First aim/thematic frame : spacematteriser SimpopNet
-;; Rq : for modularity, separate module should generate initial cities distribution ?
-;;
-;;;;
+to simple-gradient
+  clear-all
+  ask patches 
+  [
+    set pcolor gradient:scale  [  [ 255 0 0 ] [ 0 0 0 ] [0 0 255]] ( pxcor + (pycor * world-width)) 0 (world-width * world-height)
+  ]
+end
 
-
-extensions [table]
-
-
-__includes [
-  
-  ;; network in itself
-  "synth-eucl-nw.nls"
-  
-  ;; cities distribution
-  "synth-cities.nls"
-  ; or density
-  "../Density/embedded-synth-pattern.nls"
-  
-  ;; tests 
-   "test/test_includes.nls"
-   
-   ;;;;
-   ;; Utils
-   ;;;;
-   
-   ; remark : generic path to include utils ? difficult as modif in NL and recompiling would be needed.
-   ; use ../.... ? -> assumes that CN_HOME < CS_HOME -- ok everywhere ?
-   
-   ; other issue : utils/extensions dependancies - beurk ---
-   ;  -> def of includes possible in .nls includes -> check if no conflict.
-   
-   "../../../../Softwares/NetLogo/utils/network/Network.nls"
-   "../../../../Softwares/NetLogo/utils/agent/AgentSet.nls"
-   ;"../../../../Softwares/NetLogo/utils/misc/Table.nls"
-   "../../../../Softwares/NetLogo/utils/math/Statistics.nls"
-   
-]
+to multi-simple-go
+  clear-all
+  ask patches
+  [
+    if patch-values? [set plabel ( pxcor + (pycor * 10))]
+    set pcolor gradient:scale  read-from-string multigradient-colors ( pxcor + (pycor * world-width)) 0 (world-width * world-height)
+  ]
+end
 
 
-globals [
-  
-  ;; network generation parameters
-  
-  max-pop
-  
-  ;; cities generation parameters
-  populations
-  
-  cities-interaction-table
-  
-  ;; density generation params
-  total-time-steps
-  sp-max-pop
-  ;sp-growth-rate
-  ;sp-alpha-localization
-  ;sp-diffusion-steps
-  ;sp-diffusion
-  sp-population
-  
-]
+to go
+  clear-all
+  set start-color (list 0 255 0)
+  ask patches
+  [
+    if patch-values? [set plabel ( pxcor + (pycor * 10))]
+    let color-list1 ( list red-color1 green-color1 blue-color1 )
+    let color-list2 ( list red-color2 green-color2 blue-color2 )
+    set pcolor gradient:scale  (list  color-list1 color-list2 ) ( pxcor + (pycor * 10)) 0 256
+  ]
+end
 
-
-breed [cities city]
-
-;; compatibility with nw utils ?
-breed [nw-nodes nw-node]
-
-undirected-link-breed [roads road]
-
-
-patches-own [
- 
- 
- ;; cities generation
- distance-weighted-total-pop
- 
- 
- ;; density generation
- sp-density
- sp-occupants
- 
- 
-]
-
-
-cities-own [
-  ; population
-  population 
-]
-
-
-roads-own [
-  capacity 
-]
+to set-start-end-colors
+  set red-color1 item 0 extract-rgb color1
+  set green-color1 item 1 extract-rgb color1
+  set blue-color1 item 2 extract-rgb color1
+  set red-color2 item 0 extract-rgb color2
+  set green-color2 item 1 extract-rgb color2
+  set blue-color2 item 2 extract-rgb color2
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-4
-10
-781
-704
-29
-25
-13.0
+225
+43
+595
+434
+-1
+-1
+20.0
 1
 10
 1
 1
 1
 0
-0
-0
 1
--29
-29
--25
-25
+1
+1
 0
+17
 0
+17
+1
+1
 1
 ticks
 30.0
 
-CHOOSER
-890
-19
-1076
-64
-cities-generation-method
-cities-generation-method
-"zipf-christaller" "random" "prefAtt-diffusion-density"
-2
-
-CHOOSER
-891
-114
-1076
-159
-network-generation-method
-network-generation-method
-"simple-connexification" "neighborhood-gravity" "random" "none"
-1
-
 SLIDER
-858
-211
-1030
-244
-city-max-pop
-city-max-pop
+51
+322
+223
+355
+red-color1
+red-color1
 0
-10000
-955
+255
+215
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-859
-248
-1031
-281
-#-cities
-#-cities
+51
+359
+223
+392
+green-color1
+green-color1
 0
-100
-82
+255
+50
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-859
-283
-1030
-316
-rank-size-exponent
-rank-size-exponent
+51
+397
+223
+430
+blue-color1
+blue-color1
 0
-2
-0.25
-0.05
+255
+41
+1
 1
 NIL
 HORIZONTAL
 
-BUTTON
-791
-532
-877
-565
-generate
-ca\ngenerate-synthetic-euclidian-network
-NIL
+SLIDER
+52
+97
+224
+130
+red-color2
+red-color2
+0
+255
+52
 1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
 1
+NIL
+HORIZONTAL
 
 SLIDER
-1055
+52
+137
+224
+170
+green-color2
+green-color2
+0
+255
+93
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+52
+177
+224
 210
-1244
-243
-random-network-density
-random-network-density
+blue-color2
+blue-color2
 0
-0.1
-0.01
-0.001
+255
+169
+1
 1
 NIL
 HORIZONTAL
 
-SLIDER
-1049
+BUTTON
+380
+10
+453
+43
+go
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+18
+464
+134
+497
+simple-gradient
+simple-gradient
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SWITCH
 366
-1221
-399
-gravity-radius
-gravity-radius
-0
-10000
-8535
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-797
-367
-969
-400
-sp-growth-rate
-sp-growth-rate
-0
-1000
-1000
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-797
-403
-983
-436
-sp-alpha-localization
-sp-alpha-localization
-0
-2
-1.2
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-798
-439
-970
-472
-sp-diffusion-steps
-sp-diffusion-steps
-0
-4
-2
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-798
-474
-970
-507
-sp-diffusion
-sp-diffusion
-0
-0.5
-0.05
-0.05
-1
-NIL
-HORIZONTAL
-
-MONITOR
-1277
-16
-1369
-61
-cities pop
-sum populations
-17
-1
-11
-
-MONITOR
-1277
-66
-1370
-111
-patches-pop
-sum [sp-occupants] of patches
-17
-1
-11
-
-CHOOSER
-890
-66
-1076
-111
-density-to-cities-method
-density-to-cities-method
-"hierarchical-aggreg" "random-aggreg"
-0
-
-CHOOSER
-1079
-65
-1228
-110
-cities-interaction-method
-cities-interaction-method
-"basic-gravity" "generalized-gravity"
-1
-
-SLIDER
-1179
-286
-1351
-319
-basic-gravity-exponent
-basic-gravity-exponent
-0
-10
-0.6
-0.1
-1
-NIL
-HORIZONTAL
-
-OUTPUT
-1047
-529
-1396
-714
-10
-
-BUTTON
-882
-566
-982
-599
-density->cities
-ask cities [die]\ndensity-to-cities
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-882
-601
-963
-634
-network
-reset-network\ngenerate-network network-generation-method
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-1180
-251
-1406
-284
-neigh-gravity-threshold-quantile
-neigh-gravity-threshold-quantile
+438
+499
+471
+patch-values?
+patch-values?
 0
 1
-0.991
-0.001
-1
-NIL
-HORIZONTAL
+-1000
 
 TEXTBOX
-796
-345
-946
-363
-Density Generation
+56
+299
+206
+317
+START COLOR
+11
+0.0
+1
+
+TEXTBOX
+57
+72
+207
+90
+END COLOR
 11
 0.0
 1
 
 BUTTON
-882
-531
-946
-564
-cities
-ca\ngenerate-cities cities-generation-method
+17
+518
+130
+551
+NIL
+multi-simple-go\n
 NIL
 1
 T
@@ -437,68 +239,95 @@ NIL
 NIL
 1
 
-MONITOR
-1279
-114
-1336
-159
-cities
-count cities
-17
+INPUTBOX
+16
+552
+579
+612
+multigradient-colors
+[ [255 0 0 ]  [255 255 255]  [0 0 255]]  
 1
-11
-
-SLIDER
-1050
-329
-1239
-362
-gravity-hierarchy-exponent
-gravity-hierarchy-exponent
 0
-10
-0.11
-0.01
+String
+
+INPUTBOX
+595
+346
+666
+406
+color1
+15
 1
+0
+Color
+
+INPUTBOX
+595
+108
+669
+168
+color2
+105
+1
+0
+Color
+
+BUTTON
+596
+43
+744
+76
+set-start-end-colors
+set-start-end-colors
 NIL
-HORIZONTAL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This code example demonstrates how the `gradient:scale` primitive works.    
+
+In this particular example the gradient is taking the value of `pxcor + (pycor * 10)`. 
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+`gradient:scale [[r g b] [r g b]] value range1 range2` where the first [r g b] list is the initial color and the second [r g b] list is the final color.
+
+The syntax and behavior is similar to the `scale-color` primitive otherwise.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+For a smooth transition between colors. Make sure that `scale-color` does not fulfill your needs first. Gradients can be very impressing and aesthetical but hard to understand. Make sure that the starting and ending colors have an intuitive meaning, and that the gradations between them are consistent with that meaning.
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+There is a maximum of 256 colors between the start color and the end color.
 
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
-
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+Note (0, 0) is not in the middle of the world it is in the left bottom part of the world.
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+Author: Daniel Kornhauser
+
+The gradient is determined using the GradientPaint class from java:  
+http://java.sun.com/j2se/1.4.2/docs/api/java/awt/GradientPaint.html
+
+For a simple tutorial of how GradientPaint works refer to:  
+http://www.oreilly.com/catalog/java2d/chapter/ch04.html
+
+For a visualization overview refer to:  
+Healey, C. G. "Fundamental Issues of Visual Perception for Effective Image Generation." In SIGGRAPH 99 Course 6:  
+http://www4.ncsu.edu/~healey/download/sig-course.99.pdf
+
+For a textbook refer to:  
+Information Visualization, Second Edition: Perception for Design by Colin Ware
 @#$#@#$#@
 default
 true
@@ -692,22 +521,6 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
-sheep
-false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
-
 square
 false
 0
@@ -792,13 +605,6 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
-
 x
 false
 0
@@ -806,7 +612,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.0RC7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

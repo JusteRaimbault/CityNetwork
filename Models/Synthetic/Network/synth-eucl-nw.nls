@@ -19,6 +19,11 @@ to generate-synthetic-euclidian-network
 end
 
 
+to reset-network
+  ask roads [die]
+end
+
+
 ;;
 ;  Network generation
 ;  
@@ -57,9 +62,15 @@ to generate-network [generation-method]
   if generation-method = "neighborhood-gravity"[
     ; first do a simple connexification
     simple-connexification
+    
     ; then 'locally' add links
+    ;  -> uses the interaction potential
+    init-cities-interaction-table
     
+    add-local-links-neigh-gravity
     
+    ; replanarize network in case needed
+    ;planarize-network cities roads
     
   ]
   
@@ -87,6 +98,95 @@ to simple-connexification
     
     connexify-network cities roads
 end
+
+
+
+
+;;
+; Create local link according to gravity function
+to add-local-links-neigh-gravity
+  ; connects deterministically biggest neigh-gravity-threshold-quantile quantile of interaction potential
+  let qv quantile (table-values cities-interaction-table) neigh-gravity-threshold-quantile
+  show qv
+  
+  foreach table:keys cities-interaction-table [
+     if table:get cities-interaction-table ? > qv [
+        let c1 city (first ?) let c2 city (last ?)
+        ask c1 [
+          if not road-neighbor? c2 [
+               create-road-with c2 [new-road]
+          ] 
+        ] 
+     ] 
+  ]
+end
+
+to-report table-values [table]
+  let res []
+  foreach table:keys table [
+    set res lput table:get table ? res 
+  ]
+  report res
+end
+
+
+
+to init-cities-interaction-table
+  set cities-interaction-table table:make
+  let city-list to-list cities
+  let i 0 let m 0 let m-key []
+  foreach but-last city-list [
+    output-print (word "interaction-table : " i)
+    let c1 ?
+    
+    ;ask c1 [
+    ;  let k1 who
+    ;  ask (other cities in-radius 20) [ ; approximation radius computed as : r~ 1/sqrt(espilon) * Pmax / Pmin * rmin
+    ;    let c2 self
+    ;    let k2 who let key (list k1 k2) let revkey (list k2 k1)
+    ;    if not (table:has-key? cities-interaction-table key or table:has-key? cities-interaction-table revkey) [
+    ;      let p12 cities-interaction-force c1 c2
+    ;      if p12 > m [set m p12 set m-key key]
+    ;      table:put cities-interaction-table key p12
+    ;    ]
+    ;  ]
+    ;]
+    
+    let j i + 1 while [j < length city-list][
+      let c2 item j city-list let key (list [who] of c1 [who] of c2) ;let revkey (list [who] of c2 [who] of c1)
+      let p12 cities-interaction-force c1 c2 ; interaction force
+      if p12 > m [set m p12 set m-key key]
+      table:put cities-interaction-table key p12
+      ;table:put cities-interaction-table revkey p12 ; Q is revkey needed ? NO as couple matters
+      set j j + 1 
+    ]
+    set i i + 1
+  ]
+  
+end
+
+
+
+
+
+to-report cities-interaction-force [city1 city2]
+  report runresult (word cities-interaction-method " city1 city2")
+end
+
+
+to-report basic-gravity [city1 city2]
+  ; tunable gravity-exponent ?
+  let d12 0 ask city1 [set d12 distance city2] if d12 = 0 [show (word city1 city2)] ; not optimized, may be quicker to use potential vector and distance matrix
+  report [population] of city1 * [population] of city2 / (d12 ^ basic-gravity-exponent)
+end
+
+
+to-report generalized-gravity [city1 city2]
+  let p1 [population] of city1 let p2 [population] of city2 let d12 0 ask city1 [set d12 distance city2]
+  report (((p1 * p2) / (max-pop ^ 2)) ^ gravity-hierarchy-exponent)* exp( - d12 / gravity-radius)
+  
+end
+
 
 
 
