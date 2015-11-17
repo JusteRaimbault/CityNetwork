@@ -51,6 +51,11 @@ public class Main {
 	public static String cortextPassword;
 	
 	
+	public static void setup(){
+		setup("conf/default.conf");
+	}
+	
+	
 	/**
 	 * Set global variables.
 	 * 

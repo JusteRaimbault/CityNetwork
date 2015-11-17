@@ -5,6 +5,7 @@ package sql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
@@ -28,6 +29,7 @@ public class SQLConnection {
 	 * @param pass
 	 */
 	public static void setupSQLCredentials(String user,String pass){
+		System.out.println("credentials : "+user+","+pass);
 		sqlUser = user;sqlPassword = pass;
 	}
 	
@@ -37,12 +39,26 @@ public class SQLConnection {
 	 */
 	public static void setupSQL(String database){
 		try{
+		  System.setProperty("socksProxyHost","");	
+		  System.setProperty("socksProxyPort","");
 	      Class.forName("com.mysql.jdbc.Driver");
-	      
-		  sqlDB = DriverManager.getConnection("jdbc:mysql://localhost:3306/"+database,sqlUser,sqlPassword);
+	      System.out.println("credentials : "+sqlUser+","+sqlPassword);
+		  sqlDB = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/"+database,sqlUser,sqlPassword);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Executes a sql query
+	 * 
+	 * @param query
+	 * @return
+	 */
+	public static ResultSet executeQuery(String query){
+		try{
+			return SQLConnection.sqlDB.createStatement().executeQuery(query);
+		}catch(Exception e){e.printStackTrace();return null;}
 	}
 	
 	

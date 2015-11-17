@@ -6,6 +6,7 @@ package sql;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import utils.tor.TorPoolManager;
 import main.corpuses.Corpus;
 import main.reference.Reference;
 
@@ -25,7 +26,7 @@ public class SQLExporter {
 	 * 
 	 * @param corpus
 	 */
-	public static void export(Corpus corpus,String databaseName,String primaryTableName,String secondaryTableName,String citationTableName){
+	public static void export(Corpus corpus,String databaseName,String primaryTableName,String secondaryTableName,String citationTableName,boolean reconnectTorPool){
 		try{
 			SQLConnection.setupSQL(databaseName);
 			
@@ -46,10 +47,17 @@ public class SQLExporter {
 				}
 				
 				// construct sql requests and execute
-				String req = insertSetRequest(primaryRefs,primaryTableName);
-				
+				//primary
+				SQLConnection.executeQuery(insertSetRequest(primaryRefs,primaryTableName));
+				//secondary
+				SQLConnection.executeQuery(insertSetRequest(secondaryRefs,secondaryTableName));
+				//citation
 				
 			}
+			
+			if(reconnectTorPool){TorPoolManager.setupTorPoolConnexion();}
+			
+			
 		}catch(Exception e){e.printStackTrace();}
 	}
 	
@@ -61,6 +69,12 @@ public class SQLExporter {
 		return(req);
 	}
 	
+	private static String insertCitRequest(HashMap<String,String> cit,String citationTableName){
+		String req = "INSERT INTO "+citationTableName+" (citing,cited) VALUES (";
+		for(String ci:cit.keySet()){req+="("+ci+","+cit.get(ci)+"),";}
+		req=req.substring(0, req.length()-1)+");";
+		return req;
+	}
 	
 	
 	

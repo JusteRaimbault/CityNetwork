@@ -16,6 +16,7 @@ import main.reference.Reference;
 import scholar.ScholarAPI;
 import sql.CybergeoImport;
 import sql.SQLConnection;
+import sql.SQLExporter;
 import utils.RISWriter;
 import utils.tor.TorPool;
 import utils.tor.TorPoolManager;
@@ -135,6 +136,17 @@ public class Cybergeo {
 	}
 	
 	
+	
+	public static void testSQLExport(){
+		String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris";
+		CybergeoCorpus base = (CybergeoCorpus) setup(bibFile,1);
+		
+		base.fillCitedRefs();
+		SQLExporter.export(base, "cybtest", "cybergeo", "refs", "links",true);
+	}
+	
+	
+	
 	/**
 	 * @param args
 	 */
@@ -158,12 +170,21 @@ public class Cybergeo {
 		
 		//testCitingRefs();
 		
+		/*Main.setup();
+		try{TorPoolManager.setupTorPoolConnexion();}catch(Exception e){}
+		SQLConnection.setupSQL("cybtest");
+		*/
+		
+		testSQLExport();
 		
 		//fullNetwork(Integer.parseInt(args[0]));
+		
+		/*
 		String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris";
 		String outfile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/testfull_1refs_"+(new Date().toString().replaceAll(" ", "-"))+".gexf"; 
 		
 		fullNetwork(bibFile,outfile,1);
+		*/
 	}
 
 }
