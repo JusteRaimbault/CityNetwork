@@ -12,7 +12,9 @@ import main.corpuses.CybergeoCorpus;
 import main.corpuses.CybergeoFactory;
 import main.corpuses.DefaultCorpus;
 import main.corpuses.RISFactory;
+import main.reference.Abstract;
 import main.reference.Reference;
+import main.reference.Title;
 import scholar.ScholarAPI;
 import sql.CybergeoImport;
 import sql.SQLConnection;
@@ -140,8 +142,8 @@ public class Cybergeo {
 	public static void testSQLExport(){
 		String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris";
 		CybergeoCorpus base = (CybergeoCorpus) setup(bibFile,1);
-		
-		base.fillCitedRefs();
+		for(Reference r:base.references){r.biblio.cited.add(Reference.construct("", new Title("dummy ref"), new Abstract("abstract"), "2015", "1234532345675"));}
+		//base.fillCitedRefs();
 		SQLExporter.export(base, "cybtest", "cybergeo", "refs", "links",true);
 	}
 	

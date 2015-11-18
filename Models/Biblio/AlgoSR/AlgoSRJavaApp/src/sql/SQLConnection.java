@@ -61,6 +61,18 @@ public class SQLConnection {
 		}catch(Exception e){e.printStackTrace();return null;}
 	}
 	
+	/**
+	 * Executes a database update
+	 * 
+	 * @param query
+	 * @return
+	 */
+	public static int executeUpdate(String query){
+		try{
+			return SQLConnection.sqlDB.createStatement().executeUpdate(query);
+		}catch(Exception e){e.printStackTrace();return 0;}
+	}
+	
 	
 	
 	
