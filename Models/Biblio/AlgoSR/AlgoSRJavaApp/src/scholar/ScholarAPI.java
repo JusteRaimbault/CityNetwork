@@ -380,8 +380,11 @@ public class ScholarAPI {
 		Elements e = dom.getElementsByClass("gs_ri");
 		for(Element r:e){
 	    	if(resultsNumber<remResponses){
-	    		refs.add(Reference.construct("", getTitle(r), Abstract.EMPTY, getYear(r), getCluster(r)));
-	    		resultsNumber++;
+	    		String id = getCluster(r);
+	    		if(id!=null&&id.length()>0){
+	    		  refs.add(Reference.construct("", getTitle(r), new Abstract(), getYear(r), id));
+	    		  resultsNumber++;
+	    		}
 	    	}
 	    }
 	}

@@ -48,6 +48,13 @@ public class Bibliography {
 		citedRaw = new HashSet<String>();
 	}
 	
+	
+	public Bibliography(){
+		cited = new HashSet<Reference>();
+		citedTitles = new HashSet<String>();
+		citedRaw = new HashSet<String>();
+	}
+	
 	/**
 	 * Full contructor
 	 * 

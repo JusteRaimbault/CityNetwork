@@ -21,5 +21,12 @@ public class Abstract {
 	public Abstract(String r){resume=r;}
 	
 	public Abstract(String r,String e){resume=r;en_resume=e;}
+
+	/**
+	 * 
+	 */
+	public Abstract() {
+		resume = "";en_resume="";
+	}
 	
 }

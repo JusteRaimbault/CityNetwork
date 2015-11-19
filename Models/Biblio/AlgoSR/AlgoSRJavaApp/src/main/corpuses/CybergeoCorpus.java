@@ -30,6 +30,14 @@ public class CybergeoCorpus extends Corpus {
 	}
 
 	
+	public CybergeoCorpus(Reference r){
+		//r.attributes.put("cybergeo", "1");
+		references = new HashSet<Reference>();
+		references.add(r);
+	}
+	
+	
+	
 	/**
 	 * Construct cited refs of cybergeo corpus
 	 */

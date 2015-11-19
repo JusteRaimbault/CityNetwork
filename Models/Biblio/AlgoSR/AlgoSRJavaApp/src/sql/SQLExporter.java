@@ -5,6 +5,9 @@ package sql;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+
+import org.apache.commons.lang3.tuple.MutablePair;
 
 import utils.tor.TorPoolManager;
 import main.corpuses.Corpus;
@@ -32,27 +35,31 @@ public class SQLExporter {
 			
 			HashSet<Reference> primaryRefs = new HashSet<Reference>();
 			HashSet<Reference> secondaryRefs = new HashSet<Reference>();
-			HashMap<String,String> citations = new HashMap<String,String>();
+			LinkedList<MutablePair<String,String>> citations = new LinkedList<MutablePair<String,String>>();
 			
 			for(Reference r:corpus.references){
 				primaryRefs.add(r);
 				// not generic in levels for now
-				for(Reference rc:r.citing){secondaryRefs.add(rc);citations.put(rc.scholarID,r.scholarID);}
+				for(Reference rc:r.citing){
+					System.out.println("citing : "+rc);
+					secondaryRefs.add(rc);
+					citations.add(new MutablePair<String,String>(rc.scholarID,r.scholarID));}
 				for(Reference rcited:r.biblio.cited){
-					secondaryRefs.add(rcited);citations.put(r.scholarID, rcited.scholarID);
+					System.out.println("cited : "+rcited);
+					secondaryRefs.add(rcited);citations.add(new MutablePair<String,String>(r.scholarID, rcited.scholarID));
 					for(Reference rc1:rcited.citing){
-						secondaryRefs.add(rc1);citations.put(rc1.scholarID, rcited.scholarID);
-						for(Reference rc2:rc1.citing){secondaryRefs.add(rc2);citations.put(rc2.scholarID, rc1.scholarID);}
+						secondaryRefs.add(rc1);citations.add(new MutablePair<String,String>(rc1.scholarID, rcited.scholarID));
+						for(Reference rc2:rc1.citing){secondaryRefs.add(rc2);citations.add(new MutablePair<String,String>(rc2.scholarID, rc1.scholarID));}
 					}
 				}
 				
 				// construct sql requests and execute
 				//primary
-				SQLConnection.executeQuery(insertSetRequest(primaryRefs,primaryTableName));
+				SQLConnection.executeUpdate(insertSetRequest(primaryRefs,primaryTableName));
 				//secondary
-				SQLConnection.executeQuery(insertSetRequest(secondaryRefs,secondaryTableName));
+				SQLConnection.executeUpdate(insertSetRequest(secondaryRefs,secondaryTableName));
 				//citation
-				
+				SQLConnection.executeUpdate(insertCitRequest(citations,citationTableName));
 			}
 			
 			if(reconnectTorPool){TorPoolManager.setupTorPoolConnexion();}
@@ -63,19 +70,22 @@ public class SQLExporter {
 	
 	
 	private static String insertSetRequest(HashSet<Reference> r,String primaryTableName){
-		String req = "INSERT INTO "+primaryTableName+" (id,title,year) VALUES (";
-		for(Reference rp:r){req+="("+rp.scholarID+","+rp.title.title+","+rp.year+"),";}
-		req=req.substring(0, req.length()-1)+");";
+		String req = "INSERT INTO "+primaryTableName+" (id,title,year) VALUES ";
+		for(Reference rp:r){req+="('"+rp.scholarID+"','"+rp.title.title.replace("'", "’")+"',"+rp.year+"),";}
+		req=req.substring(0, req.length()-1)+" ON DUPLICATE KEY UPDATE title = VALUES(title);";
+
 		return(req);
 	}
-	
-	private static String insertCitRequest(HashMap<String,String> cit,String citationTableName){
-		String req = "INSERT INTO "+citationTableName+" (citing,cited) VALUES (";
-		for(String ci:cit.keySet()){req+="("+ci+","+cit.get(ci)+"),";}
-		req=req.substring(0, req.length()-1)+");";
+
+	private static String insertCitRequest(LinkedList<MutablePair<String,String>> cit,String citationTableName){
+		String req = "INSERT INTO "+citationTableName+" (citing,cited) VALUES ";
+
+		for(MutablePair<String,String> pair:cit){req+="('"+pair.left+"','"+pair.right+"'),";}
+		req=req.substring(0, req.length()-1)+";";
+
 		return req;
 	}
-	
+
 	
 	
 }

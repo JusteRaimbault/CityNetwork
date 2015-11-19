@@ -142,10 +142,44 @@ public class Cybergeo {
 	public static void testSQLExport(){
 		String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris";
 		CybergeoCorpus base = (CybergeoCorpus) setup(bibFile,1);
-		for(Reference r:base.references){r.biblio.cited.add(Reference.construct("", new Title("dummy ref"), new Abstract("abstract"), "2015", "1234532345675"));}
-		//base.fillCitedRefs();
+		//for(Reference r:base.references){r.biblio.cited.add(Reference.construct("", new Title("dummy ref"), new Abstract("abstract"), "2015", "1234532345675"));}
+		/*
+		base.fillCitedRefs();
 		SQLExporter.export(base, "cybtest", "cybergeo", "refs", "links",true);
+		*/
+		
+		//base = (CybergeoCorpus) setup(bibFile,1);
+		base.fillCitingRefs();
+		base.fillCitedRefs();// NOTE : a cybergeocorpus has ghostrefs by default -> issue ?
+		SQLExporter.export(base, "cybtest", "cybergeo", "refs", "links",true);
+		
 	}
+	
+	/**
+	 * constructs full network, progressively inserting it in sql.
+	 * assumed database structure : cybergeo : (id,title,year), refs : (id,title,year), links :(citing,cited)
+	 */
+	public static void fullNetworkSQLExport(String bibFile,String database,int numrefs){
+		CybergeoCorpus cybergeo = (CybergeoCorpus) setup(bibFile,numrefs);
+		cybergeo.name="cybergeo";
+		
+		// iterate on single refs, export to sql at each
+		for(Reference cybref:cybergeo.references){
+			CybergeoCorpus c = new CybergeoCorpus(cybref);
+			c.fillCitedRefs();
+			Corpus citedCorpus = c.getCitedCorpus();
+			citedCorpus.name="cited";
+			citedCorpus.fillCitingRefs();
+			c.fillCitingRefs();
+			Corpus citingCited = citedCorpus.getCitingCorpus();
+			citingCited.name="citing-cited";
+			citingCited.fillCitingRefs();
+			
+			SQLExporter.export(c, database,"cybergeo","refs", "links", true);
+		}
+		
+	}
+	
 	
 	
 	
@@ -177,7 +211,6 @@ public class Cybergeo {
 		SQLConnection.setupSQL("cybtest");
 		*/
 		
-		testSQLExport();
 		
 		//fullNetwork(Integer.parseInt(args[0]));
 		
@@ -187,6 +220,11 @@ public class Cybergeo {
 		
 		fullNetwork(bibFile,outfile,1);
 		*/
+
+		testSQLExport();
+		
+		//fullNetworkSQLExport(bibFile,"cybtest",1);
+		
 	}
 
 }

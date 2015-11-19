@@ -29,7 +29,7 @@ public class SQLConnection {
 	 * @param pass
 	 */
 	public static void setupSQLCredentials(String user,String pass){
-		System.out.println("credentials : "+user+","+pass);
+		//System.out.println("credentials : "+user+","+pass);
 		sqlUser = user;sqlPassword = pass;
 	}
 	
@@ -42,7 +42,7 @@ public class SQLConnection {
 		  System.setProperty("socksProxyHost","");	
 		  System.setProperty("socksProxyPort","");
 	      Class.forName("com.mysql.jdbc.Driver");
-	      System.out.println("credentials : "+sqlUser+","+sqlPassword);
+	      //System.out.println("credentials : "+sqlUser+","+sqlPassword);
 		  sqlDB = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/"+database,sqlUser,sqlPassword);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -68,6 +68,7 @@ public class SQLConnection {
 	 * @return
 	 */
 	public static int executeUpdate(String query){
+		System.out.println("QUERY : "+query);
 		try{
 			return SQLConnection.sqlDB.createStatement().executeUpdate(query);
 		}catch(Exception e){e.printStackTrace();return 0;}

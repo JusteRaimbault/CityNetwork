@@ -61,7 +61,15 @@ public abstract class Corpus {
 		return new DefaultCorpus(citing);
 	}
 	
-	
+	public Corpus getCitedCorpus(){
+		HashSet<Reference> cited = new HashSet<Reference>();
+		for(Reference r:references){
+			for(Reference rc:r.biblio.cited){
+				cited.add(rc);
+			}
+		}
+		return new DefaultCorpus(cited);
+	}
 	
 	/**
 	 * Get abstracts using Mendeley api.

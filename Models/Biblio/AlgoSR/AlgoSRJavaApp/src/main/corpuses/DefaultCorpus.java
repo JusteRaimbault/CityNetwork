@@ -21,6 +21,11 @@ public class DefaultCorpus extends Corpus {
 		references = new HashSet<Reference>();
 	}
 	
+	public DefaultCorpus(Reference r){
+		references = new HashSet<Reference>();
+		references.add(r);
+	}
+	
 	
 	/**
 	 * Corpus from existing set.
