@@ -214,16 +214,19 @@ public class Cybergeo {
 		
 		//fullNetwork(Integer.parseInt(args[0]));
 		
-		/*
+		
 		String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris";
-		String outfile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/testfull_1refs_"+(new Date().toString().replaceAll(" ", "-"))+".gexf"; 
+		//String outfile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/testfull_1refs_"+(new Date().toString().replaceAll(" ", "-"))+".gexf"; 
 		
-		fullNetwork(bibFile,outfile,1);
-		*/
+		//fullNetwork(bibFile,outfile,1);
+	
 
-		testSQLExport();
+		//testSQLExport();
 		
-		//fullNetworkSQLExport(bibFile,"cybtest",1);
+		fullNetworkSQLExport(bibFile,"cybtest",1);
+		
+		// full nw
+		//fullNetworkSQLExport(bibFile,"cybergeo",-1);
 		
 	}
 
