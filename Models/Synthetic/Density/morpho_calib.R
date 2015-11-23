@@ -19,10 +19,13 @@ library(ggplot2)
 
 
 # load result
-res = read.csv('res_oml_scala/2015_08_06_17_02_12_LHSsampling.csv',sep=',')
+#res = read.csv('res_oml_scala/2015_08_06_17_02_12_LHSsampling.csv',sep=',')
+res = read.csv(paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/20151110_GridLHS/2015_11_10_18_11_05_GRID_LHS.csv'),sep=',')
 # transform as usable data structure
-indics_cols = c(4,5,7,10,11)
-params_cols = c(1,2,3,6,8)
+#indics_cols = c(4,5,7,10,11)
+indics_cols = 6:10
+#params_cols = c(1,2,3,6,8)
+params_cols = 1:5
 p = getSingleParamPoints(res,params_cols,indics_cols)
 
 # simple plot

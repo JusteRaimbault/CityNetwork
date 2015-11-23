@@ -38,39 +38,9 @@ summary(prcomp(pse))
 # ex : entropy >= f(Moran) ?
 
 g = plotPoints(pse,med,"moran","entropy","diffusion")
-fit = data.frame(x=(0:100)/300,s=((0:100)/300)^0.4)
-g+geom_point(data=fit,aes(x=x,y=s),colour="green")
-
-# fit the lower bound of entropy = f(moran)
-# take pareto front of pse
-x=(0:100)/300
-bound=c()
-for(i in 1:(length(x)-5)){
-  m=min(pse[pse$moran>x[i]&pse$moran<x[i+1],8])
-  if(m==Inf){m=NA}
-  bound = append(bound,m)
-}
-
-# fit log
-d=data.frame(x=log(x[2:length(bound)]),y=log(bound[2:length(bound)]))
-coefs=summary(lm(y~x,d))$coefficients
-beta=exp(coefs[1,1])
-alpha=coefs[2,1]
-
-fit = data.frame(x=(1:100)/300,s=beta*((1:100)/300)^alpha)
-g+geom_point(data=fit,aes(x=x,y=s),colour="green")
 
 
-# idem for entropy <= f(distance) ?
-g = plotPoints(pse,med,"distance","entropy","diffusion")
 
-x = (2:95)/100
-bound=c()
-for(i in 1:(length(x)-1)){
-  m=max(pse[pse$distance>x[i]&pse$distance<x[i+1],8])
-  #if(m==Inf){m=NA}
-  bound = append(bound,m)
-}
-coefs=summary(lm(y~x,data.frame(x=log(x[1:length(bound)]),y=log(bound[1:length(bound)]))))$coefficients
-fit = data.frame(x=x,s=exp(coefs[1,1])*x^coefs[2,1])
-g+geom_point(data=fit,aes(x=x,y=s),colour="green")
+
+
+
