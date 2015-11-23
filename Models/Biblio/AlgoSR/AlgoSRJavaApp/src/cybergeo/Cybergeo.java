@@ -173,7 +173,9 @@ public class Cybergeo {
 			c.fillCitingRefs();
 			Corpus citingCited = citedCorpus.getCitingCorpus();
 			citingCited.name="citing-cited";
-			citingCited.fillCitingRefs();
+			
+			// do not fill 2nd level - takes too much time, incomplete database for now.
+			//citingCited.fillCitingRefs();
 			
 			SQLExporter.export(c, database,"cybergeo","refs", "links", true);
 		}
@@ -223,7 +225,7 @@ public class Cybergeo {
 
 		//testSQLExport();
 		
-		fullNetworkSQLExport(bibFile,"cybtest",1);
+		fullNetworkSQLExport(bibFile,"cybergeo",-1);
 		
 		// full nw
 		//fullNetworkSQLExport(bibFile,"cybergeo",-1);

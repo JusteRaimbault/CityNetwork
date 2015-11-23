@@ -89,7 +89,7 @@ public class TorPoolManager {
 			boolean locked = true;int t=0;
 			while(locked){
 				System.out.println("Waiting for lock on .tor_tmp/lock");
-				Thread.sleep(100);
+				Thread.sleep(200);
 				locked = (new File(".tor_tmp/lock")).exists();t++;
 			}
 			
