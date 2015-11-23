@@ -203,8 +203,16 @@ public class Cybergeo {
 		Corpus primary = SQLImporter.sqlImportPrimary(database, "cybergeo");
 		
 		for(Reference prim:primary){
-			
+			for(Reference cited:prim.biblio.cited){
+				for(Reference citingcited:cited.citing){
+					updateStatus(citingcited);
+				}
+			}
 		}
+	}
+	
+	private static void updateStatus(Reference r){
+		SQLConnection.executeUpdate("INSERT INTO status ");
 	}
 	
 	
