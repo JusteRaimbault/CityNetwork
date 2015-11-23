@@ -153,6 +153,10 @@ public class Reference {
 		}
 	}
 	
+	public static Reference construct(String schID){
+		return construct("",new Title(""),new Abstract(),"",schID);
+	}
+	
 	/**
 	 * Override hashcode to take account of only ID.
 	 */
