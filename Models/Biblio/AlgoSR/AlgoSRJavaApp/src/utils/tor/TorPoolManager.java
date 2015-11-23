@@ -29,7 +29,7 @@ public class TorPoolManager {
 	/**
 	 * the port currently used.
 	 */
-	public static int currentPort;
+	public static int currentPort=0;
 	
 	
 	public static boolean hasTorPoolConnexion = false;
@@ -49,10 +49,11 @@ public class TorPoolManager {
 		
 		
 		try{
-			changePortFromFile(new BufferedReader(new FileReader(new File(".tor_tmp/ports"))));
+			//changePortFromFile(new BufferedReader(new FileReader(new File(".tor_tmp/ports"))));
+			switchPort();
 		}catch(Exception e){e.printStackTrace();}
 		
-		showIP();
+		//showIP();
 		
 		hasTorPoolConnexion = true;
 	}
@@ -78,8 +79,11 @@ public class TorPoolManager {
 	public static void switchPort(){
 		try{
 			//send kill signal via kill file
-			System.out.println("Sending kill signal for current tor thread...");
-			(new File(".tor_tmp/kill"+currentPort)).createNewFile();
+			// if current port is set
+			if(currentPort!=0){
+				System.out.println("Sending kill signal for current tor thread...");
+				(new File(".tor_tmp/kill"+currentPort)).createNewFile();
+			}
 			
 			//waiting for lock to read new available port
 			boolean locked = true;int t=0;
@@ -88,6 +92,11 @@ public class TorPoolManager {
 				Thread.sleep(100);
 				locked = (new File(".tor_tmp/lock")).exists();t++;
 			}
+			
+			// make the next step concurrent
+			// -> also lock ports file
+			// create the lock
+			File lock = new File(".tor_tmp/lock");lock.createNewFile();
 			
 			// read new port - delete taken port from communication file
 			BufferedReader r = new BufferedReader(new FileReader(new File(".tor_tmp/ports")));
@@ -104,6 +113,9 @@ public class TorPoolManager {
 			BufferedWriter w = new BufferedWriter(new FileWriter(new File(".tor_tmp/ports")));
 			for(String p:queue){w.write(p);w.newLine();}
 			w.close();
+			
+			// release the lock
+			lock.delete();
 			
 			// show ip to check
 			showIP();
