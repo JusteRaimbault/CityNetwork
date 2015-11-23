@@ -4,6 +4,7 @@
 package main.corpuses;
 
 import java.util.HashSet;
+import java.util.Iterator;
 
 import scholar.ScholarAPI;
 import utils.GEXFWriter;
@@ -15,7 +16,7 @@ import main.reference.Reference;
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
  *
  */
-public abstract class Corpus {
+public abstract class Corpus implements Iterable<Reference> {
 	
 	/**
 	 * References in the corpus
@@ -88,5 +89,14 @@ public abstract class Corpus {
 	public void gexfExport(String file){
 		GEXFWriter.writeCitationNetwork(file,references);
 	}
+	
+	
+	/**
+	 * Iterable type.
+	 */
+	public Iterator<Reference> iterator(){
+		return references.iterator();
+	}
+	
 	
 }

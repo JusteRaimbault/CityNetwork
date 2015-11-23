@@ -19,6 +19,7 @@ import scholar.ScholarAPI;
 import sql.CybergeoImport;
 import sql.SQLConnection;
 import sql.SQLExporter;
+import sql.SQLImporter;
 import utils.RISWriter;
 import utils.tor.TorPool;
 import utils.tor.TorPoolManager;
@@ -181,6 +182,31 @@ public class Cybergeo {
 		}
 		
 	}
+	
+	/**
+	 * get refs which have not been completed yet and completes citing refs.
+	 *   Note : status table ? -> completed on first run, then ok.
+	 *   Assumes status table is operational.
+	 * @param database
+	 */
+	public static void completeNetworkSQLExport(String database){
+		
+	}
+	
+	/**
+	 * from primary corpus -> get cited, citing cited.
+	 * 
+	 * @param database
+	 */
+	public static void updateStatusTable(String database){
+		Corpus all = SQLImporter.sqlImport(database, "cybergeo", "refs", "links", false);
+		Corpus primary = SQLImporter.sqlImportPrimary(database, "cybergeo");
+		
+		for(Reference prim:primary){
+			
+		}
+	}
+	
 	
 	
 	

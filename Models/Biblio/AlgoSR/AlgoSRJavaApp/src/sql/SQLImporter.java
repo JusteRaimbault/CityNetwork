@@ -59,6 +59,17 @@ public class SQLImporter {
 	}
 	
 	
+	public static Corpus sqlImportPrimary(String database,String table){
+		HashSet<Reference> refs = new HashSet<Reference>();
+		try{
+			SQLConnection.setupSQL(database);
+			ResultSet resprim = SQLConnection.executeQuery("SELECT * FROM "+table+";");		
+			while(resprim.next()){refs.add(Reference.construct("",new Title(resprim.getString(1)),new Abstract(),resprim.getString(2), resprim.getString(0)));}
+			
+		}catch(Exception e){e.printStackTrace();}
+		return new DefaultCorpus(refs) ;
+	}
+	
 	
 	
 	
