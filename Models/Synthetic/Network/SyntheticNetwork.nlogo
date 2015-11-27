@@ -1,3 +1,4 @@
+extensions [table pathdir nw]
 
 ;;;;
 ;; Synthetic euclidian network generation
@@ -8,7 +9,7 @@
 ;;;;
 
 
-extensions [table]
+
 
 
 __includes [
@@ -20,6 +21,9 @@ __includes [
   "synth-cities.nls"
   ; or density
   "../Density/embedded-synth-pattern.nls"
+  
+  ;; indicators
+  "indicators.nls"
   
   ;; tests 
    "test/test_includes.nls"
@@ -38,6 +42,7 @@ __includes [
    "../../../../Softwares/NetLogo/utils/agent/AgentSet.nls"
    ;"../../../../Softwares/NetLogo/utils/misc/Table.nls"
    "../../../../Softwares/NetLogo/utils/math/Statistics.nls"
+   "../../../../Softwares/NetLogo/utils/io/File.nls"
    
 ]
 
@@ -61,6 +66,11 @@ globals [
   ;sp-diffusion-steps
   ;sp-diffusion
   sp-population
+  
+  
+  ;; network
+  shortest-paths
+  nw-relative-speeds
   
 ]
 
@@ -95,17 +105,22 @@ cities-own [
 
 
 roads-own [
-  capacity 
+  capacity
+  
+  road-length
+  
+  bw-centrality
+  
 ]
 @#$#@#$#@
 GRAPHICS-WINDOW
 4
 10
-781
-704
-29
-25
-13.0
+664
+691
+-1
+-1
+6.5
 1
 10
 1
@@ -115,10 +130,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--29
-29
--25
-25
+0
+99
+0
+99
 0
 0
 1
@@ -132,8 +147,8 @@ CHOOSER
 64
 cities-generation-method
 cities-generation-method
-"zipf-christaller" "random" "prefAtt-diffusion-density"
-2
+"zipf-christaller" "random" "prefAtt-diffusion-density" "from-density-file"
+3
 
 CHOOSER
 891
@@ -143,7 +158,7 @@ CHOOSER
 network-generation-method
 network-generation-method
 "simple-connexification" "neighborhood-gravity" "random" "none"
-1
+0
 
 SLIDER
 858
@@ -168,8 +183,8 @@ SLIDER
 #-cities
 #-cities
 0
-100
-82
+1000
+229
 1
 1
 NIL
@@ -216,7 +231,7 @@ random-network-density
 random-network-density
 0
 0.1
-0.01
+0.0040
 0.001
 1
 NIL
@@ -260,8 +275,8 @@ SLIDER
 sp-alpha-localization
 sp-alpha-localization
 0
-2
-1.2
+4
+1.3
 0.1
 1
 NIL
@@ -326,8 +341,8 @@ CHOOSER
 111
 density-to-cities-method
 density-to-cities-method
-"hierarchical-aggreg" "random-aggreg"
-0
+"hierarchical-aggreg" "random-aggreg" "intersection-density"
+2
 
 CHOOSER
 1079
@@ -462,6 +477,57 @@ gravity-hierarchy-exponent
 1
 NIL
 HORIZONTAL
+
+BUTTON
+807
+568
+875
+601
+density file
+ca\ndensity-from-file density-file \"../../../Results/Synthetic/Density/20151106_Grid/pop\"
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1057
+490
+1136
+523
+setup-indics
+setup-nw-indicators
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1139
+490
+1214
+523
+nw indics
+compute-indicators
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

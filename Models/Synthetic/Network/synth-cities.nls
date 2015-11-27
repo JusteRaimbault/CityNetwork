@@ -45,6 +45,16 @@ to generate-cities [generation-method]
      
   ]
   
+  
+  if generation-method = "from-density-file" [
+    ; read a configuration from a file
+    ; -> resize world in function
+    
+    density-from-file density-file "../../../Results/Synthetic/Density/20151106_Grid/pop"
+     
+    density-to-cities
+  ]
+  
   set max-pop max [population] of cities
   
 end
@@ -84,6 +94,33 @@ to set-population-distribution
 end
 
 
+
+
+to density-from-file [file]
+   let rows read-numeric-csv-as-row-list file ";"
+   ; file assumed consistent -> resize world here
+   let width length item 0 rows let height length rows
+   resize-world 0 (width - 1) 0 (height - 1) set-patch-size (50 * 13 / height)
+   let i min-pxcor let j min-pycor
+   foreach rows [
+      set j min-pycor
+      foreach ? [
+        ask (patch i j) [set sp-occupants ?]
+        set j j + 1
+      ]
+      set i i + 1
+   ]
+   
+   color-synth-pattern
+end
+
+
+to-report density-file [dir]
+  ; random density file 
+  report (word dir "/" one-of pathdir:list dir)
+end
+
+
 ;;
 ; Transforms a spatialized density grid into an abstract (but also spatialized) city system
 ;
@@ -111,6 +148,20 @@ to density-to-cities
       
      randomly-cluster-cities
   ]
+  
+  if density-to-cities-method = "intersection-density" [
+    ; use alpha localization parameter for proba distribution
+    repeat #-cities [
+       let ptot sum [sp-occupants] of patches
+       let stot sum [(sp-occupants / ptot) ^ sp-alpha-localization] of patches let r random-float 1 let s 0 let plist to-list patches let i 0 let p nobody
+       while [s < r] [set p item i plist set s s + (([(sp-occupants / ptot) ^ sp-alpha-localization] of p) / stot) set i i + 1]
+       ask p [
+         sprout-cities 1 [set population 0 setxy (xcor - 0.5 + random-float 1) (ycor - 0.5 + random-float 1) new-city]
+       ]
+    ]
+  ]
+  
+  
   
 end
 
