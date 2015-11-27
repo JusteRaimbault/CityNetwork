@@ -20,6 +20,7 @@ import sql.CybergeoImport;
 import sql.SQLConnection;
 import sql.SQLExporter;
 import sql.SQLImporter;
+import utils.Log;
 import utils.RISWriter;
 import utils.tor.TorPool;
 import utils.tor.TorPoolManager;
@@ -224,6 +225,7 @@ public class Cybergeo {
 	 */
 	public static void main(String[] args) {
 		
+		Log.purpose("runtime", "Started at "+(new Date()).toString());
 		
 		//exportCybergeoAsRIS(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib.ris");
 		
@@ -259,11 +261,12 @@ public class Cybergeo {
 
 		//testSQLExport();
 		
-		fullNetworkSQLExport(bibFile,"cybergeo",-1);
+		fullNetworkSQLExport(bibFile,"cyb_test1",10);
 		
 		// full nw
 		//fullNetworkSQLExport(bibFile,"cybergeo",-1);
 		
+		Log.purpose("runtime", "Finished at "+(new Date()).toString());
 	}
 
 }

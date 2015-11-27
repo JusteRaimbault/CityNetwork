@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 
+import utils.Log;
+
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
  *
@@ -58,7 +60,10 @@ public class SQLConnection {
 	public static ResultSet executeQuery(String query){
 		try{
 			return SQLConnection.sqlDB.createStatement().executeQuery(query);
-		}catch(Exception e){e.printStackTrace();return null;}
+		}catch(Exception e){
+			e.printStackTrace();
+			Log.purpose("mysql","QUERY : "+query+"\nEXCEPTION : "+e.getMessage());
+			return null;}
 	}
 	
 	/**
@@ -71,7 +76,10 @@ public class SQLConnection {
 		System.out.println("QUERY : "+query);
 		try{
 			return SQLConnection.sqlDB.createStatement().executeUpdate(query);
-		}catch(Exception e){e.printStackTrace();return 0;}
+		}catch(Exception e){
+			e.printStackTrace();
+			Log.purpose("mysql","QUERY : "+query+"\nEXCEPTION : "+e.getMessage());
+			return 0;}
 	}
 	
 	

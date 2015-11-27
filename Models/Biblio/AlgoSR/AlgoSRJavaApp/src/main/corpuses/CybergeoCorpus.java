@@ -65,7 +65,7 @@ public class CybergeoCorpus extends Corpus {
 			r.biblio.citedTitles.clear();
 			for(Reference cr:r.biblio.cited){r.biblio.citedTitles.add(cr.title.title);}
 			
-			Log.progress("Corpus "+name+" : cited refs : "+(100.0 * (1.0*p) / (1.0*totalRefs))+ " % ; ref : "+r.toString());p++;
+			Log.purpose("progress","Corpus "+name+" : cited refs : "+(100.0 * (1.0*p) / (1.0*totalRefs))+ " % ; ref : "+r.toString());p++;
 		}
 	}
 	

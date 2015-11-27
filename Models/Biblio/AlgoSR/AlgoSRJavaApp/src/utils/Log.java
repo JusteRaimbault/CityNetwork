@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Date;
+import java.util.HashMap;
 
 
 
@@ -27,12 +28,13 @@ public class Log {
 	/** BufferedWriter to write */
 	private static File f;
 	
+	private static HashMap<String,File> purposeFiles=new HashMap<String,File>();
 	
-	private static String progressFile;
 	
-	public static  void progress(String s){
+	public static  void purpose(String purposeFile,String s){
+		if(!purposeFiles.containsKey(purposeFile)){System.out.println("error in logging "+s);}
 		try{
-			BufferedWriter w = new BufferedWriter(new FileWriter(new File(progressFile),true));
+			BufferedWriter w = new BufferedWriter(new FileWriter(purposeFiles.get(purposeFile),true));
 			w.write(s);w.newLine();w.close();
 		}catch(Exception e){}
 	}
@@ -44,11 +46,11 @@ public class Log {
 	/**
 	 * @param string
 	 */
-	public static void initProg(String string) {
-		progressFile=string;
+	public static void addPurposeLog(String purpose,String file) {
 		try{
-			File f = new File(string);
+			File f = new File(file);
 			f.delete();f.createNewFile();
+			purposeFiles.put(purpose,f);
 		}catch(Exception e){}
 	}
 	

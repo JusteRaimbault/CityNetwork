@@ -69,18 +69,32 @@ public class SQLExporter {
 	}
 	
 	
-	private static String insertSetRequest(HashSet<Reference> r,String primaryTableName){
-		String req = "INSERT INTO "+primaryTableName+" (id,title,year) VALUES ";
+	/**
+	 * insert a set of refs
+	 * 
+	 * @param r
+	 * @param primaryTableName
+	 * @return
+	 */
+	private static String insertSetRequest(HashSet<Reference> r,String table){
+		String req = "INSERT INTO "+table+" (id,title,year) VALUES ";
 		for(Reference rp:r){req+="('"+rp.scholarID+"','"+rp.title.title.replace("'", "’")+"',"+rp.year+"),";}
-		req=req.substring(0, req.length()-1)+" ON DUPLICATE KEY UPDATE title = VALUES(title);";
+		req=req.substring(0, req.length()-1)+";";//" ON DUPLICATE KEY UPDATE title = VALUES(title);";
 
 		return(req);
 	}
 
+	/**
+	 * insert citation links sql request
+	 * 
+	 * @param cit
+	 * @param citationTableName
+	 * @return
+	 */
 	private static String insertCitRequest(LinkedList<MutablePair<String,String>> cit,String citationTableName){
-		String req = "INSERT INTO "+citationTableName+" (citing,cited) VALUES ";
+		String req = "INSERT INTO "+citationTableName+" (id,citing,cited) VALUES ";
 
-		for(MutablePair<String,String> pair:cit){req+="('"+pair.left+"','"+pair.right+"'),";}
+		for(MutablePair<String,String> pair:cit){req+="('"+pair.left+pair.right+"','"+pair.left+"','"+pair.right+"'),";}
 		req=req.substring(0, req.length()-1)+";";
 
 		return req;

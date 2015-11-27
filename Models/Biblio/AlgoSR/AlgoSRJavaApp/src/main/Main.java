@@ -87,7 +87,10 @@ public class Main {
 			
 			// manage log
 			if(confsMap.containsKey("logdir")){Log.initLog(confsMap.get("logdir"));}
-			if(confsMap.containsKey("progress-log")){Log.initProg(confsMap.get("progress-log"));}
+			if(confsMap.containsKey("progress-log")){Log.addPurposeLog("progress",confsMap.get("progress-log"));}
+			if(confsMap.containsKey("mysql-log")){Log.addPurposeLog("mysql",confsMap.get("mysql-log"));}
+			if(confsMap.containsKey("runtime-log")){Log.addPurposeLog("runtime",confsMap.get("runtime-log"));}
+			
 			
 			// manage sql credentials
 			if(confsMap.containsKey("sqlUser")&&confsMap.containsKey("sqlPassword")){
