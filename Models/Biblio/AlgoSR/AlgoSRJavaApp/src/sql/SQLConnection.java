@@ -58,6 +58,7 @@ public class SQLConnection {
 	 * @return
 	 */
 	public static ResultSet executeQuery(String query){
+		if(query.length()==0){return null;}
 		try{
 			return SQLConnection.sqlDB.createStatement().executeQuery(query);
 		}catch(Exception e){
@@ -74,6 +75,7 @@ public class SQLConnection {
 	 */
 	public static int executeUpdate(String query){
 		System.out.println("QUERY : "+query);
+		if(query.length()==0){return 0;}
 		try{
 			return SQLConnection.sqlDB.createStatement().executeUpdate(query);
 		}catch(Exception e){

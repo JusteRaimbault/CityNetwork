@@ -77,6 +77,8 @@ public class SQLExporter {
 	 * @return
 	 */
 	private static String insertSetRequest(HashSet<Reference> r,String table){
+		if(r.size()==0){return "";}
+		
 		String req = "INSERT INTO "+table+" (id,title,year) VALUES ";
 		for(Reference rp:r){req+="('"+rp.scholarID+"','"+rp.title.title.replace("'", "’")+"',"+rp.year+"),";}
 		req=req.substring(0, req.length()-1)+";";//" ON DUPLICATE KEY UPDATE title = VALUES(title);";
@@ -92,6 +94,8 @@ public class SQLExporter {
 	 * @return
 	 */
 	private static String insertCitRequest(LinkedList<MutablePair<String,String>> cit,String citationTableName){
+		if(cit.size()==0){return "";}
+		
 		String req = "INSERT INTO "+citationTableName+" (id,citing,cited) VALUES ";
 
 		for(MutablePair<String,String> pair:cit){req+="('"+pair.left+pair.right+"','"+pair.left+"','"+pair.right+"'),";}

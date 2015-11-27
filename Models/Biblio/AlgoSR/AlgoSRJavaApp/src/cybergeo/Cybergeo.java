@@ -53,6 +53,9 @@ public class Cybergeo {
 	public static Corpus setup(String bibFile,int numRefs){
 
 		 Main.setup("conf/default.conf");
+		 
+		 Log.purpose("runtime", "Started at "+(new Date()).toString());
+		 
 		 try{TorPoolManager.setupTorPoolConnexion();}catch(Exception e){e.printStackTrace();}
 		 ScholarAPI.init();
 		 
@@ -162,6 +165,7 @@ public class Cybergeo {
 	 * assumed database structure : cybergeo : (id,title,year), refs : (id,title,year), links :(citing,cited)
 	 */
 	public static void fullNetworkSQLExport(String bibFile,String database,int numrefs){
+		
 		CybergeoCorpus cybergeo = (CybergeoCorpus) setup(bibFile,numrefs);
 		cybergeo.name="cybergeo";
 		
@@ -181,6 +185,8 @@ public class Cybergeo {
 			
 			SQLExporter.export(c, database,"cybergeo","refs", "links", true);
 		}
+		
+		Log.purpose("runtime", "Finished at "+(new Date()).toString());
 		
 	}
 	
@@ -225,7 +231,6 @@ public class Cybergeo {
 	 */
 	public static void main(String[] args) {
 		
-		Log.purpose("runtime", "Started at "+(new Date()).toString());
 		
 		//exportCybergeoAsRIS(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib.ris");
 		
@@ -266,7 +271,7 @@ public class Cybergeo {
 		// full nw
 		//fullNetworkSQLExport(bibFile,"cybergeo",-1);
 		
-		Log.purpose("runtime", "Finished at "+(new Date()).toString());
+		
 	}
 
 }
