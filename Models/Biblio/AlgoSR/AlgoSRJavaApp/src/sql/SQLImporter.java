@@ -75,9 +75,9 @@ public class SQLImporter {
 			String query = "SELECT "+table+".id,title,year,status FROM "+table+" JOIN status ON status.id=cybergeo.id WHERE status="+status+";";
 			ResultSet resprim = SQLConnection.executeQuery(query);		
 			while(resprim.next()){refs.add(Reference.construct("",new Title(resprim.getString(1)),new Abstract(),resprim.getString(2), resprim.getString(0)));}
-			
+			if(reconnectTorPool){TorPoolManager.setupTorPoolConnexion();}
 		}catch(Exception e){e.printStackTrace();}
-		if(reconnectTorPool){TorPoolManager.setupTorPoolConnexion();}
+		
 		return new DefaultCorpus(refs) ;
 	}
 	
