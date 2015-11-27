@@ -80,7 +80,10 @@ public class SQLExporter {
 		if(r.size()==0){return "";}
 		
 		String req = "INSERT INTO "+table+" (id,title,year) VALUES ";
-		for(Reference rp:r){req+="('"+rp.scholarID+"','"+rp.title.title.replace("'", "’")+"',"+rp.year+"),";}
+		for(Reference rp:r){
+			String year = rp.year;if(year==null||year.length()==0){year="0000";}
+			req+="('"+rp.scholarID+"','"+rp.title.title.replace("'", "’")+"',"+year+"),";
+		}
 		req=req.substring(0, req.length()-1)+" ON DUPLICATE KEY UPDATE id = VALUES(id);";
 
 		return(req);
