@@ -274,10 +274,10 @@ public class Cybergeo {
 
 		//testSQLExport();
 		
-		fullNetworkSQLExport(bibFile,"cyb_test1",13);
+		//fullNetworkSQLExport(bibFile,"cyb_test1",13);
 		
 		// full nw
-		//fullNetworkSQLExport(bibFile,"cybergeo",-1);
+		fullNetworkSQLExport(bibFile,"cybergeo",-1);
 		
 		//SQLConverter.sqlToGexf("test_cyb1","res/sql/testSqlToGexf.gexf");
 		
