@@ -81,7 +81,7 @@ public class SQLExporter {
 		
 		String req = "INSERT INTO "+table+" (id,title,year) VALUES ";
 		for(Reference rp:r){req+="('"+rp.scholarID+"','"+rp.title.title.replace("'", "’")+"',"+rp.year+"),";}
-		req=req.substring(0, req.length()-1)+";";//" ON DUPLICATE KEY UPDATE title = VALUES(title);";
+		req=req.substring(0, req.length()-1)+" ON DUPLICATE KEY UPDATE id = VALUES(id);";
 
 		return(req);
 	}
@@ -99,7 +99,7 @@ public class SQLExporter {
 		String req = "INSERT INTO "+citationTableName+" (id,citing,cited) VALUES ";
 
 		for(MutablePair<String,String> pair:cit){req+="('"+pair.left+pair.right+"','"+pair.left+"','"+pair.right+"'),";}
-		req=req.substring(0, req.length()-1)+";";
+		req=req.substring(0, req.length()-1)+" ON DUPLICATE KEY UPDATE id = VALUES(id);";
 
 		return req;
 	}
