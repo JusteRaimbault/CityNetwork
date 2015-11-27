@@ -156,7 +156,7 @@ public class Cybergeo {
 		//base = (CybergeoCorpus) setup(bibFile,1);
 		base.fillCitingRefs();
 		base.fillCitedRefs();// NOTE : a cybergeocorpus has ghostrefs by default -> issue ?
-		SQLExporter.export(base, "cybtest", "cybergeo", "refs", "links",true);
+		SQLExporter.export(base, "cybtest", "cybergeo", "refs", "links","status",true);
 		
 	}
 	
@@ -183,7 +183,7 @@ public class Cybergeo {
 			// do not fill 2nd level - takes too much time, incomplete database for now.
 			//citingCited.fillCitingRefs();
 			
-			SQLExporter.export(c, database,"cybergeo","refs", "links", true);
+			SQLExporter.export(c, database,"cybergeo","refs", "links","status", true);
 		}
 		
 		Log.purpose("runtime", "Finished at "+(new Date()).toString());

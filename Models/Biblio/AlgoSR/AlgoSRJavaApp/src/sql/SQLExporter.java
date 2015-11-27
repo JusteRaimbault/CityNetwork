@@ -29,25 +29,30 @@ public class SQLExporter {
 	 * 
 	 * @param corpus
 	 */
-	public static void export(Corpus corpus,String databaseName,String primaryTableName,String secondaryTableName,String citationTableName,boolean reconnectTorPool){
+	public static void export(Corpus corpus,String databaseName,String primaryTableName,String secondaryTableName,String citationTableName,String statusTableName,boolean reconnectTorPool){
 		try{
 			SQLConnection.setupSQL(databaseName);
 			
 			HashSet<Reference> primaryRefs = new HashSet<Reference>();
 			HashSet<Reference> secondaryRefs = new HashSet<Reference>();
 			LinkedList<MutablePair<String,String>> citations = new LinkedList<MutablePair<String,String>>();
+			HashSet<String> statusOkIDs = new HashSet<String>();
+			HashSet<String> statusTodoIDs = new HashSet<String>();
 			
 			for(Reference r:corpus.references){
-				primaryRefs.add(r);
+				primaryRefs.add(r);statusOkIDs.add(r.scholarID);
 				// not generic in levels for now
 				for(Reference rc:r.citing){
 					System.out.println("citing : "+rc);
-					secondaryRefs.add(rc);
-					citations.add(new MutablePair<String,String>(rc.scholarID,r.scholarID));}
+					secondaryRefs.add(rc);statusOkIDs.add(rc.scholarID);
+					citations.add(new MutablePair<String,String>(rc.scholarID,r.scholarID));
+				}
 				for(Reference rcited:r.biblio.cited){
 					System.out.println("cited : "+rcited);
-					secondaryRefs.add(rcited);citations.add(new MutablePair<String,String>(r.scholarID, rcited.scholarID));
+					secondaryRefs.add(rcited);statusOkIDs.add(rcited.scholarID);
+					citations.add(new MutablePair<String,String>(r.scholarID, rcited.scholarID));
 					for(Reference rc1:rcited.citing){
+						statusTodoIDs.add(rc1.scholarID);
 						secondaryRefs.add(rc1);citations.add(new MutablePair<String,String>(rc1.scholarID, rcited.scholarID));
 						for(Reference rc2:rc1.citing){secondaryRefs.add(rc2);citations.add(new MutablePair<String,String>(rc2.scholarID, rc1.scholarID));}
 					}
@@ -60,6 +65,9 @@ public class SQLExporter {
 				SQLConnection.executeUpdate(insertSetRequest(secondaryRefs,secondaryTableName));
 				//citation
 				SQLConnection.executeUpdate(insertCitRequest(citations,citationTableName));
+				//status
+				SQLConnection.executeUpdate(insertStatusRequest(statusOkIDs,1,statusTableName));
+				SQLConnection.executeUpdate(insertStatusRequest(statusTodoIDs,0,statusTableName));
 			}
 			
 			if(reconnectTorPool){TorPoolManager.setupTorPoolConnexion();}
@@ -107,6 +115,17 @@ public class SQLExporter {
 		return req;
 	}
 
+	private static String insertStatusRequest(HashSet<String> ids,int status,String table){
+		if(ids.size()==0){return "";}
+		
+		String req = "INSERT INTO "+table+" (id,status) VALUES ";
+
+		for(String id:ids){req+="('"+id+"','"+(new Integer(status)).toString()+"'),";}
+		req=req.substring(0, req.length()-1)+" ON DUPLICATE KEY UPDATE id = VALUES(id);";
+
+		return req;
+	}
+	
 	
 	
 }
