@@ -18,6 +18,7 @@ import main.reference.Title;
 import scholar.ScholarAPI;
 import sql.CybergeoImport;
 import sql.SQLConnection;
+import sql.SQLConverter;
 import sql.SQLExporter;
 import sql.SQLImporter;
 import utils.Log;
@@ -168,26 +169,33 @@ public class Cybergeo {
 		
 		CybergeoCorpus cybergeo = (CybergeoCorpus) setup(bibFile,numrefs);
 		cybergeo.name="cybergeo";
+		Corpus completed = SQLImporter.sqlImportPrimary(database, "cybergeo", "1",true);
 		
 		// iterate on single refs, export to sql at each
 		for(Reference cybref:cybergeo.references){
-			CybergeoCorpus c = new CybergeoCorpus(cybref);
-			c.fillCitedRefs();
-			Corpus citedCorpus = c.getCitedCorpus();
-			citedCorpus.name="cited";
-			citedCorpus.fillCitingRefs();
-			c.fillCitingRefs();
-			Corpus citingCited = citedCorpus.getCitingCorpus();
-			citingCited.name="citing-cited";
-			
-			// do not fill 2nd level - takes too much time, incomplete database for now.
-			//citingCited.fillCitingRefs();
-			
-			SQLExporter.export(c, database,"cybergeo","refs", "links","status", true);
+			if(!checkStatus(cybref,completed)){
+				CybergeoCorpus c = new CybergeoCorpus(cybref);
+				c.fillCitedRefs();
+				Corpus citedCorpus = c.getCitedCorpus();
+				citedCorpus.name="cited";
+				citedCorpus.fillCitingRefs();
+				c.fillCitingRefs();
+				Corpus citingCited = citedCorpus.getCitingCorpus();
+				citingCited.name="citing-cited";
+
+				// do not fill 2nd level - takes too much time, incomplete database for now.
+				//citingCited.fillCitingRefs();
+
+				SQLExporter.export(c, database,"cybergeo","refs", "links","status", true);
+			}
 		}
 		
 		Log.purpose("runtime", "Finished at "+(new Date()).toString());
 		
+	}
+	
+	private static boolean checkStatus(Reference r,Corpus c){
+		return c.references.contains(r);
 	}
 	
 	/**
@@ -207,7 +215,7 @@ public class Cybergeo {
 	 */
 	public static void updateStatusTable(String database){
 		Corpus all = SQLImporter.sqlImport(database, "cybergeo", "refs", "links", false);
-		Corpus primary = SQLImporter.sqlImportPrimary(database, "cybergeo");
+		Corpus primary = SQLImporter.sqlImportPrimary(database, "cybergeo","1",false);
 		
 		for(Reference prim:primary){
 			for(Reference cited:prim.biblio.cited){
@@ -230,7 +238,7 @@ public class Cybergeo {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+		Main.setup();
 		
 		//exportCybergeoAsRIS(System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib.ris");
 		
@@ -266,11 +274,12 @@ public class Cybergeo {
 
 		//testSQLExport();
 		
-		fullNetworkSQLExport(bibFile,"cyb_test1",10);
+		fullNetworkSQLExport(bibFile,"cyb_test1",13);
 		
 		// full nw
 		//fullNetworkSQLExport(bibFile,"cybergeo",-1);
 		
+		//SQLConverter.sqlToGexf("test_cyb1","res/sql/testSqlToGexf.gexf");
 		
 	}
 

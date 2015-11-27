@@ -45,7 +45,7 @@ public class SQLConnection {
 		  System.setProperty("socksProxyPort","");
 	      Class.forName("com.mysql.jdbc.Driver");
 	      //System.out.println("credentials : "+sqlUser+","+sqlPassword);
-		  sqlDB = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/"+database,sqlUser,sqlPassword);
+		  sqlDB = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/"+database+"?characterEncoding=utf8",sqlUser,sqlPassword);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
