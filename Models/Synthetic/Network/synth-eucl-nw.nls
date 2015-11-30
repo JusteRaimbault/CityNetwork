@@ -76,6 +76,19 @@ to generate-network [generation-method]
   
   
   
+  if generation-method = "shortcuts" [
+     simple-connexification
+     ; compute indicators
+     compute-indicators
+     ;
+     create-shortcuts shortcuts-threshold shorcuts-max-number
+     
+     planarize-network cities roads
+  ]
+  
+  
+  
+  
 end
 
 
@@ -190,9 +203,39 @@ end
 
 
 
+;;;;;;;;;;;;
+;;  Shorcuts method ; according to threshold of detour
+;;;;;;;;;;;;
+
+
+;;
+;  Assumes pairs perf has already been computed (nw-relative-speeds table is filled)
+;
+;  -> pb when potentials are not updated. propose a kind of nw growth heuristic where potential computation is based on sampling
+;
+to create-shortcuts [threshold number]
+  let all-pairs []
+  foreach table:keys nw-relative-speeds [
+    if table:get nw-relative-speeds ? < threshold [set all-pairs lput (list ? ([population] of city first ? + [population] of city last ?)) all-pairs]
+  ]
+  
+  ;let pairs sort-by [last ?1 < last ?2] all-pairs  (n-of (min (list number (length all-pairs))) )
+  let pairs n-of (min (list number (length all-pairs))) all-pairs
+  
+  foreach pairs [
+     ask city first first ? [if not link-neighbor? city last first ? [create-road-with city last first ? [new-road]]]
+  ]
+  
+end
+
+
+
+
+
+
 
 to new-road
-  set capacity 1
+  set capacity 0.3
   set thickness capacity
   set color red
 end

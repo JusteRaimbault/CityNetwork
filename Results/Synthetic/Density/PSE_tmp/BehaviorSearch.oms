@@ -1,0 +1,104 @@
+
+// exploration of pattern space using PSE algo
+
+import density._
+
+logger.level("FINE")
+
+// Parameters
+val diffusion = Val[Double]
+val diffusionsteps = Val[Double]
+val alphalocalization = Val[Double]
+val growthrate = Val[Double]
+val population = Val[Double]
+
+// Exploration
+val replication = Val[Int]
+
+// Reporters
+val moran=Val[Double]
+val distance=Val[Double]
+val entropy=Val[Double]
+val slope=Val[Double]
+val rsquared=Val[Double]
+
+
+
+// Model
+val model =
+  ScalaTask(
+    """
+      | val config = newFile()
+      | val gen = new PADGeneratorLauncher
+      | gen.main(100,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication,config)
+      | val moran = gen.moran
+      | val distance = gen.distance
+      | val entropy = gen.entropy
+      | val slope = gen.slope
+      | val rsquared = gen.rsquared
+    """.stripMargin
+  ) set (
+    imports += "density._",
+    plugins += pluginsOf[PADGeneratorLauncher],
+    inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication),
+    outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication),
+    outputs += (moran,distance,entropy,slope,rsquared)
+  )
+val modelCapsule = Capsule(model)
+
+// construct the replicate model capsule
+val medMoran = Val[Double]
+val medDistance = Val[Double]
+val medEntropy = Val[Double]
+val medSlope = Val[Double]
+
+val statisticTask = StatisticTask() set (
+    statistics += (moran, medMoran, median),
+    statistics += (distance, medDistance, median),
+    statistics += (entropy, medEntropy, median),
+    statistics += (slope, medSlope, median)
+)
+
+val statisticCapsule = Capsule(statisticTask)
+
+val seedFactor = replication in (UniformDistribution[Int]() take 10)
+val replicateModel = Replicate(modelCapsule, seedFactor, statisticCapsule)
+
+
+
+// parameter bounds
+val bounds =
+ Seq(
+   diffusion -> (0.0, 1.0),
+   alphalocalization -> (0.1,5.0),
+   growthrate -> (50.0,500.0),
+   population -> (1000.0,10000.0),
+   diffusionsteps -> (1.0,5.0)
+ )
+ 
+
+// PSE in itself
+val pse =
+ BehaviourSearch (
+   termination = 4 hours,
+   inputs = bounds,
+   observables = Seq(medMoran, medDistance, medEntropy,medSlope),
+   gridSize = Seq(0.01,0.1, 0.05, 0.05)
+ )
+
+
+val (puzzle, ga) = IslandSteadyGA(pse)(replicateModel, island = 1000, termination = 10000, sample =  20)
+
+val hookCondition = s"${ga.generation.name} % 100 == 0"
+val savePopulation = SavePopulationHook(ga, workDirectory /"pse") condition hookCondition
+
+// Define the hook to display the generation in the console
+val display = DisplayHook("Generation ${" + ga.generation.name + "}")
+
+val grid = EGIEnvironment("vo.complex-systems.eu", cpuTime = 4 hours, openMOLEMemory = 1200)
+
+// Define the execution
+(puzzle hook savePopulation hook display on grid)
+
+
+

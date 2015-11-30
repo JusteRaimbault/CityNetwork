@@ -52,6 +52,7 @@ globals [
   ;; network generation parameters
   
   max-pop
+  total-pop
   
   ;; cities generation parameters
   populations
@@ -67,10 +68,15 @@ globals [
   ;sp-diffusion
   sp-population
   
+  ;; from density file (for coupling with scala density generator)
+  density-file
+  
   
   ;; network
   shortest-paths
   nw-relative-speeds
+  
+  pairs-total-weight
   
 ]
 
@@ -157,8 +163,8 @@ CHOOSER
 159
 network-generation-method
 network-generation-method
-"simple-connexification" "neighborhood-gravity" "random" "none"
-0
+"simple-connexification" "neighborhood-gravity" "shortcuts" "random" "none"
+2
 
 SLIDER
 858
@@ -184,7 +190,7 @@ SLIDER
 #-cities
 0
 1000
-229
+401
 1
 1
 NIL
@@ -246,7 +252,7 @@ gravity-radius
 gravity-radius
 0
 10000
-8535
+4
 1
 1
 NIL
@@ -276,7 +282,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 4
-1.3
+1.4
 0.1
 1
 NIL
@@ -484,7 +490,7 @@ BUTTON
 875
 601
 density file
-ca\ndensity-from-file density-file \"../../../Results/Synthetic/Density/20151106_Grid/pop\"
+ca\nset density-file density-file-from-dir \"../../../Results/Synthetic/Density/20151106_Grid/pop\"\ndensity-from-file density-file
 NIL
 1
 T
@@ -528,6 +534,36 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+1198
+414
+1361
+447
+shortcuts-threshold
+shortcuts-threshold
+0
+1
+0.35
+0.05
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1199
+450
+1361
+483
+shorcuts-max-number
+shorcuts-max-number
+0
+100
+23
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
