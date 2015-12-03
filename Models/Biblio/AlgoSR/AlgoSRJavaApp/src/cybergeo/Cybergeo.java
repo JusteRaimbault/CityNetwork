@@ -175,7 +175,7 @@ public class Cybergeo {
 		for(Reference cybref:cybergeo.references){
 			System.out.println(cybref+" - status :"+checkStatus(cybref,completed));
 			if(!checkStatus(cybref,completed)){
-				/*CybergeoCorpus c = new CybergeoCorpus(cybref);
+				CybergeoCorpus c = new CybergeoCorpus(cybref);
 				c.fillCitedRefs();
 				Corpus citedCorpus = c.getCitedCorpus();
 				citedCorpus.name="cited";
@@ -188,7 +188,7 @@ public class Cybergeo {
 				//citingCited.fillCitingRefs();
 
 				SQLExporter.export(c, database,"cybergeo","refs", "links","status", true);
-				*/
+				
 			}
 		}
 		
