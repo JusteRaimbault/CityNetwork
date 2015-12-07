@@ -17,9 +17,9 @@ A Theoretical Framework for the Study of Socio-Technical Systems
 \justify
 
 
-\begin{abstract}
+%\begin{abstract}
 
-\end{abstract}
+%\end{abstract}
 
 
 
@@ -33,7 +33,7 @@ The structural misunderstandings between Social Sciences and Humanities on one s
 
 \subsection*{Objectives}
 
-Within that scientific context, the study of what we will call \emph{Socio-technical Systems}, which we define in a rather broad way as hybrid complex systems including social agents or objects that interact with technical artifacts and a natural environment\footnote{geographical systems in the sense of \cite{dollfus1975some} are the archetype of such systems, but that definition may cover other type of systems such as an extended transportation system, social systems taken with an environmental context, complicated industrial systems taken with users, etc.}, lies precisely between social sciences and hard sciences. The example of Urban Systems is the best example, as already before the arrival of approaches claiming to be ``more exact'' than soft approaches (typically by physicists, see e.g. the rather disturbing introduction of~\cite{louf2014scaling}, but also by scientist coming from social sciences such as Batty~\cite{batty2013new}), many aspects of urban systems were already in the field of exact sciences, such as urban hydrology, urban climatology or technical aspects of transportation systems, whereas the core of their study relied in social sciences such as geography, urbanism, sociology, economy. Therefore a necessary place of theory in their study : following~\cite{livet2010}, the study of complex systems in social science is an interaction between empirical analysis, theoretical constructions, and modeling.
+Within that scientific context, the study of what we will call \emph{Socio-technical Systems}, which we define in a rather broad way as hybrid complex systems including social agents or objects that interact with technical artifacts and a natural environment\footnote{geographical systems in the sense of \cite{dollfus1975some} are the archetype of such systems, but that definition may cover other type of systems such as an extended transportation system, social systems taken with an environmental context, complicated industrial systems taken with users, etc.}, lies precisely between social sciences and hard sciences. The example of Urban Systems is the best example, as already before the arrival of approaches claiming to be ``more exact'' than soft approaches (typically by physicists, see e.g. the rather disturbing introduction of~\cite{louf2014scaling}, but also by scientists coming from social sciences such as Batty~\cite{batty2013new}), many aspects of urban systems were already in the field of exact sciences, such as urban hydrology, urban climatology or technical aspects of transportation systems, whereas the core of their study relied in social sciences such as geography, urbanism, sociology, economy. Therefore a necessary place of theory in their study : following~\cite{livet2010}, the study of complex systems in social science is an interaction between empirical analysis, theoretical constructions, and modeling.
 
 We propose in this paper to construct a theory, or rather a theoretical framework, that would ease some aspects of the study of such systems. Many theories already exist in all fields related to this kind of problems, and also at higher levels of abstraction concerning methods such as agent-based modeling e.g., but there is to our knowledge no theoretical framework including all of the following aspects that we consider as being crucial (and that can be understood as an informal basis of our theory) :
 % QUESTION : do we need to include here empirical examples to support these claims ? - or are there taken as granted, the theoretical basis (that indeed comes from empirical practice)?
@@ -42,7 +42,7 @@ We propose in this paper to construct a theory, or rather a theoretical framewor
 \item a precise definition of scale, including timescale and scales for other dimensions.
 \item as a consequence of the previous points, a precise definition of what is a system.
 \item the inclusion of the notion of emergence in order to capture multi-scale aspects of systems.
-\item a central place of ontology in the definition of systems, i.e. of the sense in the real world given to its objects\footnote{% verify positioning within structural realism.
+\item a central place of ontology in the definition of systems, i.e. of the sense in the real world given to its objects\footnote{\textit{TODO : verify positioning regarding Structural Realism ; may be close to Ontic Structural Realism~\cite{frigg2011everything}}
 }.
 \item taking into account heterogeneous aspects of the same system, that could be heterogeneous components but also complementary intersecting views.
 \end{enumerate}
@@ -108,7 +108,7 @@ As developed before, the presence of emergence, and especially weak emergence, w
 
 We make therefore the following assumption for next developments :
 \begin{assumption}
-A system can be partially structured by extending it with an ontology that contains (not necessarily only) relations between elements of ontologies of its perspectives. We name it the \emph{coupling ontology} and assume its existence in the following.
+A system can be partially structured by extending it with an ontology that contains (not necessarily only) relations between elements of ontologies of its perspectives. We name it the \emph{coupling ontology} and assume its existence in the following. We assume furthermore its atomicity, i.e. if $O$ is in relation with $O'$, then any subsets of $O,O'$ can not be in relation, what is not restrictive as a decomposition into several independent subsets ensures it if it is not the case.
 \end{assumption}
 
 It allows to exhibit emergence relations not only within a perspective itself but also between elements of different perspectives. We define then pre-order relations between subsets of ontologies : % TODO check pre-order and equivalence relations.
@@ -116,9 +116,21 @@ It allows to exhibit emergence relations not only within a perspective itself bu
 % order relations between ontologies
 % first recall Bedau's paper. 
 % check equivalence relation ; pre-order <- relations are only pre-order ?
-\begin{definition}
+\begin{proposition}
+The following binary relationships are pre-orders on $\mathcal{P(O)}$ :
+\begin{itemize}
+\item Emergence (based on Weak Emergence) : $O' \preccurlyeq O$ if and only if $O$ weakly emerges from $O'$.
+\item Inclusion (based on Nominal Emergence) : $O' \Subset O$ if and only if $O$ nominally emerges from $O'$.
+\end{itemize}
+\end{proposition}
 
-\end{definition}
+\begin{proof}
+With the convention that it can be said that an object emerges from itself, we have reflexivity (if such a convention seems absurd, we can define the relationships as \emph{$O$ emerges from $O'$ or $O=O'$ }). Transitivity is clearly contained in definitions of emergence.
+\end{proof}
+
+\medskip
+
+Note that the inclusion relation is more than an inclusion between sets, as it translates an inclusion ``inside'' the elements of the ontology.
 
 These relations are the basis for the construction of a graph called the \emph{ontological graph} :
 
@@ -126,11 +138,18 @@ These relations are the basis for the construction of a graph called the \emph{o
 % ! beware to put only neighbor relations within the graph
 % and to reconstruct by induction subsets at any level ?
 \begin{definition}
-The {ontological graph} is constructed by induction the following way : 
+The {ontological graph} is constructed by induction the following way :
+\begin{enumerate}
+\item A graph with vertices elements of $\mathcal{P(O)}$ and edges of two types : $E_W = \{(O,O') | O' \preccurlyeq O \}$ and $E_N = \{(O,O') | O' \Subset O \}$
+\item Nodes are reduced\footnote{the reduction procedure aims to delete redundancy, keeping an entity at the higher level it exists.} by : if $o \in O,O'$ and ($O' \preccurlyeq O$ or $O' \Subset O$) but not ($O \preccurlyeq O'$ or $O \Subset O'$), then $O' \leftarrow O' \setminus o$
+\item Nodes with intersecting sets are merged, keeping edges linking merged nodes. This step ensures non-overlapping nodes.
+\end{enumerate}
 \end{definition}
 
 
 % definition of a subsystem in the large sense ? -> done after treeing the graph
+% can be done only if reconstruction is possible.
+
 
 
 \subsection*{Minimal Ontological Tree}
@@ -141,39 +160,98 @@ The {ontological graph} is constructed by induction the following way :
 The topological structure of the graph, that contains in a way the \emph{structure of the system}% TODO positioning regarding structural realism.
 , can be reduced into a minimal tree that contains hierarchical structure essential to the theory.
 
-We need first to clarify the notion of consistent system :
+We need first to give consistence to the system :
 
 \begin{definition}
-A consistent part of the ontological graph is a weakly connected component. % assume to work with that 
+A consistent part of the ontological graph is a weakly connected component of the graph. We assume for now to work on a consistent part.
 \end{definition}
 
 % rq : consistent system ? -> would need to reconstruct perspectives ? possible ? under certain assumption ? 'decoupling ontology' ? -> need to be worked harder.
 
+The notion of consistent system, together with subsystem or nodes timescales that will be defined later, requires to reconstruct perspectives from ontological elements, i.e. the inverse operation of what was done in our deconstruction procedure.
+
+\begin{assumption}
+There exists $\mathcal{O}' \subset \mathcal{P(O)}$ such that for any $O \subset \mathcal{O}'$, there exists a corresponding dataflow machine $M$ such that the corresponding perspective is consistent with initial elements of the system (i.e. machines on ontology overlaps are equivalent). If $\Phi : M \mapsto O$ is the initial mapping, we denote this extended reciprocal construction by $M' = \Phi^{<-1>}(O)$.
+\end{assumption}
+
+\paragraph{Remark.}
+
+This assumption could eventually be changed into a provable proposition, assuming that the coupling ontology is indeed a coupling perspective, which dataflow machine part is consistent with coupled entities. Therein, the decomposition postulate of~\cite{golden2012modeling} should allow to identify basic components corresponding to each element of the ontology, and then construct the new perspective by induction. We find however these assumptions too restrictive, as for example various ontological elements may be modeled by an irreducible machine, as a differential equations with aggregated variables. We prefer to be less restrictive and postulate the existence of the reverse mapping on some sub-ontologies, that should be in practice the ones where couplings can be effectively modeled.
+
+Given this assumption, we can define the consistent system as the reciprocal image of the consistent part of the ontological graph. It ensures system connectivity what is a requirement for tree construction.
+
+\begin{proposition}
+The tree decomposition of the ontological graph in which nodes contains strongly connected components is unique. The corresponding reduced tree, that corresponds to the ontological graph in which strongly connected components have been merged with edges kept, is called the \emph{Minimal Ontological Tree}.
+\end{proposition}
+
+\begin{proof}
+(sketch of) The unicity is obtained as nodes are fixed as strongly connected components. It is trivially a tree decomposition (with no edges) as in a directed graph, strongly connected components do not intersect, thus the consistence of the decomposition.
+\end{proof}
+
+Any loop $O \rightarrow O' \rightarrow \ldots \rightarrow O$ in the ontological graph assumes that all its elements are equivalent in the sense of $\preccurlyeq$. This equivalence loops should help to define the notion of strong coupling as an application of the theory (see applications).
+
+\medskip
+
+The Minimal Ontological Tree (MOT) is a tree in the undirected sense but a forest in the directed sense. Its topology contains a sort of system hierarchy. Consistent subsystems are defined from the set $\mathcal{B}$ of branches of the forest, as $(\Phi^{<-1>}(\mathcal{B}),\mathcal{B})$. The timescale of a node, and by extension of a subsystem, is the union of timescales of corresponding machines. Levels of the tree are defined from root nodes, and the emergence relations between nodes implies a vertical inclusion between timescales.
+
+
 
 \subsection*{Scales}
 
-Finally, we propose to define scales associated to a system. Following~\cite{manson2008does}, an epistemological continuum of visions on scale is a consequence of differences between disciplines in the way we developed in the introduction. This proposition is indeed compatible with our framework, as the construction of scales for each level of the ontological tree should result in a broad variety of scales 
+Finally, we propose to define scales associated to a system. Following~\cite{manson2008does}, an epistemological continuum of visions on scale is a consequence of differences between disciplines in the way we developed in the introduction. This proposition is indeed compatible with our framework, as the construction of scales for each level of the ontological tree results in a broad variety of scales.
+
+Let $(M,O)$ a subsystem and $\mathbb{T}$ the corresponding timescale. We propose to define the ``thematic scale'' (for example spatial scale) assuming a representation theorem, i.e. that an aspect (thematic aspect) of the machine can be represented as a dynamic state variable $\vec{X}(t)$. Assuming a scale operator\footnote{that can be of various nature : extent, probabilistic extent, spectral scales, stationarity scales, etc.} $\norm{\cdot}_{S}$ and that the state variable has a certain level of differentiability, the \emph{thematic scale} if defined as $\norm{(d^k \vec{X}(t))_k}_S$
 
 
 \section*{Application}
 
 \subsection*{The particular case of geographical systems}
 
-\cite{dollfus1975some} % ~ same def of system ; introduce structure in context ?
-% link to explanation ?
+\textit{TBW}
+
+\cite{dollfus1975some} % ~ same def of system ; introduce structure in context ? link to explanation ?
+$\rightarrow$ FDD proposes in that paper a definition of geographical structure and system, structure would be the spatial container for systems viewed as complex open interacting systems (elements with attributes, relations between elements and inputs/outputs with external world). For a given system, its definition is a perspective, completed by structure to have a system in our sense. Depending on way to define relations, may be quick to extract ontological structure. \textit{Note : find typical emergence clues in standard relational formalizations ? would guide the application of the theory.}
+
+Example of urban systems ; Pumain's evolutionary theory~\cite{pumain2010theorie}
 
 
 \subsection*{Modularity and co-evolving subsystems}
 
+\textit{TBW}
+
+Paper on modularity in dynamical system : decomposition into uncorrelated subsystems : correlation between subsystems should be positively correlated with topological distance in the tree.
+
+Define elements of a node before merging as \emph{strongly coupled elements}. If they are dynamic, could be a definition of \emph{co-evolution} and co-evolving subsystems.
 
 
 \section*{Discussion}
+
+\textit{TBW}
+
+\paragraph{Link with existing frameworks}
+
+Link with Cottineau-Chapron framework for multi-modeling ? $\rightarrow$ not so far if they add biblio layer.
+
+\cite{reymond2013logique} proposes the notion of ``interdisciplinary coupling'' $\rightarrow$ close to our notion of coupling perspectives
+
+Link with System of Systems ? not so far are our perspective are constructed as dataflow machines ; but significantly different as notion of emergence is central. \textit{Find paper at CSDM 2015 on endogeneous system theory}
+
+
+\paragraph{Contributions to the study of complex systems}
+
+\begin{itemize}
+\item Not a theory of systems (beware of cybernetics, systemics etc), but more a framework to guide research questions ? [e.g. in our cases where it will be applied : quantitative epistemo comes from system construction as perspectives research ; empirical to construct robust ontologies for perspectives ; targeted thematic to unveil causal relationship/emergence for construction of ontological network ; study of coupling as possible processes containing co-evolution ; study of scales ; etc.] - or maybe a meta-theory which application gives a theory ?
+\item Emphasis on the notion of socio-technical system : crosses a social complex system approach (ontologies) with a description of technical artifacts (dataflow machines) ; ``best of both worlds'' ? 
+\end{itemize}
+
+
+
 
 
 
 \section*{Conclusion}
 
-
+\textit{TBW}
 
 
 
