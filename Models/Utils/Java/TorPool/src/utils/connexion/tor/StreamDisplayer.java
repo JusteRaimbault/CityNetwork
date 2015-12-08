@@ -4,6 +4,7 @@
 package utils.connexion.tor;
 
 import java.io.BufferedReader;
+import java.util.Date;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
@@ -22,7 +23,7 @@ public class StreamDisplayer extends Thread {
 		try{
 			String currentLine=reader.readLine();
 			while(true&&currentLine!=null){
-				System.out.println(currentLine);currentLine = reader.readLine();
+				System.out.println((new Date()).toString()+currentLine);currentLine = reader.readLine();
 			}
 		}catch(Exception e){e.printStackTrace();}
 	}

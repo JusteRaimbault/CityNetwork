@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.LinkedList;
 
+import utils.Log;
+
 /**
  * Manager communicating with the external TorPool app, via .tor_tmp files (TorPool must be run within same directory for now)
  * 
@@ -40,7 +42,7 @@ public class TorPoolManager {
 	 */
 	public static void setupTorPoolConnexion() throws Exception {
 		
-		System.out.println("Setting up TorPool connection...");
+		Log.stdout("Setting up TorPool connection...");
 		
 		// check if pool is running.
 		checkRunningPool();
@@ -81,14 +83,14 @@ public class TorPoolManager {
 			//send kill signal via kill file
 			// if current port is set
 			if(currentPort!=0){
-				System.out.println("Sending kill signal for current tor thread...");
+				Log.stdout("Sending kill signal for current tor thread...");
 				(new File(".tor_tmp/kill"+currentPort)).createNewFile();
 			}
 			
 			//waiting for lock to read new available port
 			boolean locked = true;int t=0;
 			while(locked){
-				System.out.println("Waiting for lock on .tor_tmp/lock");
+				Log.stdout("Waiting for lock on .tor_tmp/lock");
 				Thread.sleep(200);
 				locked = (new File(".tor_tmp/lock")).exists();t++;
 			}
@@ -137,7 +139,7 @@ public class TorPoolManager {
 		// set the new port
 		System.setProperty("socksProxyPort",newPort);
 		currentPort = Integer.parseInt(newPort);
-		System.out.println("Current Port set to "+newPort);
+		Log.stdout("Current Port set to "+newPort);
 	}
 	
 	
@@ -152,7 +154,7 @@ public class TorPoolManager {
 		
 		while(true){
 			Thread.sleep(10000);
-			System.out.println("TEST : Switching port... ");
+			Log.stdout("TEST : Switching port... ");
 			switchPort();
 			showIP();
 		}
@@ -163,7 +165,7 @@ public class TorPoolManager {
 		try{
 		BufferedReader r = new BufferedReader(new InputStreamReader(new URL("http://ipecho.net/plain").openConnection().getInputStream()));
 		String currentLine=r.readLine();
-		while(currentLine!= null){System.out.println(currentLine);currentLine=r.readLine();}
+		while(currentLine!= null){Log.stdout(currentLine);currentLine=r.readLine();}
 		}catch(Exception e){e.printStackTrace();}
 	}
 	
