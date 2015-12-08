@@ -31,7 +31,7 @@ public class Log {
 	private static HashMap<String,File> purposeFiles=new HashMap<String,File>();
 	
 	
-	public static  void purpose(String purposeFile,String s){
+	public static void purpose(String purposeFile,String s){
 		if(!purposeFiles.containsKey(purposeFile)){System.out.println("error in logging "+s);}
 		try{
 			BufferedWriter w = new BufferedWriter(new FileWriter(purposeFiles.get(purposeFile),true));
@@ -40,6 +40,9 @@ public class Log {
 	}
 	
 	
+	public static void stdout(String s){
+		System.out.println("["+new Date().toString()+"] "+s);
+	}
 	
 	
 

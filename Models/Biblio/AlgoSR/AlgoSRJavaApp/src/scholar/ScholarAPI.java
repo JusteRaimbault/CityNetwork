@@ -99,7 +99,7 @@ public class ScholarAPI {
 	public static void init(){
 		try{
 			
-			System.out.println("(Re)-initializing scholar API...");
+			Log.stdout("(Re)-initializing scholar API...");
 			
 		    client = new DefaultHttpClient();
 
@@ -118,7 +118,7 @@ public class ScholarAPI {
 			 HttpGet httpGet = new HttpGet("http://scholar.google.com/scholar?q=transfer+theorem");
 			 HttpResponse resp = client.execute(httpGet,context);
 			 
-			 try{System.out.println("Accepted : "+Jsoup.parse(resp.getEntity().getContent(),"UTF-8","").getElementsByClass("gs_r").size());}catch(Exception e){e.printStackTrace();}
+			 try{Log.stdout("Accepted : "+Jsoup.parse(resp.getEntity().getContent(),"UTF-8","").getElementsByClass("gs_r").size());}catch(Exception e){e.printStackTrace();}
 			 
 			 //System.out.println("Connected to scholar, persistent through cookies. ");
 			 //for(int i=0;i<cookieStore.getCookies().size();i++){System.out.println(cookieStore.getCookies().get(0).toString());}
@@ -142,7 +142,7 @@ public class ScholarAPI {
 					Reference rr = getScholarRef(r);
 					if(rr!=null){
 						r.scholarID=rr.scholarID;
-						System.out.println("Retrieved ID for Ref "+r);
+						Log.stdout("Retrieved ID for Ref "+r);
 					}
 				}
 			}catch(Exception e){e.printStackTrace();}
@@ -220,17 +220,7 @@ public class ScholarAPI {
 		if(res==null){
 			res=matchRef(title,author,year,scholarRequest("\""+title.replace(" ", "+" )+"\"",5,"direct"));
 		}	
-		
-		/*
-		if(res!=null){
-			// final check on title
-			if(StringUtils.getLevenshteinDistance(StringUtils.lowerCase(res.title.title),StringUtils.lowerCase(title))<2){
-				return res;
-			}
-			else{System.out.println("TITLE MISMATCH : \n   "+res.title+"\n    "+title);}
-		}
-		*/
-		
+	
 		return res;
 	}
 	
@@ -263,11 +253,11 @@ public class ScholarAPI {
 	public static Reference matchRef(String title,String author,String year,HashSet<Reference> refs){
 		Reference res = null;
 		for(Reference nr:refs){
-			System.out.println(nr.year+"  --  "+year);
+			Log.stdout(nr.year+"  --  "+year);
 			String t1 = StringUtils.lowerCase(nr.title.title).replaceAll("[^\\p{L}\\p{Nd}]+", "");
 			String t2 = StringUtils.lowerCase(title).replaceAll("[^\\p{L}\\p{Nd}]+", "");
-			System.out.println("      "+t1);
-			System.out.println("      "+t2);
+			Log.stdout("      "+t1);
+			Log.stdout("      "+t2);
 			if(StringUtils.getLevenshteinDistance(t1,t2)<3&&nr.scholarID!=""&&year.compareTo(nr.year)==0){
 			   res=nr;
 			}
@@ -287,10 +277,10 @@ public class ScholarAPI {
 		try{
 			int totalRefs = corpus.references.size();int p=0;
 			for(Reference r:corpus.references){
-				System.out.println("Getting cit for ref "+r.toString());
+				Log.stdout("Getting cit for ref "+r.toString());
 
 				if(r.citing.size()>1){
-					System.out.println("Citing refs already filled : "+r.citing.size()+" refs");
+					Log.stdout("Citing refs already filled : "+r.citing.size()+" refs");
 				}
 				else{
 					try{
@@ -309,12 +299,12 @@ public class ScholarAPI {
 						if(r.scholarID==null||r.scholarID==""){rr = getScholarRef(r);}else{rr=r;}
 						
 						if(rr!=null){
-							System.out.println("ID : "+rr.scholarID);
+							Log.stdout("ID : "+rr.scholarID);
 							r.scholarID=rr.scholarID;//no need as rr and r should be same pointer ?
 							HashSet<Reference> citing = scholarRequest(r.scholarID,10000,"cites");
 							for(Reference c:citing){r.citing.add(c);}
 						}
-						System.out.println("Citing refs : "+r.citing.size());
+						Log.stdout("Citing refs : "+r.citing.size());
 
 					}catch(Exception e){e.printStackTrace();}
 				}
@@ -338,16 +328,16 @@ public class ScholarAPI {
 		Document dom = new Document("<html><head></head><body></body></html>");
 		try{dom=request("scholar.google.com",request);}
 		catch(Exception e){e.printStackTrace();}
-		System.out.println("Request : "+request);
-		try{System.out.println(dom.getElementsByClass("gs_rt").first().text());}catch(Exception e){}
-		try{System.out.println(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
+		Log.stdout("Request : "+request);
+		try{Log.stdout(dom.getElementsByClass("gs_rt").first().text());}catch(Exception e){}
+		try{Log.stdout(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
 		
 		try{
 			//if(dom.getElementById("gs_res_bdy")==null){
 				//System.out.println(dom.html());
 				while(dom==null||dom.getElementById("gs_res_bdy")==null){
 					// swith TOR port
-				    System.out.println("Current IP blocked by ggl fuckers ; switching currentTorThread.");
+					Log.stdout("Current IP blocked by ggl fuckers ; switching currentTorThread.");
 				    
 				    // TODO : write ip in file for systematic stats of blocked adress (may have patterns in google-fuckers blocking policy)
 				    
@@ -359,8 +349,8 @@ public class ScholarAPI {
 					init();
 					//update the request
 					dom = request("scholar.google.com",request);
-					try{System.out.println(dom.getElementsByClass("gs_rt").first().text());}catch(Exception e){}
-					try{System.out.println(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
+					try{Log.stdout(dom.getElementsByClass("gs_rt").first().text());}catch(Exception e){}
+					try{Log.stdout(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
 				}
 			//}
 		}catch(Exception e){e.printStackTrace();}
@@ -454,7 +444,7 @@ public class ScholarAPI {
 			
 			String encodedURL = "http://"+host+"/"+url;
 			
-			System.out.println("Request : "+encodedURL);
+			Log.stdout("Request : "+encodedURL);
 			
 		    HttpResponse response = client.execute(new HttpGet(encodedURL));
 		    try {

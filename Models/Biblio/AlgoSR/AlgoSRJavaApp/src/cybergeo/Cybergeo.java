@@ -173,7 +173,7 @@ public class Cybergeo {
 		
 		// iterate on single refs, export to sql at each
 		for(Reference cybref:cybergeo.references){
-			System.out.println(cybref+" - status :"+checkStatus(cybref,completed));
+			Log.stdout(cybref+" - status :"+checkStatus(cybref,completed));
 			if(!checkStatus(cybref,completed)){
 				CybergeoCorpus c = new CybergeoCorpus(cybref);
 				c.fillCitedRefs();

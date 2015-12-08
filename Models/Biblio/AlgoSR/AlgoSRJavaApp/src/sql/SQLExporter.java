@@ -90,7 +90,7 @@ public class SQLExporter {
 		String req = "INSERT INTO "+table+" (id,title,year) VALUES ";
 		for(Reference rp:r){
 			String year = rp.year;if(year==null||year.length()==0){year="0000";}
-			req+="('"+rp.scholarID+"','"+rp.title.title.replace("'", "’")+"',"+year+"),";
+			req+="('"+rp.scholarID+"','"+legalSQLTitle(rp.title.title)+"',"+year+"),";
 		}
 		req=req.substring(0, req.length()-1)+" ON DUPLICATE KEY UPDATE id = VALUES(id);";
 
@@ -124,6 +124,14 @@ public class SQLExporter {
 		req=req.substring(0, req.length()-1)+" ON DUPLICATE KEY UPDATE id = VALUES(id);";
 
 		return req;
+	}
+	
+	
+	private static String legalSQLTitle(String title){
+		String res = title;
+		res = res.replace("'", "’");
+		if(res.endsWith("\\")){res = res.substring(0, res.length()-1);}
+		return res;
 	}
 	
 	
