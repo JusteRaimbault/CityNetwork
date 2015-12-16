@@ -54,14 +54,14 @@ public class SQLConverter {
 		int i = 0;for(String[] l:links){linksTab[i]=l;i++;}
 		i = 0;for(String[] l:refs){refsTab[i]=l;i++;}
 		
-		CSVWriter.write(outPrefix+"_links.csv", linksTab, ";");
-		CSVWriter.write(outPrefix+"_nodes.csv", refsTab, ";");
+		CSVWriter.write(outPrefix+"_edges.csv", linksTab, "\t");
+		CSVWriter.write(outPrefix+"_nodes.csv", refsTab, "\t");
 	}
 	
 	
 	public static void main(String[] args){
 		Main.setup();
-		sqlToCsv("cybprov","res/nwcsv/provnw");
+		sqlToCsv("cybprov","res/nwcsv/provnw2");
 	}
 	
 	
