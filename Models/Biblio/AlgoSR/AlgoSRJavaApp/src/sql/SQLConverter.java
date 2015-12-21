@@ -43,7 +43,10 @@ public class SQLConverter {
 		
 		for(Reference r:corpus){
 			String prim = "0";if(r.attributes.containsKey("primary")){prim="1";}
-			String[] ref = {r.scholarID,r.title.title,r.year,prim}; 
+			String year="1000";if(r.year.length()>0){year=r.year;}
+			String[] ref = {r.scholarID,r.title.title,year,prim}; 
+			// check if title formatting causes a pb in csv import -> only ID and prim
+			//String[] ref = {r.scholarID,prim};
 			refs.add(ref);
 			for(Reference rc:r.citing){String[] link = {rc.scholarID,r.scholarID};links.add(link);}
 		}
@@ -61,7 +64,8 @@ public class SQLConverter {
 	
 	public static void main(String[] args){
 		Main.setup();
-		sqlToCsv("cybprov","res/nwcsv/provnw2");
+		sqlToCsv("cybfull","res/nwcsv/full");
+		//sqlToGexf("cybfull","/Users/Juste/Documents/ComplexSystems/Cybergeo/cybergeo20/CitationNetwork/Data/nw/full.gexf");
 	}
 	
 	
