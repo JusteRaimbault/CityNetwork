@@ -37,6 +37,28 @@ to setup-nw-indicators
   
 end
 
+
+;;
+; compute only nw distances
+to compute-nw-distances
+  nw:set-context cities roads
+  ask roads [set road-length link-length]
+  set nw-distances table:make
+  let clist to-list cities let i 0 let j 1
+  repeat (length clist - 1) [
+    let c1 item i clist
+    set j i + 1
+    repeat (length clist - i - 1) [
+      let c2 item j clist let d 0 ask c1 [set d nw:weighted-distance-to c2 "road-length"]
+      table:put nw-distances (list [who] of c1 [who] of c2) d table:put nw-distances (list [who] of c2 [who] of c1) d set j j + 1
+    ]
+    set i i + 1
+  ]
+end
+
+
+
+
 ;;
 ; nw diameter
 ;  Normalized by world diag

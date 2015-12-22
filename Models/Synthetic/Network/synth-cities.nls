@@ -161,6 +161,7 @@ to density-to-cities
        ask p [
          sprout-cities 1 [
            set population mean [sp-occupants] of (patches in-radius gravity-radius)
+           ;ask patches in-radius gravity-radius [set sp-occupants 0 set sp-density 0]
            setxy (xcor - 0.5 + random-float 1) (ycor - 0.5 + random-float 1) new-city]
        ]
     ]
@@ -280,7 +281,7 @@ to update-cities-interaction-table [n1 n2 newcity]
       let c2 self
       let k2 who let key (list k1 k2) let revkey (list k2 k1)
       if not (table:has-key? cities-interaction-table key or table:has-key? cities-interaction-table revkey) [
-        let p12 cities-interaction-force c1 c2
+        let p12 cities-interaction-force c1 c2 "euclidian"
         if p12 > m [set m p12 set m-key key]
         table:put cities-interaction-table key p12
       ]

@@ -30,6 +30,7 @@ __includes [
   
   ;; tests 
    "test/test_includes.nls"
+   "test/test_headless.nls"
    
    ;;;;
    ;; Utils
@@ -78,8 +79,47 @@ globals [
   ;; network
   shortest-paths
   nw-relative-speeds
+  nw-distances
   
   pairs-total-weight
+  
+  
+  ;;;;;;;;;;;;;;
+  ;; HEADLESS
+  ;;;;;;;;;;;;;;
+  
+  ;; density
+  sp-diffusion
+  sp-diffusion-steps
+  sp-alpha-localization
+  sp-growth-rate
+  
+  ; methods
+  cities-generation-method
+  density-to-cities-method
+  cities-interaction-method
+  network-generation-method
+  
+  ; cities generation
+  city-max-pop
+  #-cities
+  rank-size-exponent
+  
+  ; network
+  random-network-density
+  neigh-gravity-threshold-quantile
+  basic-gravity-exponent
+  gravity-hierarchy-exponent
+  gravity-radius
+  shortcuts-threshold
+  shorcuts-max-number
+  
+  ; extended gravity parameters
+  hierarchy-role
+  gravity-inflexion
+  
+  
+  
   
 ]
 
@@ -125,11 +165,11 @@ roads-own [
 GRAPHICS-WINDOW
 4
 10
-664
-691
+547
+574
 -1
 -1
-6.5
+13.0
 1
 10
 1
@@ -140,433 +180,14 @@ GRAPHICS-WINDOW
 0
 1
 0
-99
+40
 0
-99
+40
 0
 0
 1
 ticks
 30.0
-
-CHOOSER
-890
-19
-1076
-64
-cities-generation-method
-cities-generation-method
-"zipf-christaller" "random" "prefAtt-diffusion-density" "from-density-file"
-3
-
-CHOOSER
-891
-114
-1076
-159
-network-generation-method
-network-generation-method
-"simple-connexification" "neighborhood-gravity" "shortcuts" "random" "none"
-2
-
-SLIDER
-858
-211
-1030
-244
-city-max-pop
-city-max-pop
-0
-10000
-955
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-859
-248
-1031
-281
-#-cities
-#-cities
-0
-1000
-401
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-859
-283
-1030
-316
-rank-size-exponent
-rank-size-exponent
-0
-2
-0.25
-0.05
-1
-NIL
-HORIZONTAL
-
-BUTTON
-791
-532
-877
-565
-generate
-ca\ngenerate-synthetic-euclidian-network
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-1055
-210
-1244
-243
-random-network-density
-random-network-density
-0
-0.1
-0.0040
-0.001
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1049
-366
-1221
-399
-gravity-radius
-gravity-radius
-0
-10000
-4
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-797
-367
-969
-400
-sp-growth-rate
-sp-growth-rate
-0
-1000
-1000
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-797
-403
-983
-436
-sp-alpha-localization
-sp-alpha-localization
-0
-4
-1.4
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-798
-439
-970
-472
-sp-diffusion-steps
-sp-diffusion-steps
-0
-4
-2
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-798
-474
-970
-507
-sp-diffusion
-sp-diffusion
-0
-0.5
-0.05
-0.05
-1
-NIL
-HORIZONTAL
-
-MONITOR
-1277
-16
-1369
-61
-cities pop
-sum populations
-17
-1
-11
-
-MONITOR
-1277
-66
-1370
-111
-patches-pop
-sum [sp-occupants] of patches
-17
-1
-11
-
-CHOOSER
-890
-66
-1076
-111
-density-to-cities-method
-density-to-cities-method
-"hierarchical-aggreg" "random-aggreg" "intersection-density"
-2
-
-CHOOSER
-1079
-65
-1228
-110
-cities-interaction-method
-cities-interaction-method
-"basic-gravity" "generalized-gravity"
-1
-
-SLIDER
-1179
-286
-1351
-319
-basic-gravity-exponent
-basic-gravity-exponent
-0
-10
-0.6
-0.1
-1
-NIL
-HORIZONTAL
-
-OUTPUT
-1047
-529
-1396
-714
-10
-
-BUTTON
-882
-566
-982
-599
-density->cities
-ask cities [die]\ndensity-to-cities
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-882
-601
-963
-634
-network
-reset-network\ngenerate-network network-generation-method
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-1180
-251
-1406
-284
-neigh-gravity-threshold-quantile
-neigh-gravity-threshold-quantile
-0
-1
-0.998
-0.001
-1
-NIL
-HORIZONTAL
-
-TEXTBOX
-796
-345
-946
-363
-Density Generation
-11
-0.0
-1
-
-BUTTON
-882
-531
-946
-564
-cities
-ca\ngenerate-cities cities-generation-method
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-MONITOR
-1279
-114
-1336
-159
-cities
-count cities
-17
-1
-11
-
-SLIDER
-1050
-329
-1239
-362
-gravity-hierarchy-exponent
-gravity-hierarchy-exponent
-0
-10
-0.11
-0.01
-1
-NIL
-HORIZONTAL
-
-BUTTON
-807
-568
-875
-601
-density file
-ca\nset density-file density-file-from-dir \"../../../Results/Synthetic/Density/20151106_Grid/pop\"\ndensity-from-file density-file
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1057
-490
-1136
-523
-setup-indics
-setup-nw-indicators
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1139
-490
-1214
-523
-nw indics
-compute-indicators
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-1198
-414
-1361
-447
-shortcuts-threshold
-shortcuts-threshold
-0
-1
-0.35
-0.05
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1199
-450
-1361
-483
-shorcuts-max-number
-shorcuts-max-number
-0
-100
-6
-1
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
