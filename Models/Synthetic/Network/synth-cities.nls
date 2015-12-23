@@ -50,8 +50,9 @@ to generate-cities [generation-method]
     ; read a configuration from a file
     ; -> resize world in function
     
-    ;set density-file density-file-from-dir "../../../Results/Synthetic/Density/20151106_Grid/pop"
-    set density-file "../../../Results/Synthetic/Density/20151106_Grid/pop/config_166.csv"
+    set density-file density-file-from-dir "setup" fixed-config-num;"../../../Results/Synthetic/Density/20151106_Grid/pop"
+    show density-file
+    ;set density-file "../../../Results/Synthetic/Density/20151106_Grid/pop/config_166.csv"
     density-from-file density-file
     
     density-to-cities
@@ -118,9 +119,9 @@ to density-from-file [file]
 end
 
 
-to-report density-file-from-dir [dir]
+to-report density-file-from-dir [dir index]
   ; random density file 
-  report (word dir "/" one-of pathdir:list dir)
+  report (word dir "/" item (index - 1) pathdir:list dir)
 end
 
 
@@ -160,11 +161,22 @@ to density-to-cities
        while [s < r] [set p item i plist set s s + (([(sp-occupants / ptot) ^ sp-alpha-localization] of p) / stot) set i i + 1]
        ask p [
          sprout-cities 1 [
-           set population mean [sp-occupants] of (patches in-radius gravity-radius)
+           ;set population 1
+           ;set population mean [sp-occupants] of (patches in-radius gravity-radius)
            ;ask patches in-radius gravity-radius [set sp-occupants 0 set sp-density 0]
            setxy (xcor - 0.5 + random-float 1) (ycor - 0.5 + random-float 1) new-city]
        ]
     ]
+    
+    ; attribute population to cities
+    ask patches [
+      ask one-of cities with-min [distance myself] [set population population + [sp-occupants] of myself] 
+    ]
+    
+    set city-max-pop max [population] of cities
+    
+    ask cities [set size max (list (3 * population / city-max-pop) 0.3)]
+    
   ]
   
   

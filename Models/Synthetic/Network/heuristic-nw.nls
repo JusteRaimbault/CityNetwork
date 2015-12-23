@@ -2,11 +2,11 @@
 
 ;; heuristic used for exploration
 
-to heuristic-nw
+to heuristic-nw [density-method]
   
   ; cities generation done by fastest method
   set density-to-cities-method "intersection-density"
-  generate-cities "prefAtt-diffusion-density"
+  generate-cities density-method
   
   heuristic-nw-generation
   
@@ -20,6 +20,8 @@ to heuristic-nw-generation
   simple-connexification
   
   ; real potentials computation
+  set cities-interaction-method "gravity"
+  set cities-interaction-table table:make
   fill-cities-interaction-table "euclidian"
   
   ; compute nw distances
@@ -28,7 +30,25 @@ to heuristic-nw-generation
   ; nw interaction
   fill-cities-interaction-table "network"
   
-  
+  ; gravity breakdown
+  ; first get possible new link, sorting on strongest euclidian potentials
+  let gvals [] foreach table:keys cities-interaction-table [if member? "euclidian" ? [let g table:get cities-interaction-table ? set gvals lput (list g first ? last ?) gvals]]
+  let potential-breakdowns sublist (sort-by [first ?1 > first ?2] gvals) 0 #-max-new-links
+  ; then breakdown if difference with network potential smaller than threshold
+  let i 0
+  foreach potential-breakdowns [
+     show (word "link " i)
+     let vn table:get cities-interaction-table (list (item 1 ?) (item 2 ?) "network") let vr first ?
+     
+     if vn / vr < breakdown-threshold [
+        
+     ]
+     
+     ; recompute nw distances and potentials
+     compute-nw-distances
+     fill-cities-interaction-table "network"
+     set i i + 1
+  ]
   
   ; planarize nw
   planarize-network cities roads

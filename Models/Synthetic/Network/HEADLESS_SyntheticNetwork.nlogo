@@ -1,4 +1,4 @@
-extensions [table pathdir nw]
+extensions [table pathdir nw context matrix]
 
 ;;;;
 ;; Synthetic euclidian network generation
@@ -20,7 +20,7 @@ __includes [
   ;; cities distribution
   "synth-cities.nls"
   ; or density
-  "../Density/embedded-synth-pattern.nls"
+  "lib/embedded-synth-pattern.nls"
   
   ;; indicators
   "indicators.nls"
@@ -29,8 +29,8 @@ __includes [
   "heuristic-nw.nls"
   
   ;; tests 
-   "test/test_includes.nls"
-   "test/test_headless.nls"
+   "test/test-includes.nls"
+   "test/test-headless.nls"
    
    ;;;;
    ;; Utils
@@ -42,12 +42,15 @@ __includes [
    ; other issue : utils/extensions dependancies - beurk ---
    ;  -> def of includes possible in .nls includes -> check if no conflict.
    
-   "../../../../Softwares/NetLogo/utils/network/Network.nls"
-   "../../../../Softwares/NetLogo/utils/agent/AgentSet.nls"
-   ;"../../../../Softwares/NetLogo/utils/misc/Table.nls"
-   "../../../../Softwares/NetLogo/utils/math/Statistics.nls"
-   "../../../../Softwares/NetLogo/utils/io/File.nls"
-   
+   "lib/Network.nls"
+   "lib/AgentSet.nls"
+   "lib/Statistics.nls"
+   "lib/File.nls"
+   "lib/List.nls"
+   "lib/Link.nls"
+   "lib/Agent.nls"
+   "lib/String.nls"
+     
 ]
 
 
@@ -109,14 +112,14 @@ globals [
   random-network-density
   neigh-gravity-threshold-quantile
   basic-gravity-exponent
-  gravity-hierarchy-exponent
-  gravity-radius
+  ;gravity-hierarchy-exponent
+  ;gravity-radius
   shortcuts-threshold
   shorcuts-max-number
   
   ; extended gravity parameters
-  hierarchy-role
-  gravity-inflexion
+  ;hierarchy-role
+  ;gravity-inflexion
   
   
   
@@ -131,6 +134,7 @@ breed [nw-nodes nw-node]
 
 undirected-link-breed [roads road]
 
+undirected-link-breed [gravity-links gravity-link]
 
 patches-own [
  
@@ -165,11 +169,11 @@ roads-own [
 GRAPHICS-WINDOW
 4
 10
-547
-574
+664
+691
 -1
 -1
-13.0
+6.5
 1
 10
 1
@@ -180,14 +184,156 @@ GRAPHICS-WINDOW
 0
 1
 0
-40
+99
 0
-40
+99
 0
 0
 1
 ticks
 30.0
+
+BUTTON
+725
+37
+804
+70
+NIL
+test-nw
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+731
+108
+903
+141
+gravity-radius
+gravity-radius
+0
+100
+10
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+731
+151
+903
+184
+gravity-inflexion
+gravity-inflexion
+0
+10
+0.69
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+734
+195
+906
+228
+hierarchy-role
+hierarchy-role
+0
+1
+0.15
+0.05
+1
+NIL
+HORIZONTAL
+
+SLIDER
+733
+235
+931
+268
+gravity-hierarchy-exponent
+gravity-hierarchy-exponent
+0
+10
+0.1
+0.1
+1
+NIL
+HORIZONTAL
+
+PLOT
+965
+45
+1340
+280
+gravity
+NIL
+NIL
+0.0
+0.01
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count turtles"
+
+BUTTON
+809
+37
+915
+70
+NIL
+test-density
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+733
+277
+905
+310
+fixed-config-num
+fixed-config-num
+1
+10
+10
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+733
+316
+905
+349
+#-max-new-links
+#-max-new-links
+0
+20
+10
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

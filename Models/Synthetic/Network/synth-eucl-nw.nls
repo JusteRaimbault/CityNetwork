@@ -148,7 +148,6 @@ end
 ;  full the potential table
 ;    @parameter mode : real or nw distance taken into account
 to fill-cities-interaction-table [mode]
-  set cities-interaction-table table:make
   let city-list to-list cities
   let i 0 let m 0 let m-key []
   foreach but-last city-list [
@@ -169,11 +168,11 @@ to fill-cities-interaction-table [mode]
     ;]
     
     let j i + 1 while [j < length city-list][
-      let c2 item j city-list let key (list [who] of c1 [who] of c2) ;let revkey (list [who] of c2 [who] of c1)
+      let c2 item j city-list let key (list [who] of c1 [who] of c2 mode) let revkey (list [who] of c2 [who] of c1 mode)
       let p12 cities-interaction-force c1 c2 mode ; interaction force
-      if p12 > m [set m p12 set m-key key]
+      ;if p12 > m [set m p12 set m-key key]
       table:put cities-interaction-table key p12
-      ;table:put cities-interaction-table revkey p12 ; Q is revkey needed ? NO as couple matters
+      table:put cities-interaction-table revkey p12
       set j j + 1 
     ]
     set i i + 1
@@ -186,7 +185,8 @@ end
 
 
 to-report cities-interaction-force [city1 city2 mode]
-  report runresult (word cities-interaction-method " city1 city2 " mode)
+  ;show (word cities-interaction-method " city1 city2 " mode)
+  report runresult (word cities-interaction-method " city1 city2 mode")
 end
 
 
@@ -212,7 +212,7 @@ to-report gravity [city1 city2 mode]
     ; network distances assumed already computed
     set d12 table:get nw-distances (list [who] of city1 [who] of city2)
   ]
-  report ( (1 - hierarchy-role) + hierarchy-role * (((p1 * p2) / (max-pop ^ 2)) ^ gravity-hierarchy-exponent))* exp( - d12 / (gravity-radius * (1 + (d12 / gravity-inflexion))))
+  report ( (1 - hierarchy-role) + hierarchy-role * (((p1 * p2) / (total-pop ^ 2)) ^ gravity-hierarchy-exponent))* exp( - d12 / (gravity-radius * (1 + (d12 / gravity-inflexion))))
   
 end
 
