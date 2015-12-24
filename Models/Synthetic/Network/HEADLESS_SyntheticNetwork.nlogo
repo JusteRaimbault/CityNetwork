@@ -28,6 +28,9 @@ __includes [
   ;; wrapped nw generation for simple exploration
   "heuristic-nw.nls"
   
+  ;; experiment
+  "experiment.nls"
+  
   ;; tests 
    "test/test-includes.nls"
    "test/test-headless.nls"
@@ -121,8 +124,17 @@ globals [
   ;hierarchy-role
   ;gravity-inflexion
   
+  ;; experiment parameters
+  gravity-radius
+  gravity-inflexion
+  hierarchy-role
+  gravity-hierarchy-exponent
+  #-max-new-links
+  ; breakdown-threshold ; deleted parameter, fixed new link number
   
   
+  ; fixed density config
+  fixed-config-num
   
 ]
 
@@ -194,10 +206,10 @@ ticks
 30.0
 
 BUTTON
-725
-37
-804
-70
+676
+39
+755
+72
 NIL
 test-nw
 NIL
@@ -210,71 +222,11 @@ NIL
 NIL
 1
 
-SLIDER
-731
-108
-903
-141
-gravity-radius
-gravity-radius
-0
-100
-10
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-731
-151
-903
-184
-gravity-inflexion
-gravity-inflexion
-0
-10
-0.69
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-734
-195
-906
-228
-hierarchy-role
-hierarchy-role
-0
-1
-0.15
-0.05
-1
-NIL
-HORIZONTAL
-
-SLIDER
-733
-235
-931
-268
-gravity-hierarchy-exponent
-gravity-hierarchy-exponent
-0
-10
-0.1
-0.1
-1
-NIL
-HORIZONTAL
-
 PLOT
-965
-45
-1340
-280
+820
+15
+1195
+250
 gravity
 NIL
 NIL
@@ -289,10 +241,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot count turtles"
 
 BUTTON
-809
-37
-915
-70
+676
+81
+782
+114
 NIL
 test-density
 NIL
@@ -305,35 +257,12 @@ NIL
 NIL
 1
 
-SLIDER
-733
-277
-905
-310
-fixed-config-num
-fixed-config-num
-1
+OUTPUT
+728
+443
+1085
+649
 10
-10
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-733
-316
-905
-349
-#-max-new-links
-#-max-new-links
-0
-20
-10
-1
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

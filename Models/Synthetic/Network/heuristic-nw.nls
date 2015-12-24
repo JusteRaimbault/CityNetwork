@@ -32,22 +32,30 @@ to heuristic-nw-generation
   
   ; gravity breakdown
   ; first get possible new link, sorting on strongest euclidian potentials
-  let gvals [] foreach table:keys cities-interaction-table [if member? "euclidian" ? [let g table:get cities-interaction-table ? set gvals lput (list g first ? last ?) gvals]]
-  let potential-breakdowns sublist (sort-by [first ?1 > first ?2] gvals) 0 #-max-new-links
+  let gvals [] foreach table:keys cities-interaction-table [if member? "euclidian" ? [let g table:get cities-interaction-table ? set gvals lput (list g (first ?) (item 1 ?)) gvals]]
+  let potential-breakdowns sublist (sort-by [first ?1 > first ?2] gvals) 0 (min (list (length gvals) (5 * #-max-new-links)))
   ; then breakdown if difference with network potential smaller than threshold
-  let i 0
-  foreach potential-breakdowns [
-     show (word "link " i)
+
+  let bpot []
+  foreach potential-breakdowns [ 
      let vn table:get cities-interaction-table (list (item 1 ?) (item 2 ?) "network") let vr first ?
      
-     if vn / vr < breakdown-threshold [
-        
+     set bpot lput (list (vn / vr) (item 1 ?) (item 2 ?)) bpot
+     
+  ]
+  
+  ; sort on breakdown potentials
+  foreach sublist sort-by [first ?1 < first ?2] bpot 0 #-max-new-links [   
+     let c1 city (item 1 ?) let c2 city (item 2 ?)
+     ask c1 [
+       if not road-neighbor? c2 [create-road-with c2 [new-road]]
      ]
      
      ; recompute nw distances and potentials
+     planarize-network cities roads
      compute-nw-distances
      fill-cities-interaction-table "network"
-     set i i + 1
+
   ]
   
   ; planarize nw
