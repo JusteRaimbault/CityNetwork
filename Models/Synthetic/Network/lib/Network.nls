@@ -21,7 +21,7 @@
 to planarize-network [vertices-agentset edges-agentset]
   
   ;; gore way ?
-  let links-breed agentset-uniform-singular-breed edges-agentset
+  ;let links-breed agentset-uniform-singular-breed edges-agentset
   
   let edge-list to-list edges-agentset
   let current-inter get-first-inter edge-list
@@ -31,10 +31,14 @@ to planarize-network [vertices-agentset edges-agentset]
       let new-inter nobody ;need to hatch
       ask t11 [hatch 1 [set population 0 new-city set new-inter self setxy first first current-inter last first current-inter]]
       ask new-inter [
-        ask t11 [run (word "create-" links-breed "-with myself")]
-        ask t12 [run (word "create-" links-breed "-with myself")]
-        ask t21 [run (word "create-" links-breed "-with myself")]
-        ask t22 [run (word "create-" links-breed "-with myself")]
+        ;ask t11 [run (word "create-" links-breed "-with myself")]
+        ;ask t12 [run (word "create-" links-breed "-with myself")]
+        ;ask t21 [run (word "create-" links-breed "-with myself")]
+        ;ask t22 [run (word "create-" links-breed "-with myself")]
+        ask t11 [create-road-with myself]
+        ask t12 [create-road-with myself]
+        ask t21 [create-road-with myself]
+        ask t22 [create-road-with myself]
       ]
       ;remove and kill
       set edge-list concatenate (list edge-list (to-list [my-links] of new-inter))
@@ -118,7 +122,7 @@ to connexify-network [vertices-agentset edges-agentset]
   let clusters nw:weak-component-clusters
   let #-new-links length clusters - 1
   
-  let links-breed agentset-uniform-singular-breed edges-agentset
+  ;let links-breed agentset-uniform-singular-breed edges-agentset
   
   while [length clusters > 1] [
     let c1 first clusters
@@ -133,7 +137,8 @@ to connexify-network [vertices-agentset edges-agentset]
     ask mc1 [
       ; create link : need to find the breed of used links
       ; to color : final number of new links if #-initial clusters - 1
-      run (word "create-" links-breed "-with mc2"); [set color gradient:scale (list extract-rgb red extract-rgb yellow) (#-new-links - (length clusters)) 0 #-new-links]")
+      ;run (word "create-" links-breed "-with mc2"); [set color gradient:scale (list extract-rgb red extract-rgb yellow) (#-new-links - (length clusters)) 0 #-new-links]")
+       create-road-with mc2
     ]
     set clusters nw:weak-component-clusters
   ]
