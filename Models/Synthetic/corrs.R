@@ -10,14 +10,8 @@ library(dplyr)
 gres <- as.tbl(res) %>% group_by(idpar)
   #citiesNumber,densityConfig,gravityHierarchyExponent,gravityInflexion,gravityRadius,hierarchyRole,maxNewLinksNumber,
   #alphalocalization,)
-  
-#aggregated summary vars 
-aggres <- gres  %>% summarise(bw = mean(meanBwCentrality),bws=sd(meanBwCentrality),
-                   pathlength = mean(meanPathLength),pathlengthsd = sd(meanPathLength),
-                  relspeed=mean(meanRelativeSpeed),relspeedsd=sd(meanRelativeSpeed),
-                  diameter=mean(nwDiameter),diametersd=sd(nwDiameter),
-                  length=mean(nwLength))
-aggres <- aggres %>% filter(!is.na(bw)&!is.na(bws))
+
+
 
 hist(aggres$pathlength,breaks=20)
 summary(aggres$pathlengthsd)
@@ -31,6 +25,31 @@ plot(aggres[,c(7,9,11,13,15)])
 # need to filter on group size
 glength <- gres %>% summarise(groupLength = length(idpar))
 glength$idpar[glength$groupLength==50]
+
+
+
+
+#aggregated summary vars 
+aggres <- gres  %>% filter(idpar %in% glength$idpar[glength$groupLength>=50]) %>% summarise(
+  bw = mean(meanBwCentrality),bws=sd(meanBwCentrality),
+  pathlength = mean(meanPathLength),pathlengthsd = sd(meanPathLength),
+  relspeed=mean(meanRelativeSpeed),relspeedsd=sd(meanRelativeSpeed),
+  diameter=mean(nwDiameter),diametersd=sd(nwDiameter),
+  length=mean(nwLength),lengthsd=sd(nwLength),
+  moran=mean(moran),moransd=sd(moran),
+  distance=mean(distance),distancesd=sd(distance),
+  entropy=mean(entropy),entropysd=sd(entropy),
+  slope=mean(slope),slopesd=sd(slope)
+)
+aggres <- aggres %>% filter(!is.na(bw)&!is.na(bws))
+
+# parameters
+params <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength>=50]) %>% summarise(
+  alphalocalization=mean(alphalocalization),diffusion=mean(diffusion),diffusionsteps=mean(diffusionsteps),citiesNumber=mean(citiesNumber),growthrate=mean(growthrate/population),
+  gravityHierarchyExponent=mean(gravityHierarchyExponent),gravityInflexion=mean(gravityInflexion),gravityRadius=mean(gravityRadius),
+  hierarchyRole=mean(hierarchyRole),maxNewLinksNumber=mean(maxNewLinksNumber)
+)
+
 
 #  compute cov/cor matrix for each point in param space
 
@@ -132,19 +151,32 @@ cormat = crosscormat[,2:ncol(crosscormat)]
 
 corrCols = 3*(0:floor((ncol(cormat)-1)/3))+1
 pr = prcomp(cormat[,corrCols])
-rcormat = as.matrix(cormat[,corrCols]) %*% as.matrix(pr$rotation)
-rcormatmin = as.matrix(cormat[,corrCols+1]) %*% as.matrix(pr$rotation)
-rcormatmax = as.matrix(cormat[,corrCols+2]) %*% as.matrix(pr$rotation)
+# normalize
+m = apply(pr$rotation,2,function(col){sum(abs(col))});mm=matrix(data=rep(m,nrow(pr$rotation)),nrow=nrow(pr$rotation),byrow=TRUE)
+rotation=pr$rotation/mm
+rcormat = as.matrix(cormat[,corrCols]) %*% as.matrix(rotation)
+rcormatmin = as.matrix(cormat[,corrCols+1]) %*% as.matrix(rotation)
+rcormatmax = as.matrix(cormat[,corrCols+2]) %*% as.matrix(rotation)
 #plot(rcormat[,1],rcormat[,2])
 # color according to mean correlation / other?
 #as.tbl(as.data.frame(t(rcormat))) %>% transmute(m=(PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10)/10)
 #apply(rcormat,1,mean)
 npoints = 239;points = sample.int(nrow(rcormat),size=npoints,replace=TRUE)
 # must filter according to extent -> minimize overlap and maximize total extent.
-# Q : what about "real" morpho conf ?
+# Q : what about "real" morpho conf ? 
+# -> select rows close to real points
+#  source 'morpho_calib.R'.real
+distance<-function(...,cloud){
+  return(min(apply(cloud,1,function(r){sqrt(sum((r-c(...))^2))})))
+}
+realdist = apply(aggres,1,function(r){distance(r["moran"],r["distance"],r["entropy"],r["slope"],cloud=real[,3:6])})
+aggres <- aggres %>% mutate(realdist=realdist)
+# now filter on real dist
+points= which(realdist<0.02)
+
 
 g = ggplot(data.frame(x=rcormat[points,1],y=rcormat[points,2],xmin=rcormatmin[points,1],xmax=rcormatmax[points,1],ymin=rcormatmin[points,2],ymax=rcormatmax[points,2],meanCor=apply(rcormat,1,function(l){mean(abs(l))})[points]),aes(x=x,y=y,colour=meanCor))
-g+geom_point()+geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.02)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.02)
+g+geom_point()+geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.01)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.01)
 
 # same with max-min and max/min and mean absolute corr
 ggplot(data.frame(x=rcormat[,1],y=rcormat[,2],meanCor=apply(rcormat,1,function(l){max(l)-min(l)})),aes(x=x,y=y,colour=meanCor))+geom_point()
@@ -153,6 +185,26 @@ ggplot(data.frame(x=rcormat[,1],y=rcormat[,2],meanCor=apply(rcormat,1,min)),aes(
 ggplot(data.frame(x=rcormat[,1],y=rcormat[,2],meanCor=apply(cormat,1,function(l){mean(abs(l))})),aes(x=x,y=y,colour=meanCor))+geom_point()
 
 
+
+# raster colored with param means for a given param
+paramspoints=params[points,]
+param="maxNewLinksNumber";resolution = 5;
+xmin=min(rcormat[points,1])/2;xmax=max(rcormat[points,1])/2;
+ymin=min(rcormat[points,2])/2;ymax=max(rcormat[points,2])/2;
+# construct z data by local aggregation
+xcoords = seq(from=xmin,to=xmax,length.out=resolution)+((xmax-xmin)/(2*(resolution - 1)));xres=(xmax-xmin)/(2*(resolution - 1))
+ycoords = seq(from=ymin,to=ymax,length.out=resolution)+((ymax-ymin)/(2*(resolution - 1)));yres=(ymax-ymin)/(2*(resolution - 1))
+zmat=matrix(0,length(xcoords),length(ycoords))
+for(x in 1:nrow(zmat)){for(y in 1:ncol(zmat)){
+  zmat[x,y]=mean(unlist(paramspoints[which(abs(xcoords[x]-rcormat[points,1])<xres&abs(ycoords[y]-rcormat[points,2])<yres),param]))
+}}
+
+df<-melt(zmat);names(df)=c("x","y","z")
+#df[is.nan(df[,"z"]),"z"]=0
+#as.tbl(as.data.frame(rcormat[points,])) %>% filter(abs(xcoords[1]-PC1)<xres)
+#df=data.frame(x=rcormat[points,1],y=rcormat[points,2],params[points,param]);names(df)=c("x","y","z")
+g = ggplot(df,aes(x=x, y=y, z = z))
+g+stat_contour(aes(colour=..level..),bins=20)
 
 
 ##########
