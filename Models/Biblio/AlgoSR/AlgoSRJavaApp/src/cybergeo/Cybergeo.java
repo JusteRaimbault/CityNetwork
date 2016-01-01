@@ -15,6 +15,7 @@ import main.corpuses.RISFactory;
 import main.reference.Abstract;
 import main.reference.Reference;
 import main.reference.Title;
+import mendeley.MendeleyAPI;
 import scholar.ScholarAPI;
 import sql.CybergeoImport;
 import sql.SQLConnection;
@@ -65,6 +66,21 @@ public class Cybergeo {
 		 //CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("2010-01-01",2)).getCorpus();
 		 return new CybergeoCorpus((new RISFactory(bibFile,numRefs)).getCorpus().references);
 			 
+	}
+	
+	/**
+	 * Simple setup
+	 * 
+	 * @param withScholar
+	 */
+	public static void setup(boolean withScholar){
+		Main.setup("conf/default.conf");
+		Log.purpose("runtime", "Started at "+(new Date()).toString());
+		if(withScholar){
+			try{TorPoolManager.setupTorPoolConnexion();}catch(Exception e){e.printStackTrace();}
+			ScholarAPI.init();
+		}
+		
 	}
 	
 	
@@ -171,6 +187,7 @@ public class Cybergeo {
 		cybergeo.name="cybergeo";
 		Corpus completed = SQLImporter.sqlImportPrimary(database, "cybergeo", "1",true);
 		
+		
 		// iterate on single refs, export to sql at each
 		for(Reference cybref:cybergeo.references){
 			Log.stdout(cybref+" - status :"+checkStatus(cybref,completed));
@@ -199,6 +216,34 @@ public class Cybergeo {
 	private static boolean checkStatus(Reference r,Corpus c){
 		return c.references.contains(r);
 	}
+	
+	
+	/**
+	 * Get abstracts and authors from Mendeley and fill sql base
+	 * 
+	 * @param database
+	 * @param numRefs
+	 */
+	public static void fillAbstractsSQLExport(String database,int numRefs){
+		setup(false);
+		
+		Corpus corpus = SQLImporter.sqlImport(database, "cybergeo", "refs", "links", false);
+		Corpus cybergeo = SQLImporter.sqlImportPrimary(database, "cybergeo", "1", false);
+		
+		// need to get ids of already retrieved abstracts
+		HashSet<String> existing = SQLImporter.sqlSingleColumn(database, "refdesc", "id", false);
+		
+		// first cyb corpus
+		for(Reference r:cybergeo){
+			if(!existing.contains(r.scholarID)){
+				MendeleyAPI.getReference(r.title.title);
+			}
+		}
+		
+		
+	}
+	
+	
 	
 	/**
 	 * get refs which have not been completed yet and completes citing refs.

@@ -82,6 +82,20 @@ public class SQLImporter {
 	}
 	
 	
+	public static HashSet<String> sqlSingleColumn(String database,String table, String column,boolean reconnectTorPool){
+		HashSet<String> res = new HashSet<String>();
+		try{
+			SQLConnection.setupSQL(database);
+			String query = "SELECT "+column+" FROM "+table+";";
+			ResultSet resq = SQLConnection.executeQuery(query);		
+			while(resq.next()){res.add(resq.getString(1));}
+			if(reconnectTorPool){TorPoolManager.setupTorPoolConnexion();}
+		}catch(Exception e){e.printStackTrace();}
+		
+		return res;
+	}
+	
+	
 	
 	
 	

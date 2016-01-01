@@ -108,7 +108,15 @@ public class MendeleyAPI{
 	
 	
 	
-	public static HashSet<Reference> catalogRequest(String query,int numResponse){
+	/**
+	 * Mendeley catalog request
+	 * 
+	 * @param query
+	 * @param numResponse
+	 * @param ghostRefs
+	 * @return
+	 */
+	public static HashSet<Reference> catalogRequest(String query,int numResponse,boolean ghostRefs){
 		
 		try{
 			
@@ -145,6 +153,21 @@ public class MendeleyAPI{
 			
 		}catch(Exception e){e.printStackTrace();return null;}
 	}
+	
+	
+	
+	/**
+	 * Get reference from title, same way than scholar api
+	 * 
+	 * @param title
+	 * @return
+	 */
+	public static Reference getReference(String title){
+		
+		
+		return null;
+	}
+	
 	
 	
 	/**

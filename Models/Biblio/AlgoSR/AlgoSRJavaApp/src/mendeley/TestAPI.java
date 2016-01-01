@@ -48,7 +48,7 @@ public class TestAPI {
 		
 		// test of use of the catalog request to retrieve abstract
 		String title = "The polycentric metropolis: learning from mega-city regions in Europe";
-		HashSet<Reference> refs = MendeleyAPI.catalogRequest(title.replaceAll(" ","+"), 1);
+		HashSet<Reference> refs = MendeleyAPI.catalogRequest(title.replaceAll(" ","+"), 1,false);
 		for(Reference r:refs){System.out.println(r.resume);}
 		
 	}
