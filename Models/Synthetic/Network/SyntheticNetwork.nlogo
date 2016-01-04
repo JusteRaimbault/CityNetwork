@@ -25,6 +25,9 @@ __includes [
   ;; indicators
   "indicators.nls"
   
+  ;; wrapped nw generation for simple exploration
+  "heuristic-nw.nls"
+  
   ;; tests 
    "test/test_includes.nls"
    
@@ -425,7 +428,7 @@ neigh-gravity-threshold-quantile
 neigh-gravity-threshold-quantile
 0
 1
-0.991
+0.998
 0.001
 1
 NIL
@@ -559,7 +562,7 @@ shorcuts-max-number
 shorcuts-max-number
 0
 100
-23
+6
 1
 1
 NIL

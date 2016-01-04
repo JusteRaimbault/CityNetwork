@@ -15,6 +15,7 @@ import main.corpuses.RISFactory;
 import main.reference.Abstract;
 import main.reference.Reference;
 import main.reference.Title;
+import mendeley.MendeleyAPI;
 import scholar.ScholarAPI;
 import sql.CybergeoImport;
 import sql.SQLConnection;
@@ -65,6 +66,24 @@ public class Cybergeo {
 		 //CybergeoCorpus cybergeo = (CybergeoCorpus) (new CybergeoFactory("2010-01-01",2)).getCorpus();
 		 return new CybergeoCorpus((new RISFactory(bibFile,numRefs)).getCorpus().references);
 			 
+	}
+	
+	/**
+	 * Simple setup
+	 * 
+	 * @param withScholar
+	 */
+	public static void setup(boolean withScholar){
+		Main.setup("conf/default.conf");
+		Log.purpose("runtime", "Started at "+(new Date()).toString());
+		if(withScholar){
+			try{TorPoolManager.setupTorPoolConnexion();}catch(Exception e){e.printStackTrace();}
+			ScholarAPI.init();
+		}
+		
+		// setup mendeley
+		MendeleyAPI.setupAPI();
+		
 	}
 	
 	
@@ -169,7 +188,8 @@ public class Cybergeo {
 		
 		CybergeoCorpus cybergeo = (CybergeoCorpus) setup(bibFile,numrefs);
 		cybergeo.name="cybergeo";
-		Corpus completed = SQLImporter.sqlImportPrimary(database, "cybergeo", "1",true);
+		Corpus completed = SQLImporter.sqlImportPrimary(database, "cybergeo", "1",-1,true);
+		
 		
 		// iterate on single refs, export to sql at each
 		for(Reference cybref:cybergeo.references){
@@ -200,6 +220,58 @@ public class Cybergeo {
 		return c.references.contains(r);
 	}
 	
+	
+	/**
+	 * Get abstracts and authors from Mendeley and fill sql base
+	 * 
+	 * @param database
+	 * @param numRefs
+	 */
+	public static void fillAbstractsSQLExport(String database){
+		setup(false);
+		
+		Corpus corpus = SQLImporter.sqlImport(database, "cybergeo", "refs", "links",-1, false);
+		Corpus cybergeo = SQLImporter.sqlImportPrimary(database, "cybergeo", "",-1, false);
+		
+		// need to get ids of already retrieved abstracts
+		HashSet<String> existing = SQLImporter.sqlSingleColumn(database, "refdesc", "id", false);
+		
+		//int nullCount = 0;
+		// first cyb corpus
+		for(Reference r:cybergeo){
+			Log.stdout(r.toString());
+			if(!existing.contains(r.scholarID)){
+				Reference detailed = MendeleyAPI.getReference(r.title.title,r.year,r.scholarID);
+				if(detailed!=null){
+					//export the ref
+					SQLExporter.exportRefDetails(detailed,database,"refdesc");
+				}
+			}
+		}
+		
+		
+		existing = SQLImporter.sqlSingleColumn(database, "refdesc", "id", false);
+		
+		for(Reference r:corpus){
+			Log.stdout(r.toString());
+			if(!existing.contains(r.scholarID)){
+				Reference detailed = MendeleyAPI.getReference(r.title.title,r.year,r.scholarID);
+				if(detailed!=null){
+					//export the ref
+					SQLExporter.exportRefDetails(detailed,database,"refdesc");
+				}
+			}
+		}
+		
+		Log.purpose("runtime", "Finished at "+(new Date()).toString());
+		
+		//System.out.println("null : "+nullCount);
+		//System.out.println("total : "+cybergeo.references.size());
+		
+	}
+	
+	
+	
 	/**
 	 * get refs which have not been completed yet and completes citing refs.
 	 *   Note : status table ? -> completed on first run, then ok.
@@ -216,8 +288,8 @@ public class Cybergeo {
 	 * @param database
 	 */
 	public static void updateStatusTable(String database){
-		Corpus all = SQLImporter.sqlImport(database, "cybergeo", "refs", "links", false);
-		Corpus primary = SQLImporter.sqlImportPrimary(database, "cybergeo","1",false);
+		Corpus all = SQLImporter.sqlImport(database, "cybergeo", "refs", "links",-1,false);
+		Corpus primary = SQLImporter.sqlImportPrimary(database, "cybergeo","1",-1,false);
 		
 		for(Reference prim:primary){
 			for(Reference cited:prim.biblio.cited){
@@ -268,7 +340,7 @@ public class Cybergeo {
 		//fullNetwork(Integer.parseInt(args[0]));
 		
 		
-		String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris";
+		//String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris";
 		//String outfile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/testfull_1refs_"+(new Date().toString().replaceAll(" ", "-"))+".gexf"; 
 		
 		//fullNetwork(bibFile,outfile,1);
@@ -279,9 +351,11 @@ public class Cybergeo {
 		//fullNetworkSQLExport(bibFile,"cyb_test1",13);
 		
 		// full nw
-		fullNetworkSQLExport(bibFile,"cybergeo",-1);
+		//fullNetworkSQLExport(bibFile,"cybergeo",-1);
 		
 		//SQLConverter.sqlToGexf("test_cyb1","res/sql/testSqlToGexf.gexf");
+		
+		fillAbstractsSQLExport("cybfull");
 		
 	}
 

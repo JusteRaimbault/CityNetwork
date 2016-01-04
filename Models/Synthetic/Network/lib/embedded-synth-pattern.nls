@@ -1,0 +1,172 @@
+
+;;;;;;;;;;;;;;;;
+;; Generation of large scale density pattern for a system of cities
+;;;;;;;;;;;;;;;;
+
+
+;; patches variables
+;
+; patches-own :: sp-density, sp-occupants-number
+;
+
+
+;;
+;
+to setup-exploration
+  ; set time steps
+  setup-synth-pattern
+  ; here fix max pop
+  set total-time-steps floor (sp-max-pop / sp-growth-rate)
+end
+
+to setup-final-indicators
+  ;setup-indicator-computation
+end
+
+to go-for-one-time-step
+  go-synth-pattern
+end
+
+
+;;
+; Setup for a synthetic pattern generation.
+;
+to setup-synth-pattern
+  ; empty setup
+  ask patches [set sp-density 0 set sp-occupants 0]
+  reset-ticks
+  color-synth-pattern
+  
+  ;set comp-time 0
+end
+
+
+;;
+; Go for one step of generation.
+;
+to go-synth-pattern
+  
+  reset-timer
+  ;tic
+  
+  ;; add new inhabitants with proba proportionnal to density
+  ; Function of the density ?
+  ;  ex : power function will favorise greater aggregations ?
+  ;
+  ; --> discrete choice model with beta param
+  ;
+  
+  let stot sum [sp-density ^ sp-alpha-localization] of patches
+  
+  ifelse stot = 0 [
+    repeat (floor sp-growth-rate) [ask one-of patches [set sp-occupants sp-occupants + 1]]
+    ][
+;    ; draw random patches
+;    let s 0 let f 0 let r [] repeat (floor sp-growth-rate) [set r lput random-float 1 r] set r sort r
+;    ;show r
+;    ; add 1 population to each
+;    ask patches [
+;      if f < (floor sp-growth-rate) [
+;        set s s + (sp-density ^ sp-alpha-localization)
+;        while [f < length r and (s / stot) > item f r] [
+;          ;show (word self " : " (s / stot) " - " item f r)
+;          set sp-occupants sp-occupants + 1 set f f + 1
+;        ]
+;      ]
+;    ]
+
+    repeat floor sp-growth-rate [
+      let s 0 let r random-float 1 let i 0 let plist to-list patches
+      while [s < r] [ask item i plist [ set s s + ((sp-density ^ sp-alpha-localization) / stot) if s >= r [set sp-occupants sp-occupants + 1] set i i + 1]]     
+    ]
+
+    
+  ]
+  
+  ;; diffuse
+  ;; TODO :: add heterogeneous diffusion. just random local perturbation ?
+  ;; also different diffusion if effective local density is too high ? would be logical to have "realistic" distribs
+  ;;   -> set proba different from population ? (ex depending on neighbors if too high ? -> diffuse other variable ?)
+  
+  repeat sp-diffusion-steps [
+    diffuse sp-occupants sp-diffusion
+    
+    ; adjustement for bord effects
+    ;  -> bord patches loose (missing-#-of-neighs * alpha ) % of population, that should have propagated outside the world
+    ask patches with [count neighbors < 8] [set sp-occupants (sp-occupants * (1 - sp-diffusion * (8 - count neighbors) / 8))]
+    
+  ]
+  
+  
+  
+  ; update density
+  set sp-population sum [sp-occupants] of patches
+  ask patches [set sp-density sp-occupants / sp-population]
+  
+  
+  
+  color-synth-pattern
+  
+  tick
+  
+  ; stop if needed or if max time reached
+  if sp-population >= sp-max-pop [stop]
+  
+  ;set comp-time comp-time + timer
+end
+
+
+
+;;
+; Generation of a synthetic pattern
+to generate-synth-pattern
+  setup-synth-pattern
+  repeat total-time-steps [go-synth-pattern]
+end
+
+
+;;
+; setup density from a real raster file.
+; need indic setup first
+;to setup-real-pattern
+;  ; do the extraction and store in temp raster pop
+;  ;show  (word "extractSubRaster(\"" real-pattern-file "\"," real-row "," real-col "," real-size "," real-factor ")")
+;  
+;  let config rserve:get (word "extractSubRaster(\"" real-pattern-file "\"," real-row "," real-col "," real-size "," real-factor ")")
+;
+;  clear-drawing
+;  ;gis:apply-raster gis:load-dataset "temp_raster_pop.asc" sp-occupants
+;  ;gis:paint gis:load-dataset real-pattern-file 0
+;  
+;  ; replace Nan -> strange test with <= or =>
+;  ;ask patches with [not ( sp-density >= 0 or sp-density <= 0) ] [set sp-density 0]
+;  
+;  let i 0 let j 0
+;  foreach config [
+;    set j 0
+;    foreach ? [
+;     ask patch i j [set sp-occupants ?]
+;     set j j + 1
+;    ]
+;    set i i + 1
+;  ]
+;  
+;  
+;  color-synth-pattern
+;  
+;  plots
+;end
+
+
+
+;;
+; Color a given configuration (color gradient : number of people)
+to color-synth-pattern
+  set sp-population sum [sp-occupants] of patches
+  if sp-population > 0 [ask patches [set sp-density sp-occupants / sp-population]]
+  let ma max [sp-density] of patches let mi min [sp-density] of patches
+  ; density already normalized
+  ;let ma 1 let mi 0
+  ifelse ma > mi [ask patches [set pcolor scale-color red sp-density mi ma]]
+  [ask patches [set pcolor black]]
+end

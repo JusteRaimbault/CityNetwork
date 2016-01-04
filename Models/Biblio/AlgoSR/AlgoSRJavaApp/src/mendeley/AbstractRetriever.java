@@ -33,7 +33,7 @@ public class AbstractRetriever {
 		MendeleyAPI.setupAPI();
 		
 		// rq : replacement should not been needed as provided title will be already treated (in appscript ?)
-		HashSet<Reference> refs = MendeleyAPI.catalogRequest(title.replaceAll(" ","+").replaceAll("\\{", "").replaceAll("\\}", ""), 1);
+		HashSet<Reference> refs = MendeleyAPI.catalogRequest(title.replaceAll(" ","+").replaceAll("\\{", "").replaceAll("\\}", ""), 1,false);
 		//at most one element
 		Reference r = refs.iterator().next();
 		String qTitle = StringUtils.lowerCase(title.replaceAll("\\+", " ").replaceAll("\\{", "").replaceAll("\\}", ""));

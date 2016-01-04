@@ -18,7 +18,9 @@ public class Abstract {
 	 */
 	public String en_resume;
 	
-	public Abstract(String r){resume=r;}
+	public Abstract(String r){
+		if(r!=null){resume=r;}
+	}
 	
 	public Abstract(String r,String e){resume=r;en_resume=e;}
 

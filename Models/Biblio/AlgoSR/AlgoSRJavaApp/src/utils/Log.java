@@ -153,12 +153,13 @@ public class Log {
 	 * @param message
 	 */
 	public static void output(String message,String level){
-		if(logLevel.equals("debug")||(logLevel.equals("verbose")&&(level.equals("verbose")||level.equals("default"))||(logLevel.equals("default")&&level.equals("default")))){
-			try{
+		try{
+			if(logLevel.equals("debug")||(logLevel.equals("verbose")&&(level.equals("verbose")||level.equals("default"))||(logLevel.equals("default")&&level.equals("default")))){
+
 				BufferedWriter w = new BufferedWriter(new FileWriter(f,true));
-				w.write(message);w.newLine();w.close();}
-			catch(Exception e){System.out.println(message);}
-		}
+				w.write(message);w.newLine();w.close();
+			}
+		}catch(Exception e){System.out.println(message);}
 	}
 	
 	public static void output(String message){output(message,"default");}

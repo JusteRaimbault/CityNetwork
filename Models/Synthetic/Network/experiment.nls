@@ -1,0 +1,44 @@
+
+;;;;
+;; headless experiment
+
+
+;;;
+;; parameters :
+;    config : \in [1,10] or = file-path (for online density generation)
+;
+;    cities-number \in [50,150]
+;    g-radius \in [1,100]
+;    g-inflexion \in [0,10]
+;    hierachy-r \in [0,1]
+;    g-hierarchy-exponent \in [0,3]
+to setup-experiment [cities-number g-radius g-inflexion h-role g-hierarchy-exponent max-new-links-number config]
+  
+  ca
+  
+  show (word "params : " cities-number g-radius g-inflexion h-role g-hierarchy-exponent max-new-links-number config)
+  
+  ; config
+  set fixed-config-num config
+  
+  ; network
+  set #-cities round cities-number
+  set gravity-radius g-radius
+  set gravity-inflexion g-inflexion
+  set hierarchy-role h-role
+  set gravity-hierarchy-exponent g-hierarchy-exponent
+  set #-max-new-links round max-new-links-number
+  
+  
+end
+
+
+;;
+;  run ; indicators for network are then :
+;   nw-diameter ; mean-path-length ; mean-bw-centrality ; mean-relative-speed ; total-nw-length
+to run-experiment
+  heuristic-nw "from-density-file"
+  setup-nw-indicators
+end
+
+

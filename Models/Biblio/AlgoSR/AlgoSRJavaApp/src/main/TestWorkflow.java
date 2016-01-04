@@ -32,7 +32,7 @@ public class TestWorkflow {
 		
 		// construct 100 references from catalog request
 		System.out.println("Catalog request : "+searchQuery);
-		HashSet<Reference> refs = MendeleyAPI.catalogRequest(searchQuery,100);
+		HashSet<Reference> refs = MendeleyAPI.catalogRequest(searchQuery,100,false);
 		
 		//export them to ris and zip
 		RISWriter.write(filePref+".ris", refs,false);

@@ -1,0 +1,64 @@
+
+
+;; heuristic used for exploration
+
+to heuristic-nw [density-method]
+  
+  ; cities generation done by fastest method
+  set density-to-cities-method "intersection-density"
+  generate-cities density-method
+  
+  heuristic-nw-generation
+  
+end
+
+
+
+to heuristic-nw-generation
+  
+  ; connexification
+  simple-connexification
+  
+  ; real potentials computation
+  set cities-interaction-method "gravity"
+  set cities-interaction-table table:make
+  fill-cities-interaction-table "euclidian"
+  
+  ; compute nw distances
+  compute-nw-distances
+  
+  ; nw interaction
+  fill-cities-interaction-table "network"
+  
+  ; gravity breakdown
+  ; first get possible new link, sorting on strongest euclidian potentials
+  let gvals [] foreach table:keys cities-interaction-table [if member? "euclidian" ? [let g table:get cities-interaction-table ? set gvals lput (list g (first ?) (item 1 ?)) gvals]]
+  let potential-breakdowns sublist (sort-by [first ?1 > first ?2] gvals) 0 (min (list (length gvals) (5 * #-max-new-links)))
+  ; then breakdown if difference with network potential smaller than threshold
+
+  let bpot []
+  foreach potential-breakdowns [ 
+     let vn table:get cities-interaction-table (list (item 1 ?) (item 2 ?) "network") let vr first ?
+     
+     set bpot lput (list (vn / vr) (item 1 ?) (item 2 ?)) bpot
+     
+  ]
+  
+  ; sort on breakdown potentials
+  foreach sublist sort-by [first ?1 < first ?2] bpot 0 #-max-new-links [   
+     let c1 city (item 1 ?) let c2 city (item 2 ?)
+     ask c1 [
+       if not road-neighbor? c2 [create-road-with c2 [new-road]]
+     ]
+     
+     ; recompute nw distances and potentials
+     planarize-network cities roads
+     compute-nw-distances
+     fill-cities-interaction-table "network"
+
+  ]
+  
+  ; planarize nw
+  planarize-network cities roads
+  
+end

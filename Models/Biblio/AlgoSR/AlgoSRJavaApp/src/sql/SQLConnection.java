@@ -41,7 +41,7 @@ public class SQLConnection {
 	 */
 	public static void setupSQL(String database){
 		try{
-		  System.setProperty("socksProxyHost","");	
+		  System.setProperty("socksProxyHost","");
 		  System.setProperty("socksProxyPort","");
 	      Class.forName("com.mysql.jdbc.Driver");
 	      //System.out.println("credentials : "+sqlUser+","+sqlPassword);
@@ -74,7 +74,7 @@ public class SQLConnection {
 	 * @return
 	 */
 	public static int executeUpdate(String query){
-		System.out.println("QUERY : "+query);
+		Log.stdout("SQL QUERY : "+query);
 		if(query.length()==0){return 0;}
 		try{
 			return SQLConnection.sqlDB.createStatement().executeUpdate(query);

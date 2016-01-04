@@ -164,7 +164,7 @@ public class Main {
 		
 		// construct 100 references from catalog request
 		Log.output("Catalog request : "+searchQuery);
-		MendeleyAPI.catalogRequest(searchQuery,100);
+		MendeleyAPI.catalogRequest(searchQuery,100,false);
 		Log.output(Reference.references.keySet().size()+" refs in table");
 		
 		//export them to ris and zip

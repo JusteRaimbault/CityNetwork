@@ -50,8 +50,9 @@ to generate-cities [generation-method]
     ; read a configuration from a file
     ; -> resize world in function
     
-    ;set density-file density-file-from-dir "../../../Results/Synthetic/Density/20151106_Grid/pop"
-    set density-file "../../../Results/Synthetic/Density/20151106_Grid/pop/config_166.csv"
+    set density-file density-file-from-dir "setup" fixed-config-num;"../../../Results/Synthetic/Density/20151106_Grid/pop"
+    show density-file
+    ;set density-file "../../../Results/Synthetic/Density/20151106_Grid/pop/config_166.csv"
     density-from-file density-file
     
     density-to-cities
@@ -108,19 +109,25 @@ to density-from-file [file]
    foreach rows [
       set j min-pycor
       foreach ? [
+        
         ask (patch i j) [set sp-occupants ?]
         set j j + 1
       ]
       set i i + 1
    ]
    
-   color-synth-pattern
+   ;color-synth-pattern
 end
 
 
-to-report density-file-from-dir [dir]
-  ; random density file 
-  report (word dir "/" one-of pathdir:list dir)
+to-report density-file-from-dir [dir index]
+  ifelse is-number? index [
+    ; random density file 
+    report (word dir "/" item (index - 1) pathdir:list dir)
+  ][
+    ; assumed index as filepath otherwise
+    report index
+  ]
 end
 
 
@@ -160,10 +167,22 @@ to density-to-cities
        while [s < r] [set p item i plist set s s + (([(sp-occupants / ptot) ^ sp-alpha-localization] of p) / stot) set i i + 1]
        ask p [
          sprout-cities 1 [
-           set population mean [sp-occupants] of (patches in-radius gravity-radius)
+           ;set population 1
+           ;set population mean [sp-occupants] of (patches in-radius gravity-radius)
+           ;ask patches in-radius gravity-radius [set sp-occupants 0 set sp-density 0]
            setxy (xcor - 0.5 + random-float 1) (ycor - 0.5 + random-float 1) new-city]
        ]
     ]
+    
+    ; attribute population to cities
+    ask patches [
+      ask one-of cities with-min [distance myself] [set population population + [sp-occupants] of myself] 
+    ]
+    
+    set city-max-pop max [population] of cities
+    
+    ask cities [set size max (list (3 * population / city-max-pop) 0.3)]
+    
   ]
   
   
@@ -280,7 +299,7 @@ to update-cities-interaction-table [n1 n2 newcity]
       let c2 self
       let k2 who let key (list k1 k2) let revkey (list k2 k1)
       if not (table:has-key? cities-interaction-table key or table:has-key? cities-interaction-table revkey) [
-        let p12 cities-interaction-force c1 c2
+        let p12 cities-interaction-force c1 c2 "euclidian"
         if p12 > m [set m p12 set m-key key]
         table:put cities-interaction-table key p12
       ]

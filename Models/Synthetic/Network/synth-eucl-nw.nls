@@ -65,7 +65,7 @@ to generate-network [generation-method]
     
     ; then 'locally' add links
     ;  -> uses the interaction potential
-    init-cities-interaction-table
+    fill-cities-interaction-table "euclidian"
     
     add-local-links-neigh-gravity
     
@@ -144,12 +144,14 @@ end
 
 
 
-to init-cities-interaction-table
-  set cities-interaction-table table:make
+;;
+;  full the potential table
+;    @parameter mode : real or nw distance taken into account
+to fill-cities-interaction-table [mode]
   let city-list to-list cities
   let i 0 let m 0 let m-key []
   foreach but-last city-list [
-    output-print (word "interaction-table : " i)
+    ;output-print (word "interaction-table : " i)
     let c1 ?
     
     ;ask c1 [
@@ -166,11 +168,11 @@ to init-cities-interaction-table
     ;]
     
     let j i + 1 while [j < length city-list][
-      let c2 item j city-list let key (list [who] of c1 [who] of c2) ;let revkey (list [who] of c2 [who] of c1)
-      let p12 cities-interaction-force c1 c2 ; interaction force
-      if p12 > m [set m p12 set m-key key]
+      let c2 item j city-list let key (list [who] of c1 [who] of c2 mode) let revkey (list [who] of c2 [who] of c1 mode)
+      let p12 cities-interaction-force c1 c2 mode ; interaction force
+      ;if p12 > m [set m p12 set m-key key]
       table:put cities-interaction-table key p12
-      ;table:put cities-interaction-table revkey p12 ; Q is revkey needed ? NO as couple matters
+      table:put cities-interaction-table revkey p12
       set j j + 1 
     ]
     set i i + 1
@@ -182,21 +184,36 @@ end
 
 
 
-to-report cities-interaction-force [city1 city2]
-  report runresult (word cities-interaction-method " city1 city2")
+to-report cities-interaction-force [city1 city2 mode]
+  ;show (word cities-interaction-method " city1 city2 " mode)
+  ;report runresult (word cities-interaction-method " city1 city2 mode")
+  report gravity city1 city2 mode
 end
 
 
-to-report basic-gravity [city1 city2]
+to-report basic-gravity [city1 city2 mode]
   ; tunable gravity-exponent ?
   let d12 0 ask city1 [set d12 distance city2] if d12 = 0 [show (word city1 city2)] ; not optimized, may be quicker to use potential vector and distance matrix
   report [population] of city1 * [population] of city2 / (d12 ^ basic-gravity-exponent)
 end
 
 
-to-report generalized-gravity [city1 city2]
+to-report generalized-gravity [city1 city2 mode]
   let p1 [population] of city1 let p2 [population] of city2 let d12 0 ask city1 [set d12 distance city2]
   report (((p1 * p2) / (max-pop ^ 2)) ^ gravity-hierarchy-exponent)* exp( - d12 / gravity-radius)
+  
+end
+
+
+to-report gravity [city1 city2 mode]
+  let p1 [population] of city1 let p2 [population] of city2
+  let d12 0
+  if mode = "euclidian" [ask city1 [set d12 distance city2]]
+  if mode = "network" [
+    ; network distances assumed already computed
+    set d12 table:get nw-distances (list [who] of city1 [who] of city2)
+  ]
+  report ( (1 - hierarchy-role) + hierarchy-role * (((p1 * p2) / (total-pop ^ 2)) ^ gravity-hierarchy-exponent))* exp( - d12 / (gravity-radius * (1 + (d12 / gravity-inflexion))))
   
 end
 

@@ -78,6 +78,37 @@ public class SQLExporter {
 	
 	
 	/**
+	 * export ref details : 
+	 * 
+	 * @param r
+	 * @param databaseName
+	 * @param descTableName
+	 */
+	public static void exportRefDetails(Reference r,String databaseName,String descTableName){
+		SQLConnection.setupSQL(databaseName);
+		SQLConnection.executeUpdate(insertDetailsRequest(r,descTableName));
+	}
+	
+	
+	
+	
+	/**
+	 * insert details for ref.
+	 * 
+	 * @param r
+	 * @param descTableName
+	 * @return
+	 */
+	private static String insertDetailsRequest(Reference r,String descTableName){
+		if(r==null){return "";}	
+		String req = "INSERT INTO "+descTableName+" (id,abstract,authors,keywords) VALUES ('";
+		req = req+r.scholarID+"','"+legalSQLString(r.resume.resume)+"','"+legalSQLString(r.getAuthorString())+"','"+legalSQLString(r.getKeywordString());
+		req = req+"') ON DUPLICATE KEY UPDATE id = VALUES(id);";
+		return(req);
+	}
+	
+	
+	/**
 	 * insert a set of refs
 	 * 
 	 * @param r
@@ -90,7 +121,7 @@ public class SQLExporter {
 		String req = "INSERT INTO "+table+" (id,title,year) VALUES ";
 		for(Reference rp:r){
 			String year = rp.year;if(year==null||year.length()==0){year="0000";}
-			req+="('"+rp.scholarID+"','"+legalSQLTitle(rp.title.title)+"',"+year+"),";
+			req+="('"+rp.scholarID+"','"+legalSQLString(rp.title.title)+"',"+year+"),";
 		}
 		req=req.substring(0, req.length()-1)+" ON DUPLICATE KEY UPDATE id = VALUES(id);";
 
@@ -127,8 +158,8 @@ public class SQLExporter {
 	}
 	
 	
-	private static String legalSQLTitle(String title){
-		String res = title;
+	private static String legalSQLString(String s){
+		String res = s;
 		res = res.replace("'", "’");
 		if(res.endsWith("\\")){res = res.substring(0, res.length()-1);}
 		return res;
