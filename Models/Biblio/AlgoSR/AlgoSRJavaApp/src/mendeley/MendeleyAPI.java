@@ -27,6 +27,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 
 import utils.Connexion;
 import utils.Log;
@@ -253,13 +254,14 @@ public class MendeleyAPI{
 	 * @return
 	 */
 	private static JsonStructure rawRequest(String query,int numResponse,String token){
+		HttpResponse res=null;
 		try{
 			//simple get request
 			String url = "https://api.mendeley.com/search/catalog?query="+query+"&limit="+(Integer.toString(numResponse));
 			HashMap<String,String> header = new HashMap<String,String>();
 			header.put("Accept", "application/vnd.mendeley-document.1+json");	
 			header.put("Authorization", "Bearer "+token);
-			HttpResponse res = Connexion.get(url,header,client,context);
+			res = Connexion.get(url,header,client,context);
 
 			//rq : catalog request limited to 100 responses
 			// Check headers to see if next page available ?
@@ -270,13 +272,17 @@ public class MendeleyAPI{
 			JsonArray entries = jsonReader.readArray();
 			jsonReader.close();
 
+			EntityUtils.consumeQuietly(res.getEntity());
+			
 			return entries;
 			
 		}catch(JsonException je){
 			// if json exception, object was read instead of array, returns empty array.
+			EntityUtils.consumeQuietly(res.getEntity());
 			return Json.createArrayBuilder().build();
 		}catch(Exception e){
 			e.printStackTrace();
+			EntityUtils.consumeQuietly(res.getEntity());
 			// return an empty array
 			return Json.createArrayBuilder().build();
 		}
