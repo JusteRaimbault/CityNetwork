@@ -218,7 +218,8 @@ public class Reference {
 	public String getAuthorString(){
 		String res="";
 		for(String a:authors){res=res+";"+a;}
-		return(res.substring(0, res.length()-1));
+		if(res.length()>0){res.substring(0, res.length()-1);}
+		return res;
 	}
 	
 	/**
@@ -228,8 +229,9 @@ public class Reference {
 	 */
 	public String getKeywordString(){
 		String res="";
-		for(String a:authors){res=res+";"+a;}
-		return(res.substring(0, res.length()-1));
+		for(String a:keywords){res=res+";"+a;}
+		if(res.length()>0){res = res.substring(0, res.length()-1);}
+		return res;
 	}
 	
 	

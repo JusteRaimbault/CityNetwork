@@ -25,7 +25,7 @@ public class SQLConverter {
 	 * @param outfile
 	 */
 	public static void sqlToGexf(String database,String outfile){
-		Corpus corpus = SQLImporter.sqlImport(database, "cybergeo", "refs", "links", false);
+		Corpus corpus = SQLImporter.sqlImport(database, "cybergeo", "refs", "links",-1, false);
 		GEXFWriter.writeCitationNetwork(outfile, corpus.references);
 	}
 	
@@ -36,7 +36,7 @@ public class SQLConverter {
 	 * @param outPrefix
 	 */
 	public static void sqlToCsv(String database, String outPrefix){
-		Corpus corpus = SQLImporter.sqlImport(database, "cybergeo", "refs", "links", false);
+		Corpus corpus = SQLImporter.sqlImport(database, "cybergeo", "refs", "links", -1,false);
 		
 		HashSet<String[]> links = new HashSet<String[]>();
 		HashSet<String[]> refs = new HashSet<String[]>();

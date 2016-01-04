@@ -167,6 +167,8 @@ public class MendeleyAPI{
 	 */
 	public static HashSet<Reference> catalogRequest(String query,int numResponse,boolean ghostRefs){
 		
+		System.out.println(query);
+		
 		HashSet<Reference> refs = new HashSet<Reference>();
 		
 		try{
@@ -185,8 +187,8 @@ public class MendeleyAPI{
 			for(int i=0;i<entries.size();i++){
 				JsonObject entry = entries.getJsonObject(i);
 				
-				System.out.println(i+" : "+entry);//DEBUG
-				System.out.println(entry.getInt("year"));
+				//System.out.println(i+" : "+entry);//DEBUG
+				//System.out.println(Integer.toString(entry.getInt("year")));
 				
 				// add reference using construct -- no scholar ID
 				Reference newref = null;
@@ -201,7 +203,7 @@ public class MendeleyAPI{
 				newref.setKeywords(getKeywords(entry));
 				
 				refs.add(newref);
-			}			
+			}		
 			return refs;
 			
 		}catch(Exception e){e.printStackTrace();return refs;}
@@ -213,7 +215,16 @@ public class MendeleyAPI{
 	private static LinkedList<String> getAuthors(JsonObject entry){
 		JsonArray authors = entry.getJsonArray("authors");
 		LinkedList<String> res = new LinkedList<String>();
-		for(int i=0;i<authors.size();i++){res.add(authors.getJsonObject(i).getString("first_name")+" "+authors.getJsonObject(i).getString("last_name"));}
+		//System.out.println(authors);
+		if(authors!=null){
+			for(int i=0;i<authors.size();i++){
+				JsonObject author = authors.getJsonObject(i);
+				//System.out.println(author);
+				String firstname = "";try{firstname = author.getString("first_name");}catch(Exception e){}
+				String lastname = "";try{lastname = author.getString("last_name");}catch(Exception e){}
+				res.add(firstname+" "+lastname);
+			}
+		}
 		return res;
 	}
 	
@@ -282,7 +293,9 @@ public class MendeleyAPI{
 	 */
 	public static Reference getReference(String title,String year,String scholarID){
 		// get potential references as ghost references
-		HashSet<Reference> potentialRefs = MendeleyAPI.catalogRequest(title.replaceAll(" ","+").replaceAll("\\{", "").replaceAll("\\}", ""), 5,true);
+		//HashSet<Reference> potentialRefs = MendeleyAPI.catalogRequest(title.replaceAll(" ","+").replaceAll("\\{", "").replaceAll("\\}", ""),10,true);
+		HashSet<Reference> potentialRefs = MendeleyAPI.catalogRequest(title.replaceAll(" ","+").replaceAll("[^\\p{L}\\p{Nd}\\+]+", ""),20,true);
+		
 		
 		// match it -- author not used
 		Reference res = matchRef(title,"",year,potentialRefs);
@@ -310,9 +323,10 @@ public class MendeleyAPI{
 			Log.stdout(nr.year+"  --  "+year);
 			String t1 = StringUtils.lowerCase(nr.title.title).replaceAll("[^\\p{L}\\p{Nd}]+", "");
 			String t2 = StringUtils.lowerCase(title).replaceAll("[^\\p{L}\\p{Nd}]+", "");
+			//Log.stdout(nr.toString());
 			Log.stdout("      "+t1);
 			Log.stdout("      "+t2);
-			if(StringUtils.getLevenshteinDistance(t1,t2)<3&&year.compareTo(nr.year)==0){
+			if(StringUtils.getLevenshteinDistance(t1,t2)<3){//&&year.compareTo(nr.year)==0){
 			   res=nr;
 			}
 		};
@@ -349,12 +363,13 @@ public class MendeleyAPI{
 		
 		// test catalog request rate
 		// HASHCODE SHITS OVER  -> OK pb in testing null or empty schID
-		for(int k=0;k<5;k++){
+		for(int k=0;k<100;k++){
 			System.out.println("");
 			System.out.println("-- "+k+" --");
-			HashSet<Reference> c = catalogRequest("transfer+theorem",3,false);
-			//Reference r = getReference("Modéliser les pratiques pastorales d’altitude dans la longue durée","2012","7976888532897584518");
-			for(Reference r:c){System.out.println(r);}
+			//HashSet<Reference> c = catalogRequest("transfer+theorem",3,false);
+			Reference r = getReference("Modéliser les pratiques pastorales d’altitude dans la longue durée","2012","7976888532897584518");
+			//for(Reference r:c){System.out.println(r);}
+			System.out.println(r);
 			
 			Thread.sleep(100);
 		}

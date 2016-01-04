@@ -31,7 +31,7 @@ public class GhostReference extends Reference {
 	public GhostReference(String i,String t,String r,String y){
 		super(t);
 		id=i;resume = new Abstract(r);
-		if(year!=null){year=y;}else{year="";}
+		if(y!=null){year=y;}else{year="";}
 	}
 	
 	
