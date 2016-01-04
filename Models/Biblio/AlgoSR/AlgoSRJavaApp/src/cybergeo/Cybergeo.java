@@ -355,7 +355,7 @@ public class Cybergeo {
 		
 		//SQLConverter.sqlToGexf("test_cyb1","res/sql/testSqlToGexf.gexf");
 		
-		fillAbstractsSQLExport("cybfull");
+		fillAbstractsSQLExport("cybergeo");
 		
 	}
 
