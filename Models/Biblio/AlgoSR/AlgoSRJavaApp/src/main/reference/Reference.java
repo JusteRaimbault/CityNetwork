@@ -3,8 +3,10 @@
  */
 package main.reference;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 import mendeley.MendeleyAPI;
 
@@ -157,6 +159,80 @@ public class Reference {
 		return construct("",new Title(""),new Abstract(),"",schID);
 	}
 	
+	
+	/**
+	 * Construst from ghost.
+	 */
+	public static Reference construct(GhostReference ghost,String schID){
+		// null ghost is catch by nullPointerException -- ¡¡ DIRTY !!
+		Reference materializedRef = null;
+		try{
+			materializedRef = construct(ghost.id,ghost.title,ghost.resume,ghost.year,schID);
+			// copy keywords and authors
+			materializedRef.setKeywords(ghost.keywords);
+			materializedRef.setAuthors(ghost.authors);
+		}catch(Exception e){}
+		return materializedRef;
+	}
+	
+	/**
+	 * Materialize a ghost ref.
+	 * 
+	 * @param ghost
+	 * @return
+	 */
+	public static Reference materialize(GhostReference ghost){
+		return construct(ghost,"");
+	}
+	
+	public static Reference materialize(GhostReference ghost,String schID){
+		return construct(ghost,schID);
+	}
+	
+	/**
+	 * Set keywords from an existing collection.
+	 * 
+	 * @param a
+	 */
+	public void setAuthors(Collection<String> a){
+		// current set of authors assumed existing ; but creates it of called from ghost ref e.g.
+		if(authors==null){authors=new HashSet<String>();}
+		for(String s:a){authors.add(s);}
+	}
+	
+	/**
+	 * Set keywords from an existing set.
+	 * 
+	 * @param a
+	 */
+	public void setKeywords(Collection<String> k){
+		// current set of authors assumed existing ; but creates it of called from ghost ref e.g.
+		if(keywords==null){keywords=new HashSet<String>();}
+		for(String s:k){keywords.add(s);}
+	}
+	
+	/**
+	 * Authors as string.
+	 * @return
+	 */
+	public String getAuthorString(){
+		String res="";
+		for(String a:authors){res=res+";"+a;}
+		return(res.substring(0, res.length()-1));
+	}
+	
+	/**
+	 * Keywords as string.
+	 * 
+	 * @return
+	 */
+	public String getKeywordString(){
+		String res="";
+		for(String a:authors){res=res+";"+a;}
+		return(res.substring(0, res.length()-1));
+	}
+	
+	
 	/**
 	 * Override hashcode to take account of only ID.
 	 */
@@ -183,7 +259,9 @@ public class Reference {
 		if(!(o instanceof Reference)){return false;}
 		else{
 			Reference r = (Reference) o;
-			if((r.scholarID!=null||r.scholarID!="")&&(scholarID!=null||scholarID!="")){return r.scholarID.equals(scholarID);}
+			if(r.scholarID!=null&&r.scholarID!=""&&scholarID!=null&&scholarID!=""){
+				return r.scholarID.equals(scholarID);
+			}
 			else{
 				return (StringUtils.getLevenshteinDistance(StringUtils.lowerCase(r.title.title),StringUtils.lowerCase(title.title))<4);			
 			}
@@ -195,7 +273,7 @@ public class Reference {
 	 * Override to string
 	 */
 	public String toString(){
-		return "Ref "+id+" - schID : "+scholarID+" - t : "+title+" - year : "+year;
+		return "Ref "+id+" - schID : "+scholarID+" - t : "+title+" - year : "+year+" - authors : "+getAuthorString()+" - keywords : "+getKeywordString();
 	}
 	
 }
