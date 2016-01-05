@@ -6,6 +6,8 @@ res <- read.csv('20151227_LHSDensityNW_Local/2015_12_27_13_50_52_LHS_DENSITYNW_D
 #res <- read.csv('20151229_LHSDensityNW/2015_12_29_19_04_41_LHS_DENSITYNW_DIRAC.csv')
 
 library(dplyr)
+library(ggplot2)
+library(reshape2)
 
 gres <- as.tbl(res) %>% group_by(idpar)
   #citiesNumber,densityConfig,gravityHierarchyExponent,gravityInflexion,gravityRadius,hierarchyRole,maxNewLinksNumber,
@@ -98,17 +100,18 @@ crosscormat <- gres  %>% filter(idpar %in% glength$idpar[glength$groupLength>=50
 
 summary(cormat[1,8:17])
 
+cormat = crosscormat
 
 
 # histograms of correlations
 # -> log normal ? COMPARE WITH NULL MODEL ? which one ?
-par(mfrow=c(2,3))
-for(j in 1:ncol(cormat)){
-  hist(cormat[[colnames(cormat)[j]]],breaks=30,main=colnames(cormat)[j],xlab="")
+par(mfrow=c(4,4))
+for(j in 0:(ncol(cormat)/3 - 1)){
+  hist(cormat[[colnames(cormat)[3*j+2]]],breaks=30,main=colnames(cormat)[3*j+2],xlab="")
   #corj = cormat[[colnames(cormat)[j]]];show(mean(corj))
   #rho = mean(corj)
   # simulate correlated vectors of same size
-  corrs = c();for(k in 1:1000){x1 = rnorm(1000,mean=0);corrs=append(corrs,cor(x1,rho*x1 +sqrt(1 - rho^2)*rnorm(1000,mean=0)))}
+  #corrs = c();for(k in 1:1000){x1 = rnorm(1000,mean=0);corrs=append(corrs,cor(x1,rho*x1 +sqrt(1 - rho^2)*rnorm(1000,mean=0)))}
   #ggplot(vegLengths, aes(length, fill = veg)) + geom_histogram(alpha = 0.5, aes(y = ..density..), position = 'identity')
 }
 
@@ -134,13 +137,24 @@ boot(fgres,function(data,i){cor(data$moran[i],data$meanBwCentrality[i])},1000)
 # find a way to summarize corr matrices -> various norms ?
 #  per var : max ; spread ; ?
 
+
+
 # HeatMaps
 
-library(ggplot2)
+nindics = c("bw-centrality","path-length","speed","diameter")
+mindics = c("moran","distance","entropy","slope")
 
-df=data.frame(z=unlist(cormat[50,8:17]),x=c(2:5,3:5,4:5,5),y=c(rep(1,4),rep(2,3),rep(3,2),4))
-ggplot(df, aes(x, y, fill = z)) + geom_raster(hjust = 0, vjust = 0) + scale_colour_continuous(low="green",high="red")
+cormat = crosscormat[,2:ncol(crosscormat)]
 
+maxcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max(c)})
+mincor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){min(c)})
+amplcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max(c)-min(c)})
+
+#df=data.frame(z=unlist(cormat[50,8:17]),x=c(2:5,3:5,4:5,5),y=c(rep(1,4),rep(2,3),rep(3,2),4))
+df=melt(matrix(data=maxcor,nrow=4,byrow=FALSE));names(df)=c("x","y","z")
+df$xlab=as.factor(nindics[df$x]);df$ylab=as.factor(mindics[df$x])
+g = ggplot(df) + scale_fill_gradient(low="yellow",high="red")#+ geom_raster(hjust = 0, vjust = 0) 
+g+geom_raster(aes(x,y,fill=z))+scale_x_discrete(limits=nindics)+scale_y_discrete(limits=mindics)+theme(axis.ticks = element_blank())
 
 
 
@@ -172,11 +186,22 @@ distance<-function(...,cloud){
 realdist = apply(aggres,1,function(r){distance(r["moran"],r["distance"],r["entropy"],r["slope"],cloud=real[,3:6])})
 aggres <- aggres %>% mutate(realdist=realdist)
 # now filter on real dist
-points= which(realdist<0.02)
+points= which(realdist<0.2)
 
 
-g = ggplot(data.frame(x=rcormat[points,1],y=rcormat[points,2],xmin=rcormatmin[points,1],xmax=rcormatmax[points,1],ymin=rcormatmin[points,2],ymax=rcormatmax[points,2],meanCor=apply(rcormat,1,function(l){mean(abs(l))})[points]),aes(x=x,y=y,colour=meanCor))
-g+geom_point()+geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.01)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.01)
+g = ggplot(
+  data.frame(
+    x=rcormat[points,1],
+    y=rcormat[points,2],
+    xmin=rcormatmin[points,1],
+    xmax=rcormatmax[points,1],
+    ymin=rcormatmin[points,2],
+    ymax=rcormatmax[points,2],
+    meanCor=apply(rcormat,1,function(l){mean(abs(l))})[points],
+    realdist=realdist[points]
+    ),
+  aes(x=x,y=y,colour=meanCor,scale=realdist))
+g+geom_point()#+geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.01)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.01)
 
 # same with max-min and max/min and mean absolute corr
 ggplot(data.frame(x=rcormat[,1],y=rcormat[,2],meanCor=apply(rcormat,1,function(l){max(l)-min(l)})),aes(x=x,y=y,colour=meanCor))+geom_point()

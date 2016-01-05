@@ -1,19 +1,54 @@
 extensions [nw]
 
+globals [
+  giant-component-share 
+]
+
+to setup
+  ca reset-ticks
+end
+
 to go
-  crt 100
-  ask turtles [create-link-with one-of (other turtles with [not link-neighbor? myself]) ]
+  ask links [die] ask turtles [die]
+  crt node-number
+  ask turtles [setxy random-xcor random-ycor set shape "circle"
+    if random-float 1 < link-proba [create-link-with one-of (other turtles with [not link-neighbor? myself]) ]
+  ]
+  ;nw:set-context turtles links
+  ;let comp nw:weak-component-clusters
+  ;let i 5
+  ;foreach comp [
+  ;  ask ? [set color i ask my-links [set color i]]
+  ;  set i i + 10 
+  ;]
   nw:set-context turtles links
-  show nw:weak-component-clusters
+end
+
+
+to go-transition
+  setup
+  set link-proba 0.1
+  repeat 20 [
+    set giant-component-share 0
+    repeat repets [
+      go
+      set giant-component-share giant-component-share + max map count nw:weak-component-clusters
+    ]
+    set giant-component-share giant-component-share / repets
+    set link-proba link-proba + 0.05
+    tick
+  ]
+  
+  
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-649
-470
-16
-16
+571
+392
+13
+13
 13.0
 1
 10
@@ -21,18 +56,115 @@ GRAPHICS-WINDOW
 1
 1
 0
+0
+0
 1
-1
-1
--16
-16
--16
-16
+-13
+13
+-13
+13
 0
 0
 1
 ticks
 30.0
+
+BUTTON
+25
+29
+88
+62
+NIL
+go\n
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+18
+85
+190
+118
+link-proba
+link-proba
+0
+1
+1.1000000000000003
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+17
+125
+189
+158
+node-number
+node-number
+10
+10000
+3192
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+18
+168
+190
+201
+repets
+repets
+0
+100
+10
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+585
+25
+912
+256
+giant component size
+link-proba
+NIL
+0.0
+1.0
+0.0
+0.2
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -10022847 true "" "plot giant-component-share / node-number"
+
+BUTTON
+92
+29
+187
+62
+NIL
+go-transition
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
