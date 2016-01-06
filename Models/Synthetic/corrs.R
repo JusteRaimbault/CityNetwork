@@ -52,9 +52,9 @@ indicsdnames = names(aggres)[seq(from=3,to=ncol(aggres),by=2)]
 params <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength>=50]) %>% summarise(
   alphalocalization=mean(alphalocalization),diffusion=mean(diffusion),diffusionsteps=mean(diffusionsteps),citiesNumber=mean(citiesNumber),growthrate=mean(growthrate/population),
   gravityHierarchyExponent=mean(gravityHierarchyExponent),gravityInflexion=mean(gravityInflexion),gravityRadius=mean(gravityRadius),
-  hierarchyRole=mean(hierarchyRole),maxNewLinksNumber=mean(maxNewLinksNumber)
+  hierarchyRole=mean(hierarchyRole),maxNewLinksNumber=mean(maxNewLinksNumber),pop=mean(population)
 )
-parnames = names(params)[2:ncol(params)]
+parnames = names(params)[2:(ncol(params)-1)]
 
 #  compute cov/cor matrix for each point in param space
 
@@ -251,11 +251,41 @@ rsquared = matrix(0,length(parnames),length(indicnames));rownames(rsquared)=parn
 rsqallparams = c();regs=list()
 for(j in 1:ncol(rsquared)){
   regs[[indicnames[j]]]=summary(lm(paste0(indicnames[j],"~",crossing),df))
-  rsqallparams=append(rsqallparams,regs[[indicnames[j]]]$r.squared)
+  rsqallparams=append(rsqallparams,regs[[indicnames[j]]]$adj.r.squared)
   for(i in 1:nrow(rsquared)){
   rsquared[i,j]=summary(lm(paste0(indicnames[j],"~",parnames[i]),df))$r.squared
 }}
+names(rsqallparams)=indicnames
 
+## idem with cross-correlations
+
+# test for linear relations ?
+df=data.frame(cormat[,corrCols],params)
+cornames=names(cormat[,corrCols])
+rsqallparams = c();regs=list()
+for(i in 1:length(cornames)){
+  regs[[cornames[i]]]=summary(lm(paste0(cornames[i],"~",simple),df))
+  rsqallparams=append(rsqallparams,regs[[cornames[i]]]$adj.r.squared)
+}
+names(rsqallparams)=cornames
+
+
+
+# and autocorrs : 
+cormat=nwcormat#denscormat;
+corrCols=2:7
+df=data.frame(cormat[,corrCols],params)
+#simpledens = "alphalocalization+diffusion+diffusionsteps+growthrate"
+#crossdens = "(alphalocalization+diffusion+diffusionsteps+growthrate)^2"
+simplenw = "citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber"
+crossnw = "(citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber)^2"
+cornames=names(cormat[,corrCols])
+rsqallparams = c();regs=list()
+for(i in 1:length(cornames)){
+  regs[[cornames[i]]]=summary(lm(paste0(cornames[i],"~",crossnw),df))
+  rsqallparams=append(rsqallparams,regs[[cornames[i]]]$adj.r.squared)
+}
+names(rsqallparams)=cornames
 
 
 ######
