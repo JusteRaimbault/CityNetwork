@@ -148,13 +148,14 @@ cormat = crosscormat[,2:ncol(crosscormat)]
 
 maxcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max(c)})
 mincor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){min(c)})
+maxabscor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max(abs(c))})
 amplcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max(c)-min(c)})
 
-#df=data.frame(z=unlist(cormat[50,8:17]),x=c(2:5,3:5,4:5,5),y=c(rep(1,4),rep(2,3),rep(3,2),4))
-df=melt(matrix(data=maxcor,nrow=4,byrow=FALSE));names(df)=c("x","y","z")
-df$xlab=as.factor(nindics[df$x]);df$ylab=as.factor(mindics[df$x])
-g = ggplot(df) + scale_fill_gradient(low="yellow",high="red")#+ geom_raster(hjust = 0, vjust = 0) 
-g+geom_raster(aes(x,y,fill=z))+scale_x_discrete(limits=nindics)+scale_y_discrete(limits=mindics)+theme(axis.ticks = element_blank())
+var=amplcor;title = "Amplitude of correlations";purpose="amplitude"
+
+df=melt(matrix(data=var,nrow=4,byrow=FALSE));names(df)=c("x","y","z")
+g = ggplot(df) + scale_fill_gradient(low="yellow",high="red",name=purpose)#+ geom_raster(hjust = 0, vjust = 0) 
+g+geom_raster(aes(x,y,fill=z))+scale_x_discrete(limits=nindics)+scale_y_discrete(limits=mindics)+theme(axis.ticks = element_blank(),panel.background=element_blank(),legend.title=element_text(""))+labs(title=title,x="",y="")
 
 
 
@@ -166,8 +167,8 @@ cormat = crosscormat[,2:ncol(crosscormat)]
 corrCols = 3*(0:floor((ncol(cormat)-1)/3))+1
 pr = prcomp(cormat[,corrCols])
 # normalize
-m = apply(pr$rotation,2,function(col){sum(abs(col))});mm=matrix(data=rep(m,nrow(pr$rotation)),nrow=nrow(pr$rotation),byrow=TRUE)
-rotation=pr$rotation/mm
+#m = apply(pr$rotation,2,function(col){sum(abs(col))});mm=matrix(data=rep(m,nrow(pr$rotation)),nrow=nrow(pr$rotation),byrow=TRUE)
+#rotation=pr$rotation/mm
 rcormat = as.matrix(cormat[,corrCols]) %*% as.matrix(rotation)
 rcormatmin = as.matrix(cormat[,corrCols+1]) %*% as.matrix(rotation)
 rcormatmax = as.matrix(cormat[,corrCols+2]) %*% as.matrix(rotation)
@@ -175,7 +176,7 @@ rcormatmax = as.matrix(cormat[,corrCols+2]) %*% as.matrix(rotation)
 # color according to mean correlation / other?
 #as.tbl(as.data.frame(t(rcormat))) %>% transmute(m=(PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10)/10)
 #apply(rcormat,1,mean)
-npoints = 239;points = sample.int(nrow(rcormat),size=npoints,replace=TRUE)
+npoints = 239;points = sample.int(nrow(rcormat),size=npoints,replace=FALSE)
 # must filter according to extent -> minimize overlap and maximize total extent.
 # Q : what about "real" morpho conf ? 
 # -> select rows close to real points
@@ -186,7 +187,11 @@ distance<-function(...,cloud){
 realdist = apply(aggres,1,function(r){distance(r["moran"],r["distance"],r["entropy"],r["slope"],cloud=real[,3:6])})
 aggres <- aggres %>% mutate(realdist=realdist)
 # now filter on real dist
-points= which(realdist<0.2)
+#points= which(realdist<0.2)
+
+# find points giving an optimal covering with error bars
+# greedy algo : sequentially (in random order), add point if coverage overlaps not too much
+#  -> overlap function, (([xmin,xmax],[ymin,ymax]),cloud)-> overlap
 
 
 g = ggplot(
@@ -198,16 +203,25 @@ g = ggplot(
     ymin=rcormatmin[points,2],
     ymax=rcormatmax[points,2],
     meanCor=apply(rcormat,1,function(l){mean(abs(l))})[points],
-    realdist=realdist[points]
+    extent=apply(rcormat,1,function(l){max(l)-min(l)})[points],
+    maxCor=apply(rcormat,1,function(l){max(l)})[points],
+    minCor=apply(rcormat,1,function(l){min(l)})[points],
+    real=1-realdist[points]
     ),
-  aes(x=x,y=y,colour=meanCor,scale=realdist))
-g+geom_point()#+geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.01)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.01)
+  aes(x=x,y=y,colour=minCor))#,size=real))
+g+geom_point(shape=19)+ scale_color_gradient(low="red",high="yellow",name="min cor")+labs(title="",x="PC1",y="PC2") +geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.01)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.01) #+ scale_size_continuous(range=c(0.8,4),name="real proximity")
 
-# same with max-min and max/min and mean absolute corr
-ggplot(data.frame(x=rcormat[,1],y=rcormat[,2],meanCor=apply(rcormat,1,function(l){max(l)-min(l)})),aes(x=x,y=y,colour=meanCor))+geom_point()
-ggplot(data.frame(x=rcormat[,1],y=rcormat[,2],meanCor=apply(rcormat,1,max)),aes(x=x,y=y,colour=meanCor))+geom_point()
-ggplot(data.frame(x=rcormat[,1],y=rcormat[,2],meanCor=apply(rcormat,1,min)),aes(x=x,y=y,colour=meanCor))+geom_point()
-ggplot(data.frame(x=rcormat[,1],y=rcormat[,2],meanCor=apply(cormat,1,function(l){mean(abs(l))})),aes(x=x,y=y,colour=meanCor))+geom_point()
+
+
+######
+# -- select particular points to run on --
+
+# top-left
+which(rcormat[,1]<(-0.2)&rcormat[,2]>0.1) # := 100
+#bottom-left
+which(rcormat[,1]<(-0.25)&rcormat[,2]<(-0.15)) # := 179
+
+
 
 
 
