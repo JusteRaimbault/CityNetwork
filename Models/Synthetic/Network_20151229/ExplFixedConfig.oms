@@ -1,0 +1,42 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+logger.level("FINE")
+
+
+// brute exploration of network, at fixed density configurations
+
+// import the model
+import NetworkModel._
+
+
+// exploration
+val replication = Val[Int]
+
+// Exploration
+val exploration = ExplorationTask (
+  LHS (
+    600,
+    citiesNumber in Range(50.0, 120.0),
+    gravityRadius in Range(1.0,100.0),
+    gravityInflexion in Range(0.1,10.0),
+    hierarchyRole in Range(0.0,1.0),
+    gravityHierarchyExponent in Range(0.1,4.0),
+    maxNewLinksNumber in Range(4.0,20.0)
+  ) x (replication in (UniformDistribution[Int]() take 10)) x (densityConfig in Seq("1","2","3","4","5","6","7","8","9","10"))
+)
+val purpose = "LHS_LOCAL"
+
+
+val h = AppendToCSVFileHook(workDirectory / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
+
+// env
+val local = LocalEnvironment(20)
+
+// run
+exploration -< (nwModelCapsule on local hook h)
+
+
+
+
+
+

@@ -1,0 +1,36 @@
+// network
+val citiesNumber = Val[Double]
+val gravityRadius = Val[Double]
+val gravityInflexion = Val[Double]
+val hierarchyRole = Val[Double]
+val gravityHierarchyExponent = Val[Double]
+val maxNewLinksNumber = Val[Double]
+
+// density config
+val densityConfig = Val[String]
+
+// indicators
+// morpho indics are directly linked to config ; computed separately
+val nwDiameter = Val[Double]
+val meanPathLength = Val[Double]
+val meanBwCentrality = Val[Double]
+val meanRelativeSpeed = Val[Double]
+val nwLength = Val[Double]
+
+
+// model
+val cmds = List("setup-experiment ${citiesNumber} ${gravityRadius} ${gravityInflexion} ${hierarchyRole} ${gravityHierarchyExponent} ${maxNewLinksNumber} ${densityConfig}","run-experiment")
+val nwModel = NetLogo5Task(workDirectory / "model/HEADLESS_SyntheticNetwork.nlogo", cmds,embedWorkspace = true) set (
+    inputs += (citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,densityConfig),
+    outputs +=(citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,densityConfig),
+    //outputs +=(nwDiameter,meanPathLength,meanBwCentrality,meanRelativeSpeed,nwLength),
+    netLogoOutputs += ("nw-diameter", nwDiameter),
+    netLogoOutputs += ("mean-path-length", meanPathLength),
+    netLogoOutputs += ("mean-bw-centrality",meanBwCentrality),
+    netLogoOutputs += ("mean-relative-speed",meanRelativeSpeed),
+    netLogoOutputs += ("total-nw-length",nwLength)
+)
+
+val nwModelCapsule = Capsule(nwModel)
+
+

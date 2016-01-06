@@ -1,0 +1,218 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+logger.level("FINE")
+
+// exploration with both varying density and parameters
+import density._
+
+
+// Parameters
+val diffusion = Val[Double]
+val diffusionsteps = Val[Double]
+val alphalocalization = Val[Double]
+val growthrate = Val[Double]
+val population = Val[Double]
+
+val replication = Val[Int]
+
+// Reporters
+val moran=Val[Double]
+val distance=Val[Double]
+val entropy=Val[Double]
+val slope=Val[Double]
+val rsquared=Val[Double]
+
+// config file
+val config=Val[File]
+
+
+// network
+val citiesNumber = Val[Double]
+val gravityRadius = Val[Double]
+val gravityInflexion = Val[Double]
+val hierarchyRole = Val[Double]
+val gravityHierarchyExponent = Val[Double]
+val maxNewLinksNumber = Val[Double]
+
+// density config
+val densityConfig = Val[String]
+
+// indicators
+// morpho indics are directly linked to config ; computed separately
+val nwDiameter = Val[Double]
+val meanPathLength = Val[Double]
+val meanBwCentrality = Val[Double]
+val meanRelativeSpeed = Val[Double]
+val nwLength = Val[Double]
+
+// unique id
+val id = Val[Int]
+val idpar = Val[Int]
+
+
+// Model
+val densityModel =
+  ScalaTask(
+    """
+      | import density._
+      | val config = newFile()
+      | val gen = new PADGeneratorLauncher
+      | gen.main(100,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication,config)
+      | val moran = gen.moran
+      | val distance = gen.distance
+      | val entropy = gen.entropy
+      | val slope = gen.slope
+      | val rsquared = gen.rsquared
+    """.stripMargin
+  ) set (
+    imports += "density._",
+    plugins += pluginsOf[PADGeneratorLauncher],
+    inputs += (id,idpar,diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber),
+    outputs += (id,idpar,diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber),
+    outputs += (moran,distance,entropy,slope,rsquared),
+    outputs += config
+  )
+val densityModelCapsule = Capsule(densityModel)
+
+
+// define a specific capsule to copy config out of density model
+//val densityFileHook = CopyFileHook(config,workDirectory / "pop/config_${id}.csv")
+val densityFileTask = ScalaTask("val densityConfig = \""+workDirectory.toString+"/pop/config_\"+input.id+\".csv\" ") set (
+  inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,moran,distance,entropy,slope,rsquared),
+  inputs += (id,idpar,config),
+  outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,moran,distance,entropy,slope,rsquared),
+  outputs += (densityConfig,config,id,idpar)
+)
+
+val copyHook = CopyFileHook(config,workDirectory / "pop/config_${id}.csv")
+
+
+// network model
+val cmds = List("setup-experiment ${citiesNumber} ${gravityRadius} ${gravityInflexion} ${hierarchyRole} ${gravityHierarchyExponent} ${maxNewLinksNumber} \"${densityConfig}\"","run-experiment")
+val nwModel = NetLogo5Task(workDirectory / "model/HEADLESS_SyntheticNetwork.nlogo", cmds,embedWorkspace = true) set (
+    inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,moran,distance,entropy,slope,rsquared,densityConfig,id,idpar),
+    outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,moran,distance,entropy,slope,rsquared,id,idpar),
+    //outputs +=(nwDiameter,meanPathLength,meanBwCentrality,meanRelativeSpeed,nwLength),
+    netLogoOutputs += ("nw-diameter", nwDiameter),
+    netLogoOutputs += ("mean-path-length", meanPathLength),
+    netLogoOutputs += ("mean-bw-centrality",meanBwCentrality),
+    netLogoOutputs += ("mean-relative-speed",meanRelativeSpeed),
+    netLogoOutputs += ("total-nw-length",nwLength)
+)
+
+val nwModelCapsule = Capsule(nwModel)
+
+//val taskFlow = Capsule(densityModelCapsule -- (Capsule(densityFileTask) hook copyHook) -- (nwModelCapsule hook h))
+
+
+val rmPopFile = ScalaTask("val f = new File(\""+workDirectory.toString+"/pop/config_\"+input.id+\".csv\");f.delete()") set (inputs += id)
+
+// replication
+val replicate = ExplorationTask(replication in (UniformDistribution[Int]() take 10)) set (
+  inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,id),outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,id)  
+)
+
+
+/**
+ * Objectives : correlations between 
+ *   \vec{M} = (moran,distance,entropy,slope)
+ *  and \vec{N} = (meanBwCentrality,meanPathLength,meanRelativeSpeed,nwDiameter)
+ *   (discard nw length as not normalized measure)
+ *    
+ * 
+ * 
+ **/
+ 
+ 
+ 
+ 
+
+// 16 scalar objectives ? or directly matrix ? or aggregate measures
+
+val rho_mbw = Val[Double]
+val rho_mpl = Val[Double]
+val rho_mrs = Val[Double]
+val rho_md = Val[Double]
+val rho_dbw = Val[Double]
+val rho_dpl = Val[Double]
+val rho_drs = Val[Double]
+val rho_dd = Val[Double]
+val rho_ebw = Val[Double]
+val rho_epl = Val[Double]
+val rho_ers = Val[Double]
+val rho_ed = Val[Double]
+
+
+
+val aggregate = ScalaTask("""
+     var mi = input.moran(0)*input.moran(0) + input.distance(0)*input.distance(0) + input.entropy(0)*input.entropy(0) + input.slope(0)*input.slope(0)+ input.rsquared(0)*input.rsquared(0)
+     var minIndex = 0
+     val mmoran = input.moran.sum / input.moran.length ; val mdistance = input.distance.sum / input.distance.length ; val mentropy = input.entropy.sum / input.entropy.length ; val mslope = input.slope.sum / input.slope.length ; val mrsquared = input.rsquared.sum / input.rsquared.length
+     for(i <- 0 to (input.moran.length - 1)){
+       val m = (input.moran(i) - mmoran)*(input.moran(i)-mmoran) + (input.distance(i) - mdistance )*(input.distance(i) - mdistance) + (input.entropy(i) - mentropy)*(input.entropy(i) - mentropy) + (input.slope(i) - mslope)*(input.slope(i)- mslope) + (input.rsquared(i) - mrsquared)*(input.rsquared(i) - mrsquared)
+       if(m < mi){
+         minIndex = i;mi = m
+       }
+     }
+     val config = input.config(minIndex)
+     val id = input.id(0)""".stripMargin
+ ) set (
+  inputs += (moran.toArray,distance.toArray,entropy.toArray,slope.toArray,rsquared.toArray,config.toArray,id.toArray),
+  outputs += (config,id)
+)
+
+// replication capsule
+//val replicationCapsule = replicate -< ((densityModelCapsule hook indics_hook) -- (Capsule(densityFileTask) hook copyHook) -- (nwModelCapsule hook h)  -- rmPopFile )  >- (aggregate hook copy_hook)
+
+
+
+// genome
+/*val genome =
+ Genome(
+   diffusion in (0.0, 1.0),
+   alphalocalization in (0.1,5.0),
+   growthrate in (50.0,500.0),
+   populationModel in (1000.0,10000.0),
+   diffusionsteps in (1.0,5.0)
+ )
+ */
+ 
+/*
+val evolution =
+ SteadyStateEvolution(
+   algorithm =   
+     PSE(
+       genome = genome,
+       objectives = Seq(moran,distance,entropy,slope),
+       gridSize = Seq(0.01,0.1, 0.05, 0.05),
+       replication = Replication(seed = replication)
+     ),
+   evaluation = replicationCapsule,
+   termination = 1 hours
+ )
+
+val island = IslandEvolution(evolution, parallelism = 1000, sample = 500, termination = 100000)
+*/
+/*
+val hookCondition = "${generation} % 100 == 0"
+val savePopulation = SavePopulationHook(island, workDirectory /"pse") condition hookCondition
+
+// Define the hook to display the generation in the console
+val display = DisplayHook("Generation ${generation}")
+
+//val grid = EGIEnvironment("vo.complex-systems.eu", cpuTime = 4 hours, openMOLEMemory = 1200)
+//val dirac_grid = DIRACEnvironment("vo.complex-systems.eu","https://ccdiracli06.in2p3.fr:9178", group = "complex_user")
+
+
+// Define the execution
+(island hook savePopulation hook display on dirac_grid)
+
+
+
+
+*/
+
+
+
+
+

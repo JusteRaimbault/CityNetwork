@@ -1,0 +1,117 @@
+
+;;
+;  Indicators
+
+
+to compute-indicators
+  setup-nw-indicators
+  output-print (word "diameter : " nw-diameter)
+  output-print (word "path-length : " mean-path-length)
+  output-print (word "centrality : " mean-bw-centrality)
+  output-print (word "relative speed : " mean-relative-speed)
+  output-print (word "length : " total-nw-length)
+end
+
+
+;; network indicators
+
+to setup-nw-indicators
+  ; put shortest paths in cache
+  nw:set-context cities roads
+  ask roads [set road-length link-length set bw-centrality 0]
+  set shortest-paths table:make set nw-relative-speeds table:make set pairs-total-weight 0
+  let clist to-list cities let i 0 let j 1
+  repeat (length clist - 1) [
+    let c1 item i clist
+    set j i + 1
+    repeat (length clist - i - 1) [
+      let c2 item j clist let path [] ask c1 [set path nw:weighted-path-to c2 "road-length"]
+      let l 0 foreach path [ask ? [set l l + road-length set bw-centrality bw-centrality + 1]]
+      table:put shortest-paths (list [who] of c1 [who] of c2) path table:put shortest-paths (list [who] of c2 [who] of c1) (rev path) set j j + 1
+      let deucl 0 ask c1 [set deucl distance c2]
+      table:put nw-relative-speeds (list [who] of c1 [who] of c2) (deucl / l)
+      set pairs-total-weight pairs-total-weight + [population] of c1 + [population] of c2
+    ]
+    set i i + 1
+  ]
+  
+end
+
+
+;;
+; compute only nw distances
+to compute-nw-distances
+  nw:set-context cities roads
+  ask roads [set road-length link-length]
+  set nw-distances table:make
+  let clist to-list cities let i 0 let j 1
+  repeat (length clist - 1) [
+    let c1 item i clist
+    set j i + 1
+    repeat (length clist - i - 1) [
+      let c2 item j clist let d 0 ask c1 [set d nw:weighted-distance-to c2 "road-length"]
+      table:put nw-distances (list [who] of c1 [who] of c2) d table:put nw-distances (list [who] of c2 [who] of c1) d set j j + 1
+    ]
+    set i i + 1
+  ]
+end
+
+
+
+
+;;
+; nw diameter
+;  Normalized by world diag
+to-report nw-diameter
+  let diag sqrt (world-width ^ 2 + world-height ^ 2)
+  report max map [sum map [[road-length] of ?] ?] (table-values shortest-paths) / diag
+end
+
+
+;;
+; mean path length
+;  Normalized by world diagonal
+to-report mean-path-length
+  let diag sqrt (world-width ^ 2 + world-height ^ 2)
+  report (mean map [sum map [[road-length] of ?] ?] (table-values shortest-paths)) / diag
+end
+
+;;
+;  bw centrality, normalized by number of paths considered
+to-report mean-bw-centrality
+  let n count cities
+  report (mean [bw-centrality] of roads) * 2 / (n * (n - 1))
+end
+
+;;
+; mean relative speed, already normalized
+to-report mean-relative-speed
+  report mean table-values nw-relative-speeds
+end
+
+;;
+; nw length -> not normalized
+to-report total-nw-length
+  report sum [road-length] of roads
+end
+
+
+to export-nw [file-prefix]
+  let cities-coords [(list xcor ycor who)] of cities
+  let roads-ids [(list [who] of end1 [who] of end2)] of roads
+  let cities-file (word file-prefix "_cities.csv")
+  let roads-file (word file-prefix "_roads.csv")
+  
+  foreach cities-coords [
+    print-in-file cities-file implode-with-delimiter ? ";"
+  ]
+  
+  foreach roads-ids [
+    print-in-file roads-file implode-with-delimiter ? ";"
+  ]
+  
+end
+
+
+
+

@@ -1,0 +1,49 @@
+import density._
+
+
+// Parameters
+val diffusion = Val[Double]
+val diffusionsteps = Val[Double]
+val alphalocalization = Val[Double]
+val growthrate = Val[Double]
+val population = Val[Double]
+
+val replication = Val[Int]
+
+// Reporters
+val moran=Val[Double]
+val distance=Val[Double]
+val entropy=Val[Double]
+val slope=Val[Double]
+val rsquared=Val[Double]
+
+// config file
+val config=Val[File]
+
+// Model
+val densityModel =
+  ScalaTask(
+    """
+      | import density._
+      | val config = newFile()
+      | val gen = new PADGeneratorLauncher
+      | gen.main(100,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication,config)
+      | val moran = gen.moran
+      | val distance = gen.distance
+      | val entropy = gen.entropy
+      | val slope = gen.slope
+      | val rsquared = gen.rsquared
+    """.stripMargin
+  ) set (
+    imports += "density._",
+    plugins += pluginsOf[PADGeneratorLauncher],
+    inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication),
+    outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication),
+    outputs += (moran,distance,entropy,slope,rsquared),
+    outputs += config
+  )
+val densityModelCapsule = Capsule(densityModel)
+
+
+
+

@@ -234,18 +234,24 @@ for(p in parnames){
   plots=list()
   for(i in 1:length(indicnames)){
     g=ggplot(data.frame(aggres,params),aes_string(x=p,y=indicnames[i]))
-    plots[[indicnames[i]]]=g+geom_point()+geom_errorbar(aes_string(ymin=paste0(indicnames[i],"-",indicsdnames[i]),ymax=paste0(indicnames[i],"+",indicsdnames[i])),width=(max(params[,p])-min(params[,p]))/25)
+    plots[[indicnames[i]]]=g+geom_point()+geom_errorbar(aes_string(ymin=paste0(indicnames[i],"-",indicsdnames[i]),ymax=paste0(indicnames[i],"+",indicsdnames[i])),width=(max(params[,p])-min(params[,p]))/40)
   }
   multiplot(plotlist = plots,cols = 3)
 }
 
 
+
+
+simple="alphalocalization+diffusion+diffusionsteps+citiesNumber+growthrate+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber"
+crossing="(alphalocalization+diffusion+diffusionsteps+citiesNumber+growthrate+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber)^2"
+
 # test for linear relations ?
 df=data.frame(aggres,params)
 rsquared = matrix(0,length(parnames),length(indicnames));rownames(rsquared)=parnames;colnames(rsquared)=indicnames
-rsqallparams = c()
+rsqallparams = c();regs=list()
 for(j in 1:ncol(rsquared)){
-  rsqallparams=append(rsqallparams,summary(lm(paste0(indicnames[j],"~alphalocalization+diffusion+diffusionsteps+citiesNumber+growthrate+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber"),df))$r.squared)
+  regs[[indicnames[j]]]=summary(lm(paste0(indicnames[j],"~",crossing),df))
+  rsqallparams=append(rsqallparams,regs[[indicnames[j]]]$r.squared)
   for(i in 1:nrow(rsquared)){
   rsquared[i,j]=summary(lm(paste0(indicnames[j],"~",parnames[i]),df))$r.squared
 }}
