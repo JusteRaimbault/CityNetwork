@@ -15,10 +15,10 @@ gres <- as.tbl(res) %>% group_by(idpar)
 
 
 
-hist(aggres$pathlength,breaks=20)
-summary(aggres$pathlengthsd)
+#hist(aggres$pathlength,breaks=20)
+#summary(aggres$pathlengthsd)
 
-plot(aggres[,c(7,9,11,13,15)])
+#plot(aggres[,c(7,9,11,13,15)])
 
 # Test of summarise with list of functions [as strings] -> DOES NOT WORK
 #l=list();l[["m"]]="mean(meanBwCentrality)"
@@ -38,12 +38,15 @@ aggres <- gres  %>% filter(idpar %in% glength$idpar[glength$groupLength>=50]) %>
   relspeed=mean(meanRelativeSpeed),relspeedsd=sd(meanRelativeSpeed),
   diameter=mean(nwDiameter),diametersd=sd(nwDiameter),
   length=mean(nwLength),lengthsd=sd(nwLength),
-  moran=mean(moran),moransd=sd(moran),
-  distance=mean(distance),distancesd=sd(distance),
-  entropy=mean(entropy),entropysd=sd(entropy),
-  slope=mean(slope),slopesd=sd(slope)
+  moranIndex=mean(moran),moransd=sd(moran),
+  distanceMean=mean(distance),distancesd=sd(distance),
+  dentropy=mean(entropy),entropysd=sd(entropy),
+  rslope=mean(slope),slopesd=sd(slope)
 )
-aggres <- aggres %>% filter(!is.na(bw)&!is.na(bws))
+# DO NOT NAME NEW VARS AFTER OLD, AS SUMMARY IS DONE SEQUENTIALLY ON NEWLY CREATED COLUMNS -- SHITTY FEATURE
+#aggres <- aggres %>% filter(!is.na(bw)&!is.na(bws))
+indicnames = names(aggres)[seq(from=2,to=ncol(aggres)-1,by=2)]
+indicsdnames = names(aggres)[seq(from=3,to=ncol(aggres),by=2)]
 
 # parameters
 params <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength>=50]) %>% summarise(
@@ -51,7 +54,7 @@ params <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength>=50]) %>%
   gravityHierarchyExponent=mean(gravityHierarchyExponent),gravityInflexion=mean(gravityInflexion),gravityRadius=mean(gravityRadius),
   hierarchyRole=mean(hierarchyRole),maxNewLinksNumber=mean(maxNewLinksNumber)
 )
-
+parnames = names(params)[2:ncol(params)]
 
 #  compute cov/cor matrix for each point in param space
 
@@ -194,6 +197,10 @@ aggres <- aggres %>% mutate(realdist=realdist)
 #  -> overlap function, (([xmin,xmax],[ymin,ymax]),cloud)-> overlap
 
 
+#for(p in parnames){
+#  
+#  plots=list()
+  
 g = ggplot(
   data.frame(
     x=rcormat[points,1],
@@ -206,10 +213,42 @@ g = ggplot(
     extent=apply(rcormat,1,function(l){max(l)-min(l)})[points],
     maxCor=apply(rcormat,1,function(l){max(l)})[points],
     minCor=apply(rcormat,1,function(l){min(l)})[points],
-    real=1-realdist[points]
+    real=1-realdist[points],
+    params[points,]
     ),
-  aes(x=x,y=y,colour=minCor))#,size=real))
-g+geom_point(shape=19)+ scale_color_gradient(low="red",high="yellow",name="min cor")+labs(title="",x="PC1",y="PC2") +geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.01)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.01) #+ scale_size_continuous(range=c(0.8,4),name="real proximity")
+  aes_string(x="x",y="y",colour=p))
+g+geom_point(shape=19,size=4)+ scale_color_gradient(low="red",high="yellow",name=p)+labs(title="",x="PC1",y="PC2") #+geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.01)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.01) #+ scale_size_continuous(range=c(0.8,4),name="real proximity")
+
+
+#plots[[p]]=g+geom_point(shape=19,size=4)+ scale_color_gradient(low="red",high="yellow",name=p)+labs(title="",x="PC1",y="PC2")
+#multiplot(plotlist = plots,cols = 3)
+#}
+
+
+
+###
+# param influence
+#  !! these are not profiles, can be chaotic !! -> do profiles
+
+for(p in parnames){
+  plots=list()
+  for(i in 1:length(indicnames)){
+    g=ggplot(data.frame(aggres,params),aes_string(x=p,y=indicnames[i]))
+    plots[[indicnames[i]]]=g+geom_point()+geom_errorbar(aes_string(ymin=paste0(indicnames[i],"-",indicsdnames[i]),ymax=paste0(indicnames[i],"+",indicsdnames[i])),width=(max(params[,p])-min(params[,p]))/25)
+  }
+  multiplot(plotlist = plots,cols = 3)
+}
+
+
+# test for linear relations ?
+df=data.frame(aggres,params)
+rsquared = matrix(0,length(parnames),length(indicnames));rownames(rsquared)=parnames;colnames(rsquared)=indicnames
+rsqallparams = c()
+for(j in 1:ncol(rsquared)){
+  rsqallparams=append(rsqallparams,summary(lm(paste0(indicnames[j],"~alphalocalization+diffusion+diffusionsteps+citiesNumber+growthrate+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber"),df))$r.squared)
+  for(i in 1:nrow(rsquared)){
+  rsquared[i,j]=summary(lm(paste0(indicnames[j],"~",parnames[i]),df))$r.squared
+}}
 
 
 
@@ -218,11 +257,12 @@ g+geom_point(shape=19)+ scale_color_gradient(low="red",high="yellow",name="min c
 
 # top-left
 which(rcormat[,1]<(-0.2)&rcormat[,2]>0.1) # := 100
-#bottom-left
+# bottom-left
 which(rcormat[,1]<(-0.25)&rcormat[,2]<(-0.15)) # := 179
-
-
-
+# bottom-right
+which(rcormat[,1]>0.18&rcormat[,2]<(-0.25)) # := 180
+# top-right
+which(rcormat[,1]>0.22&rcormat[,2]>0.1) # := 193
 
 
 # raster colored with param means for a given param
