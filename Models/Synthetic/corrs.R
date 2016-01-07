@@ -1,13 +1,26 @@
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Network'))
 
 #res <- read.csv('20151224_LHSLocal/2015_12_24_19_39_03_LHS_LOCAL.csv')
-res <- read.csv('20151227_LHSDensityNW_Local/2015_12_27_13_50_52_LHS_DENSITYNW_DIRAC.csv')
-#res <- read.csv('20151229_LHSDensityNW/2015_12_29_19_04_41_LHS_DENSITYNW_DIRAC.csv')
+#res <- read.csv('20160106_LHSDensityNW/2016_01_06_21_47_22_LHS_DENSITYNW.csv')
 
-library(dplyr)
-library(ggplot2)
-library(reshape2)
+# load multiple result files
+# and bind them into single tbl -- must incr idpar before to avoid collisions
+files <- c('')
+
+res = as.tbl(read.csv(files[1]))
+currentmaxidpar = max(res[,"idpar"])+1
+for(f in files[2:length(files)]){
+  temp <- as.tbl(read.csv(f))
+  temp[,"idpar"] = temp[,"idpar"]+currentmaxidpar
+  res = bind_rows(res,temp)
+  currentmaxidpar = max(res[,"idpar"])+1
+}
+
 
 gres <- as.tbl(res) %>% group_by(idpar)
   #citiesNumber,densityConfig,gravityHierarchyExponent,gravityInflexion,gravityRadius,hierarchyRole,maxNewLinksNumber,
@@ -26,7 +39,7 @@ gres <- as.tbl(res) %>% group_by(idpar)
 
 # need to filter on group size
 glength <- gres %>% summarise(groupLength = length(idpar))
-glength$idpar[glength$groupLength==50]
+glength$idpar[glength$groupLength==80]
 
 
 
@@ -101,7 +114,7 @@ crosscormat <- gres  %>% filter(idpar %in% glength$idpar[glength$groupLength>=50
 )
 
 
-summary(cormat[1,8:17])
+#summary(cormat[1,8:17])
 
 cormat = crosscormat
 
@@ -154,7 +167,7 @@ mincor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){min
 maxabscor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max(abs(c))})
 amplcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max(c)-min(c)})
 
-var=amplcor;title = "Amplitude of correlations";purpose="amplitude"
+var=mincor;title = "Amplitude of correlations";purpose="amplitude"
 
 df=melt(matrix(data=var,nrow=4,byrow=FALSE));names(df)=c("x","y","z")
 g = ggplot(df) + scale_fill_gradient(low="yellow",high="red",name=purpose)#+ geom_raster(hjust = 0, vjust = 0) 
@@ -172,6 +185,7 @@ pr = prcomp(cormat[,corrCols])
 # normalize
 #m = apply(pr$rotation,2,function(col){sum(abs(col))});mm=matrix(data=rep(m,nrow(pr$rotation)),nrow=nrow(pr$rotation),byrow=TRUE)
 #rotation=pr$rotation/mm
+rotation=pr$rotation
 rcormat = as.matrix(cormat[,corrCols]) %*% as.matrix(rotation)
 rcormatmin = as.matrix(cormat[,corrCols+1]) %*% as.matrix(rotation)
 rcormatmax = as.matrix(cormat[,corrCols+2]) %*% as.matrix(rotation)
@@ -179,7 +193,8 @@ rcormatmax = as.matrix(cormat[,corrCols+2]) %*% as.matrix(rotation)
 # color according to mean correlation / other?
 #as.tbl(as.data.frame(t(rcormat))) %>% transmute(m=(PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10)/10)
 #apply(rcormat,1,mean)
-npoints = 239;points = sample.int(nrow(rcormat),size=npoints,replace=FALSE)
+npoints = nrow(cormat)
+points = sample.int(nrow(rcormat),size=npoints,replace=FALSE)
 # must filter according to extent -> minimize overlap and maximize total extent.
 # Q : what about "real" morpho conf ? 
 # -> select rows close to real points
@@ -187,7 +202,7 @@ npoints = 239;points = sample.int(nrow(rcormat),size=npoints,replace=FALSE)
 distance<-function(...,cloud){
   return(min(apply(cloud,1,function(r){sqrt(sum((r-c(...))^2))})))
 }
-realdist = apply(aggres,1,function(r){distance(r["moran"],r["distance"],r["entropy"],r["slope"],cloud=real[,3:6])})
+realdist = apply(aggres,1,function(r){distance(r["moranIndex"],r["distanceMean"],r["dentropy"],r["rslope"],cloud=real[,3:6])})
 aggres <- aggres %>% mutate(realdist=realdist)
 # now filter on real dist
 #points= which(realdist<0.2)
@@ -197,9 +212,8 @@ aggres <- aggres %>% mutate(realdist=realdist)
 #  -> overlap function, (([xmin,xmax],[ymin,ymax]),cloud)-> overlap
 
 
+#plots=list()
 #for(p in parnames){
-#  
-#  plots=list()
   
 g = ggplot(
   data.frame(
@@ -217,12 +231,13 @@ g = ggplot(
     params[points,]
     ),
   aes_string(x="x",y="y",colour=p))
-g+geom_point(shape=19,size=4)+ scale_color_gradient(low="red",high="yellow",name=p)+labs(title="",x="PC1",y="PC2") #+geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.01)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.01) #+ scale_size_continuous(range=c(0.8,4),name="real proximity")
+g+geom_point(shape=19,size=4)+ scale_color_gradient(low="red",high="yellow",name="real")+labs(title="",x="PC1",y="PC2") +geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.05)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.05) #+ scale_size_continuous(range=c(0.8,4),name="real proximity")
 
 
 #plots[[p]]=g+geom_point(shape=19,size=4)+ scale_color_gradient(low="red",high="yellow",name=p)+labs(title="",x="PC1",y="PC2")
-#multiplot(plotlist = plots,cols = 3)
 #}
+#multiplot(plotlist = plots,cols = 4)
+
 
 
 
@@ -250,7 +265,7 @@ df=data.frame(aggres,params)
 rsquared = matrix(0,length(parnames),length(indicnames));rownames(rsquared)=parnames;colnames(rsquared)=indicnames
 rsqallparams = c();regs=list()
 for(j in 1:ncol(rsquared)){
-  regs[[indicnames[j]]]=summary(lm(paste0(indicnames[j],"~",crossing),df))
+  regs[[indicnames[j]]]=summary(lm(paste0(indicnames[j],"~",simple),df))
   rsqallparams=append(rsqallparams,regs[[indicnames[j]]]$adj.r.squared)
   for(i in 1:nrow(rsquared)){
   rsquared[i,j]=summary(lm(paste0(indicnames[j],"~",parnames[i]),df))$r.squared
