@@ -6,16 +6,19 @@ library(reshape2)
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Network'))
 
 #res <- read.csv('20151224_LHSLocal/2015_12_24_19_39_03_LHS_LOCAL.csv')
-#res <- read.csv('20160106_LHSDensityNW/2016_01_06_21_47_22_LHS_DENSITYNW.csv')
+res <- read.csv('20160106_LHSDensityNW/data/2016_01_06_21_47_22_LHS_DENSITYNW.csv')
 
 # load multiple result files
 # and bind them into single tbl -- must incr idpar before to avoid collisions
-files <- c('')
+resdir='20160106_LHSDensityNW/data/'
+files <- list.files(resdir)
+#res <- read.csv(paste0(resdir,files[4]))
 
-res = as.tbl(read.csv(files[1]))
+
+res = as.tbl(read.csv(paste0(resdir,files[1])))
 currentmaxidpar = max(res[,"idpar"])+1
 for(f in files[2:length(files)]){
-  temp <- as.tbl(read.csv(f))
+  temp <- as.tbl(read.csv(paste0(resdir,f)))
   temp[,"idpar"] = temp[,"idpar"]+currentmaxidpar
   res = bind_rows(res,temp)
   currentmaxidpar = max(res[,"idpar"])+1
@@ -166,8 +169,10 @@ maxcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max
 mincor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){min(c)})
 maxabscor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max(abs(c))})
 amplcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max(c)-min(c)})
+meanabscor=amplcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){mean(abs(c))})
 
-var=mincor;title = "Amplitude of correlations";purpose="amplitude"
+
+var=meanabscor;title = "Amplitude of correlations";purpose="amplitude"
 
 df=melt(matrix(data=var,nrow=4,byrow=FALSE));names(df)=c("x","y","z")
 g = ggplot(df) + scale_fill_gradient(low="yellow",high="red",name=purpose)#+ geom_raster(hjust = 0, vjust = 0) 
@@ -212,8 +217,8 @@ aggres <- aggres %>% mutate(realdist=realdist)
 #  -> overlap function, (([xmin,xmax],[ymin,ymax]),cloud)-> overlap
 
 
-#plots=list()
-#for(p in parnames){
+plots=list()
+for(p in parnames){
   
 g = ggplot(
   data.frame(
@@ -231,12 +236,12 @@ g = ggplot(
     params[points,]
     ),
   aes_string(x="x",y="y",colour=p))
-g+geom_point(shape=19,size=4)+ scale_color_gradient(low="red",high="yellow",name="real")+labs(title="",x="PC1",y="PC2") +geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.05)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.05) #+ scale_size_continuous(range=c(0.8,4),name="real proximity")
+#g+geom_point(shape=19,size=4)+ scale_color_gradient(low="red",high="yellow",name="real")+labs(title="",x="PC1",y="PC2")# +geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.05)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.05) #+ scale_size_continuous(range=c(0.8,4),name="real proximity")
 
 
-#plots[[p]]=g+geom_point(shape=19,size=4)+ scale_color_gradient(low="red",high="yellow",name=p)+labs(title="",x="PC1",y="PC2")
-#}
-#multiplot(plotlist = plots,cols = 4)
+plots[[p]]=g+geom_point(shape=19,size=4)+ scale_color_gradient(low="red",high="yellow",name=p)+labs(title="",x="PC1",y="PC2")
+}
+multiplot(plotlist = plots,cols = 4)
 
 
 
