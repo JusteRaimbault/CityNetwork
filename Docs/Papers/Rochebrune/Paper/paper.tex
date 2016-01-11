@@ -106,6 +106,18 @@ La figure~\ref{fig:effective_corrs} donne les correlations effectives calculées
 
 %%%%%%%%%%%%%%%%%%%
 \begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{figures/asset/ex_filtering}
+\caption{\textbf{Exemple de la structure multi-scalaire du signal qui sert de base à la construction des signaux synthétiques | } Les \emph{log-prix} sont représentés sur environ 3h pour la journée du 1er novembre 2015 pour l'actif EUR/USD, ainsi que les tendances à 10min (violet) et à 30min.}
+\label{fig:example_signal}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%%%%%%%%%%%%%%%%%%%
+\begin{figure}
 % figure : effective correlations, with confidence intervals (bootstrap), for the 3 filtering scales. ; AND expected corrected corrs from derivation above.
 
 \caption{}
@@ -147,12 +159,13 @@ Dans notre cas, nous proposons de générer des systèmes de villes représenté
 \paragraph{Modèle de densité}
 
 L'utilisation d'un modèle $D$ type aggrégation-diffusion~\cite{batty2006hierarchy} permet de générer une distribution discrete de densité. Dans \cite{}, %cit Working Paper ?
-une généralisation de ce modèle est calibré pour des objectifs morphologiques $M$ (entropie, hiérarchie, auto-corrélation spatiale, distance moyenne) contre les valeurs réelles calculées sur l'ensemble des grilles de taille 50km extraites de la grille européenne de densité~\cite{eurostat}. Plus précisément, le modèle fonctionne de manière itérative de la façon suivante. Une grille initialement vide de côté $N$, est représentée par la données des populations $(P_i(t))_{1\leq i\leq N^2}$. A chaque pas de temps,
+une généralisation de ce modèle est calibré pour des objectifs morphologiques $M$ (entropie, hiérarchie, auto-corrélation spatiale, distance moyenne) contre les valeurs réelles calculées sur l'ensemble des grilles de taille 50km extraites de la grille européenne de densité~\cite{eurostat}. Plus précisément, le modèle fonctionne de manière itérative de la façon suivante. Une grille initialement vide de côté $N$, est représentée par la données des populations $(P_i(t))_{1\leq i\leq N^2}$. A chaque pas de temps, jusqu'à ce que la population atteigne une valeur fixée $P_m$,
 \begin{itemize}
 \item la population totale $P(t)$ est augmentée d'un nombre fixé $N_G$ (taux de croissance), suivant un attachement préférentiel tel que $\Pb{P_i(t+1)=P_i(t)+1|P(t+1)=P(t)+1}=\frac{(P_i(t)/P(t))^{\alpha}}{\sum(P_i(t)/P(t))^{\alpha}}$
-
+\item une diffusion d'une fraction $\beta$ de la population aux 4 plus proches voisins est effectuée $n_d$ fois
 \end{itemize}
 
+Les deux processus antagonistes de concentration et d'étalement urbain sont capturés par le modèle, ce qui permet de reproduire assez fidèlement un grand nombre de morphologies existantes.
 
 
 \paragraph{Modèle de réseau}
@@ -171,6 +184,13 @@ On distribue un nombre fixé de noeuds de manière aléatoire en suivant la loi 
 % detail network generation process
 
 % idea -> generate continuous center distribution given density as proba distribution ; tree-connexify network deterministically ; apply local loops and gravity-based adjustements. (check params to have enough degrees of freedom for a custom of global network measures. diameter or euclidian perf ?
+
+
+
+
+\paragraph{Espace des paramètres}
+
+
 
 
 
@@ -204,13 +224,35 @@ A densité fixée, les premières explorations de l'espace des paramètres du mo
 
 %%%%%%%%%%%%%%
 \begin{figure}
-\subfloat[][]{\includegraphics[width=0.28\textwidth]{figures/hist_crossCorMat}}
-\subfloat[][]{\includegraphics[width=0.33\textwidth]{figures/heatmap_maxAbsCor}}
-\subfloat[][]{\includegraphics[width=0.33\textwidth]{figures/heatmap_amplCor}}\\
-\subfloat[][]{\includegraphics[width=0.33\textwidth]{figures/pca_meanAbsCor_errorBars}}
-\subfloat[][]{\includegraphics[width=0.33\textwidth]{figures/pca_realDistSize_meanAbsCor}}
 
+\begin{subfigure}[t]{0.35\linewidth}
+\includegraphics[width=\textwidth]{figures/hist_crossCorMat}
 \caption{}
+\end{subfigure}
+\begin{subfigure}[t]{0.23\linewidth}
+\vspace{-6.5cm}
+\includegraphics[width=\textwidth]{figures/heatmap_maxAbsCor}\\
+\includegraphics[width=\textwidth]{figures/heatmap_amplCor}
+\caption{}
+\end{subfigure}
+\begin{subfigure}[t]{0.4\linewidth}
+\includegraphics[width=\textwidth]{figures/pca_meanAbsCor_errorBars}
+\caption{}
+\end{subfigure}\\
+\begin{subfigure}[t]{0.54\linewidth}
+\includegraphics[width=\textwidth]{figures/pca_realDistCol_meanAbsCorSize_withSpecificPoints}
+\caption{}
+\end{subfigure}
+\begin{subfigure}[t]{0.45\linewidth}
+\vspace{-8.3cm}
+   \includegraphics[width=0.49\textwidth]{figures/configs/1_param71861_seed0}
+   \includegraphics[width=0.49\textwidth]{figures/configs/2_param71913_seed10}\\
+   \includegraphics[width=0.49\textwidth]{figures/configs/3_param71918_seed0}
+   \includegraphics[width=0.49\textwidth]{figures/configs/4_param71945_seed0}
+   \caption{}
+\end{subfigure}
+
+\caption{\small\textbf{Exploration de l'espace des corrélations entre forme urbaine et réseau | } \textbf{(a)} Distribution des correlations croisées entre les vecteurs $\vec{M}$ des indicateurs morphologiques (dans l'ordre index de moran, distance moyenne, entropie, hiérarchie) et $\vec{N}$ des mesures de réseau (centralité, longueur moyenne, vitesse, diamètre). \textbf{(b)} Amplitude des corrélations, définie comme $a_{ij}=\max_k{\rho_{ij}^{(k)}}-\min_k{\rho_{ij}^{(k)}}$, et correlation absolue maximale, $c_{ij}=\max_k\left| \right|$. \textbf{(c)} Représentation des matrices dans un plan principal obtenu par Analyse en Composantes Principales sur la population des matrices (variances cumulées: PC1=38\%, PC2=68\%). Les barres d'erreur sont calculées initialement par des intervalles de confiance à 95\% sur chaque élément de la matrice (par une méthode de Fisher asymptotique standard), puis les bornes supérieures sont prises dans le plan principal. L'échelle de couleur donne la correlation absolue moyenne sur l'ensemble des variables. \textbf{(d)} }
 \label{fig:densnwcor}
 \end{figure}
 %%%%%%%%%%%%%%
@@ -262,6 +304,7 @@ On a ainsi proposé une méthode abstraite de génération de données synthéti
 
 
 
+\newpage
 
 
 %%%%%%%%%%%%%%%%%%%%

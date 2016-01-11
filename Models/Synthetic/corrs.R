@@ -1,12 +1,12 @@
 library(dplyr)
 library(ggplot2)
 library(reshape2)
-
+library(boot)
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Network'))
 
 #res <- read.csv('20151224_LHSLocal/2015_12_24_19_39_03_LHS_LOCAL.csv')
-res <- read.csv('20160106_LHSDensityNW/data/2016_01_06_21_47_22_LHS_DENSITYNW.csv')
+#res <- read.csv('20160106_LHSDensityNW/data/2016_01_06_21_47_22_LHS_DENSITYNW.csv')
 
 # load multiple result files
 # and bind them into single tbl -- must incr idpar before to avoid collisions
@@ -24,17 +24,9 @@ for(f in files[2:length(files)]){
   currentmaxidpar = max(res[,"idpar"])+1
 }
 
+nrep=80
 
-gres <- as.tbl(res) %>% group_by(idpar)
-  #citiesNumber,densityConfig,gravityHierarchyExponent,gravityInflexion,gravityRadius,hierarchyRole,maxNewLinksNumber,
-  #alphalocalization,)
-
-
-
-#hist(aggres$pathlength,breaks=20)
-#summary(aggres$pathlengthsd)
-
-#plot(aggres[,c(7,9,11,13,15)])
+gres <- as.tbl(res) %>% filter(meanBwCentrality<=1) %>% group_by(idpar)
 
 # Test of summarise with list of functions [as strings] -> DOES NOT WORK
 #l=list();l[["m"]]="mean(meanBwCentrality)"
@@ -42,13 +34,13 @@ gres <- as.tbl(res) %>% group_by(idpar)
 
 # need to filter on group size
 glength <- gres %>% summarise(groupLength = length(idpar))
-glength$idpar[glength$groupLength==80]
+length(glength$idpar[glength$groupLength==nrep])
 
 
 
 
 #aggregated summary vars 
-aggres <- gres  %>% filter(idpar %in% glength$idpar[glength$groupLength>=50]) %>% summarise(
+aggres <- gres  %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>% summarise(
   bw = mean(meanBwCentrality),bws=sd(meanBwCentrality),
   pathlength = mean(meanPathLength),pathlengthsd = sd(meanPathLength),
   relspeed=mean(meanRelativeSpeed),relspeedsd=sd(meanRelativeSpeed),
@@ -65,7 +57,7 @@ indicnames = names(aggres)[seq(from=2,to=ncol(aggres)-1,by=2)]
 indicsdnames = names(aggres)[seq(from=3,to=ncol(aggres),by=2)]
 
 # parameters
-params <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength>=50]) %>% summarise(
+params <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>% summarise(
   alphalocalization=mean(alphalocalization),diffusion=mean(diffusion),diffusionsteps=mean(diffusionsteps),citiesNumber=mean(citiesNumber),growthrate=mean(growthrate/population),
   gravityHierarchyExponent=mean(gravityHierarchyExponent),gravityInflexion=mean(gravityInflexion),gravityRadius=mean(gravityRadius),
   hierarchyRole=mean(hierarchyRole),maxNewLinksNumber=mean(maxNewLinksNumber),pop=mean(population)
@@ -76,28 +68,28 @@ parnames = names(params)[2:(ncol(params)-1)]
 
 # nw block
 #  no nwLength for the sake of simplicity
-nwcormat <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength>=50]) %>% summarise(
+nwcormat <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>% summarise(
         cor12 = cor(meanBwCentrality,meanPathLength),
         cor13 = cor(meanBwCentrality,meanRelativeSpeed),
         cor14 = cor(meanBwCentrality,nwDiameter),
         cor23 = cor(meanPathLength,meanRelativeSpeed),
         cor24 = cor(meanPathLength,nwDiameter),
         cor34 = cor(meanRelativeSpeed,nwDiameter)
-     )  #%>% filter(!is.na(cor12)&!is.na(cor13)&!is.na(cor14)&!is.na(cor23)&!is.na(cor24)&!is.na(cor34))
+     )
 
 # density block
-denscormat <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength>=50]) %>%  summarise(
+denscormat <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>%  summarise(
     cor12 = cor(moran,distance),
     cor13 = cor(moran,entropy),
     cor14 = cor(moran,slope),
     cor23 = cor(distance,entropy),
     cor24 = cor(distance,slope),
     cor34 = cor(entropy,slope)
-) #%>% filter(!is.na(cor12)&!is.na(cor13)&!is.na(cor14)&!is.na(cor23)&!is.na(cor24)&!is.na(cor34))
+) 
 
 
 # cross correlations -- hardcore with CIs
-crosscormat <- gres  %>% filter(idpar %in% glength$idpar[glength$groupLength>=50]) %>% summarise(
+crosscormat <- gres  %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>% summarise(
    cor15 = cor.test(meanBwCentrality,moran,method="pearson",conf.level=0.95)$estimate,cor15min = cor.test(meanBwCentrality,moran,method="pearson",conf.level=0.95)$conf.int[1],cor15max = cor.test(meanBwCentrality,moran,method="pearson",conf.level=0.95)$conf.int[2],
    cor16 = cor.test(meanBwCentrality,distance,method="pearson",conf.level=0.95)$estimate,cor16min = cor.test(meanBwCentrality,distance,method="pearson",conf.level=0.95)$conf.int[1],cor16max = cor.test(meanBwCentrality,distance,method="pearson",conf.level=0.95)$conf.int[2],
    cor17 = cor.test(meanBwCentrality,entropy,method="pearson",conf.level=0.95)$estimate,cor17min = cor.test(meanBwCentrality,entropy,method="pearson",conf.level=0.95)$conf.int[1],cor17max = cor.test(meanBwCentrality,entropy,method="pearson",conf.level=0.95)$conf.int[2],
@@ -126,7 +118,10 @@ cormat = crosscormat
 # -> log normal ? COMPARE WITH NULL MODEL ? which one ?
 par(mfrow=c(4,4))
 for(j in 0:(ncol(cormat)/3 - 1)){
-  hist(cormat[[colnames(cormat)[3*j+2]]],breaks=30,main=colnames(cormat)[3*j+2],xlab="")
+  d=cormat[[colnames(cormat)[3*j+2]]]
+  hist(d,breaks=30,main=colnames(cormat)[3*j+2],xlab="")
+  abline(v=mean(d),col="red")
+  
   #corj = cormat[[colnames(cormat)[j]]];show(mean(corj))
   #rho = mean(corj)
   # simulate correlated vectors of same size
@@ -172,13 +167,14 @@ amplcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){ma
 meanabscor=amplcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){mean(abs(c))})
 
 
-var=meanabscor;title = "Amplitude of correlations";purpose="amplitude"
+var=mincor;title = "Minimal correlations";purpose="min cor"
 
 df=melt(matrix(data=var,nrow=4,byrow=FALSE));names(df)=c("x","y","z")
 g = ggplot(df) + scale_fill_gradient(low="yellow",high="red",name=purpose)#+ geom_raster(hjust = 0, vjust = 0) 
 g+geom_raster(aes(x,y,fill=z))+scale_x_discrete(limits=nindics)+scale_y_discrete(limits=mindics)+theme(axis.ticks = element_blank(),panel.background=element_blank(),legend.title=element_text(""))+labs(title=title,x="",y="")
 
 
+%dgres = gres  %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep])
 
 cormat = crosscormat[,2:ncol(crosscormat)]
 #cormat = nwcormat[,2:17]
@@ -192,8 +188,17 @@ pr = prcomp(cormat[,corrCols])
 #rotation=pr$rotation/mm
 rotation=pr$rotation
 rcormat = as.matrix(cormat[,corrCols]) %*% as.matrix(rotation)
-rcormatmin = as.matrix(cormat[,corrCols+1]) %*% as.matrix(rotation)
-rcormatmax = as.matrix(cormat[,corrCols+2]) %*% as.matrix(rotation)
+#rcormatmin = as.matrix(cormat[,corrCols+1]) %*% as.matrix(rotation)
+#rcormatmax = as.matrix(cormat[,corrCols+2]) %*% as.matrix(rotation)
+sigma1=apply(cormat[,corrCols+2]-cormat[,corrCols+1],1,function(r){sqrt(sum((r*c(rotation[,1]))^2))})
+sigma2=apply(cormat[,corrCols+2]-cormat[,corrCols+1],1,function(r){sqrt(sum((r*c(rotation[,2]))^2))})
+
+# bootstrap CI
+#summary(boot(rcormat,function(data,i){data[i,1]},1000))
+
+
+
+
 #plot(rcormat[,1],rcormat[,2])
 # color according to mean correlation / other?
 #as.tbl(as.data.frame(t(rcormat))) %>% transmute(m=(PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10)/10)
@@ -215,33 +220,65 @@ aggres <- aggres %>% mutate(realdist=realdist)
 # find points giving an optimal covering with error bars
 # greedy algo : sequentially (in random order), add point if coverage overlaps not too much
 #  -> overlap function, (([xmin,xmax],[ymin,ymax]),cloud)-> overlap
+overlap <- function(extent,cloud){
+   res = 0
+   if(length(cloud)>0){
+   for(i in 1:length(cloud)){
+     xd = max(extent[1],cloud[[i]][1])-min(extent[2],cloud[[i]][2])
+     yd = max(extent[3],cloud[[i]][3])-min(extent[4],cloud[[i]][4])
+     if(xd>0&yd>0){res=max(res,xd*yd)}
+   }
+   }
+   return(res)
+}
+
+overlapthreshold = 0.1
+points=c();cloud=list()
+for(i in 1:nrow(rcormat)){
+   a=abs((rcormatmax[i,1]-rcormatmin[i,1])*(rcormatmax[i,2]-rcormatmin[i,2]))
+   r=c(rcormatmin[i,1],rcormatmax[i,1],rcormatmin[i,2],rcormatmax[i,2])
+   show(overlap(r,cloud)/a)
+   if(overlap(r,cloud)/a<overlapthreshold){
+     points=append(points,i);cloud[[as.character(i)]]=r
+   }
+}
 
 
-plots=list()
-for(p in parnames){
+
+
+
+#plots=list()
+#for(p in parnames[c(1,2,3,4,5,7,8,9,10,6)]){
   
+colvar="real";colname="real proximity"
+sizevar="meanCor";sizename="mean abs cor";sizerange=c(0.8,4)
+
 g = ggplot(
   data.frame(
     x=rcormat[points,1],
     y=rcormat[points,2],
-    xmin=rcormatmin[points,1],
-    xmax=rcormatmax[points,1],
-    ymin=rcormatmin[points,2],
-    ymax=rcormatmax[points,2],
-    meanCor=apply(rcormat,1,function(l){mean(abs(l))})[points],
-    extent=apply(rcormat,1,function(l){max(l)-min(l)})[points],
-    maxCor=apply(rcormat,1,function(l){max(l)})[points],
-    minCor=apply(rcormat,1,function(l){min(l)})[points],
+    xmin=rcormat[points,1]-sigma1,#rcormatmin[points,1],
+    xmax=rcormat[points,1]+sigma1,#rcormatmax[points,1],
+    ymin=rcormat[points,2]-sigma2,#rcormatmin[points,2],
+    ymax=rcormat[points,2]+sigma2,#rcormatmax[points,2],
+    meanCor=apply(cormat,1,function(l){mean(abs(l))})[points],
+    extent=apply(cormat,1,function(l){max(l)-min(l)})[points],
+    maxCor=apply(cormat,1,function(l){max(l)})[points],
+    minCor=apply(cormat,1,function(l){min(l)})[points],
     real=1-realdist[points],
     params[points,]
     ),
-  aes_string(x="x",y="y",colour=p))
-#g+geom_point(shape=19,size=4)+ scale_color_gradient(low="red",high="yellow",name="real")+labs(title="",x="PC1",y="PC2")# +geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.05)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.05) #+ scale_size_continuous(range=c(0.8,4),name="real proximity")
-
-
-plots[[p]]=g+geom_point(shape=19,size=4)+ scale_color_gradient(low="red",high="yellow",name=p)+labs(title="",x="PC1",y="PC2")
-}
-multiplot(plotlist = plots,cols = 4)
+  aes_string(x="x",y="y"
+             ,colour=colvar
+             #,colour=p
+             #,size=sizevar
+            )
+  )
+g+geom_point(shape=19)+ scale_color_gradient(low="yellow",high="red",name=colname)+labs(title="",x="PC1",y="PC2")+geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.05)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.05)##+ scale_size_continuous(range=sizerange,name=sizename)#
+ 
+#plots[[p]]=g+geom_point(shape=3,size=3)+ scale_color_gradient(low="yellow",high="red",name=p)+labs(title="",x="PC1",y="PC2")
+#}
+#multiplot(plotlist = plots,cols = 4)
 
 
 
@@ -259,6 +296,34 @@ for(p in parnames){
   multiplot(plotlist = plots,cols = 3)
 }
 
+
+###
+# param influence on raw corrs
+
+cornames = c("cor15","cor16","cor17","cor18",
+              "cor25","cor26","cor27","cor28",
+              "cor35","cor36","cor37","cor38",
+              "cor45","cor46","cor47","cor48"   
+            )
+
+corminnames = paste0(cornames,"min")
+cormaxnames = paste0(cornames,"max")
+
+for(p in parnames){
+  plots=list()
+  for(i in 1:length(cornames)){
+    g=ggplot(data.frame(crosscormat,params),aes_string(x=p,y=cornames[i]))
+    plots[[cornames[i]]]=g+geom_point()+geom_errorbar(aes_string(ymin=corminnames[i],ymax=cormaxnames[i]),width=(max(params[,p])-min(params[,p]))/40)
+  }
+  multiplot(plotlist = plots,cols = 4)
+}
+
+
+
+
+##########
+# Regressions
+#
 
 
 
@@ -311,35 +376,39 @@ names(rsqallparams)=cornames
 ######
 # -- select particular points to run on --
 
-# top-left
-which(rcormat[,1]<(-0.2)&rcormat[,2]>0.1) # := 100
 # bottom-left
-which(rcormat[,1]<(-0.25)&rcormat[,2]<(-0.15)) # := 179
-# bottom-right
-which(rcormat[,1]>0.18&rcormat[,2]<(-0.25)) # := 180
-# top-right
-which(rcormat[,1]>0.22&rcormat[,2]>0.1) # := 193
+which(rcormat[,1]<(-1.6)&rcormat[,2]<(-1.1)) # := 256
+# right - close to real
+which(rcormat[,1]>0.1&realdist<0.2) # := 313
+#top-left
+which(rcormat[,1]<(-1.5)&rcormat[,2]>1.2) # := 308
 
 
+
+
+
+
+
+################
 # raster colored with param means for a given param
-paramspoints=params[points,]
-param="maxNewLinksNumber";resolution = 5;
-xmin=min(rcormat[points,1])/2;xmax=max(rcormat[points,1])/2;
-ymin=min(rcormat[points,2])/2;ymax=max(rcormat[points,2])/2;
+#paramspoints=params[points,]
+#param="maxNewLinksNumber";resolution = 5;
+#xmin=min(rcormat[points,1])/2;xmax=max(rcormat[points,1])/2;
+#ymin=min(rcormat[points,2])/2;ymax=max(rcormat[points,2])/2;
 # construct z data by local aggregation
-xcoords = seq(from=xmin,to=xmax,length.out=resolution)+((xmax-xmin)/(2*(resolution - 1)));xres=(xmax-xmin)/(2*(resolution - 1))
-ycoords = seq(from=ymin,to=ymax,length.out=resolution)+((ymax-ymin)/(2*(resolution - 1)));yres=(ymax-ymin)/(2*(resolution - 1))
-zmat=matrix(0,length(xcoords),length(ycoords))
-for(x in 1:nrow(zmat)){for(y in 1:ncol(zmat)){
-  zmat[x,y]=mean(unlist(paramspoints[which(abs(xcoords[x]-rcormat[points,1])<xres&abs(ycoords[y]-rcormat[points,2])<yres),param]))
-}}
+#xcoords = seq(from=xmin,to=xmax,length.out=resolution)+((xmax-xmin)/(2*(resolution - 1)));xres=(xmax-xmin)/(2*(resolution - 1))
+#ycoords = seq(from=ymin,to=ymax,length.out=resolution)+((ymax-ymin)/(2*(resolution - 1)));yres=(ymax-ymin)/(2*(resolution - 1))
+#zmat=matrix(0,length(xcoords),length(ycoords))
+#for(x in 1:nrow(zmat)){for(y in 1:ncol(zmat)){
+#  zmat[x,y]=mean(unlist(paramspoints[which(abs(xcoords[x]-rcormat[points,1])<xres&abs(ycoords[y]-rcormat[points,2])<yres),param]))
+#}}
 
-df<-melt(zmat);names(df)=c("x","y","z")
+#df<-melt(zmat);names(df)=c("x","y","z")
 #df[is.nan(df[,"z"]),"z"]=0
 #as.tbl(as.data.frame(rcormat[points,])) %>% filter(abs(xcoords[1]-PC1)<xres)
 #df=data.frame(x=rcormat[points,1],y=rcormat[points,2],params[points,param]);names(df)=c("x","y","z")
-g = ggplot(df,aes(x=x, y=y, z = z))
-g+stat_contour(aes(colour=..level..),bins=20)
+#g = ggplot(df,aes(x=x, y=y, z = z))
+#g+stat_contour(aes(colour=..level..),bins=20)
 
 
 ##########
@@ -347,13 +416,13 @@ g+stat_contour(aes(colour=..level..),bins=20)
 #  plot(mean(abs(cor))) agaisnt parameters -> uniform point cloud 
 #
 #  very shitty in all cases. -> due to repets number : non-significance of corrs, just random conditioned on params ?
-fixedConf = 10
-ldf = data.frame(y=apply(cormat[which(cormat[,2]==fixedConf),8:17],1,function(l){mean(abs(l))}),cormat[which(cormat[,2]==fixedConf),1:7])
-l = lm(y~1+citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber,ldf)
-summary(l)
-hist(apply(cormat[,8:17],1,function(l){mean(abs(l))}),breaks=50)
-hist(apply(cormat[,8:17],1,function(l){mean(l)}),breaks=50)
-hist(apply(cormat[which(cormat[,2]==fixedConf),8:17],1,function(l){mean(abs(l))}),breaks=50)
+#fixedConf = 10
+#ldf = data.frame(y=apply(cormat[which(cormat[,2]==fixedConf),8:17],1,function(l){mean(abs(l))}),cormat[which(cormat[,2]==fixedConf),1:7])
+#l = lm(y~1+citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber,ldf)
+#summary(l)
+#hist(apply(cormat[,8:17],1,function(l){mean(abs(l))}),breaks=50)
+#hist(apply(cormat[,8:17],1,function(l){mean(l)}),breaks=50)
+#hist(apply(cormat[which(cormat[,2]==fixedConf),8:17],1,function(l){mean(abs(l))}),breaks=50)
 # cor = 1 -> issue in data ? otherwise mean corr seems relatively gaussian with zero mean.
 
 
