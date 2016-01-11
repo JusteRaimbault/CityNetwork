@@ -69,19 +69,59 @@ ou des extensions raffinées pour cette application précise~\cite{tumminello200
 \subsubsection{Formalisation}
 
 
-Considérons un réseau d'actifs $(X_i(t))_{1\leq i \leq N}$ échantillonnés à haute fréquence (typiquement 1s), vus comme la superposition de signaux à des multiples échelles temporelles : $X_i=\sum_{\omega}{X_i^{\omega}}$ sur lesquels est appliqué un modèle de prédiction de tendance à une échelle temporelle $\omega_0$ donnée, représenté formellement comme un estimateur $M_{\omega_0} : (X_i) \mapsto \hat{X_i}$ dont l'objectif est la minimisation de l'erreur sur la tendance réelle $X_i^{\omega}$. Dans le cas d'estimateurs auto-regressifs multivariés, la performance dépendra entre autre des correlations respectives entre actifs et on peut alors l'estimer en appliquant la méthode. On assume une dynamique de Black-Scholes pour les actifs : $dX = \sigma\cdot dW$ avec $W$ processus de Wiener. Il est alors aisé de générer $\tilde{X}_i$ tel que $\Varb{\tilde{X}_i^{\omega_0}}=\Sigma R$ ($\Sigma$ variance estimée et $R$ matrice de corrélation fixée), par la simulation de processus de Wiener au niveau de corrélation fixé et tel que $X_i^{\omega < \omega_0} = \tilde{X}_i^{\omega < \omega_0}$ (critère de proximité au données : les composantes à plus basse fréquence sont identiques). En effet, si $W_1 \indep W_1^{\indep}$, alors $W_2 = \rho_{12}W_1 + \sqrt{1-\rho_{12}^2}W_1^{\indep}$ est tel que $\rho(W_1,W_2)=\rho_{12}$. Les signaux suivants sont construits de la même manière par orthonormalisation de Gram. On isole alors la composante de la première fréquence $\omega_1 < \omega_0$ par filtrage, et on reconstruit les signaux synthétiques par $\tilde{X}_i = [\sum_{\omega<\omega_1}X_i^{\omega}]+\tilde{X}_i^{\omega_0}$.
+Considérons un réseau d'actifs $(X_i(t))_{1\leq i \leq N}$ échantillonnés à haute fréquence (typiquement 1s), vus comme la superposition de signaux à des multiples échelles temporelles : $X_i=\sum_{\omega}{X_i^{\omega}}$ sur lesquels est appliqué un modèle de prédiction de tendance à une échelle temporelle $\omega_0$ donnée, représenté formellement comme un estimateur $M_{\omega_0} : (X_i) \mapsto \hat{X_i}$ dont l'objectif est la minimisation de l'erreur sur la tendance réelle $X_i^{\omega}$. Dans le cas d'estimateurs auto-regressifs multivariés, la performance dépendra entre autre des correlations respectives entre actifs et on peut alors l'estimer en appliquant la méthode. On assume une dynamique de Black-Scholes pour les actifs : $dX = \sigma\cdot dW$ avec $W$ processus de Wiener. Il est alors aisé de générer $\tilde{X}_i$ tel que $\Varb{\tilde{X}_i^{\omega_0}}=\Sigma R$ ($\Sigma$ variance estimée et $R$ matrice de corrélation fixée), par la simulation de processus de Wiener au niveau de corrélation fixé et tel que $X_i^{\omega < \omega_0} = \tilde{X}_i^{\omega < \omega_0}$ (critère de proximité au données : les composantes à plus basse fréquence sont identiques). En effet, si $dW_1 \indep dW_1^{\indep}$, alors $W_2 = \rho_{12}W_1 + \sqrt{1-\frac{\sigma_1^2}{\sigma_2^2}\cdot\rho_{12}^2}W_1^{\indep}$ est tel que $\rho(dW_1,dW_2)=\rho_{12}$. Les signaux suivants sont construits de la même manière par orthonormalisation de Gram. On isole alors la composante de la première fréquence $\omega_1 < \omega_0$ par filtrage, et on reconstruit les signaux synthétiques par $\tilde{X}_i = [\sum_{\omega<\omega_1}X_i^{\omega}]+\tilde{X}_i^{\omega_0}$.
+% TODO pb signal reconstruction, clarify formalisation.
 
 
 \subsubsection{Implémentation et Résultats}
 
-La méthode est testée sur un exemple de deux actifs du marché des devises (EUR/USD et EUR/GBP), sur une période de 6 mois de juin 2015 à novembre 2015.
+\paragraph{Méthodologie}
 
- permettant d'obtenir un bruit sur les corrélations finales négligeable.
+La méthode est testée sur un exemple de deux actifs du marché des devises (EUR/USD et EUR/GBP), sur une période de 6 mois de juin 2015 à novembre 2015. Le nettoyage des données\footnote{obtenues sous licence }% TODO check historical data licence
+, originellement échantillonnées à l'ordre de la seconde, consiste dans un premier temps à la détermination du support temporel commun maximal (les séquences manquantes étant alors ignorées, par translation verticale des séries, i.e. $S(t):=S(t)\cdot \frac{S(t_{n})}{S(t_{n-1})}$ lorsque $t_{n-1},t_n$ sont les extrémités du ``trou'' et $S(t)$ la valeur de l'actif, ce qui revient à garder la contrainte d'avoir des retours à pas de temps similaires entre actifs). On étudie alors les \emph{log-prix} et \emph{log-retours}, définis par $X(t):=\log{\frac{S(t)}{S_0}}$ et $\Delta X (t) = X(t) - X(t-1)$. Les données brutes sont filtrées à une fréquence $\omega = 10\textrm{min}$ (qui sera la fréquence maximale d'étude) pour un souci de performance computationnelle. On fixe $\omega_0=12\textrm{h}$ et on se propose de construire des données synthétiques aux fréquences $\omega_1 = 30\textrm{min},1\textrm{h},2\textrm{h}$. Il est crucial de noter l'interférence entre les fréquences $\omega_0$ et $\omega_1$ dans le signal construit : la correlation effectivement estimée est
+\[
+\rho_{e} = \rho \left[  \right]
+\]
+ce qui permet de dériver dans la limite raisonnable $\sigma_1 \gg \sigma_0$, la correction sur la correlation
+
+% TODO : explain which estimator
+
+% TODO : formalize arma model.
 
 
+\paragraph{Implémentation}
 
-Le test sur une dimension plus grande doit encore être implémenté, ainsi que l'application à l'étude de la performance de modèle prédictif.
+L'implémentation est faite en language R, utilisant en particulier la bibliothèque~\cite{}% TODO cit MTS package
+ pour les modèles de séries temporelles. Les données nettoyées et le code source sont disponibles de manière ouverte sur le dépôt \texttt{git} du projet\footnote{at \texttt{https://github.com/JusteRaimbault/SynthAsset}}
 
+\paragraph{Résultats}
+
+La figure~\ref{fig:effective_corrs} donne les correlations effectives calculées sur les données synthétiques.
+% comment
+
+% fig:model_perf : application à la perf de l'arma.
+
+% implication thématiques et développements possibles
+
+
+%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+% figure : effective correlations, with confidence intervals (bootstrap), for the 3 filtering scales. ; AND expected corrected corrs from derivation above.
+
+\caption{}
+\label{fig:effective_corrs}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+% figure : performance of arma2 as a function of expected correlation.
+
+\caption{}
+\label{fig:model_perf}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -95,7 +135,7 @@ Le test sur une dimension plus grande doit encore être implémenté, ainsi que 
 \subsubsection{Contexte}
 
 
-En géographie, l'utilisation de données synthétiques est plus généralement axée vers l'utilisation de population synthétiques au sein de modèles basés agents (mobilité, modèles \emph{LUTI})~\cite{pritchard2009advances}. Il a récemment été proposé de contrôler systématiquement les effets de la configuration spatiale sur le comportement de modèles de simulation spatialisés~\cite{cottineau2015revisiting}, méthodologie pouvant être interprétée comme un contrôle par données statistiques spatiales.
+En géographie, l'utilisation de données synthétiques est plus généralement axée vers l'utilisation de population synthétiques au sein de modèles basés agents (mobilité, modèles \emph{LUTI})~\cite{pritchard2009advances}. Il a récemment été proposé de contrôler systématiquement les effets de la configuration spatiale sur le comportement de modèles de simulation spatialisés~\cite{cottineau2015revisiting}, méthodologie pouvant être interprétée comme un contrôle par données statistiques spatiales. L'enjeu est de pouvoir alors distinguer effets propres dus à la dynamique intrinsèque du modèle, d'effet particuliers dus à la structure géographique du cas d'application. Celui-ci est crucial pour la validation des conclusions issues des pratiques de modélisation et simulation en géographie quantitative.
 
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -107,7 +147,12 @@ Dans notre cas, nous proposons de générer des systèmes de villes représenté
 \paragraph{Modèle de densité}
 
 L'utilisation d'un modèle $D$ type aggrégation-diffusion~\cite{batty2006hierarchy} permet de générer une distribution discrete de densité. Dans \cite{}, %cit Working Paper ?
-une généralisation de ce modèle est calibré pour des objectifs morphologiques $M$ (entropie, hiérarchie, auto-corrélation spatiale, distance moyenne) contre les valeurs réelles calculées sur l'ensemble des grilles de taille 50km extraites de la grille européenne de densité~\cite{eurostat}.
+une généralisation de ce modèle est calibré pour des objectifs morphologiques $M$ (entropie, hiérarchie, auto-corrélation spatiale, distance moyenne) contre les valeurs réelles calculées sur l'ensemble des grilles de taille 50km extraites de la grille européenne de densité~\cite{eurostat}. Plus précisément, le modèle fonctionne de manière itérative de la façon suivante. Une grille initialement vide de côté $N$, est représentée par la données des populations $(P_i(t))_{1\leq i\leq N^2}$. A chaque pas de temps,
+\begin{itemize}
+\item la population totale $P(t)$ est augmentée d'un nombre fixé $N_G$ (taux de croissance), suivant un attachement préférentiel tel que $\Pb{P_i(t+1)=P_i(t)+1|P(t+1)=P(t)+1}=\frac{(P_i(t)/P(t))^{\alpha}}{\sum(P_i(t)/P(t))^{\alpha}}$
+
+\end{itemize}
+
 
 
 \paragraph{Modèle de réseau}
@@ -140,10 +185,20 @@ Le couplage des modèles génératifs est effectué à la fois au niveau formel 
 %%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Résultats}
 
-L'étude du modèle de densité est développée dans~\cite{}.
+L'étude du modèle de densité est développée dans~\cite{}.% TODO
 
 
-A densité fixée, les premières exploration de l'espace des paramètres du modèle de réseau synthétique suggèrent une assez bonne flexibilité sur des indicateurs globaux $G$ (diamètre, longueur cumulée, centralité moyenne, degré moyen). L'exploration systématique via le logiciel OpenMole~\cite{reuillon2013openmole} par calcul intensif est un travail en cours, ainsi que la calibration contre les mesures réelles calculées sur l'ensemble de l'Europe sur des zones identiques au modèle de densité, via les données de réseau routier d'OpenStreetMap. La connaissance très fine ainsi obtenue du comportement de $N$ (distribution statistiques sur une grille fine de l'espace des paramètres à trois dimensions), devrait permettre, étant donné une population de configuration de densités $\tilde{D}$, de déterminer via $N^{<-1>}$ une population de réseau $\tilde{N}$ telle que $\Covb{M}{G}$ a une structure fixée (via la détermination de la valeur des paramètres à utiliser pour chaque individu de $\tilde{D}$). On pourra éventuellement appliquer des algorithmes plus fins d'exploration pour atteindre des configurations exceptionelles réalisant un niveau de corrélation voulu~\cite{10.1371/journal.pone.0138212}. Les indicateurs globaux devraient ainsi être corrélés à un niveau contrôlé, tandis que les densités et réseaux restent cohérents dans l'espace de par la forme du réseau, conditionnelle à la distribution de densité. Les applications géographiques potentielles de cette implémentation de la méthode incluent le contrôle statistique de l'effet des corrélations entre ville et réseaux sur des modèles de simulation spatiaux par exemple.
+
+%%%%%%%%%%%%%%%%
+\begin{figure}
+% figure : density example, exploration and calibration ?
+
+
+\end{figure}
+%%%%%%%%%%%%%%%%
+
+
+A densité fixée, les premières explorations de l'espace des paramètres du modèle de réseau synthétique suggèrent une assez bonne flexibilité sur des indicateurs globaux $G$ (diamètre, longueur cumulée, centralité moyenne, degré moyen). L'exploration systématique via le logiciel OpenMole~\cite{reuillon2013openmole} par calcul intensif est un travail en cours, ainsi que la calibration contre les mesures réelles calculées sur l'ensemble de l'Europe sur des zones identiques au modèle de densité, via les données de réseau routier d'OpenStreetMap. La connaissance très fine ainsi obtenue du comportement de $N$ (distribution statistiques sur une grille fine de l'espace des paramètres à trois dimensions), devrait permettre, étant donné une population de configuration de densités $\tilde{D}$, de déterminer via $N^{<-1>}$ une population de réseau $\tilde{N}$ telle que $\Covb{M}{G}$ a une structure fixée (via la détermination de la valeur des paramètres à utiliser pour chaque individu de $\tilde{D}$). On pourra éventuellement appliquer des algorithmes plus fins d'exploration pour atteindre des configurations exceptionelles réalisant un niveau de corrélation voulu~\cite{10.1371/journal.pone.0138212}. Les indicateurs globaux devraient ainsi être corrélés à un niveau contrôlé, tandis que les densités et réseaux restent cohérents dans l'espace de par la forme du réseau, conditionnelle à la distribution de densité. Les applications géographiques potentielles de cette implémentation de la méthode incluent le contrôle statistique de l'effet des corrélations entre ville et réseaux sur des modèles de simulation spatiaux par exemple.
 
 
 
@@ -183,6 +238,12 @@ A densité fixée, les premières exploration de l'espace des paramètres du mod
 
 % ideas of other fields where the generation can happen.
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Positionnement}
+
+% données hybrides au centre de la démarche d'exploration de modèle, analyse de sensitivité etc.
 
 
 
