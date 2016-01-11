@@ -195,7 +195,7 @@ city-max-pop
 city-max-pop
 0
 10000
-657.8817847954786
+1972.5291408113446
 1
 1
 NIL
@@ -210,7 +210,7 @@ SLIDER
 #-cities
 0
 1000
-63
+91
 1
 1
 NIL
@@ -237,7 +237,7 @@ BUTTON
 1293
 289
 generate
-ca\ngenerate-synthetic-euclidian-network
+ca random-seed seed\ngenerate-synthetic-euclidian-network\ndisplay-network
 NIL
 1
 T
@@ -272,7 +272,7 @@ gravity-radius
 gravity-radius
 0
 10000
-76
+74
 1
 1
 NIL
@@ -287,7 +287,7 @@ sp-growth-rate
 sp-growth-rate
 500
 3000
-2936
+1137
 1
 1
 NIL
@@ -302,8 +302,8 @@ sp-alpha-localization
 sp-alpha-localization
 0
 4
-1.4
-0.1
+1.55
+0.01
 1
 NIL
 HORIZONTAL
@@ -332,8 +332,8 @@ sp-diffusion
 sp-diffusion
 0
 0.5
-0.1
-0.05
+0.24
+0.01
 1
 NIL
 HORIZONTAL
@@ -488,7 +488,7 @@ gravity-hierarchy-exponent
 gravity-hierarchy-exponent
 0
 10
-0.47
+1.07
 0.01
 1
 NIL
@@ -584,7 +584,7 @@ hierarchy-role
 hierarchy-role
 0
 1
-0.26
+0.02
 0.01
 1
 NIL
@@ -599,7 +599,7 @@ gravity-inflexion
 gravity-inflexion
 0
 10
-3.8
+1.3
 0.1
 1
 NIL
@@ -614,7 +614,7 @@ SLIDER
 #-max-new-links
 0
 100
-13
+12
 1
 1
 NIL
@@ -656,7 +656,7 @@ sp-max-pop
 sp-max-pop
 10000
 100000
-15700
+61000
 100
 1
 NIL
@@ -737,6 +737,17 @@ NIL
 NIL
 NIL
 1
+
+INPUTBOX
+1142
+256
+1199
+316
+seed
+999
+1
+0
+Number
 
 @#$#@#$#@
 ## WHAT IS IT?
