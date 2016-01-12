@@ -37,7 +37,7 @@ public class BibTeXParser implements BiblioParser {
 	 * @param s
 	 * @return
 	 */
-	public static Reference parseBibtexString(String s){
+	public static Reference parseBibtexString(String s) throws Exception {
 		try{
 			//System.out.println("Parsing :\n"+s);
 			org.jbibtex.BibTeXParser bibtexParser = new org.jbibtex.BibTeXParser();
@@ -54,9 +54,10 @@ public class BibTeXParser implements BiblioParser {
 	
 	public static void main(String[] args){
 		// test the bibtexString parser
+		try{
 		Reference r=parseBibtexString("@ref{title={titre test},year={2016}}");
 		System.out.println(r);System.out.println(r.year);
-		
+		}catch(Exception e){}
 	}
 	
 	
