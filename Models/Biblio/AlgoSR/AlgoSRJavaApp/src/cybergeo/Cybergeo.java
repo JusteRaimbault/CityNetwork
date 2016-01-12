@@ -180,6 +180,37 @@ public class Cybergeo {
 		
 	}
 	
+	
+	
+	/**
+	 * Get only citing refs - used for impact factor.
+	 * 
+	 * @param bibFile
+	 * @param database
+	 * @param numrefs
+	 */
+	public static void fillCitingRefsSQLExport(String bibFile,String database,int numrefs){
+		 CybergeoCorpus cybergeo = (CybergeoCorpus) setup(bibFile,numrefs);
+		 cybergeo.name="cybergeo";
+		 Corpus completed = SQLImporter.sqlImportPrimary(database, "cybergeo", "1",-1,true);
+
+		 for(Reference cybref:cybergeo.references){
+			 Log.stdout(cybref+" - status :"+checkStatus(cybref,completed));
+			 if(!checkStatus(cybref,completed)){
+				 CybergeoCorpus c = new CybergeoCorpus(cybref);
+				 c.fillCitingRefs();
+				 SQLExporter.export(c, database,"cybergeo","refs", "links","status", true);		
+			 }
+		 }
+
+
+		 Log.purpose("runtime", "Finished at "+(new Date()).toString());
+		 
+		 
+	}
+	
+	
+	
 	/**
 	 * constructs full network, progressively inserting it in sql.
 	 * assumed database structure : cybergeo : (id,title,year), refs : (id,title,year), links :(citing,cited)
@@ -343,6 +374,9 @@ public class Cybergeo {
 		//String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_refsAsBib_ids.ris";
 		//String outfile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/processed/networks/testfull_1refs_"+(new Date().toString().replaceAll(" ", "-"))+".gexf"; 
 		
+		String bibFile = System.getenv("CS_HOME")+"/Cybergeo/cybergeo20/Data/bib/fullbase_withRefs_origTitles.ris";
+		fillCitingRefsSQLExport(bibFile,"cybergeo",-1);
+		
 		//fullNetwork(bibFile,outfile,1);
 	
 
@@ -355,7 +389,7 @@ public class Cybergeo {
 		
 		//SQLConverter.sqlToGexf("test_cyb1","res/sql/testSqlToGexf.gexf");
 		
-		fillAbstractsSQLExport("cybergeo");
+		//fillAbstractsSQLExport("cybergeo");
 		
 	}
 

@@ -271,11 +271,11 @@ g = ggplot(
   aes_string(x="x",y="y"
              ,colour=colvar
              #,colour=p
-             #,size=sizevar
+             ,size=sizevar
             )
   )
-g+geom_point(shape=19)+ scale_color_gradient(low="yellow",high="red",name=colname)+labs(title="",x="PC1",y="PC2")+geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.05)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.05)##+ scale_size_continuous(range=sizerange,name=sizename)#
- 
+g+geom_point(shape=19)+ scale_color_gradient(low="yellow",high="red",name=colname)+labs(title="",x="PC1",y="PC2")+ scale_size_continuous(range=sizerange,name=sizename)#
+#+geom_errorbar(aes(ymin=ymin,ymax=ymax),width=0.05)+geom_errorbarh(aes(xmin=xmin,xmax=xmax),height=0.05)##
 #plots[[p]]=g+geom_point(shape=3,size=3)+ scale_color_gradient(low="yellow",high="red",name=p)+labs(title="",x="PC1",y="PC2")
 #}
 #multiplot(plotlist = plots,cols = 4)
@@ -331,45 +331,55 @@ simple="alphalocalization+diffusion+diffusionsteps+citiesNumber+growthrate+gravi
 crossing="(alphalocalization+diffusion+diffusionsteps+citiesNumber+growthrate+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber)^2"
 
 # test for linear relations ?
+regression=crossing
+
 df=data.frame(aggres,params)
 rsquared = matrix(0,length(parnames),length(indicnames));rownames(rsquared)=parnames;colnames(rsquared)=indicnames
-rsqallparams = c();regs=list()
+rsqallparams = c();arsqallparams = c();regs=list()
 for(j in 1:ncol(rsquared)){
-  regs[[indicnames[j]]]=summary(lm(paste0(indicnames[j],"~",simple),df))
-  rsqallparams=append(rsqallparams,regs[[indicnames[j]]]$adj.r.squared)
-  for(i in 1:nrow(rsquared)){
-  rsquared[i,j]=summary(lm(paste0(indicnames[j],"~",parnames[i]),df))$r.squared
-}}
+  regs[[indicnames[j]]]=summary(lm(paste0(indicnames[j],"~",regression),df))
+  arsqallparams=append(arsqallparams,regs[[indicnames[j]]]$adj.r.squared)
+  rsqallparams=append(rsqallparams,regs[[indicnames[j]]]$r.squared)
+  #for(i in 1:nrow(rsquared)){
+  #rsquared[i,j]=summary(lm(paste0(indicnames[j],"~",parnames[i]),df))$adj.r.squared}
+}
 names(rsqallparams)=indicnames
+names(arsqallparams)=indicnames
 
 ## idem with cross-correlations
 
 # test for linear relations ?
+regression=crossing
 df=data.frame(cormat[,corrCols],params)
 cornames=names(cormat[,corrCols])
-rsqallparams = c();regs=list()
+rsqallparams = c();arsqallparams = c();regs=list()
 for(i in 1:length(cornames)){
-  regs[[cornames[i]]]=summary(lm(paste0(cornames[i],"~",simple),df))
-  rsqallparams=append(rsqallparams,regs[[cornames[i]]]$adj.r.squared)
+  regs[[cornames[i]]]=summary(lm(paste0(cornames[i],"~",regression),df))
+  arsqallparams=append(arsqallparams,regs[[cornames[i]]]$adj.r.squared)
+  rsqallparams=append(rsqallparams,regs[[cornames[i]]]$r.squared)
 }
 names(rsqallparams)=cornames
-
-
+names(arsqallparams)=cornames
 
 # and autocorrs : 
-cormat=nwcormat#denscormat;
+#cormat=nwcormat
+cormat=denscormat;
 corrCols=2:7
 df=data.frame(cormat[,corrCols],params)
-#simpledens = "alphalocalization+diffusion+diffusionsteps+growthrate"
-#crossdens = "(alphalocalization+diffusion+diffusionsteps+growthrate)^2"
+simpledens = "alphalocalization+diffusion+diffusionsteps+growthrate"
+crossdens = "(alphalocalization+diffusion+diffusionsteps+growthrate)^2"
 simplenw = "citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber"
 crossnw = "(citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber)^2"
+regression=simpledens
+
 cornames=names(cormat[,corrCols])
-rsqallparams = c();regs=list()
+rsqallparams = c();arsqallparams=c();regs=list()
 for(i in 1:length(cornames)){
-  regs[[cornames[i]]]=summary(lm(paste0(cornames[i],"~",crossnw),df))
-  rsqallparams=append(rsqallparams,regs[[cornames[i]]]$adj.r.squared)
+  regs[[cornames[i]]]=summary(lm(paste0(cornames[i],"~",regression),df))
+  arsqallparams=append(arsqallparams,regs[[cornames[i]]]$adj.r.squared)
+  rsqallparams=append(rsqallparams,regs[[cornames[i]]]$r.squared)
 }
+names(arsqallparams)=cornames
 names(rsqallparams)=cornames
 
 
@@ -382,7 +392,8 @@ which(rcormat[,1]<(-1.6)&rcormat[,2]<(-1.1)) # := 256
 which(rcormat[,1]>0.1&realdist<0.2) # := 313
 #top-left
 which(rcormat[,1]<(-1.5)&rcormat[,2]>1.2) # := 308
-
+# mid
+which(rcormat[,1]>(-1.0)&rcormat[,1]<(-0.8)&rcormat[,2]<0.0&rcormat[,2]>(-0.1)) # := 340
 
 
 
