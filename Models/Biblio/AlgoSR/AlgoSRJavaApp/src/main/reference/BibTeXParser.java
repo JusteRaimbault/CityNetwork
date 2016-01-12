@@ -38,7 +38,7 @@ public class BibTeXParser implements BiblioParser {
 	 * @return
 	 */
 	public static Reference parseBibtexString(String s) throws Exception {
-		try{
+		//try{
 			//System.out.println("Parsing :\n"+s);
 			org.jbibtex.BibTeXParser bibtexParser = new org.jbibtex.BibTeXParser();
 			BibTeXDatabase database = bibtexParser.parse(new StringReader(s));
@@ -47,7 +47,7 @@ public class BibTeXParser implements BiblioParser {
 			String t = (entry.getField(BibTeXEntry.KEY_TITLE)).toUserString();
 			String y = (entry.getField(BibTeXEntry.KEY_YEAR)).toUserString();
 			return new GhostReference(t,y);
-		}catch(Exception e){e.printStackTrace();return null;}
+		//}catch(Exception e){e.printStackTrace();return null;}
 	}
 	
 	
