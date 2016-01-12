@@ -64,7 +64,7 @@ Soit un processus stochastique multidimensionnel $\vec{X}_I$ (l'ensemble d'index
 %%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Contexte}
 
-Un premier domaine d'application proposé pour notre méthode est celui des séries temporelles financières, signaux typiques de systèmes complexes hétérogènes et multiscalaires~\cite{mantegna2000introduction} et pour lesquels les corrélations ont fait l'objet d'abondants travaux. Ainsi, l'application de la théorie des matrices aléatoires peut permettre de débruiter, ou du moins d'estimer la part de signal noyée dans le bruit, une matrice de correlations pour un grand nombre d'actifs échantillonnés à faible fréquence (retours journaliers par exemple)~\cite{2009arXiv0910.1205B}. De même, l'analyse de réseaux complexes construits à partir des corrélations, selon des méthodes type arbre couvrant minimal~\cite{2001PhyA..299...16B} ou des extensions raffinées pour cette application précise~\cite{tumminello2005tool}, ont permis d'obtenir des résultats prometteurs, tels la reconstruction de la structure économique des secteurs d'activités. A haute fréquence, l'estimation précise de paramètres d'interdépendance dans le cadre d'hypothèses fixées sur la dynamique, fait l'objet d'importants travaux théoriques dans un but de raffinement théorique des estimateurs~\cite{barndorff2011multivariate}. Les résultats théoriques doivent alors être testés sur des jeux de données synthétiques, qui permettent de contrôler un certain nombre de paramètres et de s'assurer qu'un effet prédit par la théorie est bien observable \emph{toutes choses égales par ailleurs}. Par exemple, \cite{potiron2015estimation} dérive une correction du biais de l'estimateur de \emph{Hayashi-Yoshida} qui est un estimateur de la covariance de deux browniens corrélés à haute fréquence dans le cas de temps d'observation asynchrones, par démonstration d'un théorème de la limite centrale pour un modèle généralisé endogénéisant les temps d'observations. La confirmation empirique de l'amélioration de l'estimateur est alors obtenue sur un jeu de données synthétiques à un niveau de corrélation fixé.
+Un premier domaine d'application proposé pour notre méthode est celui des séries temporelles financières, signaux typiques de systèmes complexes hétérogènes et multiscalaires~\cite{mantegna2000introduction} et pour lesquels les corrélations ont fait l'objet d'abondants travaux. Ainsi, l'application de la théorie des matrices aléatoires peut permettre de débruiter, ou du moins d'estimer la part de signal noyée dans le bruit, une matrice de correlations pour un grand nombre d'actifs échantillonnés à faible fréquence (retours journaliers par exemple)~\cite{2009arXiv0910.1205B}. De même, l'analyse de réseaux complexes construits à partir des corrélations, selon des méthodes type arbre couvrant minimal~\cite{2001PhyA..299...16B} ou des extensions raffinées pour cette application précise~\cite{tumminello2005tool}, ont permis d'obtenir des résultats prometteurs, tels la reconstruction de la structure économique des secteurs d'activités. A haute fréquence, l'estimation précise de paramètres d'interdépendance dans le cadre d'hypothèses fixées sur la dynamique, fait l'objet d'importants travaux théoriques dans un but de raffinement des modèles et des estimateurs~\cite{barndorff2011multivariate}. Les résultats théoriques doivent alors être testés sur des jeux de données synthétiques, qui permettent de contrôler un certain nombre de paramètres et de s'assurer qu'un effet prédit par la théorie est bien observable \emph{toutes choses égales par ailleurs}. Par exemple, \cite{potiron2015estimation} dérive une correction du biais de l'estimateur de \emph{Hayashi-Yoshida} qui est un estimateur de la covariance de deux browniens corrélés à haute fréquence dans le cas de temps d'observation asynchrones, par démonstration d'un théorème de la limite centrale pour un modèle généralisé endogénéisant les temps d'observations. La confirmation empirique de l'amélioration de l'estimateur est alors obtenue sur un jeu de données synthétiques à un niveau de corrélation fixé.
 
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -86,16 +86,18 @@ Il est alors aisé de générer $\tilde{X}_i$ tel que $\Varb{\tilde{X}_i^{\omega
 
 La méthode est testée sur un exemple de deux actifs du marché des devises (EUR/USD et EUR/GBP), sur une période de 6 mois de juin 2015 à novembre 2015. Le nettoyage des données\footnote{obtenues depuis \texttt{http://www.histdata.com/}, sans licence spécifiée, les données nettoyées et filtrées à $\omega_m$ uniquement sont mises en accessibilité pour respect du copyright.}, originellement échantillonnées à l'ordre de la seconde, consiste dans un premier temps à la détermination du support temporel commun maximal (les séquences manquantes étant alors ignorées, par translation verticale des séries, i.e. $S(t):=S(t)\cdot \frac{S(t_{n})}{S(t_{n-1})}$ lorsque $t_{n-1},t_n$ sont les extrémités du ``trou'' et $S(t)$ la valeur de l'actif, ce qui revient à garder la contrainte d'avoir des retours à pas de temps similaires entre actifs). On étudie alors les \emph{log-prix} et \emph{log-retours}, définis par $X(t):=\log{\frac{S(t)}{S_0}}$ et $\Delta X (t) = X(t) - X(t-1)$. Les données brutes sont filtrées à une fréquence $\omega_m = 10\textrm{min}$ (qui sera la fréquence maximale d'étude) pour un souci de performance computationnelle. On fixe $\omega_0=12\textrm{h}$ et on se propose de construire des données synthétiques aux fréquences $\omega_1 = 30\textrm{min},1\textrm{h},2\textrm{h}$. Il est crucial de noter l'interférence entre les fréquences $\omega_0$ et $\omega_1$ dans le signal construit : la correlation effectivement estimée est
 \[
-\rho_{e} = \rho \left[ \Delta \tilde{X}_1 , \Delta \tilde{X}_2 \right] = \rho \left[ X_1^{\omega_0} + \sum_{\omega_0 < \omega < \omega_1} \tilde{X}_1^{\omega} ,  X_2^{\omega_0} + \sum_{\omega_0 < \omega < \omega_1} \tilde{X}_2^{\omega}\right]
+\rho_{e} = \rho \left[ \Delta \tilde{X}_1 , \Delta \tilde{X}_2 \right] = \rho \left[ \Delta X_1^{\omega_0} + \sum_{\omega_0 < \omega < \omega_1} \Delta \tilde{X}_1^{\omega} , \Delta X_2^{\omega_0} + \sum_{\omega_0 < \omega < \omega_1} \Delta \tilde{X}_2^{\omega}\right]
 \]
-ce qui conduit à dériver dans la limite raisonnable $\sigma_1 \gg \sigma_0$ (fréquence fondamentale suffisamment basse), lorsque $\Covb{\tilde{X}_i^{\omega}}{X_j^{\omega_0}}=0$ pour tous $i,j,\omega > \omega_0$, en notant $\rho_0 = \rho \left[X_1^{\omega_0} , X_2^{\omega_0} \right]$, $\rho = \rho \left[ \sum_{\omega_0 < \omega < \omega_1} \tilde{X}_1^{\omega} , \sum_{\omega_0 < \omega < \omega_1} \tilde{X}_2^{\omega} \right]$, et $\varepsilon_i = \frac{\sigma (X_i^{\omega_0})}{\sigma \left( \sum_{\omega_0 < \omega < \omega_1} \tilde{X}_i^{\omega}\right)}$, la correction sur la correlation effective due aux interférences : le correlation effective est alors au premier ordre :
+ce qui conduit à dériver dans la limite raisonnable $\sigma_1 \gg \sigma_0$ (fréquence fondamentale suffisamment basse), lorsque $\Covb{\tilde{X}_i^{\omega}}{X_j^{\omega_0}}=0$ pour tous $i,j,\omega > \omega_0$, et les retours d'espérance nulle à toutes échelles, en notant $\rho_0 = \rho \left[ \Delta X_1^{\omega_0} , \Delta X_2^{\omega_0} \right]$, $\rho = \rho \left[ \sum_{\omega_0 < \omega < \omega_1} \tilde{X}_1^{\omega} , \sum_{\omega_0 < \omega < \omega_1} \tilde{X}_2^{\omega} \right]$, et $\varepsilon_i = \frac{\sigma (X_i^{\omega_0})}{\sigma \left( \sum_{\omega_0 < \omega < \omega_1} \tilde{X}_i^{\omega}\right)}$, la correction sur la correlation effective due aux interférences : la correlation effective est alors au premier ordre
 
 \begin{equation}
-\label{eq:}
-\rho_e = \varepsilon_1 \varepsilon_2 \rho_0 + \rho 
+\label{eq:eff_corr}
+\rho_e = \left[ \varepsilon_1 \varepsilon_2 \rho_0 + \rho \right] \cdot \left[ 1 - \frac{1}{2}\left(\varepsilon_1^2 + \varepsilon_2^2 \right) \right]
 \end{equation}
 
- la correction sur la correlation
+ce qui donne l'expression de la correlation que l'on pourra effectivement simuler dans les données synthétiques
+
+
 
 % TODO : explain which estimator
 
@@ -110,6 +112,8 @@ L'implémentation est faite en language R, utilisant en particulier la biblioth�
 
 La figure~\ref{fig:effective_corrs} donne les correlations effectives calculées sur les données synthétiques.
 % comment
+
+Pour des valeurs standard des paramètres (par exemple pour $\omega_0=24\textrm{h}$, $\omega_1=2\textrm{h}$ et $\rho=-0.5$, on a $\rho_0\simeq 0.71$ et $\varepsilon_i \simeq 0.3$ et ainsi $\left| \rho_e - \rho \right|\simeq 0.13$)
 
 % fig:model_perf : application à la perf de l'arma.
 
@@ -133,7 +137,7 @@ La figure~\ref{fig:effective_corrs} donne les correlations effectives calculées
 \centering
 % figure : effective correlations, with confidence intervals (bootstrap), for the 3 filtering scales. ; AND expected corrected corrs from derivation above.
 \includegraphics[width=0.7\textwidth]{figures/effectiveCorrs_withGoodTh_A4}
-\caption{\textbf{Correlations effectives obtenues sur les données synthétiques | } Les points représentent les correlations estimées sur une génération d'un jeu de données synthétiques correspondant aux 6 mois de juin à novembre 2015 (barres d'erreurs obtenue par méthode de Fisher standard) ; l'échelle de couleur donne la fréquence de filtrage $\omega_1=10\textrm{min},30\textrm{min},1\textrm{h},2\textrm{h},4\textrm{h}$ ; les courbes sont les valeurs théoriques de $\rho_e$}
+\caption{\textbf{Correlations effectives obtenues sur les données synthétiques | } Les points représentent les correlations estimées sur une génération d'un jeu de données synthétiques correspondant aux 6 mois de juin à novembre 2015 (barres d'erreurs obtenue par méthode de Fisher standard) ; l'échelle de couleur donne la fréquence de filtrage $\omega_1=10\textrm{min},30\textrm{min},1\textrm{h},2\textrm{h},4\textrm{h}$ ; les courbes sont les valeurs théoriques de $\rho_e$ obtenues par~\ref{eq:eff_corr} avec les volatilités estimées (diagonale en pointillés pour référence) ; l'abscisse de la ligne rouge est la valeur théorique telle que $\rho = \rho_e$ avec les valeurs moyennes de $\varepsilon_i$ sur l'ensemble des points. On observe dans les fortes correlations une déviation des valeurs corrigées, qui peut être dû aux hypothèses d'indépendance ou d'espérance nulle non vérifiées. La dissymétrie de la courbe est causée par la forte valeur positive de $\rho_0 \simeq 0.71$.}
 \label{fig:effective_corrs}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%
@@ -187,7 +191,7 @@ D'autre part, on est capable de générer par un modèle $N$ un réseau de trans
 
 La procédure de génération heuristique de réseau est la suivante :
 \begin{itemize}
-\item Une nombre fixé $N_c$
+\item Un nombre fixé $N_c$ de centres est distribué 
 
 \end{itemize}
 
