@@ -83,7 +83,10 @@ public class RISReader {
 			   if(currentLine.startsWith("BI")){
 				   String[] t = currentLine.split("BI  - ");
 				   if(t.length>1){
-					   currentCitedGhostRefs.add(BibTeXParser.parseBibtexString(t[1]));   
+					   // cited refs may not be bib formatted : catch and do nothing
+					   try{
+					      currentCitedGhostRefs.add(BibTeXParser.parseBibtexString(t[1]));   
+					   }catch(Exception e){System.out.println("parsing bib : "+t[1]+" is not a bibtex string");}
 				   }
 			   }
 			   currentLine = reader.readLine();
