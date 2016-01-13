@@ -4,6 +4,7 @@
 package cybergeo;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import main.Main;
@@ -197,9 +198,11 @@ public class Cybergeo {
 		 for(Reference cybref:cybergeo.references){
 			 Log.stdout(cybref+" - status :"+checkStatus(cybref,completed));
 			 if(!checkStatus(cybref,completed)){
-				 CybergeoCorpus c = new CybergeoCorpus(cybref);
-				 c.fillCitingRefs();
-				 SQLExporter.export(c, database,"cybergeo","refs", "links","status", true);		
+				 //c.fillCitingRefs();
+				 //SQLExporter.export(c, database,"cybergeo","refs", "links","status", true);	
+				 HashMap<String,String> rows = new HashMap<String,String>();
+				 rows.put("title", cybref.title.title);rows.put("year",cybref.year);
+				 SQLExporter.genericExport(database,"cybmissing",rows);
 			 }
 		 }
 

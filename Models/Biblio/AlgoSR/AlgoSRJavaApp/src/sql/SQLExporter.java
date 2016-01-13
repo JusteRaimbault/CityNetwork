@@ -91,6 +91,23 @@ public class SQLExporter {
 	
 	
 	
+	/**
+	 * 
+	 * @param database
+	 * @param table
+	 * @param rows
+	 */
+	public static void genericExport(String database, String table,HashMap<String,String> rows){
+		SQLConnection.setupSQL(database);
+		String req = "INSERT INTO "+table+" (";
+		for(String field:rows.keySet()){req=req+field+",";}req=req.substring(0, req.length()-1);
+		req=req+") VALUES (";
+		for(String field:rows.keySet()){req=req+"'"+legalSQLString(rows.get(field))+"',";}req=req.substring(0, req.length()-1);
+		req=req+");";
+		SQLConnection.executeUpdate(req);
+	}
+	
+	
 	
 	/**
 	 * insert details for ref.
