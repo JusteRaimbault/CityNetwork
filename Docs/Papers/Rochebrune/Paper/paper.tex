@@ -175,8 +175,7 @@ Dans notre cas, nous proposons de générer des systèmes de villes représenté
 
 \paragraph{Modèle de densité}
 
-L'utilisation d'un modèle $D$ type aggrégation-diffusion~\cite{batty2006hierarchy} permet de générer une distribution discrete de densité. Dans \cite{}, %cit Working Paper ?
-une généralisation de ce modèle est calibré pour des objectifs morphologiques $M$ (entropie, hiérarchie, auto-corrélation spatiale, distance moyenne) contre les valeurs réelles calculées sur l'ensemble des grilles de taille 50km extraites de la grille européenne de densité~\cite{eurostat}. Plus précisément, le modèle fonctionne de manière itérative de la façon suivante. Une grille initialement vide de côté $N$, est représentée par la données des populations $(P_i(t))_{1\leq i\leq N^2}$. A chaque pas de temps, jusqu'à ce que la population atteigne une valeur fixée $P_m$,
+L'utilisation d'un modèle $D$ type agrégation-diffusion~\cite{batty2006hierarchy} permet de générer une distribution discrete de densité. Dans \cite{raimbault2016calibration}, une généralisation de ce modèle est calibré pour des objectifs morphologiques (entropie, hiérarchie, auto-corrélation spatiale, distance moyenne) contre les valeurs réelles calculées sur l'ensemble des grilles de taille 50km extraites de la grille européenne de densité~\cite{eurostat}. Plus précisément, le modèle fonctionne de manière itérative de la façon suivante. Une grille initialement vide de côté $N$, est représentée par la données des populations $(P_i(t))_{1\leq i\leq N^2}$. A chaque pas de temps, jusqu'à ce que la population atteigne une valeur fixée $P_m$,
 \begin{itemize}
 \item la population totale $P(t)$ est augmentée d'un nombre fixé $N_G$ (taux de croissance), suivant un attachement préférentiel tel que $\Pb{P_i(t+1)=P_i(t)+1|P(t+1)=P(t)+1}=\frac{(P_i(t)/P(t))^{\alpha}}{\sum(P_i(t)/P(t))^{\alpha}}$
 \item une diffusion d'une fraction $\beta$ de la population aux 4 plus proches voisins est effectuée $n_d$ fois
@@ -201,6 +200,7 @@ V_{ij}(d) = \left[ (1 - k_h) + k_h \cdot \left( \frac{P_i P_j}{P^2} \right)^{\ga
 où $d$ peut être la distance euclidienne $d_{ij}=d(i,j)$ ou la distance par le réseau $d_N(i,j)$, $k_h \in [0,1]$ un poids permettant de changer le rôle des population dans le potentiel, $\gamma$ régissant la forme de la hiérarchie selon les valeurs des populations, $r_g$ distance caractéristique de décroissance et $d_0$ paramètre de forme.
 \item Un nombre $K\cdot N_L$ de nouveaux liens potentiels est pris comme les couples ayant le plus grand potentiel pour la distance euclidienne ($K=5$ est fixé).
 \item Parmi les liens potentiels, $N_L$ sont effectivement réalisés, qui sont ceux ayant le plus faible rapport $V_{ij}(d_N)/V_{ij}(d_{ij})$ : à cette étape seul l'écart entre distance euclidienne et distance par le réseau compte, ce rapport ne dépendant plus des populations et étant croissant en $d_N$ à $d_{ij}$ fixé.
+\item Le réseau est planarisé par création de noeuds aux intersections éventuelles créées par les nouveaux liens.
 \end{enumerate}
 
 
@@ -209,47 +209,71 @@ Notons que la construction du modèle de génération est heuristique, et que d'
 
 \paragraph{Espace des paramètres}
 
-L'espace des paramètres du modèle couplé est constitué des paramètres de génération de densité $(P_m/N_G , \alpha,\beta , n_d)$ (on s'intéresse pour simplifier au rapport entre population et taux de croissance, i.e. le nombre d'étapes nécessaires pour générer) et des paramètres de génération de réseau $(N_C,k_h,\gamma , r_g , d_0)$.\footnote{Le couplage faible permet de limiter le nombre total de paramètres puisqu'un couplage fort incluant des boucles de retroaction comprendrait nécessairement des paramètres supplémentaires pour régler la forme et l'intensité de celles-ci. Pour espérer le diminuer, il faudrait concevoir un modèle intégré, ce qui est différent d'un couplage fort dans le sens où il n'est pas possible de figer l'un des sous-systèmes pour obtenir un modèle de l'autre correspondant au modèle non-couplé.}
-
+L'espace des paramètres du modèle couplé\footnote{Le couplage faible permet de limiter le nombre total de paramètres puisqu'un couplage fort incluant des boucles de retroaction comprendrait nécessairement des paramètres supplémentaires pour régler la forme et l'intensité de celles-ci. Pour espérer le diminuer, il faudrait concevoir un modèle intégré, ce qui est différent d'un couplage fort dans le sens où il n'est pas possible de figer l'un des sous-systèmes pour obtenir un modèle de l'autre correspondant au modèle non-couplé.} est constitué des paramètres de génération de densité $\vec{\alpha}_D = (P_m/N_G , \alpha,\beta , n_d)$ (on s'intéresse pour simplifier au rapport entre population et taux de croissance, i.e. le nombre d'étapes nécessaires pour générer) et des paramètres de génération de réseau $\vec{\alpha}_N=(N_C,k_h,\gamma , r_g , d_0)$. On notera $\vec{\alpha} = (\vec{\alpha}_D,\vec{\alpha}_N)$.
 
 \paragraph{Indicateurs}
 
+On quantifie la forme urbaine et la forme du réseau, dans le but de moduler la corrélation entre ces indicateurs. La forme est définie par un vecteur $\vec{M}=(r,\bar{d},\varepsilon,a)$ donnant auto-corrélation spatiale (indice de Moran), distance moyenne, entropie, hiérarchie (voir~\cite{le2015forme} pour une définition précise de ces indicateurs). Les mesures de la forme du réseau $\vec{G} = (\bar{c},\bar{l},\bar{s},\delta)$ sont, avec le réseau noté $(V,E)$,
+\begin{itemize}
+\item Centralité moyenne $\bar{c}$, définie comme la moyenne de la \emph{betweeness-centrality} (normalisée dans $[0,1]$) sur l'ensemble des liens.
+\item Longueur moyenne des chemins $\bar{l}$ définie par $\frac{1}{d_m}\frac{2}{|V|\cdot (|V|-1)}\sum_{i<j}d_N(i,j)$ avec $d_m$ distance de normalisation prise ici comme la diagonale du monde $d_m=\sqrt{2}N$.
+\item Vitesse moyenne~\cite{banos2012towards}, qui correspond à la performance du réseau par rapport au trajet à vol d'oiseau, définie par $\bar{s} = \frac{2}{|V|\cdot (|V|-1)}\sum_{i<j}{\frac{d_{ij}}{d_N(i,j)}}$.
+\item Diamètre du réseau $\delta = \max_{ij}d_N(i,j)$
+\end{itemize}
 
+\paragraph{Covariance et correlation}
+
+On s'intéressera à la matrice de covariance croisée $\Covb{\vec{M}}{\vec{G}}$ entre densité et réseau, estimée sur un jeu de $n$ réalisations à paramètres fixés $(\vec{M}\left[D(\vec{\alpha})\right],\vec{G}\left[N(\vec{\alpha})\right])_{1\leq i\leq n}$ par l'estimateur standard non-biaisé. On prend comme correlation associée la correlation de Pearson estimée de la même façon.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Implémentation}
 
-Le couplage des modèles génératifs est effectué à la fois au niveau formel et au niveau opérationnel 
+Le couplage des modèles génératifs est effectué à la fois au niveau formel et au niveau opérationnel, c'est à dire qu'on fait interagir des implémentations indépendantes. Pour cela, le logiciel OpenMole~\cite{reuillon2013openmole} utilisé pour l'exploration intensive, offre le cadre idéal de par son langage modulaire permettant de construire des \emph{workflows} par composition de tâches à loisir et de les brancher sur divers plans d'expérience et sorties. Pour des raisons opérationnelles, le modèle de densité est implémenté en langage \texttt{scala} comme un \texttt{plugin} d'OpenMole, tandis que la génération de réseau est implémentée en langage basé-agent \texttt{NetLogo}~\cite{wilensky1999netlogo}, ce qui facilite l'exploration interactive et construction heuristique interactive. Le code source est disponible pour reproductibilité sur le dépôt du projet\footnote{à l'adresse \texttt{https://github.com/JusteRaimbault/CityNetwork/tree/master/Models/Synthetic}}.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Résultats}
 
-L'étude du modèle de densité est développée dans~\cite{}.% TODO
+L'étude du modèle de densité seul est développée dans~\cite{raimbault2016calibration}. Il est notamment calibré sur les données de la grille européenne de densité, sur des zones de 50km de côté et de résolution 500m pour lesquelles les valeurs réelles des indicateurs ont été calculées pour l'ensemble de l'Europe. D'autre part, une exploration brutale du modèle permet d'estimer l'ensemble des sorties possibles dans des bornes raisonnables pour les paramètres (grossièrement $\alpha \in [0.5,2],N_G\in [500,3000], P_m \in [10^4,10^5],\beta\in [0,0.2], n_d \in \{ 1, \ldots , 4\}$). La réduction à un plan de l'espace des objectif par une Analyse en Composantes Principales (variance expliquée à deux composantes $\simeq 80\%$) permet d'isoler un nuage de points de sorties recouvrant assez fidèlement le nuage des points réels, ce qui veut dire que le modèle est capable de reproduire morphologiquement l'ensemble des configurations existantes.
 
 
-
+% NOT NEEDED - TOO MUCH INFORMATION - ?
 %%%%%%%%%%%%%%%%
-\begin{figure}
+%\begin{figure}
 % figure : density example, exploration and calibration ?
-
-
-\end{figure}
+%\end{figure}
 %%%%%%%%%%%%%%%%
 
+A densité donnée, l'exploration de l'espace des paramètres du modèle de réseau suggèrent une assez bonne flexibilité sur des indicateurs globaux $\vec{G}$, ainsi que de bonnes propriétés de convergence. Pour une étude du comportement précis, voir l'appendice donnant les regressions traduisant le comportement du modèle couplé. Dans le but d'illustrer la méthode de génération de données synthétiques, l'exploration a été orientée vers l'étude des correlations.
 
-A densité fixée, les premières explorations de l'espace des paramètres du modèle de réseau synthétique suggèrent une assez bonne flexibilité sur des indicateurs globaux $G$ (diamètre, longueur cumulée, centralité moyenne, degré moyen). L'exploration systématique via le logiciel OpenMole~\cite{reuillon2013openmole} par calcul intensif est un travail en cours, ainsi que la calibration contre les mesures réelles calculées sur l'ensemble de l'Europe sur des zones identiques au modèle de densité, via les données de réseau routier d'OpenStreetMap. La connaissance très fine ainsi obtenue du comportement de $N$ (distribution statistiques sur une grille fine de l'espace des paramètres à trois dimensions), devrait permettre, étant donné une population de configuration de densités $\tilde{D}$, de déterminer via $N^{<-1>}$ une population de réseau $\tilde{N}$ telle que $\Covb{M}{G}$ a une structure fixée (via la détermination de la valeur des paramètres à utiliser pour chaque individu de $\tilde{D}$). On pourra éventuellement appliquer des algorithmes plus fins d'exploration pour atteindre des configurations exceptionelles réalisant un niveau de corrélation voulu~\cite{10.1371/journal.pone.0138212}. Les indicateurs globaux devraient ainsi être corrélés à un niveau contrôlé, tandis que les densités et réseaux restent cohérents dans l'espace de par la forme du réseau, conditionnelle à la distribution de densité. Les applications géographiques potentielles de cette implémentation de la méthode incluent le contrôle statistique de l'effet des corrélations entre ville et réseaux sur des modèles de simulation spatiaux par exemple.
+Etant donné la grande dimension relative de l'espace des paramètres, une exploration par grille exhaustive est impossible. On utilise un plan d'expérience par criblage (hypercube latin), avec les bornes indiquées ci-dessus pour $\vec{\alpha}_D$ et pour $\vec{\alpha}_N$, on a $N_C \in [50,120], r_g \in [1,100] , d_0 \in [0.1,10] , k_h \in [0,1] , \gamma \in [0.1,4],N_L\in [4,20]$. Concernant le nombre de réplications du modèle pour chaque valeur des paramètres, moins de 50 sont nécessaires pour obtenir sur les indicateurs des intervalles de confiance à 95\% de taille inférieure aux déviations standard. Pour les correlations, une centaine donne des IC (obtenus par méthode de Fisher) de taille moyenne 0.4, on fixe donc $n=80$ pour l'expérience. La figure~\ref{fig:densnwcor} donne le détail des résultats de l'exploration. On retiendra les résultats marquants suivants au regard de la génération de données synthétiques corrélées :
+\begin{itemize}
+\item les distributions empiriques des coefficients de correlations entre indicateurs de forme et indicateurs de réseaux ne sont pas simples, pouvant être bimodales (par exemple $\rho_{46}=\rho[r,\bar{l}]$ entre l'index de Moran et le chemin moyen).
+\item On arrive à générer un assez haut niveau de correlation pour l'ensemble des indicateurs, la correlation absolue maximale variant entre 0.6 et 0.9 ; l'amplitude varie quant à elle entre 0.9 et 1.6, ce qui permet un large spectre de valeurs. 
+\item les points les plus corrélés en moyenne sont également ceux les plus proches des données réelles, ce qui confirme l'intuition d'une forte interdépendance en réalité.
+\end{itemize}
 
+
+
+\subsubsection{Extensions possibles}
+
+On pourra éventuellement appliquer des algorithmes plus fins d'exploration pour atteindre des configurations exceptionelles réalisant un niveau de corrélation voulu~\cite{10.1371/journal.pone.0138212}. Les indicateurs globaux devraient ainsi être corrélés à un niveau contrôlé, tandis que les densités et réseaux restent cohérents dans l'espace de par la forme du réseau, conditionnelle à la distribution de densité. Les applications géographiques potentielles de cette implémentation de la méthode incluent le contrôle statistique de l'effet des corrélations entre ville et réseaux sur des modèles de simulation spatiaux par exemple.
+
+
+ ainsi que la calibration contre les mesures réelles calculées sur l'ensemble de l'Europe sur des zones identiques au modèle de densité, via les données de réseau routier d'OpenStreetMap. La connaissance très fine ainsi obtenue du comportement de $N$ (distribution statistiques sur une grille fine de l'espace des paramètres à trois dimensions), devrait permettre, étant donné une population de configuration de densités $\tilde{D}$, de déterminer via $N^{<-1>}$ une population de réseau $\tilde{N}$ telle que $\Covb{M}{G}$ a une structure fixée (via la détermination de la valeur des paramètres à utiliser pour chaque individu de $\tilde{D}$). 
+
+
+% également calib sur forme du réseau ?
 
 
 %%%%%%%%%%%%%%
 \begin{figure}
 
 \begin{subfigure}[t]{0.35\linewidth}
-\includegraphics[width=\textwidth]{figures/hist_crossCorMat}
+\includegraphics[width=\textwidth]{figures/hist_crossCorMat_breaks30}
 \caption{}
 \end{subfigure}
 \begin{subfigure}[t]{0.23\linewidth}
@@ -337,6 +361,58 @@ On a ainsi proposé une méthode abstraite de génération de données synthéti
 
 \bibliographystyle{apalike}
 \bibliography{/Users/Juste/Documents/ComplexSystems/CityNetwork/Biblio/Bibtex/CityNetwork,biblio/biblio}
+
+
+
+
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%
+\section*{Appendice : Comportement du modèle couplé}
+
+
+
+\begin{tabular}{|c|c|c|c|c| }
+ \hline
+&BW&Pathlength&relspeed&diameter\\\hline
+R2&0.6098&0.638 &0.7049 &0.5855\\\hline
+(Intercept)&2.106e-01$\pm$ 4.728e-03 (***)&1.0939160$\pm$ 0.0514692 (***)&6.211e-01$\pm$ 9.722e-03 (***)&2.4956084$\pm$ 0.1172324 (***)\\
+$\alpha$&-1.127e-02$\pm$ 2.012e-03 (***)&-0.5305835$\pm$ 0.0219066 (***)&8.469e-02$\pm$ 4.138e-03 (***)&-1.0366776$\pm$ 0.0498972 (***)\\
+$\beta$&9.430e-03$\pm$ 6.803e-03 ()&0.1738349$\pm$ 0.0740571 (*)&-6.516e-02$\pm$ 1.399e-02 (***)&0.2937746$\pm$ 0.1686813 (.)\\
+$n_d$&6.786e-04$\pm$ 6.534e-04 ()&0.0048631$\pm$ 0.0071129 ()&-4.046e-03$\pm$ 1.344e-03 (**)&0.0003039$\pm$ 0.0162012 ()\\
+$N_C$&-3.005e-04$\pm$ 2.887e-05 (***)&0.0012026$\pm$ 0.0003143 (***)&-1.214e-03$\pm$ 5.937e-05 (***)&0.0040004$\pm$ 0.0007159 (***)\\
+$N_G$&4.800e-02$\pm$ 1.348e-02 (***)&1.4969583$\pm$ 0.1467356 (***)&-1.400e-01$\pm$ 2.772e-02 (***)&3.3021779$\pm$ 0.3342227 (***)\\
+$\gamma$&4.615e-03$\pm$ 4.997e-04 (***)&0.0132129$\pm$ 0.0054394 (*)&-7.990e-03$\pm$ 1.027e-03 (***)&0.0389784$\pm$ 0.0123895 (**)\\
+$d_0$&2.743e-04$\pm$ 1.971e-04 ()&-0.0029289$\pm$ 0.0021453 ()&-5.688e-04$\pm$ 4.052e-04 ()&-0.0075661$\pm$ 0.0048863 ()\\
+$r_g$&-2.726e-05$\pm$ 2.038e-05 ()&0.0001532$\pm$ 0.0002219 ()&5.329e-05$\pm$ 4.191e-05 ()&0.0002358$\pm$ 0.0005054 ()\\
+$k_h$&-1.035e-02$\pm$ 1.952e-03 (***)&-0.0954905$\pm$ 0.0212503 (***)&1.992e-02$\pm$ 4.014e-03 (***)&-0.2271416$\pm$ 0.0484021 (***)\\
+$N_L$&-2.390e-03$\pm$ 1.243e-04 (***)&-0.0021779$\pm$ 0.0013533 ()&1.287e-03$\pm$ 2.556e-04 (***)&-0.0044759$\pm$ 0.0030824 ()\\
+
+ \hline
+\end{tabular}
+
+\bigskip
+
+\hspace{-0.4cm}
+
+\begin{tabular}{|c|c|c|c|c| }
+ \hline
+&moran&distance&entropy&slope\\\hline
+R2&0.7762&0.4753&0.5516&0.6587\\\hline
+(Intercept)&1.106e-02$\pm$ 1.348e-02 ()&1.158e+00$\pm$ 3.862e-02 (***)&1.135e+00$\pm$ 3.024e-02 (***)&0.0839654$\pm$ 0.0706085 ()\\
+$\alpha$&-1.631e-02$\pm$ 5.739e-03 (**)&-2.549e-01$\pm$ 1.644e-02 (***)&-2.396e-01$\pm$ 1.287e-02 (***)&-0.7543377$\pm$ 0.0300528 (***)\\
+$\beta$&5.009e-01$\pm$ 1.940e-02 (***)&-2.497e-02$\pm$ 5.557e-02 ()&4.580e-01$\pm$ 4.351e-02 (***)&1.0974897$\pm$ 0.1015959 (***)\\
+$n_d$&2.850e-02$\pm$ 1.863e-03 (***)&-1.069e-02$\pm$ 5.337e-03 (*)&1.630e-02$\pm$ 4.179e-03 (***)&0.0322148$\pm$ 0.0097579 (**)\\
+$N_C$&-8.494e-05$\pm$ 8.234e-05 ()&-5.408e-05$\pm$ 2.358e-04 ()&-5.802e-05$\pm$ 1.847e-04 ()&0.0001797$\pm$ 0.0004312 ()\\
+$N_G$&-7.710e-01$\pm$ 3.844e-02 (***)&1.222e+00$\pm$ 1.101e-01 (***)&4.276e-01$\pm$ 8.622e-02 (***)&1.0692012$\pm$ 0.2013007 (***)\\
+$\gamma$&6.214e-04$\pm$ 1.425e-03 ()&2.219e-03$\pm$ 4.081e-03 ()&2.026e-03$\pm$ 3.196e-03 ()&-0.0015095$\pm$ 0.0074621 ()\\
+$d_0$&2.457e-04$\pm$ 5.620e-04 ()&-3.896e-03$\pm$ 1.610e-03 (*)&-2.459e-03$\pm$ 1.261e-03 (.)&-0.0046572$\pm$ 0.0029430 ()\\
+$r_g$&4.413e-05$\pm$ 5.813e-05 ()&1.048e-04$\pm$ 1.665e-04 ()&1.069e-04$\pm$ 1.304e-04 ()&0.0003902$\pm$ 0.0003044 ()\\
+$k_h$&6.379e-03$\pm$ 5.567e-03 ()&-5.308e-02$\pm$ 1.595e-02 (***)&-3.215e-02$\pm$ 1.249e-02 (*)&-0.0407186$\pm$ 0.0291524 ()\\
+$N_L$&5.183e-04$\pm$ 3.545e-04 ()&-4.340e-04$\pm$ 1.015e-03 ()&8.870e-06$\pm$ 7.952e-04 ()&0.0003567$\pm$ 0.0018565 ()\\
+ \hline
+\end{tabular}
 
 
 \end{document}

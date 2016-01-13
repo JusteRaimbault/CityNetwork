@@ -111,16 +111,15 @@ crosscormat <- gres  %>% filter(idpar %in% glength$idpar[glength$groupLength==nr
 
 #summary(cormat[1,8:17])
 
-cormat = crosscormat
-
+cormat = crosscormat[,2:ncol(crosscormat)]
 
 # histograms of correlations
 # -> log normal ? COMPARE WITH NULL MODEL ? which one ?
 par(mfrow=c(4,4))
-for(j in 0:(ncol(cormat)/3 - 1)){
-  d=cormat[[colnames(cormat)[3*j+2]]]
-  hist(d,breaks=30,main=colnames(cormat)[3*j+2],xlab="")
-  abline(v=mean(d),col="red")
+for(j in (seq(from=1,to=ncol(cormat),by=3)+2)){
+  d=cormat[,j]
+  hist(unlist(d),breaks=50,main=colnames(cormat)[j],xlab="")
+  abline(v=mean(unlist(d)),col="red")
   
   #corj = cormat[[colnames(cormat)[j]]];show(mean(corj))
   #rho = mean(corj)
@@ -174,7 +173,7 @@ g = ggplot(df) + scale_fill_gradient(low="yellow",high="red",name=purpose)#+ geo
 g+geom_raster(aes(x,y,fill=z))+scale_x_discrete(limits=nindics)+scale_y_discrete(limits=mindics)+theme(axis.ticks = element_blank(),panel.background=element_blank(),legend.title=element_text(""))+labs(title=title,x="",y="")
 
 
-%dgres = gres  %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep])
+dgres = gres  %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep])
 
 cormat = crosscormat[,2:ncol(crosscormat)]
 #cormat = nwcormat[,2:17]
