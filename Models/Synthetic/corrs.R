@@ -165,8 +165,7 @@ maxabscor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){
 amplcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max(c)-min(c)})
 meanabscor=amplcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){mean(abs(c))})
 
-
-var=mincor;title = "Minimal correlations";purpose="min cor"
+var=meanabscor;title = "Mean absolute correlations";purpose="mean abs cor"
 
 df=melt(matrix(data=var,nrow=4,byrow=FALSE));names(df)=c("x","y","z")
 g = ggplot(df) + scale_fill_gradient(low="yellow",high="red",name=purpose)#+ geom_raster(hjust = 0, vjust = 0) 
@@ -367,8 +366,8 @@ corrCols=2:7
 df=data.frame(cormat[,corrCols],params)
 simpledens = "alphalocalization+diffusion+diffusionsteps+growthrate"
 crossdens = "(alphalocalization+diffusion+diffusionsteps+growthrate)^2"
-simplenw = "citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber"
-crossnw = "(citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber)^2"
+simplenw = "alphalocalization+diffusion+diffusionsteps+growthrate+citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber"
+crossnw = "(alphalocalization+diffusion+diffusionsteps+growthrate+citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber)^2"
 regression=simpledens
 
 cornames=names(cormat[,corrCols])
