@@ -83,10 +83,16 @@ nwcormatmin <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nre
   cor14min = cor.test(meanBwCentrality,nwDiameter,method="pearson",conf.level=0.95)$conf.int[1],
   cor23min = cor.test(meanPathLength,meanRelativeSpeed,method="pearson",conf.level=0.95)$conf.int[1],
   cor24min = cor.test(meanPathLength,nwDiameter,method="pearson",conf.level=0.95)$conf.int[1],
-  cor34min = cor.test(meanRelativeSpeed,nwDiameter,method="pearson",conf.level=0.95)$conf.int[1],
+  cor34min = cor.test(meanRelativeSpeed,nwDiameter,method="pearson",conf.level=0.95)$conf.int[1]
 )
-
-
+nwcormatmax <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>% summarise(
+  cor12max = cor.test(meanBwCentrality,meanPathLength,method="pearson",conf.level=0.95)$conf.int[2],
+  cor13max = cor.test(meanBwCentrality,meanRelativeSpeed,method="pearson",conf.level=0.95)$conf.int[2],
+  cor14max = cor.test(meanBwCentrality,nwDiameter,method="pearson",conf.level=0.95)$conf.int[2],
+  cor23max = cor.test(meanPathLength,meanRelativeSpeed,method="pearson",conf.level=0.95)$conf.int[2],
+  cor24max = cor.test(meanPathLength,nwDiameter,method="pearson",conf.level=0.95)$conf.int[2],
+  cor34max = cor.test(meanRelativeSpeed,nwDiameter,method="pearson",conf.level=0.95)$conf.int[2]
+)
 
 # density block
 denscormat <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>%  summarise(
@@ -98,6 +104,22 @@ denscormat <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep
     cor34 = cor(entropy,slope)
 ) 
 
+denscormatmin <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>%  summarise(
+  cor12min = cor.test(moran,distance,method="pearson",conf.level=0.95)$conf.int[1],
+  cor13min = cor.test(moran,entropy,method="pearson",conf.level=0.95)$conf.int[1],
+  cor14min = cor.test(moran,slope,method="pearson",conf.level=0.95)$conf.int[1],
+  cor23min = cor.test(distance,entropy,method="pearson",conf.level=0.95)$conf.int[1],
+  cor24min = cor.test(distance,slope,method="pearson",conf.level=0.95)$conf.int[1],
+  cor34min = cor.test(entropy,slope,method="pearson",conf.level=0.95)$conf.int[1]
+) 
+denscormatmax <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>%  summarise(
+  cor12max = cor.test(moran,distance,method="pearson",conf.level=0.95)$conf.int[2],
+  cor13max = cor.test(moran,entropy,method="pearson",conf.level=0.95)$conf.int[2],
+  cor14max = cor.test(moran,slope,method="pearson",conf.level=0.95)$conf.int[2],
+  cor23max = cor.test(distance,entropy,method="pearson",conf.level=0.95)$conf.int[2],
+  cor24max = cor.test(distance,slope,method="pearson",conf.level=0.95)$conf.int[2],
+  cor34max = cor.test(entropy,slope,method="pearson",conf.level=0.95)$conf.int[2]
+) 
 
 # cross correlations -- hardcore with CIs
 crosscormat <- gres  %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>% summarise(
