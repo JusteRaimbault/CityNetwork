@@ -72,56 +72,23 @@ Un premier domaine d'application proposé pour notre méthode est celui des sér
 
 \paragraph{Cadre}
 
-Considérons un réseau d'actifs $(X_i(t))_{1\leq i \leq N}$ échantillonnés à haute fréquence (typiquement 1s). On se place dans un cadre multi-scalaire (utilisé par exemple dans les approches par ondelettes~\cite{ramsey2002wavelets} ou analyses multifractales du signal~\cite{bouchaud2000apparent}) pour interpréter les signaux observés comme la superposition de composantes à des multiples échelles temporelles : $X_i=\sum_{\omega}{X_i^{\omega}}$. Prédire l'évolution d'une composante à une échelle donnée est alors un problème caractéristique de l'étude des systèmes complexes, pour lequel l'enjeu est l'identification de régularités et leur distinction des composantes considérées comme stochastiques en comparaison. Dans un souci de simplicité, on représente un tel processus par un modèle de prédiction de tendance à une échelle temporelle $\omega_1$ donnée, formellement un estimateur $M_{\omega_1} : (X_i(t'))_{t'<t} \mapsto \hat{X_i}(t)$ dont l'objectif est la minimisation de l'erreur sur la tendance réelle $\norm{X_i^{\omega}}$. Dans le cas d'estimateurs auto-regressifs multivariés, la performance dépendra entre autre des correlations respectives entre actifs et il est alors intéressant d'utiliser la méthode pour évaluer celle-ci en fonction de niveaux de correlation à plusieurs échelles. On assume une dynamique de Black-Scholes~\cite{jarrow1999honor} pour les actifs, i.e. $dX = \sigma\cdot dW$ avec $W$ processus de Wiener, ce qui permettra d'obtenir facilement des niveaux de correlation voulus.
+Considérons un réseau d'actifs $(X_i(t))_{1\leq i \leq N}$ échantillonnés à haute fréquence (typiquement 1s). On se place dans un cadre multi-scalaire (utilisé par exemple dans les approches par ondelettes~\cite{ramsey2002wavelets} ou analyses multifractales du signal~\cite{bouchaud2000apparent}) pour interpréter les signaux observés comme la superposition de composantes à des multiples échelles temporelles : $X_i=\sum_{\omega}{X_i^{\omega}}$. On notera $T_i^{\omega} = \sum_{\omega' \leq \omega} X_i^{\omega}$ le signal filtré à une fréquence $\omega$ donnée. Prédire l'évolution d'une composante à une échelle donnée est alors un problème caractéristique de l'étude des systèmes complexes, pour lequel l'enjeu est l'identification de régularités et leur distinction des composantes considérées comme stochastiques en comparaison\footnote{voir~\cite{gell1995quark} pour une discussion étendue sur la construction de \emph{schema} pour l'étude de systèmes complexes adaptatifs (par des systèmes complexes adaptatifs).}. Dans un souci de simplicité, on représente un tel processus par un modèle de prédiction de tendance à une échelle temporelle $\omega_1$ donnée, formellement un estimateur $M_{\omega_1} : (T_i^{\omega_1}(t'))_{t'<t} \mapsto \hat{T_i}^{\omega_1}(t)$ dont l'objectif est la minimisation de l'erreur sur la tendance réelle $\norm{T_i^{\omega_1} - \hat{T}_i^{\omega_1}}$. Dans le cas d'estimateurs auto-regressifs multivariés, la performance dépendra entre autre des correlations respectives entre actifs et il est alors intéressant d'utiliser la méthode pour évaluer celle-ci en fonction de niveaux de correlation à plusieurs échelles. On assume une dynamique de Black-Scholes~\cite{jarrow1999honor} pour les actifs, i.e. $dX = \sigma\cdot dW$ avec $W$ processus de Wiener, ce qui permettra d'obtenir facilement des niveaux de correlation voulus.
 
 \paragraph{Génération des données}
 
-Il est alors aisé de générer $\tilde{X}_i$ tel que $\Varb{\tilde{X}_i^{\omega_0}}=\Sigma R$ ($\Sigma$ variance estimée et $R$ matrice de corrélation fixée), par la simulation de processus de Wiener au niveau de corrélation fixé et tel que $X_i^{\omega < \omega_0} = \tilde{X}_i^{\omega < \omega_0}$ (critère de proximité au données : les composantes à plus basse fréquence sont identiques). En effet, si $dW_1 \indep dW_1^{\indep}$, alors $W_2 = \rho_{12}W_1 + \sqrt{1-\frac{\sigma_1^2}{\sigma_2^2}\cdot\rho_{12}^2}W_1^{\indep}$ est tel que $\rho(dW_1,dW_2)=\rho_{12}$. Les signaux suivants sont construits de la même manière par orthonormalisation de Gram. On isole alors la composante de la première fréquence $\omega_1 < \omega_0$ par filtrage, et on reconstruit les signaux synthétiques par $\tilde{X}_i = [\sum_{\omega<\omega_1}X_i^{\omega}]+\tilde{X}_i^{\omega_0}$.
-% TODO pb signal reconstruction, clarify formalisation.
+Il est alors aisé de générer $\tilde{X}_i$ tel que $\Varb{\tilde{X}_i^{\omega_1}}=\Sigma R$ ($\Sigma$ variance estimée et $R$ matrice de corrélation fixée), par la simulation de processus de Wiener au niveau de corrélation fixé et tel que $X_i^{\omega \leq \omega_0} = \tilde{X}_i^{\omega \leq \omega_0}$ (critère de proximité au données : les composantes à plus basse fréquence qu'une fréquence fondamentale $\omega_0 < \omega_1$ sont identiques). En effet, si $dW_1 \indep dW_1^{\indep}$ (et $\sigma_1 < \sigma_2$ pour fixer les idées, quitte à échanger les actifs), alors $W_2 = \rho_{12}W_1 + \sqrt{1-\frac{\sigma_1^2}{\sigma_2^2}\cdot\rho_{12}^2}W_1^{\indep}$ est tel que $\rho(dW_1,dW_2)=\rho_{12}$. Les signaux suivants sont construits de la même manière par orthonormalisation de Gram. On isole alors la composante à la fréquence $\omega_1$ voulue par filtrage, c'est à dire $\tilde{X}_i^{\omega_1} = W_i - \mathcal{F}_{\omega_0}[W_i]$ (avec $\mathcal{F}_{\omega_0}$ filtre passe-bas à fréquence de coupage $\omega_0$), puis on reconstruit les signaux synthétiques par $\tilde{X}_i = T_i^{\omega_0} + \tilde{X}_i^{\omega_1}$.
+
 
 
 \subsubsection{Implémentation et Résultats}
 
 \paragraph{Méthodologie}
 
-La méthode est testée sur un exemple de deux actifs du marché des devises (EUR/USD et EUR/GBP), sur une période de 6 mois de juin 2015 à novembre 2015. Le nettoyage des données\footnote{obtenues depuis \texttt{http://www.histdata.com/}, sans licence spécifiée, les données nettoyées et filtrées à $\omega_m$ uniquement sont mises en accessibilité pour respect du copyright.}, originellement échantillonnées à l'ordre de la seconde, consiste dans un premier temps à la détermination du support temporel commun maximal (les séquences manquantes étant alors ignorées, par translation verticale des séries, i.e. $S(t):=S(t)\cdot \frac{S(t_{n})}{S(t_{n-1})}$ lorsque $t_{n-1},t_n$ sont les extrémités du ``trou'' et $S(t)$ la valeur de l'actif, ce qui revient à garder la contrainte d'avoir des retours à pas de temps similaires entre actifs). On étudie alors les \emph{log-prix} et \emph{log-retours}, définis par $X(t):=\log{\frac{S(t)}{S_0}}$ et $\Delta X (t) = X(t) - X(t-1)$. Les données brutes sont filtrées à une fréquence $\omega_m = 10\textrm{min}$ (qui sera la fréquence maximale d'étude) pour un souci de performance computationnelle. On fixe $\omega_0=12\textrm{h}$ et on se propose de construire des données synthétiques aux fréquences $\omega_1 = 30\textrm{min},1\textrm{h},2\textrm{h}$. Il est crucial de noter l'interférence entre les fréquences $\omega_0$ et $\omega_1$ dans le signal construit : la correlation effectivement estimée est
-\[
-\rho_{e} = \rho \left[ \Delta \tilde{X}_1 , \Delta \tilde{X}_2 \right] = \rho \left[ \Delta X_1^{\omega_0} + \sum_{\omega_0 < \omega < \omega_1} \Delta \tilde{X}_1^{\omega} , \Delta X_2^{\omega_0} + \sum_{\omega_0 < \omega < \omega_1} \Delta \tilde{X}_2^{\omega}\right]
-\]
-ce qui conduit à dériver dans la limite raisonnable $\sigma_1 \gg \sigma_0$ (fréquence fondamentale suffisamment basse), lorsque $\Covb{\tilde{X}_i^{\omega}}{X_j^{\omega_0}}=0$ pour tous $i,j,\omega > \omega_0$, et les retours d'espérance nulle à toutes échelles, en notant $\rho_0 = \rho \left[ \Delta X_1^{\omega_0} , \Delta X_2^{\omega_0} \right]$, $\rho = \rho \left[ \sum_{\omega_0 < \omega < \omega_1} \tilde{X}_1^{\omega} , \sum_{\omega_0 < \omega < \omega_1} \tilde{X}_2^{\omega} \right]$, et $\varepsilon_i = \frac{\sigma (X_i^{\omega_0})}{\sigma \left( \sum_{\omega_0 < \omega < \omega_1} \tilde{X}_i^{\omega}\right)}$, la correction sur la correlation effective due aux interférences : la correlation effective est alors au premier ordre
-
-\begin{equation}
-\label{eq:eff_corr}
-\rho_e = \left[ \varepsilon_1 \varepsilon_2 \rho_0 + \rho \right] \cdot \left[ 1 - \frac{1}{2}\left(\varepsilon_1^2 + \varepsilon_2^2 \right) \right]
-\end{equation}
-
-ce qui donne l'expression de la correlation que l'on pourra effectivement simuler dans les données synthétiques
-
-
-
-% TODO : explain which estimator
-
-% TODO : formalize arma model.
-
-
-\paragraph{Implémentation}
-
-L'implémentation est faite en language R, utilisant en particulier la bibliothèque \texttt{MTS}~\cite{Tsay:2015xy} pour les modèles de séries temporelles. Les données nettoyées et le code source sont disponibles de manière ouverte sur le dépôt \texttt{git} du projet\footnote{at \texttt{https://github.com/JusteRaimbault/SynthAsset}}.
-
-\paragraph{Résultats}
-
-La figure~\ref{fig:effective_corrs} donne les correlations effectives calculées sur les données synthétiques.
-% comment
-
-Pour des valeurs standard des paramètres (par exemple pour $\omega_0=24\textrm{h}$, $\omega_1=2\textrm{h}$ et $\rho=-0.5$, on a $\rho_0\simeq 0.71$ et $\varepsilon_i \simeq 0.3$ et ainsi $\left| \rho_e - \rho \right|\simeq 0.13$)
-
-% fig:model_perf : application à la perf de l'arma.
-
-% implication thématiques et développements possibles
+La méthode est testée sur un exemple de deux actifs du marché des devises (EUR/USD et EUR/GBP), sur une période de 6 mois de juin 2015 à novembre 2015. Le nettoyage des données\footnote{obtenues depuis \texttt{http://www.histdata.com/}, sans licence spécifiée, les données nettoyées et filtrées à $\omega_m$ uniquement sont mises en accessibilité pour respect du copyright.}, originellement échantillonnées à l'ordre de la seconde, consiste dans un premier temps à la détermination du support temporel commun maximal (les séquences manquantes étant alors ignorées, par translation verticale des séries, i.e. $S(t):=S(t)\cdot \frac{S(t_{n})}{S(t_{n-1})}$ lorsque $t_{n-1},t_n$ sont les extrémités du ``trou'' et $S(t)$ la valeur de l'actif, ce qui revient à garder la contrainte d'avoir des retours à pas de temps similaires entre actifs). On étudie alors les \emph{log-prix} et \emph{log-retours}, définis par $X(t):=\log{\frac{S(t)}{S_0}}$ et $\Delta X (t) = X(t) - X(t-1)$. Les données brutes sont filtrées à une fréquence $\omega_m = 10\textrm{min}$ (qui sera la fréquence maximale d'étude) pour un souci de performance computationnelle. On utilise un filtre gaussien non causal de largeur totale $\omega$. On fixe $\omega_0=24\textrm{h}$ et on se propose de construire des données synthétiques aux fréquences $\omega_1 = 30\textrm{min},1\textrm{h},2\textrm{h}$. Voir la figure~\ref{fig:example_signal} pour un exemple de la structure du signal à ce différentes échelles.
 
 
 %%%%%%%%%%%%%%%%%%%
-\begin{figure}
+\begin{figure}%[h!]
 \centering
 \includegraphics[width=0.7\textwidth]{figures/asset/ex_filtering}
 \caption{\textbf{Exemple de la structure multi-scalaire du signal qui sert de base à la construction des signaux synthétiques | } Les \emph{log-prix} sont représentés sur environ 3h pour la journée du 1er novembre 2015 pour l'actif EUR/USD, ainsi que les tendances à 10min (violet) et à 30min.}
@@ -131,23 +98,62 @@ Pour des valeurs standard des paramètres (par exemple pour $\omega_0=24\textrm{
 
 
 
+Il est crucial de noter l'interférence entre les fréquences $\omega_0$ et $\omega_1$ dans le signal construit : la correlation effectivement estimée est
+\[
+\rho_{e} = \rho \left[ \Delta \tilde{X}_1 , \Delta \tilde{X}_2 \right] = \rho \left[ \Delta T_1^{\omega_0} + \Delta \tilde{X}_1^{\omega} , \Delta T_2^{\omega_0} + \Delta \tilde{X}_2^{\omega}\right]
+\]
+ce qui conduit à dériver dans la limite raisonnable $\sigma_1 \gg \sigma_0$ (fréquence fondamentale suffisamment basse), lorsque $\Covb{\Delta \tilde{X}_i^{\omega_1}}{\Delta X_j^{\omega}}=0$ pour tous $i,j,\omega_1 > \omega$, et les retours d'espérance nulle à toutes échelles, en notant $\rho_0 = \rho \left[ \Delta T_1^{\omega_0} , \Delta T_2^{\omega_0} \right]$, $\rho = \rho \left[  \tilde{X}_1^{\omega_1} , \tilde{X}_2^{\omega_1} \right]$, et $\varepsilon_i = \frac{\sigma (\Delta T_i^{\omega_0})}{\sigma \left( \Delta \tilde{X}_i^{\omega_1}\right)}$, la correction sur la correlation effective due aux interférences : la correlation effective est alors au premier ordre
+
+\begin{equation}
+\label{eq:eff_corr}
+\rho_e = \left[ \varepsilon_1 \varepsilon_2 \rho_0 + \rho \right] \cdot \left[ 1 - \frac{1}{2}\left(\varepsilon_1^2 + \varepsilon_2^2 \right) \right]
+\end{equation}
+
+{\noindent}ce qui donne l'expression de la correlation que l'on pourra effectivement simuler dans les données synthétiques.
+
+La correlation est estimée par méthode de Pearson, avec l'estimateur de la covariance au biais corrigé, c'est à dire $\hat{\rho}[X1,X2] = \frac{\hat{C}[X1,X2]}{\sqrt{\hat{\Var{}}[X1]\hat{\Var{}}[X2]}}$, où $\hat{C}[X1,X2] = \frac{1}{(T-1)}\sum_{t} X_1(t)X_2(t) - \frac{1}{T\cdot (T-1)} \sum_t X_1(t) \sum_t X_2(t)$ et $\hat{\Var{}}[X] = \frac{1}{T}\sum_t{X^2(t)}-\left(\frac{1}{T}\sum_tX(t)\right)^2$.
+
+Le modèle de prédiction $M_{\omega_1}$ testé est simplement un modèle \emph{ARMA} pour lequel on fixe les paramètres $p=2,q=0$ (on ne créée pas de correlation retardée, on ne s'attend donc pas à de grand ordre d'auto-regression, les signaux originaux étant à mémoire relativement courte ; de plus le lissage n'est pas nécessaire puisqu'on travaille sur des données filtrées), appliqué de manière adaptative\footnote{il s'agit d'un niveau d'adaptation relativement faible, les paramètres $T_W,p,q$ et même le type de modèle restant fixés. On se place ainsi dans le cadre de~\cite{potiron2016estimating} qui suppose une dynamique localement paramétrique, mais pour lequel on fixe les méta-paramètres de la dynamique. On pourrait imaginer estimer un $T_W$ variable qui s'adapterait pour une meilleure estimation locale, à l'image de l'estimation de paramètres en traitement du signal bayesien effectuée via augmentation de l'état par les paramètres.}. Plus précisément, étant donné une fenêtre temporelle $T_W$, on estime pour tout $t$ le modèle sur $[t-T_W+1,t]$ afin de prédire les signaux à $t+1$.
+
+
+\paragraph{Implémentation}
+
+L'implémentation est faite en language R, utilisant en particulier la bibliothèque \texttt{MTS}~\cite{Tsay:2015xy} pour les modèles de séries temporelles. Les données nettoyées et le code source sont disponibles de manière ouverte sur le dépôt \texttt{git} du projet\footnote{at \texttt{https://github.com/JusteRaimbault/SynthAsset}}.
+
+\paragraph{Résultats}
+
+La figure~\ref{fig:effective_corrs} donne les correlations effectives calculées sur les données synthétiques. Pour des valeurs standard des paramètres (par exemple pour $\omega_0=24\textrm{h}$, $\omega_1=2\textrm{h}$ et $\rho=-0.5$), on a $\rho_0\simeq 0.71$ et $\varepsilon_i \simeq 0.3$ et ainsi $\left| \rho_e - \rho \right|\simeq 0.05$. On constate dans l'intervalle $\rho \in [-0.5,0.5]$ un bon accord entre la valeur $\rho_e$ prédite par~\ref{eq:eff_corr} et les valeurs observées, et une déviation pour de plus grandes valeurs absolues, d'autant plus grande que $\omega_1$ est petit : cela confirme l'intuition que lorsque la fréquence descend et se rapproche de $\omega_0$, les interférences entre les deux composantes vont devenir non négligeables et invalider les hypothèses d'indépendance par exemple.
+
+On applique ensuite le modèle prédictif décrit ci-dessus aux données synthétiques, afin d'étudier sa performance moyenne en fonction du niveau de correlation des données. Les résultats pour $\omega_1 = 1\textrm{h},1\textrm{h}30,2\textrm{h}$ sont présentés en figure~\ref{fig:model_perf}. Le résultat a priori contre-intuitif d'une performance maximale à correlation nulle pour l'un des actifs confirme l'intérêt d'une génération de données hybrides : l'étude des correlations décalées (\emph{lagged correlations}) montre une dissymétrie présente dans les données réelles, interprété à l'échelle journalière comme une influence augmentée de EURGBP sur EURUSD à 2h de décalage environ. L'existence de ce \emph{lag} permet une ``bonne'' prédiction de EURUSD due à la fréquence fondamentale, perturbée par le bruit ajouté, de façon proportionnelle à sa correlation : plus les bruits sont corrélés, plus le modèle les prendra en compte et se trompera plus à cause du caractère markovien des browniens simulés\footnote{en théorie le modèle utilisé n'a aucun pouvoir prédictif sur des browniens purs}.
+
+L'exemple présenté ici est un \emph{modèle jouet} et n'a pas d'application pratique, mais démontre l'intérêt de l'utilisation des données synthétiques simulées. On peut imaginer simuler des données plus proches de la réalité (existence de motifs réalistes de \emph{lagged correlation} par exemple, modèles plus réalistes que le Black-Scholes) et appliquer la méthode sur des modèles plus opérationnels.
+
+
+
+
 
 %%%%%%%%%%%%%%%%%%%
-\begin{figure}
+\begin{figure}%[h!]
 \centering
 % figure : effective correlations, with confidence intervals (bootstrap), for the 3 filtering scales. ; AND expected corrected corrs from derivation above.
-\includegraphics[width=0.7\textwidth]{figures/effectiveCorrs_withGoodTh_A4}
-\caption{\textbf{Correlations effectives obtenues sur les données synthétiques | } Les points représentent les correlations estimées sur une génération d'un jeu de données synthétiques correspondant aux 6 mois de juin à novembre 2015 (barres d'erreurs obtenue par méthode de Fisher standard) ; l'échelle de couleur donne la fréquence de filtrage $\omega_1=10\textrm{min},30\textrm{min},1\textrm{h},2\textrm{h},4\textrm{h}$ ; les courbes sont les valeurs théoriques de $\rho_e$ obtenues par~\ref{eq:eff_corr} avec les volatilités estimées (diagonale en pointillés pour référence) ; l'abscisse de la ligne rouge est la valeur théorique telle que $\rho = \rho_e$ avec les valeurs moyennes de $\varepsilon_i$ sur l'ensemble des points. On observe dans les fortes correlations une déviation des valeurs corrigées, qui peut être dû aux hypothèses d'indépendance ou d'espérance nulle non vérifiées. La dissymétrie de la courbe est causée par la forte valeur positive de $\rho_0 \simeq 0.71$.}
+%\vspace{-1cm}
+\includegraphics[width=0.8\textwidth,height=0.3\textheight]{figures/effectiveCorrs_withGoodTh_A4}
+\caption{\small\textbf{Correlations effectives obtenues sur les données synthétiques | } Les points représentent les correlations estimées sur une génération d'un jeu de données synthétiques correspondant aux 6 mois de juin à novembre 2015 (barres d'erreurs obtenue par méthode de Fisher standard) ; l'échelle de couleur donne la fréquence de filtrage $\omega_1=10\textrm{min},30\textrm{min},1\textrm{h},2\textrm{h},4\textrm{h}$ ; les courbes sont les valeurs théoriques de $\rho_e$ obtenues par~\ref{eq:eff_corr} avec les volatilités estimées (diagonale en pointillés pour référence) ; l'abscisse de la ligne rouge est la valeur théorique telle que $\rho = \rho_e$ avec les valeurs moyennes de $\varepsilon_i$ sur l'ensemble des points. On observe dans les fortes correlations une déviation des valeurs corrigées, qui peut être dû aux hypothèses d'indépendance ou d'espérance nulle non vérifiées. La dissymétrie de la courbe est causée par la forte valeur positive de $\rho_0 \simeq 0.71$.}
 \label{fig:effective_corrs}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%
-\begin{figure}
+\begin{figure}%[h!]
 % figure : performance of arma2 as a function of expected correlation.
-
-\caption{}
+%\vspace{-2cm}
+\centering
+\includegraphics[width=0.48\textwidth,height=0.18\textheight]{figures/asset/pred_filt6}
+\includegraphics[width=0.48\textwidth,height=0.18\textheight]{figures/asset/pred_filt9}\\
+\includegraphics[width=0.48\textwidth,height=0.18\textheight]{figures/asset/pred_filt12}
+\includegraphics[width=0.48\textwidth,height=0.18\textheight]{figures/asset/lagged_corrs}
+\caption{\small \textbf{Performance d'un modèle prédictif en fonction des correlations simulées.} De gauche à droite et de haut en bas, les trois premiers graphes montrent pour chaque actif la performance normalisée d'un modèle ARMA ($p=2,q=0$), définie par $\pi = \left(\frac{1}{T}\sum_t\left(\tilde{X}_i(t) - M_{\omega_1}\left[\tilde{X}_i\right](t)\right)^2 \right) / \sigma \left[ \tilde{X}_i \right]^2$ (IC à 95\% calculés par $\pi = \bar{\pi} \pm (1.96\cdot \sigma [\pi])/\sqrt{T}$, lissage polynomial local pour aider à la lecture). Il est intéressant de note la courbe en U, pour EURUSD, due à l'interférence entre les composantes par laquelle la correlation des bruits simulés détériore le pouvoir prédictif : l'étude des \emph{lagged correlations} (ici $\rho [\Delta X_{\textrm{EURUSD}}(t),\Delta X_{\textrm{EURGBP}}(t-\tau)]$) sur les données réelles dans le quatrième graphique montre une dissymétrie dans les courbes par rapport au décalage nul $(\tau = 0)$ ce qui devrait permettre à la composante fondamentale d'améliorer le pouvoir de prédiction alors perturbé par les correlations entre les composantes simulées. Les lignes pointillées montrent les pas de temps (en équivalent décalage temporel) utilisés par l'ARMA aux différentes échelles, ce qui permet de lire la correlation correspondante sur la composante fondamentale.}
 \label{fig:model_perf}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%
@@ -164,13 +170,13 @@ Pour des valeurs standard des paramètres (par exemple pour $\omega_0=24\textrm{
 \subsubsection{Contexte}
 
 
-En géographie, l'utilisation de données synthétiques est plus généralement axée vers l'utilisation de population synthétiques au sein de modèles basés agents (mobilité, modèles \emph{LUTI})~\cite{pritchard2009advances}. Il a récemment été proposé de contrôler systématiquement les effets de la configuration spatiale sur le comportement de modèles de simulation spatialisés~\cite{cottineau2015revisiting}, méthodologie pouvant être interprétée comme un contrôle par données statistiques spatiales. L'enjeu est de pouvoir alors distinguer effets propres dus à la dynamique intrinsèque du modèle, d'effet particuliers dus à la structure géographique du cas d'application. Celui-ci est crucial pour la validation des conclusions issues des pratiques de modélisation et simulation en géographie quantitative.
+En géographie, l'utilisation de données synthétiques est plus généralement axée vers l'utilisation de population synthétiques au sein de modèles basés agents (mobilité, modèles \emph{LUTI})~\cite{pritchard2009advances}. On peut également citer des méthodes d'analyse spatiales qui s'en rapprochent : par exemple, l'extrapolation d'un champ spatial continu à partir d'un échantillon discret, par une estimation par noyaux par exemple, peut être compris comme la génération d'un jeu de données synthétiques (même si ce n'est pas le point de vue initial, comme pour la Regression Géographique Pondérée~\cite{brunsdon1998geographically}, dans laquelle les noyaux de taille variables n'interpolent pas des données au sens propre mais extrapolent des variables abstraites représentant l'interaction entre variables explicites). Dans le domaine de la modélisation en géographie quantitative, dans le cas de \emph{modèles jouets} ou de modèles hybrides, une configuration initiale cohérente est souvent essentielle : un ensemble de configurations initiales possibles est alors un jeu de données synthétiques sur lesquelles le modèle est testé : le premier modèle Simpop~\cite{sanders1997simpop}, pionnier d'une famille de modèles par la suite paramétrisés par des données réelles, pourrait rentrer dans ce cadre mais était lancé sur une spatialisation synthétique unique. De même, il a été souligné la difficulté de générer une configuration initiale pour une infrastructure de transport dans le cas du modèle SimpopNet~\cite{schmitt2014modelisation}, alors qu'il s'agit un point essentiel dans la connaissance du comportement du modèle. Il a récemment été proposé de contrôler systématiquement les effets de la configuration spatiale sur le comportement de modèles de simulation spatialisés~\cite{cottineau2015revisiting}, méthodologie pouvant être interprétée comme un contrôle par données statistiques spatiales. L'enjeu est de pouvoir alors distinguer effets propres dus à la dynamique intrinsèque du modèle, d'effet particuliers dus à la structure géographique du cas d'application. Celui-ci est crucial pour la validation des conclusions issues des pratiques de modélisation et simulation en géographie quantitative.
 
 
 %%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Formalisation}
 
-Dans notre cas, nous proposons de générer des systèmes de villes représentés par une densité spatiale de population $d(\vec{x})$ et la donnée d'un réseau de transport $n(\vec{x})$, représenté de façon simplifiée, pour lesquels on serait capable de contrôler les correlations entre mesures morphologiques de la densité urbaine et caractéristiques du réseau. Nous proposons un couplage \emph{simple}
+Dans notre cas, nous proposons de générer des systèmes de villes représentés par une densité spatiale de population $d(\vec{x})$ et la donnée d'un réseau de transport $n(\vec{x})$, représenté de façon simplifiée, pour lesquels on serait capable de contrôler les correlations entre mesures morphologiques de la densité urbaine et caractéristiques du réseau. La question de l'interaction entre territoire et réseaux de transport est un sujet d'étude classique~\cite{offner1996reseaux} mais extrêmement complexe et difficile à quantifier~\cite{offner1993effets}. Une modélisation dynamique des processus impliqués devrait apporter des connaissances sur ces interactions (\cite{bretagnolle:tel-00459720}, p. 162-163). Dans ce cadre, nous développons un couplage \emph{simple} (c'est à dire sans boucle de rétroaction) entre un modèle de morphogenèse urbaine et un modèle de génération de réseau.
 
 
 \paragraph{Modèle de densité}
@@ -204,7 +210,7 @@ où $d$ peut être la distance euclidienne $d_{ij}=d(i,j)$ ou la distance par le
 \end{enumerate}
 
 
-Notons que la construction du modèle de génération est heuristique, et que d'autres types de modèles comme un réseau biologique auto-généré~\cite{TeroAl10}, une génération par contraintes géométriques locales~\cite{barthelemy2008modeling} ou un modèle de percolation plus complexe que celui utilisé, peuvent le remplacer. Ainsi, dans le cadre d'une architecture modulaire où le choix entre différentes implémentations d'une brique fonctionnelle peut être vue comme méta-paramètre~\cite{cottineau2015incremental}, on pourrait choisir la fonction de génération adaptée à un besoin donné (par exemple proximité à des données réelles, contraintes sur les relations entre indicateurs de sortie, variété de formes générées, etc.).
+Notons que la construction du modèle de génération est heuristique, et que d'autres types de modèles comme un réseau biologique auto-généré~\cite{TeroAl10}, une génération par optimisation locale de contraintes géométriques \cite{barthelemy2008modeling} ou un modèle de percolation plus complexe que celui utilisé, peuvent le remplacer. Ainsi, dans le cadre d'une architecture modulaire où le choix entre différentes implémentations d'une brique fonctionnelle peut être vue comme méta-paramètre~\cite{cottineau2015incremental}, on pourrait choisir la fonction de génération adaptée à un besoin donné (par exemple proximité à des données réelles, contraintes sur les relations entre indicateurs de sortie, variété de formes générées, etc.).
 
 
 \paragraph{Espace des paramètres}
@@ -234,39 +240,7 @@ Le couplage des modèles génératifs est effectué à la fois au niveau formel 
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Résultats}
 
-L'étude du modèle de densité seul est développée dans~\cite{raimbault2016calibration}. Il est notamment calibré sur les données de la grille européenne de densité, sur des zones de 50km de côté et de résolution 500m pour lesquelles les valeurs réelles des indicateurs ont été calculées pour l'ensemble de l'Europe. D'autre part, une exploration brutale du modèle permet d'estimer l'ensemble des sorties possibles dans des bornes raisonnables pour les paramètres (grossièrement $\alpha \in [0.5,2],N_G\in [500,3000], P_m \in [10^4,10^5],\beta\in [0,0.2], n_d \in \{ 1, \ldots , 4\}$). La réduction à un plan de l'espace des objectif par une Analyse en Composantes Principales (variance expliquée à deux composantes $\simeq 80\%$) permet d'isoler un nuage de points de sorties recouvrant assez fidèlement le nuage des points réels, ce qui veut dire que le modèle est capable de reproduire morphologiquement l'ensemble des configurations existantes.
-
-
-% NOT NEEDED - TOO MUCH INFORMATION - ?
-%%%%%%%%%%%%%%%%
-%\begin{figure}
-% figure : density example, exploration and calibration ?
-%\end{figure}
-%%%%%%%%%%%%%%%%
-
-A densité donnée, l'exploration de l'espace des paramètres du modèle de réseau suggèrent une assez bonne flexibilité sur des indicateurs globaux $\vec{G}$, ainsi que de bonnes propriétés de convergence. Pour une étude du comportement précis, voir l'appendice donnant les regressions traduisant le comportement du modèle couplé. Dans le but d'illustrer la méthode de génération de données synthétiques, l'exploration a été orientée vers l'étude des correlations.
-
-Etant donné la grande dimension relative de l'espace des paramètres, une exploration par grille exhaustive est impossible. On utilise un plan d'expérience par criblage (hypercube latin), avec les bornes indiquées ci-dessus pour $\vec{\alpha}_D$ et pour $\vec{\alpha}_N$, on a $N_C \in [50,120], r_g \in [1,100] , d_0 \in [0.1,10] , k_h \in [0,1] , \gamma \in [0.1,4],N_L\in [4,20]$. Concernant le nombre de réplications du modèle pour chaque valeur des paramètres, moins de 50 sont nécessaires pour obtenir sur les indicateurs des intervalles de confiance à 95\% de taille inférieure aux déviations standard. Pour les correlations, une centaine donne des IC (obtenus par méthode de Fisher) de taille moyenne 0.4, on fixe donc $n=80$ pour l'expérience. La figure~\ref{fig:densnwcor} donne le détail des résultats de l'exploration. On retiendra les résultats marquants suivants au regard de la génération de données synthétiques corrélées :
-\begin{itemize}
-\item les distributions empiriques des coefficients de correlations entre indicateurs de forme et indicateurs de réseaux ne sont pas simples, pouvant être bimodales (par exemple $\rho_{46}=\rho[r,\bar{l}]$ entre l'index de Moran et le chemin moyen).
-\item On arrive à générer un assez haut niveau de correlation pour l'ensemble des indicateurs, la correlation absolue maximale variant entre 0.6 et 0.9 ; l'amplitude varie quant à elle entre 0.9 et 1.6, ce qui permet un large spectre de valeurs. 
-\item les points les plus corrélés en moyenne sont également ceux les plus proches des données réelles, ce qui confirme l'intuition d'une forte interdépendance en réalité.
-\end{itemize}
-
-
-
-\subsubsection{Extensions possibles}
-
-On pourra éventuellement appliquer des algorithmes plus fins d'exploration pour atteindre des configurations exceptionelles réalisant un niveau de corrélation voulu~\cite{10.1371/journal.pone.0138212}. Les indicateurs globaux devraient ainsi être corrélés à un niveau contrôlé, tandis que les densités et réseaux restent cohérents dans l'espace de par la forme du réseau, conditionnelle à la distribution de densité. Les applications géographiques potentielles de cette implémentation de la méthode incluent le contrôle statistique de l'effet des corrélations entre ville et réseaux sur des modèles de simulation spatiaux par exemple.
-
-
- ainsi que la calibration contre les mesures réelles calculées sur l'ensemble de l'Europe sur des zones identiques au modèle de densité, via les données de réseau routier d'OpenStreetMap. La connaissance très fine ainsi obtenue du comportement de $N$ (distribution statistiques sur une grille fine de l'espace des paramètres à trois dimensions), devrait permettre, étant donné une population de configuration de densités $\tilde{D}$, de déterminer via $N^{<-1>}$ une population de réseau $\tilde{N}$ telle que $\Covb{M}{G}$ a une structure fixée (via la détermination de la valeur des paramètres à utiliser pour chaque individu de $\tilde{D}$). 
-
-
-% également calib sur forme du réseau ?
 
 
 %%%%%%%%%%%%%%
@@ -299,19 +273,55 @@ On pourra éventuellement appliquer des algorithmes plus fins d'exploration pour
    \caption{}
 \end{subfigure}
 
-\caption{\small\textbf{Exploration de l'espace des corrélations entre forme urbaine et réseau | } \textbf{(a)} Distribution des correlations croisées entre les vecteurs $\vec{M}$ des indicateurs morphologiques (dans l'ordre index de moran, distance moyenne, entropie, hiérarchie) et $\vec{N}$ des mesures de réseau (centralité, longueur moyenne, vitesse, diamètre). \textbf{(b)} Amplitude des corrélations, définie comme $a_{ij}=\max_k{\rho_{ij}^{(k)}}-\min_k{\rho_{ij}^{(k)}}$, et correlation absolue maximale, $c_{ij}=\max_k\left| \right|$. \textbf{(c)} Représentation des matrices dans un plan principal obtenu par Analyse en Composantes Principales sur la population des matrices (variances cumulées: PC1=38\%, PC2=68\%). Les barres d'erreur sont calculées initialement par des intervalles de confiance à 95\% sur chaque élément de la matrice (par une méthode de Fisher asymptotique standard), puis les bornes supérieures sont prises dans le plan principal. L'échelle de couleur donne la correlation absolue moyenne sur l'ensemble des variables. \textbf{(d)} }
+\caption{\small\textbf{Exploration de l'espace des corrélations entre forme urbaine et réseau | } \textbf{(a)} Distribution des correlations croisées entre les vecteurs $\vec{M}$ des indicateurs morphologiques (dans l'ordre index de moran, distance moyenne, entropie, hiérarchie) et $\vec{N}$ des mesures de réseau (centralité, longueur moyenne, vitesse, diamètre). \textbf{(b)} Amplitude des corrélations, définie comme $a_{ij}=\max_k{\rho_{ij}^{(k)}}-\min_k{\rho_{ij}^{(k)}}$, et correlation absolue maximale, $c_{ij}=\max_k\left| \rho_{ij}^{k} \right|$. \textbf{(c)} Représentation des matrices dans un plan principal obtenu par Analyse en Composantes Principales sur la population des matrices (variances cumulées: PC1=38\%, PC2=68\%). Les barres d'erreur sont calculées initialement par des intervalles de confiance à 95\% sur chaque élément de la matrice (par une méthode de Fisher asymptotique standard), puis les bornes supérieures sont prises dans le plan principal. L'échelle de couleur donne la correlation absolue moyenne sur l'ensemble des variables. \textbf{(d)} Représentation dans le plan principal, l'échelle de couleur donnant la proximité aux données réelles définie comme $1 - \min_r \norm{\vec{M}-\vec{M}_r}$ où $\vec{M}_r$ est l'ensemble des mesures morphologiques réelles, la taille des points donne la correlation absolue moyenne. \textbf{(e)} Configurations obtenues sur les 4 points particuliers surlignés en (d), dans l'ordre de gauche à droite et de haut en bas. On reconnait des configurations de villes polycentriques (2 et 4), d'habitat rural diffus (3) et de zone à faible densité (1). Voir en appendice pour l'ensemble des valeurs des paramètres, indicateurs et correlations correspondants. Par exemple, $\bar{d}$ est très corrélé à $\bar{l},\bar{s}$ ($\simeq$0.8) pour (1) mais pas pour (3) alors qu'il s'agit pour les deux d'un environnement rural ; dans un cas urbain on a également beaucoup de variabilité : $\rho[\bar{d},\bar{c}]\simeq 0.34$ pour (4) mais $\simeq-0.41$ pour (2), ce qui s'explique par une plus forte prégnance de la hiérarchie gravitaire dans (2) $\gamma=3.9,k_h=0.7$ (pour (4), $\gamma=1.07,k_h=0.25$), alors que la configuration de densité est la même.}
 \label{fig:densnwcor}
 \end{figure}
 %%%%%%%%%%%%%%
 
 
 
-%%%%%%%%%%%%%%
-\begin{table}
-%regression analysis of param influence on correlations
 
-\end{table}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Résultats}
+
+L'étude du modèle de densité seul est développée dans~\cite{raimbault2016calibration}. Il est notamment calibré sur les données de la grille européenne de densité, sur des zones de 50km de côté et de résolution 500m pour lesquelles les valeurs réelles des indicateurs ont été calculées pour l'ensemble de l'Europe. D'autre part, une exploration brutale du modèle permet d'estimer l'ensemble des sorties possibles dans des bornes raisonnables pour les paramètres (grossièrement $\alpha \in [0.5,2],N_G\in [500,3000], P_m \in [10^4,10^5],\beta\in [0,0.2], n_d \in \{ 1, \ldots , 4\}$). La réduction à un plan de l'espace des objectif par une Analyse en Composantes Principales (variance expliquée à deux composantes $\simeq 80\%$) permet d'isoler un nuage de points de sorties recouvrant assez fidèlement le nuage des points réels, ce qui veut dire que le modèle est capable de reproduire morphologiquement l'ensemble des configurations existantes.
+
+
+% NOT NEEDED - TOO MUCH INFORMATION - ?
+%%%%%%%%%%%%%%%%
+%\begin{figure}
+% figure : density example, exploration and calibration ?
+%\end{figure}
+%%%%%%%%%%%%%%%%
+
+A densité donnée, l'exploration de l'espace des paramètres du modèle de réseau suggèrent une assez bonne flexibilité sur des indicateurs globaux $\vec{G}$, ainsi que de bonnes propriétés de convergence. Pour une étude du comportement précis, voir l'appendice donnant les regressions traduisant le comportement du modèle couplé. Dans le but d'illustrer la méthode de génération de données synthétiques, l'exploration a été orientée vers l'étude des correlations.
+
+Etant donné la grande dimension relative de l'espace des paramètres, une exploration par grille exhaustive est impossible. On utilise un plan d'expérience par criblage (hypercube latin), avec les bornes indiquées ci-dessus pour $\vec{\alpha}_D$ et pour $\vec{\alpha}_N$, on a $N_C \in [50,120], r_g \in [1,100] , d_0 \in [0.1,10] , k_h \in [0,1] , \gamma \in [0.1,4],N_L\in [4,20]$. Concernant le nombre de réplications du modèle pour chaque valeur des paramètres, moins de 50 sont nécessaires pour obtenir sur les indicateurs des intervalles de confiance à 95\% de taille inférieure aux déviations standard. Pour les correlations, une centaine donne des IC (obtenus par méthode de Fisher) de taille moyenne 0.4, on fixe donc $n=80$ pour l'expérience. La figure~\ref{fig:densnwcor} donne le détail des résultats de l'exploration. On retiendra les résultats marquants suivants au regard de la génération de données synthétiques corrélées :
+\begin{itemize}
+\item les distributions empiriques des coefficients de correlations entre indicateurs de forme et indicateurs de réseaux ne sont pas simples, pouvant être bimodales (par exemple $\rho_{46}=\rho[r,\bar{l}]$ entre l'index de Moran et le chemin moyen).
+\item On arrive à générer un assez haut niveau de correlation pour l'ensemble des indicateurs, la correlation absolue maximale variant entre 0.6 et 0.9 ; l'amplitude varie quant à elle entre 0.9 et 1.6, ce qui permet un large spectre de valeurs. L'espace couvert dans un plan principal a une étendue certaine mais n'est pas uniforme : on ne peut pas moduler à loisir n'importe quel coefficients, ceux-ci étant liés par les processus de génération sous-jacent. Une étude plus fine aux ordres suivants (correlation des correlations) serait nécessaire pour cerner exactement la latitude dans la génération.
+\item les points les plus corrélés en moyenne sont également ceux les plus proches des données réelles, ce qui confirme l'intuition d'une forte interdépendance en réalité.
+\item Des exemples concrets pris sur des points particuliers distants dans le plan principal montre que des configurations de densité proches peuvent présenter des profils de correlations très différents.
+\end{itemize}
+
+
+
 %%%%%%%%%%%%%%
+%\begin{table}
+%regression analysis of param influence on correlations
+%  -> Appendice.
+%\end{table}
+%%%%%%%%%%%%%%
+
+
+
+
+
+\subsubsection{Extensions possibles}
+
+Il est possible de raffiner cette étude en étendant la méthode de contrôle des correlations. La connaissance très fine du comportement de $N$ (distribution statistiques sur une grille fine de l'espace des paramètres) conditionnée à $D$ devrait permettre de déterminer exhaustivement $N^{<-1>} | D$ et avoir plus de latitude dans la génération des correlations. On pourra également appliquer des algorithmes spécifiques d'exploration pour essayer atteindre des configurations exceptionnelles réalisant un niveau de corrélation voulu, ou au moins pour découvrir l'espace des correlations atteignables par la méthode de génération~\cite{10.1371/journal.pone.0138212}.
 
 
 
@@ -322,20 +332,39 @@ On pourra éventuellement appliquer des algorithmes plus fins d'exploration pour
 %%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Domaines potentiels d'application}
-
-% ideas of other fields where the generation can happen.
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%
-\subsection{Positionnement}
+\subsection*{Positionnement}
 
 % données hybrides au centre de la démarche d'exploration de modèle, analyse de sensitivité etc.
 
+Notre démarche s'inscrit dans un cadre épistémologique particulier. En effet, d'une part la volonté de multi-disciplinarité et d'autre part l'importance de la composante empirique couplée aux méthodes d'exploration computationelles, en font une approche typique des sciences de la complexité, comme le rappelle la structure de la feuille de route pour les systèmes complexes~\cite{chavalarias2013phylomemetic} qui croise des grandes questions transversales aux disciplines à une intégration verticale de celles-ci, qui implique la construction de modèles multi-échelles hétérogènes présentant souvent les aspects précédent. Le croisement de connaissances empiriques issues de la fouille de données avec celles issues de la simulation est souvent central dans leur conception ou leur exploration, et les résultats présentés ici en sont un exemple typique pour le cas de l'exploration.
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Applications directes}
+
+
+En partant du deuxième exemple, qui s'est arrêté à la génération des données synthétiques, on peut proposer des pistes d'application directe qui donneront un aperçu de l'éventail des possibilités.
+
+\begin{itemize}
+\item La calibration de la composante de génération de réseau, à densité donnée, sur des données réelle de réseau de transport (typiquement routier vu les formes heuristiques obtenues, il devrait par exemple être aisé d'utiliser les données ouvertes d'OpenStreetMap\footnote{\texttt{https://www.openstreetmap.org}} qui sont de qualité raisonnable pour l'Europe, du moins pour la France~\cite{girres2010quality}, avec toutefois des ajustements à faire sur le modèle pour supprimer les effets de bord du à sa structure, par exemple en le faisant générer sur une surface étendue pour ne garder qu'une zone centrale sur laquelle la calibration aurait lieu) permettrait en théorie d'isoler un jeu de paramètres représentant fidèlement des situations existantes à la fois pour la forme urbaine et la forme du réseau. Il serait alors possible de dériver une ``correlation théorique'' pour celles-ci, étant donné qu'une correlation empirique n'est en théorie pas calculable puisqu'une seule instance des processus stochastiques est observée. Vu la non-ergodicité des système urbains~\cite{pumain2012urban}, il y a de fortes chances pour que ces processus soient différents d'une zone géographique à l'autre (ou selon un autre point de vue qu'ils soient dans un autre état des meta-paramètres, dans un autre régime) et que leur interprétation en tant que réalisations d'un même processus stochastique n'ait aucun sens, entrainant l'impossibilité du calcul des covariations. En attribuant un jeu de données synthétiques similaire à une situation donnée, on serait capable de calculer une sorte de \emph{correlation intrinsèque} propre à la situation, qui émerge en fait en réalité des interdépendances temporelles des composantes. Connaitre celle-ci renseigne alors sur ces interdépendances, et donc sur les relations entre réseaux et territoires.
+\item Comme déjà évoqué, la plupart des modèles de simulation nécessitent un état initial, généré artificiellement à partir du moment où la paramétrisation n'est pas effectuée totalement à partir de données réelles. Une analyse de sensibilité avancée du modèle implique alors un contrôle sur les paramètres de génération du jeu de données synthétique, vu comme méta-paramètre du modèle~\cite{cottineau2015revisiting}. Dans le cas d'une analyse statistique des sorties du modèle, on est alors capable d'effectuer un contrôle statistique au second ordre.
+\item On a étudié des processus stochastiques dans le premier exemple, au sens de séries temporelles aléatoires, alors que le temps ne jouait pas de rôle dans le second. On peut suggérer un couplage fort entre les deux composantes du modèle (ou la construction d'un modèle intégré) et observer les indicateurs et correlations à différents pas de temps de la génération. Dans le cas d'une dynamique, de par les rétroactions, on a nécessairement des effets de propagation et donc l'existence d'interdépendances décalées dans l'espace et le temps~\cite{pigozzi1980interurban}, étendant le domaine d'étude vers une meilleure compréhensions des correlations dynamiques.
+\end{itemize}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Généralisation}
+
+On s'est limité au contrôle des premiers et second moments des données générées, mais il est possible d'imaginer une généralisation théorique permettant le contrôle des moments à un ordre arbitraire. Toutefois, la difficulté de génération dans un cas concret complexe, comme le montre l'exemple géographique, questionne la possibilité de contrôle aux ordres supérieurs tout en gardant un modèle à la structure cohérente au au nombre de paramètres relativement faibles. Par contre, l'étude de structures de dépendances non-linéaires comme celles utilisées dans~\cite{chicheportiche2013nested} est une piste de développement intéressante.
+
+%%%%%%%%%%%%%%%%%%%%%%
+%\subsection*{Autres domaines potentiels d'application}
+% ideas of other fields where the generation can happen.
+% -> not necessary, suggested in intro ?
 
 
 
@@ -347,11 +376,6 @@ On pourra éventuellement appliquer des algorithmes plus fins d'exploration pour
 On a ainsi proposé une méthode abstraite de génération de données synthétiques corrélées à un niveau contrôlé. Son implémentation partielle dans deux domaines très différents montre sa flexibilité et l'éventail des applications potentielles. De manière générale, il est essentiel de généraliser de telles pratiques de validation systématique de modèles par étude statistique, en particulier pour les modèles agents pour lesquels la question de la validation reste encore relativement ouverte.
 
 
-
-
-
-
-\newpage
 
 
 %%%%%%%%%%%%%%%%%%%%
@@ -368,22 +392,96 @@ On a ainsi proposé une méthode abstraite de génération de données synthéti
 
 \newpage
 
+\normalsize
+
+
+\section*{Appendice : Configurations particulières}
+
+Le tableau suivant résume les valeurs des paramètres, indicateurs et correlations pour les 4 configurations présentées en figure~\ref{fig:densnwcor}.
+
+\begin{center}
+
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
+Configuration&(1)&(2)&(3)&(4)\\\hline
+&&&&\\
+$\alpha$&1.516501e+00&1.555684e+00&1.174289e+00&1.323203e+00\\
+$\beta$&4.522689e-02&2.369011e-01&2.878834e-02&2.457331e-02\\
+$n_d$&1.523121e+00&2.447648e+00&1.005678e+00&1.682232e+00\\
+$N_C$&9.841719e+01&7.605296e+01&1.176334e+02&9.128398e+01\\
+$N_G$&2.712064e-02&2.388306e-02&5.093294e-02&1.854230e-02\\
+$\gamma$&1.618555e+00&3.917224e+00&2.136885e+00&1.070508e+00\\
+$d_0$&1.300443e+00&9.939404e+00&2.947665e+00&1.324972e+00\\
+$r_g$&8.576246e+01&8.394425e+01&8.232540e+01&7.438451e+01\\
+$k_h$&2.200645e-01&7.177931e-01&8.064035e-01&2.510558e-02\\
+$N_L$&1.846435e+01&1.803941e+01&9.706505e+00&1.190123e+01\\
+$P_m$&3.657749e+04&9.526370e+04&4.923410e+04&6.140057e+04\\
+$\bar{c}$&1.433701e-01$\pm$1.410993e-02&0.1450925$\pm$0.01732669&0.15007478$\pm$0.016914043&0.15753385$\pm$0.016885300\\
+$\bar{l}$&1.902390e-01$\pm$1.490413e-01&0.5264323$\pm$0.10235672&0.78084633$\pm$0.091161648&0.61213918$\pm$0.144466259\\
+$\bar{s}$&6.567478e-01$\pm$6.161807e-02&0.6266877$\pm$0.03632790&0.55060490$\pm$0.030011454&0.63238422$\pm$0.049560104\\
+$\delta$&1.026908e+00$\pm$4.323170e-01&1.5387645$\pm$0.28635511&2.09662379$\pm$0.333273034&1.82876419$\pm$0.287441536\\
+$r$&9.582111e-03$\pm$1.303745e-03&0.1870607$\pm$0.02129171&0.00658906$\pm$0.001676165&0.01108170$\pm$0.002666821\\
+$\bar{d}$&7.225749e-01$\pm$1.475284e-01&0.7894275$\pm$0.03793392&0.91603864$\pm$0.008777011&0.89253127$\pm$0.044771296\\
+$e$&6.529959e-01$\pm$7.448434e-02&0.9656237$\pm$0.01121815&0.94523444$\pm$0.001576657&0.85650444$\pm$0.033640178\\
+$s$&-1.009041e+00$\pm$5.755951e-02&-0.6915159$\pm$0.07571627&-0.86066650$\pm$0.011647444&-1.04113626$\pm$0.022954670\\
+&1.927581e-02&0.1949022&0.08736587&0.01814215\\
+&&&&\\
+$\rho[r,\bar{d}]$&-0.4679513 [-6.235562e-01 , -0.2766820]&-0.6021740 [-0.7258547 , -4.407751e-01]&-1.836459e-01 [-0.3877183 , 3.758763e-02]&1.535686e-01 [-0.0684582 , 3.611013e-01]\\
+$\rho[r,e]$&-0.4969249 [-6.460989e-01 , -0.3111840]&-0.1625078 [-0.3690476 , 5.932741e-02]&-1.848848e-01 [-0.3888074 , 3.630699e-02]&5.693427e-01 [0.3996153 , 7.013276e-01]\\
+$\rho[r,s]$&0.3081761 [9.488394e-02 , 0.4944154]&-0.3421209 [-0.5225573 , -1.323529e-01]&-3.313264e-01 [-0.5136505 , -1.203723e-01]&-4.066184e-01 [-0.5749672 , -2.052376e-01]\\
+$\rho[\bar{d},e]$&0.8508536 [7.762552e-01 , 0.9019531]&0.5705894 [0.4011659 , 7.022647e-01]&-5.995528e-05 [-0.2197740 , 2.196598e-01]&4.344970e-01 [0.2374484 , 5.972012e-01]\\
+$\rho[\bar{d},s]$&-0.8023042 [-8.688589e-01 , -0.7072636]&0.6692694 [0.5270560 , 7.750198e-01]&6.791720e-02 [-0.1540993 , 2.834050e-01]&-9.559466e-02 [-0.3088251 , 1.267852e-01]\\
+$\rho[e,s]$&-0.9009695 [-9.354970e-01 , -0.8493979]&0.8781442 [0.8158375 , 9.202963e-01]&8.468024e-01 [0.7704290 , 8.992143e-01]&-1.789705e-01 [-0.3836031 , 4.241422e-02]\\
+&&&&\\
+$\rho[\bar{c},\bar{l}]$&0.4234633 [2.246481e-01 , 5.884313e-01]&0.7235166 [0.5990261 , 0.8138558]&0.8431956 [0.7652527 , 0.8967725]&0.4006936 [0.1984478 , 0.5702097]\\
+$\rho[\bar{c},\bar{s}]$&-0.1023031 [-3.149408e-01 , 1.201137e-01]&-0.7950977 [-0.8638952 , -0.6971747]&-0.7872919 [-0.8585037 , -0.6862905]&-0.4496771 [-0.6092037 , -0.2551716]\\
+$\rho[\bar{c},\delta]$&0.2568220 [3.932404e-02 , 4.510850e-01]&0.7049855 [0.5742125 , 0.8006794]&0.8299035 [0.7462630 , 0.8877455]&0.6332603 [0.4803829 , 0.7487918]\\
+$\rho[\bar{l},\bar{s}]$&0.4219260 [2.228701e-01 , 5.872064e-01]&-0.7921187 [-0.8618395 , -0.6930156]&-0.8942859 [-0.9310592 , -0.8395275]&-0.8546133 [-0.9044912 , -0.7816736]\\
+$\rho[\bar{l},\delta]$&0.6948818 [5.607839e-01 , 7.934560e-01]&0.8158636 [0.7263519 , 0.8781621]&0.8882018 [0.8305739 , 0.9270100]&0.6689605 [0.5266519 , 0.7747964]\\
+$\rho[\bar{s},\delta]$&0.3805439 [1.755009e-01 , 5.539444e-01]&-0.6657526 [-0.7724742 , -0.5224595]&-0.7760599 [-0.8507179 , -0.6707077]&-0.6680160 [-0.7741129 , -0.5254169]\\
+&&&&\\
+$\rho[r,\bar{c}]$&-0.0958671 [-0.3090738 , 0.12651465]&-0.2846750 [-0.47470041 , -0.06929222]&0.106860362 [-0.11557001 , 0.3190854424]&0.166141774 [-0.05560493 , 0.372269294]\\
+$\rho[r,\bar{l}]$&0.3184592 [0.1061712 , 0.50298200]&0.3611645 [0.15363946 , 0.53817505]&0.120291668 [-0.10212439 , 0.3312534969]&0.112524033 [-0.10991022 , 0.324224975]\\
+$\rho[r,\bar{s}]$&0.3510671 [0.1423288 , 0.52990926]&0.3864280 [0.18217892 , 0.55870790]&-0.207507373 [-0.40859524 , 0.0127927828]&-0.006745464 [-0.22612722 , 0.213287544]\\
+$\rho[r,\delta]$&-0.3419770 [-0.5224388 , -0.13219278]&0.4010223 [0.19882412 , 0.57047399]&-0.199327994 [-0.40146255 , 0.0213227474]&-0.101075026 [-0.31382258 , 0.121336498]\\
+$\rho[\bar{d},\bar{c}]$&-0.1833004 [-0.3874145 , 0.03794465]&-0.4143381 [-0.58114893 , -0.21411352]&0.006860986 [-0.21317727 , 0.2262368358]&0.348614959 [0.13959020 , 0.527896760]\\
+$\rho[\bar{d},\bar{l}]$&0.8121174 [0.7210643 , 0.87559646]&0.7363382 [0.61633582 , 0.82291849]&0.191569016 [-0.02938471 , 0.3946737203]&0.607176014 [0.44710613 , 0.729564080]\\
+$\rho[\bar{d},\bar{s}]$&0.8175828 [0.7287819 , 0.87933822]&0.7718832 [0.66493682 , 0.84781438]&-0.219254065 [-0.41879596 , 0.0004862563]&0.731832543 [0.61023974 , 0.819738748]\\
+$\rho[\bar{d},\delta]$&-0.8199313 [-0.8809437 , -0.73210512]&0.7272964 [0.60411696 , 0.81653203]&-0.205542803 [-0.40688430 , 0.0148444885]&-0.146644197 [-0.35492533 , 0.075505502]\\
+$\rho[e,\bar{c}]$&-0.2355562 [-0.4328696 , -0.01670384]&0.1482222 [-0.07390147 , 0.35633436]&-0.028013851 [-0.24621526 , 0.1928903073]&-0.213237762 [-0.41357774 , 0.006797615]\\
+$\rho[e,\bar{l}]$&0.4856866 [0.2977430 , 0.63738583]&-0.3440356 [-0.52413307 , -0.13448447]&0.005838058 [-0.21415354 , 0.2252660012]&-0.259589628 [-0.45344380 , -0.042284479]\\
+$\rho[e,\bar{s}]$&0.5700927 [0.4005481 , 0.70189139]&-0.5411854 [-0.68004036 , -0.36485222]&0.206851807 [-0.01347763 , 0.4080244658]&-0.520820100 [-0.66449667 , -0.340011761]\\
+$\rho[e,\delta]$&-0.5105626 [-0.6566203 , -0.32759502]&-0.4972353 [-0.64633902 , -0.31155624]&0.180368653 [-0.04097196 , 0.3848345410]&0.007300570 [-0.21275760 , 0.226653900]\\
+$\rho[s,\bar{c}]$&-0.5398119 [-0.6789960 , -0.36316900]&-0.3711488 [-0.54631495 , -0.16487721]&0.066233469 [-0.15575000 , 0.2818487302]&0.191933347 [-0.02900679 , 0.394992994]\\
+$\rho[s,\bar{l}]$&0.8100685 [0.7181768 , 0.87419174]&0.5960875 [0.43309300 , 0.72133128]&0.103616019 [-0.11880563 , 0.3161357092]&0.293165083 [0.07850495 , 0.481844758]\\
+$\rho[s,\bar{s}]$&0.8166515 [0.7274653 , 0.87870120]&0.5501248 [0.37583582 , 0.68682409]&-0.214962957 [-0.41507543 , 0.0049896034]&0.326893808 [0.11547047 , 0.509981729]\\
+$\rho[s,\delta]$&-0.7869970 [-0.8582997 , -0.68588011]&0.5902345 [0.42572786 , 0.71697130]&-0.234261611 [-0.43175552 , -0.0153339732]&-0.053173625 [-0.26973912 , 0.168512022]\\
+\end{tabular}
+
+
+\end{center}
+
+
+
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%
-\section*{Appendice : Comportement du modèle couplé}
+\section*{Appendice : Comportement du modèle couplé, analyse statistique}
 
-
+% TODO décrire
 
 \subsection*{Indicateurs}
 
 \begin{center}
 
 
-\begin{tabular}{|c|c|c|c|c| }
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
  \hline
 &BW&Pathlength&relspeed&diameter\\\hline
 R2&0.6098&0.638 &0.7049 &0.5855\\\hline
 (Intercept)&2.106e-01$\pm$ 4.728e-03 (***)&1.0939160$\pm$ 0.0514692 (***)&6.211e-01$\pm$ 9.722e-03 (***)&2.4956084$\pm$ 0.1172324 (***)\\
-$\alpha$&-1.127e-02$\pm$ 2.012e-03 (***)&-0.5305835$\pm$ 0.0219066 (***)&8.469e-02$\pm$ 4.138e-03 (***)&-1.0366776$\pm$ 0.0498972 (***)\\
+$\alpha$&-1.127e-02$\pm$ 2.012e-03 (***)&-0.530583$\pm$ 0.021907 (***)&8.469e-02$\pm$ 4.138e-03 (***)&-1.0366776$\pm$ 0.04989 (***)\\
 $\beta$&9.430e-03$\pm$ 6.803e-03 ()&0.1738349$\pm$ 0.0740571 (*)&-6.516e-02$\pm$ 1.399e-02 (***)&0.2937746$\pm$ 0.1686813 (.)\\
 $n_d$&6.786e-04$\pm$ 6.534e-04 ()&0.0048631$\pm$ 0.0071129 ()&-4.046e-03$\pm$ 1.344e-03 (**)&0.0003039$\pm$ 0.0162012 ()\\
 $N_C$&-3.005e-04$\pm$ 2.887e-05 (***)&0.0012026$\pm$ 0.0003143 (***)&-1.214e-03$\pm$ 5.937e-05 (***)&0.0040004$\pm$ 0.0007159 (***)\\
@@ -391,7 +489,7 @@ $N_G$&4.800e-02$\pm$ 1.348e-02 (***)&1.4969583$\pm$ 0.1467356 (***)&-1.400e-01$\
 $\gamma$&4.615e-03$\pm$ 4.997e-04 (***)&0.0132129$\pm$ 0.0054394 (*)&-7.990e-03$\pm$ 1.027e-03 (***)&0.0389784$\pm$ 0.0123895 (**)\\
 $d_0$&2.743e-04$\pm$ 1.971e-04 ()&-0.0029289$\pm$ 0.0021453 ()&-5.688e-04$\pm$ 4.052e-04 ()&-0.0075661$\pm$ 0.0048863 ()\\
 $r_g$&-2.726e-05$\pm$ 2.038e-05 ()&0.0001532$\pm$ 0.0002219 ()&5.329e-05$\pm$ 4.191e-05 ()&0.0002358$\pm$ 0.0005054 ()\\
-$k_h$&-1.035e-02$\pm$ 1.952e-03 (***)&-0.0954905$\pm$ 0.0212503 (***)&1.992e-02$\pm$ 4.014e-03 (***)&-0.2271416$\pm$ 0.0484021 (***)\\
+$k_h$&-1.035e-02$\pm$ 1.952e-03 (***)&-0.095491$\pm$ 0.021250 (***)&1.992e-02$\pm$ 4.014e-03 (***)&-0.227141$\pm$ 0.048402 (***)\\
 $N_L$&-2.390e-03$\pm$ 1.243e-04 (***)&-0.0021779$\pm$ 0.0013533 ()&1.287e-03$\pm$ 2.556e-04 (***)&-0.0044759$\pm$ 0.0030824 ()\\
 
  \hline
@@ -401,7 +499,7 @@ $N_L$&-2.390e-03$\pm$ 1.243e-04 (***)&-0.0021779$\pm$ 0.0013533 ()&1.287e-03$\pm
 
 \hspace{-0.4cm}
 
-\begin{tabular}{|c|c|c|c|c| }
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
  \hline
 &moran&distance&entropy&slope\\\hline
 R2&0.7762&0.4753&0.5516&0.6587\\\hline
@@ -423,7 +521,7 @@ $N_L$&5.183e-04$\pm$ 3.545e-04 ()&-4.340e-04$\pm$ 1.015e-03 ()&8.870e-06$\pm$ 7.
 \end{center}
 
 
-\vspace{1cm}
+\vspace{0.5cm}
 
 
 \subsection*{Correlations}
@@ -432,7 +530,7 @@ $N_L$&5.183e-04$\pm$ 3.545e-04 ()&-4.340e-04$\pm$ 1.015e-03 ()&8.870e-06$\pm$ 7.
 
 \begin{center}
 
-\begin{tabular}{|c|c|c|c| }
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
  \hline
 &$\rho[r,\bar{d}]$&$\rho[r,e]$&$\rho[r,s]$\\\hline
 R2&0.5774&0.5093&0.5483\\\hline
@@ -446,7 +544,7 @@ $N_G$&0.665346$\pm$0.146472 (***)&-0.483421$\pm$0.167209 (**)&0.99527$\pm$0.1755
 
 \bigskip
 
-\begin{tabular}{|c|c|c|c| }
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
  \hline
 &$\rho[\bar{d},e]$&$\rho[\bar{d},s]$&$\rho[e,s]$\\\hline
 R2&0.5141&0.5383&0.5449\\\hline
@@ -460,6 +558,47 @@ $N_G$&-2.23787$\pm$0.36278 (***)&0.355478$\pm$0.070450 (***)&-2.00208$\pm$0.3087
 
 
 
+\bigskip
+
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
+ \hline
+&$\rho [\bar{c},\bar{l}]$&$\rho [\bar{c},\bar{s}]$&$\rho [\bar{c},\delta]$\\\hline
+R2&0.5892&0.5084&0.581\\\hline
+(Intercept)&1.1594972$\pm$0.0508300 (***)&-1.099e+00$\pm$5.891e-02 (***)&1.2163505$\pm$0.0595172 (***)\\
+$\alpha$&-0.4989055$\pm$0.0216346 (***)&4.722e-01$\pm$2.507e-02 (***)&-0.5547464$\pm$0.0253321 (***)\\
+$\beta$&0.3285271$\pm$0.0731373 (***)&-6.064e-01$\pm$8.476e-02 (***)&0.4737039$\pm$0.0856371 (***)\\
+$n_d$&0.0079990$\pm$0.0070246 ()&-2.399e-02$\pm$8.141e-03 (**)&0.0123499$\pm$0.0082251 ()\\
+$N_C$&0.6966627$\pm$0.1449132 (***)&-4.869e-01$\pm$1.679e-01 (**)&1.0369074$\pm$0.1696801 (***)\\
+$N_G$&0.0011097$\pm$0.0003104 (***)&-4.617e-04$\pm$3.597e-04 ()&0.0011038$\pm$0.0003634 (**)\\
+$\gamma$&0.0026346$\pm$0.0053719 ()&3.586e-03$\pm$6.225e-03 ()&0.0074892$\pm$0.0062900 ()\\
+$d_0$&-0.0009406$\pm$0.0021186 ()&9.630e-05$\pm$2.455e-03 ()&-0.0009453$\pm$0.0024807 ()\\
+$r_g$&0.0001819$\pm$0.0002191 ()&9.951e-05$\pm$2.539e-04 ()&0.0002772$\pm$0.0002566 ()\\
+$k_h$&-0.0298275$\pm$0.0209863 ()&4.081e-02$\pm$2.432e-02 (.)&-0.0833935$\pm$0.0245731 (***)\\
+$N_L$&-0.0015975$\pm$0.0013365 ()&1.384e-04$\pm$1.549e-03 ()&-0.0060473$\pm$0.0015649 (***)\\
+ \hline
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
+ \hline
+&$\rho [\bar{l},\bar{s}]$&$\rho [\bar{l},\delta]$&$\rho [\bar{s},\delta]$\\\hline
+R2&0.522&0.5494&0.5546\\\hline
+(Intercept)&-1.768e+00$\pm$1.266e-01 (***)&1.073e+00$\pm$2.450e-02 (***)&-1.5699072$\pm$0.1075144 (***)\\
+$\alpha$&1.043e+00$\pm$5.390e-02 (***)&-2.210e-01$\pm$1.043e-02 (***)&0.9481902$\pm$0.0457610 (***)\\
+$\beta$&-9.441e-01$\pm$1.822e-01 (***)&1.550e-01$\pm$3.525e-02 (***)&-0.8269920$\pm$0.1546984 (***)\\
+$n_d$&-3.719e-02$\pm$1.750e-02 (*)&7.778e-03$\pm$3.385e-03 (*)&-0.0324681$\pm$0.0148582 (*)\\
+$N_C$&-2.229e+00$\pm$3.610e-01 (***)&3.579e-01$\pm$6.984e-02 (***)&-2.0137775$\pm$0.3065172 (***)\\
+$N_G$&8.575e-05$\pm$7.734e-04 ()&2.392e-05$\pm$1.496e-04 ()&-0.0002524$\pm$0.0006565 ()\\
+$\gamma$&-4.901e-03$\pm$1.338e-02 ()&4.571e-03$\pm$2.589e-03 (.)&-0.0032340$\pm$0.0113624 ()\\
+$d_0$&4.492e-03$\pm$5.279e-03 ()&-6.360e-04$\pm$1.021e-03 ()&0.0036384$\pm$0.0044813 ()\\
+$r_g$&-3.880e-04$\pm$5.459e-04 ()&-3.725e-05$\pm$1.056e-04 ()&-0.0005394$\pm$0.0004635 ()\\
+$k_h$&1.728e-01$\pm$5.229e-02 (**)&-1.419e-02$\pm$1.011e-02 ()&0.1492597$\pm$0.0443898 (***)\\
+$N_L$&9.444e-04$\pm$3.330e-03 ()&-2.201e-03$\pm$6.441e-04 (***)&0.0022415$\pm$0.0028269 ()\\
+ \hline
+\end{tabular}
+
+
 \end{center}
 
 
@@ -469,7 +608,7 @@ $N_G$&-2.23787$\pm$0.36278 (***)&0.355478$\pm$0.070450 (***)&-2.00208$\pm$0.3087
 
 \begin{center}
 
-\begin{tabular}{|c|c|c|c|c| }
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
  \hline
 &$\rho[r,\bar{c}]$&$\rho[r,\bar{l}]$&$\rho[r,\bar{s}]$&$\rho[r,\delta]$\\\hline
 R2&0.08052&0.1734&0.174&0.1187\\\hline
@@ -489,7 +628,7 @@ $N_L$&-0.0011826$\pm$0.0015315 ()&5.317e-05$\pm$1.525e-03 ()&7.111e-04$\pm$1.678
 
 \bigskip
 
-\begin{tabular}{|c|c|c|c|c| }
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
  \hline
 &$\rho[\bar{d},\bar{c}]$&$\rho[\bar{d},\bar{l}]$&$\rho[\bar{d},\bar{s}]$&$\rho[\bar{d},\delta]$\\\hline
 R2&0.09957&0.726&0.6635&0.2736\\\hline
@@ -509,7 +648,7 @@ $N_L$&-5.190e-03$\pm$2.630e-03 (*)&1.228e-03$\pm$1.554e-03 ()&0.0017721$\pm$0.00
 
 \bigskip
 
-\begin{tabular}{|c|c|c|c|c| }
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
  \hline
 &$\rho[e,\bar{c}]$&$\rho[e,\bar{l}]$&$\rho[e,\bar{s}]$&$\rho[e,\delta]$\\\hline
 R2&0.08321&0.1137&0.04931&0.2212\\\hline
@@ -529,7 +668,7 @@ $N_L$&9.124e-04$\pm$1.681e-03 ()&-0.0011866$\pm$0.0020950 ()&-8.891e-05$\pm$2.53
 
 \bigskip
 
-\begin{tabular}{|c|c|c|c|c| }
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
  \hline
 &$\rho[s,\bar{c}]$&$\rho[s,\bar{l}]$&$\rho[s,\bar{s}]$&$\rho[s,\delta]$\\\hline
 R2&0.05977&0.6849&0.5995&0.2071\\\hline
@@ -549,12 +688,12 @@ $N_L$&-5.539e-03$\pm$2.139e-03 (**)&0.0017712$\pm$0.0015382 ()&9.329e-04$\pm$1.8
 
 \bigskip
 
-\begin{tabular}{|c|c|c|c|c| }
+\begin{tabular}{|c|p{3.7cm}|p{3.7cm}|p{3.7cm}|p{3.7cm}|}
  \hline
 &$\rho[e,\bar{c}]$&$\rho[e,\bar{l}]$&$\rho[e,\bar{s}]$&$\rho[e,\delta]$\\\hline
 R2&0.08321&0.1137&0.04931&0.2212\\\hline
 (Intercept)&1.229e-01$\pm$6.394e-02 (.)&-0.2235482$\pm$0.0796783 (**)&-1.069e-01$\pm$9.653e-02 ()&0.2851561$\pm$0.0647508 (***)\\
-$\alpha$&-1.406e-01$\pm$2.721e-02 (***)&0.2003760$\pm$0.0339132 (***)&1.098e-01$\pm$4.109e-02 (**)&-0.2898858$\pm$0.0275597 (2e-16)\\
+$\alpha$&-1.406e-01$\pm$2.721e-02 (***)&0.2003760$\pm$0.0339132 (***)&1.098e-01$\pm$4.109e-02 (**)&-0.2898858$\pm$0.02756 (***)\\
 $\beta$&3.474e-01$\pm$9.200e-02 (***)&-0.3847257$\pm$0.1146461 (***)&-4.382e-01$\pm$1.389e-01 (**)&0.1606966$\pm$0.0931675 (.)\\
 $n_d$&1.386e-02$\pm$8.836e-03 ()&-0.0089831$\pm$0.0110113 ()&-2.277e-02$\pm$1.334e-02 (.)&-0.0058289$\pm$0.0089484 ()\\
 $N_C$&-2.203e-04$\pm$3.904e-04 ()&0.0004494$\pm$0.0004866 ()&4.578e-04$\pm$5.895e-04 ()&0.0001080$\pm$0.0003954 ()\\

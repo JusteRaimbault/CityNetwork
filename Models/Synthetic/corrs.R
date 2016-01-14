@@ -77,6 +77,17 @@ nwcormat <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep])
         cor34 = cor(meanRelativeSpeed,nwDiameter)
      )
 
+nwcormatmin <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>% summarise(
+  cor12min = cor.test(meanBwCentrality,meanPathLength,method="pearson",conf.level=0.95)$conf.int[1],
+  cor13min = cor.test(meanBwCentrality,meanRelativeSpeed,method="pearson",conf.level=0.95)$conf.int[1],
+  cor14min = cor.test(meanBwCentrality,nwDiameter,method="pearson",conf.level=0.95)$conf.int[1],
+  cor23min = cor.test(meanPathLength,meanRelativeSpeed,method="pearson",conf.level=0.95)$conf.int[1],
+  cor24min = cor.test(meanPathLength,nwDiameter,method="pearson",conf.level=0.95)$conf.int[1],
+  cor34min = cor.test(meanRelativeSpeed,nwDiameter,method="pearson",conf.level=0.95)$conf.int[1],
+)
+
+
+
 # density block
 denscormat <- gres %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep]) %>%  summarise(
     cor12 = cor(moran,distance),
@@ -361,14 +372,14 @@ names(arsqallparams)=cornames
 
 # and autocorrs : 
 #cormat=nwcormat
-cormat=denscormat;
+cormat=nwcormat;
 corrCols=2:7
 df=data.frame(cormat[,corrCols],params)
 simpledens = "alphalocalization+diffusion+diffusionsteps+growthrate"
 crossdens = "(alphalocalization+diffusion+diffusionsteps+growthrate)^2"
 simplenw = "alphalocalization+diffusion+diffusionsteps+growthrate+citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber"
 crossnw = "(alphalocalization+diffusion+diffusionsteps+growthrate+citiesNumber+gravityHierarchyExponent+gravityInflexion+gravityRadius+hierarchyRole+maxNewLinksNumber)^2"
-regression=simpledens
+regression=crossnw
 
 cornames=names(cormat[,corrCols])
 rsqallparams = c();arsqallparams=c();regs=list()
