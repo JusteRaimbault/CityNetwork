@@ -198,11 +198,12 @@ public class Cybergeo {
 		 for(Reference cybref:cybergeo.references){
 			 Log.stdout(cybref+" - status :"+checkStatus(cybref,completed));
 			 if(!checkStatus(cybref,completed)){
-				 //c.fillCitingRefs();
-				 //SQLExporter.export(c, database,"cybergeo","refs", "links","status", true);
-				 HashMap<String,String> rows = new HashMap<String,String>();
-				 rows.put("title", cybref.title.title);rows.put("year",cybref.year.split("-")[0]);
-				 SQLExporter.genericExport(database,"cybmissing",rows);
+				 CybergeoCorpus c = new CybergeoCorpus(cybref);
+				 c.fillCitingRefs();
+				 SQLExporter.export(c, database,"cybergeo","refs", "links","status", true);
+				 //HashMap<String,String> rows = new HashMap<String,String>();
+				 //rows.put("title", cybref.title.title);rows.put("year",cybref.year.split("-")[0]);
+				 //SQLExporter.genericExport(database,"cybmissing",rows,true);
 			 }
 		 }
 

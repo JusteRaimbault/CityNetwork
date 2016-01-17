@@ -52,6 +52,14 @@ public class SQLConnection {
 	}
 	
 	/**
+	 * Closes the conn
+	 */
+	public static void closeSQLConnection(){
+		try{sqlDB.close();}
+		catch(Exception e){e.printStackTrace();}
+	}
+	
+	/**
 	 * Executes a sql query
 	 * 
 	 * @param query

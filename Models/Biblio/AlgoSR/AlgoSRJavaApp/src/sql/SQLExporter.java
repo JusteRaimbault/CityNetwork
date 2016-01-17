@@ -70,7 +70,13 @@ public class SQLExporter {
 				SQLConnection.executeUpdate(insertStatusRequest(statusTodoIDs,0,statusTableName));
 			}
 			
+			SQLConnection.closeSQLConnection();
+			
 			if(reconnectTorPool){TorPoolManager.setupTorPoolConnexion();}
+			
+			/**
+			 * TODO : sql connection not closed ?
+			 */
 			
 			
 		}catch(Exception e){e.printStackTrace();}
@@ -97,7 +103,7 @@ public class SQLExporter {
 	 * @param table
 	 * @param rows
 	 */
-	public static void genericExport(String database, String table,HashMap<String,String> rows){
+	public static void genericExport(String database, String table,HashMap<String,String> rows,boolean reconnectTorPool){
 		SQLConnection.setupSQL(database);
 		String req = "INSERT INTO "+table+" (";
 		for(String field:rows.keySet()){req=req+field+",";}req=req.substring(0, req.length()-1);
@@ -105,6 +111,10 @@ public class SQLExporter {
 		for(String field:rows.keySet()){req=req+"'"+legalSQLString(rows.get(field))+"',";}req=req.substring(0, req.length()-1);
 		req=req+");";
 		SQLConnection.executeUpdate(req);
+		
+		SQLConnection.closeSQLConnection();
+		
+		if(reconnectTorPool){try{TorPoolManager.setupTorPoolConnexion();}catch(Exception e){e.printStackTrace();}}
 	}
 	
 	
