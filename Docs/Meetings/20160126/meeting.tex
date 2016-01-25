@@ -40,11 +40,11 @@ $^{2}$LVMT (UMR-T 9403 IFSTTAR)}
 \begin{itemize}
 \item Biblio/Meetings/Organisation [0.7w]
 \item Conference [0.7w]
-\item Reading Records (\emph{Synergetics}) [0.2w]
+\item Reading Records (\emph{Synergetics}~\cite{sanders1992systeme}) [0.2w]
 \item Monitorat [1,3w]
 \item Cybergeo Project [1w]
 \item Correlated Synthetic data [3w]
-\item Theory construction [0.2w]
+\item Theory construction (communication JIG) [0.2w]
 \item BP Case Study / Spatial Econometrics [0,3w]
 \end{itemize}
 
@@ -55,6 +55,12 @@ $^{2}$LVMT (UMR-T 9403 IFSTTAR)}
 \section{Correlated Synthetic Data}
 
 \sframe{Context}{
+
+\textit{\small[Introduction at Rochebrune] : imagine a model of simulation describing skiers/ snowboarders relations, measures to improve situation ? NO conclusion without model exploration, including sensitivity to ressort station spatial configuration, or to population structure, even at second order $\rightarrow$ Necessity in that case (among others) to generate synthetic data controlled at second order.}
+
+
+\bigskip
+
 \textbf{Def. : } \emph{Synthetic Data} are output of generative models (and possibly inputs of models using them).
 \medskip
 
@@ -85,7 +91,7 @@ $\vec{X}_I$ multidimensional stochastic process, $\mathbf{X}=(X_{i,j})$ realizat
 
 
 %%%%%%%%%%%%%%%%%
-\sframe{Geographical data : Context and Objective}{
+\sframe{Geographical data : Context}{
 
 \begin{itemize}
 \jitem{In geography, generation of synthetic populations for agent-based models~\cite{pritchard2009advances}.}
@@ -98,7 +104,7 @@ $\vec{X}_I$ multidimensional stochastic process, $\mathbf{X}=(X_{i,j})$ realizat
 
 
 %%%%%%%%%%%%%%%%%
-\sframe{Modèle}{
+\sframe{Model}{
 \footnotesize
 Simple coupling between
 \begin{itemize}
@@ -202,7 +208,8 @@ $\rightarrow$ \textit{gravity hierarchy more important in (1) $\gamma=3.9,k_h=0.
 \sframe{Applications}{
 
 \begin{enumerate}
-\item Calibration of the coupled model, street network data( ¡ edge effects !) $\rightarrow $ generation of correlated synthetic data corresponding to a given urban system $\rightarrow$ intrinsic correlations to be compared to estimated correlations between different states : non-ergodicity of urban systems~\cite{pumain2012urban}).
+\item Calibration of the coupled model, street network data (¡ edge effects!)\\$\rightarrow $ generation of correlated synthetic data corresponding to a given urban system\\$\rightarrow$ intrinsic correlations to be compared to estimated correlations between different states : non-ergodicity of urban systems~\cite{pumain2012urban}).
+\bigskip
 \item Dynamical correlations in a strongly coupled model / spatio-temporal correlations in a strong spatial coupling.
 \end{enumerate}
 
@@ -211,16 +218,59 @@ $\rightarrow$ \textit{gravity hierarchy more important in (1) $\gamma=3.9,k_h=0.
 
 \section{Spatial Econometrics}
 
-\sframe{Context}{
+\sframe{Case study : Context}{
+\textbf{Database by Florent : } main road network (route 120) in extended \emph{Bassin Parisien} with opening dates for highways ; census data : population and employment of \emph{communes} at dates 
+
+\medskip
+
+\textbf{Formalisation : } Dynamic transportation network $n(\vec{x},t)$ within a dynamic territorial landscape $\vec{T}(\vec{x},t)$, which components are population $p(\vec{x},t)$ and employments $e(\vec{x},t)$, discretized in space and in time, i.e. the spatial field $\vec{T}$ is summarized by $\mathbf{T} = \left(\vec{T}(\vec{x}_i,t_j^{(T)})\right)_{i,j}$ with $1\leq i \leq N$ and $1\leq j \leq T$.
+
+
 
 }
 
+
 \sframe{On Accessibility}{
+
+\textit{Is the notion of accessibility crucial for statistical analysis ?}
+
+\medskip
+
+\small
+
+Weibull has proposed an axiomatic approach to accessibility~\cite{weibull1976axiomatic}, deriving a canonical decomposition for any \emph{attraction-accessibility} function $A(a,d)$, assuming expected thematic axioms among others technical ones that are :
+\begin{enumerate}
+\item \footnotesize $A$ is invariant regarding the order of the configuration
+\item \footnotesize $A$ decrease with distance at fixed attraction and increase with attraction at fixed distance
+\item \footnotesize $A$ is invariant when adding null attractions and constant configurations
+\end{enumerate}
+Then $A$ verifies these \emph{iff} it is of the form
+\[
+A\left[(a_i,d_i)\right] = T\left(\sum_i z(d_i,a_i)\right)
+\]
+where $T$ is increasing with null origin, $z$ is a \emph{distance substitution function} (i.e. verifying axiom 2) and $\circ$ 
+
+$\rightarrow$ \textit{Well suited matrices of autocorrelation should capture accessibility in regressions.}
 
 }
 
 \sframe{Statistical Analysis}{
-
+\textit{Large set of analysis to be tested (non exhaustive) :}
+\begin{itemize}
+\item On data :
+\begin{itemize}
+\item Multivariate linear models
+\item Autocorrelated univariate models
+\item Autocorrelated multivariate models
+\end{itemize}
+\bigskip
+\item On data returns :
+\begin{itemize}
+\item Granger causality tests : \cite{xie2009streetcars} use Granger causality to link transit with land-use changes.
+\item Autoregressive multivariate models
+\item Autoregressive autocorrelated multivariate models
+\end{itemize}
+\end{itemize}
 }
 
 
@@ -231,6 +281,28 @@ $\rightarrow$ \textit{gravity hierarchy more important in (1) $\gamma=3.9,k_h=0.
 
 
 \sframe{P. Bourgine framework for Complex Adaptive Systems}{
+
+\small
+
+Bourgine has recently developed to represent Complex Adaptive Systems as Hidden Markov Models, using a representation theorem : 
+
+Given the definition of a causal state as $\Pb{future | A} = \Pb{future | B}$, the partition of system states induced by the corresponding equivalence relations
+
+Recurrent Network is then enough to determine next state of the system, as it is a \emph{deterministic} function of previous state and hidden states :
+\[
+(x_{t+1},s_{t+1}) = F\left[(x_t,s_t)\right]
+\]
+
+$\rightarrow$ \textit{Estimation of Hidden States and of the Recurrent Function thus captures entirely dynamical patterns of the system, i.e. full information on its dynamics and internal processes.}
+
+\medskip
+
+\textbf{Some questions for an application to Geography : }
+\begin{itemize}
+\item Can the stationarity assumption be tackled through augmentation of system states ?
+\item Can heterogeneous and asynchronous data be used to bootstrap long time-series necessary for a correct estimation of the neural network ?
+\end{itemize}
+
 
 }
 
