@@ -216,14 +216,14 @@ $\rightarrow$ \textit{gravity hierarchy more important in (1) $\gamma=3.9,k_h=0.
 }
 
 
-\section{Spatial Econometrics}
+\section{Spatial Statistics}
 
 \sframe{Case study : Context}{
-\textbf{Database by Florent : } main road network (route 120) in extended \emph{Bassin Parisien} with opening dates for highways ; census data : population and employment of \emph{communes} at dates 
+\textbf{Database by Florent : } main road network (route 120) in extended \emph{Bassin Parisien} with opening dates for highways ; census data : population and employment of \emph{communes} at dates [other data such as rail network and train timetables not used for now].
 
-\medskip
+\bigskip
 
-\textbf{Formalisation : } Dynamic transportation network $n(\vec{x},t)$ within a dynamic territorial landscape $\vec{T}(\vec{x},t)$, which components are population $p(\vec{x},t)$ and employments $e(\vec{x},t)$, discretized in space and in time, i.e. the spatial field $\vec{T}$ is summarized by $\mathbf{T} = \left(\vec{T}(\vec{x}_i,t_j^{(T)})\right)_{i,j}$ with $1\leq i \leq N$ and $1\leq j \leq T$.
+\textbf{Formalisation : } Dynamic transportation network $n(\vec{x},t)$ within a dynamic territorial landscape $\vec{T}(\vec{x},t)$, which components are population $p(\vec{x},t)$ and employments $e(\vec{x},t)$, discretized in space and in time, i.e. the spatial field $\vec{T}$ is summarized by $\mathbf{T} = \left(\vec{T}(\vec{x}_i,t_j)\right)_{i,j}$ with $1\leq i \leq N$ and $1\leq j \leq T$. To simplify, network distances sampled at same times and spatial points (support extended if not the case), given by $\mathbf{N} = \left(\vec{d}_n(\vec{x}_i,t_j)\right)_{i,j}$.
 
 
 
@@ -232,11 +232,11 @@ $\rightarrow$ \textit{gravity hierarchy more important in (1) $\gamma=3.9,k_h=0.
 
 \sframe{On Accessibility}{
 
-\textit{Is the notion of accessibility crucial for statistical analysis ?}
+\textit{\textbf{Is the notion of accessibility crucial for statistical analysis ?}}
 
 \medskip
 
-\small
+\footnotesize
 
 Weibull has proposed an axiomatic approach to accessibility~\cite{weibull1976axiomatic}, deriving a canonical decomposition for any \emph{attraction-accessibility} function $A(a,d)$, assuming expected thematic axioms among others technical ones that are :
 \begin{enumerate}
@@ -246,31 +246,44 @@ Weibull has proposed an axiomatic approach to accessibility~\cite{weibull1976axi
 \end{enumerate}
 Then $A$ verifies these \emph{iff} it is of the form
 \[
-A\left[(a_i,d_i)\right] = T\left(\sum_i z(d_i,a_i)\right)
+A\left[(a_i,d_i)\right] = T\left(\bigoplus_i z(d_i,a_i)\right)
 \]
-where $T$ is increasing with null origin, $z$ is a \emph{distance substitution function} (i.e. verifying axiom 2) and $\circ$ 
+where $T$ is increasing with null origin, $z$ is a \emph{distance substitution function} (i.e. verifying axiom 2) and $\oplus$ a \emph{standard composition} associating two attractions at zero distance to th corresponding unique one. 
 
-$\rightarrow$ \textit{Well suited matrices of autocorrelation should capture accessibility in regressions.}
+$\rightarrow$ \textit{Well suited matrices of autocorrelation should capture accessibility in regressions ; or captured by non-linear regression on $\mathbf{N}$}
+
+\medskip
+
+{\normalsize\textit{\textbf{Accessibility as potential ?}}}
+
+Given any stationary dynamic for $n,\vec{T}$, Helmoltz theorem states that it derives from a potential (can be adapted to non-stationary dynamics with time-varying potential).
 
 }
 
 \sframe{Statistical Analysis}{
+{\small
 \textit{Large set of analysis to be tested (non exhaustive) :}
 \begin{itemize}
 \item On data :
 \begin{itemize}
-\item Multivariate linear models
-\item Autocorrelated univariate models
-\item Autocorrelated multivariate models
+\item Multivariate models $\mathcal{L}\left[\mathbf{T},\mathbf{N}\right]\sim \varepsilon$
+\item Autocorrelated univariate models $(\mathbf{I} - \Sigma R W) \mathbf{X} \sim \varepsilon$
+\item Autocorrelated multivariate models $(\mathcal{L}' - \Sigma R W)\left[\mathbf{T}+\mathbf{N}\right] \sim \varepsilon$
+\item Geographically Weighted Regression~\cite{brunsdon1998geographically}
+\[
+\mathcal{L}\left[\mathcal{G}\left(\mathbf{T},\mathbf{N}\right)\right] \sim \varepsilon
+\]
+\item Granger causality tests : \cite{xie2009streetcars} use Granger causality to link transit with land-use changes.
 \end{itemize}
-\bigskip
 \item On data returns :
 \begin{itemize}
-\item Granger causality tests : \cite{xie2009streetcars} use Granger causality to link transit with land-use changes.
 \item Autoregressive multivariate models
-\item Autoregressive autocorrelated multivariate models
+\[\mathcal{L}\left[(\Delta \mathbf{T}(t_{j'}))_{j'\leq j},(\Delta \mathbf{N}(t_{j'}))_{j'\leq j}\right] \sim \varepsilon\]
+\item Autoregressive autocorrelated multivariate models : idem with spatial autocorrelation term.
+\item Synthetic Instrumental Variables : static territory and/or network ?
 \end{itemize}
 \end{itemize}
+}
 }
 
 
@@ -284,16 +297,14 @@ $\rightarrow$ \textit{Well suited matrices of autocorrelation should capture acc
 
 \small
 
-Bourgine has recently developed to represent Complex Adaptive Systems as Hidden Markov Models, using a representation theorem : 
+Bourgine has recently developed a framework to extract patterns of Complex Adaptive Systems, using a representation theorem : any discrete stationary process is a \emph{Hidden Markow Model} (Knight, 1975)
 
-Given the definition of a causal state as $\Pb{future | A} = \Pb{future | B}$, the partition of system states induced by the corresponding equivalence relations
-
-Recurrent Network is then enough to determine next state of the system, as it is a \emph{deterministic} function of previous state and hidden states :
+Given the definition of a causal state as $\Pb{future | A} = \Pb{future | B}$, the partition of system states induced by the corresponding equivalence relations allows to derive a \emph{Recurrent Network} that is enough to determine next state of the system, as it is a \emph{deterministic} function of previous state and hidden states~\cite{shalizi2001computational} :
 \[
 (x_{t+1},s_{t+1}) = F\left[(x_t,s_t)\right]
 \]
 
-$\rightarrow$ \textit{Estimation of Hidden States and of the Recurrent Function thus captures entirely dynamical patterns of the system, i.e. full information on its dynamics and internal processes.}
+$\rightarrow$ \textit{Estimation of Hidden States and of the Recurrent Function thus captures through deep learning entirely dynamical patterns of the system, i.e. full information on its dynamics and internal processes.}
 
 \medskip
 
@@ -311,7 +322,7 @@ $\rightarrow$ \textit{Estimation of Hidden States and of the Recurrent Function 
 \jframe{Next steps (until February 15th 2016)}{
 \begin{itemize}
 \item Theory exemplification, paper finalization  [1w]\medskip
-\item Spatial Econometrics / Case study [0.5w]\medskip
+\item Spatial \sout{Econometrics} Statistics / Case study [0.5w]\medskip
 \item Cybergeo [0.5w]\medskip
 \item Wrap everything within a 1-year Memoire [1w]\medskip
 \end{itemize}
