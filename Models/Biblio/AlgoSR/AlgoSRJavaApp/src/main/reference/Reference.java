@@ -158,7 +158,7 @@ public class Reference {
 		}else{
 			Reference newRef = new Reference(i,t,r,y,schID);
 			//put in map
-			newRef.id=new Integer(references.size()).toString();
+			//newRef.id=new Integer(references.size()).toString();
 			references.put(newRef, newRef);
 			return newRef;
 		}
@@ -205,6 +205,10 @@ public class Reference {
 		attributes.put(key, value);
 	}
 	
+	public String getAttribute(String key){
+		if(attributes==null||!attributes.containsKey(key))return "";
+		return attributes.get(key);
+	}
 	
 	
 	/**

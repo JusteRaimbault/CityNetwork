@@ -3,6 +3,8 @@
  */
 package sql;
 
+import main.Main;
+import main.corpuses.Corpus;
 import main.reference.Abstract;
 import main.reference.CybergeoBiblioParser;
 import main.reference.Reference;
@@ -21,6 +23,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import utils.BasicWriter;
+import utils.CSVReader;
 import utils.CSVWriter;
 import utils.GEXFWriter;
 import utils.RISWriter;
@@ -293,19 +296,106 @@ public class CybergeoImport {
 	
 	
 	
+	
+	
+	public static void consolidateDatabases(){
+		SQLConnection.setupSQLCredentials("root", "root");//localhost only server - OK
+		SQLConnection.setupSQL("Cybergeo");
+		
+		// import refs from lodel base
+		HashSet<Reference> res = importBase("");
+		System.out.println("INITIAL CORPUS : "+res.size());
+		
+		// import refs from cybnetwork base
+		//Corpus cybnetwork = SQLImporter.sqlImport("cybnetwork", "cybergeo", "refs", "links", -1, false);
+		Corpus cybnetwork = SQLImporter.sqlImportPrimary("cybnetwork", "cybergeo", "", -1, false);
+		
+		for(Reference r:cybnetwork){
+			// get corresponding old
+			Reference clone = Reference.construct("", r.title, new Abstract(), "", "");
+			clone.scholarID=r.scholarID;
+			System.out.println(clone);
+		}
+		
+		int count=0;
+		for(Reference r:res){if(r.scholarID!=null&&r.scholarID.length()>0){count++;}}
+		System.out.println("WITH SCHID : "+count);
+		
+		// import stats id - match with title
+		String[][] stats = CSVReader.read(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/raw/prov_ids.csv", "\t");
+		for(int i=0;i<stats.length;i++){
+			Reference r = Reference.construct("", new Title(stats[i][1]), new Abstract(), "", "");
+			r.addAttribute("UID", stats[i][0]);
+			System.out.println(r);
+		}
+		count=0;
+		for(Reference r:res){if(r.attributes.containsKey("UID")){count++;}}
+		System.out.println("WITH UID : "+count);
+		
+		
+		// export to csv
+		String[][] data = new String[res.size()+1][];		
+		String[] header={"id","UID","SCHID","Title","Title_en","keywords_en","keywords_fr","authors","date","langue","translated","numciting","numcited"};
+		data[0]=header;
+		int i=1;
+		for(Reference r:res){
+			data[i] = refToCSVArray(r);
+			i++;
+		}
+		
+		CSVWriter.write(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/raw/merged.csv", data, "\t", "\"");
+		
+	}
+	
+	
+	public static void computeDegrees(){
+		Main.setup();
+		//SQLConnection.setupSQLCredentials(); -> credential setup done in main
+		Corpus cybnetwork = SQLImporter.sqlImport("cybnetwork", "cybergeo", "refs", "links", -1, false);
+		// compute res on primary refs
+		LinkedList<String[]> data = new LinkedList<String[]>();
+		for(Reference r:cybnetwork){
+			if(r.getAttribute("primary").length()>0){
+				String[] row={r.scholarID,new Integer(r.citing.size()).toString(),new Integer(r.biblio.cited.size()).toString()};
+				data.add(row);
+			}
+		}
+		
+		CSVWriter.write(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/raw/cit.csv", data, "\t", "\"");
+		
+	}
+	
+	
+	
+	private static String[] refToCSVArray(Reference r){
+		// export info :
+		// "id","UID","SCHID","Title","Title_en","keywords_en","keywords_fr","authors","date","langue","translated",numciting,numcited
+	    String[] res = new String[13];
+	    res[0]=r.id;res[1]=r.getAttribute("UID");res[2]=r.scholarID;res[3]=r.title.title;
+	    res[4]=r.title.en_title;res[5]=r.getKeywordString();res[6]=r.getAttribute("keywords_fr");res[7]=r.getAuthorString();res[8]=r.date;
+	    res[9]=r.getAttribute("langue");res[10]=r.getAttribute("translated");res[11]=new Integer(r.citing.size()).toString();res[12]=new Integer(r.biblio.cited.size()).toString();
+	    
+	    return res;
+	}
+	
+	
+	
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		SQLConnection.setupSQLCredentials("root", "root");
-		SQLConnection.setupSQL("Cybergeo");
+		//SQLConnection.setupSQLCredentials("root", "root");
+		//SQLConnection.setupSQL("Cybergeo");
 		//GEXFWriter.write("res/test_cyb_gexf.gexf", importBase());
 		//RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle_withKeywords.ris", importBase());
 		//directExport(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/raw/",false);
 		
-		HashSet<Reference> res = importBase("");//importBase("WHERE  `datepubli` >=  '2003-01-01' LIMIT 10");
-		System.out.println(res.size());
+		//HashSet<Reference> res = importBase("");//importBase("WHERE  `datepubli` >=  '2003-01-01' LIMIT 10");
+		//System.out.println(res.size());
 		
+		//consolidateDatabases();
+		computeDegrees();
 		
 		
 	}

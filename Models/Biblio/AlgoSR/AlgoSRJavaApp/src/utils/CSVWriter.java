@@ -5,6 +5,8 @@ package utils;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * @author Raimbault Juste <br/> <a href="mailto:juste.raimbault@polytechnique.edu">juste.raimbault@polytechnique.edu</a>
@@ -30,6 +32,16 @@ public class CSVWriter {
 			writer.close();
 		}catch(Exception e){e.printStackTrace();}
 		
+	}
+	
+	public static void write(String filePath,LinkedList<String[]> data,String delimiter,String textQuote){
+		String[][] res = new String[data.size()][];
+		int i=0;
+		for(String[] r:data){
+			res[i]=r;
+			i++;
+		}
+		write(filePath,res,delimiter,textQuote);
 	}
 	
 }
