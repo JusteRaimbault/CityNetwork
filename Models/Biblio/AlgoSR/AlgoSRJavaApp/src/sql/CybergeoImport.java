@@ -55,15 +55,20 @@ public class CybergeoImport {
 				+ filter +";");
 		   while(sqlrefs.next()){
 			   
+			   String id = sqlrefs.getString(5);
 			   String biblio = sqlrefs.getString(7);
 			   Title title = getTitle(sqlrefs.getString(1),sqlrefs.getString(2),sqlrefs.getString(6));
-			   Reference r = Reference.construct("",title, getAbstract(sqlrefs.getString(3)), sqlrefs.getString(4), "");
+			   Reference r = Reference.construct(id,title, getAbstract(sqlrefs.getString(3)), sqlrefs.getString(4), "");
 				
+			   r.date= sqlrefs.getString(4);
+			   r.addAttribute("langue", sqlrefs.getString(6));
+			   r.addAttribute("translated",new Boolean(title.translated).toString());
+			   
 			   // get authors
 			   ResultSet authorsIds = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +sqlrefs.getString(5)+" AND  `nature` LIKE  'G' ORDER BY  `degree` ASC ;");
 			   while(authorsIds.next()){
 			      ResultSet author = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `nomfamille`,`prenom` FROM `auteurs` WHERE `idperson` = "+authorsIds.getString(1)+" ;");
-			      if(author.next()){r.authors.add(author.getString(1)+" , "+author.getString(2));}
+			      if(author.next()){r.authors.add(author.getString(2)+" , "+author.getString(1));}
 			   }
 			   
 			   // get keywords
@@ -73,10 +78,24 @@ public class CybergeoImport {
 			      while(keywords.next()){r.keywords.add(keywords.getString(1));}
 			   }
 			   
+			// keywords fr
+			   String keywords_fr = "";
+			   ResultSet kwFRIds = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +id+" AND  `nature` LIKE  'E' ORDER BY  `degree` ASC ;");
+			   while(kwFRIds.next()){
+			      ResultSet kw = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `g_name` FROM `entries` WHERE `id` = "+kwFRIds.getString(1)+" AND `idtype`=33 ;");
+			      while(kw.next()){if(keywords_fr.length()>0){keywords_fr+=",";}keywords_fr+=kw.getString(1);}
+			   }
+			   r.addAttribute("keywords_fr", keywords_fr);
+			   
+			   
 			   r.biblio = new CybergeoBiblioParser().parse(biblio);
 			   
+			   //if(r.authors.size()>0){res.add(r);}
+			   //else{System.out.println(r.toString());}
+			   //if(r.title.title.length()<5){System.out.println(r);}
+			   
 			   res.add(r);
-			   System.out.println(r.toString());
+			   
 		   }
 		   
 		}catch(Exception e){
@@ -99,7 +118,7 @@ public class CybergeoImport {
 		
 		try{
 			// add header
-			   String[] header = {"id","title","title_en","keywords_en","keywords_fr","authors","date","langue","translated"};
+			   String[] header = {"id","Title","Title_en","keywords_en","keywords_fr","authors","date","langue","translated"};
 			   table.add(header);
 			
 			   ResultSet sqlrefs = SQLConnection.sqlDB.createStatement().executeQuery(
@@ -123,7 +142,7 @@ public class CybergeoImport {
 				   ResultSet authorsIds = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `id2` FROM  `relations` WHERE  `id1` = " +id+" AND  `nature` LIKE  'G' ORDER BY  `degree` ASC ;");
 				   while(authorsIds.next()){
 				      ResultSet author = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `nomfamille`,`prenom` FROM `auteurs` WHERE `idperson` = "+authorsIds.getString(1)+" ;");
-				      if(author.next()){if(authors.length()>0){authors+=",";}authors+=author.getString(1)+" "+author.getString(2);}
+				      if(author.next()){if(authors.length()>0){authors+=",";}authors+=author.getString(2)+" "+author.getString(1);}
 				   }
 				   row[5]=authors;
 				   
@@ -141,6 +160,7 @@ public class CybergeoImport {
 				      ResultSet kw = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `g_name` FROM `entries` WHERE `id` = "+kwIds.getString(1)+" AND `idtype`=34 ;");
 				      while(kw.next()){if(keywords.length()>0){keywords+=",";}keywords+=kw.getString(1);}
 				   }
+				   //if(keywords.length()==0){keywords="-";}
 				   row[3]=keywords;
 				   
 				   // keywords fr
@@ -150,6 +170,7 @@ public class CybergeoImport {
 				      ResultSet kw = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `g_name` FROM `entries` WHERE `id` = "+kwFRIds.getString(1)+" AND `idtype`=33 ;");
 				      while(kw.next()){if(keywords_fr.length()>0){keywords_fr+=",";}keywords_fr+=kw.getString(1);}
 				   }
+				   //if(keywords_fr.length()==0){keywords_fr="-";}
 				   row[4]=keywords_fr;
 				   
 				   if(writeFullTexts){
@@ -178,7 +199,7 @@ public class CybergeoImport {
 			   String[][] csv = new String[table.size()][table.get(0).length];
 			   for(int i=0;i<csv.length;i++){csv[i]=table.get(i);}
 			   
-			   CSVWriter.write(outDir+"cybergeo_withFR.csv", csv, "\t");
+			   CSVWriter.write(outDir+"cybergeo_withFR.csv", csv, "\t","\"");
 			   
 			}catch(Exception e){
 				e.printStackTrace();
@@ -255,7 +276,19 @@ public class CybergeoImport {
 			}
 		}
 		
-		return new Title(restitle,resentitle,lang);
+		//if(restitle.length()==0){restitle="";}
+		//if(resentitle.length()==0){resentitle="";}
+		if(restitle.length()==0&&resentitle.length()>0){restitle=resentitle;}
+		
+		if(restitle.replace(" ", "").length()<4){
+			//System.out.println("ERROR : "+title);
+			//System.out.println(d.text());
+			//System.out.println();
+			restitle = d.text();
+			//System.out.println(restitle.replace("\"", ""));
+	    }
+		
+		return new Title(restitle.replace("\"", ""),resentitle.replace("\"", ""),title,lang);
 	}
 	
 	
@@ -264,13 +297,14 @@ public class CybergeoImport {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		SQLConnection.setupSQLCredentials("root", "root");
 		SQLConnection.setupSQL("Cybergeo");
 		//GEXFWriter.write("res/test_cyb_gexf.gexf", importBase());
 		//RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle_withKeywords.ris", importBase());
-		directExport(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/raw/",false);
+		//directExport(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/raw/",false);
 		
-		//importBase("WHERE  `datepubli` >=  '2003-01-01' LIMIT 10");
-		
+		HashSet<Reference> res = importBase("");//importBase("WHERE  `datepubli` >=  '2003-01-01' LIMIT 10");
+		System.out.println(res.size());
 		
 		
 		

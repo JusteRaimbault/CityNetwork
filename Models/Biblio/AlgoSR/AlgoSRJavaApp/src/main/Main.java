@@ -281,7 +281,7 @@ public class Main {
 			for(int k=0;k<100;k++){stats[t][k+(2*kwLimit+1)]=new Integer(coOccs[t][k]).toString();}
 		}
 		for(int t=iterationMax+1;t<numIteration;t++){for(int k=0;k<stats[0].length;k++){stats[t][k]=stats[iterationMax][k];}}
-		CSVWriter.write(resFold+"/stats.csv", stats, ";");
+		CSVWriter.write(resFold+"/stats.csv", stats, ";","");
 	}
 	
 	

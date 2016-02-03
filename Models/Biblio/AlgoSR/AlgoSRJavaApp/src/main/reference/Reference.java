@@ -68,6 +68,12 @@ public class Reference {
 	public String year;
 
 	/**
+	 * publication date
+	 */
+	public String date;
+	
+	
+	/**
 	 * Refs citing this ref
 	 */
 	public HashSet<Reference> citing;
@@ -139,6 +145,8 @@ public class Reference {
 		Reference ref = new Reference(t.title,schID);
 		if(references.containsKey(ref)){
 			Reference existingRef = references.get(ref);
+			//System.out.println("DUPLICATE : "+existingRef);
+			//System.out.println("BY  : "+ref);
 			//override existing records if not empty fields provided --> the function can be used as a table updater --
 			//ref in table has thus always the latest requested values. NO ?		
 			if(i.length()>0){existingRef.id=i;}
@@ -150,6 +158,7 @@ public class Reference {
 		}else{
 			Reference newRef = new Reference(i,t,r,y,schID);
 			//put in map
+			newRef.id=new Integer(references.size()).toString();
 			references.put(newRef, newRef);
 			return newRef;
 		}
@@ -189,6 +198,15 @@ public class Reference {
 		return construct(ghost,schID);
 	}
 	
+	
+	
+	public void addAttribute(String key,String value){
+		if(attributes==null){attributes=new HashMap<String,String>();}
+		attributes.put(key, value);
+	}
+	
+	
+	
 	/**
 	 * Set keywords from an existing collection.
 	 * 
@@ -216,22 +234,26 @@ public class Reference {
 	 * @return
 	 */
 	public String getAuthorString(){
-		String res="";
-		for(String a:authors){res=res+";"+a;}
-		if(res.length()>0){res.substring(0, res.length()-1);}
-		return res;
+		try{
+			String res="";
+			for(String a:authors){res=res+";"+a;}
+			if(res.length()>0){res.substring(0, res.length()-1);}
+			return res;
+		}catch(Exception e){return "";}
 	}
-	
+
 	/**
 	 * Keywords as string.
 	 * 
 	 * @return
 	 */
 	public String getKeywordString(){
-		String res="";
-		for(String a:keywords){res=res+";"+a;}
-		if(res.length()>0){res = res.substring(0, res.length()-1);}
-		return res;
+		try{
+			String res="";
+			for(String a:keywords){res=res+";"+a;}
+			if(res.length()>0){res = res.substring(0, res.length()-1);}
+			return res;
+		}catch(Exception e){return "";}
 	}
 	
 	
@@ -250,7 +272,7 @@ public class Reference {
 			return scholarID.hashCode();
 		}else{
 			for(Reference r:references.keySet()){if(r.equals(this)){return r.title.title.hashCode();}}
-			return this.title.hashCode();
+			return this.title.title.hashCode();
 		}
 	}
 	

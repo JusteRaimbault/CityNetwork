@@ -57,8 +57,8 @@ public class SQLConverter {
 		int i = 0;for(String[] l:links){linksTab[i]=l;i++;}
 		i = 0;for(String[] l:refs){refsTab[i]=l;i++;}
 		
-		CSVWriter.write(outPrefix+"_edges.csv", linksTab, "\t");
-		CSVWriter.write(outPrefix+"_nodes.csv", refsTab, "\t");
+		CSVWriter.write(outPrefix+"_edges.csv", linksTab, "\t","");
+		CSVWriter.write(outPrefix+"_nodes.csv", refsTab, "\t","");
 	}
 	
 	

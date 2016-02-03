@@ -25,6 +25,12 @@ public class Title {
 	public String en_title;
 	
 	
+	/**
+	 * raw title
+	 */
+	public String raw_title;
+	
+	
 	public String language;
 	
 	/**
@@ -45,9 +51,10 @@ public class Title {
 		translated = (en_title != "");
 	}
 	
-	public Title(String t,String e,String l){
+	public Title(String t,String e,String r,String l){
 		title = t;
 		en_title = e;
+		raw_title=r;
 		language = l;
 		translated = (en_title != "");
 	}
@@ -55,7 +62,7 @@ public class Title {
 	
 	@Override
 	public String toString(){
-		return title;
+		return title+" - "+raw_title;
 	}
 	
 	

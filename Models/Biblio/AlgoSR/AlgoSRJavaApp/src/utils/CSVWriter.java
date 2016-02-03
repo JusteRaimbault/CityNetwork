@@ -12,7 +12,7 @@ import java.io.FileWriter;
  */
 public class CSVWriter {
 
-	public static void write(String filePath,String[][] data,String delimiter){
+	public static void write(String filePath,String[][] data,String delimiter,String textQuote){
 		try{
 			FileWriter writer = new FileWriter(new File(filePath));
 			//Log.output("Writing with "+writer.toString(),"debug");
@@ -21,7 +21,7 @@ public class CSVWriter {
 				//same row size requirement not checked
 				for(int j=0;j<data[i].length;j++){
 					//Log.output(data[i][j],"debug");
-					writer.write(data[i][j]);
+					writer.write(textQuote+data[i][j]+textQuote);
 					if(j!=(data[i].length-1)){writer.write(delimiter);}
 				}
 				//if(i!=(data.length-1)){writer.write("\n");} // NO, each line including last must have endline
