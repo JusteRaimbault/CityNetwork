@@ -8,14 +8,20 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Morphology/Network/TestOSM'))
 api <- osmsource_api()
 # quite slow for large areas ; use localconnexion to osm file ?
 # -> using osmosis
-osmosis <- osmsource_osmosis(file = paste0(Sys.getenv('CN_HOME'),'Data//OSM/')
+#osmosis <- osmsource_osmosis(file = paste0(Sys.getenv('CN_HOME'),'Data//OSM/'))europe-latest.osm.pbf
+osmosis <- osmsource_osmosis(file = '/Volumes//Data/ComplexSystems//CityNetworkProv//Data//OSM//Europe',
+                             osmosis="osmosis --read-pbf")
+
+
+system("osmosis --read-pbf /Volumes/Data/ComplexSystems/CityNetworkProv/Data/OSM/Europe/europe-latest.osm.pbf --bounding-box top=48.8275 left=2.3815 bottom=48.8270 right=2.3820 --write-xml data/temp.osm")
 
 
 # OLG : (2.3815,48.8265)
 # height,width of box are in meters ; coordinates as decimal geographical
 area <- center_bbox(2.3815,48.8265,2000,2000)
 
-data <- get_osm(area,source = api)
+#data <- get_osm(area,source = api)
+data <- get_osm(area,source=osmsource_file(file="data/temp.osm"))
 plot_ways(data,col="red")
 
 # request
