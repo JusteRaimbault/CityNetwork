@@ -46,6 +46,54 @@ Spatio-temporal processes implying diffusion or propagation phenomena generally 
 %%%%%%%%%%%%%%%%%%
 \subsection{Network Measures}
 
+We consider network aggregated indicators as a way to characterize transportation network properties on a given territory, the same way morphological indicators yielded information on urban structure. We propose to compute some simple indicators on same extents as for morphology, to be able to explore relations between these static measures.
+
+\subsubsection{Data preprocessing}
+
+We work in a first time on road network, which structure is finely conditioned to territorial configuration of population densities. Furthermore, data for present day road network is available through the OpenStreetMap project~\cite{openstreetmap}. Its quality was investigated for different countries such as England~\cite{haklay2010good} and France~\cite{girres2010quality}. It was found to be of a quality equivalent to official surveys for the primary road network.
+
+% data collected from http://download.geofabrik.de/europe.html
+
+
+\paragraph{Simplification algorithm}
+
+For a given dataset corresponding to a subset of the overall road network, it is necessary to simplify network structure by spatial aggregation as initial data presents very detailed features and thus a very large numbers of nodes ($\simeq 10^10$ for Europe dataset). Such a level of precision is not needed in our study since density data is already aggregated at 500m resolution. It is possible to drastically reduce network size by spatial aggregation of nodes and link replacements. More precisely we use the following procedure :
+\begin{itemize}
+\item a background raster (which resolution $r$ gives the snapping parameter for aggregation) is constructed from a reference raster and the extent of network. This grid gives spatial aggregation units for network nodes.
+\item for each feature of the road dataset, corresponding connected raster cells are stored with corresponding impedance and distance in a sparse adjacency matrix.
+\end{itemize}
+
+
+\paragraph{Implementation}
+
+A \texttt{PostGIS} database is used to store raw and simplified network, in order to perform efficient spatial requests, compared for example to initial \texttt{osm} data formats (\texttt{osm} or \texttt{pbf}). However
+
+
+\paragraph{Sensitivity to simplification parameters}
+
+% -> sensitivity to \theta_snap
+% -> sensitivity to degree simplification (influence on means e.g.)
+
+
+\subsubsection{Indicators}
+
+Network macroscopic structure is summarized by the following set of indicators, after the simplifications and reductions done in the previous step. Assuming network given by $N=(V,E)$, nodes spatial positions $\vec{x}(V)$ and edges \emph{effective distances} $d(E)$ taking into account impedances and real distances (to include basically network hierarchy), we have indicators :
+\begin{itemize}
+\item connectivity
+\item degree distribution
+\item centrality, taken as normalized mean \emph{betweenness-centrality}
+\item average path length
+\item network diameter
+\item mean network speed
+\end{itemize}
+
+These indicators are used to capture a rough picture of the structure. Refined work at smaller scales (intra-urban road network) and with more elaborated measures that allow to differentiate more precisely local form, was recently done by Lagesse in~\cite{2015arXiv151201268L}.
+
+
+
+\subsubsection{Results}
+
+
 
 
 %%%%%%%%%%%%%%%%%%
