@@ -1,7 +1,7 @@
 
 ## road network simplification
 
-# setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 
 ## Do not use osm directly, not efficient
 
@@ -41,7 +41,10 @@ V(g)$x=coords[,1];V(g)$y=coords[,2]
 #centralization.betweenness(g)
 #diameter(g)
 
-sg <- simplifyGraph(g)
+sg = simplifyGraph(g)
+
+sg = g
+#sg <- 
 
 exportGraph(sg)
 
