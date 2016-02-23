@@ -21,6 +21,7 @@ import java.util.Set;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import utils.BasicWriter;
 import utils.CSVReader;
@@ -366,6 +367,100 @@ public class CybergeoImport {
 	}
 	
 	
+	/**
+	 * Export authors with infos
+	 * 
+	 * @param outdirs
+	 */
+	public static void exportAuthors(String outDir){
+		LinkedList<String[]> authors = new LinkedList<String[]>();
+		String[] header = {"idauthor","nom","prenom","mail","affiliation","titre","description"};
+		authors.add(header);
+		try{
+
+			ResultSet sqlauthors = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `idperson`,`nomfamille`,`prenom` FROM  `auteurs`;");
+
+			while(sqlauthors.next()){
+				String id=sqlauthors.getString(1);
+				String nom=sqlauthors.getString(2);
+				String prenom=sqlauthors.getString(3);
+				// get infos
+				// SELECT `idrelation` FROM  `relations` WHERE  `id1` = " +id+" AND  `nature` LIKE  'G'
+				ResultSet sqlauthorships = SQLConnection.sqlDB.createStatement().executeQuery("SELECT `idrelation` FROM  `relations` WHERE  `id2` = " +id+" AND  `nature` LIKE  'G' ORDER BY idrelation");
+				LinkedList<String> mails = new LinkedList<String>();
+				LinkedList<String> affiliations = new LinkedList<String>();
+				LinkedList<String> titres = new LinkedList<String>();
+				String description="";
+				while(sqlauthorships.next()){
+					String idrelation = sqlauthorships.getString(1);
+					//get corresponding authors entity
+					ResultSet sqlauthordetails = SQLConnection.sqlDB.createStatement().executeQuery("SELECT courriel,affiliation,fonction,description FROM entities_auteurs WHERE idrelation="+idrelation+";");
+					if(sqlauthordetails.next()){
+						String currentMail = sqlauthordetails.getString(1),currentAffiliation=sqlauthordetails.getString(2),currentFonction=sqlauthordetails.getString(3);
+						String currentDescription=sqlauthordetails.getString(4);
+						//if no mail and description not null/empty, search for a mail in description (regex matching)
+						if(currentMail==null||currentMail.length()==0){
+							currentMail=mailFromDescription(currentDescription);
+							description=textDescription(currentDescription);
+						}
+						
+						if(currentMail!=null&&currentMail.length()>0&&currentMail!="NULL"){mails.add(currentMail);}
+						if(currentAffiliation!=null&&currentAffiliation.length()>0&&currentAffiliation!="NULL"){affiliations.add(currentAffiliation);}
+						if(currentFonction!=null&&currentFonction.length()>0&&currentFonction!="NULL"){titres.add(currentFonction);}	
+						
+					}
+				}
+				String mail="",affiliation="",fonction="";
+				if(mails.size()>0){mail=mails.getLast();}
+				if(affiliations.size()>0){affiliation=affiliations.getLast();}
+				if(titres.size()>0){fonction=titres.getLast();}
+				String[] row = {id,nom,prenom,mail,affiliation,fonction,description};
+				System.out.println(id+" , "+nom+" , "+prenom+" , "+mail+" , "+description+" , "+affiliation+" , "+fonction);
+				authors.add(row);
+			}
+
+
+		}catch(Exception e){e.printStackTrace();}
+
+		CSVWriter.write(outDir+"/authors.csv", authors, ";", "\"");
+		
+	}
+	
+	
+	/**
+	 * Empirical parsing
+	 * 
+	 * @param description
+	 * @return
+	 */
+	private static String mailFromDescription(String description){
+		if(description==null){return "";}
+		if(description.length()==0){return "";}
+		// parse
+		try{
+			Document d = Jsoup.parse(description.replace("<br />"," "));
+			Elements mailto=d.getElementsByAttributeValueContaining("href", "mailto");
+			if(mailto.size()>0){return mailto.first().text();}
+			// else split text and search for regexes
+			String[] rows = d.text().replace("\n", " ").replace(",", " ").replace(":", " ").split(" ");
+			for(String r:rows){
+				if(r.contains("@")){return r;}
+				if(r.contains("[at]")){return r.replace("[at]", "@");}
+			}
+			return "";
+		}catch(Exception e){e.printStackTrace();return "";}
+	}
+	
+	private static String textDescription(String description){
+		if(description==null){return "";}
+		if(description.length()==0){return "";}
+		// parse
+		try{
+			Document d = Jsoup.parse(description.replace("<br />"," "));
+			return d.text();
+		}catch(Exception e){e.printStackTrace();return "";}
+	}
+	
 	
 	private static String[] refToCSVArray(Reference r){
 		// export info :
@@ -385,8 +480,8 @@ public class CybergeoImport {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//SQLConnection.setupSQLCredentials("root", "root");
-		//SQLConnection.setupSQL("Cybergeo");
+		SQLConnection.setupSQLCredentials("root", "root");
+		SQLConnection.setupSQL("Cybergeo");
 		//GEXFWriter.write("res/test_cyb_gexf.gexf", importBase());
 		//RISWriter.write("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle_withKeywords.ris", importBase());
 		//directExport(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/raw/",false);
@@ -395,7 +490,9 @@ public class CybergeoImport {
 		//System.out.println(res.size());
 		
 		//consolidateDatabases();
-		computeDegrees();
+		//computeDegrees();
+		
+		exportAuthors(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/misc");
 		
 		
 	}
