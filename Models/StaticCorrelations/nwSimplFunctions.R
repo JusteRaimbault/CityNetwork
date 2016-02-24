@@ -56,7 +56,7 @@ graphEdgesFromLines<-function(roads,baseraster){
 simplifyGraph<-function(g){
   degrees=degree(g)
   remvertices = V(g)[which(degrees==2)]
-  edgestoadd=c();vtodelete=V(g)[0]
+  edgestoadd=V(g)[0];vtodelete=V(g)[0]
   while(length(remvertices)>0){
     v=remvertices[1]
     n=neighbors(g,v);prevo=v;prevd=v
@@ -68,11 +68,24 @@ simplifyGraph<-function(g){
     while(max(degree(g,v=d))==2){nd=neighbors(g,d);tmpd=d;d=nd[which(nd!=prevd)];prevd=tmpd;p=append(p,d)}
     # delete path vertices and add edge
     remvertices=difference(remvertices,p[which(p!=o&p!=d)])
-    edgestoadd=append(edgestoadd,c(o$name,d$name))
+    edgestoadd=append(edgestoadd,c(o,d))
     vtodelete=append(vtodelete,p[which(p!=o&p!=d)])
     show(length(remvertices))
   }
   return(delete_vertices(g,vtodelete)%>% add_edges(edgestoadd))
+}
+
+gg<-add_edges(g,edgestoadd)
+vd=V(gg)[0];for(vn in vtodelete$name){vd=append(vd,V(gg)[which(V(gg)$name==vn)])}
+ggg<-delete_vertices(gg,vtodelete)
+#ggg<-delete_vertices(gg,V(gg)[which(V(gg)$name %in% vtodelete$name)])
+#add_edges(gg,V(gg)[which(V(gg)$name %in% edgestoadd$name)
+
+
+#'
+#'
+exportGraph<-function(g){
+  
 }
 
 

@@ -41,12 +41,9 @@ V(g)$x=coords[,1];V(g)$y=coords[,2]
 #centralization.betweenness(g)
 #diameter(g)
 
-sg = simplifyGraph(g)
+#sg = simplifyGraph(g)
 
-sg = g
-#sg <- 
-
-exportGraph(sg)
+#exportGraph(sg)
 
 
 
