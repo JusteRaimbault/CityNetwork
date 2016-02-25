@@ -11,7 +11,7 @@ pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname="osm",user="Juste",host="loc
 #'
 linesWithinExtent<-function(latmin,lonmin,latmax,lonmax,tags){
   q = paste0(
-    "SELECT ST_AsText(linestring) AS geom FROM ways",
+    "SELECT ST_AsText(linestring) AS geom,tags::hstore->'maxspeed' AS speed,tags::hstore->'highway' AS type FROM ways",
     " WHERE ST_Contains(ST_MakeEnvelope(",latmin,",",lonmin,",",latmax,",",lonmax,",4326),","linestring)")
   if(length(tags)>0){
     q=paste0(q," AND (")
@@ -27,26 +27,30 @@ linesWithinExtent<-function(latmin,lonmin,latmax,lonmax,tags){
     r=readWKT(geoms[i])@lines[[1]];r@ID=as.character(i)
     roads[[i]]=r
   } 
-  return(roads)
+  return(list(roads=roads,type=data$type,speed=data$speed))
 }
 
 #' Get graph edges from Lines list and reference raster
 #'
 #'   iterate on roads to create an "edgelist" of connexions between raster cells
 graphEdgesFromLines<-function(roads,baseraster){
-  edgelist=list()
-  for(i in 1:length(roads)){
+  l=roads$roads
+  type=roads$type
+  speed=roads$speed
+  edgelist=list();edgespeed=c();edgetype=c()
+  for(i in 1:length(l)){
     if(i%%1000==0){show(i)}
-    coords = roads[[i]]@Lines[[1]]@coords
+    coords = l[[i]]@Lines[[1]]@coords
     # assume a connection at each vertex, ignores 'tunnel effect' -> ok at these scales
     conn = unique(cellFromXY(baseraster,coords))
     if(length(conn)>1){
       for(j in 1:(length(conn)-1)){
         edgelist=append(edgelist,list(conn[j:(j+1)]))
+        edgespeed=append(edgespeed,speed[i]);edgetype=append(edgetype,type[i])
       }
     }
   }
-  return(edgelist)
+  return(list(edgelist=edgelist,speed=edgespeed,type=edgetype))
 }
 
 
@@ -75,9 +79,9 @@ simplifyGraph<-function(g){
   return(delete_vertices(g,vtodelete)%>% add_edges(edgestoadd))
 }
 
-gg<-add_edges(g,edgestoadd)
-vd=V(gg)[0];for(vn in vtodelete$name){vd=append(vd,V(gg)[which(V(gg)$name==vn)])}
-ggg<-delete_vertices(gg,vtodelete)
+#gg<-add_edges(g,edgestoadd)
+#vd=V(gg)[0];for(vn in vtodelete$name){vd=append(vd,V(gg)[which(V(gg)$name==vn)])}
+#ggg<-delete_vertices(gg,vtodelete)
 #ggg<-delete_vertices(gg,V(gg)[which(V(gg)$name %in% vtodelete$name)])
 #add_edges(gg,V(gg)[which(V(gg)$name %in% edgestoadd$name)
 

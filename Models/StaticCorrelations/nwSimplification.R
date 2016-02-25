@@ -12,6 +12,7 @@ library(rgeos)
 library(rgdal)
 library(raster)
 library(igraph)
+library(dplyr)
 
 source('nwSimplFunctions.R')
 
@@ -23,18 +24,21 @@ source('nwSimplFunctions.R')
 
 tags=c("motorway","trunk","primary","secondary")
 roads<-linesWithinExtent(latmin,lonmin,latmax,lonmax,tags)
-splines = SpatialLines(LinesList = roads)
+splines = SpatialLines(LinesList = roads$roads)
 densraster<-raster(extent(splines),nrow=500,ncol=500)
 
 
 # edgelist of connexions between raster cells
 edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
 
-edgesmat=matrix(data=as.character(unlist(edgelist)),ncol=2,byrow=TRUE)
-g = graph_from_edgelist(edgesmat,directed=FALSE)
+edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);
+edgesmat[,3]=edgelist$speed
+edgesmat$speed=edgelist$speed;edgesmat$type=edgelist$type
+data.frame(edgesmat,edgelist$speed,edgelist$type)
+g = graph.data.frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
 coords = xyFromCell(densraster,as.numeric(V(g)$name))
 V(g)$x=coords[,1];V(g)$y=coords[,2]
-#plot(g,layout=coords,vertex.size=0,vertex.label=NA,edge.loop.angle=NA)
+
 
 #summary(degree(g))
 #V(g)[which(degree(g)==max(degree(g)))]
@@ -45,5 +49,6 @@ V(g)$x=coords[,1];V(g)$y=coords[,2]
 
 #exportGraph(sg)
 
+# insertion into simplified database : insert into links (id,origin,destination,geography) values ('1',10,50,ST_GeographyFromText('LINESTRING(-122.33 47.606, 0.0 51.5)')); 
 
 
