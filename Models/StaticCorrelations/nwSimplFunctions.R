@@ -1,7 +1,6 @@
 
 # nw simplification functions
 
-pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname="osm",user="Juste",host="localhost" )
 
 
 #' Get road linestrings (SPatialLines) within given extent
@@ -10,6 +9,8 @@ pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname="osm",user="Juste",host="loc
 #' @param tags list of tag values (for key highway)
 #'
 linesWithinExtent<-function(latmin,lonmin,latmax,lonmax,tags){
+  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname="osm",user="Juste",host="localhost" )
+  
   q = paste0(
     "SELECT ST_AsText(linestring) AS geom,tags::hstore->'maxspeed' AS speed,tags::hstore->'highway' AS type FROM ways",
     " WHERE ST_Contains(ST_MakeEnvelope(",latmin,",",lonmin,",",latmax,",",lonmax,",4326),","linestring)")
@@ -27,6 +28,9 @@ linesWithinExtent<-function(latmin,lonmin,latmax,lonmax,tags){
     r=readWKT(geoms[i])@lines[[1]];r@ID=as.character(i)
     roads[[i]]=r
   } 
+  
+  dbDisconnect(pgsqlcon)
+  
   return(list(roads=roads,type=data$type,speed=data$speed))
 }
 
@@ -68,7 +72,9 @@ simplifyGraph<-function(g){
     o=n[1];d=n[2];p=c(v,o,d)
     elengths = c();espeeds = c();etypes=c();
     
-    # TODO : - length when only v is deleted -
+    # - length when  o or d are already extremities -
+    if(max(degree(g,v=o))>2){e=E(g) [ o %--% v];elengths=append(elengths,spDistsN1(pts = matrix(c(v$x,v$y),nrow=1),pt = c(o$x,o$y),longlat = TRUE));espeeds=append(espeeds,e$speed);etypes=append(etypes,e$type)}
+    if(max(degree(g,v=d))>2){e=E(g) [ d %--% v];elengths=append(elengths,spDistsN1(pts = matrix(c(v$x,v$y),nrow=1),pt = c(d$x,d$y),longlat = TRUE));espeeds=append(espeeds,e$speed);etypes=append(etypes,e$type)}
     
     while(max(degree(g,v=o))==2){
       # link o - prevo added to cumulate speed and distance
@@ -96,16 +102,12 @@ simplifyGraph<-function(g){
   return(list(graph = delete_vertices(g,vtodelete),edgestoadd=edgestoadd,edgelength=edgelength,edgespeed=edgespeed,edgetype=edgetype))
 }
 
-#gg<-add_edges(g,edgestoadd)
-#vd=V(gg)[0];for(vn in vtodelete$name){vd=append(vd,V(gg)[which(V(gg)$name==vn)])}
-#ggg<-delete_vertices(gg,vtodelete)
-#ggg<-delete_vertices(gg,V(gg)[which(V(gg)$name %in% vtodelete$name)])
-#add_edges(gg,V(gg)[which(V(gg)$name %in% edgestoadd$name)
+
 
 
 insertEdgeQuery<-function(o,d,length,speed,type){
   
-  # TODO : index to not duplicate (-> necessary ? )
+  #  index to not duplicate : UNIQUE INDEX on o,d,type
   
   return(paste0(
      "INSERT INTO links (origin,destination,length,speed,roadtype,geography) values (",
@@ -119,30 +121,38 @@ insertEdgeQuery<-function(o,d,length,speed,type){
 #'
 #' 
 #' insertion into simplified database : insert into links (id,origin,destination,geography) values ('1',10,50,ST_GeographyFromText('LINESTRING(-122.33 47.606, 0.0 51.5)')); 
-exportGraph<-function(sg){
+exportGraph<-function(sg,dbname,dbuser){
   # get simpl base connection
-  con = dbConnect(dbDriver("PostgreSQL"), dbname="osm_simpl",user="Juste",host="localhost" )
-  
-  dbSendQuery(con,"BEGIN TRANSACTION;")
-  
-  # first insert graph edges
-  for(e in E(sg$graph)){
-    dbSendQuery(con,)
-  }
+  con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,host="localhost" )
   
   graph=sg$graph
+  
+  #dbSendQuery(con,"BEGIN TRANSACTION;")
+  
+  E(graph)$speed[which(is.na(E(graph)$speed))]=0
+  # first insert graph edges
+  for(i in E(graph)){
+    e=E(graph)[i]
+    vs = V(graph)[ends(graph,e)];o=vs[1];d=vs[2];
+    speed=e$speed;type=e$type
+    length=spDistsN1(pts = matrix(c(o$x,o$y),nrow=1),pt = c(d$x,d$y),longlat = TRUE)
+    try(dbSendQuery(con,insertEdgeQuery(o,d,length,speed,type)))
+  }
+  
+  
   sg$edgespeed[which(is.nan(sg$edgespeed))]=0
   sg$edgespeed[which(is.na(sg$edgespeed))]=0
   # then supplementary edges
   for(i in seq(from=1,to=length(sg$edgestoadd),by=2)){
     o=V(graph)[[sg$edgestoadd[i]]];d=V(graph)[[sg$edgestoadd[i+1]]]
-    dbSendQuery(con,insertEdgeQuery(o,d,sg$edgelength[1+(i-1)/2],sg$edgespeed[1+(i-1)/2],sg$edgetype[1+(i-1)/2]))
+    try(dbSendQuery(con,insertEdgeQuery(o,d,sg$edgelength[1+(i-1)/2],sg$edgespeed[1+(i-1)/2],sg$edgetype[1+(i-1)/2])))
   }
   
-  dbCommit(con)
+  #dbCommit(con)
   dbDisconnect(con)
   
 }
+
 
 
 

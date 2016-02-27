@@ -5,7 +5,7 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 
 ## Do not use osm directly, not efficient
 
-latmin=5.5;latmax=6.5;lonmin=49.0;lonmax=51
+#latmin=5.5;latmax=6.5;lonmin=49.0;lonmax=51
 
 library(RPostgreSQL)
 library(rgeos)
@@ -20,12 +20,13 @@ source('nwSimplFunctions.R')
 
 
 # get raster from density data -> will be directly consistent.
-#densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/popu01clcv5.tif"))
+densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
+latmin=extent(densraster)@xmin;latmax=extent(densraster)@xmax;lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 
 tags=c("motorway","trunk","primary","secondary")
 roads<-linesWithinExtent(latmin,lonmin,latmax,lonmax,tags)
-splines = SpatialLines(LinesList = roads$roads)
-densraster<-raster(extent(splines),nrow=500,ncol=500)
+#splines = SpatialLines(LinesList = roads$roads)
+#densraster<-raster(extent(splines),nrow=500,ncol=500)
 
 
 # edgelist of connexions between raster cells
@@ -36,13 +37,7 @@ g = graph.data.frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type
 coords = xyFromCell(densraster,as.numeric(V(g)$name))
 V(g)$x=coords[,1];V(g)$y=coords[,2]
 
-
-#summary(degree(g))
-#V(g)[which(degree(g)==max(degree(g)))]
-#centralization.betweenness(g)
-#diameter(g)
-
 sg = simplifyGraph(g)
 
-exportGraph(sg)
+exportGraph(sg,dbname="nw",dbuser="juste")
 
