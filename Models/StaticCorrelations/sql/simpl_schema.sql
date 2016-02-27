@@ -11,6 +11,9 @@ CREATE TABLE links (
   id VARCHAR(50) PRIMARY KEY,
   origin BIGINT,
   destination BIGINT,
+  length REAL,
+  speed REAL,
+  roadtype VARCHAR(10),
   geography GEOGRAPHY(LINESTRING,4326)
 );
 
