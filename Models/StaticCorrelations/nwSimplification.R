@@ -12,7 +12,7 @@ library(rgeos)
 library(rgdal)
 library(raster)
 library(igraph)
-library(dplyr)
+#library(dplyr)
 
 source('nwSimplFunctions.R')
 
