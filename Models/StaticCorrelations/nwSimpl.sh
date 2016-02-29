@@ -5,7 +5,9 @@
 DATADIR=test
 
 # sql simplbase schema
-psql -c "DROP DATABASE nw;CREATE DATABASE nw;"
+psql -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'nw';"
+psql -c "DROP DATABASE nw;"
+psql -c "CREATE DATABASE nw;"
 psql -d nw -f sql/simpl_schema.sql
 
 ls $DATADIR | awk '{print "./nwSimplCountry.sh $CN_HOME/Data/OSM/"$1}' | sh

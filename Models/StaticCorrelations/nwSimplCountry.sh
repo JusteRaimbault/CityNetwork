@@ -3,6 +3,7 @@ FILE=$1
 echo "PROCESSING FILE : "$FILE
 
 # drop old base
+psql -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'osm';"
 psql -c "DROP DATABASE osm;"
 # recreates it
 psql -c "CREATE DATABASE osm"

@@ -9,7 +9,7 @@
 #' @param tags list of tag values (for key highway)
 #'
 linesWithinExtent<-function(latmin,lonmin,latmax,lonmax,tags){
-  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname="osm",user="Juste",host="localhost" )
+  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname="osm",user="juste")#,host="localhost" )
   
   q = paste0(
     "SELECT ST_AsText(linestring) AS geom,tags::hstore->'maxspeed' AS speed,tags::hstore->'highway' AS type FROM ways",
@@ -123,7 +123,7 @@ insertEdgeQuery<-function(o,d,length,speed,type){
 #' insertion into simplified database : insert into links (id,origin,destination,geography) values ('1',10,50,ST_GeographyFromText('LINESTRING(-122.33 47.606, 0.0 51.5)')); 
 exportGraph<-function(sg,dbname,dbuser){
   # get simpl base connection
-  con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,host="localhost" )
+  con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser)#,host="localhost" )
   
   graph=sg$graph
   
