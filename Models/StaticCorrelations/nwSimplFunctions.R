@@ -104,6 +104,13 @@ simplifyGraph<-function(g){
 
 
 
+normalizedSpeed <- function(s){
+  if(!is.na(as.numeric(s))){return(as.numeric(s))}
+  sr=gsub(x = s," ","")
+  if(grepl("mph",sr)){return(as.numeric(gsub(x = sr,"mph",""))*1.609)}
+  else{return(NA)}
+}
+
 
 insertEdgeQuery<-function(o,d,length,speed,type){
   
@@ -112,7 +119,7 @@ insertEdgeQuery<-function(o,d,length,speed,type){
   return(paste0(
      "INSERT INTO links (origin,destination,length,speed,roadtype,geography) values (",
      #"'",o$name,d$name,type,"',
-     o$name,",",d$name,",",length,",",speed,",'",type,"',",
+     o$name,",",d$name,",",length,",",normalizedSpeed(speed),",'",type,"',",
      "ST_GeographyFromText('LINESTRING(",o$x," ",o$y,",",d$x," ",d$y,")'));"
     )
   )
