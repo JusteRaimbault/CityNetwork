@@ -8,15 +8,16 @@ library(RPostgreSQL)
 library(rgeos)
 library(rgdal)
 
-pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname="osm",user="Juste",host="localhost" )
 
 ##dbListTables(pgsqlcon)
 #latmin=22.3;lonmin=60.6;latmax=22.32;lonmax=60.7 # test on finland
 
 #  returns an igraph object corresponding to roads inside given extent
 loadRoadData <- function(latmin,latmax,lonmin,lonmax,width){
+  dbname="osm_simpl";dbuser="juste"
+  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,host="localhost" )
   query = dbSendQuery(pgsqlcon,
-    paste0("SELECT ST_AsText(linestring) AS geom FROM ways",
+    paste0("SELECT ST_AsText(geography) AS geom FROM links",
     " WHERE ST_DWithin(linestring,  ST_MakeEnvelope(",
     latmin,",",lonmin,",",latmax,",",latmin,",4326), 0.05);")
   )

@@ -11,19 +11,7 @@ library(raster)
 
 source('morpho.R')
 
-raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/popu01clcv5.tif"))
-#raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/france.tif"))
-
-
-
-# -----------------
-# -- Experiments --
-
-# 1) computation on all europe (simplified block 100kmx100km)
-# 2) France with 20kmx20km, including offset of 2km to avoid bord effects
-# 3) Europe 50km with 10km offset (22h max computation with 16 cores)
-# 4) Frce 50km
-
+raw <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
 
 areasize = 500
 factor=0.2
