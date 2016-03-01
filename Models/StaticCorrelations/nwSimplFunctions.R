@@ -91,6 +91,9 @@ simplifyGraph<-function(g){
     }
     # delete path vertices and add edge
     remvertices=difference(remvertices,p[which(p!=o&p!=d)])
+    # delete v anyway to avoid infinite loop when a node has a self loop
+    remvertices=difference(remvertices,c(v))
+    #
     edgestoadd=append(edgestoadd,c(o$name,d$name))
     edgelength=append(edgelength,sum(elengths))
     edgespeed=append(edgespeed,sum(elengths*as.numeric(espeeds))/sum(elengths))
