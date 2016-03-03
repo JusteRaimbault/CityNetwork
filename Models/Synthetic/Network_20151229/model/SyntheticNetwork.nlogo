@@ -1,4 +1,4 @@
-extensions [table pathdir nw matrix context]
+extensions [table pathdir nw matrix context gradient]
 
 ;;;;
 ;; Synthetic euclidian network generation
@@ -173,8 +173,8 @@ CHOOSER
 64
 cities-generation-method
 cities-generation-method
-"zipf-christaller" "random" "prefAtt-diffusion-density" "from-density-file"
-2
+"zipf-christaller" "random" "prefAtt-diffusion-density" "from-density-file" "fixed-density"
+4
 
 CHOOSER
 891
@@ -195,7 +195,7 @@ city-max-pop
 city-max-pop
 0
 10000
-1972.5291408113446
+238.13103939306257
 1
 1
 NIL
@@ -210,7 +210,7 @@ SLIDER
 #-cities
 0
 1000
-91
+439
 1
 1
 NIL
@@ -237,7 +237,7 @@ BUTTON
 1293
 289
 generate
-ca random-seed seed\ngenerate-synthetic-euclidian-network\ndisplay-network
+;ca random-seed seed\ngenerate-synthetic-euclidian-network\ndisplay-network
 NIL
 1
 T
@@ -272,7 +272,7 @@ gravity-radius
 gravity-radius
 0
 10000
-74
+15
 1
 1
 NIL
@@ -488,7 +488,7 @@ gravity-hierarchy-exponent
 gravity-hierarchy-exponent
 0
 10
-1.07
+2.59
 0.01
 1
 NIL
@@ -584,7 +584,7 @@ hierarchy-role
 hierarchy-role
 0
 1
-0.02
+0.1
 0.01
 1
 NIL
@@ -599,7 +599,7 @@ gravity-inflexion
 gravity-inflexion
 0
 10
-1.3
+2.7
 0.1
 1
 NIL
@@ -614,7 +614,7 @@ SLIDER
 #-max-new-links
 0
 100
-12
+23
 1
 1
 NIL
@@ -656,7 +656,7 @@ sp-max-pop
 sp-max-pop
 10000
 100000
-61000
+27800
 100
 1
 NIL
@@ -739,15 +739,32 @@ NIL
 1
 
 INPUTBOX
-1142
-256
-1199
-316
+1067
+254
+1124
+314
 seed
-999
+200
 1
 0
 Number
+
+BUTTON
+1139
+256
+1205
+289
+setup
+ca random-seed seed
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
