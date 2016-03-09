@@ -12,11 +12,15 @@
 
 %----------------------------------------------------------------------------------------
 
+\headercit{Do or do not. There is no try.}{Yoda}{}
 
 
+\bigskip
 
 
+One does not simply \emph{try} to model something. On that point personal experience confirms indeed that point, as I remember as an early Master student giving in to the call of incautious agent-based modeling, naively thinking that integrated models of any aspect of an urban system could be constructed, producing numerous NetLogo code lines to build a gaz factory with unfounded internal processes, an extremely poor external validation and no internal validation. This was a try and therefore a step towards the dark side of models bricolage. The construction of a computational model of simulation is a rigorous exercise that one can not improvise, as much as statistical modeling. Recent progresses in the field~\cite{banos2013pour} help to that purpose, and modular model construction and validation is one tool useful to avoid becoming lost in shady places.
 
+We propose in this chapter simple modeling experiments, conceived to be preliminaries for more elaborated tests of our theory. We begin with a simple diffusion-aggregation model of urban growth as a relatively small scale. Beginning with simple assumptions does not mean a non-rigorous exploration of the model, that is therefore explored and calibrated on real data. The fact that we reproduce existing urban forms without the use of networks suggest either the total absence of network influence at this scale, or its very strong influence yielding apparent random effects that disappear in average calibration. We propose then to simply couple this model with a network generation heuristic in order to study feasible correlations between morphology and network. The absence of coupled calibration avoids to draw empirical conclusion but the method is satisfying in itself as it permits the generation of synthetic territorial configurations where correlation structure is controlled. We finally describe a project of benchmark of diverse heuristic models for network generation.
 
 
 
@@ -35,7 +39,7 @@
 
 
 
-We propose a stochastic model of urban growth that generates spatial distributions of population densities, at an intermediate scale between economic models at the macro scale and land-use evolution models focusing on local relations. Integrating simply the two opposite key processes of aggregation (“preferential attachment”) and diffusion (urban sprawl), we show that we can capture the whole spectrum of existing urban forms in Europe. An extensive exploration and calibration of the proposed model allows determining the region of parameter space corresponding morphologically to observed european urban systems, providing an validated thematic interpretation to model parameters, and furthermore determining the effective dimension of the urban system at this scale regarding morphological objectives.
+We propose a stochastic model of urban growth that generates spatial distributions of population densities, at an intermediate scale between economic models at the macro scale and land-use evolution models focusing on local relations. Integrating simply the two opposite key processes of aggregation (``preferential attachment'') and diffusion (urban sprawl), we show that we can capture the whole spectrum of existing urban forms in Europe. An extensive exploration and calibration of the proposed model allows determining the region of parameter space corresponding morphologically to observed european urban systems, providing an validated thematic interpretation to model parameters, and furthermore determining the effective dimension of the urban system at this scale regarding morphological objectives.
 
 
 
@@ -53,7 +57,7 @@ We propose a stochastic model of urban growth that generates spatial distributio
 
 
 
-\cite{andersson2002urban} propose a micro-based model of urban growth, with the purpose to replace non-interpretable physical mechanisms with agent mechanisms, including interactions forces and mobility choices.
+\cite{andersson2002urban} propose a micro-based model of urban growth, with the purpose to replace non-interpretable physical mechanisms with agent mechanisms, including interactions forces and mobility choices. Local correlations are used in \cite{makse1998modeling} to modulate growth patterns to ressemble real configurations. In the same spirit, our model situates at similar scales and can be qualified as a morphogenesis model.
 
 
 
@@ -65,7 +69,7 @@ We propose a stochastic model of urban growth that generates spatial distributio
 
 
 % 2.2 - The urban growth model
-\subsubsection{The urban growth model}
+%\subsubsection{The urban growth model}
 
 \paragraph{Rationale}
 
@@ -73,13 +77,22 @@ We propose a stochastic model of urban growth that generates spatial distributio
 
 % following Florent : \cite{fujita1996economics} oppose agglomeration and sprawl
 
-Our model is an extension of the diffusion-limited aggregation model studied in~\cite{batty2006hierarchy}. Indeed, the tension between antagonist aggregation and sprawl mechanisms may be an important process in urban morphogenesis. \cite{fujita1996economics} opposes centrifugal forces with centripetal forces in the equilibrium view of urban spatial systems, what is easily transferable to non-equilibrium systems in the framework of self-organized complexity : a urban structure is a far-from-equilibrium system that has been driven to this point by this opposite forces.
+Our model is an extension of the diffusion-limited aggregation model studied in~\cite{batty2006hierarchy}. Indeed, the tension between antagonist aggregation and sprawl mechanisms may be an important process in urban morphogenesis. \cite{fujita1996economics} opposes centrifugal forces with centripetal forces in the equilibrium view of urban spatial systems, what is easily transferable to non-equilibrium systems in the framework of self-organized complexity : a urban structure is a far-from-equilibrium system that has been driven to this point by this opposite forces. The two contradictory processes of urban concentration and urban sprawl are captured by the model, what allows to reproduce with a good precision a large number of existing morphologies. A generalization of the basic model is proposed in~\cite{raimbault2016calibration}. 
 
 
 
 \paragraph{Settings}
 
-Precise formulation, description and formalization of the model. ; parameters and their possible interpretation ; def of parameter space.
+%Precise formulation, description and formalization of the model. ; parameters and their possible interpretation ; def of parameter space.
+
+The model $D$ proceeds iteratively the following way. An square grid of width $N$, initially empty, is represented by population $(P_i(t))_{1\leq i\leq N^2}$. At each time step, until total population reaches a fixed parameter $P_m$,
+\begin{itemize}
+\item total population is increased of a fixed number $N_G$ (growth rate), following a preferential attachment such that 
+\[\Pb{P_i(t+1)=P_i(t)+1|P(t+1)=P(t)+1}=\frac{(P_i(t)/P(t))^{\alpha}}{\sum(P_i(t)/P(t))^{\alpha}}\]
+\item a fraction $\beta$ of population is diffused to four closest neighbors is operated $n_d$ times
+\end{itemize}
+
+
 
 
 
@@ -92,6 +105,7 @@ Precise formulation, description and formalization of the model. ; parameters an
 
 % Definition of indicators
 
+Indicators to qualify model outputs are morphological measures of population density, proposed in~\cite{le2015forme}, that are entropy, hierarchy, spatial auto-correlation, mean distance. 
 
 
 
@@ -101,30 +115,34 @@ Precise formulation, description and formalization of the model. ; parameters an
 %%%%%%%%%%%%
 
 
-Precise description of the implementation (pub openmole exploration etc, importance of intensive computation)
+%Precise description of the implementation (pub openmole exploration etc, importance of intensive computation)
+
+The model was implemented in a first time in NetLogo for exploration purpose, later in scala for performance reasons and easy integration into OpenMole~\cite{reuillon2013openmole} for HPC model exploration.
 
 
 % 3.1 - Generation of urban patterns
 \subsubsection{Generation of urban patterns}
 
-variety of genered forms, examples of extreme shapes.
+%variety of genered forms, examples of extreme shapes.
 
 
-
-
-
-
-
-
-
-
+The model as few parameters but is able to generate a very wide variety of shapes, extending beyond existing forms. In particular, its dynamical nature allows through $P_m$ parameter to choose final regime that can be non-stationarity (generally chaotic shapes), semi-stationarity or total stationarity. Fig.~\ref{fig:densitygeneration} shows examples of generated shapes.
 
 
 
 %%%%%%%%%%%%
 \begin{figure}
-
-\caption{Example of the variety of generated urban shapes}
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/UrbanGrowth/ex0}\hspace{0.5cm}
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/UrbanGrowth/ex1}\\
+\medskip
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/UrbanGrowth/ex2}\hspace{0.5cm}
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/UrbanGrowth/ex3}\\\medskip
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/UrbanGrowth/ex4}\hspace{0.5cm}
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/UrbanGrowth/ex5}\\\medskip
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/UrbanGrowth/ex6}\hspace{0.5cm}
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/UrbanGrowth/ex7}\\
+\caption[Generated Density urban shapes]{Example of the variety of generated urban shapes}
+\label{fig:densitygeneration}
 \end{figure}
 %%%%%%%%%%%%
 
@@ -136,31 +154,49 @@ variety of genered forms, examples of extreme shapes.
 
 \paragraph{Convergence - internal model validation}
 
-convergence properties of indicators ; number of repetitions needed for consistence of results. [histograms and stats of $\sigma$ %TODO]
+%convergence properties of indicators ; number of repetitions needed for consistence of results. [histograms and stats of $\sigma$ %TODO]
+
+Indicators show good convergence property and bimodal statistical distribution for cumulated points in the parameter space confirm the existence of superposed regimes : gaussian distribution gives stationary configurations, whereas inverse log-normal distribution are close to real data shape and correspond to non-stationary regime. For one point and a large number of repetitions, we find that 50 repetitions are enough to obtain a 95\% confidence interval smaller than $\sigma$ around indicator mean. 
 
 \paragraph{Exploration of parameter space}
 
-Grid, then LHS explorations.
+%Grid, then LHS explorations.
+
+Parameter space is explored using a grid in first experiments, than a Latin Hypercube Sampling exploration. Parameter bounds are $\alpha \in [0.2,2],\beta \in [0,0.1],n_d \in \{0,\ldots , 4\}, N_G \in [500,3000], P_m \in [2000,100000]$. Fig.\ref{fig:densityscatter} shows the result. We also use the parameter space exploration algorithm~\cite{10.1371/journal.pone.0138212} implemented in OpenMole, and obtain in Fig.~\ref{fig:densitypse} the lower bound in Moran-entropy plan, that unexpectedly exhibit a scaling relationship that we aim to explore further.
 
 
+%%%%%%%%%%%%
+\begin{figure}
+\hspace{-2cm}
+\includegraphics[width=1.4\textwidth]{Figures/PartII/Modeling/UrbanGrowth/all_alphaLoc}
+\caption[LHS exploration of density model]{Scatterplots of indicators distribution in an hypercube of the parameter space. We show here the influence of one parameter (localization exponent $\alpha$). Red points correspond to real data.}
+\label{fig:densityscatter}
+\end{figure}
+%%%%%%%%%%%%
 
 
 
 %%%%%%%%%%%%
 \begin{figure}
-
-\caption{Scatterplots of indicators distribution in an hypercube of the parameter space. We show here the influence of one parameter (diffusion rate). Red points correspond to real data.}
+%\hspace{-2cm}
+\includegraphics[width=\textwidth]{Figures/PartII/Modeling/UrbanGrowth/scaling_entropy_moran}
+\caption[PSE exploration]{Scatterplots of Moran against Entropy, with blue points obtained with LHS and red with PSE exploration. Lower bound is in green.}
+\label{fig:densitypse}
 \end{figure}
 %%%%%%%%%%%%
 
+
+
 % Q : 3D plots as supp material ?
 
-Figure : on 2 first PC of morpho indicators, localization of typical shapes (monocentric city, polycentric city, diffuse rural settlements, aggregated rural settlements) / comparing generated shape with a typical real one
+%Figure : on 2 first PC of morpho indicators, localization of typical shapes (monocentric city, polycentric city, diffuse rural settlements, aggregated rural settlements) / comparing generated shape with a typical real one
 
 \paragraph{Statistical analysis}
 
-Regression indics = f(params) . TO BE DONE.
-interpretation ?
+%Regression indics = f(params) . TO BE DONE.
+%interpretation ?
+
+A statistical analysis (basic models) of indicator behaviors remains to be done and interpreted (one is done conjointly with network in paper corresponding to next section).
 
 % 3.3 - Model Calibration
 \subsubsection{Model Calibration}
@@ -171,62 +207,60 @@ interpretation ?
 %% Data source (density grid), computation methodology [comparison of sampling/smoothing to avoid bord effects ?] -> reals values of morpho indics on 50kmx50km grids, on all Europe.
 %% + summary stats
 
-
-
-
 %Figure : Distributions of indicators values for real dataset of european densities, computed on 50kmx50km grids, with 10km offset to avoid bord effects. [TODO : add log-normal/normal fits ? ]
 %  -> cf Empirical Section
+
+Empirical morphological measures for calibration are the one described in the empirical chapter, i.e. the calibration is done on morphological objectives (entropy, hierarchy, spatial auto-correlation, mean distance) against real values computed on the set of 50km sized grid extracted from european density grid~\cite{eurostat}.
 
 
 
 \paragraph{Calibration Process}
 
-Specific calib process : PCA that maximize the cumulated distance between generated points and reals points ; then select point cloud that overlaps real points in (PC1,PC2) plan, given a distance threshold.
+We use a specific calibration process : a principal component analysis allows to maximize the cumulated distance between generated points and reals points. We select then the point cloud that overlaps real points in the (PC1,PC2) plan, given a distance threshold. Fig.~\ref{fig:densitycalib} shows the points we obtain for four different values of the threshold ranging from $10^{-6}$ to $10^{-3}$.
 
 
 
+%%%%%%%%%%%%%%%
+\begin{figure}
+%\hspace{-2cm}
+\includegraphics[width=\textwidth]{Figures/PartII/Modeling/UrbanGrowth/pcaDiff_thresholds}
+\caption[Precise calibration of the model]{Precise calibration of the model. The principal component analysis is conducted to maximize the spread of the differences between real data and model output, i.e. on the set $\{\left|R_i - M_j\right|\}$ where $R_i$ is the set of real points, $M_j$ the set of model outputs. We select then the overlapping cloud at threshold $\theta$, by taking models output closer to real point cloud than $\theta$ in the (PC1,PC2) plan.}
+\label{fig:densitycalib}
+\end{figure}
+%%%%%%%%%%%%%%
 
-
-
-Figure : Precise calibration of the model. The principal component analysis is conducted to maximize the spread of the differences between real data and model output, i.e. on the set $\{\left|R_i - M_j\right|\}$ where $R_i$ is the set of real points, $M_j$ the set of model outputs. We select then the overlapping cloud at threshold $\theta$, by taking models output closer to real point cloud than $\theta$ in the (PC1,PC2) plan.
 
 
 % 3.3.3 - Calibration Results
-\subsubsection{Calibration Results}
+\subsubsection{Calibration refinment}
 
--> extraction of the exact parameter space covering all real situations.
-interpretation of its shape (correlations between parameters ?) and its volume in different directions (relative importance of parameters).
-[possible development : application of Calibration Profile algo to check relative influence of parameters + ad hoc linear algebra on regression of 3.2.3 to do the same]
+We plan in further work to extract the exact parameter space covering all real situations and provide interpretation of its shape (correlations between parameters). Its volume in different directions should give the relative importance of parameters.
 
-
+%[possible development : application of Calibration Profile algo to check relative influence of parameters + ad hoc linear algebra on regression of 3.2.3 to do the same]
 
 
 
 
 \subsection{Discussion}
 
-
 \subsubsection{Thematic interpretation of growth behavior}
 
-interpret positions of typical shapes within param space : confirms thematic interpretation of parameters.
-depending on results of 3.3.3, necessary and sufficient parameters to explain growth at this scale -> interpretation ?
+We still need to interpret the positions of typical shapes within parameter space in order to confirm the thematic interpretation of parameters. Depending on results of calibration refinement, we may obtain necessary and sufficient parameters to explain growth at this scale and a corresponding interpretation.
 
 \subsubsection{Integration into a multi-scale growth model}
 
-Possible coupling on a gibrat (or favaro-pumain) at europa scale (macro) (with addition of consistence on migration constraints), where meso growth rates which werer exogeneous before, are top-down determined, and bottom-up feedback is done through local aggregation level, that influence attractivity of an area.
+It could be possible to couple this model with a Gibrat (or Favaro-pumain) at Europa scale (macro) (with addition of consistence on migration constraints), where meso growth rates which were exogenous before are top-down determined, and bottom-up feedback is done through local aggregation level, influence importance of each area.
 
 
 %%%%%
 %% 4.3 - Methodological application ?
 %%%%% -> maybe out of scope here ?
 
+% -> Accurately calibrated spatialized urban growth model, can reproduce any (european) urban pattern.
+% -> interpretation of parameter influence ; effective independant dimensions of the urban system at this scale.
 
 
- -> Accurately calibrated spatialized urban growth model, can reproduce any (european) urban pattern.
- -> interpretation of parameter influence ; effective independant dimensions of the urban system at this scale.
-
-
-
+In conclusion, this first modeling step provide an accurately calibrated spatial urban growth model at the mesoscopic scale that can reproduce any European urban pattern in terms of urban form. Further work is needed for an interpretation of parameter influence and the determination of effective independent dimensions of the urban system at this scale. We will use this model for other purposes in the following.
 
 
 
@@ -256,15 +290,11 @@ Possible coupling on a gibrat (or favaro-pumain) at europa scale (macro) (with a
 
 
 
-
-
-
-
-
+This section aims to explore the sequential coupling between previous model of density generation and an heuristic of network growth. We explore therein the feasible space of correlations between network measures and morphological measures.% This work was initially presented as a methodological investigation in 
 
 
 %%%%%%%%%%%%%%%%%%%%%%
-\subsection{Application : geographical data of density and network}
+\subsection{Correlated geographical data of density and network}
 
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -284,20 +314,7 @@ We propose in our case to generate territorial systems summarized in a simplifie
 
 \paragraph{Density model}
 
-We use a model $D$ similar to aggregation-diffusion models~\cite{batty2006hierarchy} to generate a discrete spatial distribution of population density. A generalization of the basic model is proposed in~\cite{raimbault2016calibration}, providing a calibration on morphological objectives (entropy, hierarchy, spatial auto-correlation, mean distance) against real values computed on the set of 50km sized grid extracted from european density grid~\cite{eurostat}. More precisely, the model proceeds iteratively the following way. An square grid of width $N$, initially empty, is represented by population $(P_i(t))_{1\leq i\leq N^2}$. At each time step, until total population reaches a fixed parameter $P_m$,
-\begin{itemize}
-\item total population is increased of a fixed number $N_G$ (growth rate), following a preferential attachment such that 
-\[\Pb{P_i(t+1)=P_i(t)+1|P(t+1)=P(t)+1}=\frac{(P_i(t)/P(t))^{\alpha}}{\sum(P_i(t)/P(t))^{\alpha}}\]
-\item a fraction $\beta$ of population is diffused to four closest neighbors is operated $n_d$ times
-\end{itemize}
-
-
-
-
-
-The two contradictory processes of urban concentration and urban sprawl are captured by the model, what allows to reproduce with a good precision a large number of existing morphologies.
-
-%Les deux processus antagonistes de concentration et d'étalement urbain sont capturés par le modèle, ce qui permet de reproduire assez fidèlement un grand nombre de morphologies existantes.
+The density model is the model described and explored in the previous section. We use it for the conditional generation of network.
 
 
 \paragraph{Network model}
@@ -377,8 +394,7 @@ Coupling of generative models is done both at formal and operational levels. We 
 }
 \subfloat[]{%[t]{0.23\linewidth}
 \vspace{-6.5cm}
-\includegraphics[width=0.23\textwidth]{Figures/PartII/Modeling/CorrelatedData/heatmap_maxAbsCor}\\
-\includegraphics[width=0.23\textwidth]{Figures/PartII/Modeling/CorrelatedData/heatmap_amplCor}
+\includegraphics[width=0.23\textwidth]{Figures/PartII/Modeling/CorrelatedData/heatmaps}
 }
 \subfloat[]{%[t]{0.4\linewidth}
 \includegraphics[width=0.4\textwidth]{Figures/PartII/Modeling/CorrelatedData/pca_meanAbsCor_errorBars}
@@ -400,10 +416,10 @@ Coupling of generative models is done both at formal and operational levels. We 
 \begin{figure}
 \centering
 
-   \includegraphics[width=0.5\textwidth]{Figures/PartII/Modeling/CorrelatedData/configs/1_param71861_seed0}
-   \includegraphics[width=0.5\textwidth]{Figures/PartII/Modeling/CorrelatedData/configs/2_param71913_seed10}\\
-   \includegraphics[width=0.5\textwidth]{Figures/PartII/Modeling/CorrelatedData/configs/3_param71918_seed0}
-   \includegraphics[width=0.5\textwidth]{Figures/PartII/Modeling/CorrelatedData/configs/4_param71945_seed0}
+   \includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/CorrelatedData/configs/1_param71861_seed0}
+   \includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/CorrelatedData/configs/2_param71913_seed10}\\
+   \includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/CorrelatedData/configs/3_param71918_seed0}
+   \includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/CorrelatedData/configs/4_param71945_seed0}
 \caption[Examples of generated coupled configurations]{Configurations obtained for parameters giving the four emphasized points in (d), in order from left to right and top to bottom. We recognize polycentric city configurations (2 and 4), diffuse rural settlements (3) and aggregated weak density area (1). See appendice for exhaustive parameter values, indicators and corresponding correlations. For example $\bar{d}$ is highly correlated with $\bar{l},\bar{s}$ ($\simeq$0.8) in (1) but not for (3) although both correspond to rural environments ; in the urban case we observe also a broad variability : $\rho[\bar{d},\bar{c}]\simeq 0.34$ for (4) but $\simeq-0.41$ for (2), what is explained by a stronger role of gravitation hierarchy in (2) $\gamma=3.9,k_h=0.7$ (for (4), $\gamma=1.07,k_h=0.25$), whereas density parameters are similar.}
 \end{figure}
 %%%%%%%%%%%%%%
@@ -468,7 +484,7 @@ This case study could be refined by extending correlation control method. A prec
 
 
 %%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Scientific positioning}
+\subsubsection*{Scientific positioning}
 
 % données hybrides au centre de la démarche d'exploration de modèle, analyse de sensitivité etc.
 
@@ -478,7 +494,7 @@ Our overall approach enters a particular epistemological frame. On the one hand 
 
 
 %%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Direct applications}
+\subsubsection*{Direct applications}
 
 
 Starting from the second example which was limited to data generation, we propose examples of direct applications that should give an overview of the range of possibilities.
@@ -495,7 +511,7 @@ Starting from the second example which was limited to data generation, we propos
 
 
 %%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Generalization}
+\subsubsection*{Generalization}
 
 We were limited to the control of first and second moments of generated data, but we could imagine a theoretical generalization allowing the control of moments at any order. However, as shown by the geographical example, the difficulty of generation in a concrete complex case questions the possibility of higher orders control when keeping a consistent structure model and a reasonable number of parameters. The study of non-linear dependence structures as proposed in~\cite{chicheportiche2013nested} is in an other perspective an interesting possible development.
 
@@ -513,10 +529,7 @@ We were limited to the control of first and second moments of generated data, bu
 %%%%%%%%%%%%%%%%%%%%%%
 
 
-We proposed an abstract method to generate synthetic datasets in which correlation structure is controlled. Its rapid implementation in two very different fields shows its flexibility and the broad range of possible applications. More generally, it is crucial to favorise such practices of systematic validation of computational models by statistical analysis, in particular for agent-based models for which the question of validation stays an open issue.
-
-
-
+We described a model allowing to generate synthetic datasets in which correlation structure is controlled. Its exploration shows its flexibility and the broad range of possible applications. More generally, it is crucial to favorise such practices of systematic validation of computational models by statistical analysis, in particular for agent-based models for which the question of validation stays an open issue. 
 
 
 
@@ -529,8 +542,31 @@ We proposed an abstract method to generate synthetic datasets in which correlati
 
 \section[Network Growth Models]{Network Growth Models : Explicative power for various approaches}
 
-Considering Network Growth in itself, many heuristics are available to generate a network under some constraints. As already developed, 
+\subsection{Benchmarking Network growth heuristics}
 
+Considering Network Growth in itself, many heuristics are available to generate a network under some constraints. As already developed, from economic network growth approach to local optimization heuristics, geographical mechanisms or biological network growth, each has its advantages and particularities. We plan to compare these varied methods against real network indicators values for the european road network once these will have been calculated. We present in Fig.~\ref{fig:slimemould} a preliminary work done in~\cite{raimbault2015labex} to explore implementation of the biological network growth models. Also the implementation of local optimization models was explored, typically the one described in the methodology section on reproducibility. 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/NetworkGrowth/tick1}
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/NetworkGrowth/tick20}\\
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/NetworkGrowth/tick50}
+\includegraphics[width=0.45\textwidth]{Figures/PartII/Modeling/NetworkGrowth/reseauFinal}
+\caption[Biological Network Growth]{Example of the application of the slime mould network generation model to the computation of an optimal public transportation network design.}
+\label{fig:slimemould}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+\subsection{An interdisciplinary approach to network morphogenesis}
+
+An interdisciplinary project that was just launched with a Physicist \noun{Lagesse}, an Architect \noun{Hachi} and a Computer Scientist \noun{Dugue} aims at finding consistent models of urban street network morphogenesis, regarding urban design particularities, geographical rules and complex network indicators feedbacks. Models of network morphogenesis were already discuss here and the aim of this project is to gain insight from the interdisciplinary vision to explore the potentiality of such models. In the frame of our thesis, it is logically situated within the morphogenesis theoretical part and network growth modeling heuristics.
 
 
 
