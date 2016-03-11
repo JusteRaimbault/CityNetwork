@@ -6,14 +6,27 @@
 ;;
 ; patch procedure to grow population
 to grow
-  set population population + growth-quantity
+  
+  ;; fixed growth rate
+  if growth-mechanism = "fixed-rate" [
+    ask max-n-of growth-rate patches [utility] [set population population + 1]
+  ]
+  
+  if growth-mechanism = "endogenous" [
+    ask patches [
+       set population population + growth-quantity
+      ; gibrat growth -> reinforcment
+      ;if population = 0 [set population population + growth-quantity]
+      ;set population population * (1 + ln (1 + growth-quantity))
+    ]
+  ] 
 end
 
 
 to-report growth-quantity
   ifelse max-utility = 0 [report 0][
-    ;report (max (list 0 random-normal ((utility - min-utility) / (max-utility - min-utility)) perturbation-width)) ^ growth-exponent
-    report utility
+    report (max (list 0 random-normal ((utility - min-utility) / (max-utility - min-utility)) perturbation-width)) ^ growth-exponent
+    ;report utility
   ]
 end
 

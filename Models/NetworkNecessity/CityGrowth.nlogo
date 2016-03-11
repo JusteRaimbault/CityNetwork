@@ -46,12 +46,11 @@ patches-own [
   surrounding-density
   
 ]
-
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+313
 10
-826
+929
 647
 50
 50
@@ -76,10 +75,10 @@ ticks
 30.0
 
 BUTTON
-16
-18
-82
-51
+7
+10
+69
+43
 setup
 setup
 NIL
@@ -93,10 +92,10 @@ NIL
 1
 
 BUTTON
-82
-55
-145
-88
+72
+46
+135
+79
 go
 go
 T
@@ -110,10 +109,10 @@ NIL
 1
 
 SLIDER
-959
-16
-1131
-49
+40
+188
+212
+221
 growth-exponent
 growth-exponent
 0
@@ -125,25 +124,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-959
-52
-1131
-85
+40
+224
+212
+257
 neigh-radius
 neigh-radius
 0
 50
-6
+7
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1182
-17
-1354
-50
+37
+281
+209
+314
 density-weight
 density-weight
 0
@@ -155,25 +154,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-1183
-53
-1355
-86
+38
+317
+210
+350
 distance-weight
 distance-weight
 0
 1
-0.5
+0.4
 0.1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-15
-54
-78
-87
+6
+46
+69
+79
 go
 go
 NIL
@@ -187,16 +186,70 @@ NIL
 1
 
 SLIDER
-1099
-112
-1271
-145
+37
+390
+209
+423
 perturbation-width
 perturbation-width
 0
 0.5
-0.1
+0.3
 0.05
+1
+NIL
+HORIZONTAL
+
+PLOT
+958
+204
+1317
+437
+profile
+NIL
+NIL
+0.0
+50.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -15575016 true "" ""
+
+MONITOR
+1025
+476
+1105
+521
+population
+sum [population] of patches
+17
+1
+11
+
+CHOOSER
+17
+97
+163
+142
+growth-mechanism
+growth-mechanism
+"fixed-rate" "endogenous"
+0
+
+SLIDER
+19
+149
+191
+182
+growth-rate
+growth-rate
+0
+100
+56
+1
 1
 NIL
 HORIZONTAL

@@ -17,7 +17,7 @@
 
 
 
-extensions[nw table gis profiler]
+extensions[nw table gis profiler context matrix]
 
 
 __includes[
@@ -46,13 +46,13 @@ __includes[
   
   
   ;;Utilities
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/TypesUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LinkUtilities.nls"  
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/SortingUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/FileUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/StringUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/misc/List.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/math/EuclidianDistanceUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/misc/Types.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/agent/Link.nls"  
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/math/SortingUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/io/File.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/misc/String.nls"
   
   ;;core running file
   "genetic-optim.nls"
@@ -322,7 +322,7 @@ centers-number
 centers-number
 1
 20
-6
+1
 1
 1
 NIL
@@ -352,7 +352,7 @@ density-coefficient
 density-coefficient
 0
 1
-1
+0.2
 0.1
 1
 NIL
@@ -397,7 +397,7 @@ distance-road-needed
 distance-road-needed
 0
 50
-6
+50
 0.1
 1
 NIL
