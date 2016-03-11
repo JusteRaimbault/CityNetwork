@@ -17,7 +17,7 @@
 
 
 
-extensions[nw table gis profiler context matrix]
+extensions[nw table gis profiler context matrix convol]
 
 
 __includes[
