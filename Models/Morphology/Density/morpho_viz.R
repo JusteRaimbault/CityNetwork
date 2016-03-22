@@ -6,6 +6,8 @@
 library(RColorBrewer)
 library(ggplot2)
 library(MASS)
+library(dplyr)
+
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 # data
@@ -25,7 +27,7 @@ real =real_raw[!is.na(real_raw[,3])&!is.na(real_raw[,4])&!is.na(real_raw[,5])&!i
 #}
 
 # indep measurements
-real_ind = real[5*(0:(nrow(real)/5))+1,]
+#real_ind = real[5*(0:(nrow(real)/5))+1,]
 
 
 ###################
@@ -69,14 +71,15 @@ plot(real[,3:6],pch="+")
 # hists
 par(mfrow=c(2,2))
 indics=c("moran","distance","entropy","slope");
-#laws=c("log-normal","inv-log-normal","inv-log-normal","normal")
-laws=rep("",4)
+laws=c("log-normal","inv-log-normal","inv-log-normal","normal")
+#laws=rep("",4)
 ranges=list((1:250)/1000,(1:1000)/1000,(1:1000)/1000,(-2500:-500)/1000)
 k=1
 for(indic in indics){
- #hist(real[[indic]],breaks=500,main="",xlab=indic,freq=FALSE)
-  hist(real[[indic]],breaks=500,main="",xlab=indic,freq=FALSE)
-
+  #hist(real[[indic]],breaks=500,main="",xlab=indic,freq=FALSE)
+  hist(max(real[indic]) - real[[indic]]+1e-4,breaks=500,main="",xlab=indic,freq=FALSE)
+  
+  
   if(laws[k]=="log-normal"){
    fit = coef(fitdistr(abs(real[[indic]]),laws[k]))
    dens=dlnorm(ranges[[k]],meanlog=fit[1],sdlog=fit[2])#*sign(fit[1])
@@ -84,13 +87,13 @@ for(indic in indics){
  if(laws[k]=="inv-log-normal"){
    # fit on inversed distrib in that case
    fit = coef(fitdistr(max(real[indic]) - real[[indic]]+1e-4,"log-normal"))
-   dens=dnorm(ranges[[k]],mean=fit[1],sd=fit[2])
+   dens=dlnorm(ranges[[k]],meanlog=fit[1],sdlog=fit[2])
  }
  if(laws[k]=="normal"){
    fit = coef(fitdistr(real[[indic]],"normal"))
    dens=dnorm(ranges[[k]],mean=fit[1],sd=fit[2])
  }
- #points(ranges[[k]],dens,type="l",col="red")
+ points(ranges[[k]],dens,type="l",col="red")
  k=k+1
 }
 
@@ -124,6 +127,38 @@ for(k in 3:11){
 
 
 
+#############
+# Local Correlations
+#############
+
+x = sort(unique(real$x));y = sort(unique(real$y))
+xstep=x[2]-x[1];ystep=y[2]-y[1]
+xx = x[seq(from=4,to=length(x)-3,by=4)]
+yy = y[seq(from=4,to=length(y)-3,by=4)]
+
+cors = list()#matrix(0,length(xx)*length(yy),6)
+i=1
+for(x0 in xx){
+  for(y0 in yy){
+    if(i%%1000==0){show(i)}
+     rows = (abs(real$x-x0)<=(3*xstep))&(abs(real$y-y0)<=(3*ystep))
+     if(length(which(rows))>10){
+       rho=cor(real[rows,3:6])
+       cors[[i]]=c(x0,y0,rho[2,1],rho[3,1],rho[4,1],rho[3,2],rho[4,2],rho[4,3])
+     }
+     i=i+1
+  }
+}
+
+mcors = matrix(data = unlist(cors),ncol = 8,byrow = TRUE)
+
+map<-function(data,col){
+  d=data.frame(x=data[,2],y=1-data[,1],indic=data[,col]);
+  p=ggplot(d,aes_string(x="x",y="y",colour="indic"))
+  p+geom_point(shape=15,size=2)+xlab("")+ylab("")+labs(title=indic)+scale_colour_gradientn(colours=rev(rainbow(5)))+scale_y_continuous(breaks=NULL)+scale_x_continuous(breaks=NULL)
+}
+
+map(mcors,6)
 
 
 
