@@ -48,7 +48,7 @@ f =function(params){
   pops=interactionModel(synth_populations,distances,params[1],params[2],params[3],params[4])$df;
   return(-sum((pops$populations-pops$real_populations)^2))}
 
-optim = ga(type="real-valued",fitness = f,min = c(0.75,25,0.01,0.5),max=c(2,300,0.08,10),maxiter = 500)
+optim = ga(type="real-valued",fitness = f,min = c(0.75,25,0.01,0.5),max=c(2,300,0.08,5),maxiter = 1000)
 
 
 

@@ -22,7 +22,7 @@ interactionModel <- function(real_populations,distances,gammaGravity=0,decayGrav
   tflat=rep(1,nrow(real_populations));
   cflat=1:nrow(real_populations);
   realflat = real_populations[,1]
-  for(t in 2:times){
+  for(t in 2:ncol(real_populations)){
     pot = potentials(populations[,t-1],distances,gammaGravity,decayGravity)
     populations[,t] = populations[,t-1]*(1 + growthRate + pot%*%matrix(rep(1,nrow(pot)),nrow=nrow(pot))/potentialWeight)
     populations_gibrat[,t] = populations_gibrat[,t-1]*(1 + growthRate)
