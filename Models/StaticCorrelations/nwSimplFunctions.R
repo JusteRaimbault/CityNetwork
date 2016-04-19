@@ -23,12 +23,12 @@ linesWithinExtent<-function(latmin,lonmin,latmax,lonmax,tags){
   query = dbSendQuery(pgsqlcon,q)
   data = fetch(query,n=-1)
   geoms = data$geom
-  roads=list()
+  roads=list();k=1
   for(i in 1:length(geoms)){
     r=try(readWKT(geoms[i])@lines[[1]],silent=TRUE)
     if(!inherits(r,"try-error")){
        r@ID=as.character(i)
-       roads=append(roads,r)
+       roads[[k]]=r;k=k+1
     }
   } 
   
