@@ -12,10 +12,19 @@
 %----------------------------------------------------------------------------------------
 
 
-\headercit{something on knowledge}{}{}
+\headercit{The Social Construction of What ?}{Ian Hacking}{\cite{hacking1999social}}
 
 
-A corollary of theoretical background proposed in chapter~\ref{ch:theory} is the need of an understanding of involved disciplines themselves to be able to build integrated heterogeneous models. The potentialities of couplings and integrations are greatly determined by existing approaches and corresponding gaps. This implies an advanced epistemological study in each field, that we propose to tackle in a systematic and quantitative way. This deliberate choice may shadow elaborated epistemological considerations but fits of purpose of preliminary investigations for the construction of models. 
+\bigskip
+
+Under this provocative book title by \noun{Hacking} are implied complex mechanisms in the production of scientific knowledge. Animated debates on constructivism would be due to different metaphysical conceptions that are by essence not provable. As we have already evoked with perspectivism, scientific entreprises may have different purposes and be difficultly transferable to other contexts as we intent to do in our broad thematic vision developed in chapter~\ref{ch:thematic}.
+
+
+A corollary of theoretical background proposed in chapter~\ref{ch:theory} is the need of an understanding of involved disciplines themselves to be able to build integrated heterogeneous models. The potentialities of couplings and integrations are greatly determined by existing approaches and corresponding gaps. This implies an advanced epistemological study in each field, that we propose to tackle in a systematic and quantitative way. This deliberate choice may shadow elaborated epistemological considerations but fits our purpose of preliminary investigations for the construction of models, as it may reveal investigation directions.
+
+
+We describe and explore in a first section a systematic review exploration algorithm, that retrieve corpuses of references through iterative semantic extraction. We describe then briefly possible extended bibliometrics by presenting an external example of application. We finally suggest possible development directions towards unsupervised data and text-mining.
+
 
 
 
@@ -24,13 +33,18 @@ A corollary of theoretical background proposed in chapter~\ref{ch:theory} is the
 %----------------------------------------------------------------------------------------
 
 
+\newpage
+
+
 \section{Algorithmic Systematic Review}
+
+
+A broad bibliographical study suggests a scarcity of quantitative models of simulation integrating both network and urban growth. This absence may be due to diverging interests of concerned disciplines, resulting in a lack of communication.  We propose to proceed to an algorithmic systematic review to give quantitative elements of answer to this question. A formal iterative algorithm to retrieve corpuses of references from initial keywords, based on text-mining, is developed and implemented. We study its convergence properties and do a sensitivity analysis. We then apply it on queries representative of the specific question, for which results tend to confirm the assumption of disciplines compartmentalization.
+
 
 
 \subsection{In search of models of co-evolution}
 
-
-A broad bibliographical study suggests a scarcity of quantitative models of simulation integrating both network and urban growth. This absence may be due to diverging interests of concerned disciplines, resulting in a lack of communication.  We propose to proceed to an algorithmic systematic review to give quantitative elements of answer to this question. A formal iterative algorithm to retrieve corpuses of references from initial keywords, based on text-mining, is developed and implemented. We study its convergence properties and do a sensitivity analysis. We then apply it on queries representative of the specific question, for which results tend to confirm the assumption of disciplines compartmentalization .
 
 Transportation networks and urban land-use are known to be strongly coupled components of urban systems at different scales~\cite{bretagnolle2009organization}. One common approach is to consider them as co-evolving, avoiding misleading interpretations such as the myth of structural effect of transportation infrastructures~\cite{offner1993effets}. A question rapidly arising is the existence of models endogeneizing this co-evolution, i.e. taking into account simultaneous urban and network growth. We try to answer it using an algorithmic systematic review. We propose in this section, after a brief state of the art of existing literature, to present such an approach by formalizing the algorithm, which results are then presented and discussed. 
 
@@ -133,27 +147,92 @@ The disturbing absence of models simulating the co-evolution of transportation n
 
 % Section describing cybergeo method.
 
-
 \section{Refining bibliometrics through Hyper-network analysis}
 
+%%%%%%%%%%%%%%
+\subsection{Context}
+
+As described before, semantic analysis does not contain all the information on disciplinary compartmentation nor on patterns of propagation of scientific knowledge as the ones contained in citation networks for example. Furthermore, data collection in the previous algorithm is subject to convergence towards self-consistent themes because of the proper structure of the method. It may give more insight about scientific social patterns of ontological choices in modeling to study communities in broader networks, that would more correspond to disciplines (or sub-disciplines depending on granularity level).
+
+Previous works in quantitative epistemology using various types of networks have shown interesting potentialities. For the citation network, a good predicting power for citation patterns is for example obtained in~\cite{2013arXiv1310.8220N}. Co-authorship networks can also be used for predictive models~\cite{2014arXiv1402.7268S}. A multilayer network approach was recently proposed in~\cite{2016arXiv160106075O}, using bipartites networks of papers and scholars, in order to produce measures of interdisciplinarity. Disciplines can be stratified into layers to reveal communities between them and therein collaboration patterns~\cite{2015arXiv150601280B}. Keyword networks are used in other fields such as economics of technology~\cite{choi2014patent,shibata2008detecting}.
 
 
-\cite{10.1371/journal.pone.0147913,2015arXiv150601280B,2016arXiv160106075O,bohannon2014scientific,noruzi2005google,schmid1994probabilistic}
+%%%%%%%%%%%%%
+\subsection{Application to a scientific journal}
+
+\subsubsection{Presentation}
+
+We briefly describe here an ongoing study that implemented the ideas given above for the particular case of a scientific journal for which bibliographical data is difficult to obtain, that is \texttt{cybergeo}, an electronic journal in theoretical and quantitative geography, that is concerned with open science issues such as peer-review ethics transparency~\cite{10.1371/journal.pone.0147913}. Our approach combine semantic communities analysis (as done in~\cite{2016arXiv160208451P} but with keyword extraction ; \cite{2015arXiv151003797G} analyses semantic networks of political debates) with citation network to extract e.g. interdisciplinarity measures.
+
+\subsubsection{Implementation}
+
+The general architecture for data collection is presented in Fig.~\ref{fig:quantepistemo:data}. Citation data is collected from \texttt{Google Scholar}, that is the only source for incoming citations~\cite{noruzi2005google} in our case as the journal is not referenced in other databases. We are aware of the possible biaises using this single source~\cite{bohannon2014scientific}\footnote{or see \url{http://iscpif.fr/blog/2016/02/the-strange-arithmetic-of-google-scholars/}}, but these critics are more directed towards search results than citation counts. 
+
+Text processing is done the same way as in previous section, expect that a particular treatment is done to language detection using \emph{stop-words} and a specific tagger \texttt{TreeTagger} is used for other languages than english~\cite{schmid1994probabilistic}.
 
 
 
 %%%%%%%%%%%%%%%%%%
 \begin{figure}
 \includegraphics[width=\textwidth]{Figures/PartI/QuantitativeEpistemo/HyperNetwork/archi}
+\caption[Heterogeneous Bibliographical Data Collection]{Heterogeneous Bibliographical Data Collection. Architecture of the application for content (semantic data), metadata and citation data collection.}
+\label{fig:quantepistemo:data}
 \end{figure}
 %%%%%%%%%%%%%%%%%%
 
 
+\subsubsection{Results}
+
+
+We show in figures~\ref{fig:quantepistemo:citnw} and~\ref{fig:quantepistemo:semanticnw} preliminary results on citation and semantic network. We are able by the reconstruction of the citation network at depth $\pm 1$ from the original 1000 references of the journal to retrieve around $45\cdot 10^6$ references, on which $2.1\cdot 10^6$ are retrieved with abstract text allowing semantic analysis. We retrieve by community detection in the semantic network typical geographical disciplines, such as :
+
+\begin{itemize}
+\item Hydrology : \texttt{water, basin, river, capac}
+\item Traffic : \texttt{traffic, road, vehicl}
+\item Biogeography : \texttt{habitat, soil, veget, ecosystem}
+\item Political Science : \texttt{polit, cultur, societi, debat}
+\item Economy : \texttt{market, economi, privat, competit, industri}
+\item Transportation : \texttt{transport, travel}
+\item Teledetection : \texttt{cluster, imag, classif, satellit}
+\item Education : \texttt{educ, age, student, school}
+\item Health : \texttt{diseas, infect}
+\item GIS : \texttt{gi, geograph inform system}
+\item Social geography : \texttt{neighborhood, resid}
+\end{itemize}
+
+
+
+Distribution of keywords within reconstructed disciplines provides an article-level interdisciplinarity, and we can construct various measures at the journal level. Combination of citation and semantic layers in the hyper-network provide second order interdisciplinarity measures. The construction of null models for comparison and the collection of currently missing data (journals for other papers) are currently ongoing so these results are not presented here.
+
+
+
+\subsection{Application}
+
+We will try to reconstruct the same way disciplines around our thematic, and by for example identifying bridge articles (nodes with high centrality or vulnerability) identify crucial thematic elements and research directions.
+
+\bigskip
+
+An other application will be the reflexivity of our thesis : we attend to proceed to similar analysis on our proper bibliography (and its evolution, available via \texttt{git} history), to understand our patterns of knowledge, possible gaps or unveil unexpected developments.
+
+
+%%%%%%%%%%%%%%%%%
+\begin{figure}
+%\hspace{-3cm}
+\includegraphics[width=\textwidth]{Figures/PartI/QuantitativeEpistemo/HyperNetwork/rank-size-all}
+%\hspace{-3cm}
+\includegraphics[width=\textwidth]{Figures/PartI/QuantitativeEpistemo/HyperNetwork/cybclic_2cyb_13761}
+\caption[Properties of the citation network]{Properties of the citation network. Top : Rank-size plot of in-degrees ; three superposing successive regimes must correspond to different literature types or practices across disciplines. Bottom : example of a maximal clique in the citation network, paper of \texttt{cybergeo} being in blue.}
+\label{fig:quantepistemo:citnw}
+\end{figure}
+%%%%%%%%%%%%%%%%%
+
+
 %%%%%%%%%%%%%%%%%%
 \begin{figure}
-\hspace{-4cm}
+\hspace{-2cm}
 \includegraphics[width=1.4\textwidth]{Figures/PartI/QuantitativeEpistemo/HyperNetwork/all_lesslinks}
-\caption[Semantic network of concepts in quantitative geography]{Semantic network of concepts in quantitative geography. Corpus consists of around $2\cdot 10^5$ abstracts of publications at a topological distance shorter than 2 from the journal \texttt{cybergeo} in the citation network. Relevance of keywords were estimated with the bootstrap method, }
+\caption[Semantic network of concepts in quantitative geography]{Semantic network of concepts in quantitative geography. Corpus consists of around $2\cdot 10^5$ abstracts of publications at a topological distance shorter than 2 from the journal \texttt{cybergeo} in the citation network. Relevance of keywords were estimated with a bootstrap method, and semantic network is constructed by co-occurrences of keywords (cut at larger degrees, 10\% here to delete hubs such as \texttt{model} or \texttt{space} and efficiently reveal communities).}
+\label{fig:quantepistemo:semanticnw}
 \end{figure}
 %%%%%%%%%%%%%%%%%%
 
@@ -171,6 +250,15 @@ The disturbing absence of models simulating the co-evolution of transportation n
 
 
 \section{Towards modeling purpose and context automatic extraction}
+
+
+A possible direction to strengthen our quantitative epistemological analysis would be to work on full textes related to the modeling of interaction between networks and territories, with the aim to automatically extract thematics within articles. The idea would be to perform some kind of automatized modelography, with possible features to be extracted that would be ontologies, model architecture or structures, scales, or even typical parameter values. It is not clear to what degree structure of models can be extracted from their description in papers and it surely depends on the discipline considered. For example in a framed field such as transportation planning, using a pre-defined ontology (in the sense of dictionary) and a fuzzy grammar could be efficient to extract information as the discipline is relatively formatted. In theoretical and quantitative geography, beyond the barrier of language, information organisation is surely less subject to unsupervised data-mining because of the more literary nature of the discipline : synonyms and figures of speech are generally the norm in good level human sciences writing, fuzzing a possible generic structure of knowledge description. 
+
+Depending on extended results of the two previous sections and on thematic requirements (huge need of knowledge on precise models structure, that may appear when trying to construct more specialized operational models), this project may be conducted with more or less investment.
+
+% cit LDA for thematic extraction ?
+
+
 
 
 
