@@ -1,5 +1,6 @@
 
 
+
 library(sp)
 library(rgeos)
 library(ggplot2)
@@ -10,7 +11,6 @@ source('functions.R')
 
 ######
 #  generation of synthetic dataset for interaction Gibrat estimation
-
 
 
 ranksize = 0.8
