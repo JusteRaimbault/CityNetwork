@@ -81,13 +81,17 @@ simplifyGraph<-function(g){
       e=E(g) [ o %--% prevo];
       elengths=append(elengths,spDistsN1(pts = matrix(c(prevo$x,prevo$y),nrow=1),pt = c(o$x,o$y),longlat = TRUE))
       espeeds=append(espeeds,e$speed);etypes=append(etypes,e$type)
-      no=neighbors(g,o);tmpo=o;o=no[which(no!=prevo)];prevo=tmpo;p=append(p,o)
+      no=neighbors(g,o);tmpo=o;o=no[which(no!=prevo)];prevo=tmpo;
+      if(o %in% p) break;
+      p=append(p,o)
     }
     while(max(degree(g,v=d))==2){
       e=E(g) [ d %--% prevd];
       elengths=append(elengths,spDistsN1(pts = matrix(c(prevd$x,prevd$y),nrow=1),pt = c(d$x,d$y),longlat = TRUE))
       espeeds=append(espeeds,e$speed);etypes=append(etypes,e$type)
-      nd=neighbors(g,d);tmpd=d;d=nd[which(nd!=prevd)];prevd=tmpd;p=append(p,d)
+      nd=neighbors(g,d);tmpd=d;d=nd[which(nd!=prevd)];prevd=tmpd;
+      if(d %in% p) break ;
+      p=append(p,d)
     }
     # delete path vertices and add edge
     remvertices=difference(remvertices,p[which(p!=o&p!=d)])
