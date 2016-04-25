@@ -3,6 +3,27 @@
 # functions
 
 
+loadData<-function(Ncities){
+  # load ined file
+  raw <- as.tbl(read.csv(paste0(Sys.getenv('CN_HOME'),'/Data/INED/VIL1831.csv'),sep=";",stringsAsFactors = FALSE))
+  
+  # filter on continuity of data
+  rows=rep(TRUE,nrow(raw));for(j in 19:49){rows = rows&(!is.na(as.numeric(raw[[colnames(raw)[j]]])))}
+  raw = raw[rows,]
+  for(j in 19:49){raw[,j]<-as.numeric(raw[[colnames(raw)[j]]])}
+  raw = raw %>% arrange(desc(P1999))
+  #Ncities = 50
+  cities = raw[1:Ncities,c(5:7,19:49)]
+  dates = c(seq(from=1831,to=1866,by=5),1872,seq(from=1876,to=1911,by=5),1912,seq(from=1921,to=1936,by=5),1946,1954,1955,1962,1968,1975,1982,1990,1999)
+
+  ## distance matrix
+  distances = spDists(as.matrix(cities[,2:3]))/10
+  
+  return(list(cities=cities,dates=dates,distances=distances))
+}
+
+
+
 potentials <-function(populations,distances,gammaGravity,decayGravity){
   ptot = sum(populations)
   res = diag((populations/ptot)^gammaGravity)%*%exp(-distances / decayGravity)%*%diag((populations/ptot)^gammaGravity)
