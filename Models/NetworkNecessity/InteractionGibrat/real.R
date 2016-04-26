@@ -32,6 +32,17 @@ cities = d$cities;dates=d$dates;distances=d$distances
 #  geom_line(aes(x=times,y=real_populations,colour=cities,group=cities))
 
 
+real_populations = as.matrix(cities[,current_dates+3])
+fint =function(params){
+  pops=interactionModel(real_populations,distances,params[1],params[2],params[3])$df;
+  return(-sum((pops$populations-pops$real_populations)^2))}
+optimint = ga(type="real-valued",fitness = fint,min = c(0.01,0,50),max=c(0.1,1e-10,1000),maxiter = 100)#,parallel = 1)
+
+
+
+
+
+
 for(t0 in seq(1,21,by=5)){
   current_dates = t0:(t0+10)
   show(current_dates)
