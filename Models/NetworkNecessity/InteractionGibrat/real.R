@@ -80,13 +80,16 @@ for(i in 1:length(t0)){
   popsgib = gibratModel(real_populations,optimgib@solution[1])
   allpops[[i]]=pops
   pops$gibrat_populations = popsgib$df$populations
-  g=ggplot(pops)
-  plots[[i]] = g+geom_point(aes(x=times,y=log(populations),colour=cities),shape=2)+geom_point(aes(x=times,y=log(gibrat_populations),colour=cities),shape=3)+geom_line(aes(x=times,y=log(real_populations),colour=cities,group=cities))
+  g=ggplot(data.frame(pops,dates=dates[pops$times+t0[i]-1]))
+  plots[[i]] = g+geom_point(aes(x=dates,y=log(populations),colour=cities),shape=2)+
+    geom_point(aes(x=dates,y=log(gibrat_populations),colour=cities),shape=3)+
+    scale_shape_manual(c("interaction","gibrat"))+
+    geom_line(aes(x=dates,y=log(real_populations),colour=cities,group=cities))+
+    xlab(paste0('Logfit:: int : ',sum((log(pops$real_populations)-log(pops$populations))^2),' ; gib : ',sum((log(pops$real_populations)-log(pops$gibrat_populations))^2)))
   show(paste0('LOG :: int : ',sum((log(pops$real_populations)-log(pops$populations))^2),' ; gib : ',sum((log(pops$real_populations)-log(pops$gibrat_populations))^2)))
   show(paste0('int : ',log(sum((pops$real_populations-pops$populations)^2)),' ; gib : ',log(sum((pops$real_populations-pops$gibrat_populations)^2))))
   cumerror=cumerror+sum((log(pops$real_populations)-log(pops$populations))^2)
 }
-
 
 multiplot(plotlist = plots,cols=3)
 
