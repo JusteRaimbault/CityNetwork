@@ -1,6 +1,10 @@
 #pbf file
 FILE=$1
 echo "PROCESSING FILE : "$FILE
+DB=`echo $FILE | awk -F/ '{print $(NF-1)}'`
+
+echo "DB : $DB"
+#echo `pwd`
 
 DB=test
 
@@ -22,3 +26,4 @@ osmosis --read-pbf $FILE --log-progress --tf accept-ways highway=* --used-node -
 
 # R simplification process
 R -e "osmdb='$DB';source('nwSimplification.R',local=TRUE)"
+
