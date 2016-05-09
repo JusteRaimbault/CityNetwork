@@ -9,7 +9,7 @@
 #' @param tags list of tag values (for key highway)
 #'
 linesWithinExtent<-function(latmin,lonmin,latmax,lonmax,tags){
-  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname="osm",user="Juste",host="localhost" )
+  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=osmdb,user="juste")#,host="localhost" )
   
   q = paste0(
     "SELECT ST_AsText(linestring) AS geom,tags::hstore->'maxspeed' AS speed,tags::hstore->'highway' AS type FROM ways",
@@ -23,10 +23,13 @@ linesWithinExtent<-function(latmin,lonmin,latmax,lonmax,tags){
   query = dbSendQuery(pgsqlcon,q)
   data = fetch(query,n=-1)
   geoms = data$geom
-  roads=list()
+  roads=list();k=1
   for(i in 1:length(geoms)){
-    r=readWKT(geoms[i])@lines[[1]];r@ID=as.character(i)
-    roads[[i]]=r
+    r=try(readWKT(geoms[i])@lines[[1]],silent=TRUE)
+    if(!inherits(r,"try-error")){
+       r@ID=as.character(i)
+       roads[[k]]=r;k=k+1
+    }
   } 
   
   dbDisconnect(pgsqlcon)
@@ -111,7 +114,7 @@ normalizedSpeed <- function(s){
   if(!is.na(as.numeric(s))){return(as.numeric(s))}
   sr=gsub(x = s," ","")
   if(grepl("mph",sr)){return(as.numeric(gsub(x = sr,"mph",""))*1.609)}
-  else{return(NA)}
+  else{return(0)}
 }
 
 
@@ -133,7 +136,7 @@ insertEdgeQuery<-function(o,d,length,speed,type){
 #' insertion into simplified database : insert into links (id,origin,destination,geography) values ('1',10,50,ST_GeographyFromText('LINESTRING(-122.33 47.606, 0.0 51.5)')); 
 exportGraph<-function(sg,dbname,dbuser){
   # get simpl base connection
-  con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,host="localhost" )
+  con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser)#,host="localhost" )
   
   graph=sg$graph
   
