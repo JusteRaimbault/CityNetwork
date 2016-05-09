@@ -6,6 +6,8 @@ DB=`echo $FILE | awk -F/ '{print $(NF-1)}'`
 echo "DB : $DB"
 #echo `pwd`
 
+DB=test
+
 # drop old base
 psql -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '"$DB"';"
 psql -c "DROP DATABASE "$DB";"
