@@ -4,6 +4,8 @@
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat'))
 
+source('functions.R')
+
 library(raster)
 library(rgdal)
 library(igraph)
@@ -18,14 +20,21 @@ for(i in 1:nrow(mnt)){
     ycor = ymin(mnt) + (nrow(mnt) - i )*yres(mnt)
     vnames=paste0(as.character(xcors),'-',ycor)
     currentrow=getValuesBlock(mnt,row=i);
-    inds=which(!is.na(currentrow));#hinds=which()
+    inds=which(!is.na(currentrow));
+    hinds=which(!is.na(currentrow[1:(length(currentrow)-1)])&!is.na(currentrow[2:length(currentrow)]))
     vdf=rbind(vdf,data.frame(vnames[inds],xcors[inds],rep(ycor,length(inds))))
-    edf=rbind(edf,data.frame(from=vnames[inds[1:(length(inds)-1)]],to=vnames[inds[2:length(inds)]],slope = currentrow[inds[2:length(inds)]]-currentrow[inds[1:(length(inds)-1)]]))  
-    edf=rbind(edf,data.frame(from=vnames[inds[2:length(inds)]],to=vnames[inds[1:(length(inds)-1)]],slope = currentrow[inds[1:(length(inds)-1)]]-currentrow[inds[2:length(inds)]]))  
+    edf=rbind(edf,data.frame(from=vnames[hinds],to=vnames[hinds+1],slope = currentrow[hinds]-currentrow[hinds+1]))  
+    edf=rbind(edf,data.frame(from=vnames[hinds+1],to=vnames[hinds],slope = currentrow[hinds+1]-currentrow[hinds]))  
     if(length(prevrow)>0){
       vinds = intersect(inds,previnds)
       edf=rbind(edf,data.frame(from=vnames[vinds],to=prevnames[vinds],slope=prevrow[vinds]-currentrow[vinds]))
       edf=rbind(edf,data.frame(from=prevnames[vinds],to=vnames[vinds],slope=currentrow[vinds]-prevrow[vinds]))
+      d1inds = which(!is.na(currentrow[1:(length(currentrow)-1)])&!is.na(prevrow[2:length(prevrow)]))
+      edf=rbind(edf,data.frame(from=vnames[d1inds],to=prevnames[d1inds+1],slope=prevrow[d1inds+1]-currentrow[d1inds]))
+      edf=rbind(edf,data.frame(from=prevnames[d1inds+1],to=vnames[d1inds],slope=currentrow[d1inds]-prevrow[d1inds+1]))
+      d2inds = which(!is.na(prevrow[1:(length(prevrow)-1)])&!is.na(currentrow[2:length(currentrow)]))
+      edf=rbind(edf,data.frame(from=prevnames[d2inds],to=vnames[d2inds+1],slope=currentrow[d2inds+1]-prevrow[d2inds]))
+      edf=rbind(edf,data.frame(from=vnames[d2inds+1],to=prevnames[d2inds],slope=prevrow[d2inds]-currentrow[d2inds+1]))
     }
     prevrow=currentrow;prevnames=vnames;previnds=inds
   }
@@ -34,4 +43,51 @@ for(i in 1:nrow(mnt)){
 names(vdf)<-c("name","x","y")
 
 g=graph_from_data_frame(d = edf,directed=TRUE,vertices = vdf)
+
+# save the graph
+save(g,file='')
+
+
+# compute shortest paths for all couples of cities
+
+# - load cities
+# - check coordinates
+# - get corresponding vertices
+# - compute
+# - store as {city_i_ID,city_j_ID}->city_k_ID
+
+data<-loadData(200)
+cities=SpatialPoints(as.matrix(data$cities[,2:3])*100,proj4string = CRS("+init=epsg:27572"))
+cities=spTransform(cities,CRS=CRS("+init=epsg:2154"))
+coords=coordinates(cities)
+
+#test
+#iparis=which(abs(V(g)$x-coordinates(cities)[1,1])<500&abs(V(g)$y-coordinates(cities)[1,2])<500)
+#ilille=which(abs(V(g)$x-coordinates(cities)[4,1])<500&abs(V(g)$y-coordinates(cities)[4,2])<500)
+#p=shortest_paths(g,from=V(g)[iparis],to=V(g)[ilille],output="vpath")$vpath[[1]]
+#plot(mnt);points(p$x,p$y,type='l',col='blue')
+
+citiesinds = unlist(apply(coords,1,function(x){which(abs(V(g)$x-x[1])<500&abs(V(g)$y-x[2])<500)}))
+
+for(i in 1:(nrow(coords)-1)){
+  show(i)
+  o=citiesinds[i]
+  dests = citiesinds[(i+1):length(citiesinds)]
+  
+  
+  
+  p=shortest_paths(g,from=V(g)[o],to=V(g)[dests],output="vpath")$vpath
+  # find candidates third cities
+  for(j in 1:length(p)){
+    third=apply(coords,1,function(r){sum(abs(r-coords[i,]))>1000&sum(abs(r-coords[i+j,]))>1000&sum((coords[i+j,]-coords[i,])*(r-coords[i,]))>0&sum((coords[i,]-coords[i+j,])*(r-coords[i+j,]))>0})
+    #show(length(which(third)))
+    for(k in which(third)){
+      pp=shortest_paths(g,from=V(g)[citiesinds[k]],to=p[[j]],output="vpath")$vpath
+      
+    }
+  }
+}
+
+
+
 
