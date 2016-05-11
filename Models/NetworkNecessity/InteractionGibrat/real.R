@@ -15,6 +15,10 @@ Ncities = 50
 d = loadData(Ncities)
 cities = d$cities;dates=d$dates;distances=d$distances
 
+alpha0=3;n0=3
+load(paste0('data/distMat_Ncities',Ncities,'_alpha0',alpha0,'_n0',n0,'.RData'))
+
+
 ## pop matrix
 #real_populations = as.matrix(cities[,4:ncol(cities)])
 
@@ -47,11 +51,18 @@ for(t0 in seq(1,21,by=5)){
   current_dates = t0:(t0+10)
   show(current_dates)
   real_populations = as.matrix(cities[,current_dates+3])
-  fint =function(params){
-    pops=interactionModel(real_populations,distances,params[1],params[2],params[3],params[4])$df;
-    return(-sum((pops$populations-pops$real_populations)^2))}
-  optimint = ga(type="real-valued",fitness = fint,min = c(0.5,50,0.01,0.1),max=c(2.0,1500,0.1,100),maxiter = 200000,parallel = 20)
   
+  fnet =function(params){
+      pops=interactionModel(real_populations,distances,dists,params[1],params[2],params[3],params[4],params[5],params[6])$df;
+      return(-sum((pops$populations-pops$real_populations)^2))}
+  optimnet = ga(type="real-valued",fitness = fnet,min = c(0.5,50,0.01,0.0,0.0,0.0),max=c(2.0,1500,0.1,100.0,200.0,100),maxiter = 100000,parallel = 10)
+   
+  
+  # fint =function(params){
+  #   pops=interactionModel(real_populations,distances,params[1],params[2],params[3],params[4])$df;
+  #   return(-sum((pops$populations-pops$real_populations)^2))}
+  # optimint = ga(type="real-valued",fitness = fint,min = c(0.5,50,0.01,0.1),max=c(2.0,1500,0.1,100),maxiter = 200000,parallel = 20)
+  # 
   # fgib = function(params){ 
   #   pops=gibratModel(real_populations,params[1])$df
   #   return(-sum((pops$populations-pops$real_populations)^2))}
@@ -59,7 +70,7 @@ for(t0 in seq(1,21,by=5)){
   # 
   #save(optimgib,file=paste0('res/fitTw_gib_t0',t0,'.RData'))
   
-  save(optimint,file=paste0('res/fitTw_int_t0',t0,'_extBounds.RData'))
+  save(optimnet,file=paste0('res/fitTw_net_t0',t0,'.RData'))
 }
 
 
