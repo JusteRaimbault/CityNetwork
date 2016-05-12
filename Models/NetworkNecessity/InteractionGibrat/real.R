@@ -6,6 +6,7 @@ library(dplyr)
 library(sp)
 library(GA)
 library(ggplot2)
+library(Matrix)
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat'))
 
@@ -15,8 +16,13 @@ Ncities = 50
 d = loadData(Ncities)
 cities = d$cities;dates=d$dates;distances=d$distances
 
+alpha0=3;n0=3
+load(paste0('data/distMat_Ncities',Ncities,'_alpha0',alpha0,'_n0',n0,'.RData'))
+
+
 ## pop matrix
-#real_populations = as.matrix(cities[,4:ncol(cities)])
+real_populations = as.matrix(cities[,4:ncol(cities)])
+#write.table(real_populations,file='data/pop50.csv',col.names = FALSE,row.names = FALSE,sep=',')
 
 ##
 #gammaGravity = 1.027532
@@ -25,11 +31,34 @@ cities = d$cities;dates=d$dates;distances=d$distances
 #potentialWeight = 4.420431
 
 #testModel = interactionModel(real_populations,distances,gammaGravity,decayGravity,growthRate,potentialWeight)
+# 
+# errs=data.frame()
+# #for(betaFeedback in seq(from=0.2,to=0.4,by=0.025)){
+# #for(feedbackDecay in seq(from=10,to=200,by=10)){
+# for(gravityWeight in seq(from=0.001,to=0.006,by=0.0005)){
+#   for(gravityDecay in seq(from=100,to=1500,by=100)){
+#   for(gammaGravity in seq(from=0.4,to=1.4,by=0.2)){
+#   pops=networkFeedbackModel(real_populations,distances,dists,
+#           gammaGravity=gammaGravity,decayGravity=gravityDecay,growthRate=0.06,
+#           potentialWeight=gravityWeight,betaFeedback=0,feedbackDecay=100)$df;
+#   show(paste0('decay : ',gravityDecay,'km ; ',sum((pops$populations-pops$real_populations)^2)))
+#    #errs=rbind(errs,c(gammaGravity,betaFeedback,feedbackDecay,sum((pops$populations-pops$real_populations)^2)))
+#   errs=rbind(errs,c(gravityWeight,gravityDecay,gammaGravity,sum((pops$populations-pops$real_populations)^2)))
+#   }
+#   }
+# }
+# 
+# #names(errs)<-c("gammaGravity","betaFeedback","feedbackDecay","mse")
+# names(errs)<-c("gravityWeight","gravityDecay","gammaGravity","mse")
+# g=ggplot(errs)
+# g+geom_line(aes(x=gravityWeight,y=log(mse),colour=gravityDecay,group=gravityDecay))+facet_wrap(~gammaGravity)
 
 #g=ggplot(testModel$df[32:nrow(testModel$df),])
-#g+geom_point(aes(x=times,y=populations,colour=cities),shape=2)+
-#  geom_point(aes(x=times,y=gibrat_populations,colour=cities),shape=3)+
-#  geom_line(aes(x=times,y=real_populations,colour=cities,group=cities))
+
+# g=ggplot(pops)
+# g+geom_point(aes(x=times,y=log(populations),colour=cities),shape=2)+
+# #  geom_point(aes(x=times,y=gibrat_populations,colour=cities),shape=3)+
+#   geom_line(aes(x=times,y=log(real_populations),colour=cities,group=cities))
 
 # 
 # real_populations = as.matrix(cities[,current_dates+3])
@@ -42,16 +71,22 @@ cities = d$cities;dates=d$dates;distances=d$distances
 
 
 
-
 for(t0 in seq(1,21,by=5)){
   current_dates = t0:(t0+10)
   show(current_dates)
   real_populations = as.matrix(cities[,current_dates+3])
-  fint =function(params){
-    pops=interactionModel(real_populations,distances,params[1],params[2],params[3],params[4])$df;
-    return(-sum((pops$populations-pops$real_populations)^2))}
-  optimint = ga(type="real-valued",fitness = fint,min = c(0.5,50,0.01,0.1),max=c(2.0,1500,0.1,100),maxiter = 200000,parallel = 20)
   
+  fnet =function(params){
+      pops=networkFeedbackModel(real_populations,distances,dists,params[1],params[2],params[3],params[4],params[5],params[6])$df;
+      return(-sum((log(pops$populations)-log(pops$real_populations))^2))}
+  optimnet = ga(type="real-valued",fitness = fnet,min = c(0.5,50,0.01,0.0,0.0,0.0),max=c(2.0,1500,0.1,0.1,1,300),maxiter = 50000,parallel = 10)
+   
+  
+  # fint =function(params){
+  #   pops=interactionModel(real_populations,distances,params[1],params[2],params[3],params[4])$df;
+  #   return(-sum((pops$populations-pops$real_populations)^2))}
+  # optimint = ga(type="real-valued",fitness = fint,min = c(0.5,50,0.01,0.1),max=c(2.0,1500,0.1,100),maxiter = 200000,parallel = 20)
+  # 
   # fgib = function(params){ 
   #   pops=gibratModel(real_populations,params[1])$df
   #   return(-sum((pops$populations-pops$real_populations)^2))}
@@ -59,7 +94,7 @@ for(t0 in seq(1,21,by=5)){
   # 
   #save(optimgib,file=paste0('res/fitTw_gib_t0',t0,'.RData'))
   
-  save(optimint,file=paste0('res/fitTw_int_t0',t0,'_extBounds.RData'))
+  save(optimnet,file=paste0('res/fitTw_net_t0',t0,'.RData'))
 }
 
 
