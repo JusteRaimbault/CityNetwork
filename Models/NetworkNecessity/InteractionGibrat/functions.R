@@ -135,7 +135,7 @@ networkFeedbackModel <- function(real_populations,distances,flow_distances,gamma
                                            pot%*%matrix(rep(1,nrow(pot)),nrow=nrow(pot))*potentialWeight/N + 
                                          2*betaFeedback/(N*(N-1))*(exp(-flow_distances/feedbackDecay)%*%flatpots) 
                                         )
-    pflat=append(pflat, populations[,t]);tflat=append(tflat,rep(t,Ncities));cflat=append(cflat,1:Ncities)realflat=append(realflat,real_populations[,t])
+    pflat=append(pflat, populations[,t]);tflat=append(tflat,rep(t,Ncities));cflat=append(cflat,1:Ncities);realflat=append(realflat,real_populations[,t])
   }
   return(list(df=data.frame(populations = pflat,real_populations=realflat,times=tflat,cities=cflat),
               populations=populations
