@@ -38,9 +38,9 @@ potentials <-function(populations,distances,gammaGravity,decayGravity){
 flatten <-function(pots){
   res=c()
   for(i in 1:(nrow(pots)-1)){
-    res=append(res,pots[,(i+1):ncol(pots)])
+    res=append(res,pots[i,(i+1):ncol(pots)])
   }
-  return(res)
+  return(matrix(res,nrow=length(res)))
 }
 
 
@@ -131,11 +131,11 @@ networkFeedbackModel <- function(real_populations,distances,flow_distances,gamma
   for(t in 2:ncol(real_populations)){
     pot = potentials(populations[,t-1],distances,gammaGravity,decayGravity)
     flatpots = flatten(pot)
-    populations[,t] = populations[,t-1]*(1 + growthRate +
-                                           pot%*%matrix(rep(1,nrow(pot)),nrow=nrow(pot))*potentialWeight/N + 
-                                         2*betaFeedback/(N*(N-1))*(exp(-flow_distances/feedbackDecay)%*%flatpots) 
-                                        )
-    pflat=append(pflat, populations[,t]);tflat=append(tflat,rep(t,Ncities));cflat=append(cflat,1:Ncities)realflat=append(realflat,real_populations[,t])
+    populations[,t] = as.numeric(populations[,t-1]*(1 + growthRate +
+                                           pot%*%matrix(rep(1,nrow(pot)),nrow=nrow(pot))*potentialWeight/(N*mean(pot)) + 
+                                         2*betaFeedback/(N*(N-1)*mean(pot))*(exp(-flow_distances/feedbackDecay)%*%flatpots) 
+                                        ))
+    pflat=append(pflat, populations[,t]);tflat=append(tflat,rep(t,Ncities));cflat=append(cflat,1:Ncities);realflat=append(realflat,real_populations[,t])
   }
   return(list(df=data.frame(populations = pflat,real_populations=realflat,times=tflat,cities=cflat),
               populations=populations
