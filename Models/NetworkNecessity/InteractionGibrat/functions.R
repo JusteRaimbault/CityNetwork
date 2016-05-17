@@ -29,16 +29,20 @@ loadData<-function(Ncities){
 
 potentials <-function(populations,distances,gammaGravity,decayGravity){
   ptot = sum(populations)
+  show(paste0('mean norm pop : ',mean(diag((populations/ptot)^gammaGravity))))
   res = diag((populations/ptot)^gammaGravity)%*%exp(-distances / decayGravity)%*%diag((populations/ptot)^gammaGravity)
   diag(res) <- 0
   return(res)
 }
 
 # put potential matrix into flat array for second order interaction (network feedbacks)
-flatten <-function(pots){
+flattenpops <-function(pops,gamma){
   res=c()
-  for(i in 1:(nrow(pots)-1)){
-    res=append(res,pots[i,(i+1):ncol(pots)])
+  m = matrix(1,length(pops),length(pops))
+  #show(diag((pops/sum(pops))^gamma))
+  m=(diag((pops/sum(pops))^gamma)%*%m)%*%diag((pops/sum(pops))^gamma)
+  for(i in 1:(nrow(m)-1)){
+    res=append(res,m[i,(i+1):ncol(m)])
   }
   return(matrix(res,nrow=length(res)))
 }
@@ -128,13 +132,21 @@ networkFeedbackModel <- function(real_populations,distances,flow_distances,gamma
   tflat=rep(1,nrow(real_populations));
   cflat=1:nrow(real_populations);
   realflat = real_populations[,1]
+  
+  show(paste0('mean dist : ',mean(exp(-distances/decayGravity))))
+  show(paste0('mean feedback : ',mean(exp(-flow_distances/feedbackDecay))))
+  
   for(t in 2:ncol(real_populations)){
     pot = potentials(populations[,t-1],distances,gammaGravity,decayGravity)
-    flatpots = flatten(pot)
-    show(mean(pot)*potentialWeight/N)
+    flatpops = flattenpops(populations[,t-1],gammaGravity)
+    potfeedback = exp(-flow_distances/feedbackDecay)%*%flatpops
+    
+    show(paste0('mean pot : ',mean(pot)))
+    show(paste0('mean feedback pot : ',mean(exp(-flow_distances/feedbackDecay)%*%flatpops)))
+    
     populations[,t] = as.numeric(populations[,t-1]*(1 + growthRate +
                                            pot%*%matrix(rep(1,nrow(pot)),nrow=nrow(pot))*potentialWeight/(N*mean(pot)) + 
-                                         2*betaFeedback/(N*(N-1)*mean(pot))*(exp(-flow_distances/feedbackDecay)%*%flatpots) 
+                                         2*betaFeedback/(N*(N-1)*mean(potfeedback))*potfeedback
                                         ))
     pflat=append(pflat, populations[,t]);tflat=append(tflat,rep(t,Ncities));cflat=append(cflat,1:Ncities);realflat=append(realflat,real_populations[,t])
   }
