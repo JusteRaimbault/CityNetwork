@@ -23,6 +23,9 @@ load(paste0('data/distMat_Ncities',Ncities,'_alpha0',alpha0,'_n0',n0,'.RData'))
 ## pop matrix
 real_populations = as.matrix(cities[,4:ncol(cities)])
 #write.table(real_populations,file='data/pop50.csv',col.names = FALSE,row.names = FALSE,sep=',')
+#write.table(distances,file='data/dist50.csv',col.names = FALSE,row.names = FALSE,sep=',')
+#write.table(data.frame(as.matrix(dscala)),file='data/fdists50.csv',col.names = FALSE,row.names = FALSE,sep=',')
+#
 
 ##
 #gammaGravity = 1.027532
@@ -30,28 +33,34 @@ real_populations = as.matrix(cities[,4:ncol(cities)])
 #growthRate = 0.0679694
 #potentialWeight = 4.420431
 
+#0.06, 0.002, 0.8, 1000, 0.5, 0.8, 100
 #testModel = interactionModel(real_populations,distances,gammaGravity,decayGravity,growthRate,potentialWeight)
+pops=networkFeedbackModel(real_populations,distances,dists,
+                          gammaGravity=0.8,decayGravity=1000,growthRate=0.06,
+                          potentialWeight=0.002,betaFeedback=0.5,feedbackDecay=100)$df;
+show(sum((log(pops$populations)-log(pops$real_populations))^2))
+
 # 
-# errs=data.frame()
-# #for(betaFeedback in seq(from=0.2,to=0.4,by=0.025)){
-# #for(feedbackDecay in seq(from=10,to=200,by=10)){
-# for(gravityWeight in seq(from=0.001,to=0.006,by=0.0005)){
-#   for(gravityDecay in seq(from=100,to=1500,by=100)){
-#   for(gammaGravity in seq(from=0.4,to=1.4,by=0.2)){
-#   pops=networkFeedbackModel(real_populations,distances,dists,
-#           gammaGravity=gammaGravity,decayGravity=gravityDecay,growthRate=0.06,
-#           potentialWeight=gravityWeight,betaFeedback=0,feedbackDecay=100)$df;
-#   show(paste0('decay : ',gravityDecay,'km ; ',sum((pops$populations-pops$real_populations)^2)))
-#    #errs=rbind(errs,c(gammaGravity,betaFeedback,feedbackDecay,sum((pops$populations-pops$real_populations)^2)))
-#   errs=rbind(errs,c(gravityWeight,gravityDecay,gammaGravity,sum((pops$populations-pops$real_populations)^2)))
-#   }
-#   }
-# }
-# 
-# #names(errs)<-c("gammaGravity","betaFeedback","feedbackDecay","mse")
-# names(errs)<-c("gravityWeight","gravityDecay","gammaGravity","mse")
-# g=ggplot(errs)
-# g+geom_line(aes(x=gravityWeight,y=log(mse),colour=gravityDecay,group=gravityDecay))+facet_wrap(~gammaGravity)
+errs=data.frame()
+#for(betaFeedback in seq(from=0.2,to=0.4,by=0.025)){
+#for(feedbackDecay in seq(from=10,to=200,by=10)){
+for(gravityWeight in seq(from=0.001,to=0.006,by=0.0005)){
+  for(gravityDecay in seq(from=100,to=1500,by=100)){
+  for(gammaGravity in seq(from=0.4,to=1.4,by=0.2)){
+  pops=networkFeedbackModel(real_populations,distances,dists,
+          gammaGravity=gammaGravity,decayGravity=gravityDecay,growthRate=0.06,
+          potentialWeight=gravityWeight,betaFeedback=0,feedbackDecay=100)$df;
+  show(paste0('decay : ',gravityDecay,'km ; ',sum((pops$populations-pops$real_populations)^2)))
+   #errs=rbind(errs,c(gammaGravity,betaFeedback,feedbackDecay,sum((pops$populations-pops$real_populations)^2)))
+  errs=rbind(errs,c(gravityWeight,gravityDecay,gammaGravity,sum((log(pops$populations)-log(pops$real_populations))^2)))
+  }
+  }
+}
+
+#names(errs)<-c("gammaGravity","betaFeedback","feedbackDecay","mse")
+names(errs)<-c("gravityWeight","gravityDecay","gammaGravity","mse")
+g=ggplot(errs)
+g+geom_line(aes(x=gravityWeight,y=mse,colour=gravityDecay,group=gravityDecay))+facet_wrap(~gammaGravity)
 
 #g=ggplot(testModel$df[32:nrow(testModel$df),])
 

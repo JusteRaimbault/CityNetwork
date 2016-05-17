@@ -131,6 +131,7 @@ networkFeedbackModel <- function(real_populations,distances,flow_distances,gamma
   for(t in 2:ncol(real_populations)){
     pot = potentials(populations[,t-1],distances,gammaGravity,decayGravity)
     flatpots = flatten(pot)
+    show(mean(pot)*potentialWeight/N)
     populations[,t] = as.numeric(populations[,t-1]*(1 + growthRate +
                                            pot%*%matrix(rep(1,nrow(pot)),nrow=nrow(pot))*potentialWeight/(N*mean(pot)) + 
                                          2*betaFeedback/(N*(N-1)*mean(pot))*(exp(-flow_distances/feedbackDecay)%*%flatpots) 
