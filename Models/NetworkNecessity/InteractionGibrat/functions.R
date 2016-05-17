@@ -34,6 +34,16 @@ potentials <-function(populations,distances,gammaGravity,decayGravity){
   return(res)
 }
 
+# put potential matrix into flat array for second order interaction (network feedbacks)
+flatten <-function(pots){
+  res=c()
+  for(i in 1:(nrow(pots)-1)){
+    res=append(res,pots[i,(i+1):ncol(pots)])
+  }
+  return(matrix(res,nrow=length(res)))
+}
+
+
 growthMatrix<-function(distances,growthRate,gravityWeight,gravityDecay){
   res=diag(1+growthRate,nrow(distances))
   d = exp(-distances / gravityDecay)
@@ -108,5 +118,34 @@ interactionModel <- function(real_populations,distances,gammaGravity=0,decayGrav
               )
   )
 }
+
+
+networkFeedbackModel <- function(real_populations,distances,flow_distances,gammaGravity=0,decayGravity=1,growthRate=0,potentialWeight=1,betaFeedback=0,feedbackDecay=1){
+  N=nrow(real_populations);
+  populations = matrix(0,N,ncol(real_populations))
+  populations[,1] = real_populations[,1]
+  pflat=real_populations[,1];
+  tflat=rep(1,nrow(real_populations));
+  cflat=1:nrow(real_populations);
+  realflat = real_populations[,1]
+  for(t in 2:ncol(real_populations)){
+    pot = potentials(populations[,t-1],distances,gammaGravity,decayGravity)
+    flatpots = flatten(pot)
+    show(mean(pot)*potentialWeight/N)
+    populations[,t] = as.numeric(populations[,t-1]*(1 + growthRate +
+                                           pot%*%matrix(rep(1,nrow(pot)),nrow=nrow(pot))*potentialWeight/(N*mean(pot)) + 
+                                         2*betaFeedback/(N*(N-1)*mean(pot))*(exp(-flow_distances/feedbackDecay)%*%flatpots) 
+                                        ))
+    pflat=append(pflat, populations[,t]);tflat=append(tflat,rep(t,Ncities));cflat=append(cflat,1:Ncities);realflat=append(realflat,real_populations[,t])
+  }
+  return(list(df=data.frame(populations = pflat,real_populations=realflat,times=tflat,cities=cflat),
+              populations=populations
+            )
+        )
+  
+}
+
+
+
 
 

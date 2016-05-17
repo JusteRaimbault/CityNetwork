@@ -12,13 +12,15 @@ library(igraph)
 library(Matrix)
 
 # mnt <- merge(raster(paste0(Sys.getenv('CN_HOME'),'/Data/BDALTI/BDALTIV2_1000M_FXX_0000_6900_MNT_LAMB93_IGN69.asc')),raster(paste0(Sys.getenv('CN_HOME'),'/Data/BDALTI/BDALTIV2_1000M_FXX_0000_8050_MNT_LAMB93_IGN69.asc')))
+#crs(mnt)<-CRS("+init=epsg:2154") #Lambert 93
 # 
+
 # prevrow=c();prevnames=c();previnds=c();edf=data.frame();vdf=data.frame()
 # for(i in 1:nrow(mnt)){
 #   show(i)
 #   if(length(which(!is.na(getValuesBlock(mnt,row=i))))>0){
-#     xcors = xmin(mnt) + (0:(ncol(mnt)-1))*xres(mnt)
-#     ycor = ymin(mnt) + (nrow(mnt) - i )*yres(mnt)
+#     xcors = xmin(mnt) + (0:(ncol(mnt)-1))*xres(mnt) + (xres(mnt) / 2)
+#     ycor = ymin(mnt) + (nrow(mnt) - i )*yres(mnt) + (yres(mnt) / 2)
 #     vnames=paste0(as.character(xcors),'-',ycor)
 #     currentrow=getValuesBlock(mnt,row=i);
 #     inds=which(!is.na(currentrow));
@@ -58,7 +60,7 @@ load('data/graph_distances.RData')
 # - compute
 # - store as {city_i_ID,city_j_ID}->city_k_ID
 
-Ncities=200
+Ncities=50
 data<-loadData(Ncities)
 cities=SpatialPoints(as.matrix(data$cities[,2:3])*100,proj4string = CRS("+init=epsg:27572"))
 cities=spTransform(cities,CRS=CRS("+init=epsg:2154"))
@@ -66,13 +68,19 @@ coords=coordinates(cities)
 
 #test
 #iparis=which(abs(V(g)$x-coordinates(cities)[1,1])<500&abs(V(g)$y-coordinates(cities)[1,2])<500)
-#ilille=which(abs(V(g)$x-coordinates(cities)[4,1])<500&abs(V(g)$y-coordinates(cities)[4,2])<500)
-#p=shortest_paths(g,from=V(g)[iparis],to=V(g)[ilille],output="vpath")$vpath[[1]]
-#plot(mnt);points(p$x,p$y,type='l',col='blue')
+#inice=which(abs(V(g)$x-coordinates(cities)[12,1])<500&abs(V(g)$y-coordinates(cities)[12,2])<500)
+#p=shortest_paths(g,from=V(g)[iparis],to=V(g)[inice],output="vpath",weights=impedances)$vpath[[1]]
+#spplot(mnt,xlim=c(0,1100000),ylim=c(6000000,7100000));
+#plot(cities,col='green',add=TRUE);plot(SpatialPoints(matrix(c(p$x,p$y),nrow=length(p),byrow=FALSE),proj4string = CRS("+init=epsg:2154")),col='red',add=TRUE,pch='.')
+#spplot(mnt,# scales = list(draw = TRUE),
+#       xlim=c(0,1100000),ylim=c(6000000,7150000)#,
+    #sp.layout = list(SpatialPoints(matrix(c(p$x,p$y),nrow=length(p),byrow=FALSE)),cities,col=c(rep('red',length(p)),rep('green',length(cities))),pch=c(rep('.',length(p)),rep('+',length(cities))),cex=c(rep(1,length(p)),rep(8,length(cities))))
+#)
+#plot(cities,col='green',add=TRUE)
 
 citiesinds = unlist(apply(coords,1,function(x){which(abs(V(g)$x-x[1])<500&abs(V(g)$y-x[2])<500)}))
 
-dists = Matrix(0,nrow(coords)*(nrow(coords)-1)/2,nrow(coords))
+dists = Matrix(0,nrow(coords),nrow(coords)*(nrow(coords)-1)/2)
 
 # impedance function of the slope
 #  100m dev in 1km -> 5°. angle = atan(abs(E(g)$slope))/(E(g)$length*1000))
@@ -91,13 +99,15 @@ for(i in 1:(nrow(coords)-1)){
   # find candidates third cities
   for(j in 1:length(p)){
     show(paste0('dists : ',r/nrow(dists)))
+    #show(j)
     third=apply(coords,1,function(r){sum(abs(r-coords[i,]))>1000&sum(abs(r-coords[i+j,]))>1000&sum((coords[i+j,]-coords[i,])*(r-coords[i,]))>0&sum((coords[i,]-coords[i+j,])*(r-coords[i+j,]))>0})
     #show(length(which(third)))
     for(k in which(third)){
+      #show(paste0('  k : ',k))
       #pp=shortest_paths(g,from=V(g)[citiesinds[k]],to=p[[j]],output="vpath")$vpath
       dp = distances(g,v = citiesinds[k],to=p[[j]],weights = impedances)
       # find min dist
-      dists[r,k]=min(dp)
+      dists[k,r]=min(dp)
     }
     r=r+1
   }
