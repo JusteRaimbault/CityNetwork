@@ -10,11 +10,11 @@ OsgiKeys.exportPackage := Seq("interaction.*")
 
 OsgiKeys.importPackage := Seq("*;resolution:=optional")
 
-OsgiKeys.privatePackage := Seq("*")
+OsgiKeys.privatePackage := Seq("!scala.*,*")
 
 scalariformSettings
 
-resolvers += "ISC-PIF Release" at "http://maven.iscpif.fr/public/"
+//resolvers += "ISC-PIF Release" at "http://maven.iscpif.fr/public/"
 
 //val openMOLEVersion = "5.0-SNAPSHOT"
 
@@ -26,6 +26,6 @@ resolvers += "ISC-PIF Release" at "http://maven.iscpif.fr/public/"
 
 libraryDependencies += "gov.nist.math" % "jama" % "1.0.3"
 
-libraryDependencies += "org.scalaforge" % "scalax" % "0.1"
+//libraryDependencies += "org.scalaforge" % "scalax" % "0.1"
 
-libraryDependencies += "org.jaitools" % "jt-all" % "1.2.0"
+//libraryDependencies += "org.jaitools" % "jt-all" % "1.2.0"
