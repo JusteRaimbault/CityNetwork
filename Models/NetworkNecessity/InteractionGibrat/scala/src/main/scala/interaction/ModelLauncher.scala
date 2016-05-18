@@ -2,10 +2,12 @@ package interaction
 
 import java.io.File
 import scala.util.Random
+import Jama.Matrix
 
 class ModelLauncher {
 
   var logmse: Double = 0
+  var mselog: Double = 0
 
   def main(populations: File, distances: File, feedbackDistances: File,
     gr: Double, gw: Double, gg: Double, gd: Double,
@@ -29,9 +31,10 @@ class ModelLauncher {
     }*/
 
     InteractionModel.setup(populations, distances, feedbackDistances)
-    InteractionModel.run(gr, gw, gg, gd, fw, fg, fd)
+    val pop: Matrix = InteractionModel.run(gr, gw, gg, gd, fw, fg, fd)
 
-    logmse = InteractionModel.logmse()
+    logmse = InteractionModel.logmse(pop)
+    mselog = InteractionModel.mselog(pop)
 
     //println("Indicators : logmse = " + logmse)
     //println("Ellapsed Time : " + (System.currentTimeMillis() - t) / 1000.0 + "\n")

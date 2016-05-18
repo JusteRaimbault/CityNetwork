@@ -60,7 +60,7 @@ load('data/graph_distances.RData')
 # - compute
 # - store as {city_i_ID,city_j_ID}->city_k_ID
 
-Ncities=50
+Ncities=200
 data<-loadData(Ncities)
 cities=SpatialPoints(as.matrix(data$cities[,2:3])*100,proj4string = CRS("+init=epsg:27572"))
 cities=spTransform(cities,CRS=CRS("+init=epsg:2154"))
@@ -79,6 +79,7 @@ coords=coordinates(cities)
 #plot(cities,col='green',add=TRUE)
 
 citiesinds = unlist(apply(coords,1,function(x){which(abs(V(g)$x-x[1])<500&abs(V(g)$y-x[2])<500)}))
+# must have ALL cities to be consistent -> remove Corsica.
 
 dists = Matrix(10e8,nrow(coords),nrow(coords)*(nrow(coords)-1)/2)
 

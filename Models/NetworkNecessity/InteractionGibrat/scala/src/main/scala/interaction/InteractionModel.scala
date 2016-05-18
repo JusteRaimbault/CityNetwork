@@ -31,7 +31,7 @@ object InteractionModel {
     distancesMatrix = parseMatrixFile(distances)
     feedbackDistancesMatrix = parseMatrixFile(feedbackDistances)
 
-    for (t <- 0 to feedbackDistancesMatrix.getColumnDimension() - 1) { print(feedbackDistancesMatrix.get(0, t) + " ; ") }
+    //for (t <- 0 to feedbackDistancesMatrix.getColumnDimension() - 1) { print(feedbackDistancesMatrix.get(0, t) + " ; ") }
 
   }
 
@@ -44,7 +44,7 @@ object InteractionModel {
     var res = new Matrix(n, p)
     res.setMatrix(0, n - 1, 0, 0, populationMatrix.getMatrix(0, n - 1, 0, 0))
 
-    println("mean feedback mat : " + feedbackDistancesMatrix.getArray().flatten.sum / (feedbackDistancesMatrix.getRowDimension() * feedbackDistancesMatrix.getColumnDimension()))
+    //println("mean feedback mat : " + feedbackDistancesMatrix.getArray().flatten.sum / (feedbackDistancesMatrix.getRowDimension() * feedbackDistancesMatrix.getColumnDimension()))
 
     //println(distancesMatrix.get(2, 3))
     // mutate potential distances matrices with exp and constants
@@ -52,8 +52,8 @@ object InteractionModel {
     distancesMatrix = new Matrix(distancesMatrix.getArray().map { _.map { d => Math.exp(-d / gravityDecay) } })
     feedbackDistancesMatrix = new Matrix(feedbackDistancesMatrix.getArray().map { _.map { d => Math.exp(-d / feedbackDecay) } })
 
-    println("mean dist mat : " + distancesMatrix.getArray().flatten.sum / (distancesMatrix.getRowDimension() * distancesMatrix.getColumnDimension()))
-    println("mean feedback mat : " + feedbackDistancesMatrix.getArray().flatten.sum / (feedbackDistancesMatrix.getRowDimension() * feedbackDistancesMatrix.getColumnDimension()))
+    //println("mean dist mat : " + distancesMatrix.getArray().flatten.sum / (distancesMatrix.getRowDimension() * distancesMatrix.getColumnDimension()))
+    //println("mean feedback mat : " + feedbackDistancesMatrix.getArray().flatten.sum / (feedbackDistancesMatrix.getRowDimension() * feedbackDistancesMatrix.getColumnDimension()))
 
     for (t <- 1 to p - 1) {
       val prevpop = res.getMatrix(0, n - 1, t - 1, t - 1).copy()
@@ -61,15 +61,15 @@ object InteractionModel {
       var diagpops = diag(prevpop).times(1 / totalpop)
       var diagpopsFeedback = diagpops.times((new Matrix(n, n, 1)).times(diagpops))
       diagpops = new Matrix(diagpops.getArray().map { _.map { Math.pow(_, gravityGamma) } })
-      println("mean norm pop : " + diagpops.getArray().flatten.sum / (n * n))
+      //println("mean norm pop : " + diagpops.getArray().flatten.sum / (n * n))
       diagpopsFeedback = new Matrix(diagpopsFeedback.getArray().map { _.map { Math.pow(_, feedbackGamma) } })
       val potsgravity = diagpops.times(distancesMatrix).times(diagpops)
       val potsfeedback = feedbackDistancesMatrix.times(flattenPot(diagpopsFeedback))
       setDiag(potsgravity, 0); //setDiag(potsfeedback, 0)
       val meanpotgravity = potsgravity.getArray().flatten.sum / (n * n)
       val meanpotfeedback = potsfeedback.getArray().flatten.sum / n
-      println("mean pot gravity : " + meanpotgravity)
-      println("mean pot feedback : " + meanpotfeedback)
+      //println("mean pot gravity : " + meanpotgravity)
+      //println("mean pot feedback : " + meanpotfeedback)
       //val flatpot = flattenPot(potsfeedback)
 
       res.setMatrix(0, n - 1, t, t,
@@ -83,8 +83,16 @@ object InteractionModel {
     return res
   }
 
-  def logmse() = {
-    0
+  def mselog(m: Matrix): Double = {
+    val logres = new Matrix(m.getArray().map { _.map { d => Math.log(d) } })
+    val logreal = new Matrix(populationMatrix.getArray().map { _.map { d => Math.log(d) } })
+    val sqdiff = logres.minus(logreal).arrayTimes(logres.minus(logreal))
+    return sqdiff.getArray().flatten.sum
+  }
+
+  def logmse(m: Matrix): Double = {
+    val sqdiff = m.minus(populationMatrix).arrayTimes(m.minus(populationMatrix))
+    return Math.log(sqdiff.getArray().flatten.sum)
   }
 
   /**

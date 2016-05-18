@@ -12,19 +12,19 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat')
 
 source('functions.R')
 
-Ncities = 50
+Ncities = 200
 d = loadData(Ncities)
 cities = d$cities;dates=d$dates;distances=d$distances
 
 alpha0=3;n0=3
 load(paste0('data/distMat_Ncities',Ncities,'_alpha0',alpha0,'_n0',n0,'.RData'))
-dists[dists==0]=1e6
+dists[dists==0]=1e8
 
 ## pop matrix
 real_populations = as.matrix(cities[,4:ncol(cities)])
 #write.table(real_populations,file='data/pop50.csv',col.names = FALSE,row.names = FALSE,sep=',')
 #write.table(distances,file='data/dist50.csv',col.names = FALSE,row.names = FALSE,sep=',')
-#write.table(data.frame(as.matrix(dscala)),file='data/fdists50.csv',col.names = FALSE,row.names = FALSE,sep=',')
+#write.table(data.frame(as.matrix(dists)),file=paste0('data/distMat_Ncities',Ncities,'_alpha0',alpha0,'_n0',n0,'.csv'),col.names = FALSE,row.names = FALSE,sep=',')
 #
 
 ##
