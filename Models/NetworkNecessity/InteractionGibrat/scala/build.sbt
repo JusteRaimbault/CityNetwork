@@ -1,4 +1,4 @@
-name := "density"
+name := "interaction"
 
 version := "1.0"
 

@@ -79,8 +79,9 @@ coords=coordinates(cities)
 #plot(cities,col='green',add=TRUE)
 
 citiesinds = unlist(apply(coords,1,function(x){which(abs(V(g)$x-x[1])<500&abs(V(g)$y-x[2])<500)}))
+# must have ALL cities to be consistent -> remove Corsica.
 
-dists = Matrix(0,nrow(coords),nrow(coords)*(nrow(coords)-1)/2)
+dists = Matrix(10e8,nrow(coords),nrow(coords)*(nrow(coords)-1)/2)
 
 # impedance function of the slope
 #  100m dev in 1km -> 5°. angle = atan(abs(E(g)$slope))/(E(g)$length*1000))
