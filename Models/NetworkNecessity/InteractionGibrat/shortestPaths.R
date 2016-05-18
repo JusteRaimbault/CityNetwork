@@ -80,7 +80,7 @@ coords=coordinates(cities)
 
 citiesinds = unlist(apply(coords,1,function(x){which(abs(V(g)$x-x[1])<500&abs(V(g)$y-x[2])<500)}))
 
-dists = Matrix(0,nrow(coords),nrow(coords)*(nrow(coords)-1)/2)
+dists = Matrix(10e8,nrow(coords),nrow(coords)*(nrow(coords)-1)/2)
 
 # impedance function of the slope
 #  100m dev in 1km -> 5°. angle = atan(abs(E(g)$slope))/(E(g)$length*1000))
@@ -98,7 +98,7 @@ for(i in 1:(nrow(coords)-1)){
   p=shortest_paths(g,from=V(g)[o],to=V(g)[dests],output="vpath",weights = impedances)$vpath
   # find candidates third cities
   for(j in 1:length(p)){
-    show(paste0('dists : ',r/nrow(dists)))
+    show(paste0('dists : ',r/ncol(dists)))
     #show(j)
     third=apply(coords,1,function(r){sum(abs(r-coords[i,]))>1000&sum(abs(r-coords[i+j,]))>1000&sum((coords[i+j,]-coords[i,])*(r-coords[i,]))>0&sum((coords[i,]-coords[i+j,])*(r-coords[i+j,]))>0})
     #show(length(which(third)))

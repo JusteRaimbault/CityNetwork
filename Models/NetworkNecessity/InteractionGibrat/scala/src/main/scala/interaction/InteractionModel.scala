@@ -30,6 +30,9 @@ object InteractionModel {
     populationMatrix = parseMatrixFile(populations)
     distancesMatrix = parseMatrixFile(distances)
     feedbackDistancesMatrix = parseMatrixFile(feedbackDistances)
+
+    for (t <- 0 to feedbackDistancesMatrix.getColumnDimension() - 1) { print(feedbackDistancesMatrix.get(0, t) + " ; ") }
+
   }
 
   /**
