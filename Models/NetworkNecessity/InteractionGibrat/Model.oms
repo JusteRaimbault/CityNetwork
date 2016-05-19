@@ -1,0 +1,41 @@
+import interaction._
+
+// Parameters
+val growthRate = Val[Double]
+val gravityWeight = Val[Double]
+val gravityGamma = Val[Double]
+val gravityDecay = Val[Double]
+val feedbackWeight = Val[Double]
+val feedbackGamma = Val[Double]
+val feedbackDecay = Val[Double]
+
+// Exploration
+val id=Val[Int]
+
+// Reporters
+val logmse=Val[Double]
+val mselog=Val[Double]
+
+// config files
+val popFile=Val[File]
+val distFile=Val[File]
+val fdistsFile=Val[File]
+
+
+// Model
+val model =
+  ScalaTask(
+    """
+      | import interaction._
+      | ModelLauncher.main(input.popFile,input.distFile,input.fdistsFile,input.growthRate,input.gravityWeight,input.gravityGamma,input.gravityDecay,input.feedbackWeight,input.feedbackGamma,input.feedbackDecay,input.id)
+      | val logmse = ModelLauncher.logmse
+      | val mselog = ModelLauncher.mselog
+    """.stripMargin
+  ) set (
+    plugins += pluginsOf(ModelLauncher),
+    //inputFiles += ((popFile, "popFileName"),(distFile,"distFileName"),(fdistsFile,"fdistsFileName")),
+    inputs += (popFile,distFile,fdistsFile,growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,id),
+    outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,id),
+    outputs += (logmse,mselog)
+  )
+val modelCapsule = Capsule(model)
