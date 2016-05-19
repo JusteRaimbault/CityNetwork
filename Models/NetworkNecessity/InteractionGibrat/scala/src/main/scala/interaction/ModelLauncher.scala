@@ -4,7 +4,7 @@ import java.io.File
 import scala.util.Random
 import Jama.Matrix
 
-class ModelLauncher {
+object ModelLauncher {
 
   var logmse: Double = 0
   var mselog: Double = 0
