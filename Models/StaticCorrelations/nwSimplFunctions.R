@@ -85,6 +85,7 @@ simplifyGraph<-function(g){
       elengths=append(elengths,spDistsN1(pts = matrix(c(prevo$x,prevo$y),nrow=1),pt = c(o$x,o$y),longlat = TRUE))
       espeeds=append(espeeds,e$speed);etypes=append(etypes,e$type)
       no=neighbors(g,o);tmpo=o;o=no[which(no!=prevo)];prevo=tmpo;
+      if(length(o)==0) break;
       if(o %in% p) break;
       p=append(p,o)
     }
@@ -93,6 +94,7 @@ simplifyGraph<-function(g){
       elengths=append(elengths,spDistsN1(pts = matrix(c(prevd$x,prevd$y),nrow=1),pt = c(d$x,d$y),longlat = TRUE))
       espeeds=append(espeeds,e$speed);etypes=append(etypes,e$type)
       nd=neighbors(g,d);tmpd=d;d=nd[which(nd!=prevd)];prevd=tmpd;
+      if(length(d)==0) break;
       if(d %in% p) break ;
       p=append(p,d)
     }
