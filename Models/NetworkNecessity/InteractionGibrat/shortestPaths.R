@@ -87,7 +87,7 @@ dists = Matrix(10e8,nrow(coords),nrow(coords)*(nrow(coords)-1)/2)
 #  100m dev in 1km -> 5°. angle = atan(abs(E(g)$slope))/(E(g)$length*1000))
 slopes = atan(abs(E(g)$slope)/(E(g)$length*1000))*360/(2*pi)
 # alpha0 = 6 : ~10% ; alpha0=3 : ~5%
-alpha0 = 3;n0 = 3
+alpha0 = 4;n0 = 3
 impedances = E(g)$length*(1 + (slopes/alpha0)^n0)
 
 r=1
