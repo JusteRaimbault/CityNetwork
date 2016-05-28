@@ -266,6 +266,12 @@ public class ScholarAPI {
 	}
 	
 	
+	/*
+	public static void fillIdAndCitingRefs(Corpus corpus){
+		fillIdAndCitingRefs(corpus,"");
+	}
+	*/
+	
 	/**
 	 * Queries and constructs citing refs for a set of refs, and fills scholar id.
 	 * 
@@ -279,7 +285,7 @@ public class ScholarAPI {
 			for(Reference r:corpus.references){
 				Log.stdout("Getting cit for ref "+r.toString());
 
-				if(r.citing.size()>1){
+				if(r.citing.size()>1||r.citingFilled){
 					Log.stdout("Citing refs already filled : "+r.citing.size()+" refs");
 				}
 				else{
@@ -304,8 +310,11 @@ public class ScholarAPI {
 							HashSet<Reference> citing = scholarRequest(r.scholarID,10000,"cites");
 							for(Reference c:citing){r.citing.add(c);}
 						}
+						
+						r.citingFilled = true;
+						
 						Log.stdout("Citing refs : "+r.citing.size());
-
+						
 					}catch(Exception e){e.printStackTrace();}
 				}
 				
