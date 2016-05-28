@@ -103,7 +103,7 @@ pushViewport(viewport(layout = grid.layout(3, 4)))
 kwIndexes = c(1:7,9,11:13)
 
 for(kwIndex in 1:length(kwIndexes)){
-show(queries[kwIndexes[kwIndex]])
+  #show(queries[kwIndexes[kwIndex]])
 kwLimit = c();refs=c()
 for(i in 1:length(res[[kwIndexes[kwIndex]]])){
   for(t in 1:maxIt){

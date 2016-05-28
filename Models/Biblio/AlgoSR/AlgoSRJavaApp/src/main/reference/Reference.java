@@ -78,6 +78,8 @@ public class Reference {
 	 */
 	public HashSet<Reference> citing;
 	
+	public boolean citingFilled;
+	
 	/**
 	 * Bibliography
 	 */
@@ -109,6 +111,7 @@ public class Reference {
 		citing=new HashSet<Reference>();
 		biblio=new Bibliography();
 		attributes = new HashMap<String,String>();
+		citingFilled = false;
 	}
 	
 	/**

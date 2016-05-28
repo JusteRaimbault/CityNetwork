@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import main.corpuses.CSVFactory;
+import main.corpuses.Corpus;
 import main.corpuses.DefaultCorpus;
 import main.reference.Reference;
 import mendeley.MendeleyAPI;
@@ -18,6 +20,7 @@ import utils.CSVWriter;
 import utils.GEXFWriter;
 import utils.RISReader;
 import utils.tor.TorPool;
+import utils.tor.TorPoolManager;
 
 /**
  * 
@@ -32,8 +35,14 @@ public class CitationNetwork {
 	/**
 	 * Build first order network : foreach ref, find citing refs
 	 */
-	public static void buildCitationNetwork(){
-		ScholarAPI.fillIdAndCitingRefs(new DefaultCorpus(new HashSet<Reference>(Reference.references.keySet())));
+	public static void buildCitationNetwork(String outFile,Corpus existing){
+		for(Reference r:Reference.references.keySet()){
+			if(!existing.references.contains(r)){
+			  ScholarAPI.fillIdAndCitingRefs(new DefaultCorpus(r));
+			  // export
+			  new DefaultCorpus(Reference.references.keySet()).csvExport(outFile);
+			}
+		}
 	}
 	
 	
@@ -55,7 +64,7 @@ public class CitationNetwork {
 		for(int i=0;i<keywords.length;i++){originals.addLast(new HashSet<Reference>(RISReader.read(getLastIteration(prefix,keywords[i],maxIt),-1)));}
 	
 		// build the cit nw
-		buildCitationNetwork();
+		buildCitationNetwork("",new DefaultCorpus());
 		
 		// fill cluster link table
 		// for each orig, look at all orig, number of citing
@@ -106,19 +115,39 @@ public class CitationNetwork {
 	/**
 	 * Given a RIS ref file, builds its corresponding citation network.
 	 */
-	public static void buildCitationNetworkFromRefFile(String refFile,String outFile,int depth){
-        Main.setup("conf/default.conf");
-		TorPool.setupConnectionPool(50,false);
+	public static void buildCitationNetworkFromRefFile(String refFile,String outFile,int depth,String citedFolder){
+        
+		Main.setup("conf/default.conf");
+        try{TorPoolManager.setupTorPoolConnexion();}catch(Exception e){e.printStackTrace();}
 		ScholarAPI.init();
 		
-		System.out.println("Reconstructing References from file...");
-		RISReader.read(refFile,-1);
+		System.out.println("Reconstructing References from file "+refFile);
 		
-		System.out.println("Initial Refs : ");for(Reference r:Reference.references.keySet()){System.out.println(r.toString());}
+		Corpus initial = new DefaultCorpus();
+		
+		if(refFile.endsWith(".ris")){
+			RISReader.read(refFile,-1);
+			initial = new DefaultCorpus(Reference.references.keySet());
+		}
+		if(refFile.endsWith(".csv")){
+			if(citedFolder.length()==0){
+			   initial = new CSVFactory(refFile).getCorpus();
+			}else{
+			   initial = new CSVFactory(refFile,-1,citedFolder).getCorpus();
+			}
+		}
+		
+		//load out file to get refs already retrieved in a previous run
+		Corpus existing = new DefaultCorpus();
+		if(new File(outFile).exists()){
+			existing = new CSVFactory(outFile).getCorpus();
+		}
+		
+		//System.out.println("Initial Refs : ");for(Reference r:Reference.references.keySet()){System.out.println(r.toString());}
 		
 		for(int d=1;d<=depth;d++){
 		  System.out.println("Getting Citation Network, depth "+d);
-		  buildCitationNetwork();
+		  buildCitationNetwork(outFile,existing);
 		}
 		
 		/*
@@ -130,9 +159,9 @@ public class CitationNetwork {
 		}
 		*/
 		
-		GEXFWriter.writeCitationNetwork(outFile, Reference.references.keySet());
+		//GEXFWriter.writeCitationNetwork(outFile, Reference.references.keySet());
 		
-		TorPool.stopPool();
+		//TorPool.stopPool();
 	}
 	
 	
@@ -153,7 +182,7 @@ public class CitationNetwork {
 		
 		
 		// construct network
-		buildCitationNetwork();
+		buildCitationNetwork("",new DefaultCorpus());
 		
         GEXFWriter.writeCitationNetwork(outFile, Reference.references.keySet());
 		
@@ -174,7 +203,7 @@ public class CitationNetwork {
 		
 		//buildCitationNetworkFromSQL("res/citation/cybergeo.gexf");
 		
-		buildCitationNetworkFromRefFile("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle.ris","res/citation/cybergeo_depth2.gexf",2);
+		//buildCitationNetworkFromRefFile("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_fullbase_rawTitle.ris","res/citation/cybergeo_depth2.gexf",2);
 		
 		//buildCitationNetworkFromRefFile("/Users/Juste/Documents/ComplexSystems/Cybergeo/Data/processed/2003_frenchTitles_fullbase.ris","res/citation/cybergeo.gexf");
 		

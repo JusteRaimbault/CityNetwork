@@ -21,18 +21,30 @@ public class CitationNetworkRetriever {
 		
 		String refFile="",outFile="";
 		int depth = 0;
+		String citedFolder="";
 		
+		/*
 		if(args.length==5){
            TorPool.forceStopPID(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
            refFile = args[2];outFile = args[3];
            depth = Integer.parseInt(args[4]);
 		}
+		*/
+		
 		if(args.length==3){
 			refFile = args[0];outFile = args[1];
 	        depth = Integer.parseInt(args[2]);
+		}else{
+			if(args.length==4){
+				refFile = args[0];outFile = args[1];
+		        depth = Integer.parseInt(args[2]);
+		        citedFolder = args[3];
+			}
+			// print usage
+			System.out.println("usage : java -jar citationNetwork.jar reffile outfile depth [cited]");
 		}
 		
-		CitationNetwork.buildCitationNetworkFromRefFile(refFile,outFile,depth);
+		CitationNetwork.buildCitationNetworkFromRefFile(refFile,outFile,depth,citedFolder);
 		
 		
 	}

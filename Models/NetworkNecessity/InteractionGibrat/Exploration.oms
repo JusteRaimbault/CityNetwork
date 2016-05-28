@@ -1,0 +1,34 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
+import Model._
+
+// Exploration
+val exploration = ExplorationTask (
+  (LHS (
+    420000,
+    growthRate in Range(0.0005, 0.007),
+    gravityWeight in Range(0.0001,0.01),
+    gravityGamma in Range(0.2,3.0),
+    gravityDecay in Range(50.0,2000.0),
+    feedbackWeight in Range(0.0001,0.01),
+    feedbackGamma in Range(0.2,3.0),
+    feedbackDecay in Range(1.0,500.0)
+  ) withIndex id) x
+   (popFile in Seq( workDirectory / "data" / "pop50.csv")) x
+   (distFile in Seq(workDirectory / "data"/ "dist50.csv")) x
+   (fdistsFile in Seq(workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv"))
+)
+val purpose = "LHS_LOCAL"
+
+
+val indics_hook = AppendToCSVFileHook(workDirectory / "res" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
+
+
+// Environement
+val local = LocalEnvironment(15)
+//val grid = EGIEnvironment("vo.complex-systems.eu", openMOLEMemory = 2400, wallTime = 24 hours)
+
+
+exploration -< (modelCapsule hook indics_hook on local)
+

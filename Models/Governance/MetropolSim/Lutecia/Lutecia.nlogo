@@ -627,7 +627,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-0
+1
 0.05
 1
 NIL
@@ -875,7 +875,7 @@ road-length
 road-length
 0
 20
-2
+3
 1
 1
 NIL
@@ -890,7 +890,7 @@ SLIDER
 #-explorations
 0
 1000
-100
+113
 1
 1
 NIL
@@ -937,7 +937,7 @@ total-time-steps
 total-time-steps
 0
 20
-3
+4
 1
 1
 NIL
@@ -1158,7 +1158,7 @@ SWITCH
 547
 with-externalities?
 with-externalities?
-0
+1
 1
 -1000
 
