@@ -119,7 +119,10 @@ public class CybergeoBiblioParser implements BiblioParser {
 				if(t.substring(i, i+4).matches("\\d\\d\\d\\d")&&!found){yIndex=i;found=true;};
 			}
 			res=t.substring(yIndex,yIndex+4);
-		}catch(Exception e){e.printStackTrace();return "";}
+		}catch(Exception e){
+			//e.printStackTrace();
+			return "";
+		}
 		return res;
 	}
 	

@@ -73,7 +73,7 @@ public class CitationNetwork {
 		}
 		
 		// output in csv file
-		CSVWriter.write(outPrefix+".csv", interClusterLinks, ";");
+		CSVWriter.write(outPrefix+".csv", interClusterLinks, ";","");
 		
 		// output in GEXF to be used by graph processing softwares
 		GEXFWriter.writeCitationNetwork(outPrefix+".gexf", Reference.references.keySet());
