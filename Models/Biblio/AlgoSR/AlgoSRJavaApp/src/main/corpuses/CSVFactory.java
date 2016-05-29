@@ -59,7 +59,7 @@ public class CSVFactory implements CorpusFactory {
 				Reference r = Reference.construct("",new Title(refs[i][0]),new Abstract(), "",id);
 				res.references.add(r);
 				if(citedFolder!=""){//if must construct cited corpus
-					r.biblio.cited = (new CSVFactory(citedFolder+(new Integer(i)).toString(),-1)).getCorpus().references;
+					r.biblio.cited = (new CSVFactory(citedFolder+(new Integer(i+1)).toString(),-1)).getCorpus().references;
 				}
 			}
 		}
