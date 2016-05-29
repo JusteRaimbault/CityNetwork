@@ -36,7 +36,9 @@ public class CitationNetwork {
 	 * Build first order network : foreach ref, find citing refs
 	 */
 	public static void buildCitationNetwork(String outFile,Corpus existing){
-		for(Reference r:Reference.references.keySet()){
+		Corpus base = new DefaultCorpus(Reference.references.keySet());
+		
+		for(Reference r:base){
 			if(!existing.references.contains(r)){
 			  ScholarAPI.fillIdAndCitingRefs(new DefaultCorpus(r));
 			  // export
