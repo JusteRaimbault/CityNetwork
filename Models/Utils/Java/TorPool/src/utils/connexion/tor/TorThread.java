@@ -17,6 +17,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TorThread extends Thread {
 	
+	
+	/**
+	 * Default tor command
+	 */
+	public static String torCommand = "tor";
 
 	
 	/**
@@ -61,7 +66,6 @@ public class TorThread extends Thread {
 				//System.out.println(pidfile.getAbsolutePath());
 			}catch(Exception e){e.printStackTrace();}
 			
-			String torCommand = "/opt/local/bin/tor";//default tor command
 			if(new File("conf/torcommand").exists()){//try to read a replacement tor command in conf file
 				// TODO command as java task arg ?
 				BufferedReader r = new BufferedReader(new FileReader(new File("conf/torcommand")));
