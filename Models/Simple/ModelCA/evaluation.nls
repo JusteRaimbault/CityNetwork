@@ -3,6 +3,44 @@
 ;;;;;;;;;;;;;;;;
 
 
+
+to export-data
+  let current-data []
+  let current-time ticks
+  foreach data-export-patches [
+    ask ? [
+    ;set current-data lput (list "density" pdensity pxcor pycor ticks) current-data
+    ;set current-data lput (list "cdistance" pdistance-to-centre pxcor pycor ticks) current-data
+    ;set current-data lput (list "rdistance" pdistance-to-roads pxcor pycor ticks) current-data
+    ;set current-data lput (list "ceucldistance" distance one-of centres with-min [distance myself] pxcor pycor ticks) current-data
+    set current-data lput (list pxcor pycor current-time pdensity pdistance-to-centre pdistance-to-roads distance one-of centres with-min [distance myself]) current-data
+    ]
+  ]
+  set data-to-export concatenate (list current-data data-to-export)
+end
+
+to export-data-to-file
+  let fileprefix (word "/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Statistics/Synthetic/rdb/" (replace (replace date-and-time " " "_") ":" "_"))
+  lists-csv-export data-to-export (list "x" "y" "t" "density" "cdistance" "rdistance" "ceucldistance") ";" (word fileprefix ".csv")
+  ; export param values
+  let params []
+  set params lput (list "distance-to-activities-coefficient" distance-to-activities-coefficient) params
+  set params lput (list "density-coefficient" density-coefficient) params
+  set params lput (list "distance-to-roads-coefficient" distance-to-roads-coefficient) params
+  set params lput (list "distance-to-center-coefficient" distance-to-center-coefficient) params 
+  set params lput (list "distance-road-needed" distance-road-needed) params 
+  set params lput (list "built-cells-per-tick" built-cells-per-tick) params 
+  set params lput (list "activities-norma" activities-norma) params 
+  set params lput (list "centers-number" centers-number) params
+  set params lput (list "activities-number" activities-number) params
+  set params lput (list "final-ticks" ticks) params 
+  lists-csv-export params (list "param" "value") ";" (word fileprefix "_params.csv")
+end
+
+  
+  
+
+
 ;;output value of reporters.
 ;;not done in monitors to avoid calculation at each step.
 to calculate-reporters
