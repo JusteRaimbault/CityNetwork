@@ -2,18 +2,25 @@
 # nw simplification functions
 
 
+library(RPostgreSQL)
+library(rgeos)
+library(rgdal)
+library(raster)
+library(igraph)
+
+
 
 #' Get road linestrings (SPatialLines) within given extent
 #'
 #' @param latmin,lonmin,latmax,lonmax bbox
 #' @param tags list of tag values (for key highway)
 #'
-linesWithinExtent<-function(latmin,lonmin,latmax,lonmax,tags){
-  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=osmdb,user="juste")#,host="localhost" )
+linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags){
+  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=osmdb,user="juste",port=dbport)#,host="localhost" )
   
   q = paste0(
     "SELECT ST_AsText(linestring) AS geom,tags::hstore->'maxspeed' AS speed,tags::hstore->'highway' AS type FROM ways",
-    " WHERE ST_Contains(ST_MakeEnvelope(",latmin,",",lonmin,",",latmax,",",lonmax,",4326),","linestring)")
+    " WHERE ST_Contains(ST_MakeEnvelope(",lonmin,",",latmin,",",lonmax,",",latmax,",4326),","linestring)")
   if(length(tags)>0){
     q=paste0(q," AND (")
     for(i in 1:(length(tags)-1)){q=paste0(q,"tags::hstore->'highway'='",tags[i],"' OR ")}
