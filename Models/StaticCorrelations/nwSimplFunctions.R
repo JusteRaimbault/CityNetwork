@@ -149,7 +149,7 @@ insertEdgeQuery<-function(o,d,length,speed,type){
 #' insertion into simplified database : insert into links (id,origin,destination,geography) values ('1',10,50,ST_GeographyFromText('LINESTRING(-122.33 47.606, 0.0 51.5)')); 
 exportGraph<-function(sg,dbname,dbuser){
   # get simpl base connection
-  con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser)#,host="localhost" )
+  con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport)#,host="localhost" )
   
   graph=sg$graph
   

@@ -33,23 +33,32 @@ for(i in 2:length(rows)){
 names(coords)<-c("lonmin","latmax","lonmax","latmin")
 tags=c("motorway","trunk","primary","secondary","tertiary")
 
-library(doParallel)
-cl <- makeCluster(10)
-registerDoParallel(cl)
+#library(doParallel)
+#cl <- makeCluster(10)
+#registerDoParallel(cl)
 
-startTime = proc.time()[3]
+#startTime = proc.time()[3]
 
-res <- foreach(i=1:nrow(coords)) %dopar% {
+#res <- foreach(i=1:nrow(coords)) %dopar% {
+for(i in 1:nrow(coords)){
   osmdb='centre';dbport=5433
   source('nwSimplFunctions.R')
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
   roads<-linesWithinExtent(lonmin,latmin,lonmax,latmax,tags)
-  edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
-  edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);
-  g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
-  coords = xyFromCell(densraster,as.numeric(V(g)$name))
-  V(g)$x=coords[,1];V(g)$y=coords[,2]
-  save(g,file=paste0('testdirect/graph_',i,'.RData'))
+  show(coords[i,])
+  show(length(roads$roads))
+  if(length(roads$roads)>0){
+    edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
+    show(length(edgelist$edgelist))
+    edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);
+    g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
+    gcoords = xyFromCell(densraster,as.numeric(V(g)$name))
+    V(g)$x=gcoords[,1];V(g)$y=gcoords[,2]
+    #save(g,file=paste0('testdirect/graph_',i,'.RData'))
+    gg=simplify(g)
+    sg = simplifyGraph(gg)
+    exportGraph(sg,dbname="nwtest",dbuser="juste")
+  }
 }
 
 stopCluster(cl)
