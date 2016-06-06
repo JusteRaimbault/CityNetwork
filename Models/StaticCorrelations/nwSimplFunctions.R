@@ -151,7 +151,8 @@ exportGraph<-function(sg,dbname,dbuser){
   # get simpl base connection
   con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport)#,host="localhost" )
   
-  graph=sg$graph
+  #graph=sg$graph
+  graph=sg
   
   #dbSendQuery(con,"BEGIN TRANSACTION;")
   
@@ -165,15 +166,15 @@ exportGraph<-function(sg,dbname,dbuser){
     try(dbSendQuery(con,insertEdgeQuery(o,d,length,speed,type)))
   }
   
-  
-  sg$edgespeed[which(is.nan(sg$edgespeed))]=0
-  sg$edgespeed[which(is.na(sg$edgespeed))]=0
-  # then supplementary edges
-  for(i in seq(from=1,to=length(sg$edgestoadd),by=2)){
-    o=V(graph)[[sg$edgestoadd[i]]];d=V(graph)[[sg$edgestoadd[i+1]]]
-    try(dbSendQuery(con,insertEdgeQuery(o,d,sg$edgelength[1+(i-1)/2],sg$edgespeed[1+(i-1)/2],sg$edgetype[1+(i-1)/2])))
-  }
-  
+  # 
+  # sg$edgespeed[which(is.nan(sg$edgespeed))]=0
+  # sg$edgespeed[which(is.na(sg$edgespeed))]=0
+  # # then supplementary edges
+  # for(i in seq(from=1,to=length(sg$edgestoadd),by=2)){
+  #   o=V(graph)[[sg$edgestoadd[i]]];d=V(graph)[[sg$edgestoadd[i+1]]]
+  #   try(dbSendQuery(con,insertEdgeQuery(o,d,sg$edgelength[1+(i-1)/2],sg$edgespeed[1+(i-1)/2],sg$edgetype[1+(i-1)/2])))
+  # }
+  # 
   #dbCommit(con)
   dbDisconnect(con)
   

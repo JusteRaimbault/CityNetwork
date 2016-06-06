@@ -40,7 +40,7 @@ tags=c("motorway","trunk","primary","secondary","tertiary")
 #startTime = proc.time()[3]
 
 #res <- foreach(i=1:nrow(coords)) %dopar% {
-for(i in 1:nrow(coords)){
+for(i in 1:3){#nrow(coords)){
   osmdb='centre';dbport=5433
   source('nwSimplFunctions.R')
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
@@ -56,8 +56,9 @@ for(i in 1:nrow(coords)){
     V(g)$x=gcoords[,1];V(g)$y=gcoords[,2]
     #save(g,file=paste0('testdirect/graph_',i,'.RData'))
     gg=simplify(g)
-    sg = simplifyGraph(gg)
-    exportGraph(sg,dbname="nwtest",dbuser="juste")
+    #sg = simplifyGraph(gg)
+    #exportGraph(sg,dbname="nwtest",dbuser="juste")
+    exportGraph(gg,dbname="nwtest",dbuser="juste")
   }
 }
 
