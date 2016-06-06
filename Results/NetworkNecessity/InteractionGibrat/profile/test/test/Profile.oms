@@ -1,0 +1,68 @@
+import Model._
+
+val grid = DIRACEnvironment("vo.complex-systems.eu")
+
+def profile(variable: Val[Double],period: String) = {  
+  
+  val filename = s"pop50_${period}.csv"
+  
+  val fileSetting = ExplorationTask(
+    (popFile is workDirectory / "data" / "pops" / filename ) x //"pops" / filename) x
+    (distFile is workDirectory / "data"/ "dist50.csv") x
+    (fdistsFile is workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv") x (id in Seq(1))
+  ) set(
+    inputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay),
+    outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay)
+  )
+  
+  val eval = fileSetting -< model
+  
+  val algo =
+    GenomeProfile (
+      x = variable,
+      nX = 20,
+      genome = Seq(
+        growthRate in Range(0.0005, 0.015),
+        gravityWeight in Range(0.05,0.3),
+        gravityGamma in Range(0.05,2.0),
+        gravityDecay in Range(500.0,3000.0),
+        feedbackWeight in Range(0.005,0.5),
+        feedbackGamma in Range(0.1,3.0),
+        feedbackDecay in Range(1.0,300.0)
+      ),
+      objective = logmse
+    )
+
+  // Calibration profile of 1000 points for the parameter
+  val evolution = SteadyStateEvolution(
+    algorithm = algo,
+    evaluation =  eval,
+    termination = 10 minutes
+  )
+
+  // Define the island model
+  val island = IslandEvolution(evolution, parallelism = 1000, termination = 100)
+
+  // Define the hook to save the results
+  val savePopulation = SavePopulationHook(island, workDirectory / "profile"/ "test" / s"${period}" / s"${variable.name}/")
+
+  // Define the execution
+  (island on grid hook savePopulation)
+}
+
+val firstCapsule = Capsule(EmptyTask())
+//val vars = Seq((gravityDecay,"1881-1901"),(feedbackDecay,"1881-1901"),(gravityDecay,"1962-1982"),(feedbackDecay,"1962-1982"))
+
+implicit class Crossable[X](xs: Traversable[X]) {
+  def cross[Y](ys: Traversable[Y]) = for { x <- xs; y <- ys } yield (x, y)
+}
+
+val periods = Seq("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911","1921-1936","1946-1968","1962-1982","1975-1990")
+val vars = Seq(growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay)
+val allvars = vars cross periods
+
+val profiles = allvars.map{case (v,s) => profile(v,s)}
+
+profiles.map(firstCapsule -- _).reduce(_ & _)
+
+
