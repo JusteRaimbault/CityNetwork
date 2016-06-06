@@ -5,8 +5,10 @@ package main.corpuses;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import scholar.ScholarAPI;
+import utils.CSVWriter;
 import utils.GEXFWriter;
 import main.reference.Reference;
 
@@ -89,6 +91,25 @@ public abstract class Corpus implements Iterable<Reference> {
 	public void gexfExport(String file){
 		GEXFWriter.writeCitationNetwork(file,references);
 	}
+	
+	
+	/**
+	 * Export to csv
+	 * 
+	 * @param file
+	 */
+	public void csvExport(String prefix){
+		LinkedList<String[]> datanodes = new LinkedList<String[]>();
+		LinkedList<String[]> dataedges = new LinkedList<String[]>();
+		for(Reference r:references){
+			String[] row = {r.title.title,r.scholarID,r.year};
+			datanodes.add(row);
+			for(Reference rc:r.citing){String[] edge = {rc.scholarID,r.scholarID};dataedges.add(edge);}	
+		}
+		CSVWriter.write(prefix+".csv", datanodes, ";", "\"");
+		CSVWriter.write(prefix+"_links.csv", dataedges, ";", "\"");
+	}
+	
 	
 	
 	/**

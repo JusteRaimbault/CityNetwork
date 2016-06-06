@@ -48,6 +48,7 @@ __includes[
   ;;Utilities
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/misc/List.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/math/EuclidianDistanceUtilities.nls"
+  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/math/SpatialKernels.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/misc/Types.nls"
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/agent/Link.nls"  
   "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/math/SortingUtilities.nls"
@@ -152,6 +153,8 @@ globals[
   current-output-conf-economic
   
   
+  data-to-export
+  data-export-patches
   
   ;;;;;;;;;;;;;;;
   ;; GA vars
@@ -219,6 +222,9 @@ patches-own[
   ;;for ABM economic evaluation
   rent
   next-rent
+
+  ;; smoothed vars
+  smoothed-density
 
 ]
 
@@ -382,7 +388,7 @@ distance-to-center-coefficient
 distance-to-center-coefficient
 0
 1
-0
+1
 0.1
 1
 NIL
@@ -397,7 +403,7 @@ distance-road-needed
 distance-road-needed
 0
 50
-50
+2.2
 0.1
 1
 NIL
@@ -501,7 +507,7 @@ distance-to-activities-coefficient
 distance-to-activities-coefficient
 0
 1
-1
+0
 0.1
 1
 NIL
@@ -1152,6 +1158,23 @@ n-random-conf
 1
 NIL
 HORIZONTAL
+
+BUTTON
+369
+380
+472
+413
+export data
+export-data-to-file
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 # WHAT IS IT?
