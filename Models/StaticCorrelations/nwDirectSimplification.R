@@ -44,7 +44,12 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
   source('nwSimplFunctions.R')
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
   roads<-linesWithinExtent(lonmin,latmin,lonmax,latmax,tags)
-  return(length(roads$roads))
+  edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
+  edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);
+  g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
+  coords = xyFromCell(densraster,as.numeric(V(g)$name))
+  V(g)$x=coords[,1];V(g)$y=coords[,2]
+  save(g,file=paste0('testdirect/graph_',i,'.RData'))
 }
 
 stopCluster(cl)
