@@ -44,7 +44,7 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
   source('nwSimplFunctions.R')
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
   roads<-linesWithinExtent(lonmin,latmin,lonmax,latmax,tags)
-  return(length(roads@roads))
+  return(length(roads$roads))
 }
 
 stopCluster(cl)
