@@ -1,0 +1,62 @@
+
+
+import Model._
+
+//val local = LocalEnvironment(20)
+val grid = EGIEnvironment("vo.complex-systems.eu")
+
+def calib(period: String) = {
+  
+  val filename = s"pop50_${period}.csv"
+  //val filename = "pop50_1831-1851.csv"
+  
+  val fileSetting = ExplorationTask(
+    (popFile is workDirectory / "data" / "pops" / filename ) x //"pops" / filename) x
+    (distFile is workDirectory / "data"/ "dist50.csv") x
+    (fdistsFile is workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv") x (id in Seq(1))
+    x (feedbackWeight in Seq(0.001)) x (feedbackGamma in Seq(1.0)) x (feedbackDecay in Seq(1.0))
+  ) set(
+    inputs += (growthRate,gravityWeight,gravityGamma,gravityDecay/*,feedbackWeight,feedbackGamma,feedbackDecay*/),
+    outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay/*,feedbackWeight,feedbackGamma,feedbackDecay*/)
+  )
+
+  val eval = fileSetting -< model
+
+  val evolution =
+    SteadyStateEvolution(
+      algorithm =   
+        NSGA2(
+          mu = 200,
+          genome = 
+            Seq(
+              growthRate in Range(0.0005, 1.0),
+              gravityWeight in Range(0.0,10.0),
+              gravityGamma in Range(0.0,10.0),
+              gravityDecay in Range(1.0,100000.0)/*,
+              feedbackWeight in Range(0.0001,0.5),
+              feedbackGamma in Range(0.01,10.0),
+              feedbackDecay in Range(1.0,200.0)*/
+            ),
+          objectives = Seq(logmse,mselog)
+        ),
+      evaluation = eval,
+      termination = 10 minutes//10 minutes
+    )
+  
+  val island = IslandEvolution(evolution, parallelism = 100,termination=150)//100, termination = 1000)
+
+  val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / "calibration_20160607-nofeedback-biobj-1_grid" / period) 
+
+  (island on grid hook savePopulation)
+
+}
+
+
+val periods = Seq("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911","1921-1936","1946-1968","1962-1982","1975-1990")
+
+val firstCapsule = Capsule(EmptyTask())
+val calibrations = periods.map(calib)
+calibrations.map(firstCapsule -- _).reduce(_ & _)
+
+
+

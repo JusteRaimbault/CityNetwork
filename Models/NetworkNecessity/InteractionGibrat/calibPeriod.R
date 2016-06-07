@@ -1,7 +1,7 @@
 
 # results of calibration by period for InteractionGibrat model
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/calibration_20160603-nofeedback-biobj-1_grid/'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/calibration_20160607-nofeedback-biobj-1_grid/'))
 
 library(ggplot2)
 
@@ -14,7 +14,7 @@ for(p in periods){
   resfiles = list.files(paste0(run,p))
   # find latest resfile
   generations = as.numeric(gsub(".csv","",substring(resfiles,11)))
-  res[[p]] = read.csv(file = paste0(run,p,"/",resfiles[200]))#generations==max(generations)])) 
+  res[[p]] = read.csv(file = paste0(run,p,"/population",max(generations),'.csv')) 
 }
 
 ## single obj
@@ -76,6 +76,26 @@ for(p in periods){
 
 g=ggplot(res,aes(x=generation,y=diffs,colour=period))
 g+geom_line()
+
+
+
+
+####
+## simple calib, one param
+
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/simple/calibration_20160607-simple/data'))
+
+d=data.frame()
+for(p in periods){
+  dd=read.csv(paste0(p,'simple.csv'))
+  d=rbind(d,cbind(dd,period=rep(p,nrow(dd))))
+}
+
+g=ggplot(d,aes(x=growthRate,y=logmse))#,colour=growthRate))
+g+geom_line()+facet_wrap(~period,scales = "free")#+scale_colour_gradient(low = "yellow",high="red")
+
+
+
 
 
 
