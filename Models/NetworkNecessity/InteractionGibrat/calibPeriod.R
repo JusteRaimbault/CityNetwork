@@ -1,7 +1,7 @@
 
 # results of calibration by period for InteractionGibrat model
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/calibration_20160607-nofeedback-biobj-1_grid/'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/calibration_20160607-nofeedback-fixedgrowth_grid/'))
 
 library(ggplot2)
 
@@ -40,7 +40,7 @@ plot(as.numeric(substr(bests$period,1,4)),bests$logmse,type='l')
 resdir = './'
 
 plots=list()
-for(param in c("growthRate","gravityWeight","gravityGamma","gravityDecay")){#,"feedbackWeight","feedbackGamma","feedbackDecay")){
+for(param in c("gravityWeight","gravityGamma","gravityDecay")){#,"growthRate","feedbackWeight","feedbackGamma","feedbackDecay")){
 d = data.frame()
 for(p in periods){
   r=res[[p]];r$period=rep(p,nrow(r))
@@ -49,7 +49,7 @@ for(p in periods){
 g = ggplot(d)
 plots[[param]]=g+geom_point(aes_string(x="logmse",y="mselog",colour=param))+facet_wrap(~period,scales = "free")+scale_colour_gradient(low = "yellow",high="red")+ggtitle(param)
 }
-multiplot(plotlist = plots,cols=2)
+multiplot(plotlist = plots,cols=3)
 #ggsave(file=paste0(resdir,'allperiods_',param,'.pdf'),width = 15,height=10)
 
 
