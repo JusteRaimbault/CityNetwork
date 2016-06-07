@@ -162,6 +162,8 @@ exportGraph<-function(sg,dbname,dbuser){
     e=E(graph)[i]
     vs = V(graph)[ends(graph,e)];o=vs[1];d=vs[2];
     speed=e$speed;type=e$type
+    if(length(speed)==0)speed=90
+    if(length(type)==0)type="primary"
     length=spDistsN1(pts = matrix(c(o$x,o$y),nrow=1),pt = c(d$x,d$y),longlat = TRUE)
     try(dbSendQuery(con,insertEdgeQuery(o,d,length,speed,type)))
   }
