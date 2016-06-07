@@ -17,7 +17,7 @@ densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/d
 latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
 lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 
-tags=c("motorway","trunk","primary","secondary")
+tags=c("motorway","trunk","primary","secondary","tertiary","unclassified")
 roads<-linesWithinExtent(lonmin,latmin,lonmax,latmax,tags)
 #splines = SpatialLines(LinesList = roads$roads)
 #densraster<-raster(extent(splines),nrow=500,ncol=500)

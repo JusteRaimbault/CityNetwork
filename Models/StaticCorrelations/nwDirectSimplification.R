@@ -31,7 +31,7 @@ for(i in 2:length(rows)){
   }
 }
 names(coords)<-c("lonmin","latmax","lonmax","latmin")
-tags=c("motorway","trunk","primary","secondary","tertiary")
+tags=c("motorway","trunk","primary","secondary","tertiary","unclassified","residential")
 
 #library(doParallel)
 #cl <- makeCluster(10)
@@ -40,7 +40,7 @@ tags=c("motorway","trunk","primary","secondary","tertiary")
 #startTime = proc.time()[3]
 
 #res <- foreach(i=1:nrow(coords)) %dopar% {
-for(i in 1:3){#nrow(coords)){
+for(i in 1:2){#nrow(coords)){
   osmdb='centre';dbport=5433
   source('nwSimplFunctions.R')
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]

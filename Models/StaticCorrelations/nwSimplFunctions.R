@@ -20,7 +20,7 @@ linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags){
   
   q = paste0(
     "SELECT ST_AsText(linestring) AS geom,tags::hstore->'maxspeed' AS speed,tags::hstore->'highway' AS type FROM ways",
-    " WHERE ST_Contains(ST_MakeEnvelope(",lonmin,",",latmin,",",lonmax,",",latmax,",4326),","linestring)")
+    " WHERE ST_Intersects(ST_MakeEnvelope(",lonmin,",",latmin,",",lonmax,",",latmax,",4326),","linestring)")
   if(length(tags)>0){
     q=paste0(q," AND (")
     for(i in 1:(length(tags)-1)){q=paste0(q,"tags::hstore->'highway'='",tags[i],"' OR ")}
@@ -154,7 +154,7 @@ exportGraph<-function(sg,dbname,dbuser){
   #graph=sg$graph
   graph=sg
   
-  #dbSendQuery(con,"BEGIN TRANSACTION;")
+  dbGetQuery(con,"BEGIN TRANSACTION;")
   
   E(graph)$speed[which(is.na(E(graph)$speed))]=0
   # first insert graph edges
@@ -165,8 +165,12 @@ exportGraph<-function(sg,dbname,dbuser){
     if(length(speed)==0)speed=90
     if(length(type)==0)type="primary"
     length=spDistsN1(pts = matrix(c(o$x,o$y),nrow=1),pt = c(d$x,d$y),longlat = TRUE)
-    try(dbSendQuery(con,insertEdgeQuery(o,d,length,speed,type)))
+    query=insertEdgeQuery(o,d,length,speed,type)
+    show(query)
+    try(dbSendQuery(con,query))
   }
+  
+  dbCommit(con)
   
   # 
   # sg$edgespeed[which(is.nan(sg$edgespeed))]=0
