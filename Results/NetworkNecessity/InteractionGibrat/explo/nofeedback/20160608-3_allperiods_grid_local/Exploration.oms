@@ -1,0 +1,58 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
+import Model._
+
+// Exploration
+
+val exploration = ExplorationTask (
+  (/*LHS (
+    10000,
+    //growthRate in Range(0.0, 0.1),
+    //gravityWeight in Range(0.0,0.1),
+    gravityGamma in Range(0.2,3.0),
+    gravityDecay in Range(50.0,2000.0),
+    gravityAlpha in Range(0.1,3.0)//,
+    //feedbackWeight in Range(0.0,0.1),
+    //feedbackGamma in Range(0.1,3.0),
+    //feedbackDecay in Range(1.0,500.0)
+  ) x*/
+   (gravityGamma in (0.1 to 3.0 by 0.1))x (gravityDecay in (100.0 to 1500.0 by 100.0)) x (gravityAlpha in (0.1 to 4.0 by 0.1)) x
+   (feedbackWeight is 0.0) x (feedbackGamma is 1.0) x (feedbackDecay is 1.0) x (growthRate is 0.075) x (gravityWeight is 0.005) x 
+   (popFile in Seq( workDirectory / "data" / "pop50.csv")) x
+   (distFile in Seq(workDirectory / "data"/ "dist50.csv")) x
+   (fdistsFile in Seq(workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv"))
+  ) withIndex id
+)
+val purpose = "LHS_LOCAL"
+
+
+/*
+val exploration = ExplorationTask (
+  (LHS (
+    50,
+    feedbackDecay in Range(1.0,500.0)
+  ) withIndex id) x
+   (growthRate in (0.005 to 0.007 by 0.0005))x
+   (gravityGamma in (1.5 to 2.3 by 0.2)) x
+   (gravityDecay in (500.0 to 1500.0 by 200.0)) x
+   (gravityWeight in (0.001 to 0.009 by 0.002))x
+   (feedbackWeight in (0.001 to 0.009 by 0.002))x
+   (feedbackGamma in (0.2 to 1.0 by 0.2))x
+   (popFile in Seq( workDirectory / "data" / "pop50.csv")) x
+   (distFile in Seq(workDirectory / "data"/ "dist50.csv")) x
+   (fdistsFile in Seq(workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv"))
+)
+val purpose = "LHS_GRID_LOCAL"
+*/
+
+val indics_hook = AppendToCSVFileHook(workDirectory / "res" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
+
+
+// Environement
+val local = LocalEnvironment(20)
+//val grid = EGIEnvironment("vo.complex-systems.eu", openMOLEMemory = 2400, wallTime = 24 hours)
+
+
+exploration -< (modelCapsule hook indics_hook on local)
+

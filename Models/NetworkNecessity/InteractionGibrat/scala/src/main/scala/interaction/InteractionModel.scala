@@ -38,7 +38,7 @@ object InteractionModel {
   /**
    *  Run the model
    */
-  def run(growthRate: Double, gravityWeight: Double, gravityGamma: Double, gravityDecay: Double, feedbackWeight: Double, feedbackGamma: Double, feedbackDecay: Double): Matrix = {
+  def run(growthRate: Double, gravityWeight: Double, gravityGamma: Double, gravityDecay: Double, gravityAlpha: Double, feedbackWeight: Double, feedbackGamma: Double, feedbackDecay: Double): Matrix = {
     val n = populationMatrix.getRowDimension()
     val p = populationMatrix.getColumnDimension()
     var res = new Matrix(n, p)
@@ -49,8 +49,13 @@ object InteractionModel {
     //println(distancesMatrix.get(2, 3))
     // mutate potential distances matrices with exp and constants
     // in place mutation DOES NOT WORK
-    distancesMatrix = new Matrix(distancesMatrix.getArray().map { _.map { d => Math.exp(-d / gravityDecay) } })
-    feedbackDistancesMatrix = new Matrix(feedbackDistancesMatrix.getArray().map { _.map { d => Math.exp(-d / feedbackDecay) } })
+    //if (gravityAlpha == 0) {
+    val gravityDistanceWeights = new Matrix(distancesMatrix.getArray().map { _.map { d => Math.exp(-d / gravityDecay) } })
+    /*} else {
+      setDiag(distancesMatrix, 1.0)
+      distancesMatrix = new Matrix(distancesMatrix.getArray().map { _.map { d => Math.pow(gravityDecay / d, gravityAlpha) } })
+    }*/
+    val feedbackDistanceWeights = new Matrix(feedbackDistancesMatrix.getArray().map { _.map { d => Math.exp(-d / feedbackDecay) } })
 
     //println("mean dist mat : " + distancesMatrix.getArray().flatten.sum / (distancesMatrix.getRowDimension() * distancesMatrix.getColumnDimension()))
     //println("mean feedback mat : " + feedbackDistancesMatrix.getArray().flatten.sum / (feedbackDistancesMatrix.getRowDimension() * feedbackDistancesMatrix.getColumnDimension()))
@@ -63,8 +68,8 @@ object InteractionModel {
       diagpops = new Matrix(diagpops.getArray().map { _.map { Math.pow(_, gravityGamma) } })
       //println("mean norm pop : " + diagpops.getArray().flatten.sum / (n * n))
       diagpopsFeedback = new Matrix(diagpopsFeedback.getArray().map { _.map { Math.pow(_, feedbackGamma) } })
-      val potsgravity = diagpops.times(distancesMatrix).times(diagpops)
-      val potsfeedback = feedbackDistancesMatrix.times(flattenPot(diagpopsFeedback))
+      val potsgravity = diagpops.times(gravityDistanceWeights).times(diagpops)
+      val potsfeedback = feedbackDistanceWeights.times(flattenPot(diagpopsFeedback))
       setDiag(potsgravity, 0); //setDiag(potsfeedback, 0)
       val meanpotgravity = potsgravity.getArray().flatten.sum / (n * n)
       val meanpotfeedback = potsfeedback.getArray().flatten.sum / n
