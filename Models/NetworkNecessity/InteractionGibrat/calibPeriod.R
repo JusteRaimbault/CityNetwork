@@ -1,7 +1,9 @@
 
 # results of calibration by period for InteractionGibrat model
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/calibration_20160607-nofeedback-biobj-1_grid/'))
+#setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/calibration_20160607-nofeedback-biobj-1_grid/'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/all/nogravity/20160608_nogravity/'))
+
 
 library(ggplot2)
 
@@ -40,14 +42,15 @@ plot(as.numeric(substr(bests$period,1,4)),bests$logmse,type='l')
 resdir = './'
 
 plots=list()
-for(param in c("growthRate","gravityWeight","gravityGamma","gravityDecay")){#,"growthRate","feedbackWeight","feedbackGamma","feedbackDecay")){
-d = data.frame()
-for(p in periods){
-  r=res[[p]];r$period=rep(p,nrow(r))
-  d=rbind(d,r)
-}
+for(param in c("growthRate","feedbackWeight","feedbackGamma","feedbackDecay")){#"growthRate","gravityWeight","gravityGamma","gravityDecay")){#,
+#d = data.frame()
+#for(p in periods){
+#  r=res[[p]];r$period=rep(p,nrow(r))
+#  d=rbind(d,r)
+#}
 g = ggplot(d)
-plots[[param]]=g+geom_point(aes_string(x="logmse",y="mselog",colour=param))+facet_wrap(~period,scales = "free")+scale_colour_gradient(low = "yellow",high="red")+ggtitle(param)
+plots[[param]]=g+geom_point(aes_string(x="logmse",y="mselog",colour=param))+#facet_wrap(~period,scales = "free")+
+  scale_colour_gradient(low = "yellow",high="red")+ggtitle(param)
   #scale_colour_gradient2(midpoint=1000)#colours=c("yellow","orange","red"),values=c(0.0,1000,100000))#
 }
 multiplot(plotlist = plots,cols=2)

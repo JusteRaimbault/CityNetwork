@@ -4,9 +4,9 @@
 library(dplyr)
 library(ggplot2)
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/explo/feedbackonly/20160608-1_allperiods_grid_local'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/explo/fixedgravity/20160609-1_allperiods_gridlocal'))
 
-res <- as.tbl(read.csv('data/2016_06_08_20_01_49_LHS_GRID_LOCAL.csv'))
+res <- as.tbl(read.csv('data/2016_06_09_12_21_28_LHS_GRID_LOCAL_alpha04.csv'))
 
 #
 #m = lm(logmse~gravityDecay+gravityGamma+gravityWeight+growthRate,res)
@@ -32,9 +32,9 @@ multiplot(plotlist = plots,cols=3)
 #res$rate=res$gravityWeight/res$growthRate
 #p1="rate";p2="gravityDecay";p3="gravityGamma";p4="growthRate";err="mselog"
 res$rate=res$feedbackWeight/res$growthRate
-p2="rate";p1="feedbackDecay";p3="feedbackGamma";p4="growthRate";err="mselog"
+p1="rate";p2="feedbackDecay";p3="feedbackGamma";p4="growthRate";err="logmse"
 g=ggplot(res)#[abs(res$growthRate-0.071)<0.0001,])#res[res$growthRate==0.07|res$growthRate==0.06,])
-g+geom_line(aes_string(x=p1,y=err,colour=p2,group=p2))#+facet_grid(paste0(p3,"~",p4),scales="free")#)))+stat_smooth()#+facet_wrap(~gravityGamma,scales = "free")
+g+geom_line(aes_string(x=p1,y=err,colour=p2,group=p2),alpha=0.7)#+facet_grid(paste0(p3,"~",p4),scales="free")#)))+stat_smooth()#+facet_wrap(~gravityGamma,scales = "free")
 
 
 
