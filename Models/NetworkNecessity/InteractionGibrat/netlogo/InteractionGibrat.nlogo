@@ -25,7 +25,8 @@ __includes [
    
    "utils/File.nls"
    "utils/String.nls"
-  
+   "utils/Matrix.nls"
+    
 ]
 
 
@@ -45,9 +46,12 @@ globals [
   real-populations
   
   ;;
-  ; distance matrix
+  ; distance matrices
   distance-matrix
+  feedback-distance-matrix
   
+  gravity-weights
+  feedback-weights
   
    
 ]
@@ -270,7 +274,7 @@ BUTTON
 224
 64
 go full period
-go-full-period
+go-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
 NIL
 1
 T

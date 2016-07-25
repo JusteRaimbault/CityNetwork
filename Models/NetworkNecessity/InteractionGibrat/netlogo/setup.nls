@@ -72,6 +72,18 @@ to setup-data
   set populations matrix:make-constant length matrix:get-column real-populations 0 length matrix:get-row real-populations 0 0
   matrix:set-column populations 0 matrix:get-column real-populations 0
   
+  ;; distances
+  set distance-matrix read-numeric-csv-as-matrix "setup/dist50.csv" ","
+  set feedback-distance-matrix read-numeric-csv-as-matrix "setup/fdists50.csv" ","
+  
+  ;; weights
+  set gravity-weights matrix:map [exp (- ? / gravity-decay)] distance-matrix
+  set feedback-weights matrix:map [exp (- ? / feedback-decay)] feedback-distance-matrix
+  
+  ;; dates
+  set dates read-file "setup/dates.csv"
+  
+  
 end
 
 

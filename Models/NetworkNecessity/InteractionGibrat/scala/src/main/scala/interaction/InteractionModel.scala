@@ -120,6 +120,12 @@ object InteractionModel {
     }
   }
 
+
+
+
+  /**
+  *  THIS CODE IS HORRIBLE TO READ - MUST COMMENT IT OR AT LEAST A BIT MORE EXPLICIT
+  */
   def flattenPot(m: Matrix): Matrix = {
     val n = m.getRowDimension()
     val res = new Matrix(n * (n - 1) / 2, 1)
