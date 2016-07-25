@@ -1,5 +1,5 @@
 
-extensions [gis matrix table gradient]
+extensions [gis matrix table gradient nw]
 
 __includes [
   
@@ -55,6 +55,11 @@ globals [
   gravity-weights
   feedback-weights
   
+  
+  ;;
+  ; shortest paths params
+  alpha0
+  n0
    
 ]
 
@@ -87,8 +92,9 @@ breed [nodes node]
 
 undirected-link-breed [paths path]
 
-
-
+paths-own [
+  impedance 
+]
 
 
 
@@ -105,11 +111,11 @@ undirected-link-breed [paths path]
 GRAPHICS-WINDOW
 345
 20
-961
-657
-50
-50
-6.0
+958
+654
+100
+100
+3.0
 1
 10
 1
@@ -119,10 +125,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--50
-50
--50
-50
+-100
+100
+-100
+100
 0
 0
 1
@@ -302,6 +308,40 @@ current-date
 17
 1
 11
+
+BUTTON
+983
+419
+1094
+452
+random path
+ask one-of nodes [let p nw:weighted-path-to one-of other nodes \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1095
+419
+1158
+452
+clear
+ask paths [set hidden? true]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

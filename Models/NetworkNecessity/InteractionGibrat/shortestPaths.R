@@ -12,7 +12,7 @@ library(igraph)
 library(Matrix)
 
 mnt <- merge(raster(paste0(Sys.getenv('CN_HOME'),'/Data/BDALTI/BDALTIV2_1000M_FXX_0000_6900_MNT_LAMB93_IGN69.asc')),raster(paste0(Sys.getenv('CN_HOME'),'/Data/BDALTI/BDALTIV2_1000M_FXX_0000_8050_MNT_LAMB93_IGN69.asc')))
-writeRaster(x = mnt,filename =paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/data/mnt.asc'))
+#writeRaster(x = mnt,filename =paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/data/mnt.asc'))
 #crs(mnt)<-CRS("+init=epsg:2154") #Lambert 93
 # 
 

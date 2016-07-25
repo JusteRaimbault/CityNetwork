@@ -38,12 +38,13 @@ to reset
   setup-globals
   setup-data
   setup-display
+  reset-ticks
 end
 
 
 
 to setup-globals
-  
+  set alpha0 3 set n0 3
 end
 
 
@@ -52,15 +53,22 @@ to setup-world
   ;;
   ; raster patch elevation (for visual only)
   let elevation-raster gis:load-dataset "setup/mnt.asc"
-  gis:set-world-envelope gis:envelope-of elevation-raster
+  ; world envelope : xmin 1000 xmax 11000 ymin 61250 ymax 71200
+  ;gis:set-world-envelope gis:envelope-of elevation-raster
+  gis:set-world-envelope (list 100000 1100000 6125000 7120000)
   gis:apply-raster elevation-raster elevation
   ; deal with NaNs
   ask patches with [not (elevation < 0 or elevation > 0)] [set elevation -1]
   
   ;;
   ; setup geographical path network
-  ask patches with [elevation > 0] [sprout-nodes 1]
-  ask nodes [create-paths-with other nodes in-radius 1.5 with [not link-neighbor? myself]]
+  ask patches with [elevation > 0] [sprout-nodes 1 [set hidden? true]]
+  ask nodes [create-paths-with other nodes in-radius 1.5 with [not link-neighbor? myself] [
+      set hidden? true
+      let slope atan (abs ([elevation] of end1 - [elevation] of end2)) (link-length * 1000)
+      set impedance link-length * (1 + (slope / alpha0)^ n0)
+    ]
+  ]
   
 end
 
