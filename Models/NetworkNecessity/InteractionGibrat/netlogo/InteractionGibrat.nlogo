@@ -310,10 +310,10 @@ current-date
 11
 
 BUTTON
-983
-419
-1094
-452
+973
+409
+1084
+442
 random path
 ask one-of nodes [let p nw:weighted-path-to one-of other nodes \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]
 NIL
@@ -327,12 +327,29 @@ NIL
 1
 
 BUTTON
-1095
-419
-1158
-452
+1085
+409
+1148
+442
 clear
 ask paths [set hidden? true]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+973
+445
+1084
+478
+random path cities
+ask one-of cities [let c2 one-of other cities let n2 [one-of nodes-here] of c2 ask one-of nodes-here [let p nw:weighted-path-to n2 \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]]
 NIL
 1
 T

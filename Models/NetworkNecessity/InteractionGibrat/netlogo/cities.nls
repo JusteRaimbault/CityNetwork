@@ -4,12 +4,17 @@
 
 to new-city
   set shape "circle" set color red
-  set size ln population / 10
+  set size ln population
+  set label name
 end
 
 to set-coords-l93 [x y]
-  setxy random-xcor random-ycor
+  ;setxy random-xcor random-ycor
   
-  ; TODO : conversion lambert93 -> world coordinates
-  ;let xx (max-pxcor - min-pxcor)
+  ; conversion lambert93 -> world coordinates
+  ;  100000 1100000 6125000 7120000
+  let l93xmin 850 let l93xmax 11000 let l93ymin 60750 let l93ymax 72000
+  let xx min-pxcor + ((max-pxcor - min-pxcor) * (x - l93xmin) / (l93xmax - l93xmin))
+  let yy min-pycor + ((max-pycor - min-pycor) * (y - l93ymin) / (l93ymax - l93ymin))
+  setxy xx yy
 end
