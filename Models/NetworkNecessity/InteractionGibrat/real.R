@@ -34,6 +34,9 @@ periods = list("1831-1851"=1:5,"1841-1861"=3:7,"1851-1872"=5:9,"1861-1881"=7:11,
 #write.table(data.frame(as.matrix(dists)),file=paste0('data/distMat_Ncities',Ncities,'_alpha0',alpha0,'_n0',n0,'.csv'),col.names = FALSE,row.names = FALSE,sep=',')
 #
 
+# names and coordinates
+write.table(cities[,1:3],file="data/coords.csv",col.names=FALSE,row.names=FALSE,sep=',',quote = FALSE)
+
 ##
 #gammaGravity = 1.027532
 #decayGravity = 462.5228

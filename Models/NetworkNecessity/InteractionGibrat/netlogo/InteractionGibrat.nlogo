@@ -3,9 +3,18 @@ extensions [gis matrix table gradient]
 
 __includes [
   
+   ;;;
+   ; setup
    "setup.nls"
    
+   ;;;
+   ; main
    "main.nls"
+ 
+   ;;;
+   ; indicators
+   "indicators.nls"
+ 
  
  
    "display.nls"
@@ -24,8 +33,16 @@ __includes [
 globals [
   
   ;;
+  ; dates
+  dates
+  
+  ;;
   ; matrix of cities population in time
   populations
+  
+  ;;
+  ; corresponding real populations
+  real-populations
   
   ;;
   ; distance matrix
@@ -73,16 +90,15 @@ cities-own [
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
-10
-1028
-849
+345
+20
+961
+657
 50
 50
-8.0
+6.0
 1
 10
 1
@@ -103,10 +119,10 @@ ticks
 30.0
 
 BUTTON
-11
-20
-77
-53
+17
+14
+83
+47
 setup
 setup
 NIL
@@ -118,6 +134,163 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+69
+269
+203
+302
+growth-rate
+growth-rate
+1
+1.1
+1.05
+0.01
+1
+NIL
+HORIZONTAL
+
+OUTPUT
+1006
+484
+1390
+693
+10
+
+SLIDER
+10
+312
+144
+345
+gravity-weight
+gravity-weight
+0
+1
+0.05
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+10
+349
+144
+382
+gravity-gamma
+gravity-gamma
+0.5
+5
+2
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+10
+386
+144
+419
+gravity-decay
+gravity-decay
+1
+1000
+100
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+162
+312
+303
+345
+feedback-weight
+feedback-weight
+0
+1
+0.05
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+162
+350
+304
+383
+feedback-gamma
+feedback-gamma
+0
+5
+2
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+162
+388
+304
+421
+feedback-decay
+feedback-decay
+0
+200
+50
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+18
+54
+84
+87
+reset
+reset
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+110
+31
+224
+64
+go full period
+go-full-period
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+984
+23
+1041
+68
+date
+current-date
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
