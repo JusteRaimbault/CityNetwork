@@ -59,7 +59,8 @@ to setup-world
   
   ;;
   ; setup geographical path network
-  
+  ask patches with [elevation > 0] [sprout-nodes 1]
+  ask nodes [create-paths-with other nodes in-radius 1.5 with [not link-neighbor? myself]]
   
 end
 
@@ -88,6 +89,14 @@ end
 
 
 to setup-cities
+  
+  let coords read-csv "setup/coords.csv" ","
+  let i 0
+  foreach coords [
+    let cname first ? let x read-from-string item 1 ? let y read-from-string last ?
+    create-cities 1 [set name cname set-coords-l93 x y set index i set population matrix:get real-populations i 0]
+    set i i + 1 
+  ]
   
 end
 

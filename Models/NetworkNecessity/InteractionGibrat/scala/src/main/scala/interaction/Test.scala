@@ -15,10 +15,10 @@ object Test extends App {
     val fdists = new File("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/NetworkNecessity/InteractionGibrat/data/distMat_Ncities50_alpha03_n03.csv")
     InteractionModel.setup(pop, dists, fdists)
     var res: Matrix = null
-    for (decay <- 10.0 to 200.0 by 10.0) {
-      println(decay)
-      res = InteractionModel.run(0.06, 0.0, 1.0, 1000, 0.0, 0.2, 1.0, decay)
-      /*for (t <- 0 to res.getColumnDimension() - 1) { println(res.get(0, t)) }
+    //for (decay <- 10.0 to 200.0 by 10.0) {
+    //  println(decay)
+    res = InteractionModel.run(0.02, 0.05, 2.0, 100.0, 2.0, 0.05, 2.0, 50.0)
+    /*for (t <- 0 to res.getColumnDimension() - 1) { println(res.get(0, t)) }
     val real = InteractionModel.populationMatrix.copy()
 
     val logres = new Matrix(res.getArray().map { _.map { d => Math.log(d) } })
@@ -26,9 +26,9 @@ object Test extends App {
     val sqdiff = logres.minus(logreal).arrayTimes(logres.minus(logreal))
     println(sqdiff.getArray().flatten.sum)
     */
-      println(InteractionModel.logmse(res))
-      println(InteractionModel.mselog(res))
-    }
+    println(InteractionModel.logmse(res))
+    println(InteractionModel.mselog(res))
+    //}
   }
 
   def testLauncher() = {
@@ -37,14 +37,14 @@ object Test extends App {
     val fdists = new File("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/NetworkNecessity/InteractionGibrat/data/distMat_Ncities50_alpha03_n03.csv")
 
     for (decay <- 10.0 to 200.0 by 10.0) {
-      ModelLauncher.main(pop, dists, fdists, 0.06, 0.0, 1.0, 1000, 0.0, 0.2, 1.0, decay, 1)
+      ModelLauncher.main(pop, dists, fdists, 0.02, 0.0, 1.0, 1000, 0.0, 0.2, 1.0, decay, 1)
       println(ModelLauncher.logmse)
-      //println(ModelLauncher.mselog)
+      println(ModelLauncher.mselog)
     }
   }
 
   //testMatrix()
-  //testRun
-  testLauncher
+  testRun
+  //testLauncher
 
 }

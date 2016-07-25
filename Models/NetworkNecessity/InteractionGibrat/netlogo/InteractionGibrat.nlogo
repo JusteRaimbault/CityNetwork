@@ -11,6 +11,8 @@ __includes [
    ; main
    "main.nls"
  
+   "cities.nls"
+ 
    ;;;
    ; indicators
    "indicators.nls"
@@ -75,10 +77,15 @@ cities-own [
   ; current population
   population
   
+  ; row index in pop matrix
+  index
   
 ]
 
 
+breed [nodes node]
+
+undirected-link-breed [paths path]
 
 
 
@@ -146,9 +153,9 @@ SLIDER
 302
 growth-rate
 growth-rate
-1
-1.1
-1.05
+0
+0.1
+0.02
 0.01
 1
 NIL
