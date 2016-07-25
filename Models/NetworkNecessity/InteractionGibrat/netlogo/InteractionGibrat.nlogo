@@ -1,5 +1,5 @@
 
-extensions [gis matrix table]
+extensions [gis matrix table gradient]
 
 __includes [
   
@@ -7,6 +7,8 @@ __includes [
    
    "main.nls"
  
+ 
+   "display.nls"
  
    ;;;;;
    ;; utils
@@ -32,33 +34,90 @@ globals [
   
    
 ]
+
+
+
+patches-own [
+ 
+  elevation
+  
+]
+
+
+breed [cities city]
+
+cities-own [
+  
+  ; name
+  name
+  
+  ; current population
+  population
+  
+  
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-649
-470
-16
-16
-13.0
+1028
+849
+50
+50
+8.0
 1
 10
 1
 1
 1
 0
+0
+0
 1
-1
-1
--16
-16
--16
-16
+-50
+50
+-50
+50
 0
 0
 1
 ticks
 30.0
+
+BUTTON
+11
+20
+77
+53
+setup
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

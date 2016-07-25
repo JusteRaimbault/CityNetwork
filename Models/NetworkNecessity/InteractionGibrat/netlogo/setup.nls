@@ -12,6 +12,10 @@ to setup
   setup-data
   
   
+  
+  setup-display
+  
+  
 end
 
 
@@ -23,11 +27,30 @@ end
 
 to setup-world
   
+  ;;
+  ; raster patch elevation (for visual only)
+  let elevation-raster gis:load-dataset "setup/mnt.asc"
+  gis:set-world-envelope-ds gis:envelope-of elevation-raster
+  gis:apply-raster elevation-raster elevation
+  ; deal with NaNs
+  ask patches with [not (elevation < 0 or elevation > 0)] [set elevation -1]
+  
 end
 
 
 ;;
 ; load data from files
 to setup-data
-  
+  ask cities []
 end
+
+
+
+to setup-display
+  color-patches
+end
+
+
+
+
+
