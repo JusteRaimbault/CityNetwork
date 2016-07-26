@@ -4,29 +4,68 @@ import java.util.Date
 import Model._
 
 // Exploration
-val exploration = ExplorationTask (
-  (LHS (
-    420000,
-    growthRate in Range(0.0005, 0.007),
-    gravityWeight in Range(0.0001,0.01),
-    gravityGamma in Range(0.2,3.0),
-    gravityDecay in Range(50.0,2000.0),
-    feedbackWeight in Range(0.0001,0.01),
-    feedbackGamma in Range(0.2,3.0),
-    feedbackDecay in Range(1.0,500.0)
-  ) withIndex id) x
-   (popFile in Seq( workDirectory / "data" / "pop50.csv")) x
-   (distFile in Seq(workDirectory / "data"/ "dist50.csv")) x
-   (fdistsFile in Seq(workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv"))
-)
-val purpose = "LHS_LOCAL"
 
+//val periods
+
+
+val exploration = ExplorationTask (
+  (/*LHS (
+    100,
+    //growthRate in Range(0.0, 0.1),
+    //gravityWeight in Range(0.0,0.1),
+    //gravityGamma in Range(0.2,3.0),
+    gravityDecay in Range(50.0,2000.0)//,
+    //gravityAlpha in Range(0.1,3.0)//,
+    //feedbackWeight in Range(0.0,0.1),
+    //feedbackGamma in Range(0.1,3.0),
+    //feedbackDecay in Range(1.0,500.0)
+  ) x */
+   (growthRate in (0.005 to 0.02 by 0.005))x
+   (gravityWeight in (0.001 to 0.01 by 0.001))x
+   (gravityGamma in (0.5 to 1.5 by 0.2))x
+   (gravityDecay in (100.0 to 1500.0 by 10.0)) x
+   (gravityAlpha is 0.0) x //in (0.1 to 4.0 by 0.1)) x
+   (feedbackWeight is 0.0)x//in (0.2 to 0.4 by 0.025)) x 
+   (feedbackGamma is 1.0)x//in (0.2 to 2.0 by 0.2)) x 
+   (feedbackDecay is 1.0) x 
+   (popFile is workDirectory / "data" / "pop50.csv") x
+   (distFile is workDirectory / "data"/ "dist50.csv") x
+   (fdistsFile is workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv")x
+   (dateFile is workDirectory / "data" / "dates.csv")
+  ) withIndex id
+)
+val purpose = "GRID_NOFEEDBACK_LOCAL"
+
+
+/*
+val exploration = ExplorationTask (
+  (/*LHS (
+    100,
+    gravityDecay in Range(100.0,2000.0)
+  ) withIndex id) x
+   (growthRate in (0.00001 to 0.1 by 0.00001))x
+   (gravityWeight is 0.0) x//in (0.0001 to 0.006 by 0.00025))x
+   (gravityGamma is 3.054977) x//in (0.5 to 0.9 by 0.1)) x
+   (gravityDecay is 1994.165) x //in (100.0 to 2000.0 by 50.0)) x
+   (gravityAlpha is 0.0) x
+   (feedbackWeight is 0.0) x//in (0.0 to 0.6 by 0.005))x
+   (feedbackGamma is 0.3) x//in (0.2 to 1.0 by 0.2))x
+   (feedbackDecay is 1.0) x//in (0.1 to 10.0 by 0.1)) x
+   //(feedbackDecay in (0.0 to 200.0 by 10.0)) x
+   (popFile is workDirectory / "data" / "pop50.csv") x
+   (distFile is workDirectory / "data"/ "dist50.csv") x
+   (fdistsFile is workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv") x
+   (dateFile is workDirectory / "data" / "dates.csv")
+  ) withIndex id
+)
+val purpose = "LHS_GRID_LOCAL"
+*/
 
 val indics_hook = AppendToCSVFileHook(workDirectory / "res" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
 
 
 // Environement
-val local = LocalEnvironment(15)
+val local = LocalEnvironment(30)
 //val grid = EGIEnvironment("vo.complex-systems.eu", openMOLEMemory = 2400, wallTime = 24 hours)
 
 

@@ -27,15 +27,12 @@ to go
   ; update agent cities pop
   update-populations
   
+  ; display
+  update-display
+  
 end
 
 
-
-to update-populations
-  ask cities [
-    set population matrix:get populations index ticks 
-  ]
-end
 
 
 
@@ -46,6 +43,7 @@ to compute-populations
   
   ; current time
   let t ticks
+  let delta_t item t dates - item (t - 1) dates
   
   ; previous populations as list
   let prev-populations matrix:get-column populations (t - 1)
@@ -60,7 +58,7 @@ to compute-populations
   let mean-pot-feedback (matrix:sum pots-feedback) / n
   
   ;; current populations
-  let current-populations matrix:times-element-wise (matrix:as-column-matrix prev-populations) (((matrix:make-constant n 1 (1 + growth-rate)) matrix:+ (matrix:times-scalar (matrix:times pots-gravity (matrix:make-constant n 1 1)) (gravity-weight / (n * mean-pot-gravity)))) matrix:+ (matrix:times-scalar pots-feedback (2 * feedback-weight / (n * (n - 1) * mean-pot-feedback))))
+  let current-populations matrix:times-scalar (matrix:times-element-wise (matrix:as-column-matrix prev-populations) (((matrix:make-constant n 1 (1 + growth-rate)) matrix:+ (matrix:times-scalar (matrix:times pots-gravity (matrix:make-constant n 1 1)) (gravity-weight / (n * mean-pot-gravity)))) matrix:+ (matrix:times-scalar pots-feedback (2 * feedback-weight / (n * (n - 1) * mean-pot-feedback))))) delta_t
   
   matrix:set-column populations t map [first ?] matrix:to-row-list current-populations
   

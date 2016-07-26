@@ -24,12 +24,14 @@ object InteractionModel {
   var populationMatrix: Matrix = null
   var distancesMatrix: Matrix = null
   var feedbackDistancesMatrix: Matrix = null
+  var dates: Array[Double] = null
 
   // setup matrices
-  def setup(populations: File, distances: File, feedbackDistances: File) = {
+  def setup(populations: File, distances: File, feedbackDistances: File, datesFile: File) = {
     populationMatrix = parseMatrixFile(populations)
     distancesMatrix = parseMatrixFile(distances)
     feedbackDistancesMatrix = parseMatrixFile(feedbackDistances)
+    dates = parseSimple(datesFile)
 
     //for (t <- 0 to feedbackDistancesMatrix.getColumnDimension() - 1) { print(feedbackDistancesMatrix.get(0, t) + " ; ") }
 
@@ -61,6 +63,10 @@ object InteractionModel {
     //println("mean feedback mat : " + feedbackDistancesMatrix.getArray().flatten.sum / (feedbackDistancesMatrix.getRowDimension() * feedbackDistancesMatrix.getColumnDimension()))
 
     for (t <- 1 to p - 1) {
+      // get time between two dates
+      val delta_t = dates(t) - dates(t - 1)
+      //println(delta_t)
+
       val prevpop = res.getMatrix(0, n - 1, t - 1, t - 1).copy()
       val totalpop = prevpop.getArray().flatten.sum
       var diagpops = diag(prevpop).times(1 / totalpop)
@@ -78,9 +84,9 @@ object InteractionModel {
       //val flatpot = flattenPot(potsfeedback)
 
       res.setMatrix(0, n - 1, t, t,
-        prevpop.arrayTimes(potsgravity.times(new Matrix(n, 1, 1)).times(gravityWeight / (n * meanpotgravity)).plus(new Matrix(n, 1, 1 + growthRate)).plus(
+        prevpop.plus(prevpop.arrayTimes(potsgravity.times(new Matrix(n, 1, 1)).times(gravityWeight / (n * meanpotgravity)).plus(new Matrix(n, 1, growthRate)).plus(
           potsfeedback.times(2 * feedbackWeight / (n * (n - 1) * meanpotfeedback))
-        ))
+        ).times(delta_t)))
       )
 
     }
@@ -139,15 +145,29 @@ object InteractionModel {
   }
 
   def parseMatrixFile(f: File) = {
+    new Matrix(parseCSV(f, ","))
+  }
+
+  def parseCSV(f: File, delimiter: String) = {
     val reader = new BufferedReader(new FileReader(f))
     var currentLine = reader.readLine()
-    var res = List((currentLine.split(",").map { s => s.toDouble })) //= new List[Array[Double]] {}
+    var res = List((currentLine.split(delimiter).map { s => s.toDouble })) //= new List[Array[Double]] {}
     while (currentLine != null) {
-      //res = res + ({ 0; 0 }) //(currentLine.split(",").map { s => s.toDouble })
       currentLine = reader.readLine()
-      if (currentLine != null) res = res :+ (currentLine.split(",").map { s => s.toDouble }) //+: res
+      if (currentLine != null) res = res :+ (currentLine.split(delimiter).map { s => s.toDouble }) //+: res
     }
-    new Matrix(res.toArray)
+    res.toArray
+  }
+
+  def parseSimple(f: File) = {
+    val reader = new BufferedReader(new FileReader(f))
+    var currentLine = reader.readLine()
+    var res = List(currentLine.toDouble)
+    while (currentLine != null) {
+      currentLine = reader.readLine()
+      if (currentLine != null) res = res :+ currentLine.toDouble
+    }
+    res.toArray
   }
 
 }

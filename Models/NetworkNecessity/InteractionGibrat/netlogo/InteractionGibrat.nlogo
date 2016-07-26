@@ -28,6 +28,7 @@ __includes [
    "utils/File.nls"
    "utils/String.nls"
    "utils/Matrix.nls"
+   "utils/List.nls"
     
 ]
 
@@ -85,6 +86,14 @@ cities-own [
   ; row index in pop matrix
   index
   
+  ; history of population
+  population-history
+  expected-population-history ; convenience variable
+  
+  current-mse
+  
+  color-var
+   
 ]
 
 
@@ -95,7 +104,6 @@ undirected-link-breed [paths path]
 paths-own [
   impedance 
 ]
-
 
 
 
@@ -136,10 +144,10 @@ ticks
 30.0
 
 BUTTON
-17
-14
-83
-47
+18
+15
+84
+48
 setup
 setup
 NIL
@@ -160,9 +168,9 @@ SLIDER
 growth-rate
 growth-rate
 0
-0.1
-0.02
-0.01
+0.05
+0.0020
+0.001
 1
 NIL
 HORIZONTAL
@@ -182,9 +190,9 @@ SLIDER
 gravity-weight
 gravity-weight
 0
-1
-0.05
-0.01
+0.1
+0.0050
+0.001
 1
 NIL
 HORIZONTAL
@@ -227,9 +235,9 @@ SLIDER
 feedback-weight
 feedback-weight
 0
-1
-0.05
-0.01
+0.1
+0.0050
+0.001
 1
 NIL
 HORIZONTAL
@@ -349,8 +357,8 @@ BUTTON
 1084
 478
 random path cities
-ask one-of cities [let c2 one-of other cities let n2 [one-of nodes-here] of c2 ask one-of nodes-here [let p nw:weighted-path-to n2 \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]]
-NIL
+ask one-of cities [let c2 one-of other cities let n2 [one-of nodes with-min [distance myself]] of c2 ask one-of nodes with-min [distance myself] [let p nw:weighted-path-to n2 \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]]
+T
 1
 T
 OBSERVER
@@ -359,6 +367,16 @@ NIL
 NIL
 NIL
 1
+
+CHOOSER
+975
+83
+1113
+128
+visualization
+visualization
+"mse" "mse-log"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

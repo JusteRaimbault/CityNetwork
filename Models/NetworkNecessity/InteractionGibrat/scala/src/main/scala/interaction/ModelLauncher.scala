@@ -9,7 +9,7 @@ object ModelLauncher {
   var logmse: Double = 0
   var mselog: Double = 0
 
-  def main(populations: File, distances: File, feedbackDistances: File,
+  def main(populations: File, distances: File, feedbackDistances: File, fdates: File,
     gr: Double, gw: Double, gg: Double, gd: Double, ga: Double,
     fw: Double, fg: Double, fd: Double,
     replication: Int): Matrix = {
@@ -30,7 +30,7 @@ object ModelLauncher {
       override def feedbackDistances: File = fdists
     }*/
 
-    InteractionModel.setup(populations, distances, feedbackDistances)
+    InteractionModel.setup(populations, distances, feedbackDistances, fdates)
     return InteractionModel.run(gr, gw, gg, gd, ga, fw, fg, fd)
 
     //logmse = InteractionModel.logmse(pop)
