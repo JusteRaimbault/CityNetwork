@@ -4,9 +4,9 @@
 library(dplyr)
 library(ggplot2)
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/explo/fixedgravity/20160609-1_allperiods_gridlocal'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/exploration/test'))
 
-res <- as.tbl(read.csv('data/2016_06_09_12_21_28_LHS_GRID_LOCAL_alpha04.csv'))
+res <- as.tbl(read.csv('2016_07_26_15_24_19_LHS_GRID_LOCAL.csv'))
 
 #
 #m = lm(logmse~gravityDecay+gravityGamma+gravityWeight+growthRate,res)
