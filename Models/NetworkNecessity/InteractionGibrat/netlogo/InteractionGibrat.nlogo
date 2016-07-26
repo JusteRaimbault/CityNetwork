@@ -169,7 +169,7 @@ growth-rate
 growth-rate
 0
 0.05
-0.0020
+0.0040
 0.001
 1
 NIL
@@ -191,7 +191,7 @@ gravity-weight
 gravity-weight
 0
 0.1
-0.0050
+0.0010
 0.001
 1
 NIL
@@ -236,7 +236,7 @@ feedback-weight
 feedback-weight
 0
 0.1
-0.0050
+0
 0.001
 1
 NIL
@@ -376,7 +376,7 @@ CHOOSER
 visualization
 visualization
 "mse" "mse-log"
-0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
