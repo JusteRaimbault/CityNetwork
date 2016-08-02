@@ -1,0 +1,54 @@
+
+;;
+; cities
+
+
+
+
+
+to update-populations
+  ask cities [
+    set population matrix:get populations index ticks 
+    ; update histories
+    set population-history lput population population-history
+    set expected-population-history lput matrix:get real-populations index ticks expected-population-history
+    set current-mse city-mse
+  ]
+end
+
+
+
+
+;;
+; current mse on past
+to-report city-mse
+  let d list:minus population-history expected-population-history
+  report sum list-times-element-wise d d
+end
+
+to-report city-mse-log
+  let d list:minus map [ln ?] population-history map [ln ?] expected-population-history
+  report sum list-times-element-wise d d
+end
+
+
+to new-city
+  set shape "circle" set color red
+  set size ln population
+  set label name
+  set population-history (list population) set expected-population-history (list population)
+end
+
+to set-coords-l93 [x y]
+  ;setxy random-xcor random-ycor
+  
+  ; conversion lambert93 -> world coordinates - LAMBERT II ?
+  ;  100000 1100000 6125000 7120000
+  let l93xmin 825 let l93xmax 10200 let l93ymin 16700 let l93ymax 27000
+  let xx min-pxcor + ((max-pxcor - min-pxcor) * (x - l93xmin) / (l93xmax - l93xmin))
+  let yy min-pycor + ((max-pycor - min-pycor) * (y - l93ymin) / (l93ymax - l93ymin))
+  setxy xx yy
+end
+
+
+

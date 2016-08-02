@@ -1,0 +1,36 @@
+import Model._
+
+val local = LocalEnvironment(20)
+
+val periods = Seq("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911","1921-1936","1946-1968","1962-1982","1975-1990")
+
+//def calib(i: Int) = {
+
+val period=periods(8)
+val filename = s"pop50_${period}.csv"
+  
+  // very strange behavior with files, should investigate that.
+  
+  val exploration = ExplorationTask(
+    (popFile in Seq( workDirectory / "data" / "pops" / filename))x//,workDirectory / "data" / "pops" / "pop50_1841-1861.csv",workDirectory / "data" / "pops" / "pop50_1851-1872.csv",workDirectory / "data" / "pops" / "pop50_1881-1901.csv",workDirectory / "data" / "pops" / "pop50_1891-1911.csv",workDirectory / "data" / "pops" / "pop50_1921-1936.csv",workDirectory / "data" / "pops" / "pop50_1946-1968.csv",workDirectory / "data" / "pops" / "pop50_1962-1982.csv",workDirectory / "data" / "pops" / "pop50_1975-1990.csv") ) x //"pops" / filename) x
+    (distFile is workDirectory / "data"/ "dist50.csv") x
+    (fdistsFile is workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv") x (id in Seq(1))
+    x (feedbackWeight in Seq(0.0)) x (feedbackGamma in Seq(1.0)) x (feedbackDecay in Seq(1.0)) x
+    (gravityWeight in Seq(0.0)) x (gravityGamma in Seq(1.0)) x (gravityDecay in Seq(1.0)) x
+    (growthRate in (0.001 to 0.2 by 0.0001))
+  )
+
+  val eval = exploration -< model
+
+  val indics = AppendToCSVFileHook(workDirectory / "calibration" / "calibration_20160607-simple" / period+"simple.csv") 
+
+  exploration -< (model on local hook indics)
+
+//}
+
+/*val inds = (0 to 8 by 1)
+
+val firstCapsule = Capsule(EmptyTask())
+val calibrations = inds.map(calib)
+calibrations.map(firstCapsule -- _).reduce(_ & _)
+*/

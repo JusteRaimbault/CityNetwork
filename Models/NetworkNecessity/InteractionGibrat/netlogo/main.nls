@@ -1,0 +1,79 @@
+
+;;
+; main
+
+
+
+
+
+to go-full-period
+  
+  repeat (length matrix:get-row real-populations 0) - 1 [
+    go
+  ]
+  
+end
+
+
+
+to go
+  
+  ; tick done at the beginning, as we start at t=1
+  tick
+  
+  ; compute new populations
+  compute-populations
+  
+  ; update agent cities pop
+  update-populations
+  
+  ; display
+  update-display
+  
+end
+
+
+
+
+
+;;
+;
+;  @ requires t \geq 1
+to compute-populations
+  
+  ; current time
+  let t ticks
+  let delta_t item t dates - item (t - 1) dates
+  
+  ; previous populations as list
+  let prev-populations matrix:get-column populations (t - 1)
+  let n length prev-populations
+  
+  let diag-pops (matrix:make-diag prev-populations)
+  let diag-pops-gravity matrix:map [ ? ^ gravity-gamma] (matrix:times-scalar diag-pops sum prev-populations)
+  let pots-gravity matrix:times diag-pops-gravity (matrix:times gravity-weights diag-pops-gravity)
+  matrix:set-diag-scalar pots-gravity 0
+  let pots-feedback matrix:times feedback-weights (flatten-pops-feedback (matrix:map [ ? ^ feedback-gamma] (matrix:times (matrix:times diag-pops (matrix:make-constant n n 1)) diag-pops)))
+  let mean-pot-gravity (matrix:sum pots-gravity) / (n * n)
+  let mean-pot-feedback (matrix:sum pots-feedback) / n
+  
+  ;; current populations
+  let current-populations matrix:times-scalar (matrix:times-element-wise (matrix:as-column-matrix prev-populations) (((matrix:make-constant n 1 (1 + growth-rate)) matrix:+ (matrix:times-scalar (matrix:times pots-gravity (matrix:make-constant n 1 1)) (gravity-weight / (n * mean-pot-gravity)))) matrix:+ (matrix:times-scalar pots-feedback (2 * feedback-weight / (n * (n - 1) * mean-pot-feedback))))) delta_t
+  
+  matrix:set-column populations t map [first ?] matrix:to-row-list current-populations
+  
+end
+
+
+
+to-report flatten-pops-feedback [m]
+  let n length matrix:get-row m 0
+  let res matrix:make-constant (n * (n - 1) / 2) 1 0
+  let i 0
+  repeat n - 2 [
+    let col matrix:submatrix m (i + 1) i n (i + 1)
+    matrix:set-submatrix res ((i * (n - 1)) - (i * (i - 1) / 2)) 0 col
+    set i i + 1 
+  ]
+  report res
+end
