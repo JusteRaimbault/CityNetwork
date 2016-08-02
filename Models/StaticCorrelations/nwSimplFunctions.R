@@ -10,11 +10,40 @@ library(igraph)
 
 
 
+
+
+##############'
+#'
+#'
+getCoords<-function(densraster,lonmin,latmin,lonmax,latmax){
+  #rows = seq(from=1,to=nrow(densraster),by=ncells)
+  #cols = seq(from=1,to=ncol(densraster),by=ncells)
+  rows = seq(from=rowFromY(densraster,latmax),to=rowFromY(densraster,latmin),by=ncells)
+  cols = seq(from=colFromX(densraster,lonmin),to=colFromX(densraster,lonmax),by=ncells)
+  xr=xres(densraster);yr=yres(densraster)
+  
+  coords = data.frame()
+  for(i in 2:length(rows)){
+    show(i)
+    for(j in 2:length(cols)){
+      topleft = xyFromCell(densraster,cellFromRowCol(densraster,rows[i-1],cols[j-1]))
+      bottomright = xyFromCell(densraster,cellFromRowCol(densraster,rows[i],cols[j]))
+      coords = rbind(coords,c(topleft[1]-xr/2,topleft[2]+yr/2,bottomright[1]+xr/2,bottomright[2]-yr/2))
+    }
+  }
+  names(coords)<-c("lonmin","latmax","lonmax","latmin")
+  return(coords)
+}
+
+
+#' #####################
 #' Get road linestrings (SPatialLines) within given extent
 #'
 #' @param latmin,lonmin,latmax,lonmax bbox
 #' @param tags list of tag values (for key highway)
 #'
+#' @requires global variables : osmdb, dbport
+#' 
 linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags){
   pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=osmdb,user="juste",port=dbport)#,host="localhost" )
   
@@ -71,7 +100,7 @@ graphEdgesFromLines<-function(roads,baseraster){
 #' Graph simplification
 #'
 #'
-simplifyGraph<-function(g){
+simplifyGraph<-function(g,bounds){
   degrees=degree(g)
   remvertices = V(g)[which(degrees==2)]
   edgestoadd=V(g)[0];vtodelete=V(g)[0]
@@ -185,6 +214,54 @@ exportGraph<-function(sg,dbname,dbuser){
   dbDisconnect(con)
   
 }
+
+
+#####################'
+#'
+#'
+constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags){
+  roads<-linesWithinExtent(lonmin,latmin,lonmax,latmax,tags)
+  show(coords[i,])
+  show(length(roads$roads))
+  if(length(roads$roads)>0){
+    edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
+    show(length(edgelist$edgelist))
+    edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);
+    g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
+    gcoords = xyFromCell(densraster,as.numeric(V(g)$name))
+    V(g)$x=gcoords[,1];V(g)$y=gcoords[,2]
+    #save(g,file=paste0('testdirect/graph_',i,'.RData'))
+    gg=simplify(g)
+    sg = simplifyGraph(gg,bounds = coords[i,])
+    
+    exportGraph(gg,dbname="nwtest",dbuser="juste")
+  }
+  return(length(roads$roads))
+}
+
+
+################'
+#'
+#' Get independent merging seqs from coordinates.
+#' 
+getMergingSequences<-function(coords){
+  
+}
+
+
+########################'
+#'
+#' Given coordinates of two cells, retrieve, merges and exports final graph.
+#'
+#'  Process :
+#'   - retrieve nw segments from intermediate base, reconstruct common nw
+#'   - simplify graph [check if same function can be used]
+mergeLocalGraphs<-function(c1,c2){
+  
+}
+
+
+
 
 
 
