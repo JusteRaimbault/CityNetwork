@@ -20,7 +20,8 @@ psql -p 5433 -d $DB -f sql/pgsnapshot_schema_0.6.sql
 psql -p 5433 -d $DB -f sql/pgsnapshot_schema_0.6_linestring.sql
 
 # pbf to postgis
-osmosis --read-pbf $FILE --log-progress --tf accept-ways highway=* --used-node --write-pgsql host=localhost:5433 database=$DB user=juste password=`cat sql/password`
+JAVACMD_OPTIONS="-Djava.io.tmpdir=/mnt/volume1/juste/tmp"
+sudo /home/juste/bin/osmosis --read-pbf $FILE --log-progress --tf accept-ways highway=* --used-node --write-pgsql host=localhost:5433 database=$DB user=juste password=`cat sql/password`
 
 
 
