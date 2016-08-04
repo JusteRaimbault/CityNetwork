@@ -23,21 +23,22 @@ coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax)
 tags=c("motorway","trunk","primary","secondary","tertiary","unclassified","residential")
 osmdb='centre';dbport=5433
 
-#library(doParallel)
-#cl <- makeCluster(10)
-#registerDoParallel(cl)
+library(doParallel)
+cl <- makeCluster(10)
+registerDoParallel(cl)
 
 #startTime = proc.time()[3]
 
 ##
 # construction of local graphs
 
-#res <- foreach(i=1:nrow(coords)) %dopar% {
-for(i in c(3)){#nrow(coords)){
+foreach(i=1:nrow(coords)) %dopar% {
+#for(i in c(3)){#nrow(coords)){
   source('nwSimplFunctions.R')
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
-  graphSize = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags)
-  return(graphSize)
+  localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags)
+  exportGraph(localGraph$gg,dbname="nwtest_full")
+  exportGraph(localGraph$sg,dbname="nwtest_prov")
 }
 
 ##
@@ -48,16 +49,16 @@ mergingSequences = getMergingSequences(coords)
 for(l in 1:length(mergingSequences)){
   show(paste0("merging : ",l))
   seq = mergingSequences[[l]]
-  #res <- foreach(i=1:length(seq)) %dopar% {
-  for(i in 1:length(seq)){
+  res <- foreach(i=1:length(seq)) %dopar% {
+  #for(i in 1:length(seq)){
     source('nwSimplFunctions.R')
-    locres = mergeLocalGraphs(seq[[i]][[1]],seq[[i]][[2]])
-    return(locres)
+    locres = mergeLocalGraphs(seq[i,])
+    exportGraph(localres$sg,dbname="nwtest_simpl")
   }
 }
 
 
-#stopCluster(cl)
+stopCluster(cl)
 
 #show(res)
 #show(length(which(unlist(res)>0)))

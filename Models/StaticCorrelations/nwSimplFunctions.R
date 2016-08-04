@@ -125,13 +125,22 @@ graphEdgesFromLines<-function(roads,baseraster){
 #'
 #' Retrieve graph from a simplified base (basic request)
 #' 
-graphEdgesFromBase<-function(){
-  
+graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbname,dbport=5433,dbuser="juste"){
+  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport)
+  q = paste0(
+    "SELECT origin,destination,length,speed,roadtype FROM links",
+    " WHERE ST_Intersects(ST_MakeEnvelope(",lonmin,",",latmin,",",lonmax,",",latmax,",4326),","geography);")
+  query = dbSendQuery(pgsqlcon,q)
+  data = fetch(query,n=-1)
+  res=list(edgelist=data.frame(from=data$origin,to=data$destination),speed=data$speed,type=data$speed,length=data$length)
+  return(res)
 }
 
 
-#'
-#'
+############'
+#'  
+#'  Construct graph given edgelist
+#'  
 graphFromEdges<-function(edgelist,densraster){
   edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);
   g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
@@ -142,10 +151,14 @@ graphFromEdges<-function(edgelist,densraster){
 }
 
 
-#' Graph simplification
+####################
+#'
+#' Graph simplification algorithm
 #'
 #'
 simplifyGraph<-function(g,bounds){
+  # select graph strictly within bounds
+  g = induced_subgraph(graph = g,vids = which(V(g)$x>bounds[1]&V(g)$x<bounds[3]&V(g)$y>bounds[2]&V(g)$y<bounds[4]))
   degrees=degree(g)
   remvertices = V(g)[which(degrees==2)]
   edgestoadd=V(g)[0];vtodelete=V(g)[0]
@@ -222,7 +235,7 @@ insertEdgeQuery<-function(o,d,length,speed,type){
 #'
 #' 
 #' insertion into simplified database : insert into links (id,origin,destination,geography) values ('1',10,50,ST_GeographyFromText('LINESTRING(-122.33 47.606, 0.0 51.5)')); 
-exportGraph<-function(sg,dbname,dbuser){
+exportGraph<-function(sg,dbname,dbuser="juste",dbport=5433){
   # get simpl base connection
   con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport)#,host="localhost" )
   
@@ -245,18 +258,20 @@ exportGraph<-function(sg,dbname,dbuser){
     try(dbSendQuery(con,query))
   }
   
-  dbCommit(con)
+  #dbCommit(con)
   
   # 
-  # sg$edgespeed[which(is.nan(sg$edgespeed))]=0
-  # sg$edgespeed[which(is.na(sg$edgespeed))]=0
+  sg$edgespeed[which(is.nan(sg$edgespeed))]=0
+  sg$edgespeed[which(is.na(sg$edgespeed))]=0
+  
   # # then supplementary edges
-  # for(i in seq(from=1,to=length(sg$edgestoadd),by=2)){
-  #   o=V(graph)[[sg$edgestoadd[i]]];d=V(graph)[[sg$edgestoadd[i+1]]]
-  #   try(dbSendQuery(con,insertEdgeQuery(o,d,sg$edgelength[1+(i-1)/2],sg$edgespeed[1+(i-1)/2],sg$edgetype[1+(i-1)/2])))
-  # }
-  # 
-  #dbCommit(con)
+   for(i in seq(from=1,to=length(sg$edgestoadd),by=2)){
+     o=V(graph)[[sg$edgestoadd[i]]];d=V(graph)[[sg$edgestoadd[i+1]]]
+     try(dbSendQuery(con,insertEdgeQuery(o,d,sg$edgelength[1+(i-1)/2],sg$edgespeed[1+(i-1)/2],sg$edgetype[1+(i-1)/2])))
+   }
+   
+  dbCommit(con)
+  
   dbDisconnect(con)
   
 }
@@ -267,16 +282,16 @@ exportGraph<-function(sg,dbname,dbuser){
 #'
 constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags){
   roads<-linesWithinExtent(lonmin,latmin,lonmax,latmax,tags)
-  show(coords[i,])
-  show(length(roads$roads))
+  show(paste0("Constructing graph for box : ",c(lonmin,latmin,lonmax,latmax)))
+  show(paste0("  size : ",length(roads$roads)))
+  res=list()
   if(length(roads$roads)>0){
     edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
-    show(length(edgelist$edgelist))
-    gg=graphFromEdges(edgelist,densraster)
-    sg = simplifyGraph(gg,bounds = coords[i,])
-    exportGraph(gg,dbname="nwtest",dbuser="juste")
+    show(paste0("  graph size : ",length(edgelist$edgelist)))
+    res$gg= graphFromEdges(edgelist,densraster)
+    res$sg = simplifyGraph(res$gg,bounds = c(lonmin,latmin,lonmax,latmax))
   }
-  return(length(roads$roads))
+  return(res)
 }
 
 
@@ -290,8 +305,14 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags){
 #'  Process :
 #'   - retrieve nw segments from intermediate base, reconstruct common nw
 #'   - simplify graph [check if same function can be used]
-mergeLocalGraphs<-function(c1,c2){
-  
+mergeLocalGraphs<-function(bbox){
+  lonmin=min(bbox[1],bbox[5]);latmax=max(bbox[2],bbox[6]);lonmax=max(bbox[3],bbox[7]);latmin=min(bbox[4],bbox[8])
+  edges = graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname="nwtest_prov")
+  res=list()
+  if(length(edges$edgelist)>0){
+    res$sg = simplifyGraph(graphFromEdges(edges,densraster),bounds=c(lonmin,latmin,lonmax,latmax))
+  }
+  return(res)
 }
 
 
