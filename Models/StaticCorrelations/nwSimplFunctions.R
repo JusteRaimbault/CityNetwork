@@ -14,26 +14,52 @@ library(igraph)
 
 ##############'
 #'
-#'
-getCoords<-function(densraster,lonmin,latmin,lonmax,latmax){
-  #rows = seq(from=1,to=nrow(densraster),by=ncells)
-  #cols = seq(from=1,to=ncol(densraster),by=ncells)
+#' Get coordinates of cells
+getCoords<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
   rows = seq(from=rowFromY(densraster,latmax),to=rowFromY(densraster,latmin),by=ncells)
   cols = seq(from=colFromX(densraster,lonmin),to=colFromX(densraster,lonmax),by=ncells)
-  xr=xres(densraster);yr=yres(densraster)
-  
+ 
+  coords = coordsFromIndexes(densraster,rows,cols,2:length(rows),2:length(cols))
+
+  return(coords)
+}
+
+#' aux function
+#' (used also in merge sequences)
+coordsFromIndexes<-function(densraster,rows,cols,inds_i,inds_j){
   coords = data.frame()
-  for(i in 2:length(rows)){
+  xr=xres(densraster);yr=yres(densraster)
+  for(i in inds_i){
     show(i)
-    for(j in 2:length(cols)){
+    for(j in inds_j){
       topleft = xyFromCell(densraster,cellFromRowCol(densraster,rows[i-1],cols[j-1]))
       bottomright = xyFromCell(densraster,cellFromRowCol(densraster,rows[i],cols[j]))
       coords = rbind(coords,c(topleft[1]-xr/2,topleft[2]+yr/2,bottomright[1]+xr/2,bottomright[2]-yr/2))
     }
   }
-  names(coords)<-c("lonmin","latmax","lonmax","latmin")
+  # names : error ?
+  #names(coords)<-c("lonmin","latmax","lonmax","latmin")
   return(coords)
 }
+
+################'
+#'
+#' Get independent merging seqs from coordinates.
+#' 
+getMergingSequences<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
+  res = list()
+  rows = seq(from=rowFromY(densraster,latmax),to=rowFromY(densraster,latmin),by=ncells)
+  cols = seq(from=colFromX(densraster,lonmin),to=colFromX(densraster,lonmax),by=ncells)
+  
+  # basic independent partition
+  res[[1]] = cbind(coordsFromIndexes(densraster,rows,cols,seq(from=2,to=length(rows),by=2),2:length(cols)),coordsFromIndexes(densraster,rows,cols,seq(from=3,to=length(rows),by=2),2:length(cols)))
+  res[[2]] = cbind(coordsFromIndexes(densraster,rows,cols,seq(from=3,to=length(rows),by=2),2:length(cols)),coordsFromIndexes(densraster,rows,cols,seq(from=2,to=length(rows),by=2),2:length(cols)))
+  res[[3]] = cbind(coordsFromIndexes(densraster,rows,cols,2:length(rows),seq(from=2,to=length(cols),by=2)),coordsFromIndexes(densraster,rows,cols,2:length(rows),seq(from=3,to=length(cols),by=2)))
+  res[[4]] = cbind(coordsFromIndexes(densraster,rows,cols,2:length(rows),seq(from=3,to=length(cols),by=2)),coordsFromIndexes(densraster,rows,cols,2:length(rows),seq(from=2,to=length(cols),by=2)))
+}
+
+
+
 
 
 #' #####################
@@ -96,6 +122,25 @@ graphEdgesFromLines<-function(roads,baseraster){
   return(list(edgelist=edgelist,speed=edgespeed,type=edgetype))
 }
 
+#'
+#' Retrieve graph from a simplified base (basic request)
+#' 
+graphEdgesFromBase<-function(){
+  
+}
+
+
+#'
+#'
+graphFromEdges<-function(edgelist,densraster){
+  edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);
+  g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
+  gcoords = xyFromCell(densraster,as.numeric(V(g)$name))
+  V(g)$x=gcoords[,1];V(g)$y=gcoords[,2]
+  gg=simplify(g)
+  return(gg)
+}
+
 
 #' Graph simplification
 #'
@@ -151,7 +196,8 @@ simplifyGraph<-function(g,bounds){
 }
 
 
-
+#'
+#' Speed as numeric (in km.h-1)
 normalizedSpeed <- function(s){
   if(!is.na(as.numeric(s))){return(as.numeric(s))}
   sr=gsub(x = s," ","")
@@ -226,27 +272,15 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags){
   if(length(roads$roads)>0){
     edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
     show(length(edgelist$edgelist))
-    edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);
-    g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
-    gcoords = xyFromCell(densraster,as.numeric(V(g)$name))
-    V(g)$x=gcoords[,1];V(g)$y=gcoords[,2]
-    #save(g,file=paste0('testdirect/graph_',i,'.RData'))
-    gg=simplify(g)
+    gg=graphFromEdges(edgelist,densraster)
     sg = simplifyGraph(gg,bounds = coords[i,])
-    
     exportGraph(gg,dbname="nwtest",dbuser="juste")
   }
   return(length(roads$roads))
 }
 
 
-################'
-#'
-#' Get independent merging seqs from coordinates.
-#' 
-getMergingSequences<-function(coords){
-  
-}
+
 
 
 ########################'
