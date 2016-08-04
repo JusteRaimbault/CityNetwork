@@ -18,7 +18,7 @@ latmin=46.34;latmax=48.94;lonmin=0.0;lonmax=3.2
 ncells = 500
 
 # get coordinates
-coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax)
+coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
 
 tags=c("motorway","trunk","primary","secondary","tertiary","unclassified","residential")
 osmdb='centre';dbport=5433
@@ -44,18 +44,18 @@ foreach(i=1:nrow(coords)) %dopar% {
 ##
 # merging of cells
 
-mergingSequences = getMergingSequences(coords)
+#mergingSequences = getMergingSequences(coords)
 
-for(l in 1:length(mergingSequences)){
-  show(paste0("merging : ",l))
-  seq = mergingSequences[[l]]
-  res <- foreach(i=1:length(seq)) %dopar% {
-  #for(i in 1:length(seq)){
-    source('nwSimplFunctions.R')
-    locres = mergeLocalGraphs(seq[i,])
-    exportGraph(localres$sg,dbname="nwtest_simpl")
-  }
-}
+#for(l in 1:length(mergingSequences)){
+#  show(paste0("merging : ",l))
+#  seq = mergingSequences[[l]]
+#  res <- foreach(i=1:length(seq)) %dopar% {
+#  #for(i in 1:length(seq)){
+#    source('nwSimplFunctions.R')
+#    locres = mergeLocalGraphs(seq[i,])
+#    exportGraph(localres$sg,dbname="nwtest_simpl")
+#  }
+#}
 
 
 stopCluster(cl)

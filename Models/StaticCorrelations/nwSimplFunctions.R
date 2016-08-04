@@ -19,6 +19,9 @@ getCoords<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
   rows = seq(from=rowFromY(densraster,latmax),to=rowFromY(densraster,latmin),by=ncells)
   cols = seq(from=colFromX(densraster,lonmin),to=colFromX(densraster,lonmax),by=ncells)
  
+  show(rows)
+  show(cols)
+  
   coords = coordsFromIndexes(densraster,rows,cols,2:length(rows),2:length(cols))
 
   return(coords)
@@ -30,7 +33,7 @@ coordsFromIndexes<-function(densraster,rows,cols,inds_i,inds_j){
   coords = data.frame()
   xr=xres(densraster);yr=yres(densraster)
   for(i in inds_i){
-    show(i)
+    show(paste0("  coords : row ",i," / ",length(inds_i)))
     for(j in inds_j){
       topleft = xyFromCell(densraster,cellFromRowCol(densraster,rows[i-1],cols[j-1]))
       bottomright = xyFromCell(densraster,cellFromRowCol(densraster,rows[i],cols[j]))
