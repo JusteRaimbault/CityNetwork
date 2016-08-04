@@ -222,7 +222,7 @@ normalizedSpeed <- function(s){
   else{return(0)}
 }
 
-
+#' insertion query
 insertEdgeQuery<-function(o,d,length,speed,type){
   
   #  index to not duplicate : UNIQUE INDEX on o,d,type
@@ -240,44 +240,45 @@ insertEdgeQuery<-function(o,d,length,speed,type){
 #' 
 #' insertion into simplified database : insert into links (id,origin,destination,geography) values ('1',10,50,ST_GeographyFromText('LINESTRING(-122.33 47.606, 0.0 51.5)')); 
 exportGraph<-function(sg,dbname,dbuser="juste",dbport=5433){
-  # get simpl base connection
-  con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport)#,host="localhost" )
-  
-  #graph=sg$graph
-  graph=sg
-  
-  dbGetQuery(con,"BEGIN TRANSACTION;")
-  
-  E(graph)$speed[which(is.na(E(graph)$speed))]=0
-  # first insert graph edges
-  for(i in E(graph)){
-    e=E(graph)[i]
-    vs = V(graph)[ends(graph,e)];o=vs[1];d=vs[2];
-    speed=e$speed;type=e$type
-    if(length(speed)==0)speed=90
-    if(length(type)==0)type="primary"
-    length=spDistsN1(pts = matrix(c(o$x,o$y),nrow=1),pt = c(d$x,d$y),longlat = TRUE)
-    query=insertEdgeQuery(o,d,length,speed,type)
-    show(query)
-    try(dbSendQuery(con,query))
+  if(!is.null(sg)){
+    # get simpl base connection
+    con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport)#,host="localhost" )
+    
+    #graph=sg$graph
+    graph=sg
+    
+    dbGetQuery(con,"BEGIN TRANSACTION;")
+    
+    E(graph)$speed[which(is.na(E(graph)$speed))]=0
+    # first insert graph edges
+    for(i in E(graph)){
+      e=E(graph)[i]
+      vs = V(graph)[ends(graph,e)];o=vs[1];d=vs[2];
+      speed=e$speed;type=e$type
+      if(length(speed)==0)speed=90
+      if(length(type)==0)type="primary"
+      length=spDistsN1(pts = matrix(c(o$x,o$y),nrow=1),pt = c(d$x,d$y),longlat = TRUE)
+      query=insertEdgeQuery(o,d,length,speed,type)
+      show(query)
+      try(dbSendQuery(con,query))
+    }
+    
+    #dbCommit(con)
+    
+    # 
+    sg$edgespeed[which(is.nan(sg$edgespeed))]=0
+    sg$edgespeed[which(is.na(sg$edgespeed))]=0
+    
+    # # then supplementary edges
+    for(i in seq(from=1,to=length(sg$edgestoadd),by=2)){
+      o=V(graph)[[sg$edgestoadd[i]]];d=V(graph)[[sg$edgestoadd[i+1]]]
+      try(dbSendQuery(con,insertEdgeQuery(o,d,sg$edgelength[1+(i-1)/2],sg$edgespeed[1+(i-1)/2],sg$edgetype[1+(i-1)/2])))
+    }
+    
+    dbCommit(con)
+    
+    dbDisconnect(con)
   }
-  
-  #dbCommit(con)
-  
-  # 
-  sg$edgespeed[which(is.nan(sg$edgespeed))]=0
-  sg$edgespeed[which(is.na(sg$edgespeed))]=0
-  
-  # # then supplementary edges
-   for(i in seq(from=1,to=length(sg$edgestoadd),by=2)){
-     o=V(graph)[[sg$edgestoadd[i]]];d=V(graph)[[sg$edgestoadd[i+1]]]
-     try(dbSendQuery(con,insertEdgeQuery(o,d,sg$edgelength[1+(i-1)/2],sg$edgespeed[1+(i-1)/2],sg$edgetype[1+(i-1)/2])))
-   }
-   
-  dbCommit(con)
-  
-  dbDisconnect(con)
-  
 }
 
 
