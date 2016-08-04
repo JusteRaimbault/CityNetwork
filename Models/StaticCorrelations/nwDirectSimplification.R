@@ -23,17 +23,17 @@ coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
 tags=c("motorway","trunk","primary","secondary","tertiary","unclassified","residential")
 osmdb='centre';dbport=5433
 
-library(doParallel)
-cl <- makeCluster(10)
-registerDoParallel(cl)
+#library(doParallel)
+#cl <- makeCluster(10)
+#registerDoParallel(cl)
 
 #startTime = proc.time()[3]
 
 ##
 # construction of local graphs
 
-foreach(i=1:nrow(coords)) %dopar% {
-#for(i in c(3)){#nrow(coords)){
+#foreach(i=1:nrow(coords)) %dopar% {
+for(i in c(1,2)){#nrow(coords)){
   source('nwSimplFunctions.R')
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
   localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags)
@@ -44,7 +44,7 @@ foreach(i=1:nrow(coords)) %dopar% {
 ##
 # merging of cells
 
-#mergingSequences = getMergingSequences(coords)
+#mergingSequences = getMergingSequences(densraster,lonmin,latmin,lonmax,latmax,ncells)
 
 #for(l in 1:length(mergingSequences)){
 #  show(paste0("merging : ",l))
@@ -58,7 +58,7 @@ foreach(i=1:nrow(coords)) %dopar% {
 #}
 
 
-stopCluster(cl)
+#stopCluster(cl)
 
 #show(res)
 #show(length(which(unlist(res)>0)))
