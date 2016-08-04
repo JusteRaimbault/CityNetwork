@@ -74,6 +74,7 @@ getMergingSequences<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
 #' @requires global variables : osmdb, dbport
 #' 
 linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags){
+  show(osmdb)
   pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=osmdb,user="juste",port=dbport)#,host="localhost" )
   
   q = paste0(
@@ -285,7 +286,7 @@ exportGraph<-function(sg,dbname,dbuser="juste",dbport=5433){
 #'
 constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags){
   roads<-linesWithinExtent(lonmin,latmin,lonmax,latmax,tags)
-  show(paste0("Constructing graph for box : ",c(lonmin,latmin,lonmax,latmax)))
+  show(paste0("Constructing graph for box : ",lonmin,latmin,lonmax,latmax))
   show(paste0("  size : ",length(roads$roads)))
   res=list()
   if(length(roads$roads)>0){
