@@ -73,9 +73,9 @@ getMergingSequences<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
 #'
 #' @requires global variables : osmdb, dbport
 #' 
-linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags){
-  show(osmdb)
-  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=osmdb,user="juste",port=dbport)#,host="localhost" )
+linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags,osmdb=global.osmdb,dbuser=global.dbuser,dbport=global.dbport,dbhost=global.dbhost){
+  #show(osmdb)
+  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=osmdb,user=dbuser,port=dbport,host=dbhost)
   
   q = paste0(
     "SELECT ST_AsText(linestring) AS geom,tags::hstore->'maxspeed' AS speed,tags::hstore->'highway' AS type FROM ways",
@@ -129,8 +129,8 @@ graphEdgesFromLines<-function(roads,baseraster){
 #'
 #' Retrieve graph from a simplified base (basic request)
 #' 
-graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbname,dbport=5433,dbuser="juste"){
-  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport)
+graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbname,dbport=global.dbport,dbuser=global.dbuser,dbhost=global.dbhost){
+  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport,host=dbhost)
   q = paste0(
     "SELECT origin,destination,length,speed,roadtype FROM links",
     " WHERE ST_Intersects(ST_MakeEnvelope(",lonmin,",",latmin,",",lonmax,",",latmax,",4326),","geography);")
@@ -162,11 +162,20 @@ graphFromEdges<-function(edgelist,densraster){
 #'
 simplifyGraph<-function(g,bounds){
   # select graph strictly within bounds
-  g = induced_subgraph(graph = g,vids = which(V(g)$x>bounds[1]&V(g)$x<bounds[3]&V(g)$y>bounds[2]&V(g)$y<bounds[4]))
+  #  -- before that : keep crossing links to be added --
+  joint_vertices = V(g)$x>bounds[1]&V(g)$x<bounds[3]&V(g)$y>bounds[2]&V(g)$y<bounds[4]
+  #g = induced_subgraph(graph = g,vids = joint_vertices)
+  # condition on edges and not vertices
+  joint_edges = E(g)[joint_vertices %--% joint_vertices]
+  out_edges = E(g)[!(joint_vertices %--% joint_vertices)]
+  edgestoadd=V(g)[0];edgespeed=c();edgelength=c();edgetype=c()
+  for(oe in out_edges){eds = ends(g,oe);edgestoadd=append(edgestoadd,c(eds[1,1],eds[1,2]));edgespeed=append(edgespeed,E(g)[oe]$speed);edgelength=append(edgelength,E(g)[oe]$length);edgetype=append(edgetype,E(g)[oe]$type)}
+  
+  g = subgraph.edges(g,joint_edges,delete.vertices = FALSE)
   degrees=degree(g)
   remvertices = V(g)[which(degrees==2)]
-  edgestoadd=V(g)[0];vtodelete=V(g)[0]
-  edgespeed=c();edgelength=c();edgetype=c()
+  vtodelete=V(g)[0] # empty vertex sequence
+
   while(length(remvertices)>0){
     v=remvertices[1]
     n=neighbors(g,v);prevo=v;prevd=v
@@ -174,6 +183,7 @@ simplifyGraph<-function(g,bounds){
     elengths = c();espeeds = c();etypes=c();
     
     # - length when  o or d are already extremities -
+    #  [should not happen with simplified graph]
     if(max(degree(g,v=o))>2){e=E(g) [ o %--% v];elengths=append(elengths,spDistsN1(pts = matrix(c(v$x,v$y),nrow=1),pt = c(o$x,o$y),longlat = TRUE));espeeds=append(espeeds,e$speed);etypes=append(etypes,e$type)}
     if(max(degree(g,v=d))>2){e=E(g) [ d %--% v];elengths=append(elengths,spDistsN1(pts = matrix(c(v$x,v$y),nrow=1),pt = c(d$x,d$y),longlat = TRUE));espeeds=append(espeeds,e$speed);etypes=append(etypes,e$type)}
     
@@ -209,6 +219,8 @@ simplifyGraph<-function(g,bounds){
     vtodelete=append(vtodelete,p[which(p!=o&p!=d)])
     show(length(remvertices))
   }
+  # do not delete vertices extremities of edges to add
+  for(e in edgestoadd){vtodelete=difference(vtodelete,vtodelete[vtodelete$name==e])}
   return(list(graph = delete_vertices(g,vtodelete),edgestoadd=edgestoadd,edgelength=edgelength,edgespeed=edgespeed,edgetype=edgetype))
 }
 
@@ -226,6 +238,7 @@ normalizedSpeed <- function(s){
 insertEdgeQuery<-function(o,d,length,speed,type){
   
   #  index to not duplicate : UNIQUE INDEX on o,d,type
+  if(is.na(length))length=0.1
   
   return(paste0(
      "INSERT INTO links (origin,destination,length,speed,roadtype,geography) values (",
@@ -236,19 +249,25 @@ insertEdgeQuery<-function(o,d,length,speed,type){
   )
 }
 
-#'
+
+
+
+####################'
 #' 
-#' insertion into simplified database : insert into links (id,origin,destination,geography) values ('1',10,50,ST_GeographyFromText('LINESTRING(-122.33 47.606, 0.0 51.5)')); 
-exportGraph<-function(sg,dbname,dbuser="juste",dbport=5433){
+#' insertion into simplified database
+#'   "insert into links (id,origin,destination,geography) values ('1',10,50,ST_GeographyFromText('LINESTRING(-122.33 47.606, 0.0 51.5)'));"
+#'
+exportGraph<-function(sg,dbname,dbuser=global.dbuser,dbport=global.dbport,dbhost=global.dbhost){
   if(!is.null(sg)){
     # get simpl base connection
-    con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport)#,host="localhost" )
+    con = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport,host=dbhost)
     
     if(!is.null(sg$graph)){graph=sg$graph}
     else{graph=sg}
     
-    dbGetQuery(con,"BEGIN TRANSACTION;")
+    #dbGetQuery(con,"BEGIN TRANSACTION;")
     
+    E(graph)$speed[which(is.null(E(graph)$speed))]=0
     E(graph)$speed[which(is.na(E(graph)$speed))]=0
     # first insert graph edges
     for(i in E(graph)){
@@ -263,22 +282,25 @@ exportGraph<-function(sg,dbname,dbuser="juste",dbport=5433){
       try(dbSendQuery(con,query))
     }
     
+    # TODO : finish transaction here and begin new ?
     
-    # 
+
     if(!is.null(sg$edgestoadd)){
-      
-      sg$edgespeed[which(is.nan(sg$edgespeed))]=0
-      sg$edgespeed[which(is.na(sg$edgespeed))]=0
+
+      if(!is.null(sg$edgestoadd)){
+        sg$edgespeed[which(is.nan(sg$edgespeed))]=0
+        sg$edgespeed[which(is.na(sg$edgespeed))]=0
+      }
       
       # # then supplementary edges
       for(i in seq(from=1,to=length(sg$edgestoadd),by=2)){
         o=V(graph)[[sg$edgestoadd[i]]];d=V(graph)[[sg$edgestoadd[i+1]]]
         try(dbSendQuery(con,insertEdgeQuery(o,d,sg$edgelength[1+(i-1)/2],sg$edgespeed[1+(i-1)/2],sg$edgetype[1+(i-1)/2])))
       }
-      
+
     }
-    
-    dbCommit(con)
+
+    #dbCommit(con)
     
     dbDisconnect(con)
   }
@@ -288,7 +310,7 @@ exportGraph<-function(sg,dbname,dbuser="juste",dbport=5433){
 #####################'
 #'
 #'
-constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags){
+constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr){
   roads<-linesWithinExtent(lonmin,latmin,lonmax,latmax,tags)
   show(paste0("Constructing graph for box : ",lonmin,latmin,lonmax,latmax))
   show(paste0("  size : ",length(roads$roads)))
@@ -297,7 +319,7 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags){
     edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
     show(paste0("  graph size : ",length(edgelist$edgelist)))
     res$gg= graphFromEdges(edgelist,densraster)
-    res$sg = simplifyGraph(res$gg,bounds = c(lonmin,latmin,lonmax,latmax))
+    res$sg = simplifyGraph(res$gg,bounds = c(lonmin+xr,latmin+yr,lonmax-xr,latmax-yr))
   }
   return(res)
 }
@@ -313,9 +335,9 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags){
 #'  Process :
 #'   - retrieve nw segments from intermediate base, reconstruct common nw
 #'   - simplify graph [check if same function can be used]
-mergeLocalGraphs<-function(bbox){
+mergeLocalGraphs<-function(bbox,destdb_prov=global.destdb_prov){
   lonmin=min(bbox[1],bbox[5]);latmax=max(bbox[2],bbox[6]);lonmax=max(bbox[3],bbox[7]);latmin=min(bbox[4],bbox[8])
-  edges = graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname="nwtest_prov")
+  edges = graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname=destdb_prov)
   res=list()
   if(length(edges$edgelist)>0){
     res$sg = simplifyGraph(graphFromEdges(edges,densraster),bounds=c(lonmin,latmin,lonmax,latmax))
