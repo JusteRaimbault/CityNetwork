@@ -63,20 +63,20 @@ system('pgsql2shp -f testlight/luxembourg_prov_north -p 5433 nwtest_prov links')
 ##
 # merging of cells
 
-mergingSequences = getMergingSequences(densraster,lonmin,latmin,lonmax,latmax,ncells)
-
-for(l in 1:length(mergingSequences)){
-  show(paste0("merging : ",l))
-  seq = mergingSequences[[l]]
-  #res <- foreach(i=1:length(seq)) %dopar% {
-  for(i in 1:length(seq)){
-    source('nwSimplFunctions.R')
-    locres = mergeLocalGraphs(seq[i,])
-    exportGraph(localres$sg,dbname="nwtest_simpl")
-  }
-}
-
-system('pgsql2shp -f testlight/luxembourg_simpl_north -p 5433 nwtest_simpl links')
+# mergingSequences = getMergingSequences(densraster,lonmin,latmin,lonmax,latmax,ncells)
+# 
+# for(l in 1:length(mergingSequences)){
+#   show(paste0("merging : ",l))
+#   seq = mergingSequences[[l]]
+#   #res <- foreach(i=1:length(seq)) %dopar% {
+#   for(i in 1:length(seq)){
+#     source('nwSimplFunctions.R')
+#     locres = mergeLocalGraphs(seq[i,])
+#     exportGraph(localres$sg,dbname="nwtest_simpl")
+#   }
+# }
+# 
+# system('pgsql2shp -f testlight/luxembourg_simpl_north -p 5433 nwtest_simpl links')
 
 
 #stopCluster(cl)

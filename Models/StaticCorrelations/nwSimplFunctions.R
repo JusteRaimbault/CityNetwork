@@ -159,15 +159,20 @@ graphFromEdges<-function(edgelist,densraster){
 #'
 #' Graph simplification algorithm
 #'
+#'  - the more spaghetti code EVER written - beuuargh
 #'
-simplifyGraph<-function(g,bounds){
+simplifyGraph<-function(g,bounds,xr,yr){
   # select graph strictly within bounds
   #  -- before that : keep crossing links to be added --
-  joint_vertices = V(g)$x>bounds[1]&V(g)$x<bounds[3]&V(g)$y>bounds[2]&V(g)$y<bounds[4]
+  joint_vertices = V(g)$x>bounds[1]+xr&V(g)$x<bounds[3]-xr&V(g)$y>bounds[2]+yr&V(g)$y<bounds[4]-yr
+  bound_vertices = (V(g)$x>bounds[3]-xr&V(g)$x<bounds[3]&V(g)$y>bounds[2]-yr&V(g)$y<bounds[4]+yr)|
+                   (V(g)$x<bounds[1]+xr&V(g)$x>bounds[1]&V(g)$y>bounds[2]-yr&V(g)$y<bounds[4]+yr)|
+                   (V(g)$x>bounds[1]-xr&V(g)$x<bounds[3]+xr&V(g)$y<bounds[2]+yr&V(g)$y>bounds[2])|
+                   (V(g)$x>bounds[1]-xr&V(g)$x<bounds[3]+xr&V(g)$y>bounds[4]-yr&V(g)$y<bounds[4])
   #g = induced_subgraph(graph = g,vids = joint_vertices)
   # condition on edges and not vertices
   joint_edges = E(g)[joint_vertices %--% joint_vertices]
-  out_edges = E(g)[!(joint_vertices %--% joint_vertices)]
+  out_edges = E(g)[V(g) %--% bound_vertices]
   edgestoadd=V(g)[0];edgespeed=c();edgelength=c();edgetype=c()
   for(oe in out_edges){eds = ends(g,oe);edgestoadd=append(edgestoadd,c(eds[1,1],eds[1,2]));edgespeed=append(edgespeed,E(g)[oe]$speed);edgelength=append(edgelength,E(g)[oe]$length);edgetype=append(edgetype,E(g)[oe]$type)}
   
@@ -312,14 +317,14 @@ exportGraph<-function(sg,dbname,dbuser=global.dbuser,dbport=global.dbport,dbhost
 #'
 constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr){
   roads<-linesWithinExtent(lonmin,latmin,lonmax,latmax,tags)
-  show(paste0("Constructing graph for box : ",lonmin,latmin,lonmax,latmax))
-  show(paste0("  size : ",length(roads$roads)))
+  show(paste0("Constructing graph for box : ",lonmin,',',latmin,',',lonmax,',',latmax))
+  show(paste0("   size (roads number) : ",length(roads$roads)))
   res=list()
   if(length(roads$roads)>0){
     edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
-    show(paste0("  graph size : ",length(edgelist$edgelist)))
+    show(paste0("   size (graph size) : ",length(edgelist$edgelist)))
     res$gg= graphFromEdges(edgelist,densraster)
-    res$sg = simplifyGraph(res$gg,bounds = c(lonmin+xr,latmin+yr,lonmax-xr,latmax-yr))
+    res$sg = simplifyGraph(res$gg,bounds = c(lonmin,latmin,lonmax,latmax),xr,yr)
   }
   return(res)
 }
