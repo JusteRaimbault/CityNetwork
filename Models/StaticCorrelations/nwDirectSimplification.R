@@ -26,6 +26,14 @@ ncells = 50
 # get coordinates
 coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
 
+# export grid for viz
+gridlines=list();i=1
+for(x in unique(c(coords[,1],coords[,3]))){gridlines[[i]]=Lines(Line(cbind(c(x,x),c(latmin,latmax))),as.character(i));i=i+1}
+for(y in unique(c(coords[,2],coords[,4]))){gridlines[[i]]=Lines(Line(cbind(c(lonmin,lonmax),c(y,y))),as.character(i));i=i+1}
+writeOGR(obj = SpatialLinesDataFrame(SpatialLines(LinesList = gridlines,proj4string = crs(densraster)),data.frame(ID=sapply(gridlines,function(x){x@ID})),match.ID = FALSE),
+         dsn='testlight',layer = 'grid_north',driver = 'ESRI Shapefile',overwrite_layer = TRUE
+         )
+
 tags=c("motorway","trunk","primary","secondary","tertiary","unclassified","residential")
 
 # db config
@@ -52,12 +60,12 @@ for(i in 1:nrow(coords)){
   #show(paste0(i,' / ',nrow(coords)))
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
   localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr)
-  exportGraph(localGraph$gg,dbname=destdb_full)
-  exportGraph(localGraph$sg,dbname=destdb_prov)
+  exportGraph(localGraph$gg,dbname=global.destdb_full)
+  exportGraph(localGraph$sg,dbname=global.destdb_prov)
 }
 
-system('pgsql2shp -f testlight/luxembourg_full_north -p 5433 nwtest_full links')
-system('pgsql2shp -f testlight/luxembourg_prov_north -p 5433 nwtest_prov links')
+system('pgsql2shp -f testlight/luxembourg_full_north_2 -p 5433 nwtest_full links')
+system('pgsql2shp -f testlight/luxembourg_prov_north_2 -p 5433 nwtest_prov links')
 
 
 ##

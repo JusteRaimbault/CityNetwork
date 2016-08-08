@@ -15,30 +15,33 @@ library(igraph)
 ##############'
 #'
 #' Get coordinates of cells
-getCoords<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
-  rows = seq(from=rowFromY(densraster,latmax),to=rowFromY(densraster,latmin),by=ncells)
-  cols = seq(from=colFromX(densraster,lonmin),to=colFromX(densraster,lonmax),by=ncells)
+getCoords<-function(r,xmin,ymin,xmax,ymax,cells){
+  rows = seq(from=rowFromY(r,ymax),to=rowFromY(r,ymin),by=cells)
+  cols = seq(from=colFromX(r,xmin),to=colFromX(r,xmax),by=cells)
  
   show(rows)
   show(cols)
   
-  coords = coordsFromIndexes(densraster,rows,cols,2:length(rows),2:length(cols))
+  coords = coordsFromIndexes(r,rows[1:(length(rows)-1)],(rows-1)[2:length(rows)],cols[1:(length(cols)-1)],(cols-1)[2:length(cols)])
 
   return(coords)
 }
 
+#'
 #' aux function
 #' (used also in merge sequences)
-coordsFromIndexes<-function(densraster,rows,cols,inds_i,inds_j){
+#' 
+#' @requires |rows_min|=|rows_max| ; |cols_min|=|cols_max|
+coordsFromIndexes<-function(densraster,rows_min,rows_max,cols_min,cols_max){
   coords = data.frame()
   xr=xres(densraster);yr=yres(densraster)
-  for(i in inds_i){
-    show(paste0("  coords : row ",i," / ",length(inds_i)))
-    for(j in inds_j){
-      topleft = xyFromCell(densraster,cellFromRowCol(densraster,rows[i-1],cols[j-1]))
-      bottomright = xyFromCell(densraster,cellFromRowCol(densraster,rows[i],cols[j]))
+  for(i in 1:length(rows_min)){
+    show(paste0("  coords : row ",i," / ",length(rows_min)))
+    for(j in 1:length(cols_min)){
+      topleft = xyFromCell(densraster,cellFromRowCol(densraster,rows_min[i],cols_min[j]))
+      bottomright = xyFromCell(densraster,cellFromRowCol(densraster,rows_max[i],cols_max[j]))
       coords = rbind(coords,c(topleft[1]-xr/2,topleft[2]+yr/2,bottomright[1]+xr/2,bottomright[2]-yr/2))
-    }
+     }
   }
   # names : error ?
   #names(coords)<-c("lonmin","latmax","lonmax","latmin")
@@ -172,7 +175,7 @@ simplifyGraph<-function(g,bounds,xr,yr){
   #g = induced_subgraph(graph = g,vids = joint_vertices)
   # condition on edges and not vertices
   joint_edges = E(g)[joint_vertices %--% joint_vertices]
-  out_edges = E(g)[V(g) %--% bound_vertices]
+  out_edges = E(g)[(V(g) %--% bound_vertices)|(bound_vertices %--% V(g))|(joint_vertices %--% !(joint_vertices|bound_vertices))|( !(joint_vertices|bound_vertices) %--% joint_vertices)]
   edgestoadd=V(g)[0];edgespeed=c();edgelength=c();edgetype=c()
   for(oe in out_edges){eds = ends(g,oe);edgestoadd=append(edgestoadd,c(eds[1,1],eds[1,2]));edgespeed=append(edgespeed,E(g)[oe]$speed);edgelength=append(edgelength,E(g)[oe]$length);edgetype=append(edgetype,E(g)[oe]$type)}
   
