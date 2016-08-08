@@ -58,10 +58,20 @@ getMergingSequences<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
   cols = seq(from=colFromX(densraster,lonmin),to=colFromX(densraster,lonmax),by=ncells)
   
   # basic independent partition
-  res[[1]] = cbind(coordsFromIndexes(densraster,rows,cols,seq(from=2,to=length(rows),by=2),2:length(cols)),coordsFromIndexes(densraster,rows,cols,seq(from=3,to=length(rows),by=2),2:length(cols)))
-  res[[2]] = cbind(coordsFromIndexes(densraster,rows,cols,seq(from=3,to=length(rows),by=2),2:length(cols)),coordsFromIndexes(densraster,rows,cols,seq(from=2,to=length(rows),by=2),2:length(cols)))
-  res[[3]] = cbind(coordsFromIndexes(densraster,rows,cols,2:length(rows),seq(from=2,to=length(cols),by=2)),coordsFromIndexes(densraster,rows,cols,2:length(rows),seq(from=3,to=length(cols),by=2)))
-  res[[4]] = cbind(coordsFromIndexes(densraster,rows,cols,2:length(rows),seq(from=3,to=length(cols),by=2)),coordsFromIndexes(densraster,rows,cols,2:length(rows),seq(from=2,to=length(cols),by=2)))
+  c1=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=2)],(rows-1)[seq(from=2,to=length(rows),by=2)],cols[seq(from=1,to=(length(cols)-1),by=1)],(cols-1)[seq(from=2,to=length(cols),by=1)])
+  c2=coordsFromIndexes(densraster,rows[seq(from=2,to=(length(rows)-1),by=2)],(rows-1)[seq(from=3,to=length(rows),by=2)],cols[seq(from=1,to=(length(cols)-1),by=1)],(cols-1)[seq(from=2,to=length(cols),by=1)])
+  #show(c1[min(nrow(c1),nrow(c2)),1]);show(c2[min(nrow(c1),nrow(c2)),1])
+  res[[1]] = cbind(c1[1:min(nrow(c1),nrow(c2)),],c2[1:min(nrow(c1),nrow(c2)),])
+  c1=coordsFromIndexes(densraster,rows[seq(from=2,to=length(rows),by=2)],(rows-1)[seq(from=3,to=(length(rows)-1),by=2)],cols[seq(from=1,to=(length(cols)-1),by=1)],(cols-1)[seq(from=2,to=length(cols),by=1)])
+  c2=coordsFromIndexes(densraster,rows[seq(from=3,to=(length(rows)-1),by=2)],(rows-1)[seq(from=4,to=length(rows),by=2)],cols[seq(from=1,to=(length(cols)-1),by=1)],(cols-1)[seq(from=2,to=length(cols),by=1)])
+  res[[2]] = cbind(c1[1:min(nrow(c1),nrow(c2)),],c2[1:min(nrow(c1),nrow(c2)),])
+  c1=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=1)],(rows-1)[seq(from=2,to=length(rows),by=1)],cols[seq(from=1,to=(length(cols)-1),by=2)],(cols-1)[seq(from=2,to=length(cols),by=2)])
+  c2=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=1)],(rows-1)[seq(from=2,to=length(rows),by=1)],cols[seq(from=2,to=(length(cols)-1),by=2)],(cols-1)[seq(from=3,to=length(cols),by=2)])
+  res[[3]] = cbind(c1[1:min(nrow(c1),nrow(c2)),],c2[1:min(nrow(c1),nrow(c2)),])
+  c1=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=1)],(rows-1)[seq(from=2,to=length(rows),by=1)],cols[seq(from=2,to=(length(cols)-1),by=2)],(cols-1)[seq(from=3,to=length(cols),by=2)])
+  c2=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=1)],(rows-1)[seq(from=2,to=length(rows),by=1)],cols[seq(from=3,to=(length(cols)-1),by=2)],(cols-1)[seq(from=4,to=length(cols),by=2)])
+  res[[4]] = cbind(c1[1:min(nrow(c1),nrow(c2)),],c2[1:min(nrow(c1),nrow(c2)),])
+  return(res)
 }
 
 
@@ -173,10 +183,11 @@ simplifyGraph<-function(g,bounds,xr,yr){
                    (V(g)$x>bounds[1]-xr&V(g)$x<bounds[3]+xr&V(g)$y<bounds[2]+yr&V(g)$y>bounds[2])|
                    (V(g)$x>bounds[1]-xr&V(g)$x<bounds[3]+xr&V(g)$y>bounds[4]-yr&V(g)$y<bounds[4])
   ext_vertices = V(g)$x>bounds[3]|(V(g)$x<bounds[1])|(V(g)$x>bounds[1]&V(g)$x<bounds[3]&(V(g)$y<bounds[2]|V(g)$y>bounds[4]))
+  degrees=degree(g)
   #g = induced_subgraph(graph = g,vids = joint_vertices)
   # condition on edges and not vertices
-  joint_edges = E(g)[joint_vertices %--% joint_vertices]
-  out_edges = E(g)[(V(g) %--% bound_vertices)|(bound_vertices %--% V(g))|(joint_vertices %--% ext_vertices)|(ext_vertices%--% joint_vertices)]
+  joint_edges = E(g)[(joint_vertices %--% joint_vertices)|(bound_vertices %--% joint_vertices)|(joint_vertices %--% bound_vertices)|(joint_vertices %--% ext_vertices)|(ext_vertices%--% joint_vertices)|(bound_vertices %--% bound_vertices)|((bound_vertices&degrees>2) %--% ext_vertices)|(ext_vertices %--% (bound_vertices&degrees>2))]
+  out_edges = E(g)[((bound_vertices&degrees<=2) %--% ext_vertices)|(ext_vertices %--% (bound_vertices&degrees<=2))]
   edgestoadd=V(g)[0];edgespeed=c();edgelength=c();edgetype=c()
   for(oe in out_edges){eds = ends(g,oe);edgestoadd=append(edgestoadd,c(eds[1,1],eds[1,2]));edgespeed=append(edgespeed,E(g)[oe]$speed);edgelength=append(edgelength,E(g)[oe]$length);edgetype=append(edgetype,E(g)[oe]$type)}
   
