@@ -175,7 +175,7 @@ simplifyGraph<-function(g,bounds,xr,yr){
   #g = induced_subgraph(graph = g,vids = joint_vertices)
   # condition on edges and not vertices
   joint_edges = E(g)[joint_vertices %--% joint_vertices]
-  out_edges = E(g)[(V(g) %--% bound_vertices)|(bound_vertices %--% V(g))|(joint_vertices %--% !(joint_vertices|bound_vertices))|( !(joint_vertices|bound_vertices) %--% joint_vertices)]
+  out_edges = E(g)[(V(g) %--% bound_vertices)|(bound_vertices %--% V(g))]#|(joint_vertices %--% !(joint_vertices|bound_vertices))|( !(joint_vertices|bound_vertices) %--% joint_vertices)]
   edgestoadd=V(g)[0];edgespeed=c();edgelength=c();edgetype=c()
   for(oe in out_edges){eds = ends(g,oe);edgestoadd=append(edgestoadd,c(eds[1,1],eds[1,2]));edgespeed=append(edgespeed,E(g)[oe]$speed);edgelength=append(edgelength,E(g)[oe]$length);edgetype=append(edgetype,E(g)[oe]$type)}
   
@@ -318,7 +318,7 @@ exportGraph<-function(sg,dbname,dbuser=global.dbuser,dbport=global.dbport,dbhost
 #####################'
 #'
 #'
-constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr){
+constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=TRUE){
   roads<-linesWithinExtent(lonmin,latmin,lonmax,latmax,tags)
   show(paste0("Constructing graph for box : ",lonmin,',',latmin,',',lonmax,',',latmax))
   show(paste0("   size (roads number) : ",length(roads$roads)))
@@ -327,7 +327,9 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr){
     edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
     show(paste0("   size (graph size) : ",length(edgelist$edgelist)))
     res$gg= graphFromEdges(edgelist,densraster)
-    res$sg = simplifyGraph(res$gg,bounds = c(lonmin,latmin,lonmax,latmax),xr,yr)
+    if(simplify==TRUE){  
+      res$sg = simplifyGraph(res$gg,bounds = c(lonmin,latmin,lonmax,latmax),xr,yr)
+    }
   }
   return(res)
 }
