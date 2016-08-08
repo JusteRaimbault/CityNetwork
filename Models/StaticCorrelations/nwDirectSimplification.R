@@ -13,15 +13,15 @@ source('nwSimplFunctions.R')
 densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
 xr=xres(densraster);yr=yres(densraster)
 
-latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
-lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
+#latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
+#lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 
 #latmin=46.34;latmax=48.94;lonmin=0.0;lonmax=3.2 # coordinates for db 'centre'
 #latmin=49.447365;latmax=50.183488;lonmin=5.7300013;lonmax=6.53 # coordinates for db 'luxembourg'
-#latmin=49.9;latmax=50.183488;lonmin=5.7300013;lonmax=6.53 # coordinates for db 'luxembourg'
+latmin=49.9;latmax=50.183488;lonmin=5.7300013;lonmax=6.53 # coordinates for db 'luxembourg'
 
 
-ncells = 500
+ncells = 50
 
 # get coordinates
 coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
@@ -37,17 +37,17 @@ coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
 tags=c("motorway","trunk","primary","secondary","tertiary","unclassified","residential")
 
 # db config
-global.osmdb='europe';global.dbport=5433;global.dbuser="juste"
-#global.osmdb='luxembourg';global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost"
+#global.osmdb='europe';global.dbport=5433;global.dbuser="juste"
+global.osmdb='luxembourg';global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost"
 # destination bases
 global.destdb_full='nwtest_full';global.destdb_prov='nwtest_prov';global.destdb_simpl='nwtest_simpl'
 
 # reinit dbs
 system('./runtest.sh')
 
-#library(doParallel)
-#cl <- makeCluster(10)
-#registerDoParallel(cl)
+library(doParallel)
+cl <- makeCluster(4)
+registerDoParallel(cl)
 
 #startTime = proc.time()[3]
 
@@ -59,16 +59,16 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
   source('nwSimplFunctions.R')
   #show(paste0(i,' / ',nrow(coords)))
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
-  localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=FALSE)
-  return(vcount(localGraph$gg))
-  #exportGraph(localGraph$gg,dbname=global.destdb_full)
-  #exportGraph(localGraph$sg,dbname=global.destdb_prov)
+  localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr)
+  #return(vcount(localGraph$gg))
+  exportGraph(localGraph$gg,dbname=global.destdb_full)
+  exportGraph(localGraph$sg,dbname=global.destdb_prov)
 }
 
-save(res,file='testlight/sizes.Rdata')
+#save(res,file='testlight/sizes.Rdata')
 
-#system('pgsql2shp -f testlight/luxembourg_full_north_2 -p 5433 nwtest_full links')
-#system('pgsql2shp -f testlight/luxembourg_prov_north_2 -p 5433 nwtest_prov links')
+system('pgsql2shp -f testlight/luxembourg_full_north_2 -p 5433 nwtest_full links')
+system('pgsql2shp -f testlight/luxembourg_prov_north_2 -p 5433 nwtest_prov links')
 
 
 ##
