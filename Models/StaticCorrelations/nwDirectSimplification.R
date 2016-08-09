@@ -69,8 +69,8 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
 
 #save(res,file='testlight/sizes.Rdata')
 
-#system('pgsql2shp -f testlight/luxembourg_full_north_2 -p 5433 nwtest_full links')
-#system('pgsql2shp -f testlight/luxembourg_prov_north_2 -p 5433 nwtest_prov links')
+system('pgsql2shp -f testlight/luxembourg_full -p 5433 nwtest_full links')
+system('pgsql2shp -f testlight/luxembourg_prov -p 5433 nwtest_prov links')
 #stopCluster(cl)
 
 ##
