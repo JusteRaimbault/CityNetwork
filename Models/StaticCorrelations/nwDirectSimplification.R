@@ -79,21 +79,22 @@ stopCluster(cl)
 mergingSequences = getMergingSequences(densraster,lonmin,latmin,lonmax,latmax,ncells)
 
 # check with shapefile
+# -> OK
 
-for(m in 1:4){
-  boxes = mergingSequences[[m]]
-  gridlines=list();id=1
-  for(i in 1:nrow(boxes)){
-    xmin=min(boxes[i,c(1,3,5,7)]);xmax=max(boxes[i,c(1,3,5,7)]);ymin=min(boxes[i,c(2,4,6,8)]);ymax=max(boxes[i,c(2,4,6,8)])
-    gridlines[[id]]=Lines(Line(cbind(c(xmin,xmax),c(ymin,ymin))),as.character(id));id=id+1
-    gridlines[[id]]=Lines(Line(cbind(c(xmin,xmax),c(ymax,ymax))),as.character(id));id=id+1
-    gridlines[[id]]=Lines(Line(cbind(c(xmin,xmin),c(ymin,ymax))),as.character(id));id=id+1
-    gridlines[[id]]=Lines(Line(cbind(c(xmax,xmax),c(ymin,ymax))),as.character(id));id=id+1
-  }
-  writeOGR(obj = SpatialLinesDataFrame(SpatialLines(LinesList = gridlines,proj4string = crs(densraster)),data.frame(ID=sapply(gridlines,function(x){x@ID})),match.ID = FALSE),
-                 dsn='testlight',layer = paste0('grid_merging_',m),driver = 'ESRI Shapefile',overwrite_layer = TRUE
-  )
-}
+# for(m in 1:4){
+#   boxes = mergingSequences[[m]]
+#   gridlines=list();id=1
+#   for(i in 1:nrow(boxes)){
+#     xmin=min(boxes[i,c(1,3,5,7)]);xmax=max(boxes[i,c(1,3,5,7)]);ymin=min(boxes[i,c(2,4,6,8)]);ymax=max(boxes[i,c(2,4,6,8)])
+#     gridlines[[id]]=Lines(Line(cbind(c(xmin,xmax),c(ymin,ymin))),as.character(id));id=id+1
+#     gridlines[[id]]=Lines(Line(cbind(c(xmin,xmax),c(ymax,ymax))),as.character(id));id=id+1
+#     gridlines[[id]]=Lines(Line(cbind(c(xmin,xmin),c(ymin,ymax))),as.character(id));id=id+1
+#     gridlines[[id]]=Lines(Line(cbind(c(xmax,xmax),c(ymin,ymax))),as.character(id));id=id+1
+#   }
+#   writeOGR(obj = SpatialLinesDataFrame(SpatialLines(LinesList = gridlines,proj4string = crs(densraster)),data.frame(ID=sapply(gridlines,function(x){x@ID})),match.ID = FALSE),
+#                  dsn='testlight',layer = paste0('grid_merging_',m),driver = 'ESRI Shapefile',overwrite_layer = TRUE
+#   )
+# }
   
 # 
 # for(l in 1:length(mergingSequences)){

@@ -58,24 +58,26 @@ getMergingSequences<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
   cols = seq(from=colFromX(densraster,lonmin),to=colFromX(densraster,lonmax),by=ncells)
   
   # basic independent partition
-  c1=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=2)],(rows-1)[seq(from=2,to=length(rows),by=2)],cols[seq(from=1,to=(length(cols)-1),by=1)],(cols-1)[seq(from=2,to=length(cols),by=1)])
+  c1=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-2),by=2)],(rows-1)[seq(from=2,to=(length(rows)-1),by=2)],cols[seq(from=1,to=(length(cols)-1),by=1)],(cols-1)[seq(from=2,to=length(cols),by=1)])
   c2=coordsFromIndexes(densraster,rows[seq(from=2,to=(length(rows)-1),by=2)],(rows-1)[seq(from=3,to=length(rows),by=2)],cols[seq(from=1,to=(length(cols)-1),by=1)],(cols-1)[seq(from=2,to=length(cols),by=1)])
   #show(c1[min(nrow(c1),nrow(c2)),1]);show(c2[min(nrow(c1),nrow(c2)),1])
   res[[1]] = cbind(c1[1:min(nrow(c1),nrow(c2)),],c2[1:min(nrow(c1),nrow(c2)),])
-  c1=coordsFromIndexes(densraster,rows[seq(from=2,to=length(rows),by=2)],(rows-1)[seq(from=3,to=(length(rows)-1),by=2)],cols[seq(from=1,to=(length(cols)-1),by=1)],(cols-1)[seq(from=2,to=length(cols),by=1)])
+  c1=coordsFromIndexes(densraster,rows[seq(from=2,to=(length(rows)-2),by=2)],(rows-1)[seq(from=3,to=(length(rows)-1),by=2)],cols[seq(from=1,to=(length(cols)-1),by=1)],(cols-1)[seq(from=2,to=length(cols),by=1)])
   c2=coordsFromIndexes(densraster,rows[seq(from=3,to=(length(rows)-1),by=2)],(rows-1)[seq(from=4,to=length(rows),by=2)],cols[seq(from=1,to=(length(cols)-1),by=1)],(cols-1)[seq(from=2,to=length(cols),by=1)])
   res[[2]] = cbind(c1[1:min(nrow(c1),nrow(c2)),],c2[1:min(nrow(c1),nrow(c2)),])
-  c1=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=1)],(rows-1)[seq(from=2,to=length(rows),by=1)],cols[seq(from=1,to=(length(cols)-1),by=2)],(cols-1)[seq(from=2,to=length(cols),by=2)])
+  c1=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=1)],(rows-1)[seq(from=2,to=length(rows),by=1)],cols[seq(from=1,to=(length(cols)-2),by=2)],(cols-1)[seq(from=2,to=(length(cols)-1),by=2)])
   c2=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=1)],(rows-1)[seq(from=2,to=length(rows),by=1)],cols[seq(from=2,to=(length(cols)-1),by=2)],(cols-1)[seq(from=3,to=length(cols),by=2)])
   res[[3]] = cbind(c1[1:min(nrow(c1),nrow(c2)),],c2[1:min(nrow(c1),nrow(c2)),])
-  c1=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=1)],(rows-1)[seq(from=2,to=length(rows),by=1)],cols[seq(from=2,to=(length(cols)-1),by=2)],(cols-1)[seq(from=3,to=length(cols),by=2)])
+  c1=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=1)],(rows-1)[seq(from=2,to=length(rows),by=1)],cols[seq(from=2,to=(length(cols)-2),by=2)],(cols-1)[seq(from=3,to=(length(cols)-1),by=2)])
   c2=coordsFromIndexes(densraster,rows[seq(from=1,to=(length(rows)-1),by=1)],(rows-1)[seq(from=2,to=length(rows),by=1)],cols[seq(from=3,to=(length(cols)-1),by=2)],(cols-1)[seq(from=4,to=length(cols),by=2)])
   res[[4]] = cbind(c1[1:min(nrow(c1),nrow(c2)),],c2[1:min(nrow(c1),nrow(c2)),])
   return(res)
 }
 
-
-
+# DEBUG
+#apply(cbind(c1[1:min(nrow(c1),nrow(c2)),],c2[1:min(nrow(c1),nrow(c2)),]),2,diff)
+#apply(c1,2,diff)
+#apply(c2,2,diff)
 
 
 #' #####################
