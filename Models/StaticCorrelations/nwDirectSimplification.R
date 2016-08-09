@@ -39,8 +39,10 @@ coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
 tags=c("motorway","trunk","primary","secondary","tertiary","unclassified","residential")
 
 # db config
+global.osmdb='europe';global.dbport=5433;global.dbuser="juste";global.dbhost=""
+#global.osmdb='luxembourg';global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost"
 #global.osmdb='europe';global.dbport=5433;global.dbuser="juste"
-global.osmdb='luxembourg';global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost"
+#global.osmdb='luxembourg';global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost"
 # destination bases
 global.destdb_full='nwtest_full';global.destdb_prov='nwtest_prov';global.destdb_simpl='nwtest_simpl'
 
@@ -48,7 +50,7 @@ global.destdb_full='nwtest_full';global.destdb_prov='nwtest_prov';global.destdb_
 system('./runtest.sh')
 
 library(doParallel)
-cl <- makeCluster(4)
+cl <- makeCluster(20,outfile='log')
 registerDoParallel(cl)
 
 #startTime = proc.time()[3]
@@ -61,6 +63,8 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
   source('nwSimplFunctions.R')
   #show(paste0(i,' / ',nrow(coords)))
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
+  #localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=FALSE)
+  #if(!is.null(localGraph$gg)){return(vcount(localGraph$gg))}else{return(0)}
   localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr)
   #return(vcount(localGraph$gg))
   exportGraph(localGraph$gg,dbname=global.destdb_full)
