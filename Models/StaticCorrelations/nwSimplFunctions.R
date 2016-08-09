@@ -152,6 +152,7 @@ graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbname,dbport=global.db
   query = dbSendQuery(pgsqlcon,q)
   data = fetch(query,n=-1)
   res=list(edgelist=data.frame(from=data$origin,to=data$destination),speed=data$speed,type=data$speed,length=data$length)
+  dbDisconnect(pgsqlcon)
   return(res)
 }
 
@@ -161,7 +162,8 @@ graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbname,dbport=global.db
 #'  Construct graph given edgelist
 #'  
 graphFromEdges<-function(edgelist,densraster){
-  edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);
+  if(is.list(edgelist$edgelist)){edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);}
+  else{edgesmat=edgelist$edgelist}
   g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
   gcoords = xyFromCell(densraster,as.numeric(V(g)$name))
   V(g)$x=gcoords[,1];V(g)$y=gcoords[,2]
@@ -241,9 +243,22 @@ simplifyGraph<-function(g,bounds,xr,yr){
     vtodelete=append(vtodelete,p[which(p!=o&p!=d)])
     show(length(remvertices))
   }
+  if(length(edgestoadd)==0){edgestoadd=c()}
   # do not delete vertices extremities of edges to add
   for(e in edgestoadd){vtodelete=difference(vtodelete,vtodelete[vtodelete$name==e])}
   return(list(graph = delete_vertices(g,vtodelete),edgestoadd=edgestoadd,edgelength=edgelength,edgespeed=edgespeed,edgetype=edgetype))
+}
+
+
+mergeGraphs<-function(l1,l2){
+  if(length(l1)==0){return(l2)}
+  g=l1$graph+l2$graph
+  #show(as.numeric(!is.na(V(g)$x_1)));show(as.numeric(!is.na(V(g)$x_2)))
+  x=rep(0,length(V(g)$x_1));y=rep(0,length(V(g)$y_1))
+  x[!is.na(V(g)$x_1)]=V(g)$x_1[!is.na(V(g)$x_1)];x[!is.na(V(g)$x_2)]=V(g)$x_2[!is.na(V(g)$x_2)]
+  y[!is.na(V(g)$y_1)]=V(g)$y_1[!is.na(V(g)$y_1)];y[!is.na(V(g)$y_2)]=V(g)$y_2[!is.na(V(g)$y_2)]
+  V(g)$x = x;V(g)$y = y
+  return(list(graph=g,edgestoadd=c(l1$edgestoadd,l2$edgestoadd),edgelength=c(l1$edgelength,l2$edgelength),edgespeed=c(l1$edgespeed,l2$edgespeed),edgetype=c(l1$edgetype,l2$edgetype)))
 }
 
 
@@ -306,20 +321,20 @@ exportGraph<-function(sg,dbname,dbuser=global.dbuser,dbport=global.dbport,dbhost
     
     # TODO : finish transaction here and begin new ?
     
-
+    
     if(!is.null(sg$edgestoadd)){
-
-      if(!is.null(sg$edgestoadd)){
-        sg$edgespeed[which(is.nan(sg$edgespeed))]=0
-        sg$edgespeed[which(is.na(sg$edgespeed))]=0
+      if(length(sg$edgestoadd)>0){
+        if(!is.null(sg$edgestoadd)){
+          sg$edgespeed[which(is.nan(sg$edgespeed))]=0
+          sg$edgespeed[which(is.na(sg$edgespeed))]=0
+        }
+        
+        # # then supplementary edges
+        for(i in seq(from=1,to=length(sg$edgestoadd),by=2)){
+          o=V(graph)[[sg$edgestoadd[i]]];d=V(graph)[[sg$edgestoadd[i+1]]]
+          try(dbSendQuery(con,insertEdgeQuery(o,d,sg$edgelength[1+(i-1)/2],sg$edgespeed[1+(i-1)/2],sg$edgetype[1+(i-1)/2])))
+        }
       }
-      
-      # # then supplementary edges
-      for(i in seq(from=1,to=length(sg$edgestoadd),by=2)){
-        o=V(graph)[[sg$edgestoadd[i]]];d=V(graph)[[sg$edgestoadd[i+1]]]
-        try(dbSendQuery(con,insertEdgeQuery(o,d,sg$edgelength[1+(i-1)/2],sg$edgespeed[1+(i-1)/2],sg$edgetype[1+(i-1)/2])))
-      }
-
     }
 
     #dbCommit(con)
@@ -359,12 +374,12 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=TR
 #'  Process :
 #'   - retrieve nw segments from intermediate base, reconstruct common nw
 #'   - simplify graph [check if same function can be used]
-mergeLocalGraphs<-function(bbox,destdb_prov=global.destdb_prov){
+mergeLocalGraphs<-function(bbox,xr,yr,dbname){
   lonmin=min(bbox[1],bbox[5]);latmax=max(bbox[2],bbox[6]);lonmax=max(bbox[3],bbox[7]);latmin=min(bbox[4],bbox[8])
-  edges = graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname=destdb_prov)
+  edges = graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname=dbname)
   res=list()
   if(length(edges$edgelist)>0){
-    res$sg = simplifyGraph(graphFromEdges(edges,densraster),bounds=c(lonmin,latmin,lonmax,latmax))
+    res$sg = simplifyGraph(graphFromEdges(edges,densraster),bounds=c(lonmin,latmin,lonmax,latmax),xr,yr)
   }
   return(res)
 }

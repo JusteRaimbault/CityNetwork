@@ -17,8 +17,8 @@ xr=xres(densraster);yr=yres(densraster)
 #lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 
 #latmin=46.34;latmax=48.94;lonmin=0.0;lonmax=3.2 # coordinates for db 'centre'
-#latmin=49.447365;latmax=50.183488;lonmin=5.7300013;lonmax=6.53 # coordinates for db 'luxembourg'
-latmin=49.9;latmax=50.183488;lonmin=5.7300013;lonmax=6.53 # coordinates for db 'luxembourg'
+latmin=49.4;latmax=50.25;lonmin=5.65;lonmax=6.6 # coordinates for db 'luxembourg'
+#latmin=49.9;latmax=50.183488;lonmin=5.7300013;lonmax=6.53 # coordinates for db 'luxembourg'
 
 #r=raster(nrows=floor((latmax-latmin)*2000),ncols=floor((lonmax-lonmin)*2000),xmn=lonmin,xmx=lonmax,ymn=latmin,ymx=latmax,crs=crs(densraster))
 #densraster=r
@@ -69,9 +69,9 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
 
 #save(res,file='testlight/sizes.Rdata')
 
-system('pgsql2shp -f testlight/luxembourg_full_north_2 -p 5433 nwtest_full links')
-system('pgsql2shp -f testlight/luxembourg_prov_north_2 -p 5433 nwtest_prov links')
-stopCluster(cl)
+#system('pgsql2shp -f testlight/luxembourg_full_north_2 -p 5433 nwtest_full links')
+#system('pgsql2shp -f testlight/luxembourg_prov_north_2 -p 5433 nwtest_prov links')
+#stopCluster(cl)
 
 ##
 # merging of cells
@@ -97,19 +97,35 @@ mergingSequences = getMergingSequences(densraster,lonmin,latmin,lonmax,latmax,nc
 # }
   
 # 
-# for(l in 1:length(mergingSequences)){
-#   show(paste0("merging : ",l))
-#   seq = mergingSequences[[l]]
-#   #res <- foreach(i=1:length(seq)) %dopar% {
-#   for(i in 1:length(seq)){
-#     source('nwSimplFunctions.R')
-#     locres = mergeLocalGraphs(seq[i,])
-#     exportGraph(localres$sg,dbname="nwtest_simpl")
-#   }
-# }
-# 
-# system('pgsql2shp -f testlight/luxembourg_simpl_north -p 5433 nwtest_simpl links')
+#system('./runtest.sh')
 
+global.destdb_prov = "nwtest_prov"
+prevdb=global.destdb_prov
+for(l in 1:length(mergingSequences)){
+  currentdb=paste0('nwtest_simpl_',l)
+  system(paste0('./setupDB.sh ',currentdb))
+   show(paste0("merging : ",l))
+   seq = mergingSequences[[l]]
+#   #
+   #currentGraph=list()
+   #for(i in 1:nrow(seq)){
+     res <- foreach(i=1:nrow(seq)) %dopar% {
+     #show(i)
+     source('nwSimplFunctions.R')
+     localres = mergeLocalGraphs(seq[i,],xr=xr,yr=yr,dbname=prevdb)
+     #if(length(localres$sg)>0){currentGraph=mergeGraphs(currentGraph,localres$sg)}
+     exportGraph(localres$sg,dbname=currentdb)
+   }
+   prevdb=currentdb
+   #system('./runtest.sh')
+   #exportGraph(currentGraph,dbname=global.destdb_simpl)
+   #global.destdb_prov = global.destdb_simpl
+ }
+# 
+
+for(l in 1:length(mergingSequences)){
+ system(paste0('pgsql2shp -f testlight/luxembourg_simpl_north_',l,' -p 5433 nwtest_simpl_',l,' links'))
+}
 
 stopCluster(cl)
 
