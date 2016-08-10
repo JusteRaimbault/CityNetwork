@@ -161,8 +161,8 @@ graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbname,dbport=global.db
 #'  
 #'  Construct graph given edgelist
 #'  
-graphFromEdges<-function(edgelist,densraster){
-  if(is.list(edgelist$edgelist)){edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);}
+graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
+  if(from_query==TRUE){edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);}
   else{edgesmat=edgelist$edgelist}
   g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
   gcoords = xyFromCell(densraster,as.numeric(V(g)$name))
@@ -379,7 +379,7 @@ mergeLocalGraphs<-function(bbox,xr,yr,dbname){
   edges = graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname=dbname)
   res=list()
   if(length(edges$edgelist)>0){
-    res$sg = simplifyGraph(graphFromEdges(edges,densraster),bounds=c(lonmin,latmin,lonmax,latmax),xr,yr)
+    res$sg = simplifyGraph(graphFromEdges(edges,densraster,from_query = FALSE),bounds=c(lonmin,latmin,lonmax,latmax),xr,yr)
   }
   return(res)
 }
