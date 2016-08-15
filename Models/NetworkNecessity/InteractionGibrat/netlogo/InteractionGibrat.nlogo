@@ -90,6 +90,9 @@ cities-own [
   population-history
   expected-population-history ; convenience variable
   
+  ; for comparing between runs : previous population history
+  previous-population-history
+  
   current-mse
   
   color-var
@@ -104,7 +107,6 @@ undirected-link-breed [paths path]
 paths-own [
   impedance 
 ]
-
 
 
 
@@ -371,12 +373,12 @@ NIL
 CHOOSER
 975
 83
-1113
+1173
 128
 visualization
 visualization
-"mse" "mse-log"
-1
+"mse" "mse-log" "delta-previous-mse" "delta-previous-mse-log"
+2
 
 @#$#@#$#@
 ## WHAT IS IT?
