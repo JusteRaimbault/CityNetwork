@@ -1,0 +1,67 @@
+
+ pg_terminate_backend
+----------------------
+(0 rows)
+
+ERROR:  database "nw_full" does not exist
+CREATE DATABASE
+CREATE EXTENSION
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+> system(paste0('./setupDB.sh ',global.destdb_prov))
+ pg_terminate_backend
+----------------------
+(0 rows)
+
+ERROR:  database "nw_prov" does not exist
+CREATE DATABASE
+CREATE EXTENSION
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+> system(paste0('./setupDB.sh ',global.destdb_simpl))
+ pg_terminate_backend
+----------------------
+(0 rows)
+
+ERROR:  database "nw_simpl" does not exist
+CREATE DATABASE
+CREATE EXTENSION
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+>
+> library(doParallel)
+Le chargement a nécessité le package : foreach
+Le chargement a nécessité le package : iterators
+Le chargement a nécessité le package : parallel
+> cl <- makeCluster(20,outfile='log')
+> #cl <- makeCluster(4,outfile='log')
+> registerDoParallel(cl)
+>
+> startTime = proc.time()[3]
+>
+> ##
+> # construction of local graphs
+>
+> res <- foreach(i=1:nrow(coords)) %dopar% {
++ #for(i in 1:nrow(coords)){
++   source('nwSimplFunctions.R')
++   #show(paste0(i,' / ',nrow(coords)))
++   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
++   #localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=FALSE)
++   #if(!is.null(localGraph$gg)){return(vcount(localGraph$gg))}else{return(0)}
++   localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr)
++   #return(vcount(localGraph$gg))
++   exportGraph(localGraph$gg,dbname=global.destdb_full)
++   exportGraph(localGraph$sg,dbname=global.destdb_prov)
++ }
+Error in { : task 251 failed - "Unknown vertex selected"
+Calls: %dopar% -> <Anonymous>
+Exécution arrêtée
+
+
+== lundi 15 août 2016, 15:53:42 (UTC+0200) ==
+
+
