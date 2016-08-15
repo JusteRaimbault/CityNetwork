@@ -22,19 +22,22 @@ This paper is the application of a theoretical paper developing a theory of co-e
 \section{Context and Objective}
 
 
-\subsection{Exemplifying Network Necessity}
+
+% Do not mention that in the model paper - that will be cited by the theoretical paper.
+
+%\subsection{Exemplifying Network Necessity}
 
 % what plan to do
 % how does goes in the direction of theory confirmation ?
 
-We propose to support our hypothesis that \textit{physical transportation networks are necessary to explain the morphogenesis of territorial systems} (aka \textit{Network Necessity}) by showing on a relatively simple case that the integration of physical networks into some models effectively increase their explanative power (being careful on the precise definition of model improvement to avoid overfitting). We work on simple territorial systems that are country-wide city systems, and more particularly French cities, on a time scale corresponding to that spatial scale, i.e. two last centuries. Taking into account physical networks can improve the understanding of city growth within that system in two ways : a qualitative one, for which the extended model would exhibit qualitative features corresponding to stylized facts empirically observed but that more basic models do not manage to reproduce, and a quantitative way, in the sense that model extension improves explained variance further than the mechanic improvement due to the introduction of supplementary degrees of freedom. If at least one of these is unveiled in our particular case, the evidence will support the theory at these scale and in this context.
+
+
+%We propose to support our hypothesis that \textit{physical transportation networks are necessary to explain the morphogenesis of territorial systems} (aka \textit{Network Necessity}) by showing on a relatively simple case that the integration of physical networks into some models effectively increase their explanative power (being careful on the precise definition of model improvement to avoid overfitting). We work on simple territorial systems that are country-wide city systems, and more particularly French cities, on a time scale corresponding to that spatial scale, i.e. two last centuries. Taking into account physical networks can improve the understanding of city growth within that system in two ways : a qualitative one, for which the extended model would exhibit qualitative features corresponding to stylized facts empirically observed but that more basic models do not manage to reproduce, and a quantitative way, in the sense that model extension improves explained variance further than the mechanic improvement due to the introduction of supplementary degrees of freedom. If at least one of these is unveiled in our particular case, the evidence will support the theory at these scale and in this context.
 
 
 \subsection{Model context}
 
-\cite{bretagnolle2000long} already propose a spatial extension of the Gibrat model (\textit{detail})
-
-\cite{favaro2011gibrat} is a more refined extension with economic cycles
+\cite{bretagnolle2000long} already proposed a spatial extension of the Gibrat model. Later, \cite{favaro2011gibrat} developed a more refined extension with economic cycles and innovation waves, yielding a system dynamics version of the core of Simpop models.
 
 % marius as an extension of Gibrat ? in the deterministic case.
 
@@ -51,11 +54,20 @@ We propose to support our hypothesis that \textit{physical transportation networ
 
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Model description}
 
+We choose to work on a deterministic extension of the Gibrat model, what is equivalent to consider only expectancies in time as detailed before. Let $\vec{P}(t)=(P_i(t))_i$ be the population of cities in time. Under Gibrat independence assumptions, we have $\Covb{P_i(t)}{P_j(t)}=0$. If $\vec{P}(t+1)=\mathbf{R}\cdot \vec{P}(t)$ where $\mathbf{R}$ is also independent, then $\Eb{\vec{P}(t+1)}=\mathbf{R}\cdot\Eb{\vec{P}}(t)$. With $\vec{\mu}(t)=\Eb{\vec{P}(t)}$, we generalize this approach by taking $\vec{\mu}(t+1)=f(\vec{\mu}(t))$. In our case, we take
 
+\[f(\vec{\mu}) = r_0\cdot \mathbf{Id}\cdot \vec{\mu} + \mathbf{G}\cdot \mathbf{1} + \mathbf{N}\cdot \]
 
+with 
+\begin{itemize}
+\item $G_{ij} = w_G\cdot \frac{V_{ij}}{<V_{ij}>}$ and $V_{ij} = \left(\frac{\mu_i\mu_j}{\sum{\mu_k}^2}\right)^{\gamma_G} \exp{(-d_{ij}/d_G)}$
+\item $N_{i} = w_N \cdot \sum_{kl} \left(\frac{\mu_k\mu_l}{\sum\mu}\right)^{\gamma_N}\exp{(-d_{kl,i})/d_N}$ where $d_{kl,i}$ is distance to shortest path between $k,l$ computed with slope impedance ($Z=\left(1+\alpha/\alpha_0\right)^{n_0}$ with $\alpha_0\simeq 3$)
+\end{itemize}
+
+The first component is the pure Gibrat model, that we obtain by setting the weights $w_G = w_N = 0$. The second component captures interdependencies between 
 
 
 
@@ -80,7 +92,7 @@ We took fixed parameter values $\alpha_0 = 3$ (corresponding to approximatively 
 
 \subsection{Implementation}
 
-Data preprocessing, result processing and models profiling are implemented in R. For performances reasons and an easier integration into the OpenMole software for model exploration~\cite{reuillon2013openmole}
+Data preprocessing, result processing and models profiling are implemented in R. For performances reasons and an easier integration into the OpenMole software for model exploration~\cite{reuillon2013openmole}, a \texttt{scala} version was also developed. The typical question of trade-off between implementation performance and interoperability appeared quickly as an issue, as a blind exploration and calibration can difficultly provide useful thematic conclusions for that kind of model. Finding an improvement in model fit among one parameter dimension is significant if the geographical situation is visualized and the improvement is confirmed as reasonable and not an absurdity.
 
 
 
