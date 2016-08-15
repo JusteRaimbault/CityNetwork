@@ -47,9 +47,9 @@ global.destdb_full='nw_full';global.destdb_prov='nw_prov';global.destdb_simpl='n
 
 # reinit dbs
 #system('./runtest.sh')
-system(paste0('./setupDB.sh ',global.destdb_full))
-system(paste0('./setupDB.sh ',global.destdb_prov))
-system(paste0('./setupDB.sh ',global.destdb_simpl))
+#system(paste0('./setupDB.sh ',global.destdb_full))
+#system(paste0('./setupDB.sh ',global.destdb_prov))
+#system(paste0('./setupDB.sh ',global.destdb_simpl))
 
 library(doParallel)
 cl <- makeCluster(20,outfile='log')
@@ -61,18 +61,18 @@ startTime = proc.time()[3]
 ##
 # construction of local graphs
 
-res <- foreach(i=1:nrow(coords)) %dopar% {
+#res <- foreach(i=1:nrow(coords)) %dopar% {
 #for(i in 1:nrow(coords)){
-  source('nwSimplFunctions.R')
-  #show(paste0(i,' / ',nrow(coords)))
-  lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
-  #localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=FALSE)
-  #if(!is.null(localGraph$gg)){return(vcount(localGraph$gg))}else{return(0)}
-  localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr)
-  #return(vcount(localGraph$gg))
-  exportGraph(localGraph$gg,dbname=global.destdb_full)
-  exportGraph(localGraph$sg,dbname=global.destdb_prov)
-}
+#  source('nwSimplFunctions.R')
+#  #show(paste0(i,' / ',nrow(coords)))
+#  lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
+#  #localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=FALSE)
+#  #if(!is.null(localGraph$gg)){return(vcount(localGraph$gg))}else{return(0)}
+#  localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr)
+#  #return(vcount(localGraph$gg))
+#  exportGraph(localGraph$gg,dbname=global.destdb_full)
+#  exportGraph(localGraph$sg,dbname=global.destdb_prov)
+#}
 
 #save(res,file='testlight/sizes.Rdata')
 
@@ -117,11 +117,13 @@ for(l in 1:length(mergingSequences)){
    #currentGraph=list()
    #for(i in 1:nrow(seq)){
      res <- foreach(i=1:nrow(seq)) %dopar% {
+       try({
      #show(i)
      source('nwSimplFunctions.R')
      localres = mergeLocalGraphs(seq[i,],xr=xr,yr=yr,dbname=prevdb)
      #if(length(localres$sg)>0){currentGraph=mergeGraphs(currentGraph,localres$sg)}
      exportGraph(localres$sg,dbname=currentdb)
+       })
    }
    prevdb=currentdb
    #system('./runtest.sh')
