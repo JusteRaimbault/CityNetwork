@@ -12,10 +12,10 @@
 #'  
 #'   - histogram : histogram object, or list with slots $counts and $mids
 #'   - optimMethod \in {"nlm","ga"} . convex optimization ?
-inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds,costFunction="mse",optimMethod="ga"){
-  if(is.null(histogram$mids)|is.null(histogram$counts)){stop()}
+inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds,costFunction="mse",optimMethod="ga",iters.max=100){
+  if(is.null(histogram$mids)|is.null(histogram$density)){stop()}
   x = histogram$mids
-  y = histogram$counts
+  y = histogram$density
   
   # kernel
   if(is.null(formals(ker)$x)|length(formals(ker))<2){stop("invalid kernel")}
@@ -28,7 +28,7 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds,costFu
   if(costFunction=="mse"){cost=function(x,y){return(sum((x-y)^2))}}
   
   # function to optimize
-  f = function(params){
+  vals=function(params){
     vals = c()
     for(j in 1:length(x)){
       k = 0
@@ -37,7 +37,11 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds,costFu
       }
       vals=append(vals,k)
     }
-    return(cost(y,vals))
+    return(vals)
+  }
+  
+  f = function(params){
+    return(cost(y,vals(params)))
   }
   
   # optim procedure
@@ -60,7 +64,7 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds,costFu
                fitness=function(x){-f(x)},
                min=paramsBounds$lower,
                max=paramsBounds$upper,
-               maxiter=100
+               maxiter=iters.max
     )
     parmin=optim@solution
   }
@@ -68,6 +72,7 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds,costFu
   # return parameters, fit
   res=list()
   res$parameters = parmin
+  res$fittedHist = vals(parmin)
   
   return(res)
 }
@@ -76,7 +81,7 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds,costFu
 #'
 #' gaussian kernel of fixed width
 fixedSdGaussian<-function(sigma=1){
-  return(function(x,mu){exp(-(x-mu)^2/(2*sigma^2))})
+  return(function(x,mu){1/sqrt(2*pi)*exp(-(x-mu)^2/(2*sigma^2))})
 }
 
 
@@ -84,30 +89,69 @@ fixedSdGaussian<-function(sigma=1){
 
 
 ## tests
-nkers=8
-x=(1:100)/100;
-y=rep(0,length(x))
-mus=c()
-for(i in 1:nkers){
-  mu=runif(1);mus=append(mus,mu)
-  y=y+sapply(x,function(x){fixedSdGaussian(0.1)(x,mu)})
-}
+# nkers=6
+# x=(1:100)/100;
+# y=rep(0,length(x))
+# mus=c()
+# for(i in 1:nkers){
+#   mu=runif(1);mus=append(mus,mu)
+#   y=y+sapply(x,function(x){fixedSdGaussian(0.1)(x,mu)})
+# }
+# 
+# 
+# res = inverseKernels(histogram = list(mids=x,counts=y),
+#                      weights = rep(1,nkers),
+#                      ker = fixedSdGaussian(0.1),
+#                      initialParams = runif(nkers),
+#                      paramsBounds=list(lower=rep(0,nkers),upper=rep(1,nkers)))
+# mus
+# res$parameters
+# 
+# plot(x,y,type='l')
+# for(p in 1:length(res$parameters)){
+#   #abline(v=mus[p],col='blue')
+#   abline(v=res$parameters[p],col='red');
+# }
 
-res = inverseKernels(histogram = list(mids=x,counts=y),
-                     weights = rep(1,nkers),
-                     ker = fixedSdGaussian(0.1),
+# GA seems better in all cases
+
+
+
+# test with a lognormal plus unif noise
+x=rlnorm(100000);x[x>5] = runif(length(which(x>5)))
+nkers = 20
+
+res = inverseKernels(histogram =hist(x,breaks=100,plot=FALSE),
+                     weights = (1:nkers)/(nkers*(nkers+1)/2),#rep(1,nkers),
+                     ker = fixedSdGaussian(0.2),
                      initialParams = runif(nkers),
-                     paramsBounds=list(lower=rep(0,nkers),upper=rep(1,nkers)))
-mus
-res$parameters
+                     paramsBounds=list(lower=rep(min(x),nkers),upper=rep(max(x),nkers)),
+                     iters.max = 200
+                     )
 
-plot(x,y,type='l')
+hist(x,breaks=100,freq=FALSE)
+h=hist(x,breaks=100,freq=FALSE)
 for(p in 1:length(res$parameters)){
   #abline(v=mus[p],col='blue')
   abline(v=res$parameters[p],col='red');
 }
+points(x = h$mids,y=res$fittedHist,type='l',col='blue')
 
-# GA seems better in all cases
+
+###
+# TODO
+# test with variable sigma ?
+
+
+
+## 
+# TODO
+# test on real data
+#
+
+
+
+
 
 
 
