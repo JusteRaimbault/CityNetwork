@@ -26,7 +26,7 @@ latmin=46.34;latmax=48.94;lonmin=0.0;lonmax=3.2 # coordinates for db 'centre'
 ncells = 200
 
 # get coordinates
-coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
+#coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
 
 # export grid for viz
 # gridlines=list();i=1
