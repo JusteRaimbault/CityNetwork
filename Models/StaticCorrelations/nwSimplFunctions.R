@@ -27,6 +27,15 @@ getCoords<-function(r,xmin,ymin,xmax,ymax,cells){
   return(coords)
 }
 
+getCoordsOffset<-function(r,xmin,ymin,xmax,ymax,cells,offset){
+  rows_min = seq(from=rowFromY(r,ymax),to=rowFromY(r,ymin)-cells,by=offset)
+  rows_max = seq(from=rowFromY(r,ymax)+cells,to=rowFromY(r,ymin),by=offset)-1
+  cols_min = seq(from=colFromX(r,xmin),to=colFromX(r,xmax)-cells,by=offset)
+  cols_max = seq(from=colFromX(r,xmin)+cells,to=colFromX(r,xmax),by=offset)-1
+  coords = coordsFromIndexes(r,rows_min,rows_max,cols_min,cols_max)
+  return(coords)
+}
+
 #'
 #' aux function
 #' (used also in merge sequences)
@@ -149,10 +158,12 @@ graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbname,dbport=global.db
   q = paste0(
     "SELECT origin,destination,length,speed,roadtype FROM links",
     " WHERE ST_Intersects(ST_MakeEnvelope(",lonmin,",",latmin,",",lonmax,",",latmax,",4326),","geography);")
+  show(q)
   query = dbSendQuery(pgsqlcon,q)
   data = fetch(query,n=-1)
-  res=list(edgelist=data.frame(from=data$origin,to=data$destination),speed=data$speed,type=data$speed,length=data$length)
   dbDisconnect(pgsqlcon)
+  if(length(data)==0){return(list())}
+  res=list(edgelist=data.frame(from=data$origin,to=data$destination),speed=data$speed,type=data$speed,length=data$length)
   return(res)
 }
 
@@ -162,12 +173,14 @@ graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbname,dbport=global.db
 #'  Construct graph given edgelist
 #'  
 graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
+  if(is.null(edgelist$edgelist)){return(make_empty_graph())}
   if(from_query==TRUE){edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);}
   else{edgesmat=edgelist$edgelist}
   g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
   gcoords = xyFromCell(densraster,as.numeric(V(g)$name))
   V(g)$x=gcoords[,1];V(g)$y=gcoords[,2]
-  gg=simplify(g)
+  E(g)$length=edgelist$length
+  gg=simplify(g,edge.attr.comb="min")
   return(gg)
 }
 

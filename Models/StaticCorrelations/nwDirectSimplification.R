@@ -16,7 +16,7 @@ xr=xres(densraster);yr=yres(densraster)
 latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
 lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 
-#latmin=46.34;latmax=48.94;lonmin=0.0;lonmax=3.2 # coordinates for db 'centre'
+latmin=46.34;latmax=48.94;lonmin=0.0;lonmax=3.2 # coordinates for db 'centre'
 #latmin=49.4;latmax=50.25;lonmin=5.65;lonmax=6.6 # coordinates for db 'luxembourg'
 #latmin=49.9;latmax=50.183488;lonmin=5.7300013;lonmax=6.53 # coordinates for db 'luxembourg'
 

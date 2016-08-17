@@ -146,7 +146,7 @@ points(x = h$mids,y=res$fittedHist,type='l',col='blue')
 
 ## 
 # TODO
-# test on real data
+# -- test on real data --
 #
 
 

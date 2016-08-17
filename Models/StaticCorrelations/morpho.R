@@ -25,7 +25,7 @@ spatialWeights <- function (N,P){
 # @requires : vars rdens, rpop are defined
 rdens_file="temp_raster_dens.asc"
 rpop_file = "temp_raster_pop.asc"
-show(paste0('Loading rasters from ',rdens_file,' , ',rpop_file))
+#show(paste0('Loading rasters from ',rdens_file,' , ',rpop_file))
 r_dens = raster(rdens_file)
 m = as.matrix(r_dens)
 m[is.na(m)] <- 0
@@ -35,13 +35,24 @@ m = as.matrix(r_pop)
 m[is.na(m)] <- 0
 r_pop = raster(m)
 
+
+# total population
+totalPopulation<-function(r_pop){
+  return(cellStats(r_pop,'sum'))
+}
+
+maxPopulation<-function(r_pop){
+  return(cellStats(r_pop,'max'))
+}
+
+
 #moran index 
-moranIndex <- function(){
+moranIndex <- function(r_dens){
   return(Moran(r_dens,spatialWeights(nrow(r_dens)-1,ncol(r_dens)-1)))
 }
 
 # same with use of focal
-convolMoran <- function(){
+convolMoran <- function(r_pop){
   meanPop = cellStats(r_pop,sum)/ncell(r_pop)
   w = spatialWeights(nrow(r_pop)-1,ncol(r_pop)-1)
   return(ncell(r_pop) * cellStats(focal(r_pop-meanPop,w,sum,pad=TRUE,padValue=0)*(r_pop - meanPop),sum) / cellStats((r_pop - meanPop)*(r_pop - meanPop),sum) / cellStats(focal(raster(matrix(data=rep(1,ncell(r_pop)),nrow=nrow(r_pop))),w,sum,pad=TRUE,padValue=0),sum))
@@ -69,13 +80,13 @@ distanceMatrix <- function(N,P){
 # still very heavy computationally
 # uses focal instead as in Moran Index computation.
 #
-averageDistance <- function(){
+averageDistance <- function(r_pop){
   return(cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0)*r_pop,sum) / ( cellStats(r_pop,sum)^2 * sqrt(nrow(r_pop)*ncol(r_pop)/pi)))
 }
 
 
 # distribution entropy --> rough equivalent of integrated local density ?
-entropy <- function(){
+entropy <- function(r_dens){
   m= values(r_dens)*cellStats(r_dens,function(x,...){na.omit(log(x))})
   m[is.na(m)]=0
   return(-1 / log(ncell(r_dens)) * sum(m) )
@@ -84,7 +95,7 @@ entropy <- function(){
 
 # rank-size slope
 # -> linear regression on sorted log series
-rankSizeSlope <- function(){
+rankSizeSlope <- function(r_pop){
   size = cellStats(r_pop,function(x,...){na.omit(log(x))})
   size = size[size>0] # at least one person
   size=sort(size,decreasing=TRUE)
