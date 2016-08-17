@@ -26,7 +26,7 @@ lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 ncells = 200
 
 # get coordinates
-coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
+#coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
 
 # export grid for viz
 # gridlines=list();i=1
