@@ -44,18 +44,22 @@ getCoordsOffset<-function(r,xmin,ymin,xmax,ymax,cells,offset){
 #' 
 #' @requires |rows_min|=|rows_max| ; |cols_min|=|cols_max|
 coordsFromIndexes<-function(densraster,rows_min,rows_max,cols_min,cols_max){
-  coords = data.frame()
+  coords = matrix(0,length(rows_min)*length(cols_min),4)#data.frame()
+  k=1
   xr=xres(densraster);yr=yres(densraster)
   for(i in 1:length(rows_min)){
     show(paste0("  coords : row ",i," / ",length(rows_min)))
     for(j in 1:length(cols_min)){
       topleft = xyFromCell(densraster,cellFromRowCol(densraster,rows_min[i],cols_min[j]))
       bottomright = xyFromCell(densraster,cellFromRowCol(densraster,rows_max[i],cols_max[j]))
-      coords = rbind(coords,c(topleft[1]-xr/2,topleft[2]+yr/2,bottomright[1]+xr/2,bottomright[2]-yr/2))
-     }
+      #coords = rbind(coords,c(topleft[1]-xr/2,topleft[2]+yr/2,bottomright[1]+xr/2,bottomright[2]-yr/2))
+      coords[k,]=c(topleft[1]-xr/2,topleft[2]+yr/2,bottomright[1]+xr/2,bottomright[2]-yr/2)
+      k=k+1
+    }
   }
   # names : error ?
   #names(coords)<-c("lonmin","latmax","lonmax","latmin")
+  coords = data.frame(coords)
   return(coords)
 }
 
