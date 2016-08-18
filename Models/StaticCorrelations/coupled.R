@@ -18,6 +18,8 @@ lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 areasize = 100
 factor=0.5
 offset = 50
+# estimated comp time : 1461240*0.02539683/20/60 ~ 30hours
+# (upper bound, without empty areas)
 
 purpose = paste0('europe_areasize',areasize,'_offset',offset,'_factor',factor,'_')
 
@@ -29,7 +31,7 @@ coords <- getCoordsOffset(densraster,lonmin,latmin,lonmax,latmax,areasize,offset
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(20,outfile='log')
+cl <- makeCluster(4)#20,outfile='log')
 registerDoParallel(cl)
 
 startTime = proc.time()[3]
@@ -41,7 +43,7 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
   x=rowFromY(densraster,latmin);y=colFromX(densraster,lonmin);
   e<-getValuesBlock(densraster,row=x,nrows=areasize,col=y,ncols=areasize)
-  g = graphFromEdges(graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname='nw_simpl_4'),densraster,from_query = FALSE)
+  g = graphFromEdges(graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname='nwtest_simpl_4'),densraster,from_query = FALSE)
   if(sum(is.na(e))/length(e)<0.5){
     #show("computing indicators...")
     m=simplifyBlock(e,factor,areasize)

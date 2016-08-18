@@ -32,6 +32,8 @@ getCoordsOffset<-function(r,xmin,ymin,xmax,ymax,cells,offset){
   rows_max = seq(from=rowFromY(r,ymax)+cells,to=rowFromY(r,ymin),by=offset)-1
   cols_min = seq(from=colFromX(r,xmin),to=colFromX(r,xmax)-cells,by=offset)
   cols_max = seq(from=colFromX(r,xmin)+cells,to=colFromX(r,xmax),by=offset)-1
+  show(length(rows_min))
+  show(length(cols_min))
   coords = coordsFromIndexes(r,rows_min,rows_max,cols_min,cols_max)
   return(coords)
 }
