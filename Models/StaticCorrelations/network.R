@@ -39,9 +39,12 @@ networkSize <- function(g){
 networkBetweenness <- function(g){
   b=betweenness(g,weights=E(g)$length,normalized=TRUE)
   res=list()
+  b[is.nan(b)|is.na(b)]=0
   if(length(b)>0){
     res$meanBetweenness = mean(b)
-    res$alphaBetweenness = lm(data = data.frame(x=log(1:length(which(is.finite(log(b))))),y=sort(log(b)[is.finite(log(b))],decreasing = TRUE)),formula = y~x)$coefficients[2]
+    if(length(which(is.finite(log(b))))>0){
+      res$alphaBetweenness = lm(data = data.frame(x=log(1:length(which(is.finite(log(b))))),y=sort(log(b)[is.finite(log(b))],decreasing = TRUE)),formula = y~x)$coefficients[2]
+    }else{res$alphaBetweenness = 0}
   }
   else{res$meanBetweenness = 0;res$alphaBetweenness=0}
   # hierarchy
@@ -56,9 +59,12 @@ networkBetweenness <- function(g){
 networkCloseness <- function(g){
   b = closeness(g,weights=E(g)$length,normalized=TRUE)
   res=list()
+  b[is.nan(b)|is.na(b)]=0
   if(length(b)>0){
     res$meanCloseness = mean(b)
-    res$alphaCloseness = lm(data = data.frame(x=log(1:length(which(is.finite(log(b))))),y=sort(log(b)[is.finite(log(b))],decreasing = TRUE)),formula = y~x)$coefficients[2]
+    if(length(which(is.finite(log(b))))>0){
+      res$alphaCloseness = lm(data = data.frame(x=log(1:length(which(is.finite(log(b))))),y=sort(log(b)[is.finite(log(b))],decreasing = TRUE)),formula = y~x)$coefficients[2]
+    }else{res$alphaBetweenness = 0}
   }
   else{res$meanCloseness = 0;res$alphaCloseness=0}
   return(res)

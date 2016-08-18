@@ -8,16 +8,18 @@ source('nwSimplFunctions.R')
 
 densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
 
-global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost"
-#global.dbport=5433;global.dbuser="juste";global.dbhost=""
+#global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost"
+global.dbport=5433;global.dbuser="juste";global.dbhost=""
 
-#latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
-#lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
-latmin=46.7;latmax=47.7;lonmin=1;lonmax=2.2 
+latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
+lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
+#latmin=46.7;latmax=47.7;lonmin=1;lonmax=2.2 
 
 areasize = 100
 factor=0.5
 offset = 50
+
+purpose = paste0('europe_areasize',areasize,'_offset',offset,'_factor',factor,'_')
 
 # coords using lon-lat
 coords <- getCoordsOffset(densraster,lonmin,latmin,lonmax,latmax,areasize,offset)
@@ -27,17 +29,19 @@ coords <- getCoordsOffset(densraster,lonmin,latmin,lonmax,latmax,areasize,offset
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(4)#20,outfile='log')
+cl <- makeCluster(20,outfile='log')
 registerDoParallel(cl)
 
 startTime = proc.time()[3]
 
 res <- foreach(i=1:nrow(coords)) %dopar% {
+  show(i)
+  #for(i in 1:nrow(coords)){show(i)
   source('morpho.R');source('nwSimplFunctions.R');source('network.R')
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
   x=rowFromY(densraster,latmin);y=colFromX(densraster,lonmin);
   e<-getValuesBlock(densraster,row=x,nrows=areasize,col=y,ncols=areasize)
-  g = graphFromEdges(graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname='nwtest_simpl_4'),densraster,from_query = FALSE)
+  g = graphFromEdges(graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname='nw_simpl_4'),densraster,from_query = FALSE)
   if(sum(is.na(e))/length(e)<0.5){
     #show("computing indicators...")
     m=simplifyBlock(e,factor,areasize)
@@ -76,15 +80,19 @@ colnames(v)=c("lonmin","latmin","moran","distance","entropy","slope","rsquaredsl
 
 show(paste0("Ellapsed Time : ",proc.time()[3]-startTime))
 
-# purpose = '_europe50km_10kmoffset_100x100grid'
+
+#gg = ggplot(v)
+#gg+geom_raster(aes(x=lonmin,y=latmin,fill=vcount))+scale_color_continuous(low='yellow',high='red')
+
+#
 # 
 # # store in data file
-# write.table(
-#   v,
-#   file=paste0('res/',format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),purpose,'.csv'),
-#   sep = ";",
-#   col.names=colnames(v)
-# )
+write.table(
+   v,
+   file=paste0('res/',purpose,format(Sys.time(), "%a-%b-%d-%H:%M:%S-%Y"),'.csv'),
+   sep = ";",
+   col.names=colnames(v)
+)
 # 
 
 
