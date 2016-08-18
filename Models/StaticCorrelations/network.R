@@ -18,13 +18,53 @@ library(rgdal)
 #  - mean path length
 #  - network performance
 #  - diameter ?
+#  - components
+#  - clustering coefs
+#  - graph size (-> density)
+
+
+#'
+#' basic stats
+#'
+networkSize <- function(g){
+  res=list()
+  res$vcount=vcount(g);res$ecount=ecount(g)
+  if(vcount(g)>0){res$density = ecount(g)/(vcount(g)*(vcount(g)-1)/2)}
+  else{res$density=0}
+  return(res)
+}
 
 #'
 #' mean betweenness
-meanBetweenness <- function(g){
-  b=betweenness(g)
-  if(length(b)>0){return(mean(b))}else{return(0)}
+networkBetweenness <- function(g){
+  b=betweenness(g,weights=E(g)$length,normalized=TRUE)
+  res=list()
+  if(length(b)>0){
+    res$meanBetweenness = mean(b)
+    res$alphaBetweenness = lm(data = data.frame(x=log(1:length(which(is.finite(log(b))))),y=sort(log(b)[is.finite(log(b))],decreasing = TRUE)),formula = y~x)$coefficients[2]
+  }
+  else{res$meanBetweenness = 0;res$alphaBetweenness=0}
+  # hierarchy
+  return(res)
 }
+
+
+# check distribution
+# -> better with weights
+#plot(log(1:length(V(g))),sort(log(betweenness(g,weights=E(g)$length)),decreasing = TRUE))
+
+networkCloseness <- function(g){
+  b = closeness(g,weights=E(g)$length,normalized=TRUE)
+  res=list()
+  if(length(b)>0){
+    res$meanCloseness = mean(b)
+    res$alphaCloseness = lm(data = data.frame(x=log(1:length(which(is.finite(log(b))))),y=sort(log(b)[is.finite(log(b))],decreasing = TRUE)),formula = y~x)$coefficients[2]
+  }
+  else{res$meanCloseness = 0;res$alphaCloseness=0}
+  return(res)
+}
+
+#plot(log(1:length(V(g))),sort(log(closeness(g,weights=E(g)$length)),decreasing = TRUE))
 
 #'
 #' mean link length
@@ -33,8 +73,31 @@ meanLength<-function(g){
 }
 
 #'
+#' mean degree
+#'
+meanDegree<-function(g){
+  return(mean(degree(g)))
+}
+
+#'
+#' mean clust coef
+#'
+meanClustCoef<-function(g){
+  return(mean(transitivity(g,type="weighted",weights=E(g)$length,isolates="zero")))
+}
+
+
+#'
+#' components
+#'
+componentsNumber<-function(g){
+  return(length(components(g)$csize))
+}
+
+#'
 #' Network performance
 pathMeasures <-function(g){
+  if(vcount(g)==0){return(list(networkPerf=NA,meanPathLength=NA,diameter=NA))}
   d = distances(g,weights=E(g)$length)
   diag(d)<-1
   n=length(V(g))
@@ -44,8 +107,8 @@ pathMeasures <-function(g){
   r = deucl / d
   res=list()
   res$networkPerf = sum(r)/n*(n-1)
-  res$meanPathLength = mean(d)
-  res$diameter = max(d)
+  res$meanPathLength = mean(d[d!=Inf])
+  res$diameter = max(d[d!=Inf])
   return(res)
 }
 
