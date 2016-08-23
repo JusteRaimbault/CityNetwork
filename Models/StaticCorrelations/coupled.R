@@ -13,7 +13,8 @@ global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost";global.nwdb='
 
 #latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
 #lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
-latmin=45.7;latmax=47.7;lonmin=0.5;lonmax=2.2 
+latmin=46.85;latmax=48.05;lonmin=1.0;lonmax=2.7 
+#latmin=46.3;latmax=49.0;lonmin=0.0;lonmax=3.2 # full centre -- pb : bord effects
 
 areasize = 100
 factor=0.5

@@ -121,8 +121,12 @@ pathMeasures <-function(g){
   r = deucl / d
   res=list()
   res$networkPerf = sum(r)/n*(n-1)
+  # TODO nw perf is not normalized by distance -- cannot be compared
+  diag(d)<-Inf
   res$meanPathLength = mean(d[d!=Inf])
   res$diameter = max(d[d!=Inf])
+  # renormalize networkPerf for comparability (TODO add d^{eucl}_{max})
+  res$networkPerf = res$networkPerf * res$meanPathLength
   return(res)
 }
 
