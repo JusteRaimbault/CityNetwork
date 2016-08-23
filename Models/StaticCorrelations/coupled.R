@@ -32,7 +32,7 @@ coords <- getCoordsOffset(densraster,lonmin,latmin,lonmax,latmax,areasize,offset
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(4)#20,outfile='log')
+cl <- makeCluster(20,outfile='log')
 registerDoParallel(cl)
 
 startTime = proc.time()[3]
@@ -44,21 +44,24 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
   x=rowFromY(densraster,latmin);y=colFromX(densraster,lonmin);
   e<-getValuesBlock(densraster,row=x,nrows=areasize,col=y,ncols=areasize)
-  g = graphFromEdges(graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname='nwtest_simpl_4'),densraster,from_query = FALSE)
+  g = graphFromEdges(graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname='nw_simpl_4'),densraster,from_query = FALSE)
   if(sum(is.na(e))/length(e)<0.5){
+    res=tryCatch({
     #show("computing indicators...")
     m=simplifyBlock(e,factor,areasize)
     r_pop = raster(m/100);r_dens = raster(m/sum(m))
     pm = pathMeasures(g)
     bw = networkBetweenness(g);cl = networkCloseness(g)
     ns=networkSize(g)
-    res=c(lonmin,latmin,moranIndex(r_dens = r_dens),averageDistance(r_pop = r_pop),
+    return(c(lonmin,latmin,moranIndex(r_dens = r_dens),averageDistance(r_pop = r_pop),
           entropy(r_dens = r_dens),rankSizeSlope(r_pop = r_pop),
           totalPopulation(r_pop=r_pop),maxPopulation(r_pop=r_pop),
           bw$meanBetweenness,bw$alphaBetweenness,cl$meanCloseness,cl$alphaCloseness,
           meanLength(g),pm$networkPerf,pm$meanPathLength,pm$diameter,
           componentsNumber(g),meanClustCoef(g),ns$vcount,ns$ecount,ns$density
-          )
+          ))
+	}
+    ,error=function(e){return(res=c(lonmin,latmin,rep(NA,19)))})
   }
   else{res=c(lonmin,latmin,rep(NA,19))}
   res
@@ -66,11 +69,11 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
 
 stopCluster(cl)
 
-
+save(res,file="res/coupled_temp.RData")
 
 # get results into data frame
 vals_mat = matrix(0,length(res),length(res[[1]]))
-for(a in 1:length(res)){vals_mat[a,]=res[[a]]}
+for(a in 1:length(res)){show(res[[a]]);vals_mat[a,]=res[[a]]}
 v = data.frame(vals_mat);
 colnames(v)=c("lonmin","latmin","moran","distance","entropy","slope","rsquaredslope",
               "pop","max","meanBetweenness","alphaBetweenness",
