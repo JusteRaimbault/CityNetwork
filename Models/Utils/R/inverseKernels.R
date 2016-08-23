@@ -4,15 +4,57 @@
 #' Inverse problem Kernel Mixture reconstruction
 #'
 
-#'
-#' for all j,
-#' f(x_j) = \sum w_c k_c(x_j,\vec{\alpha})
+###############
+#' 
+#' Optimize kernels parameters for inverse kernel mixture problem
+#' 
+#' for all j, f(x_j) = \sum w_c k_c(x_j,\vec{\alpha})
 #' to be optimized on \alpha
 #'  with 
 #'  
-#'   - histogram : histogram object, or list with slots $counts and $mids
+#'  Required args :
+#'   - histogram : histogram object, or list with slots $density and $mids, corresponding to (x_j) and f(x_j)
+#'   - weights : array of weights to be attributed to each kernel, must have \sum weights = 1
+#'   - ker : kernel function (first arguments x, other parameters to be optimized) - the function fixedSdGaussian(sigma) provide gaussian kernel
+#'   - initialParams : initial values for parameters before optimization (same size as weights) - better be a reasonably thematical guess
+#'   
+#'   Additional:
+#'   - paramsBounds : list with slots $lower and $upper, that are lower and upper bounds for optimization
+#'   - costFunction \in {"mse"}
 #'   - optimMethod \in {"nlm","ga"} . convex optimization ?
-inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds,costFunction="mse",optimMethod="ga",iters.max=100){
+#'   - iter.max = 100 : increase if does not converges well
+#'   
+#'   Value :
+#'     list with slots :
+#'       - parameters : optimal parameters
+#'       - fittedHist : fitted histogram
+#'   
+#'   Example :
+#'   ------------
+#'     #  optmize with fixed width gaussian kernels
+#'   
+#'     # if q are quantiles of the target distrbution
+#'     h = quantilesToHist(q)
+#'     # if x is the array whose distrib is targeted,nbreaks arbitrary number of breaks
+#'     h=hist(x,nbreaks)
+#'     
+#'     # weights : let say we have five categories
+#'     weights = c(0.4,0.3,0.1,0.1,0.1)
+#'     # corresponding initial guesses for means (must be inside [0,max(x)])
+#'     # let suppose max(x) = 10
+#'     initial = c(1,2,3,6,7)
+#'     
+#'     # optimize - let take width 1 gaussian
+#'     res = inverseKernels(h,weights,fixedSdGaussian(1),initial)
+#'     
+#'     # let do some stuff with the result : for example plot the hist, the fitted and the obtained gaussian means
+#'     # here res$parameters are the means for each category
+#'     plot(x = h$mids,y=h$density,type='l')
+#'     for(p in 1:length(res$parameters)){abline(v=res$parameters[p],col='red');}
+#'     points(x = h$mids,y=res$fittedHist,type='l',col='blue')
+#'   
+#'   
+inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds = NULL,costFunction="mse",optimMethod="ga",iters.max=100){
   if(is.null(histogram$mids)|is.null(histogram$density)){stop()}
   x = histogram$mids
   y = histogram$density
@@ -30,6 +72,7 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds,costFu
   # function to optimize
   vals=function(params){
     vals = c()
+    xx=c(0,x)
     for(j in 1:length(x)){
       k = 0
       for(c in 1:length(weights)){
@@ -43,6 +86,13 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds,costFu
   f = function(params){
     return(cost(y,vals(params)))
   }
+  
+  # bounds
+  bounds = paramsBounds
+  if(is.null(paramsBounds)){
+    
+  }
+  
   
   # optim procedure
   parmin=initialParams
@@ -62,8 +112,8 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds,costFu
   if(optimMethod=="ga"){
     optim = ga(type="real-valued",
                fitness=function(x){-f(x)},
-               min=paramsBounds$lower,
-               max=paramsBounds$upper,
+               min=bounds$lower,
+               max=bounds$upper,
                maxiter=iters.max
     )
     parmin=optim@solution
@@ -84,6 +134,18 @@ fixedSdGaussian<-function(sigma=1){
   return(function(x,mu){1/sqrt(2*pi)*exp(-(x-mu)^2/(2*sigma^2))})
 }
 
+#'
+#' transform vector of quantiles to an histogram object
+#'   ! assuming q > 0
+quantilesToHist<-function(q){
+  mids=c();density=c()
+  a = 1/length(q)
+  qq=c(0,q)
+  for(i in 1:length(q)){mids = append(mids,(qq[i]+qq[i+1])/2);density=append(density,a/(qq[i+1]-qq[i]))}
+  res=list()
+  res$mids=mids;res$density=density
+  return(res)
+}
 
 
 
@@ -118,24 +180,24 @@ fixedSdGaussian<-function(sigma=1){
 
 
 # test with a lognormal plus unif noise
-x=rlnorm(100000);x[x>5] = runif(length(which(x>5)))
-nkers = 20
-
-res = inverseKernels(histogram =hist(x,breaks=100,plot=FALSE),
-                     weights = (1:nkers)/(nkers*(nkers+1)/2),#rep(1,nkers),
-                     ker = fixedSdGaussian(0.2),
-                     initialParams = runif(nkers),
-                     paramsBounds=list(lower=rep(min(x),nkers),upper=rep(max(x),nkers)),
-                     iters.max = 200
-                     )
-
-hist(x,breaks=100,freq=FALSE)
-h=hist(x,breaks=100,freq=FALSE)
-for(p in 1:length(res$parameters)){
-  #abline(v=mus[p],col='blue')
-  abline(v=res$parameters[p],col='red');
-}
-points(x = h$mids,y=res$fittedHist,type='l',col='blue')
+# x=rlnorm(100000);x[x>5] = runif(length(which(x>5)))
+# nkers = 20
+# 
+# res = inverseKernels(histogram =hist(x,breaks=100,plot=FALSE),
+#                      weights = (1:nkers)/(nkers*(nkers+1)/2),#rep(1,nkers),
+#                      ker = fixedSdGaussian(0.2),
+#                      initialParams = runif(nkers),
+#                      paramsBounds=list(lower=rep(min(x),nkers),upper=rep(max(x),nkers)),
+#                      iters.max = 200
+#                      )
+# 
+# hist(x,breaks=100,freq=FALSE)
+# h=hist(x,breaks=100,freq=FALSE)
+# for(p in 1:length(res$parameters)){
+#   #abline(v=mus[p],col='blue')
+#   abline(v=res$parameters[p],col='red');
+# }
+# points(x = h$mids,y=res$fittedHist,type='l',col='blue')
 
 
 ###
