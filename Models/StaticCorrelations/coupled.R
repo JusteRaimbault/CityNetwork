@@ -8,12 +8,12 @@ source('nwSimplFunctions.R')
 
 densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
 
-#global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost"
-global.dbport=5433;global.dbuser="juste";global.dbhost=""
+global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost"
+#global.dbport=5433;global.dbuser="juste";global.dbhost=""
 
-latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
-lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
-#latmin=46.7;latmax=47.7;lonmin=1;lonmax=2.2 
+#latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
+#lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
+latmin=46.7;latmax=47.7;lonmin=1;lonmax=2.2 
 
 areasize = 100
 factor=0.5
@@ -21,7 +21,8 @@ offset = 50
 # estimated comp time : 1461240*0.02539683/20/60 ~ 30hours
 # (upper bound, without empty areas)
 
-purpose = paste0('europe_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+#purpose = paste0('europe_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+purpose = paste0('testcentre_areasize',areasize,'_offset',offset,'_factor',factor,'_')
 
 # coords using lon-lat
 coords <- getCoordsOffset(densraster,lonmin,latmin,lonmax,latmax,areasize,offset)
