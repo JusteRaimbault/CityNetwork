@@ -28,9 +28,14 @@ library(rgdal)
 #'
 networkSize <- function(g){
   res=list()
-  res$vcount=vcount(g);res$ecount=ecount(g)
-  if(vcount(g)>0){res$density = ecount(g)/(vcount(g)*(vcount(g)-1)/2)}
-  else{res$density=0}
+  if(vcount(g)>0){
+    res$density = ecount(g)/(vcount(g)*(vcount(g)-1)/2)
+    res$vcount=vcount(g);res$ecount=ecount(g)
+  }
+  else{
+    res$density=0
+    res$vcount=0;res$ecount=0
+  }
   return(res)
 }
 
@@ -75,6 +80,7 @@ networkCloseness <- function(g){
 #'
 #' mean link length
 meanLength<-function(g){
+  if(vcount(g)==0){return(0)}
   return(mean(E(g)$length))
 }
 
@@ -82,6 +88,7 @@ meanLength<-function(g){
 #' mean degree
 #'
 meanDegree<-function(g){
+  if(vcount(g)==0){return(0)}
   return(mean(degree(g)))
 }
 
@@ -89,6 +96,7 @@ meanDegree<-function(g){
 #' mean clust coef
 #'
 meanClustCoef<-function(g){
+  if(vcount(g)==0){return(0)}
   return(mean(transitivity(g,type="weighted",weights=E(g)$length,isolates="zero")))
 }
 
@@ -113,8 +121,12 @@ pathMeasures <-function(g){
   r = deucl / d
   res=list()
   res$networkPerf = sum(r)/n*(n-1)
+  # TODO nw perf is not normalized by distance -- cannot be compared
+  diag(d)<-Inf
   res$meanPathLength = mean(d[d!=Inf])
   res$diameter = max(d[d!=Inf])
+  # renormalize networkPerf for comparability (TODO add d^{eucl}_{max})
+  res$networkPerf = res$networkPerf * res$meanPathLength
   return(res)
 }
 
