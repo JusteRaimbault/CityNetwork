@@ -61,6 +61,7 @@ getCorrMeasure<-function(xcors,ycors,corrs,f){
   res = matrix(0,length(xcors)*length(ycors),3)
   k=1
   for(i in 1:length(xcors)){
+    show(i)
     for(j in 1:length(ycors)){
       x=xcors[i];y=ycors[j]
       res[k,1:2]=c(x,y)

@@ -72,16 +72,22 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
 
 stopCluster(cl)
 
+
+#save(res,file="res/coupled_temp.RData")
+#load("res/coupled_temp.RData")
 save(res,file=paste0('res/coupled_',purpose,'temp.RData'))
 #load('res/coupled_temp.RData')
 
 # get results into data frame
 vals_mat = matrix(0,length(res),length(res[[1]]))
+
 for(a in 1:length(res)){show(res[[a]]);vals_mat[a,]=res[[a]]}
 
 eres=lapply(res,function(r){if(length(r)==21){c(r,NA)}else{r}})
 v=data.frame(matrix(data=unlist(eres),nrow = length(eres),byrow=TRUE))
 #v = data.frame(vals_mat);
+
+
 colnames(v)=c("lonmin","latmin","moran","distance","entropy","slope","rsquaredslope",
               "pop","max","meanBetweenness","alphaBetweenness",
               "meanCloseness","alphaCloseness",
