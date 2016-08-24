@@ -22,8 +22,8 @@ offset = 50
 # estimated comp time : 1461240*0.02539683/20/60 ~ 30hours
 # (upper bound, without empty areas)
 
-#purpose = paste0('europe_areasize',areasize,'_offset',offset,'_factor',factor,'_')
-purpose = paste0('testcentre_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+purpose = paste0('europe_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+#purpose = paste0('testcentre_areasize',areasize,'_offset',offset,'_factor',factor,'_')
 
 # coords using lon-lat
 coords <- getCoordsOffset(densraster,lonmin,latmin,lonmax,latmax,areasize,offset)
@@ -73,11 +73,15 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
 stopCluster(cl)
 
 save(res,file=paste0('res/coupled_',purpose,'temp.RData'))
+#load('res/coupled_temp.RData')
 
 # get results into data frame
 vals_mat = matrix(0,length(res),length(res[[1]]))
 for(a in 1:length(res)){show(res[[a]]);vals_mat[a,]=res[[a]]}
-v = data.frame(vals_mat);
+
+eres=lapply(res,function(r){if(length(r)==21){c(r,NA)}else{r}})
+v=data.frame(matrix(data=unlist(eres),nrow = length(eres),byrow=TRUE))
+#v = data.frame(vals_mat);
 colnames(v)=c("lonmin","latmin","moran","distance","entropy","slope","rsquaredslope",
               "pop","max","meanBetweenness","alphaBetweenness",
               "meanCloseness","alphaCloseness",

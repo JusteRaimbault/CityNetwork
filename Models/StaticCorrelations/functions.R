@@ -4,6 +4,7 @@
 #'
 #' converts a dataframe with two first columns coords into a raster (value third col)
 dfToRaster <-function(d,column=3,normalize=FALSE){
+  d=d[!is.na(d[,3]),]
   r=raster(SpatialPixels(SpatialPoints(d[,c(1,2)])))
   vals = d[,column]
   #show(length(vals))
@@ -35,12 +36,13 @@ getCorrMatrices<-function(xcors,ycors,xyrhoasize,res,f=function(m){cor(m[,c(-1,-
   corrs=list()
   for(i in 1:length(xcors)){
     corrs[[i]]=list()
+    show(i)
     for(j in 1:length(ycors)){
       # compute correlation matrix ?
       x=xcors[i];y=ycors[j]
       rows = abs(res[,1]-x)<xyrhoasize/2&abs(res[,2]-y)<xyrhoasize/2
       rho = matrix(NA,(ncol(res)-2),(ncol(res)-2))
-      show(length(which(rows)))
+      #show(length(which(rows)))
       if(length(which(rows))>10){# arbitrary threshold to have a minimal quantity of measures
         #show(res[rows,c(-1,-2)])
         #rho = cor(res[rows,c(-1,-2)])
