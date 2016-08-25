@@ -24,10 +24,12 @@ parallcorrs <- foreach(rhoasize=rhoasizes) %dopar% {
   ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=jstep)]
   xstep=diff(xcors)[1];ystep=diff(ycors)[2]
   xyrhoasize = xstep/istep*rhoasize
-  corrs = getCorrMatrices(xcors,ycors,xyrhoasize,res)
-  rhocross=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho[1:7,8:20]))});colnames(rhocross)<-c("lat","lon","rho")
-  rhomorph=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho[1:7,1:7]))});colnames(rhomorph)<-c("lat","lon","rho")
-  rhonet = getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho[8:20,8:20]))});colnames(rhonet)<-c("lat","lon","rho")
+  corrs = getCorrMatrices(xcors,ycors,xyrhoasize,res,f=corrTest)
+  rhocross_est_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$estimate[1:7,8:20]))})
+  rhocross_inf_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$conf.int.min[1:7,8:20]))})
+  rhocross_sup_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$conf.int.max[1:7,8:20]))})
+  rhomorph_est_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho[1:7,1:7]))})
+  rhonet = getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho[8:20,8:20]))})
   allcorrs=rbind(allcorrs,cbind(rhocross,rep(rhoasize,nrow(rhocross)),rep("cross",nrow(rhocross))))
   allcorrs=rbind(allcorrs,cbind(rhomorph,rep(rhoasize,nrow(rhomorph)),rep("morpho",nrow(rhomorph))))
   allcorrs=rbind(allcorrs,cbind(rhonet,rep(rhoasize,nrow(rhonet)),rep("network",nrow(rhonet))))
@@ -42,4 +44,18 @@ save(parallcorrs,file='res/res/20160825_parallcorrs.RData')
 #colnames(allcorrs)[4:5]=c("delta","type")
 #allcorrs$rho=as.numeric(as.character(allcorrs$rho));allcorrs$lat=as.numeric(as.character(allcorrs$lat));allcorrs$lon=as.numeric(as.character(allcorrs$lon));allcorrs$delta=as.numeric(as.character(allcorrs$delta))
 #allcorrs$type=as.character(allcorrs$type)
+
+allcorrs=data.frame()
+for(j in 1:length(parallcorrs)){
+  show(j)
+  allcorrs=rbind(allcorrs,parallcorrs[[j]])
+}
+
+colnames(allcorrs)=c("lat","lon","rho","delta","type")
+allcorrs$rho=as.numeric(as.character(allcorrs$rho));allcorrs$lat=as.numeric(as.character(allcorrs$lat));allcorrs$lon=as.numeric(as.character(allcorrs$lon));allcorrs$delta=as.numeric(as.character(allcorrs$delta))
+allcorrs$type=as.character(allcorrs$type)
+
+save(allcorrs,file='res/res/20160825_parallcorrs_unlisted.RData')
+
+
 

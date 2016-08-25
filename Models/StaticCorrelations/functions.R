@@ -46,12 +46,14 @@ getCorrMatrices<-function(xcors,ycors,xyrhoasize,res,f=function(m){cor(m[,c(-1,-
       # compute correlation matrix ?
       x=xcors[i];y=ycors[j]
       rows = abs(res[,1]-x)<xyrhoasize/2&abs(res[,2]-y)<xyrhoasize/2
-      rho = matrix(NA,(ncol(res)-2),(ncol(res)-2))
+      rho = f(matrix(NA,nrow(res),ncol(res)))
       #show(length(which(rows)))
       if(length(which(rows))>10){# arbitrary threshold to have a minimal quantity of measures
         #show(res[rows,c(-1,-2)])
         #rho = cor(res[rows,c(-1,-2)])
         rho = f(res[rows,])
+        #show(rho)
+        #corrs[[i]][[j]]=rho
       }
       corrs[[i]][[j]]=rho
     }
@@ -76,3 +78,27 @@ getCorrMeasure<-function(xcors,ycors,corrs,f){
   }
   return(res)
 }
+
+
+#'
+#' compute correlation with confidence intervals
+#' remove two first columns assumed as coordinates
+corrTest<-function(m){
+  m = m[,c(-1,-2)]
+  est=matrix(1,ncol(m),ncol(m))
+  mi=matrix(1,ncol(m),ncol(m))
+  ma=matrix(1,ncol(m),ncol(m))
+  for(i in 1:(ncol(m)-1)){
+    for(j in (i+1):ncol(m)){
+      tt=cor.test(m[,i],m[,j])
+      est[i,j]=tt$estimate;mi[i,j]=tt$conf.int[1];ma[i,j]=tt$conf.int[2]
+      est[j,i]=tt$estimate;mi[j,i]=tt$conf.int[1];ma[j,i]=tt$conf.int[2]
+    }
+  }
+  return(list(estimate=est,conf.int.min=mi,conf.int.max=ma))
+}
+
+
+
+
+
