@@ -17,6 +17,7 @@ source('functions.R')
 
 library(raster)
 library(ggplot2)
+library(dplyr)
 
 # load data
 raw=read.csv(file="res/europe_areasize100_offset50_factor0.5_Mer-aoû-24-11:15:25-2016.csv",sep=";",header=TRUE)
@@ -56,9 +57,15 @@ allcorrs=rbind(allcorrs,cbind(rhonet,rep(rhoasize,nrow(rhonet)),rep("network",nr
 load('res/res/20160824_allcorrs.RData')
 colnames(allcorrs)[4:5]=c("delta","type")
 allcorrs$rho=as.numeric(as.character(allcorrs$rho));allcorrs$lat=as.numeric(as.character(allcorrs$lat));allcorrs$lon=as.numeric(as.character(allcorrs$lon));allcorrs$delta=as.numeric(as.character(allcorrs$delta))
+allcorrs$type=as.character(allcorrs$type)
 
-g=ggplot(allcorrs[sample.int(nrow(allcorrs),10000),],aes(x=delta,y=rho,color=type))
-g+geom_point(pch='.')+geom_smooth(aes(x=delta,y=rho,color=type),na.rm=TRUE)
+sumcorrs = as.tbl(allcorrs) %>% group_by(delta,type) %>% summarise(meanrho=mean(rho,na.rm=TRUE),rhosd=sd(rho,na.rm=TRUE))
+
+g=ggplot(sumcorrs,aes(x=delta,y=meanrho,color=type))
+g+geom_line()+geom_point()+geom_errorbar(aes(ymin=meanrho-rhosd,ymax=meanrho+rhosd))+ylab("rho")
+
+g=ggplot(allcorrs)
+g+geom_density(aes(x=rho,col=type,linetype=as.factor(delta)),alpha=0.4)
 
 #rpop=dfToRaster(raw,col=8);rpop=crop(rpop,extent(rmorph))
 
