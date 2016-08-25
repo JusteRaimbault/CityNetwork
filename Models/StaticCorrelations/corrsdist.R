@@ -5,7 +5,7 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 source('functions.R')
 
 # load data
-raw=read.csv(file="res/europe_areasize100_offset50_factor0.5_20160824.csv",sep=";",header=TRUE)
+raw=read.csv(file="res/res/europe_areasize100_offset50_factor0.5_20160824.csv",sep=";",header=TRUE)
 rows=apply(raw,1,function(r){prod(as.numeric(!is.na(r)))>0})
 res=raw[rows,]
 
