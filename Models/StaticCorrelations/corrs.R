@@ -37,7 +37,7 @@ ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rh
 xstep=diff(xcors)[1];ystep=diff(ycors)[2]
 xyrhoasize = xstep/istep*rhoasize
 
-corrs = getCorrMatrices(xcors[10:20],ycors,xyrhoasize,res,f = corrTest)
+corrs = getCorrMatrices(xcors[1:2],ycors,xyrhoasize,res,f = corrTest)
 #corrs = getCorrMatrices(xcors,ycors,xyrhoasize,res,function(m){crossCorrelations(m,3:9,10:22)})
 # rq : far more slower with handmade cross-corr : better use built-in cor function and aggregate by projecting only on cross-cors
 
