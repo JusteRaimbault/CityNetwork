@@ -94,7 +94,7 @@ Understanding processes driving urban growth is more crucial than ever, as urban
 % more refined literature on models of urban growth including space
 
 
-\cite{bretagnolle2000long} already proposed a spatial extension of the Gibrat model. Later, \cite{favaro2011gibrat} developed a more refined extension with economic cycles and innovation waves, yielding a system dynamics version of the core of Simpop models.
+\cite{bretagnolle2000long} already proposed a spatial extension of the Gibrat model. The gravity-based interaction model that~\cite{sanders1992systeme} use to apply concept of Synergetics to cities (getting indeed out of the scope of synergetics by taking expectancies and getting rid of master equation and the probabilistic formulation of trajectories) is also close to this idea of interdependent urban growth, contained physically in the phenomenon of migration between cities. A more refined extension with economic cycles and innovation waves was developed by~\cite{favaro2011gibrat}, yielding a system dynamics version of the core of Simpop models.
 
 % marius as an extension of Gibrat ? in the deterministic case.
 
@@ -134,35 +134,56 @@ The rest of this paper is organized as follows : our model is introduced and for
 %  - bayesian iterative formulation ? (mcmc)
 %  - how does formulation influence ? equivalence in certain cases between stoch-cov and interdependent expectancies ?
 
+Some confusion may arise when surveying at stochastic and deterministic models of urban growth. To what extent is a proposed model ``complex'' and is the simulation of stochasticity necessary ? 
+
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%
 \subsection{Model description}
 
-We choose to work on a deterministic extension of the Gibrat model, what is equivalent to consider only expectancies in time as detailed before. Let $\vec{P}(t)=(P_i(t))_i$ be the population of cities in time. Under Gibrat independence assumptions, we have $\Covb{P_i(t)}{P_j(t)}=0$. If $\vec{P}(t+1)=\mathbf{R}\cdot \vec{P}(t)$ where $\mathbf{R}$ is also independent, then $\Eb{\vec{P}(t+1)}=\mathbf{R}\cdot\Eb{\vec{P}}(t)$. With $\vec{\mu}(t)=\Eb{\vec{P}(t)}$, we generalize this approach by taking $\vec{\mu}(t+1)=f(\vec{\mu}(t))$. In our case, we take
+We choose to work on a deterministic extension of the Gibrat model, what is equivalent to consider only expectancies in time as explained in the previous subsection. Let $\vec{P}(t)=(P_i(t))_i$ be the population of cities in time. Under Gibrat independence assumptions, we have
 
-\[f(\vec{\mu}) = r_0\cdot \mathbf{Id}\cdot \vec{\mu} + \mathbf{G}\cdot \mathbf{1} + \mathbf{N}\cdot \]
+\[
+\Covb{P_i(t)}{P_j(t)}=0
+\]
+
+A linear extended version would write $\vec{P}(t+1)=\mathbf{R}\cdot \vec{P}(t)$ where $\mathbf{R}$ is an independent random matrix of growth rates (identity in the initial case). It yields directly thanks to the independence assumptions that $\Eb{\vec{P}(t+1)}=\Eb{\mathbf{R}}\cdot\Eb{\vec{P}}(t)$. We generalize this linear relation to a non-linear relation that allows to be more consistent regarding some thematic considerations, by taking with denoting $\vec{\mu}(t)=\Eb{\vec{P}(t)}$, the relation $\vec{\mu}(t+1)=f(\vec{\mu}(t))$ (note that in that case, stochastic and deterministic versions are not equivalent anymore\footnote{precisely because of the non-linearity % develop sketch of computation ? - Q under which conditions we can impose a covariance structure that produces interdependencies between expectancies ? seems to be a very broader question, need to do some thinking on that.
+}). 
+In our case, we take
+
+\begin{equation}
+f(\vec{\mu}) = r_0\cdot \mathbf{Id}\cdot \vec{\mu} + \mathbf{G}\left(\vec{\mu}\right)\cdot \mathbf{1} + \mathbf{N}\left(\vec{\mu}\right)
+\end{equation}
 
 with 
 \begin{itemize}
-\item $G_{ij} = w_G\cdot \frac{V_{ij}}{<V_{ij}>}$ and $V_{ij} = \left(\frac{\mu_i\mu_j}{\sum{\mu_k}^2}\right)^{\gamma_G} \exp{(-d_{ij}/d_G)}$
+\item $G_{ij} = w_G\cdot \frac{V_{ij}}{<V_{ij}>}$ and $V_{ij} = \left(\frac{\mu_i\mu_j}{\sum{\mu_k}^2}\right)^{\gamma_G}\cdot \exp{(-d_{ij}/d_G)}$
 \item $N_{i} = w_N \cdot \sum_{kl} \left(\frac{\mu_k\mu_l}{\sum\mu}\right)^{\gamma_N}\exp{(-d_{kl,i})/d_N}$ where $d_{kl,i}$ is distance to shortest path between $k,l$ computed with slope impedance ($Z=\left(1+\alpha/\alpha_0\right)^{n_0}$ with $\alpha_0\simeq 3$)
 \end{itemize}
 
-The first component is the pure Gibrat model, that we obtain by setting the weights $w_G = w_N = 0$. The second component captures interdependencies between 
+The first component is the pure Gibrat model, that we obtain by setting the weights $w_G = w_N = 0$. The second component captures direct interdependencies between cities, under the form of a separable gravity potential such as the one used in~\cite{sanders1992systeme}.
+
+
+\paragraph{Model Parameter Space}
 
 
 
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Results}
 
 \subsection{Data}
 
-
 \paragraph{Population data}
+
+We work with the Pumain-INED historical database for French Cities, which give populations of Urban Areas (INSEE definition)% TODO check this point
+at time intervals of mostly 5 years, from 1830 to 1995. % TODO precise dates as footnote ?
+The latest version of the database, described in~\cite{}% TODO data paper, does it exist ?
+integrates the definition of Urban Areas, allowing to follow them on long time-period, according to Bretagnole's long time cities ontology~\cite{bretagnolle:tel-00459720} (that constructs a definition of cities as evolving entities which boundaries are not fixed in time).
+
+
+
+
 
 
 
@@ -183,15 +204,44 @@ As stated above, this modeling exercise focuses on exploring the role of physica
 Z = \left(1 + \frac{\alpha}{\alpha_0}\right)^{n_0}
 \]
 
-We took fixed parameter values $\alpha_0 = 3$ (corresponding to approximatively a 5\% slope) and $n_0 = 3$
+We took fixed parameter values $\alpha_0 = 3$ (corresponding to approximatively a 5\% slope) and $n_0 = 3$. Supplementary Material S1 justifies this choice by investigating the sensibility of paths to these parameters.
 
 % TODO : supplementary material showing paths for different param values ?
+
+
+
+\paragraph{A semi-parametrized model}
+
+Our model is assumed as hybrid as it relies on semi-parametrization on real data. It could be possible to be a full toy-model, initial configuration and physical environment being constructed as synthetic data. As~\cite{raimbault2016generation} points out, it should even be a step in an extensive study of model, using synthetic data to unveil sensibility of dynamics to meta-parameters defining setup. This enterprise is however out of the scope of this paper, as we aim here to extract advanced stylized facts from a dataset, and we focus therefore on the semi-parametrized version of the model.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Model Evaluation}
+% this subsection AFTER data as it is thanks to data that the model is semi-parametrized
+
+We work on an explanatory rather than an exploratory model, and indicators to evaluate model outputs are therefore not linked to a performance of trajectories or obtained final states, but to a distance to phenomenon we want to explain, i.e. the data. We use therefore the following complementary indicators :
+
+\begin{itemize}
+\item Logarithms of mean-square error
+\item Mean-square error on logarithms
+\end{itemize}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Implementation}
 
-Data preprocessing, result processing and models profiling are implemented in R. For performances reasons and an easier integration into the OpenMole software for model exploration~\cite{reuillon2013openmole}, a \texttt{scala} version was also developed. The typical question of trade-off between implementation performance and interoperability appeared quickly as an issue, as a blind exploration and calibration can difficultly provide useful thematic conclusions for that kind of model. Finding an improvement in model fit among one parameter dimension is significant if the geographical situation is visualized and the improvement is confirmed as reasonable and not an absurdity.
+Data preprocessing, result processing and models profiling are implemented in R. For performances reasons and an easier integration into the OpenMole software for model exploration described by~\cite{reuillon2013openmole}, a \texttt{scala} version was also developed. The typical question of trade-off between implementation performance and interoperability appeared quickly as an issue, as a blind exploration and calibration can difficultly provide useful thematic conclusions for that kind of model. Finding an improvement in model fit among one parameter dimension is significant if the geographical situation is visualized and the improvement is confirmed as reasonable and not an absurdity.
 
 
 %%%%%%%%%%%%%%%%%%%
@@ -213,6 +263,23 @@ Data preprocessing, result processing and models profiling are implemented in R.
 
 
 
+%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\centering
+\includegraphics[width=0.48\textwidth]{figures/logmse-feedbackDecay_ZOOM}
+\includegraphics[width=0.48\textwidth]{figures/mselog-feedbackDecay_ZOOM}\\
+\includegraphics[width=0.48\textwidth]{figures/logmse-feedbackDecay_ZOOM_fixedgravity}
+\includegraphics[width=0.48\textwidth]{figures/mselog-feedbackDecay_ZOOM_fixedgravity}
+\caption{Evidence of network effects revealed by model exploration. Feedback with fixed gravity : first evidences of network effects ; confirmed with effect of $\alpha_0$}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Model Calibration}
 
@@ -221,9 +288,26 @@ Data preprocessing, result processing and models profiling are implemented in R.
 
 
 
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Discussion}
 
-% how this example illustrates well the theory
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%  - how this example illustrates well the theory
+%  - reflexions on iterative calibration, here ?
+%  - multimodeling etc
+%  - back to the simple arg ? rgs argument also ?
+%  - not tested on other system of cities
+%  - no network data -> development with train ?
+%
+%
+
+
+
 
 
 
@@ -232,14 +316,17 @@ We propose to support our hypothesis that \textit{physical transportation networ
 
 %%
 
-% reflexions on iterative calibration, here ?
 
 
 
+
+
+
+%%%%%%%%%%%%%
 \begin{acks}
 The author would like to thank
 \end{acks}
-
+%%%%%%%%%%%%%
 
 
 
@@ -249,6 +336,29 @@ The author would like to thank
 %%%%%%%%%%%%%
 \bibliographystyle{SageH}
 \bibliography{biblio}
+
+
+
+%%%%%%%%%%%%%
+%% Supplementary materials
+%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%
+\section*{Physical Flows Parametrization}
+
+
+
+%%%%%%%%%%%%%
+\section*{Reproducibility}
+
+%%%%%%%%%%
+% - DATA available where ?
+% - give git commits that have produced exactly the results.
+
+
+
 
 
 
