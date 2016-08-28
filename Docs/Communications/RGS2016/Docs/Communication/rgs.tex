@@ -135,7 +135,7 @@ $\rightarrow$ today Simpoplocal~\cite{schmitt2014half} and Marius~\cite{cottinea
 
 \bigskip
 
-Space syntax : from~\cite{} to 
+Space syntax : from the laborious origins~\cite{} to large-scale (delirious ?) applications~\cite{}
 
 }
 
@@ -149,7 +149,17 @@ Mobility studied through various type of data : new data from transportation sys
 , from Social Networks % mobility twitter
 , other types % ex papers cb transactions
 
+
+\bigskip
+
 Opening of ``classic'' dataset will allow ever more meta-analyses % ex city dock
+
+
+\bigskip
+
+New ways to do research, more interactive, crowd-sourced science and data ? \cite{} % CybergeoNetworks and MetaZipf
+
+
 
 }
 
@@ -173,9 +183,26 @@ Opening of ``classic'' dataset will allow ever more meta-analyses % ex city dock
 %%%%%%%%%%%%%%%%%
 \sframe{But to what purpose ?}{
 
-% here trash Gibrat simulation
+Exaggerating agent-based modeling ?
 
 % Axtell economy
+\includegraphics[width=\textwidth]{figures/exaxt}
+
+}
+%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{But to what purpose ?}{
+% here trash Gibrat simulation ?
+
+\textit{Other worrying examples :}
+
+\begin{itemize}
+\item Waste computational ressources to simulate mean and variance of Gibrat model ( = recheck the Central Limit Theorem !), which is fully solved otherwise~\cite{gabaix1999zipf}
+\item Recently seen on Geotamtam : reach on new data (Pokemon Go) before thinking !
+\end{itemize}
 
 }
 %%%%%%%%%%%%%%%%%
@@ -184,9 +211,27 @@ Opening of ``classic'' dataset will allow ever more meta-analyses % ex city dock
 
 
 
+
+
+
 %%%%%%%%%%%%%%%%%
 \sframe{Theories and Computation}{
 % state the main idea
+% -> Claims : make a stronger link between computational practices and maths/stats ? (if possible) - need more interdisciplinarity to do that.
+%%     Geography in the center of that dynamic, but not all for granted ! (eg not simulate Gibrat as the fool example !)
+%%     It implies the need for elaborated theory : here trash West/Bettencourt.
+
+\textbf{Claim : } The computational shift~\cite{arthur2015complexity} and simulation practices will be central in geography~\cite{banos2013pour}, but are also dangerous :
+\begin{itemize}
+\item Data deluge may impose research subjects and elude theory
+\item Computation may elude model construction and solving
+\end{itemize}
+
+\medskip
+
+$\rightarrow$ \textit{Make a stronger link between computational practices, mathematics/statistics and theoretical geography} (Note : precise purpose of TQG, but seems forgotten sometimes)
+
+$\rightarrow$ \textit{Theoretical and Quantitative Geography in the center of this dynamic}
 
 }
 %%%%%%%%%%%%%%%%%
@@ -203,11 +248,33 @@ Opening of ``classic'' dataset will allow ever more meta-analyses % ex city dock
 \sframe{Case study : Context and Rationale}{
 % interactions between networks and territories
 
+\textbf{Study of interactions between network and territories :}
+
+\medskip
+
+$\rightarrow$ \textit{searching for stylized facts, what can be learnt from static correlations between urban form and road network ?}
+
+\bigskip
+
+\textbf{Theoretical Background : } \textit{A Theory of co-evolutive networked human territories} proposed in~\cite{raimbault2016memoire}, that in particular postulates an important role of networks in the morphogenesis of complex adaptive urban systems that are human territories
+
+
 }
 
 
 \sframe{Dataset construction}{
 % brief description of nw simplification ; 
+
+Computation of topological road network for all Europe, at 100m granularity scale (to be used consistently with population grid~\cite{eurostat})
+
+\medskip
+
+$\rightarrow$ Import of OSM into \texttt{pgsql}, simplification at 100m granularity, topological simplification with split/merge algorithm
+
+
+\centering
+
+\includegraphics[width=0.6\textwidth]{figures/ex_nw}
 
 }
 
@@ -226,14 +293,24 @@ $Y_i\left[\vec{x},t\right]$ spatio-temporal stochastic process, assumptions :
 
 
 
+
 %%%%%%%%%%%%%%%%%
 \sframe{Stationarity and Ergodicity}{
+Assuming local ergodicity, we have at least spatial and temporal local stationarities.
+
+Spatial non-stationarity \textbf{at the second order}$\implies$ temporal scale variations $\implies$ non-ergodicity
 
 }
 
 
 %%%%%%%%%%%%%%%%%
 \sframe{Results : Examples of indicators}{
+
+% TODO : implementation ?
+
+\textit{Computation of urban form indicators~\cite{le2015forme} and network indicators on 10km side square}
+
+\includegraphics[width=\textwidth]{figures/pop-alphaBetweenness}
 
 }
 
@@ -264,6 +341,10 @@ $Y_i\left[\vec{x},t\right]$ spatio-temporal stochastic process, assumptions :
 \sframe{Case study : implications}{
 % thematic conclusion of the case study on ergodicity
 
+$\rightarrow$ we show the regional nature of network-territories interactions, in particular the non-ergodicity of urban systems on these components
+
+$\rightarrow$ no direct results on time dynamics, but still explorations to do : variable correlations areas
+
 
 }
 
@@ -280,16 +361,20 @@ $Y_i\left[\vec{x},t\right]$ spatio-temporal stochastic process, assumptions :
 %%%%%%%%%%%%%%%%%
 \sframe{Discussion}{
 
-\textit{Is a theory-free quantitative geography possible ?}
+1. \textit{Is a theory-free quantitative geography possible ?}
 
-$\rightarrow$
+$\rightarrow$ close to the trap of black-box data-mining analysis ; still poor explanatory power, can exhibit relations but not reconstruct processes
 
 
 \bigskip
 
-\textit{Is a pure computational quantitative geography possible ?}
+2. \textit{Is a pure computational quantitative geography possible ?}
 
-$\rightarrow$
+$\rightarrow$ even gaining 3 orders of magnitudes in computational power does not solve the dimensionality curse
+
+\medskip
+
+\textbf{In our case study : } 
 
 
 }
@@ -318,6 +403,19 @@ $\rightarrow$
 %%%%%%%%%%%%%%%%%
 \sframe{Network Simplification Algorithm}{
 
+\begin{enumerate}
+\item Filter OSM links (highway tag) and insert into \texttt{pgsql} with \texttt{osmosis} \cite{} % TODO
+\item First simplification : two cells of base raster (population density) are linked if and only if they are linked by OSM link (associated type/speed)
+\item Topological simplification :
+\begin{itemize}
+\item split the space into a partition, simplify within each box
+\item construct independent merging subsets of the partition, merge sequentially for each subset.
+\end{itemize}
+
+\end{enumerate}
+
+$\rightarrow$
+% TODO summary stats etc
 
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -326,14 +424,45 @@ $\rightarrow$
 %%%%%%%%%%%%%%%%%
 \sframe{Indicators}{
 
+\textbf{Morphological Indicators : } Density, Spatial Autocorrelation, Entropy, Mean Distance, Hierarchy
+
+\bigskip
+
+\textbf{Network Indicators : } betweenness (mean/hierarchy), closeness (mean/hierarchy), mean link length, network performance, mean path length, diameter, components, clustering coefficient, density
+
+\bigskip
+
+\textbf{Correlation Measures : } Pearson test ; correlation matrices then aggregated (mean, mean absolute, first principal component - % TODO
+\% variance with $\delta = $)
+
 
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sframe{Theory : Pillars}{
+\begin{enumerate}
+\item \textit{Networked Human Territories} $\rightarrow$ Raffestin approach to territory combined with Dupuy theory of networks.
+\item \textit{Evolutive Urban Theory} $\rightarrow$ City Systems as complex Adaptive systems, applied to human settlements in general and thus territorial systems.
+\item \textit{Urban Morphogenesis} $\rightarrow$ Morphogenesis as autonomous rules to explain growth of urban form. Used as the provider of modular decompositions.
+\item \textit{Boundaries and Co-evolution} $\rightarrow$ Co-evolution as the existence of \textit{niche}, consequence of boundary patterns.
+\end{enumerate}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sframe{Theory : Specification}{
+\begin{itemize}
+\jitem{Previous def. of territorial systems}
+\jitem{Modular decomposition and stationarity : existence of scales}
+\jitem{Feedback loops between and inside scales yield weak emergence, thus complexity}
+\jitem{Morphogenesis gives modular decomposition and co-evolution}
+\jitem{\textbf{Main assumption.} Necessity of Networks : networks are necessary component of co-evolutive niches.}
+\end{itemize}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
