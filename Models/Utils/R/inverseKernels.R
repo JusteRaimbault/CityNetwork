@@ -229,7 +229,6 @@ points(x = h$mids,y=res$fittedHist,type='l',col='blue')
 
 
 q= c(800,900,1000,1100,1200,1500,1900,2500,5000,10000)
-h = quantilesToHist(q)
 
 fit = fitdistr(q,densfun = "log-normal")
 y=rlnorm(n=100000,fit$estimate[1],fit$estimate[2])
