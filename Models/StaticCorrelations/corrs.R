@@ -31,7 +31,7 @@ res=raw[rows,]
 
 allcorrs=data.frame()
 for(rhoasize in c(4,8,12)){
-istep=5;jstep=5;rhoasize=10
+istep=4;jstep=4;rhoasize=4
 xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=istep)]
 ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=jstep)]
 xstep=diff(xcors)[1];ystep=diff(ycors)[2]
@@ -56,7 +56,14 @@ allcorrs=rbind(allcorrs,cbind(rhonet,rep(rhoasize,nrow(rhonet)),rep("network",nr
 #save(allcorrs,file='res/res/20160824_allcorrs.RData')
 
 
-load('res/res/allcorrssample.RData')
+load('res/res/sample4-8-12.RData')
+
+dc = d[d$measure=='meanabs'&d$type=='cross',]%>%group_by(lat,lon)
+dm = d[d$measure=='meanabs'&d$type=='morpho',]%>%group_by(lat,lon)
+dn= d[d$measure=='meanabs'&d$type=='network',]%>%group_by(lat,lon)
+dj = dc%>%inner_join(dm,by = c("lat","lon","delta"))%>%inner_join(dn,by = c("lat","lon","delta"))
+g=ggplot(dj)
+g+geom_point(aes(x=rho.x,y=rho.y,col=rho))+facet_wrap(~delta)+xlab("rho_cross")+ylab("rho_morpho")
 
 #load('res/res/20160826_parallcorrs_corrTest_unlisted_nona_goodCols.RData')
 #colnames(allcorrs)[4:5]=c("delta","type")
@@ -111,16 +118,23 @@ rhopca = data.frame(getCorrMeasure(xcors,ycors,corrs,function(rho){if(!is.matrix
 colnames(rhopca)<-c("lat","lon","rho")
 
 ###
-#g=ggplot(allcorrssample[allcorrssample$measure="mean",])
-g=ggplot(rhopca)
-g+geom_raster(aes(x=lat,y=lon,fill=rho))+scale_fill_gradient2(low="#998ec3",mid="#f7f7f7",high="#f1a340")+#,midpoint = median(rhopca$rho,na.rm = T))+#scale_fill_gradient(low="yellow",high="red",name="PC1")+
-  xlim(c(-11,32))+ylim(c(35.55,70))+ggtitle("PCA (full matrix) ; delta = 10")#+facet_grid(type~delta)+ggtitle("Mean correlation")#
+dd=d[d$measure=="meanabs",]
+g=ggplot(dd)
+#g=ggplot(rhopca)
+g+geom_raster(aes(x=lat,y=lon,fill=rho))+scale_fill_gradient2(low="green",mid="white",high="brown",midpoint = median(dd$rho,na.rm=T))+#scale_fill_gradient2(low="#998ec3",mid="#f7f7f7",high="#f1a340")+#,midpoint = median(rhopca$rho,na.rm = T))+#scale_fill_gradient(low="yellow",high="red",name="PC1")+
+  xlim(c(-11,32))+ylim(c(35.55,70))+facet_grid(type~delta)+ggtitle("Mean abs correlation")##+ggtitle("PCA (full matrix) ; delta = 4")#
 
 # plot given area
 
 #########
 
-
+plots=list()
+for(j in 3:22){
+g=ggplot(res)
+plots[[j-2]]=g+geom_raster(aes_string(x="lonmin",y="latmin",fill=colnames(res)[j]))+scale_fill_gradient2(low="blue",mid="white",high="red",midpoint = median(res[,j],na.rm = T))+ggtitle(colnames(res)[j])+xlab("")+ylab("")##+ggtitle("PCA (full matrix) ; delta = 4")#
+#ggsave(paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/20160824/indic_',colnames(res)[j],'.png'))
+}
+multiplot(plotlist = plots,cols = 5)
 
 
 
