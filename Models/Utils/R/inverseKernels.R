@@ -4,6 +4,9 @@
 #' Inverse problem Kernel Mixture reconstruction
 #'
 
+library(GA)
+library(MASS)
+
 ###############
 #' 
 #' Optimize kernels parameters for inverse kernel mixture problem
@@ -58,6 +61,7 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds = NULL
   if(is.null(histogram$mids)|is.null(histogram$density)){stop()}
   x = histogram$mids
   y = histogram$density
+  y = y / sum(y*diff(c(0,x)))
   
   # kernel
   if(is.null(formals(ker)$x)|length(formals(ker))<2){stop("invalid kernel")}
@@ -80,7 +84,7 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds = NULL
       }
       vals=append(vals,k)
     }
-    return(vals)
+    return(vals/sum(vals*diff(c(0,x))))
   }
   
   f = function(params){
@@ -90,7 +94,9 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds = NULL
   # bounds
   bounds = paramsBounds
   if(is.null(paramsBounds)){
-    
+     bounds=list()
+     bounds$lower = rep(0,length(weights))
+     bounds$upper = rep(max(x),length(weights))
   }
   
   
@@ -131,8 +137,13 @@ inverseKernels<-function(histogram,weights,ker,initialParams,paramsBounds = NULL
 #'
 #' gaussian kernel of fixed width
 fixedSdGaussian<-function(sigma=1){
-  return(function(x,mu){1/sqrt(2*pi)*exp(-(x-mu)^2/(2*sigma^2))})
+  return(function(x,mu){1/sqrt(2*pi*sigma)*exp(-(x-mu)^2/(2*sigma^2))})
 }
+
+gaussianKernel<-function(){
+  return(function(x,pars){mu=pars[1];sigma=pars[2];return(1/sqrt(2*pi*sigma)*exp(-(x-mu)^2/(2*sigma^2)))})
+}
+
 
 #'
 #' transform vector of quantiles to an histogram object
@@ -146,6 +157,9 @@ quantilesToHist<-function(q){
   res$mids=mids;res$density=density
   return(res)
 }
+
+
+
 
 
 
@@ -180,24 +194,24 @@ quantilesToHist<-function(q){
 
 
 # test with a lognormal plus unif noise
-# x=rlnorm(100000);x[x>5] = runif(length(which(x>5)))
-# nkers = 20
-# 
-# res = inverseKernels(histogram =hist(x,breaks=100,plot=FALSE),
-#                      weights = (1:nkers)/(nkers*(nkers+1)/2),#rep(1,nkers),
-#                      ker = fixedSdGaussian(0.2),
-#                      initialParams = runif(nkers),
-#                      paramsBounds=list(lower=rep(min(x),nkers),upper=rep(max(x),nkers)),
-#                      iters.max = 200
-#                      )
-# 
-# hist(x,breaks=100,freq=FALSE)
-# h=hist(x,breaks=100,freq=FALSE)
-# for(p in 1:length(res$parameters)){
-#   #abline(v=mus[p],col='blue')
-#   abline(v=res$parameters[p],col='red');
-# }
-# points(x = h$mids,y=res$fittedHist,type='l',col='blue')
+x=rlnorm(100000);x[x>5] = runif(length(which(x>5)))
+nkers = 10
+
+res = inverseKernels(histogram =hist(x,breaks=100,plot=FALSE),
+                     weights = (1:nkers)/(nkers*(nkers+1)/2),#rep(1,nkers),
+                     ker = fixedSdGaussian(0.2),
+                     initialParams = runif(nkers),
+                     paramsBounds=list(lower=rep(min(x),nkers),upper=rep(max(x),nkers)),
+                     iters.max = 200
+                     )
+
+hist(x,breaks=100,freq=FALSE)
+h=hist(x,breaks=100,freq=FALSE)
+for(p in 1:length(res$parameters)){
+  #abline(v=mus[p],col='blue')
+  abline(v=res$parameters[p],col='red');
+}
+points(x = h$mids,y=res$fittedHist,type='l',col='blue')
 
 
 ###
@@ -211,6 +225,30 @@ quantilesToHist<-function(q){
 # -- test on real data --
 #
 
+
+
+
+q= c(800,900,1000,1100,1200,1500,1900,2500,5000,10000)
+h = quantilesToHist(q)
+
+fit = fitdistr(q,densfun = "log-normal")
+y=rlnorm(n=100000,fit$estimate[1],fit$estimate[2])
+y=y[y<q[length(q)]];
+yy=hist(y,plot=FALSE,breaks = 100)
+
+# weights : let say we have five categories
+weights = c(0.4,0.35,0.1,0.1,0.05)
+# corresponding initial guesses for means (must be inside [0,max(x)])
+initial=rep(0,length(weights))
+
+# optimize - let take width 1 gaussian
+res = inverseKernels(yy,weights,fixedSdGaussian(500),initial,iters.max = 400)
+
+# let do some stuff with the result : for example plot the hist, the fitted and the obtained gaussian means
+# here res$parameters are the means for each category
+plot(x = yy$mids,y=yy$density,type='l')
+for(p in 1:dim(res$parameters)[2]){show(res$parameters[1,p]);abline(v=res$parameters[1,p],col='red');}
+points(x = yy$mids,y=res$fittedHist,type='l',col='blue')
 
 
 

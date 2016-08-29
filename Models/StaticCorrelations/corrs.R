@@ -54,7 +54,7 @@ allcorrs=rbind(allcorrs,cbind(rhomorph,rep(rhoasize,nrow(rhomorph)),rep("morpho"
 allcorrs=rbind(allcorrs,cbind(rhonet,rep(rhoasize,nrow(rhonet)),rep("network",nrow(rhonet))))
 }
 #save(allcorrs,file='res/res/20160824_allcorrs.RData')
-load('res/res/20160825_parallcorrs_unlisted.RData')
+load('res/res/20160826_parallcorrs_corrTest_unlisted.RData')
 colnames(allcorrs)[4:5]=c("delta","type")
 allcorrs$rho=as.numeric(as.character(allcorrs$rho));allcorrs$lat=as.numeric(as.character(allcorrs$lat));allcorrs$lon=as.numeric(as.character(allcorrs$lon));allcorrs$delta=as.numeric(as.character(allcorrs$delta))
 allcorrs$type=as.character(allcorrs$type)
