@@ -29,37 +29,42 @@ res=raw[rows,]
 # coords where to compute correlations
 #  -- steps must be here in number of measure square, not in pixels --
 
-allcorrs=data.frame()
-for(rhoasize in c(4,6,8,10,12,14)){
-istep=2;jstep=2;rhoasize=10
-xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=istep)]
-ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=jstep)]
-xstep=diff(xcors)[1];ystep=diff(ycors)[2]
-xyrhoasize = xstep/istep*rhoasize
-
-corrs = getCorrMatrices(xcors[1:2],ycors,xyrhoasize,res,f = corrTest)
-#corrs = getCorrMatrices(xcors,ycors,xyrhoasize,res,function(m){crossCorrelations(m,3:9,10:22)})
-# rq : far more slower with handmade cross-corr : better use built-in cor function and aggregate by projecting only on cross-cors
-
-
-# test plotting mean abs corr
-rhocross=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho[1:7,8:20]))});colnames(rhocross)<-c("lat","lon","rho")
-#rcross = dfToRaster(rhocross)
-rhomorph=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho[1:7,1:7]))});colnames(rhomorph)<-c("lat","lon","rho")
-#rmorph = dfToRaster(rhomorph)
-rhonet = getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho[8:20,8:20]))});colnames(rhonet)<-c("lat","lon","rho")
-#rnet = dfToRaster(rhonet)
-allcorrs=rbind(allcorrs,cbind(rhocross,rep(rhoasize,nrow(rhocross)),rep("cross",nrow(rhocross))))
-allcorrs=rbind(allcorrs,cbind(rhomorph,rep(rhoasize,nrow(rhomorph)),rep("morpho",nrow(rhomorph))))
-allcorrs=rbind(allcorrs,cbind(rhonet,rep(rhoasize,nrow(rhonet)),rep("network",nrow(rhonet))))
-}
+# allcorrs=data.frame()
+# for(rhoasize in c(4,6,8,10,12,14)){
+# istep=2;jstep=2;rhoasize=10
+# xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=istep)]
+# ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=jstep)]
+# xstep=diff(xcors)[1];ystep=diff(ycors)[2]
+# xyrhoasize = xstep/istep*rhoasize
+# 
+# corrs = getCorrMatrices(xcors[1:2],ycors,xyrhoasize,res,f = corrTest)
+# #corrs = getCorrMatrices(xcors,ycors,xyrhoasize,res,function(m){crossCorrelations(m,3:9,10:22)})
+# # rq : far more slower with handmade cross-corr : better use built-in cor function and aggregate by projecting only on cross-cors
+# 
+# 
+# # test plotting mean abs corr
+# rhocross=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho[1:7,8:20]))});colnames(rhocross)<-c("lat","lon","rho")
+# #rcross = dfToRaster(rhocross)
+# rhomorph=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho[1:7,1:7]))});colnames(rhomorph)<-c("lat","lon","rho")
+# #rmorph = dfToRaster(rhomorph)
+# rhonet = getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho[8:20,8:20]))});colnames(rhonet)<-c("lat","lon","rho")
+# #rnet = dfToRaster(rhonet)
+# allcorrs=rbind(allcorrs,cbind(rhocross,rep(rhoasize,nrow(rhocross)),rep("cross",nrow(rhocross))))
+# allcorrs=rbind(allcorrs,cbind(rhomorph,rep(rhoasize,nrow(rhomorph)),rep("morpho",nrow(rhomorph))))
+# allcorrs=rbind(allcorrs,cbind(rhonet,rep(rhoasize,nrow(rhonet)),rep("network",nrow(rhonet))))
+# }
 #save(allcorrs,file='res/res/20160824_allcorrs.RData')
-load('res/res/20160826_parallcorrs_corrTest_unlisted.RData')
-colnames(allcorrs)[4:5]=c("delta","type")
-allcorrs$rho=as.numeric(as.character(allcorrs$rho));allcorrs$lat=as.numeric(as.character(allcorrs$lat));allcorrs$lon=as.numeric(as.character(allcorrs$lon));allcorrs$delta=as.numeric(as.character(allcorrs$delta))
-allcorrs$type=as.character(allcorrs$type)
 
-sumcorrs = as.tbl(allcorrs) %>% group_by(delta,type) %>% summarise(meanrho=mean(rho,na.rm=TRUE),rhosd=sd(rho,na.rm=TRUE))
+
+load('res/res/20160826_parallcorrs_corrTest_unlisted_nona_goodCols.RData')
+#colnames(allcorrs)[4:5]=c("delta","type")
+#allcorrs$rho=as.numeric(as.character(allcorrs$rho));allcorrs$lat=as.numeric(as.character(allcorrs$lat));allcorrs$lon=as.numeric(as.character(allcorrs$lon));allcorrs$delta=as.numeric(as.character(allcorrs$delta))
+#allcorrs$type=as.character(allcorrs$type)
+#colnames(allcorrs)<-c("lat","lon","rho","lat","lon","rhomin","lat","lon","rhomax","delta","type","measure")
+#allcorrs=allcorrs[,c(1,2,3,6,9,10,11,12)]
+#save(allcorrs,file='res/res/20160826_parallcorrs_corrTest_unlisted_nona_goodCols.RData')
+
+sumcorrs = as.tbl(allcorrs[allco,]) %>% group_by(delta,type) %>% summarise(meanrho=mean(rho,na.rm=TRUE),rhosd=sd(rho,na.rm=TRUE))
 
 g=ggplot(sumcorrs,aes(x=delta,y=meanrho,color=type))
 g+geom_line()+geom_point()+geom_errorbar(aes(ymin=meanrho-rhosd,ymax=meanrho+rhosd))+ylab("rho")
