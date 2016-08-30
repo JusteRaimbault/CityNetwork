@@ -340,7 +340,6 @@ $\rightarrow$ Import of OSM into \texttt{pgsql}, simplification at 100m granular
 %%%%%%%%%%%%%%%%%
 \sframe{Results : Computation of Indicators}{
 
-% TODO : implementation ?
 
 \textit{Computation of urban form indicators~\cite{le2015forme} and network indicators on $l_0=10km$ side square}
 
@@ -403,14 +402,24 @@ $Y_i\left[\vec{x},t\right]$ spatio-temporal stochastic process, verifies empiric
 %\item Processes covariance stationarity times scale as $\sqrt{l}$.
 %\item Local ergodicity is present at scale $l$ and dynamics are locally chaotic.
 \item Processes are multi-scalar : since $\rho(\delta = \infty) > \rho (\delta = 0 )$, a necessary non-linear correction on processes spatial averages in correlation computation is present.
-% TODO add computation in supplementary materials / papers.
+% add computation in supplementary materials / papers. -> later
 \end{enumerate}
 }
 
 
 \sframe{Analytical Deductions}{
 
-1. Let assume local ergodicity
+1. \textbf{Regimes of temporal correlations.} Let assume local ergodicity in $\vec{x}_0$ at scale $\delta \cdot l_0$ (reasonable with urban growth and network extension in recent times). The Ergodic theorem implies that $\exists \mathcal{T}$ such that
+
+\[<Y_i (t) >_{\norm{\vec{x}-\vec{x}_0} < \delta\cdot l_0} = <Y_i (\vec{x}_0)>_{t\in \mathcal{T}}\] 
+
+With spatial stationarity, $<Y_i>_{\vec{x}_0}=<Y_i>_{\vec{x}_1}$, thus $\mathcal{T}$ must be constant to be invariant by translation. By contraposition and (2), processes have different dynamical characteristics.
+% if translate in a given direction, looses a small part, must be compensated by the area translated by delta (overlap), thus must be constant.
+
+\bigskip
+
+2. \textbf{Global non-ergodicity.} Let $X_k$ a partition of space into local areas. We have $<\cdot>_x = \sum_k w_k <\cdot>_{x_k} = \sum_k w_k <\cdot>_{\mathcal{T}_k} $. On the other hand, global ergodicity gives $<\cdot>_t = <\cdot>_{\mathcal{T}} = \sum_k w_k <\cdot>_{\mathcal{T}}$. Projecting on each yields $\mathcal{T}=\mathcal{T}_k$, what is absurd.
+
 
 }
 
@@ -447,7 +456,7 @@ $\rightarrow$ Still points to explore :
 
 \bigskip
 
-$\rightarrow$ We show the regional nature of network-territories interactions, in particular the non-ergodicity of urban systems on these components
+$\rightarrow$ We show the regional nature of network-territories interactions, in particular the non-ergodicity of urban systems on \textbf{the interaction these components}
 
 \bigskip
 
@@ -500,7 +509,9 @@ $\rightarrow$ even gaining 3 orders of magnitudes in computational power does no
 %%%%%%%%%%%%%%%%%
 \sframe{Conclusion}{
 
-$\rightarrow$ Nothing is really new, and more than ever we need simple but powerful theories {\`a}-la-Occam
+\justify
+
+$\rightarrow$ Nothing is really new, and more than ever we need simple but powerful theories {\`a}-la-Occam~\cite{batty2016theoretical}
 
 \bigskip
 
@@ -508,7 +519,7 @@ $\rightarrow$ Need for a wise integration of new techniques/rediscovering into e
 
 \bigskip
 
-$\rightarrow$ Need for more interdisciplinarity than ever ?
+$\rightarrow$ Interdisciplinarity necessary to achieve that.
 
 
 }
@@ -541,8 +552,8 @@ $\rightarrow$ Need for more interdisciplinarity than ever ?
 
 \bigskip
 
-$\rightarrow$
-% TODO summary stats etc
+%$\rightarrow$
+% summary stats etc -> in main slides
 
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -559,19 +570,33 @@ $\rightarrow$
 
 \bigskip
 
-\textbf{Correlation Measures : } Pearson test ; correlation matrices then aggregated (mean, mean absolute, first principal component - % TODO
-\% variance with $\delta = $)
+\textbf{Correlation Measures : } Pearson test ; correlation matrices then aggregated (mean, mean absolute, first principal component (three first PC 11, 9, 6
+\% variance with $\delta = 4$))
 
 
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%
+\sframe{Implementation}{
+Mostly implemented in R (with osmosis and postgres for database management).
 
+\bigskip
+
+Source code available at \texttt{https://github.com/JusteRaimbault/CityNetwork/tree/master}
+
+\texttt{/Models/StaticCorrelations}
+
+\bigskip
+
+Database available on request (large).
+
+}
 
 
 %%%%%%%%%%%%%%%%%
 \sframe{Morphology Classification}{
-\includegraphics[height=\textheight]{figures/clust_k3-11}
+\includegraphics[width=\textwidth,height=0.8\textheight]{figures/clust_k3-11}
 }
 
 %%%%%%%%%%%%%%%%%
