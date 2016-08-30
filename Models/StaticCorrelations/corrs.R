@@ -78,7 +78,13 @@ g+geom_point(aes(x=rho.x,y=rho.y,col=rho))+facet_wrap(~delta)+xlab("rho_cross")+
 load('res/res/sumcorrs.RData')
 
 g=ggplot(data.frame(sumcorrsmean,rhomin=sumcorrsmeanmin$meanrho,rhomax=sumcorrsmeanmax$meanrho),aes(x=delta,y=meanrho,color=type))
-g+geom_point()+geom_errorbar(aes(ymin=meanrho-rhosd,ymax=meanrho+rhosd))+geom_line(aes(x=delta,y=rhomin,group=type,col=type),linetype=2)+geom_line(aes(x=delta,y=rhomax,group=type,col=type),linetype=2)+ylab("rho")
+g+geom_point()+geom_errorbar(aes(ymin=meanrho-rhosd,ymax=meanrho+rhosd))+#geom_line(aes(x=delta,y=rhomin,group=type,col=type),linetype=2)+geom_line(aes(x=delta,y=rhomax,group=type,col=type),linetype=2)
+  ylab("rho")
+
+g+geom_line(aes(x=delta,y=(rhomax-rhomin)*delta,color=type))+ylab("|CI| x delta")
+
+#par(mfrow=c(1,1))
+#plot(sumcorrsmean$delta,sumcorrsmeanmax$meanrho-sumcorrsmeanmin$meanrho)
 
 g=ggplot(allcorrs)
 g+geom_density(aes(x=rho,col=type,linetype=as.factor(delta)),alpha=0.4)
@@ -136,7 +142,11 @@ plots[[j-2]]=g+geom_raster(aes_string(x="lonmin",y="latmin",fill=colnames(res)[j
 }
 multiplot(plotlist = plots,cols = 5)
 
-
+######
+par(mfrow=c(4,5))
+for(j in 3:22){
+  hist(res[,j],breaks=1000,main=colnames(res)[j],xlab="")
+}
 
 
 
