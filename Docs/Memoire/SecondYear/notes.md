@@ -5,6 +5,12 @@
 
 
 
+## Early-warning time-series statistical tests
+
+* Ven  2 sep 2016 12:38:32 CEST*
+
+cf pnas article on neolithic populations (TimeSeries)
+
 
 
 
