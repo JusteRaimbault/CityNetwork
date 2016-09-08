@@ -2,6 +2,12 @@
 
 
 
+## Cybernetics and cities
+
+* Jeu  8 sep 2016 23:57:57 CEST *
+
+paper Gerhenson/Ratti -> link cybernetics/CS ? autonmoous vehicle : compare tarnsportation point of view ewgt
+is that a theory ? links/compatibility ? etc
 
 
 
