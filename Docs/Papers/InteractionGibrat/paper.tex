@@ -58,7 +58,7 @@ T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \email{juste.raimbault@polytechnique.edu}
 
 \begin{abstract}
-This paper is the application of a theoretical paper developing a theory of co-evolutive networked territorial systems. We apply simple models of urban growth for systems of cities, which include in particular the role of physical networks.
+We propose a simple model of urban growth for systems of cities, which investigate in particular the role of physical networks on interdependence of growth rates. Under the assumption of stochastic independence, a generalized non-linear formulation of recursive population growth captures spatial interactions between cities. At the second order, feedback of physical network, introduced as an abstraction of transportation network, is introduced as influencing average growth rates. Model exploration and calibration using large-scale computation and specific algorithms, yield typical characteristics of spatial interaction, such as decay distance, and their evolution in time under non-stationarity hypothesis. Furthermore, network effects are revealed by a fit improvement when adding network module.
 \end{abstract}
 
 \keywords{Urban Systems, Urban Growth, Spatial Interactions}
@@ -93,8 +93,7 @@ Understanding processes driving urban growth is more crucial than ever, as urban
 
 % more refined literature on models of urban growth including space
 
-
-\cite{bretagnolle2000long} already proposed a spatial extension of the Gibrat model. The gravity-based interaction model that~\cite{sanders1992systeme} use to apply concept of Synergetics to cities (getting indeed out of the scope of synergetics by taking expectancies and getting rid of master equation and the probabilistic formulation of trajectories) is also close to this idea of interdependent urban growth, contained physically in the phenomenon of migration between cities. A more refined extension with economic cycles and innovation waves was developed by~\cite{favaro2011gibrat}, yielding a system dynamics version of the core of Simpop models.
+Some approach of Urban Growth insist on the role of space and spatial interactions. \cite{bretagnolle2000long} already proposed a spatial extension of the Gibrat model. The gravity-based interaction model that~\cite{sanders1992systeme} use to apply concept of Synergetics to cities (getting indeed out of the scope of synergetics by taking expectancies and getting rid of master equation and the probabilistic formulation of trajectories) is also close to this idea of interdependent urban growth, contained physically in the phenomenon of migration between cities. A more refined extension with economic cycles and innovation waves was developed by~\cite{favaro2011gibrat}, yielding a system dynamics version of the core of Simpop models~\cite{pumain2012multi}, which are an other approach to the role of spatial interaction in the growth of urban system
 
 % marius as an extension of Gibrat ? in the deterministic case.
 
@@ -134,7 +133,7 @@ The rest of this paper is organized as follows : our model is introduced and for
 %  - bayesian iterative formulation ? (mcmc)
 %  - how does formulation influence ? equivalence in certain cases between stoch-cov and interdependent expectancies ?
 
-Some confusion may arise when surveying at stochastic and deterministic models of urban growth. To what extent is a proposed model ``complex'' and is the simulation of stochasticity necessary ? 
+Some confusion may arise when surveying at stochastic and deterministic models of urban growth. To what extent is a proposed model ``complex'' and is the simulation of stochasticity necessary ? Concerning Gibrat model and most of its extensions, independence assumptions produce a totally predictable behavior and thus not complex in the sense of exhibiting emergence\footnote{taking e.g. weak emergence, i.e. computational emergence introduced by Bedau~\cite{}}. In particular, the full distribution of random growth models can be analytically at any time~\cite{}, and in the case of studying only first moment, a simple recurrence relation avoids to proceed to any Monte-Carlo simulation. Under these assumptions, it is natural to work with a deterministic model, as it is done by Cottineau with the Marius model~\cite{}.
 
 
 
@@ -157,13 +156,21 @@ In our case, we take
 f(\vec{\mu}) = r_0\cdot \mathbf{Id}\cdot \vec{\mu} + \mathbf{G}\left(\vec{\mu}\right)\cdot \mathbf{1} + \mathbf{N}\left(\vec{\mu}\right)
 \end{equation}
 
-with 
-\begin{itemize}
-\item $G_{ij} = w_G\cdot \frac{V_{ij}}{<V_{ij}>}$ and $V_{ij} = \left(\frac{\mu_i\mu_j}{\sum{\mu_k}^2}\right)^{\gamma_G}\cdot \exp{(-d_{ij}/d_G)}$
-\item $N_{i} = w_N \cdot \sum_{kl} \left(\frac{\mu_k\mu_l}{\sum\mu}\right)^{\gamma_N}\exp{(-d_{kl,i})/d_N}$ where $d_{kl,i}$ is distance to shortest path between $k,l$ computed with slope impedance ($Z=\left(1+\alpha/\alpha_0\right)^{n_0}$ with $\alpha_0\simeq 3$)
-\end{itemize}
+with $G_{ij} = w_G\cdot \frac{V_{ij}}{<V_{ij}>}$ such that interaction potential follow a gravity-type function given by 
 
-The first component is the pure Gibrat model, that we obtain by setting the weights $w_G = w_N = 0$. The second component captures direct interdependencies between cities, under the form of a separable gravity potential such as the one used in~\cite{sanders1992systeme}.
+\begin{equation}
+V_{ij} = \left(\frac{\mu_i\mu_j}{\sum{\mu_k}^2}\right)^{\gamma_G}\cdot \exp{(-d_{ij}/d_G)}
+\end{equation}
+
+and the network effect term is given by
+
+
+\begin{equation}
+N_{i} = w_N \cdot \sum_{kl} \left(\frac{\mu_k\mu_l}{\sum\mu}\right)^{\gamma_N}\exp{(-d_{kl,i})/d_N}
+\end{equation}
+
+where $d_{kl,i}$ is distance to shortest path between $k,l$ computed with slope impedance ($Z=\left(1+\alpha/\alpha_0\right)^{n_0}$ with $\alpha_0\simeq 3$). The first component is the pure Gibrat model, that we obtain by setting the weights $w_G = w_N = 0$. The second component captures direct interdependencies between cities, under the form of a separable gravity potential such as the one used in~\cite{sanders1992systeme}. The rationale for the third term, aimed at capturing network effects by expressing a feedback of network flow between cities $k,l$ on the city $i$. Intuitively, a demographic and economic flow physically transiting through a city or in its surroundings is expected to influence its development (through intermediate stops e.g.), this effect being of course dependent on the transportation mode since a high speed line with few stops will induce a \emph{tunnel effect}~\cite{}.% TODO citation tunnel effect.
+ Under assumption of non-stationarity, temporal evolution of fitted parameters corresponding to this feedback should therefore contain information on the evolution of transportation modes.
 
 
 \paragraph{Model Parameter Space}
@@ -191,7 +198,7 @@ integrates the definition of Urban Areas, allowing to follow them on long time-p
 \begin{figure}
 \centering
 \includegraphics[width=0.8\textwidth]{figures/empirical_tsCorrelations}
-\caption{Time-series correlations as a function of distance. Solid line correspond to smoothed correlations, computed between each normalized population time-series, on successive periods.}
+\caption{\textbf{Time-series correlations as a function of distance.} Solid line correspond to smoothed correlations, computed between each normalized population time-series, on successive periods. More precisely, we consider overlapping 50 years time-windows finishing respectively in (1881,1906,1931,1962,1999) and compute on each, for each couple of cities $(i,j)$, an estimated correlation $\hat{\rho}_{ij}=\rho\left[\Delta \tilde{P}_i, \Delta \tilde{P}_j\right]$}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -283,10 +290,29 @@ Data preprocessing, result processing and models profiling are implemented in R.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Model Calibration}
 
+
+
+\paragraph{Calibration using Genetic Algorithms}
+
+
+The optimization problem associated to model calibration does not present features allowing an easy solving (closed-form of a likelihood function, convexity or sparsity of the optimization problem, etc.), we must rely on alternative techniques to solve it. Brute force grid search is rapidly limited by the dimensionality curse
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/allperiods_feedbackWeight}
+\caption{\textbf{Pareto fronts for bi-objective calibration.} Steady-state populations are obtained using Island Genetic Algorithm embedded in \texttt{OpenMole}, with parameters, and on independent time periods as detailed in text. We show  corresponding parameter values for $w_N$, for the gravity-only model (Top) and the full model (Bottom). Full graphs are available in Supplementary materials.}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\paragraph{Quantifying overfitting : Empirical AIC}
+
 % here put empirical AIC ?
 
-
-
+A large part of statistical models allow to compute tools for model comparison and selection, in particular to take into account possible overfitting due to additional degrees of freedom. The Akaike Information Criterion provides the gain in information between two models, and many extensions have been proposed since~\cite{}.% TODO cite AIC
 
 
 
@@ -308,14 +334,44 @@ Data preprocessing, result processing and models profiling are implemented in R.
 
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Theoretical implications}
 
 
 We propose to support our hypothesis that \textit{physical transportation networks are necessary to explain the morphogenesis of territorial systems} (aka \textit{Network Necessity}) by showing on a relatively simple case that the integration of physical networks into some models effectively increase their explanative power (being careful on the precise definition of model improvement to avoid overfitting).
 
+% cite theoretical draft here ?
 
 %%
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Methodological implications}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Further developments}
+
+
+\paragraph{Specificity of the Urban System}
+
+The model has not yet been tested on other urban systems and other temporalities.
+
+
+
+\paragraph{Towards co-evolutive models of cities and transportation networks}
+
+Our focus on network effects remains quite limited since (i) we do not consider an effective infrastructure but abstract flows only, and (ii) we do not take into account the possible network evolution, due to technical progresses (\cite{bretagnolle2000long}) and infrastructure growth in time. An ambitious but necessary development would be the inclusion of both in a model of co-evolution between urban growth and transportation network growth, in order to investigate to what extent the refinement of network spatial structure and network dynamics can improve the explanation of urban system dynamics. It has been shown by \cite{raimbault2016models} that disciplinary compartmentalization may be at the origin of the relative absence of such type of models in the literature.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
 
 
 
