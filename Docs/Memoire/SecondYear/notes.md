@@ -2,6 +2,15 @@
 
 
 
+
+## Theory construction
+
+* Mer 14 sep 2016 19:29:06 CEST * 
+
+Hall and Pain Mega City Regions : Chapter 2-3 : "bring together four sets of conceptual insights"
+-> theory mixing or construction ? compare with our theory and the syncretism critics it can receive
+
+
 ## Cybernetics and cities
 
 * Jeu  8 sep 2016 23:57:57 CEST *
