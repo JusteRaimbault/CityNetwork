@@ -4,7 +4,7 @@
 library(dplyr)
 library(ggplot2)
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/all/nofeedback/20160916_nofeedback_local'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/all/nofeedback/20160916_nofeedback_local_2'))
 
 res <- as.tbl(read.csv('population103.csv'))
 
