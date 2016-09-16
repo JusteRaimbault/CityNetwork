@@ -4,9 +4,9 @@
 library(dplyr)
 library(ggplot2)
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/exploration/test'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/all/nofeedback/20160916_nofeedback_local'))
 
-res <- as.tbl(read.csv('2016_07_27_12_10_32_GRID_NOFEEDBACK_LOCAL.csv'))
+res <- as.tbl(read.csv('population103.csv'))
 
 #
 #m = lm(logmse~gravityDecay+gravityGamma+gravityWeight+growthRate,res)
@@ -19,14 +19,14 @@ gp+geom_line()+facet_grid(gravityWeight~gravityDecay,scales="free")#+stat_smooth
 
 
 ######
-params = c("gravityGamma","gravityDecay","gravityAlpha")#"growthRate","gravityWeight")
+params = c("growthRate","gravityWeight","gravityGamma","gravityDecay")#"growthRate","gravityWeight")
 d=res#[res$logmse<35&res$mselog<400,]
 plots=list()
 for(param in params){
   g=ggplot(d,aes_string(x="logmse",y="mselog",colour=param))
   plots[[param]]=g+geom_point()+scale_colour_gradient(low="yellow",high="red")
 }
-multiplot(plotlist = plots,cols=3)
+multiplot(plotlist = plots,cols=2)
 
 ####
 #res$rate=res$gravityWeight/res$growthRate
