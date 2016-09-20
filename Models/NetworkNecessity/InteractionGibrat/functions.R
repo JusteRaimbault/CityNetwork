@@ -127,7 +127,7 @@ interactionModel <- function(real_populations,distances,gammaGravity=0,decayGrav
 }
 
 
-networkFeedbackModel <- function(real_populations,distances,flow_distances,gammaGravity=0,decayGravity=1,growthRate=0,potentialWeight=1,betaFeedback=0,feedbackDecay=1){
+networkFeedbackModel <- function(real_populations,distances,flow_distances,dates,gammaGravity=0,decayGravity=1,growthRate=0,potentialWeight=1,betaFeedback=0,feedbackDecay=1,feedbackGamma=1.0){
   N=nrow(real_populations);
   populations = matrix(0,N,ncol(real_populations))
   populations[,1] = real_populations[,1]
@@ -141,16 +141,17 @@ networkFeedbackModel <- function(real_populations,distances,flow_distances,gamma
   
   for(t in 2:ncol(real_populations)){
     pot = potentials(populations[,t-1],distances,gammaGravity,decayGravity)
+    deltat = dates[t]-dates[t-1]
     
     #hist(log(as.numeric(pot)),breaks=100)
     
-    flatpops = flattenpops(populations[,t-1],gammaGravity)
+    flatpops = flattenpops(populations[,t-1],feedbackGamma)
     potfeedback = exp(-flow_distances/feedbackDecay)%*%flatpops
     
     #show(paste0('mean pot : ',mean(pot)))
     #show(paste0('mean feedback pot : ',mean(exp(-flow_distances/feedbackDecay)%*%flatpops)))
     
-    populations[,t] = as.numeric(populations[,t-1]*(1 + growthRate +
+    populations[,t] = as.numeric(populations[,t-1]+ populations[,t-1]*deltat*(growthRate +
                                            pot%*%matrix(rep(1,nrow(pot)),nrow=nrow(pot))*potentialWeight/(N*mean(pot)) + 
                                          2*betaFeedback/(N*(N-1)*mean(potfeedback))*potfeedback
                                         ))

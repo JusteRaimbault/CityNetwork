@@ -5,9 +5,9 @@ library(dplyr)
 library(ggplot2)
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/all/fullmodel/20160917_fullmodel_local'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/all/nofeedback/20160916_nofeedback_local_2'))
 
-res <- as.tbl(read.csv('population30.csv'))
+res <- as.tbl(read.csv('population373.csv'))
 
 #
 #m = lm(logmse~gravityDecay+gravityGamma+gravityWeight+growthRate,res)
@@ -20,8 +20,8 @@ gp+geom_line()+facet_grid(gravityWeight~gravityDecay,scales="free")#+stat_smooth
 
 
 ######
-#params = c("growthRate","gravityWeight","gravityGamma","gravityDecay")#"growthRate","gravityWeight")
-params = c("growthRate","gravityWeight","gravityGamma","gravityDecay","feedbackWeight","feedbackGamma","feedbackDecay")
+params = c("growthRate","gravityWeight","gravityGamma","gravityDecay")#"growthRate","gravityWeight")
+#params = c("growthRate","gravityWeight","gravityGamma","gravityDecay","feedbackWeight","feedbackGamma","feedbackDecay")
 d=res#[res$logmse<35&res$mselog<400,]
 plots=list()
 for(param in params){
@@ -29,6 +29,11 @@ for(param in params){
   plots[[param]]=g+geom_point()+scale_colour_gradient(low="yellow",high="red")
 }
 multiplot(plotlist = plots,cols=4)
+
+#M1
+data.frame(res[res$logmse<31.24&res$mselog<303,])
+#M2
+data.frame(res[res$logmse<31.24&res$mselog<303,])
 
 ####
 #res$rate=res$gravityWeight/res$growthRate
