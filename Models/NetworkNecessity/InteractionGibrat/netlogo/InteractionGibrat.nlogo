@@ -116,7 +116,6 @@ paths-own [
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 345
@@ -360,7 +359,7 @@ BUTTON
 478
 random path cities
 ask one-of cities [let c2 one-of other cities let n2 [one-of nodes with-min [distance myself]] of c2 ask one-of nodes with-min [distance myself] [let p nw:weighted-path-to n2 \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]]
-T
+NIL
 1
 T
 OBSERVER

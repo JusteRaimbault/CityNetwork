@@ -97,20 +97,17 @@ $^{2}$UMR-T IFSTTAR 9403 LVMT\\
 
 \sframe{Modeling Urban Growth}{
 
-%\justify
+\textit{Growth in Urban Systems : multi-scalar, heterogeneous drivers, bifurcations and path-dependancy}
 
+\bigskip
 
-%\textit{}
+\centering
 
-%\bigskip
+\includegraphics[width=0.45\textwidth,height=0.6\textheight]{figures/Dam1544}
+\hspace{0.1cm}
+\includegraphics[width=0.45\textwidth,height=0.6\textheight]{figures/Dam1770}
 
-%\textbf{Diverse developments :}
-
-%\medskip
-
-%$\rightarrow$
-
-%\medskip
+{\tiny Source : Wikipedia}
 
 }
 
@@ -122,7 +119,8 @@ $^{2}$UMR-T IFSTTAR 9403 LVMT\\
 
 \textit{Role of spatial interactions in Urban Growth ?}
 
-\medskip
+\bigskip
+\bigskip
 
 $\rightarrow$ gravity-based flows influence population growth in a synergetic formulation~\cite{sanders1992systeme}
 
@@ -141,7 +139,17 @@ $\rightarrow$ Simple random growth (Gibrat model) becomes quickly complex by add
 
 \justify
 
-\textit{Between complex ABM and non-geographical models in economics/physics, }
+$\rightarrow$ \textit{Between complex ABM and non-geographical models in economics/physics, what place for simple models of growth in Urban Systems ?}
+
+\medskip
+
+$\rightarrow$ \textit{Modulation of simple mechanisms to check for necessity/sufficiency : multi-modeling in models of simulation}
+
+\bigskip
+\bigskip
+
+
+\textbf{Research Objective : } Extend Gibrat simple model of growth in system of cities with spatial interactions and feedbacks through physical networks ; Explore systematically and calibrate such families of models
 
 
 }
@@ -161,11 +169,11 @@ $\rightarrow$ Simple random growth (Gibrat model) becomes quickly complex by add
 
 % bit of theory
 
-$\rightarrow$ Rationale : extend an interaction model for system of cities by including physical network, to investigate its influence on system dynamics
+\textbf{Rationale :} extend an interaction model for system of cities by including physical network as an additional carrier of spatial interactions (see \cite{raimbault2016memoire} for developed theoretical context) 
 
-\medskip
+\bigskip
 
-$\rightarrow$ Work under Gibrat independence assumptions, i.e. $\Covb{P_i(t)}{P_j(t)}=0$. If $\vec{P}(t+1)=\mathbf{R}\cdot \vec{P}(t)$ where $\mathbf{R}$ is also independent, then $\Eb{\vec{P}(t+1)}=\mathbf{R}\cdot\Eb{\vec{P}}(t)$. Expectancies only for now (higher moments computable similarly)
+$\rightarrow$ Work under Gibrat independence assumptions, i.e. $\Covb{P_i(t)}{P_j(t)}=0$. If $\vec{P}(t+1)=\mathbf{R}\cdot \vec{P}(t)$ where $\mathbf{R}$ is also independent, then $\Eb{\vec{P}(t+1)}=\Eb{\mathbf{R}}\cdot\Eb{\vec{P}}(t)$. Consider expectancies only (higher moments computable similarly)
 
 \medskip
 
@@ -177,11 +185,18 @@ $\rightarrow$ With $\vec{\mu}(t)=\Eb{\vec{P}(t)}$, we generalize this approach b
 
 \sframe{Model Formulation}{
 
+Let $\vec{\mu}(t)=\Eb{\vec{P}(t)}$ cities population and $(d_{ij})$ distance matrix
 
 
 \medskip
 
-$\rightarrow$ In our case, $f(\vec{\mu}) = r_0\cdot \mathbf{Id}\cdot \vec{\mu} + \mathbf{G}\cdot \mathbf{1} + \mathbf{N}\cdot $ with 
+Model specified by
+
+\[
+f(\vec{\mu}) = r_0\cdot \mathbf{Id}\cdot \vec{\mu} + \mathbf{G}\cdot \mathbf{1} + \mathbf{N}
+\]
+
+ with 
 \begin{itemize}
 \item $G_{ij} = w_G\cdot \frac{V_{ij}}{<V_{ij}>}$ and $V_{ij} = \left(\frac{\mu_i\mu_j}{\sum{\mu_k}^2}\right)^{\gamma_G} \exp{(-d_{ij}/d_G)}$
 \item $N_{i} = w_N \cdot \sum_{kl} \left(\frac{\mu_k\mu_l}{\sum\mu}\right)^{\gamma_N}\exp{(-d_{kl,i})/d_N}$ where $d_{kl,i}$ is distance to shortest path between $k,l$ computed with slope impedance ($Z=\left(1+\alpha/\alpha_0\right)^{n_0}$ with $\alpha_0\simeq 3$)
@@ -223,18 +238,36 @@ Population data for French-cities (Pumain-INED database : 1831-1999)
 
 \centering
 
-\includegraphics[height=0.8\textheight]{figures/example_shortest_path}
+\includegraphics[height=0.75\textheight]{figures/example_shortest_path}
 
 }
+
+
+
+\sframe{Implementation}{
+
+\textit{On the importance of visualization in spatial models : complementary implementations in NetLogo/R/Scala}
+
+\medskip
+
+\includegraphics[width=\textwidth]{figures/example_interface}
+
+}
+
+
 
 \sframe{Results : model exploration}{
 
 % network effects graphs
 
 
-\textit{Evidence of physical network effects}
+\textit{Evidence of physical network effects : fit improve through feedback at fixed gravity}
 
-\includegraphics[width=0.8\textwidth,height=0.8\textheight]{figures/mselog-feedbackDecay_ZOOM_fixedgravity}
+\medskip
+
+\centering
+
+\includegraphics[width=0.8\textwidth,height=0.7\textheight]{figures/mselog-feedbackDecay_ZOOM_fixedgravity}
 
 }
 
@@ -242,9 +275,15 @@ Population data for French-cities (Pumain-INED database : 1831-1999)
 
 % ga calibration, both full model and gravity only
 
-\textit{Model calibration using GA on computation grid, with software }\texttt{OpenMole}~\cite{reuillon2013openmole}
+Model calibration using GA on computation grid, with software \texttt{OpenMole}~\cite{reuillon2013openmole}
 
-\includegraphics[width=\textwidth]{figures/pareto_fullmodel}
+\bigskip
+
+\textit{Pareto front for full model calibration, objectives MSE and MSE on logs}
+
+\medskip
+
+\includegraphics[width=\textwidth,height=0.65\textheight]{figures/pareto_fullmodel}
 
 }
 
@@ -256,27 +295,33 @@ Population data for French-cities (Pumain-INED database : 1831-1999)
 % calibration on periods
 
 
-\includegraphics[width=\textwidth]{figures/allperiods_allparams} % TODO relaunch calib on periods
+\includegraphics[width=\textwidth,height=0.8\textheight]{figures/allperiods_allparams}
 
 }
 
 
-\sframe{Quantifying overfitting}{
+\sframe{Quantifying overfitting : Empirical AIC}{
 
-\textit{Not clear nor well theorized how to deal with overfitting in models of simulation}
+\justify
 
+\vspace{-0.5cm}
 
+\textit{Not clear nor well theorized how to deal with overfitting in models of simulation.} \textbf{Intuitive idea : } Approximate gain of information by approaching models of simulation by statistical models.
 
-\textbf{Intuitive idea : } Approximate gain of information by approaching models of simulation by statistical models
+\medskip
+
+Let $M_k^{\ast} = M_k\left[\alpha_k^{\ast}\right]$ computational models heuristically fitted to the same dataset. With $S_k \simeq M_k^{\ast}$, we show that $\Delta D_{KL}\left( M_k^{\ast},M_{k'}^{\ast}\right) \simeq \Delta D_{KL}\left( S_k,S_{k'}\right)$ if fits of $S_k$ are negligible compared to fit difference between computational models and models have same parameter number.
+
+\bigskip
+
+\textbf{Application} $M_1$ : gravity only model with $(r_0=0.0133,w_G=1.28e-4,\gamma_G=3.82,d_G=4e12)$ ; $M_2$ : full model with $(r_0=0.0128,w_G=1.30e-4,\gamma_G=3.80,d_G=8.4e14,w_N=0.603,\gamma_N=1.148,d_N=7.474)$
+
+Fitting of independent polynomial models ($\tilde{P}_i(t) = Q\left[\tilde{P}_i(t-1)\right]$) with 4 and 7 parameters) gives $\Delta D_{KL} \simeq 19.7$ $\rightarrow$ fit improvement without overfitting
+
 
 }
 
 
-\sframe{Empirical AIC}{
-
-
-
-}
 
 
 
@@ -288,7 +333,26 @@ Population data for French-cities (Pumain-INED database : 1831-1999)
 
 \sframe{Discussion}{
 
+\textbf{Theoretical and Methodological Implications}
 
+$\rightarrow$ Indirect confirmation of known stylized facts (such as \textit{tunnel effect} through non-stationary calibration)
+
+$\rightarrow$ For a better integration of theory, empirical and modeling on network aspects in evolutive urban theories 
+
+$\rightarrow$ Methodology : first steps for empirical AIC in multi-modeling
+
+
+\bigskip
+
+\textbf{Further Developments}
+
+$\rightarrow$ Need to validate the approach on other system/subsystem of cities~\cite{pumain2015multilevel}
+
+
+$\rightarrow$ Add Real Network in a static/dynamic way : towards models of co-evolution of cities and network~\cite{raimbault2016memoire}
+
+
+$\rightarrow$ Coupling with growth models at other level, as e.g. mesoscopic reaction-diffusion model~\cite{raimbault2016calibration}
 
 
 }
@@ -298,13 +362,20 @@ Population data for French-cities (Pumain-INED database : 1831-1999)
 
 \sframe{Conclusion}{
 
+$\rightarrow$ Simple models of complex systems can have strong explanatory power, and be used to test hypothesis/confront a theory
+
+\medskip
+
+$\rightarrow$ 
+
 
 \bigskip
 \bigskip
 \bigskip
 
 
-\footnotesize{ - All code available at \texttt{https://github.com/JusteRaimbault/CityNetwork/tree/master/Models/NetworkNecessity/InteractionGibrat}
+\footnotesize{ - All code and data available at \texttt{https://github.com/JusteRaimbault/CityNetwork/tree/master/Models\\
+/NetworkNecessity/InteractionGibrat}
 
 }
 

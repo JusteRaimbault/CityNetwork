@@ -45,6 +45,35 @@ show(paste0('(2) : ',logmse2,' ; ',mselog2))
 
 
 
+##
+# Fit random statistical models with same parameter number
+
+# no interaction models, to many parameters
+
+X1=c();Y1=c()
+X2=c();Y2=c()
+for(j in 2:ncol(real_populations)){
+  X1=append(X1,resM1$populations[,j-1]);Y1=append(Y1,resM1$populations[,j])
+  X2=append(X2,resM2$populations[,j-1]);Y2=append(Y2,resM2$populations[,j])
+}
+
+#res1=nls(Y~X^a,data.frame(X,Y),start=list(a=1.5))
+
+polFit<-function(data,params){
+  form = "Y~a1+a2*X"
+  start=list(a1=0,a2=0)
+  for(k in 1:(params-2)){
+    form=paste0(form,"+a",(k+2),"*X^",(k+1))
+    start[[paste0("a",k+2)]]=0
+  }
+  return(AIC(nls(as.formula(form),data,start=start)))
+}
+
+polFit(data.frame(X=X1,Y=Y1),4)- polFit(data.frame(X=X2,Y=Y2),7)
+# = 19.65414
+
+
+
 
 
 
