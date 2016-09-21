@@ -29,7 +29,7 @@ resM1=networkFeedbackModel(real_populations,distances,dists,dates,
 logmse1 = log(sum((resM1$df$populations-resM1$df$real_populations)^2))
 mselog1 = sum((log(resM1$df$populations)-log(resM1$df$real_populations))^2)
 
-
+# iterative calib necessary here ?
 resM2=networkFeedbackModel(real_populations,distances,dists,dates,
                      growthRate = 0.01283191,
                      potentialWeight=0.0001308851,gammaGravity = 3.809335,decayGravity = 8.434855e10,
