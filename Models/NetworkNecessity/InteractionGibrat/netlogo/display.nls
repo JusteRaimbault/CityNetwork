@@ -4,7 +4,11 @@
 
 
 to update-display
+  ; cities
   display-cities
+  
+  ; specific plots
+  display-plots
 end
 
 
@@ -29,3 +33,23 @@ to display-cities
     set color gradient:scale (list extract-rgb blue extract-rgb red) color-var mi ma
   ]
 end
+
+to display-plots
+  ; fit plot
+  set-current-plot "fit" set-current-plot-pen "default"
+  let col gradient:scale (list extract-rgb blue extract-rgb red) ticks 0 (length dates)
+  set-plot-pen-color (approximate-rgb item 0 col item 1 col item 2 col)
+  let sim map ln (sort-by [?1 > ?2] (matrix:get-column populations ticks))
+  let real map ln (sort-by [?1 > ?2] (matrix:get-column real-populations ticks))
+  let i 0 plot-pen-up plotxy first real first sim
+  plot-pen-down
+  foreach sim [
+     plotxy item i real ? set i i + 1
+  ]
+end
+
+
+
+
+
+

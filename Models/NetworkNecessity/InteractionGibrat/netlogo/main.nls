@@ -58,7 +58,11 @@ to compute-populations
   let mean-pot-feedback (matrix:sum pots-feedback) / n
   
   ;; current populations
-  let current-populations matrix:times-scalar (matrix:times-element-wise (matrix:as-column-matrix prev-populations) (((matrix:make-constant n 1 (1 + growth-rate)) matrix:+ (matrix:times-scalar (matrix:times pots-gravity (matrix:make-constant n 1 1)) (gravity-weight / (n * mean-pot-gravity)))) matrix:+ (matrix:times-scalar pots-feedback (2 * feedback-weight / (n * (n - 1) * mean-pot-feedback))))) delta_t
+  let r (matrix:times-scalar (matrix:times-element-wise (matrix:as-column-matrix prev-populations) (((matrix:make-constant n 1 growth-rate) matrix:+ (matrix:times-scalar (matrix:times pots-gravity (matrix:make-constant n 1 1)) (gravity-weight / (n * mean-pot-gravity)))) matrix:+ (matrix:times-scalar pots-feedback (2 * feedback-weight / (n * (n - 1) * mean-pot-feedback))))) delta_t)
+  ;show matrix:max r show matrix:min r
+  ;show matrix:as-column-matrix prev-populations
+  let current-populations matrix:plus (matrix:as-column-matrix prev-populations) r
+  show current-populations
   
   matrix:set-column populations t map [first ?] matrix:to-row-list current-populations
   

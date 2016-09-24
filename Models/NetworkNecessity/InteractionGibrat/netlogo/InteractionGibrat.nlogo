@@ -115,7 +115,6 @@ paths-own [
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 345
@@ -170,8 +169,8 @@ growth-rate
 growth-rate
 0
 0.05
-0.0040
-0.001
+0.0133
+0.0001
 1
 NIL
 HORIZONTAL
@@ -191,9 +190,9 @@ SLIDER
 gravity-weight
 gravity-weight
 0
-0.1
-0.0010
-0.001
+1e-3
+1.28E-4
+1e-6
 1
 NIL
 HORIZONTAL
@@ -207,8 +206,8 @@ gravity-gamma
 gravity-gamma
 0.5
 5
-2
-0.1
+3.82
+0.01
 1
 NIL
 HORIZONTAL
@@ -221,8 +220,8 @@ SLIDER
 gravity-decay
 gravity-decay
 1
-1000
-100
+10000
+1093
 1
 1
 NIL
@@ -372,12 +371,47 @@ NIL
 CHOOSER
 975
 83
-1173
+1077
 128
 visualization
 visualization
 "mse" "mse-log" "delta-previous-mse" "delta-previous-mse-log"
-2
+1
+
+PLOT
+1131
+10
+1403
+267
+fit
+real
+sim
+9.0
+10.0
+9.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
+
+BUTTON
+112
+78
+175
+111
+NIL
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
