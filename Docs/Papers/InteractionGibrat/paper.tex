@@ -161,6 +161,8 @@ In our case, we take
 f(\vec{\mu}) = r_0\cdot \mathbf{Id}\cdot \vec{\mu} + \mathbf{G}\left(\vec{\mu}\right)\cdot \mathbf{1} + \mathbf{N}\left(\vec{\mu}\right)
 \end{equation}
 
+% TODO recheck formulation and include \Delta t
+
 with $G_{ij} = w_G\cdot \frac{V_{ij}}{<V_{ij}>}$ such that interaction potential follow a gravity-type function given by 
 
 \begin{equation}
@@ -233,7 +235,7 @@ Our model is assumed as hybrid as it relies on semi-parametrization on real data
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Model Evaluation}
+\subsection*{Model Evaluation}
 % this subsection AFTER data as it is thanks to data that the model is semi-parametrized
 
 We work on an explanatory rather than an exploratory model, and indicators to evaluate model outputs are therefore not linked to a performance of trajectories or obtained final states, but to a distance to phenomenon we want to explain, i.e. the data. We use therefore the following complementary indicators :
@@ -250,12 +252,12 @@ We work on an explanatory rather than an exploratory model, and indicators to ev
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Results}
+\section*{Results}
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Implementation}
+\subsection*{Implementation}
 
 Data preprocessing, result processing and models profiling are implemented in R. For performances reasons and an easier integration into the OpenMole software for model exploration described by~\cite{reuillon2013openmole}, a \texttt{scala} version was also developed. The typical question of trade-off between implementation performance and interoperability appeared quickly as an issue, as a blind exploration and calibration can difficultly provide useful thematic conclusions for that kind of model. Finding an improvement in model fit among one parameter dimension is significant if the geographical situation is visualized and the improvement is confirmed as reasonable and not an absurdity.
 
@@ -272,7 +274,7 @@ Data preprocessing, result processing and models profiling are implemented in R.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Model Exploration}
+\subsection*{Model Exploration}
 
 % qualitative behavior : hierarchy inversions/ trajectories of normalized populations (cf papier Denise Anne etc)
 % need of synthetic data ?
@@ -297,7 +299,7 @@ Data preprocessing, result processing and models profiling are implemented in R.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Model Calibration}
+\subsection*{Model Calibration}
 
 
 
@@ -322,7 +324,7 @@ The optimization problem associated to model calibration does not present featur
 % here put empirical AIC ?
 
 A large part of statistical models allow to compute tools for model comparison and selection, in particular to take into account possible overfitting due to additional degrees of freedom. The Akaike Information Criterion provides the gain in information between two models, and many extensions have been proposed since~\cite{}.% TODO cite AIC
-We can formalize the proposed method. Let $(X,Y)$ be the data and observations. Computational models are functions $(X,\alpha_k) \mapsto M_{\alpha_k}^{(k)}(X)$ mapping data values to a random variable. What is seen as data and parameters is somehow arbitrary but is separated in the formulation as corresponding dimensions will have different roles. We assume the model has been fitted to data in the sense that an heuristic has been used to approximate $\alpha^{\ast}_k = \argmin_{\alpha_k}\norm{M_{\alpha_k}^{(k)}(X) - Y}$. The gain of information between two computational models is not directly accessible and we propose an indirect way, through the fitting of statistical models. For all computational model, a large set of statistical models with similar degree of freedom are fitted. % TODO not clear here 
+Note that cross-validation type of methods are not suitable to our case because of the small size of the dataset. We can formalize the proposed method based on the intuitive idea of approaching models of simulation by statistical models and using the corresponding AIC under certain validity conditions. Let $(X,Y)$ be the data and observations. Computational models are functions $(X,\alpha_k) \mapsto M_{\alpha_k}^{(k)}(X)$ mapping data values to a random variable. What is seen as data and parameters is somehow arbitrary but is separated in the formulation as corresponding dimensions will have different roles. We assume the model has been fitted to data in the sense that an heuristic has been used to approximate $\alpha^{\ast}_k = \argmin_{\alpha_k}\norm{M_{\alpha_k}^{(k)}(X) - Y}$. The gain of information between two computational models is not directly accessible and we propose an indirect way, through the fitting of statistical models. For all computational model, a large set of statistical models with similar degree of freedom are fitted. % TODO not clear here 
 Let $S_k$ be the statistical models fitting best $M^{(k)}_{\alpha^{\ast}_k}(X)$. We can compute
 
 \[
@@ -337,7 +339,7 @@ Under certain assumptions, the order of magnitude of second term appears to be n
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Discussion}
+\section*{Discussion}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
@@ -353,7 +355,7 @@ Under certain assumptions, the order of magnitude of second term appears to be n
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Theoretical implications}
+\subsection*{Theoretical implications}
 
 
 We propose to support our hypothesis that \textit{physical transportation networks are necessary to explain the morphogenesis of territorial systems} (aka \textit{Network Necessity}) by showing on a relatively simple case that the integration of physical networks into some models effectively increase their explanative power (being careful on the precise definition of model improvement to avoid overfitting).
@@ -365,14 +367,14 @@ We propose to support our hypothesis that \textit{physical transportation networ
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Methodological implications}
+\subsection*{Methodological implications}
 
 
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Further developments}
+\subsection*{Further developments}
 
 
 \paragraph{Specificity of the Urban System}
@@ -389,7 +391,7 @@ Our focus on network effects remains quite limited since (i) we do not consider 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Conclusion}
+\section*{Conclusion}
 
 
 
@@ -422,14 +424,42 @@ The author would like to thank
 %%%%%%%%%%%%%
 \section*{Physical Flows Parametrization}
 
+We show in Fig.~\ref{fig:shortest-path-densities} footprints of shortest paths, revealing how different values make the path more or less realistic regarding the elevation map. A rather rough validation can also been done by comparing these with the actual current shortest paths by the road network. These are computed using the road network dataset provided by~\cite{} % dataverse simplified road network
+and which construction is detailed in~\cite{}. % working paper version of datapaper ?
+For each path, we can define a measure of geographical distance as, given $(\vec{l}_i (s), \vec{l}_j (s))$ normalized linear parametrization of two paths $(p_i,p_j)$, by
+
+\[
+d(p_i,p_j) = \int_{s=0}^1 \norm{\vec{l}_i (s) - \vec{l}_j (s)} ds
+\] 
+
+We show in Fig.~\ref{fig:paths-geodistance}
 
 
 %%%%%%%%%%%%%
-\section*{Reproducibility}
+\begin{figure}
+
+\caption{Densities of shortest paths, computed with the 1225 shortest between all 50 cities included in the dataset, for different values of parameters $(\alpha_0,n_0)$.}
+\label{fig:shortest-path-densities}
+\end{figure}
+%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%
+\begin{figure}
+
+\caption{Errors on shortest paths using the geographical path heuristic. (a) Distribution of integrated distance between paths. (b) Density maps for both heuristic and real paths.}
+\label{fig:paths-geodistance}
+\end{figure}
+%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%
+%\section*{Reproducibility}
 
 %%%%%%%%%%
 % - DATA available where ?
 % - give git commits that have produced exactly the results.
+% -> not necessary, and the subrepo should be cloned/anonymized. put that in main text.
 
 
 
