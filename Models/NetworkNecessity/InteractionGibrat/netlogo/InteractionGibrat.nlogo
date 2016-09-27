@@ -236,7 +236,7 @@ feedback-weight
 feedback-weight
 0
 0.1
-0
+0.0010
 0.001
 1
 NIL
@@ -251,7 +251,7 @@ feedback-gamma
 feedback-gamma
 0
 5
-2
+0.7
 0.1
 1
 NIL
@@ -266,8 +266,8 @@ feedback-decay
 feedback-decay
 0
 200
-50
-1
+0.7
+0.1
 1
 NIL
 HORIZONTAL
@@ -307,10 +307,10 @@ NIL
 1
 
 MONITOR
-984
-23
-1041
-68
+29
+494
+86
+539
 date
 current-date
 17
@@ -369,14 +369,14 @@ NIL
 1
 
 CHOOSER
-975
-83
-1077
-128
+20
+554
+151
+599
 visualization
 visualization
-"mse" "mse-log" "delta-previous-mse" "delta-previous-mse-log"
-1
+"mse" "mse-log" "delta-previous-mse" "delta-previous-mse-log" "feedback-strength"
+4
 
 PLOT
 1131
@@ -412,6 +412,28 @@ NIL
 NIL
 NIL
 1
+
+INPUTBOX
+10
+608
+60
+668
+orig
+0
+1
+0
+Number
+
+INPUTBOX
+62
+608
+112
+668
+dest
+0
+1
+0
+Number
 
 @#$#@#$#@
 ## WHAT IS IT?
