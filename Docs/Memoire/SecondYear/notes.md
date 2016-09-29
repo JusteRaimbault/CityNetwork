@@ -3,6 +3,15 @@
 
 
 
+## Misc
+
+* Jeu 29 sep 2016 17:35:53 CEST * [ideas from 28/09]
+
+  - put Raffestin human territories in the perspective of Production of Space by Lefebvre
+  - Extension : application of theory to all models presented
+  - Extension : application of the meta-theory to the full approach
+  - perspectives on CS -- evidence-based
+  - Model faminly for co-evolution : transport at a greater scale than the city but with endogenous times (transportation projects)
 
 
 
