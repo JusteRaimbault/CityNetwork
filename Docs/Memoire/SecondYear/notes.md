@@ -3,6 +3,19 @@
 
 
 
+
+
+
+## Misc
+
+* Jeu 29 sep 2016 07:34:19 CEST *
+
+  - model Charlotte : link with Gibrat-Simon. // paper Langevin : crazy if fundamental but GOOD (not as Barthelemy) mechanism reproduces stylized facts
+  - on Open Review : detail process in appendix
+  - rq : put graphs, stats etc : the best would be a shiny appli for each model -> integrated platform : cf Seb !
+  - papers/com : map in time/thematic space ?
+
+
 ## Theory construction
 
 * Mer 14 sep 2016 19:29:06 CEST * 

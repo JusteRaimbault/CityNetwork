@@ -85,13 +85,13 @@
 
 \titlerunning{Quantifying Interdisciplinarity}        % if too long for running head
 
-\author{Juste Raimbault}
+\author{Juste Raimbault$^{1,2}$}
 
 %\authorrunning{Short form of author list} % if too long for running head
 
 \institute{J. Raimbault \at
-              UMR CNRS 8504 G{\'e}ographie-cit{\'e}s  \\
-              UMR-T IFSTTAR 9403 LVMT \\
+              $^1$ UMR CNRS 8504 G{\'e}ographie-cit{\'e}s  \\
+              $^2$ UMR-T IFSTTAR 9403 LVMT \\
               %Tel.: +123-45-678910\\
               %Fax: +123-45-678910\\
               \email{juste.raimbault@polytechnique.edu}           %  \\
@@ -113,20 +113,27 @@ subject classification numbers as needed.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%
-\section{Introduction}
+\section*{Introduction}
 \label{sec:intro}
 %%%%%%%%%%%%%%%%%%%%%%%
 
 Most of scientific disciplines seem to be in a need of more interdisciplinarity and transversal approaches, as explored in a recent special issue of Nature~\cite{} % TODO cite Nature special issue
 , for diverse reasons that may include the development of vertically integrated fields conjointly with horizontal transversal questions~\cite{} % TODO cite roadmap
-. There are naturally ongoing debates on what is exactly interdisciplinarity (many other terms such as transdisciplinarity, crossdisciplinarity also exist) and it actually depends of involved disciplines : recent hybrid disciplines % examples from Sanders' book
-% urbanism as a field ; 
+. There are naturally ongoing debates on what is exactly interdisciplinarity (many other terms such as transdisciplinarity, crossdisciplinarity also exist) and it actually depends of involved domains : recent hybrid disciplines (see e.g. )% examples from Sanders' book
+are a good illustration of the case where entanglement is strong and new discoveries are vertically deep, whereas % urbanism as a field ; 
+more loose fields such as ``urbanism'' which has no precise definition and integration is by essence horizontal is an other illustration of how transversal knowledge can be produced (leading to misunderstandings when recently introduced to non-aware physicists~\cite{}). % cite Dupuy aggressive transdisciplinarity 
 % ultra advanced physics : interdisciplinarity very strict ?
+The question is naturally transferred into scientific communication : what are corresponding alternatives for an efficient dissemination of knowledge ? Elements of answer to such a high-level issue imply, in an evidence-based perspective, quantitative measures of interdisciplinarity.
+
+% ``On the uncertainty of interdisciplinarity measurements due to incomplete bibliographic data'' (Scientometrics paper in Biblio)
+%  -> check biblio on interdisciplinarity
+%  -> the initial measurement pb
+
+% cit Elisa's paper
 
 
-
-
-Existing works in quantitative epistemology using various types of networks have shown interesting potentialities. For the citation network, a good predicting power for citation patterns is for example obtained by~\cite{2013arXiv1310.8220N}. Co-authorship networks can also be used for predictive models~\cite{2014arXiv1402.7268S}. A multilayer network approach was recently proposed in~\cite{2016arXiv160106075O}, using bipartites networks of papers and scholars, in order to produce measures of interdisciplinarity. Disciplines can be stratified into layers to reveal communities between them and therein collaboration patterns~\cite{2015arXiv150601280B}. Keyword networks are used in other fields such as economics of technology : for example, \cite{choi2014patent} proposes a method to identify technological opportunities by detecting important keywords from the point of view of topological measures. \cite{shibata2008detecting} uses topological analysis of the citation network to detect emerging research fronts.
+The possible methods for quantitative insights into epistemology are numerous. %Existing works in quantitative epistemology using various types of networks have shown interesting potentialities.
+ Using citation network features, a good predicting power for citation patterns is for example obtained by~\cite{2013arXiv1310.8220N}. Co-authorship networks can also be used for predictive models~\cite{2014arXiv1402.7268S}. A multilayer network approach was recently proposed in~\cite{2016arXiv160106075O}, using bipartites networks of papers and scholars, in order to produce measures of interdisciplinarity. Disciplines can be stratified into layers to reveal communities between them and therein collaboration patterns~\cite{2015arXiv150601280B}. Keyword networks are used in other fields such as economics of technology : for example, \cite{choi2014patent} proposes a method to identify technological opportunities by detecting important keywords from the point of view of topological measures. \cite{shibata2008detecting} uses topological analysis of the citation network to detect emerging research fronts.
 
 We describe here a study implementing these ideas for the particular case of a scientific journal for which bibliographical data is difficult to obtain, that is \texttt{cybergeo}, an electronic journal in theoretical and quantitative geography, that is concerned with open science issues such as peer-review ethics transparency~\cite{10.1371/journal.pone.0147913}. Our approach combine semantic communities analysis (as done in~\cite{2016arXiv160208451P} for papers in physics but with keyword extraction ; \cite{2015arXiv151003797G} analyses semantic networks of political debates) with citation network to extract e.g. interdisciplinarity measures.
 
@@ -154,17 +161,33 @@ The rest of the paper is organized as follows : we describe in section~\ref{sec:
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
-\section{Data Collection}
+\section*{Database Construction}
 \label{sec:data}
 %%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Implementation}
+%\subsection{Implementation}
 
 
-The general architecture for data collection is presented in Fig.~\ref{fig:quantepistemo:data}. Citation data is collected from \texttt{Google Scholar}, that is the only source for incoming citations~\cite{noruzi2005google} in our case as the journal is not referenced in other databases. We are aware of the possible biaises using this single source~\cite{bohannon2014scientific}\footnote{or see \texttt{http:\/\/iscpif.fr\/blog\/2016\/02\/the-strange-arithmetic-of-google-scholars}}, but these critics are more directed towards search results than citation counts. 
+The general architecture for data collection is presented in Fig.~\ref{fig:quantepistemo:data}.
+
+
+
+\paragraph{Initial Corpus}
+
+The production database of \textit{Cybergeo} (snapshot dump taken at date), provided by the editorial board, provides after pre-processing the initial database of articles, with basic information (title, abstract, publication year, xxx). The processed version used is available together with the full database constructed, as a \texttt{mysql} dump, at \texttt{}.
+
+
+
+\paragraph{Citation Data}
+Citation data is collected from \texttt{Google Scholar}, that is the only source for incoming citations~\cite{noruzi2005google} in our case as the journal is not referenced in other databases. We are aware of the possible biaises using this single source~\cite{bohannon2014scientific}\footnote{or see \texttt{http:\/\/iscpif.fr\/blog\/2016\/02\/the-strange-arithmetic-of-google-scholars}}, but these critics are more directed towards search results than citation counts. 
+
+
+\paragraph{Text Data}
+
+% detail mendeley collection
 
 Text processing is done the same way as in previous section, expect that a particular treatment is done to language detection using \emph{stop-words} and a specific tagger \texttt{TreeTagger} is used for other languages than english~\cite{schmid1994probabilistic}.
 
