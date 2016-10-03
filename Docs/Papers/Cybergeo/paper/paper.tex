@@ -57,7 +57,7 @@
 % \newcommand{}{}
 %
 % Insert the name of "your journal" with
-% \journalname{myjournal}
+\journalname{Scientometrics}
 %
 
 
@@ -163,15 +163,16 @@ The rest of the paper is organized as follows : we describe in section~\ref{sec:
 %%%%%%%%%%%%%%%%%%%%%%%
 
 
+% precise what we mean by reference ? !! it is scientometrics, may require precise use of terms
 
-The general architecture for data collection is presented in Fig.~\ref{fig:datacollection}.
+Our approach imposes some requirements on the dataset used, namely: (i) cover a certain neighborhood of the studied journal in the citation network in order to have a consistent view on the scientific landscape; (ii) have at least a textual description for each node. For these to be met, we need to gather and compile data from heterogeneous sources, using therefore a specific application, which general architecture is synthesized in Fig.~\ref{fig:datacollection}. For the sake of simplicity, we will denote by \emph{reference} any standard scientific production that can be cited by another (journal paper, book, book chapter, conference paper, communication, etc.) and work on a uniform citation network of references.
 
-% TODO precise what we mean by reference ? !! it is scientometrics, may require precise use of terms
+
 
 %%%%%%%%%%%%%%%%%%
 \subsection*{Initial Corpus}
 
-The production database of \textit{Cybergeo} (snapshot dump taken at date), provided by the editorial board, provides after pre-processing the initial database of articles, with basic information (title, abstract, publication year, xxx). The processed version used is available together with the full database constructed, as a \texttt{mysql} dump, at \texttt{}. This base provide also bibliographical records of articles that give all references cited by the initial base.
+The production database of \textit{Cybergeo} (snapshot dump taken at date), provided by the editorial board, provides after pre-processing the initial database of articles, with basic information (title, abstract, publication year, xxx). The processed version used is available together with the full database constructed, as a \texttt{mysql} dump, at \texttt{}. This base provide also bibliographical records of articles that give all references cited by the initial base (\emph{forward citations} for the initial corpus).
 
 
 
@@ -179,7 +180,7 @@ The production database of \textit{Cybergeo} (snapshot dump taken at date), prov
 \subsection*{Citation Data}
 
 Citation data is collected from \texttt{Google Scholar}, that is the only source for incoming citations~\cite{noruzi2005google} in our case as the journal is not referenced in other databases\footnote{or was just added as in the case of \textit{Web of Science}, indexing \textit{Cybergeo} since May 2016}. We are aware of the possible biaises using this single source (see e.g.~\cite{bohannon2014scientific})\footnote{or \texttt{http:\/\/iscpif.fr\/blog\/2016\/02\/the-strange-arithmetic-of-google-scholars}}, but these critics are more directed towards search results than citation counts. The automatic collection requires the use of an open source data crawling software to pipe requests, namely $\texttt{TorPool}$~\cite{} % TODO cite torpool -- change Name in architecture diagram !!! or directly ScholarAPI ? -> then must find a sioux way ? or say here we wrote a ScholarAPI using TorPool ?
- that provides a Java API allowing an easy integration into our application. Using it, a simple crawler is enough to collect html pages and get backward citation data, i.e. all citing articles for a given initial article. We retrieve that way two sub-corpuses : references \emph{citing} Cybergeo and references \emph{citing the ones cited} by cybergeo.
+ that provides a Java API allowing an easy integration into our application. Using it, a simple crawler is enough to collect html pages and get backward citation data, i.e. all citing articles for a given initial article. We retrieve that way two sub-corpuses : references \emph{citing} Cybergeo and references \emph{citing the ones cited} by cybergeo. At this stage, the full corpus contains around $4\cdot10^5$ references.
 
 
 %%%%%%%%%%%%%%%%%%
@@ -187,17 +188,17 @@ Citation data is collected from \texttt{Google Scholar}, that is the only source
 
 % detail mendeley collection
 
-A textual description for all references is necessary for a complete semantic analysis. We use for this an other source of data, that is the online catalog of \textit{Mendeley} reference manager software~\cite{}
+A textual description for all references is necessary for a complete semantic analysis. We use for this an other source of data, that is the online catalog of \textit{Mendeley} reference manager software~\cite{}. It provides a free API allowing to get various records under a structured format. Although not complete, the catalog provides a reasonable coverage (over 55\%), yielding a final corpus with full abstracts of size $2.1\cdot 10^5$, which structure is recalled in Fig.~\ref{fig:citationnetwork}
 
 
 %%%%%%%%%%%%%%%%%%
+
 \begin{figure}
 \includegraphics[width=\textwidth]{figures/archi}
 \caption[Heterogeneous Bibliographical Data Collection]{Heterogeneous Bibliographical Data Collection. Architecture of the application for content (semantic data), metadata and citation data collection. The heterogeneity of tasks requires a multi-lingual approach. Source code and more precise informations on architecture are available on the \texttt{git} repository of the project at \texttt{}.}
 \label{fig:datacollection}
 \end{figure}
 %%%%%%%%%%%%%%%%%%
-
 
 
 
@@ -230,7 +231,8 @@ A textual description for all references is necessary for a complete semantic an
 
 
 % summary stats : should be in data description ?
-We are able by the reconstruction of the citation network at depth $\pm 1$ from the original 1000 references of the journal to retrieve around $45\cdot 10^6$ references, on which $2.1\cdot 10^6$ are retrieved with abstract text allowing semantic analysis. 
+As detailed above, we are able by the reconstruction of the citation network at depth $\pm 1$ from the original 1000 references of the journal to retrieve around $45\cdot 10^6$ references, on which $2.1\cdot 10^5$ are retrieved with abstract text allowing semantic analysis. A first glance on citation network properties provides useful insights. Mean in-degree (that can be interpreted as a stationary integrated impact factor) on references where it is defined has a value of $\bar{d}=$ % TODO
+, whereas for \cite{cybergeo} we have $\bar{d}=3.18$. This difference suggests a variety for status of references, which is confirmed by the hierarchical organisation showed in Fig.~\ref{fig:ranksize} with the three superposed regimes. Other topological properties reveal typical patterns: for example, the existence of high-order cliques implies certain citation practices which compatibility with the cumulative nature of knowledge may be questionable~\cite{} % TODO cit Denise cummul connaissances // rq : on this, do we really have this in quant geo ? on what can we Really rely ? // Seb doubt, need to revisit, reappropriate everything ?
 
 
 
@@ -240,7 +242,7 @@ We are able by the reconstruction of the citation network at depth $\pm 1$ from 
 \centering
 \includegraphics[width=0.8\textwidth]{figures/ranksize.pdf}
 \caption[Properties of the citation network]{Properties of the citation network. Rank-size plot of in-degrees ; three superposing successive regimes must correspond to different literature types or practices across disciplines.}
-\label{fig:quantepistemo:citnw}
+\label{fig:ranksize}
 \end{figure}
 %%%%%%%%%%%%%%%%%
 
