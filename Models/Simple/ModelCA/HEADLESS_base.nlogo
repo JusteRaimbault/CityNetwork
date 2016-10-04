@@ -58,6 +58,10 @@ __includes[
   ;;core running file
   "genetic-optim.nls"
   
+  
+  ;; oml experiments
+  "experiments.nls"
+  
 ]
 
 
@@ -172,6 +176,46 @@ globals[
   best-confs
   
   
+  
+  
+  ;;;;;;;;;;;;;;;;;
+  ;; HEADLESS
+  ;;;;;;;;;;;;;;;;;
+  
+  
+  max-ticks
+  worldwidth
+  config-comparison?
+  config-from-file?
+  centers-gis-layer-path
+  paths-gis-layer-path
+  output-file?
+  
+  centers-number
+  activities-number
+  
+  ; core/runtime
+  distance-to-activities-coefficient
+  density-coefficient
+  distance-to-roads-coefficient
+  distance-to-center-coefficient
+  
+  distance-road-needed
+  neighborhood-radius
+  built-cells-per-tick
+  activities-norma
+  
+  p-activities
+  p-density
+  p-speed
+  moran-grid-factor
+  
+  ; economic abm
+  move-threshold
+  rent-update-radius
+  monitor-economic?
+  n-repets-eco
+  
 ]
 
 ;;;;;;;;;;;;;;;;
@@ -263,8 +307,8 @@ paths-own [
 GRAPHICS-WINDOW
 529
 23
-979
-494
+931
+446
 -1
 -1
 7.857142857142857
@@ -286,143 +330,6 @@ GRAPHICS-WINDOW
 1
 ticks
 30.0
-
-SLIDER
-7
-28
-102
-61
-worldwidth
-worldwidth
-1
-200
-55
-1
-1
-NIL
-HORIZONTAL
-
-BUTTON
-376
-25
-442
-58
-NIL
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-5
-63
-142
-96
-centers-number
-centers-number
-1
-20
-1
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-349
-126
-493
-159
-neighborhood-radius
-neighborhood-radius
-1
-10
-5
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-38
-317
-213
-350
-density-coefficient
-density-coefficient
-0
-1
-0.2
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-39
-357
-213
-390
-distance-to-roads-coefficient
-distance-to-roads-coefficient
-0
-1
-0
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-39
-398
-213
-431
-distance-to-center-coefficient
-distance-to-center-coefficient
-0
-1
-1
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-349
-89
-511
-122
-distance-road-needed
-distance-road-needed
-0
-50
-2.2
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-349
-162
-491
-195
-built-cells-per-tick
-built-cells-per-tick
-0
-100
-10
-1
-1
-NIL
-HORIZONTAL
 
 BUTTON
 449
@@ -483,51 +390,6 @@ PENS
 "pen-1" 1.0 0 -7500403 true "" "plot max [value] of patches"
 "pen-2" 1.0 0 -2674135 true "" "plot min [value] of patches"
 
-SLIDER
-6
-97
-142
-130
-activities-number
-activities-number
-0
-10
-1
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-39
-275
-214
-308
-distance-to-activities-coefficient
-distance-to-activities-coefficient
-0
-1
-0
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-349
-197
-499
-230
-activities-norma
-activities-norma
--1
-20
-4
-1
-1
-NIL
-HORIZONTAL
-
 PLOT
 864
 505
@@ -547,88 +409,6 @@ PENS
 "default" 1.0 0 -10022847 true "" "plot current-time-spent / 1000"
 "pen-1" 1.0 0 -15040220 true "" "plot profiler:inclusive-time \"sprawl\" / 1000"
 "pen-2" 1.0 0 -14985354 true "" "plot profiler:inclusive-time \"go\" / 1000"
-
-SWITCH
-5
-166
-146
-199
-config-from-file?
-config-from-file?
-1
-1
--1000
-
-SLIDER
-293
-303
-391
-336
-p-speed
-p-speed
-1
-100
-1
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-104
-29
-196
-62
-max-ticks
-max-ticks
-1
-500
-10
-1
-1
-NIL
-HORIZONTAL
-
-SWITCH
-7
-131
-143
-164
-config-comparison?
-config-comparison?
-1
-1
--1000
-
-SLIDER
-394
-267
-486
-300
-p-density
-p-density
-1
-50
-3
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-293
-267
-391
-300
-p-activities
-p-activities
-1
-50
-3
-1
-1
-NIL
-HORIZONTAL
 
 PLOT
 987
@@ -669,87 +449,6 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [pdistance-to-roads] of patches"
 "pen-1" 1.0 0 -7500403 true "" "plot min [pdistance-to-roads] of patches"
 "pen-2" 1.0 0 -2674135 true "" "plot max [pdistance-to-roads] of patches"
-
-BUTTON
-19
-513
-90
-546
-NIL
-setup-ABM
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-20
-551
-89
-584
-go ABM
-go-one-step-ABM
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-94
-514
-221
-547
-move-threshold
-move-threshold
-0
-1
-0.6
-0.02
-1
-NIL
-HORIZONTAL
-
-SLIDER
-95
-552
-269
-585
-rent-update-radius
-rent-update-radius
-0
-30
-10
-1
-1
-NIL
-HORIZONTAL
-
-BUTTON
-292
-25
-355
-58
-clear
-clear
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 MONITOR
 864
@@ -802,75 +501,6 @@ PENS
 "pen-1" 1.0 0 -7500403 true "" "plot min [pdistance-to-activities] of patches"
 "pen-2" 1.0 0 -2674135 true "" "plot max [pdistance-to-activities] of patches"
 
-TEXTBOX
-72
-248
-222
-266
-Weights of variables
-11
-0.0
-1
-
-TEXTBOX
-354
-69
-504
-87
-Runtime params
-11
-0.0
-1
-
-TEXTBOX
-299
-249
-449
-267
-Output params
-11
-0.0
-1
-
-TEXTBOX
-18
-490
-168
-508
-Economic ABM
-11
-0.0
-1
-
-INPUTBOX
-150
-63
-279
-123
-centers-gis-layer-path
-../Data/Algo/centers.shp
-1
-0
-String
-
-INPUTBOX
-150
-124
-279
-184
-paths-gis-layer-path
-../Data/Algo/roads.shp
-1
-0
-String
-
-OUTPUT
-493
-504
-861
-709
-12
-
 BUTTON
 368
 507
@@ -887,93 +517,6 @@ NIL
 NIL
 NIL
 1
-
-SWITCH
-370
-573
-485
-606
-output-file?
-output-file?
-1
-1
--1000
-
-TEXTBOX
-38
-6
-188
-24
-Setup parameters
-11
-0.0
-1
-
-MONITOR
-21
-590
-92
-635
-households
-count households
-17
-1
-11
-
-MONITOR
-94
-590
-172
-635
-avail. houses
-length available-houses
-17
-1
-11
-
-PLOT
-2
-638
-162
-758
-total wealth
-NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot sum [wealth] of households"
-
-SLIDER
-394
-303
-505
-336
-moran-grid-factor
-moran-grid-factor
-0
-world-width
-10
-1
-1
-NIL
-HORIZONTAL
-
-SWITCH
-179
-594
-281
-627
-monitor-economic?
-monitor-economic?
-0
-1
--1000
 
 PLOT
 1016
@@ -1002,21 +545,6 @@ GA Optim
 14
 0.0
 1
-
-SLIDER
-167
-638
-339
-671
-n-repets-eco
-n-repets-eco
-0
-10
-3
-1
-1
-NIL
-HORIZONTAL
 
 TEXTBOX
 1098

@@ -1,0 +1,42 @@
+;;basic functions of string processing
+
+
+;;split the string following the delimiter
+to-report explode [delimiter string]
+  let res [] let current "" let n length string let i 0
+  repeat n [
+    ifelse item i string = delimiter [set res lput current res set current ""] [set current word current item i string]
+    set i i + 1
+  ]
+  report lput current res
+end
+
+;;concats all elements of the list in one string
+to-report implode [l]
+  let res ""
+  foreach l [set res word res ?]
+  report res
+end
+
+;;concats all elements of the list in one string inserting the delimiter between them
+to-report implode-with-delimiter [l delimiter]
+  let res ""
+  foreach l [set res (word res ? delimiter)]
+  report substring res 0 (length res - 1)
+end
+
+
+to-report replace [string motif new]
+  let n length string let i 0 let res ""
+  repeat n [ifelse item i string = motif [set res word res new][set res word res item i string] set i i + 1]
+  report res
+end
+
+
+
+
+to-report as-char-list [string]
+  let res [] let i 0
+  repeat length string [set res lput item i string res set i i + 1]
+  report res
+end
