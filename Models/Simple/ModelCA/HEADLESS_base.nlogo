@@ -222,6 +222,10 @@ globals[
   n-random-conf
   max-global-density
   
+  headless?
+  
+  
+   
 ]
 
 ;;;;;;;;;;;;;;;;
