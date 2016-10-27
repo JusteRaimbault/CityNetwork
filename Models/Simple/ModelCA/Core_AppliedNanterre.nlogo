@@ -156,6 +156,8 @@ globals[
   data-to-export
   data-export-patches
   
+  config-name
+  
   ;;;;;;;;;;;;;;;
   ;; GA vars
   ;;;;;;;;;;;;;;;
@@ -263,10 +265,10 @@ paths-own [
 GRAPHICS-WINDOW
 529
 23
-979
-494
--1
--1
+971
+486
+27
+27
 7.857142857142857
 1
 10
@@ -277,10 +279,10 @@ GRAPHICS-WINDOW
 0
 0
 1
-0
-55
-0
-55
+-27
+27
+-27
+27
 1
 1
 1
@@ -350,25 +352,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-38
-317
-213
-350
+49
+364
+224
+397
 density-coefficient
 density-coefficient
 0
 1
-0.2
+0.7
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-39
-357
-213
-390
+50
+404
+224
+437
 distance-to-roads-coefficient
 distance-to-roads-coefficient
 0
@@ -380,10 +382,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-39
-398
-213
-431
+50
+445
+224
+478
 distance-to-center-coefficient
 distance-to-center-coefficient
 0
@@ -499,10 +501,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-39
-275
-214
-308
+50
+322
+225
+355
 distance-to-activities-coefficient
 distance-to-activities-coefficient
 0
@@ -803,10 +805,10 @@ PENS
 "pen-2" 1.0 0 -2674135 true "" "plot max [pdistance-to-activities] of patches"
 
 TEXTBOX
-72
-248
-222
-266
+83
+295
+233
+313
 Weights of variables
 11
 0.0
@@ -1160,12 +1162,88 @@ NIL
 HORIZONTAL
 
 BUTTON
-369
-380
-472
-413
+390
+428
+493
+461
 export data
 export-data-to-file
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SWITCH
+5
+204
+104
+237
+headless?
+headless?
+1
+1
+-1000
+
+SWITCH
+281
+340
+403
+373
+export-data?
+export-data?
+1
+1
+-1000
+
+SWITCH
+404
+340
+526
+373
+export-movie?
+export-movie?
+0
+1
+-1000
+
+SWITCH
+107
+204
+223
+237
+fixed-seed?
+fixed-seed?
+0
+1
+-1000
+
+SLIDER
+4
+239
+96
+272
+seed
+seed
+0
+1000000
+272727
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+433
+376
+517
+409
+close movie
+movie-close
 NIL
 1
 T

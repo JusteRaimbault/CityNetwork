@@ -5,18 +5,21 @@
 
 
 to export-data
-  let current-data []
-  let current-time ticks
-  foreach data-export-patches [
-    ask ? [
-    ;set current-data lput (list "density" pdensity pxcor pycor ticks) current-data
-    ;set current-data lput (list "cdistance" pdistance-to-centre pxcor pycor ticks) current-data
-    ;set current-data lput (list "rdistance" pdistance-to-roads pxcor pycor ticks) current-data
-    ;set current-data lput (list "ceucldistance" distance one-of centres with-min [distance myself] pxcor pycor ticks) current-data
-    set current-data lput (list pxcor pycor current-time pdensity pdistance-to-centre pdistance-to-roads distance one-of centres with-min [distance myself]) current-data
+  if export-data? [
+    let current-data []
+    let current-time ticks
+    foreach data-export-patches [
+      ask ? [
+      ;set current-data lput (list "density" pdensity pxcor pycor ticks) current-data
+      ;set current-data lput (list "cdistance" pdistance-to-centre pxcor pycor ticks) current-data
+      ;set current-data lput (list "rdistance" pdistance-to-roads pxcor pycor ticks) current-data
+      ;set current-data lput (list "ceucldistance" distance one-of centres with-min [distance myself] pxcor pycor ticks) current-data
+      set current-data lput (list pxcor pycor current-time pdensity pdistance-to-centre pdistance-to-roads distance one-of centres with-min [distance myself]) current-data
+      ]
     ]
+    set data-to-export concatenate (list current-data data-to-export)
   ]
-  set data-to-export concatenate (list current-data data-to-export)
+  if export-movie? [movie-grab-view]
 end
 
 
