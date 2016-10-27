@@ -330,7 +330,7 @@ centers-number
 centers-number
 1
 20
-1
+4
 1
 1
 NIL
@@ -360,7 +360,7 @@ density-coefficient
 density-coefficient
 0
 1
-0.7
+0.2
 0.1
 1
 NIL
@@ -375,7 +375,7 @@ distance-to-roads-coefficient
 distance-to-roads-coefficient
 0
 1
-0
+1
 0.1
 1
 NIL
@@ -390,7 +390,7 @@ distance-to-center-coefficient
 distance-to-center-coefficient
 0
 1
-1
+0.5
 0.1
 1
 NIL
@@ -405,7 +405,7 @@ distance-road-needed
 distance-road-needed
 0
 50
-2.2
+5.8
 0.1
 1
 NIL
@@ -585,7 +585,7 @@ max-ticks
 max-ticks
 1
 500
-10
+59
 1
 1
 NIL
@@ -1207,7 +1207,7 @@ SWITCH
 373
 export-movie?
 export-movie?
-0
+1
 1
 -1000
 
