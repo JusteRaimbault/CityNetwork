@@ -265,8 +265,8 @@ paths-own [
 GRAPHICS-WINDOW
 529
 23
-971
-486
+970
+485
 27
 27
 7.857142857142857
@@ -330,7 +330,7 @@ centers-number
 centers-number
 1
 20
-4
+1
 1
 1
 NIL
@@ -360,7 +360,7 @@ density-coefficient
 density-coefficient
 0
 1
-0.2
+0
 0.1
 1
 NIL
@@ -390,7 +390,7 @@ distance-to-center-coefficient
 distance-to-center-coefficient
 0
 1
-0.5
+1
 0.1
 1
 NIL
@@ -405,7 +405,7 @@ distance-road-needed
 distance-road-needed
 0
 50
-5.8
+5
 0.1
 1
 NIL
@@ -1207,7 +1207,7 @@ SWITCH
 373
 export-movie?
 export-movie?
-1
+0
 1
 -1000
 
@@ -1243,7 +1243,7 @@ BUTTON
 517
 409
 close movie
-movie-close\nshow (shell:exec \"./convert\" (word \"mov/\" config-name))
+movie-close\n;show (shell:exec \"./convert\" (word \"mov/\" config-name))
 NIL
 1
 T
