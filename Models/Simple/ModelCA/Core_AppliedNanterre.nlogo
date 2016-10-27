@@ -17,7 +17,7 @@
 
 
 
-extensions[nw table gis profiler context matrix convol]
+extensions[nw table gis profiler context matrix convol shell]
 
 
 __includes[
@@ -1243,7 +1243,7 @@ BUTTON
 517
 409
 close movie
-movie-close
+movie-close\nshow (shell:exec \"./convert\" (word \"mov/\" config-name))
 NIL
 1
 T
