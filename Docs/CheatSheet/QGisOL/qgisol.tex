@@ -1,0 +1,105 @@
+\input{/Users/Juste/Documents/ComplexSystems/CityNetwork/Docs/Headers/WPHeader.tex}
+
+
+\title{QGis OpenLayers\bigskip
+}
+\author{}
+\date{}
+
+
+\maketitle
+
+\justify
+
+
+
+\section*{OpenLayers and Baidu Ditu}
+
+\subsection*{Add a Baidu Ditu map to OL}
+
+from \texttt{https://github.com/openlayers/ol3/issues/3522}
+
+\bigskip
+
+var projzh = require('projzh');
+
+var extent = [72.004, 0.8293, 137.8347, 55.8271];
+
+var baiduMercator = new ol.proj.Projection(\{
+  code: 'baidu',
+  extent: ol.extent.applyTransform(extent, projzh.ll2bmerc),
+  units: 'm'
+\});
+
+ol.proj.addProjection(baiduMercator);
+ol.proj.addCoordinateTransforms('EPSG:4326', baiduMercator, projzh.ll2bmerc, projzh.bmerc2ll);
+ol.proj.addCoordinateTransforms('EPSG:3857', baiduMercator, projzh.smerc2bmerc, projzh.bmerc2smerc);
+
+var bmercResolutions = new Array(19);
+for (var i = 0; i < 19; ++i) \{
+  bmercResolutions[i] = Math.pow(2, 18 - i);
+\}
+
+var urls = [0, 1, 2, 3, 4].map(function(sub) \{
+  return 'http://shangetu' + sub +
+      '.map.bdimg.com/it/u=x=\{x\};y=\{y\};z=\{z\};v=009;type=sate{\&}fm=46{\&}udt=20150601';
+\});
+
+var baidu = new ol.layer.Tile(\{
+  source: new ol.source.XYZ(\{
+    projection: 'baidu',
+    maxZoom: 18,
+    tileUrlFunction: function(tileCoord) \{
+      var x = tileCoord[1];
+      var y = tileCoord[2];
+      var z = tileCoord[0];
+      var hash = (x << z) + y;
+      var index = hash \% urls.length;
+      index = index < 0 ? index + urls.length : index;
+      return urls[index].replace('\{x\}', x).replace('\{y\}', y).replace('\{z\}', z);
+    \},
+    tileGrid: new ol.tilegrid.TileGrid(\{
+      resolutions: bmercResolutions,
+      origin: [0, 0],
+      extent: ol.extent.applyTransform(extent, projzh.ll2bmerc),
+      tileSize: [256, 256]
+    \})
+  \})
+\});
+
+
+\subsection*{Browserify}
+
+\paragraph{Install browserify}
+
+\texttt{npm install -g [?] browserify}
+
+\paragraph{Install projzh}
+
+\texttt{npm install projzh}
+
+\paragraph{browserify}
+
+\texttt{browserify main.js -o bundle.js}
+
+
+
+\subsection*{QGis OpenLayer plugin}
+
+TBD : integration of js code as part of openlayers-qgis
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+%% Biblio
+%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{apalike}
+\bibliography{/Users/Juste/Documents/ComplexSystems/CityNetwork/Biblio/Bibtex/CityNetwork}
+
+
+\end{document}
