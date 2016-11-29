@@ -3,6 +3,22 @@
 
 
 
+## Modularity
+
+*Mar 29 nov 2016 12:46:14 CST*
+
+\cite{2015arXiv150402550T}
+Theoretical ecology without species : link with modularity in territorial systems ? (interaction matrix, etc.) -> on the arbitrary of partitions
+
+
+## General positioning
+
+*Dim 27 nov 2016 17:27:36 CST*
+
+paper Batty : CA, ABM, meso scale growth models : \cite{batty2005agents}
+
+
+
 ## Network Growth
 
 *Mer 16 nov 2016 16:18:17 CST*
