@@ -1116,7 +1116,7 @@ CHOOSER
 66
 setup-type
 setup-type
-"random" "from-file"
+"random" "from-file" "gis"
 0
 
 SLIDER
