@@ -13,7 +13,7 @@ to setup
     clear-all
   ]
   
-  set setup-type "random"
+  ; set setup-type "random"
    
   reset-ticks
   
@@ -34,14 +34,15 @@ to setup
     setup-externalities
   ]
   
-  ; setup initial network
-  setup-initial-network
-  
   ; setup transportation
   setup-transportation
   
   ; cached distances
   setup-cached-distances
+  
+  ; setup initial network
+  setup-initial-network
+  
   
   ; initial accessibilities
   setup-patch-variables
@@ -55,6 +56,13 @@ end
 to setup-vars
   set to-construct []
   set collaborations-wanted [] set collaborations-realized [] set collaborations-expected []
+  
+  ;
+  
+  set gis-network-file "setup/gis/test/network.shp"
+  set gis-extent-file "setup/gis/test/extent.shp"
+  set gis-centers-file "setup/gis/test/centers.shp"
+  
 end
 
 ;;
@@ -87,6 +95,13 @@ end
 ;;
 ; setup patches
 to setup-patches
+  
+  ; enveloppe of the world
+  ;; (enventually resize here ?)
+  if setup-type = "gis" [
+    gis:set-world-envelope gis:envelope-of gis:load-dataset gis-extent-file 
+  ]
+  
   
   ; setup patches number
   let p 0
@@ -130,6 +145,10 @@ end
 
 
 
+
+;;
+;
+;
 to setup-externalities
   let ext-patch nobody
   if setup-type = "random" [
@@ -167,10 +186,29 @@ end
 ;;
 ; Initial network
 ;
-;  - no nw for now ? -
+;  Done AFTER nw distance caching ; updates
 to setup-initial-network
   
-  ;; try a radioconcentric network ? or use slime mould ?
+  if setup-type = "random" [
+    ;; try a radioconcentric network ? or use slime mould ?
+    ; -> may not be useful in a first time to have synthetic initial networks
+    
+    
+  ]
+  
+  
+  ;if setup-type = "gis" [
+  ;  ; construct network from gis file
+  ;  let old-config save-nw-config
+  ;  let infra-list []
+  ;  ;gis:load-dataset
+  ; 
+  ;  
+  ;  construct-infrastructure infra-list old-config
+  ;   
+  ;]
+  
+  
   
 end
 
@@ -267,25 +305,46 @@ end
 ;;
 ; Get number of mayors and position from csv file
 to read-position-files
-  if setup-type = "from-file"[
-  let lines read-file positions-file
+  
   set mayors-coordinates []
-  foreach but-first but-first lines [
-    let p []
-    foreach explode ";" ? [set p lput read-from-string ? p]
-    set mayors-coordinates lput p mayors-coordinates
+  set ext-position []
+  
+  if setup-type = "from-file"[
+    let lines read-file positions-file
+  
+    foreach but-first but-first lines [
+      let p []
+      foreach explode ";" ? [set p lput read-from-string ? p]
+      set mayors-coordinates lput p mayors-coordinates
+    ]
+  
+    ; ext file : one only ?
+    foreach explode ";" first but-first but-first read-file ext-file [
+       set ext-position lput read-from-string ? ext-position
+    ]
   ]
+  
+  
+  if setup-type = "gis" [
+    let mayors-dataset gis:load-dataset gis-centers-file
+    
+    ; read coordinates and attributes
+    foreach gis:feature-list-of mayors-dataset [
+       foreach gis:vertex-lists-of ? [
+         let current-pop gis:property-value ? "POPULATION" let current-employment gis:property-value ? "EMPLOYMENT"
+         foreach ? [
+           
+         ] 
+       ]
+    ]
+    
+    
+  ]
+  
   
   ; corresponding number pf territories
   set #-initial-territories length mayors-coordinates
   
-  ; ext file : one only ?
-  set ext-position []
-  foreach explode ";" first but-first but-first read-file ext-file [
-     set ext-position lput read-from-string ? ext-position
-  ]
-  
-  ]
 end
 
 

@@ -7,13 +7,13 @@
 ;;   - simplified population structure (one csp)
 ;;   - game-theoretical governance management
 ;;
-;; TODO - possible extensions :
+;; Possible extensions (v4) :
 ;;    * add different transportation modes ?
 ;;    * add csp ? not prioritary.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table context nw shell gradient numanal]
+extensions[matrix table context nw shell gradient numanal gis]
 
 __includes [
   
@@ -163,6 +163,13 @@ globals[
   ;; path to the setup files
   ;positions-file
   ext-file
+  
+  ;; GIS setup
+  gis-network-file
+  gis-extent-file
+  gis-centers-file
+  
+  
   
   ;;;;;;;;;;;;;
   ;; Transportation
@@ -412,7 +419,7 @@ SLIDER
 #-initial-territories
 0
 5
-2
+3
 1
 1
 NIL
@@ -1117,7 +1124,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file" "gis"
-0
+2
 
 SLIDER
 7
