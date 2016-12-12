@@ -107,7 +107,7 @@
 
 \begin{abstract}
 %Insert your abstract here. Include keywords, PACS and mathematical subject classification numbers as needed.
-\keywords{Bibliometrics \and Semantic Analysis \and Theoretical and Quantitative Geography}
+\keywords{Bibliometrics \and Semantic Analysis \and Interdisciplinarity \and Geography}
 % \PACS{PACS code1 \and PACS code2 \and more}
 % \subclass{MSC code1 \and MSC code2 \and more}
 \end{abstract}
@@ -122,7 +122,7 @@ Most of scientific disciplines seem to be in a need of more interdisciplinarity 
 are a good illustration of the case where entanglement is strong and new discoveries are vertically deep, whereas % urbanism as a field ; 
 more loose fields such as ``urbanism'' which has no precise definition and integration is by essence horizontal is an other illustration of how transversal knowledge can be produced (leading to misunderstandings when recently introduced to non-aware physicists as warned by~\cite{dupuy2015sciences}).
 % ultra advanced physics : interdisciplinarity very strict ?
-The question is naturally transferred into scientific communication : what are corresponding alternatives for an efficient dissemination of knowledge ? Elements of answer to such a high-level issue imply, in an evidence-based perspective, quantitative measures of interdisciplinarity.
+This question projects itself naturally into the field of scientific communication : what are corresponding alternatives for an efficient dissemination of knowledge ? Elements of answer to such a high-level issue imply, in an evidence-based perspective, quantitative measures of interdisciplinarity.
 
 % ``On the uncertainty of interdisciplinarity measurements due to incomplete bibliographic data'' (Scientometrics paper in Biblio)
 %  -> check biblio on interdisciplinarity
@@ -145,7 +145,9 @@ We develop in this paper a case study coupling citation network exploration and 
 
 
 
-The rest of the paper is organized as follows : we describe in section~\ref{sec:data} the context of the dataset, in particular the scientific purpose of the case study journal, and the data collection procedure. We then give in section~\ref{sec:results} results on interdisciplinarity landscape obtained through network multilayer analysis of the dataset.
+The rest of the paper is organized as follows : we describe in section~\ref{sec:data} the nature of the dataset used
+%, in particular the scientific purpose of the case study journal, 
+and the data collection procedure. We then give in section~\ref{sec:results} results on interdisciplinarity landscape obtained through network multilayer analysis of the dataset, which are finally discussed in section~\ref{sec:discussion}.
 
 
 
@@ -165,21 +167,21 @@ The rest of the paper is organized as follows : we describe in section~\ref{sec:
 
 % precise what we mean by reference ? !! it is scientometrics, may require precise use of terms
 
-Our approach imposes some requirements on the dataset used, namely: (i) cover a certain neighborhood of the studied journal in the citation network in order to have a consistent view on the scientific landscape; (ii) have at least a textual description for each node. For these to be met, we need to gather and compile data from heterogeneous sources, using therefore a specific application, which general architecture is synthesized in Fig.~\ref{fig:datacollection}. For the sake of simplicity, we will denote by \emph{reference} any standard scientific production that can be cited by another (journal paper, book, book chapter, conference paper, communication, etc.) and work on a uniform citation network of references.
+Our approach imposes some requirements on the dataset used, namely: (i) cover a certain neighborhood of the studied journal in the citation network in order to have a consistent view on the scientific landscape; (ii) have at least a textual description for each node. For these to be met, we need to gather and compile data from heterogeneous sources, using therefore a specific application, which general architecture is synthesized in Fig.~\ref{fig:datacollection}. For the sake of simplicity, we will denote by \emph{reference} any standard scientific production that can be cited by another (journal paper, book, book chapter, conference paper, communication, etc.) and contains basic records (title, abstract, authors, publication year). We will work in the following on networks of references. Note that one significant contribution of this paper is the construction of such an hybrid dataset from heterogeneous sources, and the development of associated tools that can be reused and further developed for similar purposes.
 
 
 
 %%%%%%%%%%%%%%%%%%
 \subsection*{Initial Corpus}
 
-The production database of \textit{Cybergeo} (snapshot dump taken at date), provided by the editorial board, provides after pre-processing the initial database of articles, with basic information (title, abstract, publication year, xxx). The processed version used is available together with the full database constructed, as a \texttt{mysql} dump, at \texttt{}. This base provide also bibliographical records of articles that give all references cited by the initial base (\emph{forward citations} for the initial corpus).
+The production database of \textit{Cybergeo} (snapshot dump taken at date), provided by the editorial board, provides after pre-processing the initial database of articles, with basic information (title, abstract, publication year, authors). The processed version used is available together with the full database constructed, as a \texttt{mysql} dump, at \texttt{}. This base provide also bibliographical records of articles that give all references cited by the initial base (\emph{forward citations} for the initial corpus).
 
 
 
 %%%%%%%%%%%%%%%%%%
 \subsection*{Citation Data}
 
-Citation data is collected from \texttt{Google Scholar}, that is the only source for incoming citations~\cite{noruzi2005google} in our case as the journal is not referenced in other databases\footnote{or was just added as in the case of \textit{Web of Science}, indexing \textit{Cybergeo} since May 2016}. We are aware of the possible biaises using this single source (see e.g.~\cite{bohannon2014scientific})\footnote{or \texttt{http:\/\/iscpif.fr\/blog\/2016\/02\/the-strange-arithmetic-of-google-scholars}}, but these critics are more directed towards search results than citation counts. The automatic collection requires the use of an open source data crawling software to pipe requests, namely $\texttt{TorPool}$~\cite{} % TODO cite torpool -- change Name in architecture diagram !!! or directly ScholarAPI ? -> then must find a sioux way ? or say here we wrote a ScholarAPI using TorPool ?
+Citation data is collected from \texttt{Google Scholar}, that is the only source for incoming citations~\cite{noruzi2005google} in our case as the journal is poorly in other databases\footnote{or was just added as in the case of \textit{Web of Science}, indexing \textit{Cybergeo} since May 2016}. We are aware of the possible biaises using this single source (see e.g.~\cite{bohannon2014scientific})\footnote{or \texttt{http:\/\/iscpif.fr\/blog\/2016\/02\/the-strange-arithmetic-of-google-scholars}}, but these critics are more directed towards search results than citation counts. The automatic collection requires the use of an open source data crawling software to pipe requests, namely \texttt{TorPool}~\cite{} % TODO cite torpool -- change Name in architecture diagram !!! or directly ScholarAPI ? -> then must find a sioux way ? or say here we wrote a ScholarAPI using TorPool ?
  that provides a Java API allowing an easy integration into our application. Using it, a simple crawler is enough to collect html pages and get backward citation data, i.e. all citing articles for a given initial article. We retrieve that way two sub-corpuses : references \emph{citing} Cybergeo and references \emph{citing the ones cited} by cybergeo. At this stage, the full corpus contains around $4\cdot10^5$ references.
 
 
@@ -232,23 +234,24 @@ A textual description for all references is necessary for a complete semantic an
 
 % summary stats : should be in data description ?
 As detailed above, we are able by the reconstruction of the citation network at depth $\pm 1$ from the original 1000 references of the journal to retrieve around $45\cdot 10^6$ references, on which $2.1\cdot 10^5$ are retrieved with abstract text allowing semantic analysis. A first glance on citation network properties provides useful insights. Mean in-degree (that can be interpreted as a stationary integrated impact factor) on references where it is defined has a value of $\bar{d}=$ % TODO
-, whereas for \cite{cybergeo} we have $\bar{d}=3.18$. This difference suggests a variety for status of references, which is confirmed by the hierarchical organisation showed in Fig.~\ref{fig:ranksize} with the three superposed regimes. Other topological properties reveal typical patterns: for example, the existence of high-order cliques implies certain citation practices which compatibility with the cumulative nature of knowledge may be questionable~\cite{} % TODO cit Denise cummul connaissances // rq : on this, do we really have this in quant geo ? on what can we Really rely ? // Seb doubt, need to revisit, reappropriate everything ?
+, whereas for \cite{cybergeo} we have $\bar{d}=3.18$. This difference suggests a variety for status of references, which is confirmed by the hierarchical organisation showed in Fig.~\ref{fig:ranksize} with the three superposed regimes. Other topological properties reveal typical patterns: for example, the existence of high-order cliques implies certain citation practices which compatibility with the cumulative nature of knowledge may be questionable~\cite{pumain2005cumulativite}. 
+% cit Denise cummul connaissances // rq : on this, do we really have this in quant geo ? on what can we Really rely ? // Seb doubt, need to revisit, reappropriate everything ?
 
 
 
 
 %%%%%%%%%%%%%%%%%
-\begin{figure}
+\begin{figure}[!ht]
 \centering
 \includegraphics[width=0.8\textwidth]{figures/ranksize.pdf}
-\caption[Properties of the citation network]{Properties of the citation network. Rank-size plot of in-degrees ; three superposing successive regimes must correspond to different literature types or practices across disciplines.}
+\caption[Properties of the citation network]{Rank-size plot of in-degrees in the citation network ; three superposing successive regimes must correspond to different literature types or practices across disciplines.}
 \label{fig:ranksize}
 \end{figure}
 %%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%
-\begin{figure}
+\begin{figure}[!ht]
 \includegraphics[width=\textwidth]{figures/cybclic.png}
 \caption[Example of clique in the citation network]{Example of a maximal clique in the citation network, paper of \texttt{cybergeo} being in blue. Such topological structure reveal citation practices such as here a systematic citation of previous works in the research niche.}
 \label{fig:quantepistemo:cliques}
@@ -298,15 +301,6 @@ Keeping the $K_W$ most relevant keywords yield the co-occurrence matrix that can
 
 
 
-%%%%%%%%%%%%%%%%%%
-\begin{figure}
-\hspace{-2cm}
-\includegraphics[width=1.6\textwidth]{figures/semantic.png}
-\caption[Semantic network of concepts in quantitative geography]{Semantic network of domains linked to theoretical and quantitative geography. Network is constructed by co-occurrences of most relevant keywords. Filtering parameters are here taken according to the multi-objective optimization done in Fig.~\ref{fig:sensitivity}, i.e. $(k_{max}=,e_{th}=,f_{min},f_{max}=)$. The graph spatialization algorithm (Fruchterman-Reingold), despite its stochastic and path-dependent character, unveils information  A zoomable vectorial file (\texttt{.svg}) of the network is available as Supplementary Material.}
-% TODO : Q : should be after the sensitivity figure ?
-\label{fig:quantepistemo:semanticnw}
-\end{figure}
-%%%%%%%%%%%%%%%%%%
 
 
 
@@ -317,7 +311,7 @@ Keeping the $K_W$ most relevant keywords yield the co-occurrence matrix that can
 
 % sensitivity analysis to params/meta-params
 
-The topology of raw networks does not allow the extraction of clear communities, in particular because of the presence of hubs that correspond to frequent terms common to many fields (e.g. \texttt{model}, \texttt{space}). We assume these highest degree terms do not carry specific information on particular classes and can be thus filtered given a maximal degree threshold $k_{max}$. Similarly, edge with small weight must not carry significant information and are filtered according to a minimal edge weight threshold $w_{min}$. Keywords are preliminary filtered by a document frequency window $\left[ f_{min},f_{max} \right]$ which is slightly different from network filtering and complementary. A sensitivity analysis of resulting network topology to these parameters is presented in Fig.~\ref{fig:sensitivity}. We choose parameter values that maximize modularity under the constraint of a community number and size distribution of same magnitude as technological classes. This multi-objective optimization does not have a unique solution as objectives are somehow contradictory
+The topology of raw networks does not allow the extraction of clear communities, in particular because of the presence of hubs that correspond to frequent terms common to many fields (e.g. \texttt{model}, \texttt{space}). We assume these highest degree terms do not carry specific information on particular classes and can be thus filtered given a maximal degree threshold $k_{max}$. Similarly, edge with small weight must not carry significant information and are filtered according to a minimal edge weight threshold $w_{min}$. Keywords are preliminary filtered by a document frequency window $\left[ f_{min},f_{max} \right]$ which is slightly different from network filtering and complementary. A sensitivity analysis of resulting network topology to these parameters is presented in Fig.~\ref{fig:sensitivity}. We choose parameter values that maximize modularity under the constraint of a community number and size distribution of same magnitude as technological classes. This multi-objective optimization does not have a unique solution as objectives are somehow contradictory, and a compromise point must be chosen. We take 
 
 
 
@@ -338,11 +332,24 @@ The topology of raw networks does not allow the extraction of clear communities,
 
 
 %%%%%%%%%%%%%%%%%%
-\paragraph{Communities}
+\paragraph{Semantic Communities}
 
 We then retrieve communities in the semantic network (using standard Louvain algorithm, with the optimized filtering parameters). At the exception of a small proportion apparently resulting from noise (representing x/y, i.e. z\% of keywords) % TODO exact number 
 , communities correspond to well-defined scientific fields (and/or domains, approaches). An expert eye-ball validation provides names to these, a more complicated naming procedure would eventually be possible (as in ~\cite{} % TODO cite patent paper with community naming
- where a chi-square test on distribution of documents in classes), but we prefer to stick here to a certain level of supervision. Table~\ref{tab:domains}
+ where a chi-square test on distribution of documents in classes), but we prefer to stick here to a certain level of supervision. Table~\ref{tab:domains} summarizes the communities 
+
+
+
+
+%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\hspace{-2cm}
+\includegraphics[width=1.6\textwidth]{figures/semantic.png}
+\caption[Semantic network of concepts in quantitative geography]{Semantic network of domains linked to theoretical and quantitative geography. Network is constructed by co-occurrences of most relevant keywords. Filtering parameters are here taken according to the multi-objective optimization done in Fig.~\ref{fig:sensitivity}, i.e. $(k_{max}=,e_{th}=,f_{min},f_{max}=)$. The graph spatialization algorithm (Fruchterman-Reingold), despite its stochastic and path-dependent character, unveils information  A zoomable vectorial file (\texttt{.svg}) of the network is available as Supplementary Material.}
+% TODO : Q : should be after the sensitivity figure ?
+\label{fig:quantepistemo:semanticnw}
+\end{figure}
+%%%%%%%%%%%%%%%%%%
 
 
 
@@ -401,13 +408,15 @@ Crime & 17 & \texttt{crimin justic system, social disorgan, crime} \\
 
 Distribution of keywords within reconstructed disciplines provides an article-level interdisciplinarity, and we can construct various measures at the journal level. Combination of citation and semantic layers in the hyper-network provide second order interdisciplinarity measures.
 
+More precisely, a reference can be viewed as a probability vector on semantic classes
+
 
 
 %%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{figures/firstorderint_withNull}
-\caption{Distribution of first order interdisciplinarity}
+\caption{Distribution of first order interdisciplinarity.}
 \label{fig:firstorderint}
 \end{figure}
 %%%%%%%%%%%%%%%%%%
@@ -495,6 +504,15 @@ The author would like to thank the editorial board of Cybergeo, and more particu
 
 
 
+
+\section*{Supplementary Material}
+
+\subsection*{Zoomable file of semantic network example}
+
+Available at \texttt{}.
+
+
+\subsection*{Precisions on Application Architecture}
 
 
 
