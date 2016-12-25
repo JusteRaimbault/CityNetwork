@@ -2,6 +2,20 @@
 
 
 
+## Biblio
+
+* Lun 26 déc 2016 00:25:24 CST *
+
+http://www.pnas.org.sci-hub.cc/content/113/51/14560.full.pdf?with-ds=yes# : early warnings in coupled human-ecological systems
+
+Growth over time-correlated disorder: a spectral approach to Mean-field : tractable micro model of growth in disorder : make // with urban growth
+
+https://www.semanticscholar.org/ : also example of textmining sci exploration platform
+
+Detection of timescales in evolving complex systems : http://www.nature.com/articles/srep39713 // may be interesting in link with CAS / system-boundaries
+
+publication ethics : http://publicationethics.org/files/u2/02A_Plagiarism_Submitted.pdf
+
 
 ## Modularity
 
