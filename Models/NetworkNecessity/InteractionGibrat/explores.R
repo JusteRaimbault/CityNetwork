@@ -5,9 +5,15 @@ library(dplyr)
 library(ggplot2)
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/all/fixedgravity/20160920_fixedgravity_local'))
+#setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/all/fixedgravity/20160920_fixedgravity_local'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/exploration/full/20160912_gridfull/data'))
 
-res <- as.tbl(read.csv('population213.csv'))
+
+#res <- as.tbl(read.csv('population213.csv'))
+res <- as.tbl(read.csv('2016_09_12_16_56_26_GRID_FULL_GRID.csv'))
+
+
+
 
 #
 #m = lm(logmse~gravityDecay+gravityGamma+gravityWeight+growthRate,res)
@@ -68,6 +74,25 @@ for(gravityWeight in unique(res$gravityWeight)){
 #
 data.frame(res[res$logmse==min(res$logmse),])
 data.frame(res[res$mselog==min(res$mselog),])
+
+
+
+
+############
+# Looking only at gravity
+
+resgrav = res[res$feedbackWeight==0.0&res$feedbackDecay==2.0&res$feedbackGamma==1.5,]
+#rm(res)
+
+sres = resgrav %>% group_by(gravityGamma,gravityWeight,growthRate) %>% summarise(gravminlogmse=gravityDecay[which(logmse==min(logmse))[1]],gravminmselog=gravityDecay[which(mselog==min(mselog))[1]])
+
+g=ggplot(sres)
+g+geom_point(aes(x=gravityWeight/growthRate,y=gravminlogmse,colour=gravityGamma))
+# -> needs more exploration
+sres[sres$gravminlogmse==201,]
+ressample=sres
+ressample=resgrav[resgrav$gravityGamma==1&abs(resgrav$gravityWeight-6e-04)<1e-10&resgrav$growthRate==0.007,]
+plot(ressample$gravityDecay,ressample$logmse,type='l')
 
 
 
