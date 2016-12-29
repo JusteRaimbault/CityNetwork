@@ -2,6 +2,16 @@
 
 
 
+
+## On theory
+
+* Jeu 29 déc 2016 13:05:51 CST *
+
+do a short link with Tobler, laws etc. : morphogenesis : when bound conditions are either not necessary to explain patterns, or do not modify too much quantitative fit.
+
+
+
+
 ## Biblio
 
 * Lun 26 déc 2016 00:25:24 CST *
