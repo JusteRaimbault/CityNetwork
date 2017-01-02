@@ -3,6 +3,19 @@
 
 
 
+## Misc
+
+* Ven 30 déc 2016 12:27:42 CST *
+
+ - disc. Cinzia on territorial integration / abberations of frnech network (railway or freeways) -> good narrative of how such a strongly coupled system is path-dependent
+
+ - Transportation Equilibrium : FRIES 1985 gives theoretical approach to equilibria and network design -> possibly link TrEq part with nw morphogenesis ?
+
+
+
+
+
+
 ## On theory
 
 * Jeu 29 déc 2016 13:05:51 CST *
