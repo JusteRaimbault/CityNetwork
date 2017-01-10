@@ -2,6 +2,21 @@
 
 
 
+## City definition
+
+* Jeu  5 jan 2017 18:30:06 CST *
+
+when writing on morphogenesis, boundaries -> def city boundaries, i;e. def the city object, is still an open question..(cf Clem scaling ; rq Batty CCS) to what extent our theory of territorial systems gives an answer ; allows to "sortir par le haut" ? (or not ?)
+
+
+## Morphogenesis
+
+* Mar  3 jan 2017 18:20:54 CST * 
+
+ - Alan Turing's Drawings, Autopoiesis and Can Buildings Think? : presence of morphogenetic processes (autpoietic ?) in design of buildings (need more)
+ - on autopoiesis and cognition : Autopoiesis with or without cognition: defining life at its edge
+
+
 
 ## Misc
 
