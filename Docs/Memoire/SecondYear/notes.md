@@ -2,6 +2,14 @@
 
 
 
+## Reproducibility
+
+* Mer 18 jan 2017 18:48:44 CET * 
+
+A manifesto for reproducible science, ... et Ioannidis
+
+
+
 ## City definition
 
 * Jeu  5 jan 2017 18:30:06 CST *
