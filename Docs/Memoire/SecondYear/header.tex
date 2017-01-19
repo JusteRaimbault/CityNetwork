@@ -81,16 +81,56 @@
 
 % note : using these commands make section disappear from ide outline, not really practical -> better use classical commands wrapped around \bpar
 
-\newcommand{\bchapter}[2]{\chapter{\bpar{#1}{#2}}}
-\newcommand{\bsection}[2]{\section{\bpar{#1}{#2}}}
-\newcommand{\bsubsection}[2]{\subsection{\bpar{#1}{#2}}}
-\newcommand{\bsubsubsection}[2]{\subsubsection{\bpar{#1}{#2}}}
-\newcommand{\bchapters}[2]{\chapter*{\bpar{#1}{#2}}}
-\newcommand{\bsections}[2]{\section*{\bpar{#1}{#2}}}
-\newcommand{\bsubsections}[2]{\subsection*{\bpar{#1}{#2}}}
-\newcommand{\bsubsubsections}[2]{\subsubsection*{\bpar{#1}{#2}}}
+%\newcommand{\bchapter}[2]{\chapter{\bpar{#1}{#2}}}
+%\newcommand{\bsection}[2]{\section{\bpar{#1}{#2}}}
+%\newcommand{\bsubsection}[2]{\subsection{\bpar{#1}{#2}}}
+%\newcommand{\bsubsubsection}[2]{\subsubsection{\bpar{#1}{#2}}}
+%\newcommand{\bchapters}[2]{\chapter*{\bpar{#1}{#2}}}
+%\newcommand{\bsections}[2]{\section*{\bpar{#1}{#2}}}
+%\newcommand{\bsubsections}[2]{\subsection*{\bpar{#1}{#2}}}
+%\newcommand{\bsubsubsections}[2]{\subsubsection*{\bpar{#1}{#2}}}
 
-\newcommand{\bcaption}[2]{\caption{\bpar{#1}{#2}}}
+%\newcommand{\bcaption}[2]{\caption{\bpar{#1}{#2}}}
+
+
+
+
+
+%%%%%%%%%%
+%  Drafting
+
+% writing utilities
+
+% comments	 and responses
+%  -> use this comment to ask questions on what other wrote/answer questions with optional arguments (up to 4 answers)
+\usepackage{xparse}
+\usepackage{ifthen}
+\DeclareDocumentCommand{\comment}{m o o o o}
+{\ifthenelse{\draft=1}{
+    \textcolor{red}{\textbf{C : }#1}
+    \IfValueT{#2}{\textcolor{blue}{\textbf{A1 : }#2}}
+    \IfValueT{#3}{\textcolor{ForestGreen}{\textbf{A2 : }#3}}
+    \IfValueT{#4}{\textcolor{red!50!blue}{\textbf{A3 : }#4}}
+    \IfValueT{#5}{\textcolor{Aquamarine}{\textbf{A4 : }#5}}
+ }{}
+}
+
+
+% todo
+\newcommand{\todo}[1]{
+\ifthenelse{\draft=1}{\textcolor{red!50!blue}{\textbf{TODO : \textit{#1}}}}{}
+}
+
+
+
+% provisory part, removed if not draft
+
+\newcommand{\provisory}[1]{
+\ifthenelse{\draft=1}{#1}{}
+}
+
+
+
 
 
 
