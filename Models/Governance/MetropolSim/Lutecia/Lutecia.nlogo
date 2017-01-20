@@ -386,11 +386,11 @@ transportation-nodes-own[
 GRAPHICS-WINDOW
 346
 10
-811
-496
-6
-6
-35.0
+839
+524
+10
+10
+23.0
 1
 10
 1
@@ -400,10 +400,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--6
-6
--6
-6
+-10
+10
+-10
+10
 0
 0
 1
@@ -450,7 +450,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-5
+9
 
 TEXTBOX
 11
@@ -897,7 +897,7 @@ SLIDER
 #-explorations
 0
 1000
-113
+23
 1
 1
 NIL

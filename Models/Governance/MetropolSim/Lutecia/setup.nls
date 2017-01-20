@@ -124,6 +124,12 @@ to setup-initial-distributions
     apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" ?
     apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" ?
   ]
+  ;ask mayors with [self != regional-authority] [
+  ;   let center [patch-here] of self
+  ;   apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" center
+  ;   apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" center
+  ;]
+  
   
   
   ; setup global lists
@@ -197,16 +203,25 @@ to setup-initial-network
   ]
   
   
-  ;if setup-type = "gis" [
-  ;  ; construct network from gis file
-  ;  let old-config save-nw-config
-  ;  let infra-list []
-  ;  ;gis:load-dataset
-  ; 
-  ;  
-  ;  construct-infrastructure infra-list old-config
-  ;   
-  ;]
+  if setup-type = "gis" [
+    ; construct network from gis file
+    let old-config save-nw-config
+    let infra-list []
+    let network-dataset gis:load-dataset gis-network-file
+    
+    foreach gis:feature-list-of network-dataset [   
+      foreach gis:vertex-lists-of ? [
+        let i 0 let l ?
+        foreach but-first ? [
+          set infra-list lput (list gis:location-of item i l gis:location-of ?) infra-list set i i + 1
+        ]
+        
+      ]    
+    ]
+    
+    construct-infrastructure infra-list old-config
+     
+  ]
   
   
   
@@ -304,6 +319,8 @@ end
 
 ;;
 ; Get number of mayors and position from csv file
+;
+;  -> sets the globals mayors-coordinates
 to read-position-files
   
   set mayors-coordinates []
@@ -330,10 +347,12 @@ to read-position-files
     
     ; read coordinates and attributes
     foreach gis:feature-list-of mayors-dataset [
+       let current-pop gis:property-value ? "POPULATION" let current-employment gis:property-value ? "EMPLOYMENT"
        foreach gis:vertex-lists-of ? [
-         let current-pop gis:property-value ? "POPULATION" let current-employment gis:property-value ? "EMPLOYMENT"
-         foreach ? [
-           
+          foreach ? [
+           ; center coordinates
+           set mayors-coordinates lput (gis:location-of ?) mayors-coordinates
+           ;show current-pop show current-employment
          ] 
        ]
     ]
