@@ -13,13 +13,14 @@ to setup
     clear-all
   ]
   
-  ; set setup-type "random"
-   
-  reset-ticks
-  
   output-print "Setting up"
   
-  setup-vars
+  ; globals
+  setup-globals
+  
+  ; world
+  setup-world
+  
   
   ; setup patches
   setup-patches
@@ -50,20 +51,41 @@ to setup
   ; display
   setup-display
   
+  
+  
 end
 
 
-to setup-vars
+
+;;
+;  setup global variables
+to setup-globals
   set to-construct []
   set collaborations-wanted [] set collaborations-realized [] set collaborations-expected []
   
   ;
   
-  set gis-network-file "setup/gis/test/network.shp"
+  set gis-network-file "setup/gis/test/network_3.shp"
   set gis-extent-file "setup/gis/test/extent.shp"
-  set gis-centers-file "setup/gis/test/centers.shp"
+  set gis-centers-file "setup/gis/test/centers_2.shp"
+  
   
 end
+
+
+to setup-world
+  reset-ticks
+  
+  ; random seed
+  if seed != 0 [random-seed seed]
+  
+  ; resize world if needed
+  resize-world (- world-size / 2) (world-size / 2) (- world-size / 2) (world-size / 2)
+  set-patch-size 430 / world-size
+  
+end
+
+
 
 ;;
 ; setup mayors and governed patches
@@ -346,8 +368,10 @@ to read-position-files
     let mayors-dataset gis:load-dataset gis-centers-file
     
     ; read coordinates and attributes
+    let properties gis:property-names mayors-dataset
     foreach gis:feature-list-of mayors-dataset [
-       let current-pop gis:property-value ? "POPULATION" let current-employment gis:property-value ? "EMPLOYMENT"
+       let current-pop 0 if member? "POPULATION" properties [set current-pop gis:property-value ? "POPULATION"]
+       let current-employment 0 if member? "EMPLOYMENT" properties [set current-employment gis:property-value ? "EMPLOYMENT"]
        foreach gis:vertex-lists-of ? [
           foreach ? [
            ; center coordinates

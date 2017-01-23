@@ -386,11 +386,11 @@ transportation-nodes-own[
 GRAPHICS-WINDOW
 346
 10
-839
-524
+807
+492
 10
 10
-23.0
+21.5
 1
 10
 1
@@ -411,25 +411,25 @@ ticks
 30.0
 
 SLIDER
-9
-33
-140
-66
+4
+77
+135
+110
 #-initial-territories
 #-initial-territories
 0
 5
-3
+5
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-9
-611
-75
-644
+343
+554
+409
+587
 setup
 setup
 NIL
@@ -443,14 +443,14 @@ NIL
 1
 
 CHOOSER
-380
-611
-499
-656
+8
+640
+127
+685
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-9
+5
 
 TEXTBOX
 11
@@ -464,19 +464,19 @@ Setup parameters
 
 TEXTBOX
 9
-161
+193
 159
-179
+211
 Runtime parameters
 11
 0.0
 1
 
 SLIDER
-9
-71
-184
-104
+7
+116
+182
+149
 actives-spatial-dispersion
 actives-spatial-dispersion
 0
@@ -488,10 +488,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-8
-105
-184
-138
+6
+150
+182
+183
 employments-spatial-dispersion
 employments-spatial-dispersion
 0
@@ -503,10 +503,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-185
-71
-294
-104
+183
+116
+292
+149
 actives-max
 actives-max
 0
@@ -518,10 +518,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-184
-105
-294
-138
+182
+150
+292
+183
 employments-max
 employments-max
 0
@@ -534,9 +534,9 @@ HORIZONTAL
 
 SLIDER
 0
-203
+235
 178
-236
+268
 gamma-cobb-douglas-a
 gamma-cobb-douglas-a
 0
@@ -549,9 +549,9 @@ HORIZONTAL
 
 SLIDER
 3
-273
+305
 172
-306
+338
 beta-discrete-choices
 beta-discrete-choices
 0
@@ -563,10 +563,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-136
-611
-191
-644
+470
+554
+525
+587
 go
 ifelse ticks < total-time-steps [\n  go\n][stop]
 T
@@ -599,17 +599,17 @@ PENS
 "pen-1" 1.0 0 -12087248 true "" "plot diff-actives"
 
 OUTPUT
-910
-477
-1368
-833
+838
+410
+1295
+704
 10
 
 TEXTBOX
 6
-186
+218
 156
-204
+236
 LUTI
 11
 0.0
@@ -617,9 +617,9 @@ LUTI
 
 TEXTBOX
 188
-184
+216
 338
-202
+234
 Governance
 11
 0.0
@@ -627,9 +627,9 @@ Governance
 
 SLIDER
 184
-203
+235
 333
-236
+268
 regional-decision-proba
 regional-decision-proba
 0
@@ -642,9 +642,9 @@ HORIZONTAL
 
 TEXTBOX
 174
-202
+234
 189
-233
+265
 |
 25
 0.0
@@ -652,9 +652,9 @@ TEXTBOX
 
 TEXTBOX
 174
-223
+255
 189
-254
+286
 |
 25
 0.0
@@ -662,9 +662,9 @@ TEXTBOX
 
 TEXTBOX
 174
-245
+277
 189
-276
+308
 |
 25
 0.0
@@ -672,9 +672,9 @@ TEXTBOX
 
 SLIDER
 5
-372
+404
 170
-405
+437
 network-min-pace
 network-min-pace
 0
@@ -687,9 +687,9 @@ HORIZONTAL
 
 TEXTBOX
 4
-331
+363
 207
-358
+390
 _________________
 20
 0.0
@@ -697,9 +697,9 @@ _________________
 
 TEXTBOX
 5
-357
+389
 155
-375
+407
 Transportation
 11
 0.0
@@ -707,9 +707,9 @@ Transportation
 
 TEXTBOX
 174
-267
+299
 189
-298
+330
 |
 25
 0.0
@@ -834,10 +834,10 @@ NIL
 1
 
 CHOOSER
-501
-611
-639
-656
+678
+523
+816
+568
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
@@ -845,9 +845,9 @@ log-level
 
 SLIDER
 5
-408
+440
 169
-441
+473
 euclidian-min-pace
 euclidian-min-pace
 1
@@ -860,9 +860,9 @@ HORIZONTAL
 
 SLIDER
 5
-442
+474
 169
-475
+507
 congestion-price
 congestion-price
 0
@@ -875,9 +875,9 @@ HORIZONTAL
 
 SLIDER
 184
-241
+273
 333
-274
+306
 road-length
 road-length
 0
@@ -890,9 +890,9 @@ HORIZONTAL
 
 SLIDER
 186
-313
+345
 334
-346
+378
 #-explorations
 #-explorations
 0
@@ -905,9 +905,9 @@ HORIZONTAL
 
 SLIDER
 4
-307
+339
 171
-340
+372
 lambda-accessibility
 lambda-accessibility
 0
@@ -919,10 +919,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-908
-439
-1002
-472
+836
+372
+930
+405
 indicators
 compute-indicators
 NIL
@@ -936,15 +936,15 @@ NIL
 1
 
 SLIDER
-197
-611
-321
-644
+418
+593
+542
+626
 total-time-steps
 total-time-steps
 0
 20
-4
+10
 1
 1
 NIL
@@ -952,9 +952,9 @@ HORIZONTAL
 
 TEXTBOX
 184
-483
+515
 336
-518
+550
 __________________
 20
 0.0
@@ -962,9 +962,9 @@ __________________
 
 CHOOSER
 186
-348
+380
 338
-393
+425
 game-type
 game-type
 "random" "simple-nash" "discrete-choices"
@@ -972,9 +972,9 @@ game-type
 
 TEXTBOX
 174
-289
-189
 321
+189
+353
 |
 25
 0.0
@@ -982,9 +982,9 @@ TEXTBOX
 
 TEXTBOX
 174
-312
+344
 192
-342
+374
 |
 25
 0.0
@@ -1010,9 +1010,9 @@ PENS
 
 SLIDER
 5
-477
+509
 168
-510
+542
 lambda-flows
 lambda-flows
 0
@@ -1024,10 +1024,10 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-13
-578
-200
-622
+342
+519
+529
+563
 __________________
 20
 0.0
@@ -1051,10 +1051,10 @@ NIL
 1
 
 BUTTON
-382
-660
-457
-693
+135
+648
+210
+681
 update
 compute-patches-variables\ncolor-patches
 NIL
@@ -1068,10 +1068,10 @@ NIL
 1
 
 BUTTON
-1139
-441
-1221
-474
+1067
+374
+1149
+407
 test connex
 test-connex-components
 NIL
@@ -1103,9 +1103,9 @@ NIL
 
 SLIDER
 185
-395
+427
 333
-428
+460
 collaboration-cost
 collaboration-cost
 0
@@ -1117,10 +1117,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-143
-21
-235
-66
+139
+69
+231
+114
 setup-type
 setup-type
 "random" "from-file" "gis"
@@ -1128,9 +1128,9 @@ setup-type
 
 SLIDER
 7
-550
+582
 152
-583
+615
 ext-growth-factor
 ext-growth-factor
 0
@@ -1142,10 +1142,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-78
-611
-133
-644
+412
+554
+467
+587
 go
 go
 NIL
@@ -1160,9 +1160,9 @@ NIL
 
 SWITCH
 5
-514
+546
 151
-547
+579
 with-externalities?
 with-externalities?
 1
@@ -1170,9 +1170,9 @@ with-externalities?
 -1000
 
 INPUTBOX
-237
+206
 10
-315
+284
 70
 positions-file
 setup/triangle.csv
@@ -1181,10 +1181,10 @@ setup/triangle.csv
 String
 
 BUTTON
-1006
-438
-1098
-471
+934
+371
+1026
+404
 construct
 if mouse-down? [\n  if length to-construct < 2[\n    set to-construct lput (list mouse-xcor mouse-ycor) to-construct\n  ]\n  if length to-construct = 2[\n    construct-infrastructure (list to-construct) save-nw-config\n    compute-patches-variables\n    update-display\n    set to-construct []\n    verbose (word \"mean-travel-distance : \" mean-travel-distance)\n    stop\n  ]\n  wait 0.2\n  \n]
 T
@@ -1199,9 +1199,9 @@ NIL
 
 SLIDER
 153
-513
+545
 266
-546
+578
 ext-employments-proportion-of-max
 ext-employments-proportion-of-max
 0
@@ -1214,9 +1214,9 @@ HORIZONTAL
 
 SLIDER
 0
-238
+270
 177
-271
+303
 gamma-cobb-douglas-e
 gamma-cobb-douglas-e
 0
@@ -1228,20 +1228,20 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-382
-591
-532
-609
+10
+620
+160
+638
 Display
 11
 0.0
 1
 
 BUTTON
-9
-647
-72
-680
+343
+590
+406
+623
 NIL
 luti
 NIL
@@ -1274,9 +1274,9 @@ PENS
 
 SLIDER
 185
-277
+309
 335
-310
+342
 infra-snapping-tolerance
 infra-snapping-tolerance
 0
@@ -1289,9 +1289,9 @@ HORIZONTAL
 
 SLIDER
 185
-430
+462
 335
-463
+495
 construction-cost
 construction-cost
 0
@@ -1304,9 +1304,9 @@ HORIZONTAL
 
 SLIDER
 185
-466
+498
 334
-499
+531
 beta-dc-game
 beta-dc-game
 0
@@ -1334,6 +1334,36 @@ false
 "clear-plot" ""
 PENS
 "default" 1.0 0 -16777216 true "" "if external-facility != 0 [plot (mean [current-accessibility] of patches with [member? number external-facility]) / initial-max-acc]"
+
+SLIDER
+6
+33
+98
+66
+seed
+seed
+-100000
+100000
+1
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+100
+34
+203
+67
+world-size
+world-size
+0
+30
+20
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

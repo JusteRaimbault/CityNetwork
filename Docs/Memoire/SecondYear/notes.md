@@ -2,6 +2,15 @@
 
 
 
+
+## General Relativity
+
+* Lun 23 jan 2017 11:04:16 CET * 
+
+https://arxiv.org/pdf/1701.05114v1.pdf (in ToSort) -> linking general relativity with economic trajectories : // idée of geographical space as reativistic space ? // REVUE Paper L'Hostis : diffeomorphismes : seeing deformed space as relativistic ?
+
+
+
 ## Reproducibility
 
 * Mer 18 jan 2017 18:48:44 CET * 
