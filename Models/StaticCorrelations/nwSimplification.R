@@ -7,13 +7,6 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 
 #latmin=5.5;latmax=6.5;lonmin=49.0;lonmax=51
 
-library(RPostgreSQL)
-library(rgeos)
-library(rgdal)
-library(raster)
-library(igraph)
-#library(dplyr)
-
 source('nwSimplFunctions.R')
 
 #wgs84='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
@@ -21,10 +14,11 @@ source('nwSimplFunctions.R')
 
 # get raster from density data -> will be directly consistent.
 densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
-latmin=extent(densraster)@xmin;latmax=extent(densraster)@xmax;lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
+latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
+lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 
-tags=c("motorway","trunk","primary","secondary")
-roads<-linesWithinExtent(latmin,lonmin,latmax,lonmax,tags)
+tags=c("motorway","trunk","primary","secondary","tertiary","unclassified")
+roads<-linesWithinExtent(lonmin,latmin,lonmax,latmax,tags)
 #splines = SpatialLines(LinesList = roads$roads)
 #densraster<-raster(extent(splines),nrow=500,ncol=500)
 

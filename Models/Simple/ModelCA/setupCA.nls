@@ -13,11 +13,12 @@ end
 
 
 to setup-world
-  clear-all
-  reset-ticks
+  if not headless? [clear-all]
+  if fixed-seed? [random-seed seed]
+  reset-ticks ; -> should be at the end of setup 
   output-print "Setting up"
   set-patch-size worldwidth / 7
-  resize-world 0 worldwidth 0 worldwidth
+  resize-world (- floor (worldwidth / 2)) floor (worldwidth / 2) (- floor (worldwidth / 2)) floor (worldwidth / 2)
   set dmax sqrt ((world-width ^ 2) + (world-height ^ 2))
   set current-time-spent 0
   
@@ -31,6 +32,12 @@ to setup-world
   
   ;;other globals
   if config-comparison? [set pareto-points []]
+  
+  ;; config name, for exports
+  set config-name (word "wdens" density-coefficient "_wroad" distance-to-roads-coefficient "_wcenter" distance-to-center-coefficient 
+    "wactiv" distance-to-activities-coefficient "_droad" distance-road-needed "_neigh" neighborhood-radius "_growth" built-cells-per-tick 
+    "_centers" centers-number "_activities" activities-number "_activnorm" activities-norma "_seed" seed)
+  
 end
 
 
@@ -48,6 +55,11 @@ to setup-patches
     ask patches with [count centres-here > 0] [set constructible? false]
     ;;could count some twice, however, isolated centers ? NO ! previous line ~
     ask paths [foreach footprint [ask ? [set constructible? false]]]
+    
+    update-patches-values
+    
+    display-CA
+    
 end
 
 
@@ -59,7 +71,11 @@ to setup-centres
  ifelse not config-from-file? [
   ;;random setup
   create-centres centers-number [
-    set shape "circle" set size 1 set color red setxy random world-width random world-height]
+    set shape "circle" set size 1 set color red
+    ifelse centers-number > 1 [
+    setxy random-xcor random-ycor]
+    [setxy 0 0]
+  ]
   ]
   [
     ;;read configuration from GIS files
@@ -241,6 +257,19 @@ to setup-reporters
     let first-line ""
     foreach output-reporter-names [set first-line word first-line ? if ? != last output-reporter-names [set first-line word first-line ";"]]
     print-in-file output-file-name first-line
+  ]
+  
+  ;; data export
+  set data-to-export []
+  let origin-center one-of centres
+  set data-export-patches to-list patches ; with [(pxcor - [pxcor] of origin-center) mod 5 = 0 and (pycor - [pycor] of origin-center) mod 5 = 0]
+  
+  ;; movie
+  if export-movie? [
+    movie-cancel
+    movie-start (word "mov/" config-name ".mov")
+    movie-set-frame-rate 2
+    movie-grab-view
   ]
   
 end

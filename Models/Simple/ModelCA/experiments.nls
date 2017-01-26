@@ -1,0 +1,62 @@
+
+;;;
+;; Openmole experiments
+
+
+;;
+;
+to setup-headless [weight-density weight-center weight-road seed]
+  
+  ca
+  
+  ; set headless vars
+  set max-ticks 10
+  set worldwidth 55
+  set config-comparison? false
+  set config-from-file? false
+  set centers-gis-layer-path "setup/centers.shp"
+  set paths-gis-layer-path "setup/roads.shp"
+  set output-file? false
+  
+  set centers-number 1  ; >= 1
+  set activities-number 1  ; >= 1
+  
+  ; core params
+  set distance-to-activities-coefficient 0.0  ; \in [0;1]
+  ;set density-coefficient 0.2   ; \in [0;1]
+  set density-coefficient weight-density
+  ;set distance-to-roads-coefficient 0.0   ; \in [0;1]
+  set distance-to-roads-coefficient weight-road
+  ;set distance-to-center-coefficient 1.0   ; \in [0;1]
+  set distance-to-center-coefficient weight-center
+  
+  set distance-road-needed 2.2  ; \in [dmin;dmax]  (world size)
+  set neighborhood-radius 5     ; \in [dmin;dmax]
+  set built-cells-per-tick 10   ; \in [1;Nmax]
+  set activities-norma 4.0      ; = -1 (max) ; or p-norm
+  
+  ; indicators
+  set p-activities 3.0
+  set p-density 3.0
+  set p-speed 3.0
+  set moran-grid-factor 10.0 ; \in [1;world-width]
+  
+  ; economic abm
+  set move-threshold 0.6  ; \in [0;1]
+  set rent-update-radius 10
+  set monitor-economic? false
+  set n-repets-eco 3
+  
+  ; genetic algo :: not needed ?
+  set initial-act-share 0.5
+  set dmin-centers 1.5
+  set n-random-conf 200
+  set max-global-density 0.2
+  
+  
+  set headless? true
+  
+  random-seed seed
+  
+end
+

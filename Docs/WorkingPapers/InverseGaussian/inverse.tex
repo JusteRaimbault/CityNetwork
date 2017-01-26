@@ -1,0 +1,87 @@
+\input{/Users/Juste/Documents/ComplexSystems/CityNetwork/Docs/Headers/WPHeader.tex}
+
+
+\title{Inverse Extrapolation using Kernel Mixtures\bigskip\\
+\textit{Working Paper}
+}
+\author{\noun{Juste Raimbault}}
+\date{Date}
+
+
+\maketitle
+
+\justify
+
+
+\begin{abstract}
+When using aggregated statistical data, one often observe an aggregated distribution over a classification. We propose a desaggregation method under the assumption of a kernel mixture.
+\end{abstract}
+
+
+\section{Introduction}
+
+When studying geographical data, aggregation is generally done on different aspects. Spatial and temporal aggregations have been widely studied (MAUP, etc.). The aggregation over classes of a population may be problematic : for example, one can have the distribution of incomes for a population of a geographical area, but not the distributions conditioned to socio-economic classes (CSP) that are crucial for some statistical analyses. We describe here a method to reconstruct these, under the knowledge of population composition and simplifying assumptions on the shape of the conditional distributions. This problem is close to inverse problems in various fields of applied statistics, and using Gaussian mixtures is a well-known method~\cite{yu2012solving}. It can also be understood as mode finding with a fixed number of modes~\cite{carreira2000mode}.
+
+
+\section{Method}
+
+\subsection{Formalization}
+
+\paragraph{General case}
+
+We assume a random variable $W$ describing a population, for which we know the empirical distribution with density $f(w)$. The population is stratified into a finite number of categories $c\in C$. We assume that the shape of the distribution is known for each category and that it can be expressed with a kernel $k_c (w)$. With categories yielding a partition of the population, we have directly by independence, where $w_c$ is the proportion of category $c$ in the population such that $\sum_{c\in C} w_c = 1$,
+
+\[
+f(w) = \sum_{c\in C} w_c \cdot k_c (w)
+\]
+
+\paragraph{Parametrization}
+
+Kernels are the unknown to be determined from the empirical distribution. In the general case, we want to minimize a cost function between the two distribution, i.e. solving
+\[\min_{k_c} K(f,\sum_{c\in C} w_c k_c)\]
+
+Let simplify the problem and take similar distributions for each category, such that $k_c = g(\vec{\alpha}_c)$. With a simple mean-square error cost function, our optimization problem becomes
+
+\[
+\min_{\vec{\alpha}_c} \int_w \left(f(w) - \sum_c w_c \cdot \left[ g(\vec{\alpha}_c)\right] (w) \right)^2 dw
+\]
+
+
+\subsection{Implementation}
+
+\textit{Implement the optimization problem in R}
+
+In practice, we will have an histogram $\left(f(x_j)\right)_j$ of the empirical distribution, yielding a discrete mean-square integration. The implemented function will be of the form
+
+\texttt{extrapolate(distrib,weights,kernel,bounds)}
+
+with \texttt{distrib} the histogram, \texttt{weights} composition of the population,\texttt{kernel} the kernel function (taking parameters and variable as arguments), \texttt{bounds} boundary for parameters (should be tunable for each category or general).
+
+\medskip
+
+\textbf{Remarks :}
+\begin{itemize}
+\item kernel type can be left generic
+\item in what case do we have a convex problem (yielding unicity and speed of resolution) ?
+\end{itemize}
+
+
+
+
+\section{Examples}
+
+\textit{try on data}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+%% Biblio
+%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{apalike}
+\bibliography{/Users/Juste/Documents/ComplexSystems/CityNetwork/Biblio/Bibtex/CityNetwork}
+
+
+\end{document}

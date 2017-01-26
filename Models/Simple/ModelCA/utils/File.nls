@@ -1,0 +1,171 @@
+;extensions [matrix table]
+;;read and write file utilities
+
+;__includes [
+;  "../misc/String.nls"
+;]
+
+;;;
+; Reading
+;;;
+
+
+
+to-report read-csv [filename delimiter]
+  let rows read-file filename
+  let row-list []
+  foreach rows [
+    set row-list lput (explode delimiter ?) row-list
+  ]
+  report row-list
+end
+
+
+
+;;
+; Read a text file, reporting list of rows as strings
+to-report read-file [filename]
+  let res []
+  file-open filename
+  while [not file-at-end?][
+    set res lput file-read-line res
+  ]
+  file-close
+  report res
+end
+
+;;
+; Read a csv file as matrix
+;  @requires matrix extension
+to-report read-csv-as-matrix [file delimiter]
+  let rows read-file file
+  let row-list []
+  foreach rows [
+    set row-list lput (explode delimiter ?) row-list
+  ]
+  report matrix:from-row-list row-list
+end
+
+;;
+; Read a numeric csv file as matrix
+;  @requires matrix extension
+to-report read-numeric-csv-as-matrix [file delimiter]
+  let rows read-file file
+  let row-list []
+  foreach rows [
+    set row-list lput (map read-from-string (explode delimiter ?)) row-list
+  ]
+  report matrix:from-row-list row-list
+end
+
+
+to-report read-numeric-csv-as-row-list [file delimiter]
+  let rows read-file file
+  let row-list []
+  foreach rows [
+    set row-list lput (map read-from-string (explode delimiter ?)) row-list
+  ]
+  report row-list
+end
+
+
+
+;;
+; Read a hashtable from a 'csv-like' file
+;  under the format key:value\n...\nkey:value
+;  where values are transformed with reporter-task transformation
+;
+;  TODO : reporter-task does not work
+;
+;
+;  @requires table extension
+to-report read-table [file delimiter]
+  let rows read-file file
+  let res table:make
+  foreach rows [
+    let t explode delimiter ?
+    ; if not two elements, row is not well formatted ( !! NO DELIM in values ¡¡ )
+    if length t = 2 [
+      ;table:put res (item 0 t) (item 0 (map transformation (list item 1 t)))
+      table:put res (item 0 t) (item 1 t)
+    ]
+  ]
+  report res
+end
+
+
+
+
+to print-in-file [filename output]
+  file-open filename
+  file-print output
+  file-close
+end
+
+
+
+
+
+;;export plot as scilab data
+;;need string utilities include
+;;don't work with multiple pens !
+
+;;override existing file or write it at the end?
+
+to export-plot-as-scilab [plotname filename var1name var2name]
+  if file-exists? filename [file-delete filename]
+  let tempfile word date-and-time ".temp"
+  print-in-file tempfile ""
+  print-in-file filename word "//Export plot as scilab data : " plotname
+  print-in-file filename word word word var1name "=[];" var2name "=[];"
+
+  export-plot plotname tempfile
+
+;  let data-list read-file tempfile
+;
+;  show data-list
+;
+;  let data? false
+;  let i 1
+;
+;  foreach data-list [
+;    ifelse data? [
+;      let l explode "," ?
+;      print-in-file filename word word word word word var1name "(" i ")=" replace first l "\"" "" ";"
+;      print-in-file filename word word word word word var2name "(" i ")=" replace first but-first l "\"" "" ";"
+;      set i i + 1
+;    ]
+;    [
+;      set data? (first explode "," ?) = "\"x\""
+;      print-in-file filename word "//" ?
+;    ]
+;  ]
+;
+;
+;  file-delete tempfile
+
+end
+
+
+
+
+
+;;;;;;
+;; list csv export
+;;;;;;
+
+to lists-csv-export [lists header separator filename]
+  ;;first get name of vars to write first line
+  ;;rq: we suppose that export is done in same order !!!
+  let first-line ""
+  foreach header [set first-line word first-line ? if ? != last header [set first-line word first-line separator]]
+  let row-length length header
+  print-in-file filename first-line
+  foreach lists [
+    let line ""
+    let lst last ?
+    let j 1
+    foreach ? [set line word line ? if j != row-length [set line word line separator] set j j + 1]
+    print-in-file filename line
+  ]
+end

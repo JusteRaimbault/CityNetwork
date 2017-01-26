@@ -65,12 +65,12 @@ to-report potential-infrastructures [decidors rlength patchset]
   let res []
   ifelse decidors = regional-authority [
     repeat #-explorations [
-      set res lput (random-infra patchset rlength) res
+      set res lput (network:random-infra patchset rlength) res
     ]
   ][
     ; number of infra to be explored scales as |decidors|^2, if number of patches is constant among decidors. (to fill 'same proportion' of territory)
     repeat (#-explorations) * ((length decidors) ^ 2) [
-      set res lput (random-infra (patchset with [member? governing-mayor decidors]) rlength) res
+      set res lput (network:random-infra (patchset with [member? governing-mayor decidors]) rlength) res
     ]
   ]
   report res
@@ -123,7 +123,7 @@ to-report compare-infrastructures [old-nw-config choices decidor patchset]
   foreach choices [
     recall-nw-config old-nw-config
     verbose (word "Infra : " ? )
-    let potential-infra new-infra ?
+    let potential-infra network:new-infra ?
     verbose (word " ; " potential-infra)
     if potential-infra != nobody [
     update-network potential-infra
@@ -293,7 +293,7 @@ to construct-infrastructure [infras old-config]
       
       verbose (word "constructing : " infra)
       
-      let new-link new-infra infra
+      let new-link network:new-infra infra
     
       ; update matrices
       if new-link != nobody [
@@ -309,6 +309,9 @@ to construct-infrastructure [infras old-config]
   ; then correct the network by planarization if intersecting links.
   ; Beware, has to be done AFTER updating matrices, as nw updating needs footprint of the link (fastest way to get patches newly connected to the network
   ;  but planarizing before would kill the entire links, cutting it into smaller
+  ;
+  ;  !!! this architecture is difficult to apprehend from an external point of view (duality nw-patches/nw-links) !!! -> refactorize / precise ?
+  ;
   planarize-network transportation-nodes transportation-links
   
   update-network-age (last old-config)
@@ -316,73 +319,6 @@ to construct-infrastructure [infras old-config]
 end
 
 
-;; report the link corresponding to coordinates
-to-report new-infra [coords]
-  let e1 nobody let new-link nobody
-  ifelse length first coords = 2 and length last coords = 2[
-  create-transportation-nodes 1 [new-transportation-node setxy first first coords last first coords set e1 self]
-  create-transportation-nodes 1 [
-    new-transportation-node setxy first last coords last last coords
-    create-transportation-link-with e1 [new-transportation-link set new-link self]
-  ]
-  
-  ; check if link is valid
-  let valid? false
-  ask new-link [
-    foreach footprint [ask ? [set valid? (valid? or not member? number nw-patches)]]
-  ]
-  ifelse valid? [
-    report new-link
-  ][
-    verbose "¡¡ Unvalid infrastructure !!"
-    ask new-link [ask both-ends [die] die]
-    report nobody
-  ]
-  ][report nobody]
-end
-
-
-
-
-to-report random-infra [patchset infra-length]
-  ; first end is taken in patchset
-  let p1 one-of patchset
-  
-  ; fixed infra length
-  let p2 nobody if p1 != nobody [ask p1 [set p2 one-of patchset with [abs(distance myself - infra-length) < 1.5]]]
-  if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patchset with [distance myself < infra-length]]]]
-  if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patches with [abs(distance myself - infra-length) < 1.5]]]] ; if patchset too small, test other end on all patches
-  
-  let c1 [] let c2 []
-  
-  ifelse p2 = nobody or p1 = nobody [
-    set c1 (list random-pxcor random-pycor) set c2 (list random-pxcor random-pycor)
-  ][
-    ; for each existing infrastructure, check if closer than snapping threshold, report projection if needed
-    set c1 (list [pxcor] of p1 [pycor] of p1) set c2 (list [pxcor] of p2 [pycor] of p2)
-    ask transportation-links [
-       ask p1 [
-         if distance-to-link myself < infra-snapping-tolerance [
-           ask myself [set c1 coord-of-projection-of ([pxcor] of p1) ([pycor] of p1)]
-         ]
-       ]
-       ask p2 [
-         if distance-to-link myself < infra-snapping-tolerance [
-           ask myself [set c2 coord-of-projection-of ([pxcor] of p2) ([pycor] of p2)]
-         ]
-       ]
-    ]
-    
-    
-  ]
-  
-  ifelse (first c1 = first c2 and last c1 = last c2) or (first c1 = last c2 and last c1 = first c2)[
-      report (list [] []) 
-    ]
-    [
-      report (list c1 c2) 
-    ] 
-end
 
 
 

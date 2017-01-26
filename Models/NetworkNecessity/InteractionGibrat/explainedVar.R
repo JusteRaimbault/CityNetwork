@@ -39,3 +39,27 @@ errors=colSums(((as.matrix(design)%*%beta)-(matrix(data=rep(response,ncol(beta))
 show(paste0('log : ',min(logerrors[which(colSums(beta!=0)<5)]),' ; ',min(errors[which(colSums(beta!=0)<5)])))
 
 }
+
+
+
+
+##################
+## test non-linear fit
+
+X = c()
+Y = c()
+
+for(j in 2:ncol(real_populations)){
+  X=append(X,real_populations[,j-1])
+  Y=append(Y,real_populations[,j])
+}
+
+
+res1=nls(Y~X^a,data.frame(X,Y),start=list(a=1.5))
+res2=nls(Y~X^a+k*log(X),data.frame(X,Y),start=list(a=1.5,k=1))
+res3=nls(Y~X^a+k*log(X)+k2*sqrt(X),data.frame(X,Y),start=list(a=1.5,k=1,k2=1))
+AIC(res1)-AIC(res2)
+AIC(res1)-AIC(res3)
+AIC(res2)-AIC(res3)
+
+

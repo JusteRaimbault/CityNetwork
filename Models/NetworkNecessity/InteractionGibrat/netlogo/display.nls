@@ -1,0 +1,55 @@
+
+;;
+; display
+
+
+to update-display
+  ; cities
+  display-cities
+  
+  ; specific plots
+  display-plots
+end
+
+
+to color-patches
+  ;ask patches [set pcolor scale-color brown elevation 0 4000]
+  ask patches with [elevation = -1] [set pcolor white]
+  let gradient-mid 500
+  ask patches with [elevation <= gradient-mid and elevation != -1] [set pcolor gradient:scale (list extract-rgb green extract-rgb brown) elevation 0 gradient-mid]
+  ask patches with [elevation > gradient-mid and elevation != -1] [set pcolor gradient:scale (list extract-rgb brown extract-rgb white) elevation gradient-mid 4000]
+end
+
+
+to display-cities
+  let ptot sum [population] of cities
+  
+  if visualization = "mse" [ask cities [set color-var (current-mse / population * ptot)]]
+  if visualization = "mse-log" [ask cities [set color-var city-mse-log ticks]]
+
+  let mi min [color-var] of cities let ma max [color-var] of cities
+  ask cities [
+    set size (ln population) ;/ 10
+    set color gradient:scale (list extract-rgb blue extract-rgb red) color-var mi ma
+  ]
+end
+
+to display-plots
+  ; fit plot
+  set-current-plot "fit" set-current-plot-pen "default"
+  let col gradient:scale (list extract-rgb blue extract-rgb red) ticks 0 (length dates)
+  set-plot-pen-color (approximate-rgb item 0 col item 1 col item 2 col)
+  let sim map ln (sort-by [?1 > ?2] (matrix:get-column populations ticks))
+  let real map ln (sort-by [?1 > ?2] (matrix:get-column real-populations ticks))
+  let i 0 plot-pen-up plotxy first real first sim
+  plot-pen-down
+  foreach sim [
+     plotxy item i real ? set i i + 1
+  ]
+end
+
+
+
+
+
+

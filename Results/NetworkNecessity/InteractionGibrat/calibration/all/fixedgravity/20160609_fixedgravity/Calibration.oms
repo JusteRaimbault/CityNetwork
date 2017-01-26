@@ -1,0 +1,48 @@
+import Model._
+
+val fileSetting = ExplorationTask(
+  (popFile in Seq( workDirectory / "data" / "pop50.csv")) x
+  (distFile in Seq(workDirectory / "data"/ "dist50.csv")) x
+  (fdistsFile in Seq(workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv")) x (id in Seq(1)) x (gravityAlpha is 0.0) x
+  //(feedbackWeight is 0.0) x (feedbackGamma is 1.0) x (feedbackDecay is 1.0) 
+  (growthRate is 0.06906741) x (gravityWeight is 0.0008183670) x (gravityGamma is 3.054977) x (gravityDecay is 1994.165)
+) set(
+  inputs += (/*growthRate,gravityWeight,gravityGamma,gravityDecay,*/feedbackWeight,feedbackGamma,feedbackDecay),
+  outputs += (/*growthRate,gravityWeight,gravityGamma,gravityDecay,*/feedbackWeight,feedbackGamma,feedbackDecay)
+)
+
+val eval = fileSetting -< model
+
+val evolution =
+  SteadyStateEvolution(
+    algorithm =   
+      NSGA2(
+        mu = 200,
+        genome = 
+          Seq(
+            //growthRate in Range(0.0, 0.1),
+            /*gravityWeight in Range(0.0,0.1),
+            gravityGamma in Range(0.0,5.0),
+            gravityDecay in Range(50.0,2000.0)*/
+            feedbackWeight in Range(0.0,0.5),
+            feedbackGamma in Range(0.0,5.0),
+            feedbackDecay in Range(0.0,100.0)
+          ),
+        objectives = Seq(logmse,mselog)
+      ),
+    evaluation = eval,
+    termination = 10 minutes
+  )
+  
+val island = IslandEvolution(evolution, parallelism = 100, termination = 500)
+
+// Define the hook to save the results
+val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / "20160609_fixedgravity" ) 
+
+val grid = EGIEnvironment("vo.complex-systems.eu")
+//val local = LocalEnvironment(15)
+
+// Define the execution
+(island on grid hook savePopulation)
+
+

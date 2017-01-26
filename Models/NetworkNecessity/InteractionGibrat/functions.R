@@ -29,8 +29,11 @@ loadData<-function(Ncities){
 
 potentials <-function(populations,distances,gammaGravity,decayGravity){
   ptot = sum(populations)
-  show(paste0('mean norm pop : ',mean(diag((populations/ptot)^gammaGravity))))
+  #show(paste0('mean norm pop : ',mean(diag((populations/ptot)^gammaGravity))))
   res = diag((populations/ptot)^gammaGravity)%*%exp(-distances / decayGravity)%*%diag((populations/ptot)^gammaGravity)
+ # d=distances;diag(d)<-1
+#  res = diag((populations/ptot)^gammaGravity)%*%(decayGravity / d)^2%*%diag((populations/ptot)^gammaGravity)
+  
   diag(res) <- 0
   return(res)
 }
@@ -124,7 +127,7 @@ interactionModel <- function(real_populations,distances,gammaGravity=0,decayGrav
 }
 
 
-networkFeedbackModel <- function(real_populations,distances,flow_distances,gammaGravity=0,decayGravity=1,growthRate=0,potentialWeight=1,betaFeedback=0,feedbackDecay=1){
+networkFeedbackModel <- function(real_populations,distances,flow_distances,dates,gammaGravity=0,decayGravity=1,growthRate=0,potentialWeight=1,betaFeedback=0,feedbackDecay=1,feedbackGamma=1.0){
   N=nrow(real_populations);
   populations = matrix(0,N,ncol(real_populations))
   populations[,1] = real_populations[,1]
@@ -133,18 +136,22 @@ networkFeedbackModel <- function(real_populations,distances,flow_distances,gamma
   cflat=1:nrow(real_populations);
   realflat = real_populations[,1]
   
-  show(paste0('mean dist : ',mean(exp(-distances/decayGravity))))
-  show(paste0('mean feedback : ',mean(exp(-flow_distances/feedbackDecay))))
+  #show(paste0('mean dist : ',mean(exp(-distances/decayGravity))))
+  #show(paste0('mean feedback : ',mean(exp(-flow_distances/feedbackDecay))))
   
   for(t in 2:ncol(real_populations)){
     pot = potentials(populations[,t-1],distances,gammaGravity,decayGravity)
-    flatpops = flattenpops(populations[,t-1],gammaGravity)
+    deltat = dates[t]-dates[t-1]
+    
+    #hist(log(as.numeric(pot)),breaks=100)
+    
+    flatpops = flattenpops(populations[,t-1],feedbackGamma)
     potfeedback = exp(-flow_distances/feedbackDecay)%*%flatpops
     
-    show(paste0('mean pot : ',mean(pot)))
-    show(paste0('mean feedback pot : ',mean(exp(-flow_distances/feedbackDecay)%*%flatpops)))
+    #show(paste0('mean pot : ',mean(pot)))
+    #show(paste0('mean feedback pot : ',mean(exp(-flow_distances/feedbackDecay)%*%flatpops)))
     
-    populations[,t] = as.numeric(populations[,t-1]*(1 + growthRate +
+    populations[,t] = as.numeric(populations[,t-1]+ populations[,t-1]*deltat*(growthRate +
                                            pot%*%matrix(rep(1,nrow(pot)),nrow=nrow(pot))*potentialWeight/(N*mean(pot)) + 
                                          2*betaFeedback/(N*(N-1)*mean(potfeedback))*potfeedback
                                         ))

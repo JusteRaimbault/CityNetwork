@@ -2,37 +2,19 @@
 
 ## Test on real data
 
-library(dplyr)
-library(sp)
-library(GA)
-library(ggplot2)
-library(Matrix)
-
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat'))
 
-source('functions.R')
+source('setup.R')
 
-Ncities = 50
-d = loadData(Ncities)
-cities = d$cities;dates=d$dates;distances=d$distances
 
-alpha0=3;n0=3
-load(paste0('data/distMat_Ncities',Ncities,'_alpha0',alpha0,'_n0',n0,'.RData'))
-dists[dists==0]=1e8
 
-## pop matrix
-real_populations = as.matrix(cities[,4:ncol(cities)])
-colnames(real_populations)<-dates
-
-# export time periods to fit
-#periods = list("1831-1881"=1:11,"1856-1911"=6:17,"1921-1936"=18:21,"1946-1999"=23:31)
-periods = list("1831-1851"=1:5,"1841-1861"=3:7,"1851-1872"=5:9,"1861-1881"=7:11,"1872-1891"=9:13,
-               "1881-1901"=11:15,"1891-1911"=13:17,"1921-1936"=18:21,"1946-1968"=c(23,24,26,27),"1962-1982"=26:29,
-               "1975-1990"=28:31)
-for(i in 1:length(periods)){write.table(real_populations[,periods[[i]]],file=paste0('data/popshort/pop50_',names(periods)[i],'.csv'),col.names = FALSE,row.names = FALSE,sep=',')}
+#for(i in 1:length(periods)){write.table(real_populations[,periods[[i]]],file=paste0('data/popshort/pop50_',names(periods)[i],'.csv'),col.names = FALSE,row.names = FALSE,sep=',')}
 #write.table(distances,file='data/dist50.csv',col.names = FALSE,row.names = FALSE,sep=',')
 #write.table(data.frame(as.matrix(dists)),file=paste0('data/distMat_Ncities',Ncities,'_alpha0',alpha0,'_n0',n0,'.csv'),col.names = FALSE,row.names = FALSE,sep=',')
 #
+
+# names and coordinates
+write.table(cities[,1:3],file="data/coords.csv",col.names=FALSE,row.names=FALSE,sep=',',quote = FALSE)
 
 ##
 #gammaGravity = 1.027532
@@ -40,34 +22,41 @@ for(i in 1:length(periods)){write.table(real_populations[,periods[[i]]],file=pas
 #growthRate = 0.0679694
 #potentialWeight = 4.420431
 
-#0.06, 0.002, 0.8, 1000, 0.5, 0.8, 100
+#0.06, 0.002, 0.8, 1000, 0.0, 0.001, 0.8, 100
 #testModel = interactionModel(real_populations,distances,gammaGravity,decayGravity,growthRate,potentialWeight)
+lmse=c()
+for(feedbackDecay in seq(from=10,to=200,by=10)){
 pops=networkFeedbackModel(real_populations,distances,dists,
-                          gammaGravity=0.8,decayGravity=1000,growthRate=0.06,
-                          potentialWeight=0.002,betaFeedback=0.001,feedbackDecay=100);
-show(sum((log(pops$df$populations)-log(pops$df$real_populations))^2))
+                          gammaGravity=1,decayGravity=1000,growthRate=0.06,
+                          potentialWeight=0.0,betaFeedback=0.2,feedbackDecay=feedbackDecay);
+show(as.character(sum((log(pops$df$populations)-log(pops$df$real_populations))^2)))
+show(as.character(log(sum((pops$df$populations-pops$df$real_populations)^2))))
+lmse=append(lmse,log(sum((pops$df$populations-pops$df$real_populations)^2)))
+}
+plot(seq(from=10,to=200,by=10),lmse)
 
 # 
 errs=data.frame()
-#for(betaFeedback in seq(from=0.2,to=0.4,by=0.025)){
-#for(feedbackDecay in seq(from=10,to=200,by=10)){
-for(gravityWeight in seq(from=0.001,to=0.006,by=0.0005)){
-  for(gravityDecay in seq(from=100,to=1500,by=100)){
-  for(gammaGravity in seq(from=0.4,to=1.4,by=0.2)){
+for(feedbackWeight in seq(from=0.2,to=0.4,by=0.025)){
+for(feedbackDecay in seq(from=10,to=200,by=10)){
+#for(gravityWeight in seq(from=0.001,to=0.006,by=0.0005)){
+#  for(gravityDecay in seq(from=100,to=1500,by=100)){
+ #for(gammaGravity in seq(from=0.4,to=1.4,by=0.2)){
+  gammaGravity=1.0
   pops=networkFeedbackModel(real_populations,distances,dists,
-          gammaGravity=gammaGravity,decayGravity=gravityDecay,growthRate=0.06,
-          potentialWeight=gravityWeight,betaFeedback=0,feedbackDecay=100)$df;
-  show(paste0('decay : ',gravityDecay,'km ; ',sum((pops$populations-pops$real_populations)^2)))
-   #errs=rbind(errs,c(gammaGravity,betaFeedback,feedbackDecay,sum((pops$populations-pops$real_populations)^2)))
-  errs=rbind(errs,c(gravityWeight,gravityDecay,gammaGravity,sum((log(pops$populations)-log(pops$real_populations))^2)))
+          gammaGravity=gammaGravity,decayGravity=1000.0,growthRate=0.06,
+          potentialWeight=0.0,betaFeedback=feedbackWeight,feedbackDecay=feedbackDecay)$df;
+  show(paste0('decay : ',feedbackDecay,'km ; ',sum((pops$populations-pops$real_populations)^2)))
+   errs=rbind(errs,c(gammaGravity,feedbackWeight,feedbackDecay,mselog=sum((log(pops$populations)-log(pops$real_populations))^2),logmse=log(sum((pops$populations-pops$real_populations)^2))))
+  #errs=rbind(errs,c(gravityWeight,gravityDecay,gammaGravity,sum((log(pops$populations)-log(pops$real_populations))^2)))
   }
   }
-}
+#}
 
-#names(errs)<-c("gammaGravity","betaFeedback","feedbackDecay","mse")
-names(errs)<-c("gravityWeight","gravityDecay","gammaGravity","mse")
+names(errs)<-c("gammaGravity","betaFeedback","feedbackDecay","mselog","logmse")
+#names(errs)<-c("gravityWeight","gravityDecay","gammaGravity","mse")
 g=ggplot(errs)
-g+geom_line(aes(x=gravityWeight,y=mse,colour=gravityDecay,group=gravityDecay))+facet_wrap(~gammaGravity)
+g+geom_line(aes(x=feedbackDecay,y=logmse,colour=betaFeedback,group=betaFeedback))+facet_wrap(~gammaGravity,scales="free")
 
 #g=ggplot(testModel$df[32:nrow(testModel$df),])
 

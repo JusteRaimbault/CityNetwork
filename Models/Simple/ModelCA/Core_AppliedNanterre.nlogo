@@ -17,7 +17,7 @@
 
 
 
-extensions[nw table gis profiler context matrix convol]
+extensions[nw table gis profiler context matrix convol shell]
 
 
 __includes[
@@ -46,13 +46,14 @@ __includes[
   
   
   ;;Utilities
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/misc/List.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/math/EuclidianDistanceUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/misc/Types.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/agent/Link.nls"  
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/math/SortingUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/io/File.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/misc/String.nls"
+  "utils/List.nls"
+  "utils/EuclidianDistanceUtilities.nls"
+  "utils/SpatialKernels.nls"
+  "utils/Types.nls"
+  "utils/Link.nls"  
+  "utils/SortingUtilities.nls"
+  "utils/File.nls"
+  "utils/String.nls"
   
   ;;core running file
   "genetic-optim.nls"
@@ -152,6 +153,10 @@ globals[
   current-output-conf-economic
   
   
+  data-to-export
+  data-export-patches
+  
+  config-name
   
   ;;;;;;;;;;;;;;;
   ;; GA vars
@@ -220,6 +225,9 @@ patches-own[
   rent
   next-rent
 
+  ;; smoothed vars
+  smoothed-density
+
 ]
 
 
@@ -257,10 +265,10 @@ paths-own [
 GRAPHICS-WINDOW
 529
 23
-979
-494
--1
--1
+970
+485
+27
+27
 7.857142857142857
 1
 10
@@ -271,10 +279,10 @@ GRAPHICS-WINDOW
 0
 0
 1
-0
-55
-0
-55
+-27
+27
+-27
+27
 1
 1
 1
@@ -344,27 +352,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-38
-317
-213
-350
+49
+364
+224
+397
 density-coefficient
 density-coefficient
-0
-1
-0.2
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-39
-357
-213
-390
-distance-to-roads-coefficient
-distance-to-roads-coefficient
 0
 1
 0
@@ -374,15 +367,30 @@ NIL
 HORIZONTAL
 
 SLIDER
-39
-398
-213
-431
+50
+404
+224
+437
+distance-to-roads-coefficient
+distance-to-roads-coefficient
+0
+1
+1
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+50
+445
+224
+478
 distance-to-center-coefficient
 distance-to-center-coefficient
 0
 1
-0
+1
 0.1
 1
 NIL
@@ -397,7 +405,7 @@ distance-road-needed
 distance-road-needed
 0
 50
-50
+5
 0.1
 1
 NIL
@@ -493,15 +501,15 @@ NIL
 HORIZONTAL
 
 SLIDER
-39
-275
-214
-308
+50
+322
+225
+355
 distance-to-activities-coefficient
 distance-to-activities-coefficient
 0
 1
-1
+0
 0.1
 1
 NIL
@@ -577,7 +585,7 @@ max-ticks
 max-ticks
 1
 500
-10
+59
 1
 1
 NIL
@@ -797,10 +805,10 @@ PENS
 "pen-2" 1.0 0 -2674135 true "" "plot max [pdistance-to-activities] of patches"
 
 TEXTBOX
-72
-248
-222
-266
+83
+295
+233
+313
 Weights of variables
 11
 0.0
@@ -1152,6 +1160,99 @@ n-random-conf
 1
 NIL
 HORIZONTAL
+
+BUTTON
+390
+428
+493
+461
+export data
+export-data-to-file
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SWITCH
+5
+204
+104
+237
+headless?
+headless?
+1
+1
+-1000
+
+SWITCH
+281
+340
+403
+373
+export-data?
+export-data?
+1
+1
+-1000
+
+SWITCH
+404
+340
+526
+373
+export-movie?
+export-movie?
+0
+1
+-1000
+
+SWITCH
+107
+204
+223
+237
+fixed-seed?
+fixed-seed?
+0
+1
+-1000
+
+SLIDER
+4
+239
+96
+272
+seed
+seed
+0
+1000000
+272727
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+433
+376
+517
+409
+close movie
+movie-close\n;show (shell:exec \"./convert\" (word \"mov/\" config-name))
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 # WHAT IS IT?
