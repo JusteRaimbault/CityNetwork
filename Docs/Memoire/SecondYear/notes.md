@@ -1,6 +1,34 @@
 
 
 
+## General todo
+
+* Jeu 26 jan 2017 08:55:24 CET *
+
+ - lister le max de Pumain refs (et Arnaud ?) et insérer
+ - techniques comme RMT : try to insert illustration at some point ?
+ - matière empiriques (description cas, aménagement, etc.)
+ - // : interview avec Dupuy, Laterasse, etc. ?
+ - lister refs non cités dans general biblio ; virer si inutiles ?
+ - Q : if a ref is only in Appendix ? try to put it in synthesis in main ? or just let it in the biblio ?
+
+
+
+
+## Geodivercity
+
+* Mar 24 jan 2017 10:30:43 CET * 
+
+banos2017knowledge : confirmatrion through geodivercity of HDR thesis ; \cite{pumain2017urban} : book
+
+
+## HPC : integrated platform ?
+
+* Mar 24 jan 2017 09:55:34 CET * 
+
+\cite{varma2017hpc} : other tools, with integrated plotting ?
+
+
 
 
 ## General Relativity
