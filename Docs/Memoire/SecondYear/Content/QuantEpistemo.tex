@@ -217,70 +217,30 @@ L'absence peu explicable a priori de modèles qui simulent la co-évolution des 
 
 \newpage
 
-% Section describing cybergeo method.
+% Section describing cybergeo method applied to ref on our subject
 
 \section{Indirect bibliometrics through Complex Network analysis}{Bibliométrie Indirecte par Analyse de Réseaux Complexes}
 
-%%%%%%%%%%%%%%
-\subsection{Context}
+
 
 As described before, semantic analysis does not contain all the information on disciplinary compartmentation nor on patterns of propagation of scientific knowledge as the ones contained in citation networks for example. Furthermore, data collection in the previous algorithm is subject to convergence towards self-consistent themes because of the proper structure of the method. It may give more insight about scientific social patterns of ontological choices in modeling to study communities in broader networks, that would more correspond to disciplines (or sub-disciplines depending on granularity level).
 
 
 
-Previous works in quantitative epistemology using various types of networks have shown interesting potentialities. For the citation network, a good predicting power for citation patterns is for example obtained in~\cite{2013arXiv1310.8220N}. Co-authorship networks can also be used for predictive models~\cite{2014arXiv1402.7268S}. A multilayer network approach was recently proposed in~\cite{2016arXiv160106075O}, using bipartites networks of papers and scholars, in order to produce measures of interdisciplinarity. Disciplines can be stratified into layers to reveal communities between them and therein collaboration patterns~\cite{2015arXiv150601280B}. Keyword networks are used in other fields such as economics of technology~\cite{choi2014patent,shibata2008detecting}.
+%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%
-\subsection{Application to a scientific journal}
+\todo{insert / adapt / translate cybergeo paper : run on a specific corpus}
 
-\subsubsection{Presentation}
 
-We briefly describe here an ongoing study that implemented the ideas given above for the particular case of a scientific journal for which bibliographical data is difficult to obtain, that is \texttt{cybergeo}, an electronic journal in theoretical and quantitative geography, that is concerned with open science issues such as peer-review ethics transparency~\cite{10.1371/journal.pone.0147913}. Our approach combine semantic communities analysis (as done in~\cite{2016arXiv160208451P} but with keyword extraction ; \cite{2015arXiv151003797G} analyses semantic networks of political debates) with citation network to extract e.g. interdisciplinarity measures.
-
-\subsubsection{Implementation}
-
-The general architecture for data collection is presented in Fig.~\ref{fig:quantepistemo:data}. Citation data is collected from \texttt{Google Scholar}, that is the only source for incoming citations~\cite{noruzi2005google} in our case as the journal is not referenced in other databases. We are aware of the possible biaises using this single source~\cite{bohannon2014scientific}\footnote{or see \url{http://iscpif.fr/blog/2016/02/the-strange-arithmetic-of-google-scholars/}}, but these critics are more directed towards search results than citation counts. 
-
-Text processing is done the same way as in previous section, expect that a particular treatment is done to language detection using \emph{stop-words} and a specific tagger \texttt{TreeTagger} is used for other languages than english~\cite{schmid1994probabilistic}.
+%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
-%%%%%%%%%%%%%%%%%%
-\begin{figure}
-\includegraphics[width=\textwidth]{Figures/PartI/QuantitativeEpistemo/HyperNetwork/archi}
-\caption[Heterogeneous Bibliographical Data Collection]{Heterogeneous Bibliographical Data Collection. Architecture of the application for content (semantic data), metadata and citation data collection.}
-\label{fig:quantepistemo:data}
-\end{figure}
-%%%%%%%%%%%%%%%%%%
 
 
-\subsubsection{Results}
-
-
-We show in figures~\ref{fig:quantepistemo:citnw} and~\ref{fig:quantepistemo:semanticnw} preliminary results on citation and semantic network. We are able by the reconstruction of the citation network at depth $\pm 1$ from the original 1000 references of the journal to retrieve around $45\cdot 10^6$ references, on which $2.1\cdot 10^6$ are retrieved with abstract text allowing semantic analysis. We retrieve by community detection in the semantic network typical geographical disciplines, such as :
-
-\begin{itemize}
-\item Hydrology : \texttt{water, basin, river, capac}
-\item Traffic : \texttt{traffic, road, vehicl}
-\item Biogeography : \texttt{habitat, soil, veget, ecosystem}
-\item Political Science : \texttt{polit, cultur, societi, debat}
-\item Economy : \texttt{market, economi, privat, competit, industri}
-\item Transportation : \texttt{transport, travel}
-\item Teledetection : \texttt{cluster, imag, classif, satellit}
-\item Education : \texttt{educ, age, student, school}
-\item Health : \texttt{diseas, infect}
-\item GIS : \texttt{gi, geograph inform system}
-\item Social geography : \texttt{neighborhood, resid}
-\end{itemize}
-
-
-
-Distribution of keywords within reconstructed disciplines provides an article-level interdisciplinarity, and we can construct various measures at the journal level. Combination of citation and semantic layers in the hyper-network provide second order interdisciplinarity measures. The construction of null models for comparison and the collection of currently missing data (journals for other papers) are currently ongoing so these results are not presented here.
-
-
-
-\subsection{Application}
+%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Specific Application}
 
 We will try to reconstruct the same way disciplines around our thematic, and by for example identifying bridge articles (nodes with high centrality or vulnerability) identify crucial thematic elements and research directions.
 
@@ -288,27 +248,6 @@ We will try to reconstruct the same way disciplines around our thematic, and by 
 
 An other application will be the reflexivity of our thesis : we attend to proceed to similar analysis on our proper bibliography (and its evolution, available via \texttt{git} history), to understand our patterns of knowledge, possible gaps or unveil unexpected developments.
 
-
-%%%%%%%%%%%%%%%%%
-\begin{figure}
-%\hspace{-3cm}
-\includegraphics[width=\textwidth]{Figures/PartI/QuantitativeEpistemo/HyperNetwork/rank-size-all}
-%\hspace{-3cm}
-\includegraphics[width=\textwidth]{Figures/PartI/QuantitativeEpistemo/HyperNetwork/cybclic_2cyb_13761}
-\caption[Properties of the citation network]{Properties of the citation network. Top : Rank-size plot of in-degrees ; three superposing successive regimes must correspond to different literature types or practices across disciplines. Bottom : example of a maximal clique in the citation network, paper of \texttt{cybergeo} being in blue.}
-\label{fig:quantepistemo:citnw}
-\end{figure}
-%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%
-\begin{figure}
-\hspace{-2cm}
-\includegraphics[width=1.4\textwidth]{Figures/PartI/QuantitativeEpistemo/HyperNetwork/all_lesslinks}
-\caption[Semantic network of concepts in quantitative geography]{Semantic network of concepts in quantitative geography. Corpus consists of around $2\cdot 10^5$ abstracts of publications at a topological distance shorter than 2 from the journal \texttt{cybergeo} in the citation network. Relevance of keywords were estimated with a bootstrap method, and semantic network is constructed by co-occurrences of keywords (cut at larger degrees, 10\% here to delete hubs such as \texttt{model} or \texttt{space} and efficiently reveal communities).}
-\label{fig:quantepistemo:semanticnw}
-\end{figure}
-%%%%%%%%%%%%%%%%%%
 
 
 

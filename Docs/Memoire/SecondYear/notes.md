@@ -1,6 +1,21 @@
 
 
 
+## Quanti-quali
+
+* Jeu 26 jan 2017 23:07:47 CET * 
+
+-> lire bouquin Julien ; voir avec Thomas
+
+
+## Population data
+
+* Jeu 26 jan 2017 13:22:20 CET * 
+
+\cite{10.1371/journal.pone.0170830} : on data precision depending on grid size
+
+
+
 ## General todo
 
 * Jeu 26 jan 2017 08:55:24 CET *

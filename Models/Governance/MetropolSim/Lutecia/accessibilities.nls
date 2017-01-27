@@ -57,7 +57,8 @@ to compute-patches-utilities
   
   ; renormalize utilities
   let ma-a max [a-utility] of patches let ma-e max [e-utility] of patches
-  ask patches [set a-utility a-utility / ma-a set e-utility e-utility / ma-e]
+  if ma-a > 0 [ask patches [set a-utility a-utility / ma-a]]
+  if ma-e > 0 [ask patches [set e-utility e-utility / ma-e]]
 end
 
 
@@ -65,6 +66,7 @@ end
 ; form factor for actives :
 ;  they search to flee from density, both of actives and employments
 to-report actives-form-factor
+  if actives = 0 or employments = 0 [report 1]
   report 1 / (actives * employments)
 end
 

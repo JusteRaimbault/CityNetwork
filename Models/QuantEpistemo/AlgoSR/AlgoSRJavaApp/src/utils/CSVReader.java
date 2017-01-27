@@ -16,14 +16,15 @@ import java.util.LinkedList;
 public class CSVReader {
 
 	
-	public static String[][] read(String filePath,String delimiter){
+	public static String[][] read(String filePath,String delimiter,String quote){
 		try{
 		   BufferedReader reader = new BufferedReader(new FileReader(new File(filePath)));
 		   LinkedList<String[]> listRes = new LinkedList<String[]>();
-		   String currentLine = reader.readLine();
+		   String currentLine = reader.readLine().replace(quote, ""); // juste remove the quotes
 		   while(currentLine!= null){
 			   listRes.addLast(currentLine.split(delimiter));
 			   currentLine = reader.readLine();
+			   if(currentLine != null){currentLine = currentLine.replace(quote, "");}
 		   }
 		   reader.close();
 		   //convert list to tab
@@ -34,9 +35,9 @@ public class CSVReader {
 		}catch(Exception e){e.printStackTrace();return null;}
 	}
 	
-	public static HashMap<String,String> readMap(String file,String delimiter){
+	public static HashMap<String,String> readMap(String file,String delimiter,String quote){
 		HashMap<String,String> res = new HashMap<String,String>();
-		String[][] tab = read(file,delimiter);
+		String[][] tab = read(file,delimiter,quote);
 		for(int r=0;r<tab.length;r++){
 			res.put(tab[r][0], tab[r][1]);
 		}
@@ -45,7 +46,7 @@ public class CSVReader {
 	
 	
 	public static void test(){
-		String[][] f = read("data/testIterative/refs_0_keywords.csv","\t");
+		String[][] f = read("data/testIterative/refs_0_keywords.csv","\t","");
 		for(int i=0;i<f.length;i++){
 			for(int j=0;j<f[i].length;j++){
 				System.out.println(f[i][j]);

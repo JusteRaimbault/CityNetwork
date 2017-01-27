@@ -257,12 +257,16 @@ public class TorPool {
 	 * Pool launcher, to be used from the command line.
 	 * 
 	 * @param args
-	 *    args[0] : number of threads. ports are starting from 9050 by default [TODO : specifying port number / check if running tor]
+	 *    args[0] : number of threads. 
+	 *    args[1] : starting port number (ports are starting from 9050 by default)
+	 *    [TODO : check if running tor]
 	 */
 	public static void main(String[] args){
-		if(args.length != 1){System.out.println("Usage : args[0] = number of threads");}
+		if(args.length != 1 && args.length != 2){System.out.println("Usage : args[0] = number of threads ; args[1] = starting Port");}
 		else{
 			try{
+				int startingPort = 9050;
+				if(args.length == 2){startingPort = Integer.parseInt(args[1]);}
 				
 				// configure application shutdown
 				// TODO : Does not work with interrupted signal !
@@ -276,7 +280,7 @@ public class TorPool {
 				
 				
 				int threadNumber = Integer.parseInt(args[0]);
-				initPool(9050, 9050+threadNumber, threadNumber);
+				initPool(startingPort, startingPort+threadNumber, threadNumber);
 			    runPool();
 				
 			}

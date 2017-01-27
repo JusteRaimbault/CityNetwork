@@ -51,7 +51,7 @@ public class CSVFactory implements CorpusFactory {
 	public Corpus getCorpus() {
 		// assumes a simple csv file : title,ID
 		Corpus res = new DefaultCorpus();
-		String[][] refs = CSVReader.read(bibfile, ";");
+		String[][] refs = CSVReader.read(bibfile, ";","\"");
 		if(refs[0].length>1){
 			if(numRefs==-1){numRefs=refs.length;}
 			for(int i = 0;i<numRefs;i++){

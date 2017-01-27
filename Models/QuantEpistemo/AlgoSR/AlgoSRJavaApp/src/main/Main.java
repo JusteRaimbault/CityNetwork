@@ -72,7 +72,7 @@ public class Main {
 		 * 
 		 */
 		try{
-			HashMap<String,String> confsMap = CSVReader.readMap(pathConfFile, ":");
+			HashMap<String,String> confsMap = CSVReader.readMap(pathConfFile, ":","");
 			
 			// mendeley
 			if(confsMap.containsKey("appID")){mendeleyAppId = confsMap.get("appID");}
@@ -128,7 +128,7 @@ public class Main {
 		CortextAPI.getKeywords(CortextAPI.extractKeywords(CortextAPI.parseCorpus(CortextAPI.uploadCorpus(filePref+".zip"))),filePref+"_keywords.csv");
 		
 		//read kw file
-		String[][] kwFile = CSVReader.read(filePref+"/refs_"+filePref+"_0_keywords.csv","\t");
+		String[][] kwFile = CSVReader.read(filePref+"/refs_"+filePref+"_0_keywords.csv","\t","");
 		
 		//construct new request
 		String[] stems = new String[kwFile.length-1];
@@ -226,7 +226,7 @@ public class Main {
 			iteration(query,resFold+"/refs_"+initialQuery+"_"+t);
 			
 			//read kw from file, construct new query
-			String[][] kwFile = CSVReader.read(resFold+"/refs_"+initialQuery+"_"+t+"_keywords.csv","\t");
+			String[][] kwFile = CSVReader.read(resFold+"/refs_"+initialQuery+"_"+t+"_keywords.csv","\t","");
 			
 			
 			
