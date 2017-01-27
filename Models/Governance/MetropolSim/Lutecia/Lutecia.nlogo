@@ -386,11 +386,11 @@ transportation-nodes-own[
 GRAPHICS-WINDOW
 346
 10
-807
-492
-10
-10
-21.5
+798
+483
+15
+15
+14.333333333333334
 1
 10
 1
@@ -400,10 +400,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--10
-10
--10
-10
+-15
+15
+-15
+15
 0
 0
 1
@@ -450,7 +450,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-5
+1
 
 TEXTBOX
 11
@@ -1123,7 +1123,7 @@ CHOOSER
 114
 setup-type
 setup-type
-"random" "from-file" "gis"
+"random" "from-file" "gis" "gis-raster"
 2
 
 SLIDER
@@ -1358,8 +1358,8 @@ SLIDER
 world-size
 world-size
 0
+50
 30
-20
 1
 1
 NIL
