@@ -53,7 +53,7 @@ g=ggplot(laggedcors,aes(x=tau,y=rho))
 g+geom_point()+geom_errorbar(aes(ymin=rhomin,ymax=rhomax))+stat_smooth(method = "loess",span=0.3)
 
 # 
-dd=ddeltad[,1:5]%>%group_by(t)%>%summarise(density=mean(density),cdistance=mean(cdistance))
+dd=as.tbl(ddeltad[,1:5])%>%group_by(t)%>%summarise(density=mean(density),cdistance=mean(cdistance))
 laggedcors=data.frame()
 for(tau in 0:15){
   rho=cor.test(dd$density[1:(nrow(dd)-(tau))],dd$cdistance[(tau+1):nrow(dd)])
