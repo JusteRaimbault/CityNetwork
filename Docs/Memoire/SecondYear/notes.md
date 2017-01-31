@@ -1,11 +1,28 @@
 
 
 
+
+
+## Theoretical
+
+* Lun 30 jan 2017 16:28:21 CET * 
+
+\cite{levy1993t} : a part on network/territories
+
+
+## Co-evolution
+
+* Lun 30 jan 2017 10:07:28 CET * 
+
+\cite{2017arXiv170107861D} : co-evolution micro-macro ; dynamical systems-pde
+
+
 ## Quanti-quali
 
 * Jeu 26 jan 2017 23:07:47 CET * 
 
 -> lire bouquin Julien ; voir avec Thomas
+
 
 
 ## Population data
