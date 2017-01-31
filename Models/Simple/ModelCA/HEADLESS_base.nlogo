@@ -182,6 +182,7 @@ globals[
   ;; HEADLESS
   ;;;;;;;;;;;;;;;;;
   
+  headless?
   
   max-ticks
   worldwidth
@@ -222,9 +223,15 @@ globals[
   n-random-conf
   max-global-density
   
-  headless?
+  ; random seed
+  fixed-seed?
+  seed
   
+  config-name
   
+  ; options
+  export-movie?
+  export-data?
    
 ]
 
@@ -317,11 +324,11 @@ paths-own [
 GRAPHICS-WINDOW
 529
 23
-979
-494
--1
--1
-7.857142857142857
+1249
+764
+35
+35
+10.0
 1
 10
 1
@@ -331,10 +338,10 @@ GRAPHICS-WINDOW
 0
 0
 1
-0
-55
-0
-55
+-35
+35
+-35
+35
 1
 1
 1

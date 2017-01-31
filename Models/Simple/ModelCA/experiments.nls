@@ -5,20 +5,20 @@
 
 ;;
 ;
-to setup-headless [weight-density weight-center weight-road seed]
+to setup-headless [weight-density weight-center weight-road #-centres sd]
   
   ca
   
   ; set headless vars
-  set max-ticks 10
-  set worldwidth 55
+  set max-ticks 20
+  set worldwidth 70
   set config-comparison? false
   set config-from-file? false
   set centers-gis-layer-path "setup/centers.shp"
   set paths-gis-layer-path "setup/roads.shp"
   set output-file? false
   
-  set centers-number 1  ; >= 1
+  set centers-number #-centres  ; >= 1
   set activities-number 1  ; >= 1
   
   ; core params
@@ -56,7 +56,30 @@ to setup-headless [weight-density weight-center weight-road seed]
   
   set headless? true
   
-  random-seed seed
+  set fixed-seed? true
+  set seed sd
+  
+  set export-movie? false
+  set export-data? false
+  
+  ;;
+  ; setup
+  setup
   
 end
 
+
+;;
+;
+to run-experiment
+  
+  repeat max-ticks [
+    go 
+  ]
+  
+  ; setup indicators and export - no activities for now
+  ; [ eval-speed , eval-density , spatial-autocorrelation-index , global-density]
+  ;  ["eval-density" "spatial-autocorrelation-index" "eval-speed" "eval-activities" "eval-economic"]
+  
+  
+end
