@@ -17,7 +17,7 @@
 
 
 
-extensions[nw table gis profiler context matrix convol]
+extensions[nw table gis context matrix convol]
 
 
 __includes[
@@ -54,6 +54,7 @@ __includes[
   "utils/SortingUtilities.nls"
   "utils/File.nls"
   "utils/String.nls"
+  "utils/Statistics.nls"
   
   ;;core running file
   "genetic-optim.nls"
@@ -160,6 +161,9 @@ globals[
   data-to-export
   data-export-patches
   
+  
+  values-table
+  
   ;;;;;;;;;;;;;;;
   ;; GA vars
   ;;;;;;;;;;;;;;;
@@ -233,6 +237,7 @@ globals[
   export-movie?
   export-data?
    
+  values-table?
 ]
 
 ;;;;;;;;;;;;;;;;

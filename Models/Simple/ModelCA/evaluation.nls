@@ -6,6 +6,7 @@
 
 to export-data
   if export-data? [
+    
     let current-data []
     let current-time ticks
     foreach data-export-patches [
@@ -14,11 +15,24 @@ to export-data
       ;set current-data lput (list "cdistance" pdistance-to-centre pxcor pycor ticks) current-data
       ;set current-data lput (list "rdistance" pdistance-to-roads pxcor pycor ticks) current-data
       ;set current-data lput (list "ceucldistance" distance one-of centres with-min [distance myself] pxcor pycor ticks) current-data
-      set current-data lput (list pxcor pycor current-time pdensity pdistance-to-centre pdistance-to-roads distance one-of centres with-min [distance myself]) current-data
+      set current-data lput (list pxcor pycor current-time pdensity pdistance-to-centre pdistance-to-roads (distance one-of centres with-min [distance myself])) current-data
       ]
     ]
     set data-to-export concatenate (list current-data data-to-export)
   ]
+  
+  if values-table? [
+     ; table : time, indic, patchx, patchy -> value
+     foreach data-export-patches [
+       ask ? [
+         table:put values-table (list current-time "density" pxcor pycor) pdensity
+         table:put values-table (list current-time "centre-distance" pxcor pycor) pdistance-to-centre
+         table:put values-table (list current-time "road-distance" pxcor pycor) pdistance-to-roads
+         table:put values-table (list current-time "centre-eucl-distance" pxcor pycor) (distance one-of centres with-min [distance myself])
+       ]
+     ]
+  ]
+  
   if export-movie? [movie-grab-view]
 end
 
@@ -55,6 +69,26 @@ to calculate-reporters
     set line word line val if ? != last output-reporter-names [set line word line ";"]
   ]
   if output-file? [print-in-file output-file-name line]
+end
+
+
+
+;;
+; lagged correlation
+to-report lagged-correlation [x y tau]
+  ifelse tau >= 0 [
+    
+  ][
+    
+  ]
+end
+
+
+;;
+; set of lagged corrs for a given pair of vars
+to-report lagged-corrs [var1 var2 taumin taumax]
+  ; get var values
+  
 end
 
 

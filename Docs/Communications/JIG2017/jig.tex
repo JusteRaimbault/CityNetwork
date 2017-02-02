@@ -21,10 +21,37 @@
 \usepackage{natbib}
 \setlength{\bibsep}{0.0pt}
 
+\usepackage[french]{babel}
 
 % layout : use fancyhdr package
 %\usepackage{fancyhdr}
 %\pagestyle{fancy}
+
+% variable to include comments or not in the compilation ; set to 1 to include
+\def \draft {1}
+
+
+% writing utilities
+
+% comments and responses
+%  -> use this comment to ask questions on what other wrote/answer questions with optional arguments (up to 4 answers)
+\usepackage{xparse}
+\usepackage{ifthen}
+\DeclareDocumentCommand{\comment}{m o o o o}
+{\ifthenelse{\draft=1}{
+    \textcolor{red}{\textbf{C : }#1}
+    \IfValueT{#2}{\textcolor{blue}{\textbf{A1 : }#2}}
+    \IfValueT{#3}{\textcolor{ForestGreen}{\textbf{A2 : }#3}}
+    \IfValueT{#4}{\textcolor{red!50!blue}{\textbf{A3 : }#4}}
+    \IfValueT{#5}{\textcolor{Aquamarine}{\textbf{A4 : }#5}}
+ }{}
+}
+
+% todo
+\newcommand{\todo}[1]{
+\ifthenelse{\draft=1}{\textcolor{red!50!blue}{\textbf{TODO : \textit{#1}}}}{}
+}
+
 
 \makeatletter
 
@@ -40,13 +67,16 @@
 
 
 
-\title{Manifeste pour une Géographie Intégrée\\
+\title{%Manifeste pour une Géographie Intégrée \\ ou \\
+%Big data, "gros terrain" et nouvelles méthodes : la possibilité d'une "géographie intégrée" ?
+Un Cadre de Connaissances pour une Géographie Integrée
+\bigskip\bigskip\\
 \textit{Proposition de Communication, JIG 2017}
 }
-\author{\noun{Juste Raimbault}$^{1,2}$, \noun{Julien Migozzi}$^{1,3}$ et \noun{Thibault Le Corre}$^1$\\
+\author{\noun{Juste Raimbault}$^{1,2}$\medskip\\%, \noun{Julien Migozzi}$^{1,3}$ et \noun{Thibault Le Corre}$^1$\\
 $^1$ UMR CNRS 8504 Géographie-cités\\
 $^2$ UMR-T IFSTTAR 9403 LVMT\\
-$^3$ Institut de Géographie Alpine
+%$^3$ Université de Grenoble-Alpes
 }
 \date{}
 
@@ -57,37 +87,43 @@ $^3$ Institut de Géographie Alpine
 \pagenumbering{gobble}
 
 
-\textbf{Mots-clés : }\textit{}
+\textbf{Mots-clés : }\textit{Cadre de Connaissances ; Integration des Domaines}
 
 \medskip
 
 
 \paragraph{Contexte}
 
-Les bouleversements techniques et méthodologiques qu'une discipline peut subir sont souvent accompagnés de profondes mutations épistémologiques, voire de la nature même de la discipline. Il est indéniable que les différentes géographies sont actuellement dans cette situation, au regard des nouvelles opportunités en terme de données et de puissance de calcul. Les visions pour des directions futures sont diverses, et peuvent donner l'emphase sur les données massives~(\cite{batty2012smart}) ou sur la simulation de modèles par calcul intensif~(\cite{pumain2017urban}). Il est crucial de rester conscient des pièges que tend l'usage inconsidéré de ces nouvelles techniques~(\cite{raimbault2016cautious}), et une intégration saine des théories, connaissances, outils, méthodes est une réponse possible.
+Les bouleversements techniques et méthodologiques qu'une discipline peut subir sont souvent accompagnés de profondes mutations épistémologiques, voire de la nature même de la discipline. Il est indéniable que les différentes géographies sont actuellement dans cette situation, au regard des nouvelles opportunités en terme de données et de puissance de calcul. Les visions pour des directions futures sont diverses, et peuvent donner par exemple l'emphase sur les données massives~(\cite{batty2012smart}) ou sur la simulation de modèles par calcul intensif~(\cite{pumain2017urban}). Il est crucial de rester conscient des pièges que tend l'usage inconsidéré de ces nouvelles techniques~(\cite{raimbault2016cautious}), et une intégration saine des théories, connaissances, outils, méthodes est une réponse possible. 
 
 
 \paragraph{Pour une Géographie Intégrée}
 
-Cette communication se positionne de manière originale en proposant un cadre de connaissances alternatif pour les études ayant une composante quantitative, ou plus précisément se posant dans la lignée de la Géographie Théorique et Quantitative (TQG). Ce cadre tente de répondre aux contraintes suivantes : (i) transcender les frontières artificielles entre quantitatif et qualitatif ; (ii) ne pas favoriser de composante particulière parmi les moyens de production de connaissance (aussi divers que l'ensemble des méthodes qualitatives et quantitatives classiques, les méthodes de modélisation, les approches théoriques, les données, les outils), mais bien le développement conjoint de chaque composante. Nous étendons le cadre de connaissances de~\cite{livet2010ontology}, qui consacre le triptyque des domaines empiriques, conceptuels et de la modélisation, en y ajoutant les domaines à part entière que sont les méthodes, les outils (qu'on peut voir comme des proto-méthodes) et les données. Les interactions entre chaque domaine sont détaillées, comme par exemple le passage des méthodes vers les outils qui consiste en l'implémentation, ou le passage de l'empirique aux méthodes comme prospection méthodologique. Toute démarche de production de connaissance, vue comme une \emph{perspective} au sens de~\cite{giere2010scientific}, est une combinaison complexe des six domaines, les fronts de connaissance dans chacun étant en co-évolution. Nous nommons notre cadre de connaissance \emph{Géographie Intégrée}, pour souligner à la fois l'intégration des différents domaines mais aussi des connaissances qualitatives et quantitatives, puisque les deux se fondent dans chacun des domaines.
+Cette communication se positionne de manière originale en proposant un cadre de connaissances alternatif pour les études ayant une composante quantitative, ou plus précisément se posant dans la lignée de la Géographie Théorique et Quantitative (TQG). Ce cadre tente de répondre aux contraintes suivantes : (i) transcender les frontières artificielles entre quantitatif et qualitatif ; (ii) ne pas favoriser de composante particulière parmi les moyens de production de connaissance (aussi divers que l'ensemble des méthodes qualitatives et quantitatives classiques, les méthodes de modélisation, les approches théoriques, les données, les outils), mais bien le développement conjoint de chaque composante. Nous étendons le cadre de connaissances de~\cite{livet2010ontology}, qui consacre le triptyque des domaines empiriques, conceptuels et de la modélisation, en y ajoutant les domaines à part entière que sont les méthodes, les outils (qu'on peut voir comme des proto-méthodes) et les données. Les interactions entre chaque domaine sont détaillées, comme par exemple le passage des méthodes vers les outils qui consiste en l'implémentation, ou le passage de l'empirique aux méthodes comme prospection méthodologique. Toute démarche de production de connaissance, vue comme une \emph{perspective} au sens de~\cite{giere2010scientific}, est une combinaison complexe des six domaines, les fronts de connaissance dans chacun des domaines étant en co-évolution. Nous nommons notre cadre de connaissance \emph{Géographie Intégrée}, pour souligner à la fois l'intégration des différents domaines mais aussi des connaissances qualitatives et quantitatives, puisque les deux se fondent dans chacun des domaines : l'empirique peut autant contenir des résultats issus d'analyse de données que d'enquêtes qualitatives de terrain; la modélisation également; la théorie se place à un niveau conceptuel supérieur; les outils et méthodes sont de nature variée et de plus en plus intégrée; et enfin les données sont évidemment de différents types.
 
 
-\paragraph{Cas d'étude}
-
-L'aventure de l'ERC Geodivercity~\cite{pumain2017book} est l'allégorie du cadre proposé. L'intégration de la théorie, de l'empirique, de la modélisation, mais aussi de la technique et de la méthode, n'a jamais été aussi creusée et renforcée que dans les divers développements du projet. Sans l'accès à la grille de calcul et aux nouveaux algorithmes d'exploration permis par OpenMole, les connaissances tirées du modèle SimpopLocal auraient été moindres, mais les développements techniques ont aussi été conduits par la demande thématique. Nous illustrons par d'autres exemples concrets le rôle de chacun des domaines, et le besoin d'intégration entre chaque.
-
-\textit{Deux cas marchés immobilier : quanti-quali, collection des données et intégration, choix des méthodes et besoins d'outils, etc ?}
-
-Notre troisième exemple étudie les interactions entre réseaux et territoires, du point de vue de la morphologie urbaine et des réseaux. Les corrélations entre indicateurs de forme urbaine et mesures de réseau sont calculées sur l'ensemble de l'Europe. Des outils spécifiques de simplification du réseau routier sont développés pour rendre les traitement faisable en terme de temps de calcul et de mémoire utilisée, et des méthodes liant correlations temporelles et spatiales sont proposées. Les conclusions tirées ont nécessité une intégration des différents domaines.
 
 
 \paragraph{Application}
 
-Nous proposons finalement d'appliquer notre cadre à une proposition de projet de recherche à grande échelle, portant sur une connaissance comparative à grande échelle des marchés immobiliers. 
+L'aventure de l'ERC Geodivercity~(\cite{pumain2017book}) est l'allégorie du cadre proposé. L'intégration de la théorie, de l'empirique, de la modélisation, mais aussi de la technique et de la méthode, n'a jamais été aussi creusée et renforcée que dans les divers développements du projet. Sans l'accès à la grille de calcul et aux nouveaux algorithmes d'exploration permis par OpenMole, les connaissances tirées du modèle SimpopLocal auraient été moindres, mais les développements techniques ont aussi été conduits par la demande thématique. D'autres exemples concrets issus de notre travail de recherche illustrent également le rôle de chacun des domaines, et le besoin d'intégration entre chaque. Un premier exemple étudie les interactions entre réseaux et territoires, du point de vue de la morphologie urbaine et des réseaux. Les corrélations entre indicateurs de forme urbaine et mesures de réseau sont calculées sur l'ensemble de l'Europe. Des outils spécifiques de simplification du réseau routier sont développés pour rendre les traitement faisable en terme de temps de calcul et de mémoire utilisée, et des méthodes liant correlations temporelles et spatiales sont proposées. Les connaissance empiriques tirées de l'intégration des méthodes, outils et données, permettent de formuler des hypothèses théoriques, comme une confirmation à échelle moyenne de la théorie évolutive des villes de par la non-stationnarité spatiale des correlations entre réseaux et forme urbaine. Un autre exemple qui relève de l'épistémologie quantitative, consiste en la reconstruction sous forme d'un réseau sémantique de l'horizon scientifique des travaux traitant des relations entre réseaux et territoires. Les communautés distinctes au sein du réseau confirment la segmentation en domaines ayant peu d'interactions et aux enjeux différents, ce qui pourrait être un facteur explicatif du faible nombre de modèles couplant croissance urbaine et croissance des réseaux. Dans cette étude, les hypothèses théoriques initiales guidées par une revue manuelle de littérature, guident la conception de nouvelles méthodes (hyper-réseau citation et sémantique) et des outils correspondants (collecte de données massives), qui permettent la construction de jeux de données originaux et leur analyse empirique, pour finalement revenir à la théorie.
 
-\textit{description du projet : contexte, objectifs}
 
-Celui-ci implique des démarches qualitatives poussées (terrains laborieux), des outils d'analyse réellement appropriés encore à developper, des appareils théoriques avancés et des développements techniques potentiellement avancés (pour exemple parmi d'autres : collecte automatique de données, traitement des données massives, plateforme de crowdsourcing). Ces multiples aspects, qui seront nécessairement intégrés, illustrent une application directe de notre cadre de connaissances.
+\bigskip
+
+
+Malgré les idées reçues, le quantitatif se prête particulièrement bien à l'alternatif, notamment car il requiert de cadrer les progrès techniques pour pouvoir en tirer des connaissances pertinentes. Le positionnement de notre cadre de connaissances propose une voie alternative vers une intégration des domaines permettant de considérer la production de connaissance au delà des distinctions entre quantitatif et qualitatif, et possiblement une intégration des disciplines puisque son application n'a pas de raison d'être limitée à la géographie. Nous postulons qu'il pourrait permettre de se rapprocher des objectifs d'intégration horizontale et verticale pour une Science des Systèmes Complexes~(\cite{chavalarias2009french}), c'est à dire la production de disciplines intégrées (vu l'importance de l'émergence dans le cadre initial) et l'étude de questions fondamentales transversales.
+
+
+
+
+%\paragraph{Application}
+
+%Nous proposons finalement d'appliquer notre cadre à une proposition de projet de recherche, portant sur une connaissance comparative à grande échelle des marchés immobiliers. 
+
+%\todo{description du projet : contexte, objectifs}
+
+%Celui-ci implique des démarches qualitatives poussées (terrains laborieux), des outils d'analyse réellement appropriés encore à developper, des appareils théoriques avancés et des développements techniques potentiellement avancés (pour exemple parmi d'autres : collecte automatique de données, traitement des données massives, plateforme de crowdsourcing). Ces multiples aspects, qui seront nécessairement intégrés, illustrent une application directe de notre cadre de connaissances.
 
 
 

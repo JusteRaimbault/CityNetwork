@@ -75,41 +75,138 @@
 
 %%%%%%%%
 % bilingual version
+\usepackage{xparse}
 \usepackage{ifthen}
 
+
+% biling paragraph
+
 \newcommand{\bpar}[2]{
-\ifthenelse{\thelanguage=0}{#1}{}
-\ifthenelse{\thelanguage=1}{#2}{}
+    \ifthenelse{\thelanguage=0}{#1}{}
+    \ifthenelse{\thelanguage=1}{#2}{}
 }
 
-% note : using these commands make section disappear from ide outline, not really practical -> better use classical commands wrapped around \bpar
 
-%\newcommand{\bchapter}[2]{\chapter{\bpar{#1}{#2}}}
-%\newcommand{\bsection}[2]{\section{\bpar{#1}{#2}}}
-%\newcommand{\bsubsection}[2]{\subsection{\bpar{#1}{#2}}}
-%\newcommand{\bsubsubsection}[2]{\subsubsection{\bpar{#1}{#2}}}
-%\newcommand{\bchapters}[2]{\chapter*{\bpar{#1}{#2}}}
-%\newcommand{\bsections}[2]{\section*{\bpar{#1}{#2}}}
-%\newcommand{\bsubsections}[2]{\subsection*{\bpar{#1}{#2}}}
-%\newcommand{\bsubsubsections}[2]{\subsubsection*{\bpar{#1}{#2}}}
+% Sectioning commands
+% from http://tex.stackexchange.com/questions/109557/renewdefine-section-with-additional-argument
 
-%\newcommand{\bcaption}[2]{\caption{\bpar{#1}{#2}}}
+\let\oldsection\section
+
+\RenewDocumentCommand\section {s o o m m}
+   {
+    \IfBooleanTF{#1}                   
+        {
+        \ifthenelse{\thelanguage=0}{\oldsection*{#4}}{}
+        \ifthenelse{\thelanguage=1}{\oldsection*{#5}}{}
+          \IfNoValueF{#2}            % if TOC arg is given create a TOC entry
+            {          
+              \ifthenelse{\thelanguage=0}{\addcontentsline{toc}{section}{#2}}{}
+              \ifthenelse{\thelanguage=1}{\addcontentsline{toc}{section}{#3}}{}
+            }
+        }  
+      {                              % no star given 
+        \IfNoValueTF{#2}
+          {
+            \ifthenelse{\thelanguage=0}{\oldsection{#4}}{}
+            \ifthenelse{\thelanguage=1}{\oldsection{#5}}{}
+           }       % no TOC arg
+          { 
+            \ifthenelse{\thelanguage=0}{\oldsection[#2]{#4}}{}
+            \ifthenelse{\thelanguage=1}{\oldsection[#3]{#5}}{}
+           }
+      }   
+  }
+
+\let\oldsubsection\subsection
+
+\RenewDocumentCommand\subsection {s o o m m}
+   {
+    \IfBooleanTF{#1}                   
+        {
+        \ifthenelse{\thelanguage=0}{\oldsubsection*{#4}}{}
+        \ifthenelse{\thelanguage=1}{\oldsubsection*{#5}}{}
+          \IfNoValueF{#2}            % if TOC arg is given create a TOC entry
+             {          
+              \ifthenelse{\thelanguage=0}{\addcontentsline{toc}{subsection}{#2}}{}
+              \ifthenelse{\thelanguage=1}{\addcontentsline{toc}{subsection}{#3}}{}
+            }
+        }  
+      {                              % no star given 
+        \IfNoValueTF{#2}
+          {
+           \ifthenelse{\thelanguage=0}{\oldsubsection{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldsubsection{#5}}{}
+           }       % no TOC arg
+          { 
+           \ifthenelse{\thelanguage=0}{\oldsubsection[#2]{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldsubsection[#3]{#5}}{}
+           }
+      }   
+  }
 
 
-% only one optional arg with renewcomand : trick using bpar in the optionnal arg (should check other packages)
-%\renewcommand{\section}[3][]{
-%\ifthenelse{\equal{#1}{}}{
-%\section{\bpar{#1}{#2}}
-%}{
-%\section[#1]{\bpar{#2}{#3}}
-%}
-%}
-% -> RECURSIVE PB : WHY ?
+\let\oldsubsubsection\subsubsection
 
-%\renewcommand{\section}[2]{\section{\bpar{#1}{#2}}}
-% http://tex.stackexchange.com/questions/22576/redefining-sectioning-commands
+\RenewDocumentCommand\subsubsection {s o o m m}
+   {
+    \IfBooleanTF{#1}   
+        {
+        \ifthenelse{\thelanguage=0}{\oldsubsubsection*{#4}}{}
+        \ifthenelse{\thelanguage=1}{\oldsubsubsection*{#5}}{}
+          \IfNoValueF{#2}            % if TOC arg is given create a TOC entry
+             {          
+              \ifthenelse{\thelanguage=0}{\addcontentsline{toc}{subsubsection}{#2}}{}
+              \ifthenelse{\thelanguage=1}{\addcontentsline{toc}{subsubsection}{#3}}{}
+            }
+        }  
+      {                              % no star given 
+        \IfNoValueTF{#2}
+          {
+           \ifthenelse{\thelanguage=0}{\oldsubsubsection{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldsubsubsection{#5}}{}
+           }       % no TOC arg
+          { 
+           \ifthenelse{\thelanguage=0}{\oldsubsubsection[#2]{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldsubsubsection[#3]{#5}}{}
+           }
+      }   
+  }
+  
+  
+  
+\let\oldparagraph\paragraph
+
+\RenewDocumentCommand\paragraph {s m m}
+   {
+    \IfBooleanTF{#1}
+        {
+        \ifthenelse{\thelanguage=0}{\oldparagraph*{#2}}{}
+        \ifthenelse{\thelanguage=1}{\oldparagraph*{#3}}{}
+        }  
+      { 
+           \ifthenelse{\thelanguage=0}{\oldparagraph{#2}}{}
+           \ifthenelse{\thelanguage=1}{\oldparagraph{#3}}{}   
+      }   
+  }
 
 
+\let\oldcaption\caption
+
+\RenewDocumentCommand\caption {o o m m}
+   {
+        \IfNoValueTF{#1}
+          {
+           \ifthenelse{\thelanguage=0}{\oldcaption{#3}}{}
+           \ifthenelse{\thelanguage=1}{\oldcaption{#4}}{}
+           }       % no TOC arg
+          { 
+           \ifthenelse{\thelanguage=0}{\oldcaption[#1]{#3}}{}
+           \ifthenelse{\thelanguage=1}{\oldcaption[#2]{#4}}{}
+           }
+      } 
+      
+      
+        
 
 %%%%%%%%%%
 %  Drafting
@@ -118,8 +215,8 @@
 
 % comments	 and responses
 %  -> use this comment to ask questions on what other wrote/answer questions with optional arguments (up to 4 answers)
-\usepackage{xparse}
-\usepackage{ifthen}
+
+
 \DeclareDocumentCommand{\comment}{m o o o o}
 {\ifthenelse{\draft=1}{
     \textcolor{red}{\textbf{C : }#1}
@@ -133,17 +230,19 @@
 
 % todo
 \newcommand{\todo}[1]{
-\ifthenelse{\draft=1}{\textcolor{red!50!blue}{\textbf{TODO : \textit{#1}}}}{}
+    \ifthenelse{\draft=1}{\textcolor{red!50!blue}{\textbf{TODO : \textit{#1}}}}{}
 }
 
 
 
 % provisory part, removed if not draft
 
+
 \newcommand{\provisory}[1]{
-\ifthenelse{\draft=1}{#1}{}
+    \ifthenelse{\draft=1}{\color{blue} #1 \color{black}}{}
 }
 
+%\newenvironment{provisory}{\par\color{blue}}{\par}
 
 
 
