@@ -156,6 +156,9 @@ globals[
   data-to-export
   data-export-patches
   
+  values-table
+  values-table?
+  
   config-name
   
   ;;;;;;;;;;;;;;;
@@ -265,8 +268,8 @@ paths-own [
 GRAPHICS-WINDOW
 529
 23
-970
-485
+971
+486
 27
 27
 7.857142857142857

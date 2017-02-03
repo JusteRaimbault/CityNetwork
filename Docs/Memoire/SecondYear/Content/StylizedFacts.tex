@@ -172,6 +172,7 @@ These indicators are used to capture a rough picture of the structure. Refined w
 
 \bpar{}{
 Les indicateurs de réseau ont été calculés sur des zones similaires aux indicateurs de forme urbaine, 
+
 }
 
 
@@ -181,6 +182,196 @@ Les indicateurs de réseau ont été calculés sur des zones similaires aux indi
 
 %%%%%%%%%%%%%%%%%%
 \subsection{Effective static correlations}{Correlations Statiques Effectives}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%
+\subsection{Spatial non-stationarity and non-ergodicity}{Non-stationnarité spatiale et non-ergodicité}
+
+
+
+Case study : Context and Rationale
+% interactions between networks and territories
+
+\textbf{Study of interactions between network and territories :}
+
+\medskip
+
+$\rightarrow$ \textit{searching for stylized facts, what can be learnt from static correlations between urban form and road network ?}
+
+\bigskip
+
+\textbf{Theoretical Background : } \textit{A Theory of co-evolutive networked human territories} proposed in~\cite{raimbault2016memoire}, that in particular postulates an important role of networks in the morphogenesis of complex adaptive urban systems that are human territories
+
+\bigskip
+
+$\rightarrow$ \textit{investigation of stationarity and ergodicity properties of relation between road network and population distribution ; implies spatiality of correlations and link static-dynamic}
+% because means link between dynamic and static ; and also spatiality of correlations
+
+
+
+
+Dataset construction
+% brief description of nw simplification ; 
+
+Computation of topological road network for all Europe, at 100m granularity scale (to be used consistently with population grid~\cite{eurostat})
+
+\medskip
+
+$\rightarrow$ Import of OSM into \texttt{pgsql}, simplification at 100m granularity, topological simplification with split/merge algorithm
+
+\bigskip
+%
+%\begin{columns}
+%\begin{column}{width=0.7\textwidth}
+%
+%\end{column}
+%\begin{column}{width=0.3\textwidth}
+%\textit{.} % TODO summary stats here.
+%\end{column}
+%\end{columns}
+
+%\begin{columns}
+%\begin{column}{0.7\textwidth}
+    %\includegraphics[width=\textwidth,height=0.5\textheight]{figures/ex_nw}
+%\end{column}
+%\begin{column}{0.3\textwidth}
+   \textit{$\simeq 44\cdot 10^6$ links in initial OSM db, $\simeq 61\cdot 10^6$ in first simplified layer, $\simeq 21\cdot 10^6$ in final database}
+%\end{column}
+%\end{columns}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%
+Results : Computation of Indicators
+
+
+\textit{Computation of urban form indicators~\cite{le2015forme} and network indicators on $l_0=10km$ side square}
+
+%\includegraphics[width=\textwidth]{figures/pop-alphaBetweenness}
+
+
+
+
+%%%%%%%%%%%%%%%%%
+Results : Spatial Correlations
+
+\textit{Computation of spatial correlation on square areas of width $\delta\cdot l_0$ (with typically $\delta = 4, \ldots , 16$)}
+
+\centering
+
+%\includegraphics[width=\textwidth,height=0.7\textheight]{figures/corr_PCA_delta4}
+
+$\rightarrow$ \textit{local spatial stationarity of processes}
+
+
+
+%%%%%%%%%%%%%%%%%
+%\sframe{Results : Stationarity scales}{
+% maps
+% 
+%}
+
+
+
+%%%%%%%%%%%%%%%%%
+Results : Multi-scale Processes
+% plots
+%\includegraphics[width=0.33\textwidth]{figures/corrs-distrib_varyingdelta_bytype} % -> in supp material
+%\includegraphics[width=0.5\textwidth]{figures/corrs-summary_varyingdelta_bytype_extended1}
+%\includegraphics[width=0.5\textwidth]{figures/normalized_CI_delta}
+
+\medskip
+
+$\rightarrow$ Significant variation of mean correlation with $\delta$ (Left) and of normalized confidence interval (Right) given by $\left|\rho_+ - \rho_-\right|\cdot \delta$, as bounds theoretically vary as $\sqrt{N} \sim \sqrt{\delta^2}$ : implies multi-scalarity
+
+
+
+
+
+
+Empirical Findings (Formalization)
+
+$Y_i\left[\vec{x},t\right]$ spatio-temporal stochastic process, verifies empirically :
+
+\bigskip
+
+\begin{enumerate}
+\item Local spatial autocorrelation is present and bounded by $l_{\rho}$ (in other words the processes are continuous in space) : at any $\vec{x}$ and $t$, $\left|\rho_{\norm{\Delta \vec{x}} < l_{\rho}}\left[Y_i (\vec{x}+\Delta \vec{x},t), Y_i (\vec{x},t) \right]\right| > 0$.
+\medskip
+\item Processes are locally parametrized : $Y_i = Y_i\left[\alpha_i\right]$, where $\alpha_i (\vec{x})$ varies with $l_{\alpha}$, with $l_{\alpha} \gg l_{\rho}$ and weakly locally stationary in space.
+\medskip
+%\item Spatial correlations between processes have a sense at an intermediate scale $l$ such that $l_{\alpha}\gg l \gg l_{\rho}$.
+%\item Processes covariance stationarity times scale as $\sqrt{l}$.
+%\item Local ergodicity is present at scale $l$ and dynamics are locally chaotic.
+\item Processes are multi-scalar : since $\rho(\delta = \infty) > \rho (\delta = 0 )$, a necessary non-linear correction on processes spatial averages in correlation computation is present.
+% add computation in supplementary materials / papers. -> later
+\end{enumerate}
+
+
+
+Analytical Deductions
+
+1. \textbf{Regimes of temporal correlations.} Let assume local ergodicity in $\vec{x}_0$ at scale $\delta \cdot l_0$ (reasonable with urban growth and network extension in recent times). The Ergodic theorem implies that $\exists \mathcal{T}$ such that
+
+\[<Y_i (t) >_{\norm{\vec{x}-\vec{x}_0} < \delta\cdot l_0} = <Y_i (\vec{x}_0)>_{t\in \mathcal{T}}\] 
+
+With spatial stationarity, $<Y_i>_{\vec{x}_0}=<Y_i>_{\vec{x}_1}$, thus $\mathcal{T}$ must be constant to be invariant by translation. By contraposition and (2), processes have different dynamical characteristics.
+% if translate in a given direction, looses a small part, must be compensated by the area translated by delta (overlap), thus must be constant.
+
+\bigskip
+
+2. \textbf{Global non-ergodicity.} Let $X_k$ a partition of space into local areas. We have $<\cdot>_x = \sum_k w_k <\cdot>_{x_k} =_{(1)} \sum_k w_k <\cdot>_{\mathcal{T}_k} $. On the other hand, global ergodicity would give $<\cdot>_t = <\cdot>_{\mathcal{T}} = \sum_k w_k <\cdot>_{\mathcal{T}}$ and $\sum_k w_k \left(<\cdot>_{\mathcal{T}} - <\cdot>_{\mathcal{T}_k}\right) = 0$. Being true on each subset implies $\mathcal{T}=\mathcal{T}_k$, what contradicts (1).
+
+
+
+
+
+%
+%
+%%%%%%%%%%%%%%%%%%
+%\sframe{Stationarity and Ergodicity}{
+%
+%\begin{itemize}
+%\item Assuming local ergodicity, spatial local stationarity implies and temporal local stationarity
+%
+%\item Spatial non-stationarity \textbf{at the second order}$\implies$ temporal scale variations $\implies$ non-ergodicity
+%
+%\end{itemize}
+%
+%}
+%
+
+
+
+
+Case study : implications
+% thematic conclusion of the case study on ergodicity
+
+$\rightarrow$ Still points to explore :
+\begin{itemize}
+\item variable correlations areas (size and shape in space)
+\item same work on cities population/train network data, which are also dynamical databases : extrapolation of ergodicity parameters ?
+\item correlations of returns : link between $\rho\left[\Delta_t Y\right]$ and $\rho\left[\Delta_x Y\right]$ (more difficult : if pure local ergodicity, $\exists$ a permutation making the correspondance) % may be difficult to identify 
+\item Link between $\Delta_{\delta}\rho (\delta)$ and process derivatives ?
+\end{itemize}
+
+\bigskip
+
+$\rightarrow$ We show the regional nature of network-territories interactions, in particular the non-ergodicity of urban systems on \textbf{the interaction these components}
+
+\bigskip
+
+$\rightarrow$ No direct results on time dynamics, but indirect : spatio-temporal processes do not have same speed and react/diffuse differently
+
 
 
 
