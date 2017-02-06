@@ -1,6 +1,13 @@
 
 
 
+## Epistemo
+
+* Sam  4 fév 2017 20:10:25 CET * 
+
+lire plus de Giere, paragraphe - partie spécifique -> pourquoi le perspectivisme est très adapté aux CS, comparer aux autres courants - qui peuvent se preter plus ou moins à certaines sciences ?
+perspectivisme avancée certaine ?
+
 
 
 ## Theoretical
