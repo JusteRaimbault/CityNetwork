@@ -15,7 +15,7 @@ val exploration = ExplorationTask(
     weightCenter in Range(0.0,1.0),
     weightRoad in Range(0.0,1.0)
   ) withIndex id)
-  x (centerNumber is 1) x (replication in UniformDistribution[Int]() take 100)
+  x (centerNumber is 1) x (replication in UniformDistribution[Int]() take 10)
 )
 
 val purpose = "test"
@@ -23,9 +23,12 @@ val purpose = "test"
 
 val eval = exploration -< model
 
-val indics_hook = AppendToCSVFileHook(workDirectory / "res" / "exploration" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
+val indics_hook = AppendToCSVFileHook(
+    workDirectory / "res" / "exploration" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv"
+    ,arraysOnSingleRow := true
+)
 
-val local = LocalEnvironment(50)
+val local = LocalEnvironment(10)
 //val grid = DIRACEnvironment("vo.complex-systems.eu")
 
 //exploration -< (model on grid by 300 hook indics_hook)

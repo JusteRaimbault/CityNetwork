@@ -3,15 +3,23 @@
 # Sud-afriquie case study
 #  data preparation
 
+library(dplyr)
+
 
 # population
 
 popdatadir = paste0(Sys.getenv('CN_HOME'),'/Data/SudAfrica/pop')
 years = c(1911,1921,1936,1951,1960,1970,1980,1991)
 
+for(year in years){
+  agglos = as.tbl(read.csv(paste0(popdatadir,'/',year,'_agglo.csv'),sep=';'))
+  
+}
 
 
 
+# rank-size test
+#plot(log(1:length(unique(agglos$pop_agglo_11))),log(sort(unique(agglos$pop_agglo_11),decreasing = T)))
 
 
 # network
