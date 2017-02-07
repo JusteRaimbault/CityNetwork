@@ -126,6 +126,20 @@ g+geom_point()+stat_smooth(span = 0.3)
 
 #############
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Simple/ModelCA/'))
-d=as.tbl(read.csv("rdb/06_19_29.714_PM_02-juin-2016.csv",sep=";"))
+d=as.tbl(read.csv("res/exploration/2017_02_06_15_37_01_test.csv",sep=","))
+
+corr = c()
+for(rep in unique(d$replication)){corr=append(corr,
+                                              #d$rhoDensCentre[d$replication==rep]
+                                              #d$rhoDensRoad[d$replication==rep]
+                                              d$rhoCentrRoad[d$replication==rep]
+                                              )}
+
+g=ggplot(data.frame(tau=rep(-15:15,length(unique(d$replication))),corr=corr),aes(x=tau,y=corr))
+g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)
+
+
+
+
 
 

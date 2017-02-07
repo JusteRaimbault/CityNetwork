@@ -5,9 +5,9 @@ import Model._
 
 //weightDensity weightCenter weightRoad centerNumber
 val exploration = ExplorationTask(
-  /*(((weightDensity in (0.0 to 1.0 by 0.2)) x
-  (weightCenter in (0.0 to 1.0 by 0.2)) x
-  (weightRoad in (0.0 to 1.0 by 0.2))
+  /*  (((weightDensity in (0.0 to 1.0 by 0.5)) x
+    (weightCenter in (0.0 to 1.0 by 0.5)) x
+    (weightRoad in (0.0 to 1.0 by 0.5))
   ) withIndex id )*/
   (LHS(
     1,
@@ -15,21 +15,21 @@ val exploration = ExplorationTask(
     weightCenter in Range(0.0,1.0),
     weightRoad in Range(0.0,1.0)
   ) withIndex id)
-  x (centerNumber is 1) x (replication in UniformDistribution[Int]() take 10)
+  x (centerNumber is 1) x (replication in UniformDistribution[Int]() take 50)
 )
 
-val purpose = "test"
-//val purpose = "gridexplo"
+//val purpose = "test"
+val purpose = "gridexplo"
 
 val eval = exploration -< model
 
 val indics_hook = AppendToCSVFileHook(
     fileName = workDirectory / "res" / "exploration" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv"
-    ,prototypes = Seq(weightDensity,rhoCentrRoad)
-    ,arraysOnSingleRow = true
+) set (
+  arraysOnSingleRow := true
 )
 
-val local = LocalEnvironment(10)
+val local = LocalEnvironment(50)
 //val grid = DIRACEnvironment("vo.complex-systems.eu")
 
 //exploration -< (model on grid by 300 hook indics_hook)
