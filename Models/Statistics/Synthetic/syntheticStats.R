@@ -125,6 +125,8 @@ g+geom_point()+stat_smooth(span = 0.3)
 
 
 #############
+# test (non flat corr arrays)
+
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Simple/ModelCA/'))
 d=as.tbl(read.csv("res/exploration/2017_02_06_15_37_01_test.csv",sep=","))
 
@@ -139,7 +141,22 @@ g=ggplot(data.frame(tau=rep(-15:15,length(unique(d$replication))),corr=corr),aes
 g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)
 
 
+#############
+# test
 
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Simple/ModelCA/'))
+d=as.tbl(read.csv("res/exploration/2017_02_07_10_28_52_test.csv",sep=",",header = FALSE))
+taumax=8
+colnames(d)<-c("centerNumber","globalDensity","id","localDensity","moran","networkSpeed","replication",paste0("rhoCentrRoad",-taumax:taumax),paste0("rhoDensCentre",-taumax:taumax),paste0("rhoDensRoad",-taumax:taumax),"weightCenter","weightDensity","weightRoad")
 
+corr = c()
+for(rep in unique(d$replication)){corr=append(corr,
+                                              unlist(d[d$replication==rep,8:(8+(2*taumax))])
+                                              #unlist(d[d$replication==rep,(9+(2*taumax)):(9+(4*taumax))])
+                                              #unlist(d[d$replication==rep,(10+(4*taumax)):(10+(6*taumax))])
+)}
+
+g=ggplot(data.frame(tau=rep(-taumax:taumax,length(unique(d$replication))),corr=corr),aes(x=tau,y=corr))
+g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)
 
 
