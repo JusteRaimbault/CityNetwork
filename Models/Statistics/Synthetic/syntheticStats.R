@@ -145,18 +145,25 @@ g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)
 # test
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Simple/ModelCA/'))
-d=as.tbl(read.csv("res/exploration/2017_02_07_10_28_52_test.csv",sep=",",header = FALSE))
+d=as.tbl(read.csv("res/exploration/2017_02_07_10_56_26_gridexplo.csv",sep=",",header = FALSE,stringsAsFactors = FALSE))
+d = d[2:nrow(d),]
+for(j in 1:ncol(d)){d[,j]=as.numeric(unlist(d[,j]))}
 taumax=8
 colnames(d)<-c("centerNumber","globalDensity","id","localDensity","moran","networkSpeed","replication",paste0("rhoCentrRoad",-taumax:taumax),paste0("rhoDensCentre",-taumax:taumax),paste0("rhoDensRoad",-taumax:taumax),"weightCenter","weightDensity","weightRoad")
+d$param_id = paste0(d$weightRoad,"-",d$weightCenter,"-",d$weightDensity)
 
-corr = c()
-for(rep in unique(d$replication)){corr=append(corr,
-                                              unlist(d[d$replication==rep,8:(8+(2*taumax))])
-                                              #unlist(d[d$replication==rep,(9+(2*taumax)):(9+(4*taumax))])
-                                              #unlist(d[d$replication==rep,(10+(4*taumax)):(10+(6*taumax))])
-)}
+corr = c();tau=c();vars=c();pars=c()
+for(i in 1:nrow(d)){
+  corr=append(corr,unlist(d[i,8:(8+(2*taumax))]))
+  corr=append(corr,unlist(d[i,(9+(2*taumax)):(9+(4*taumax))]))
+  corr=append(corr,unlist(d[i,(10+(4*taumax)):(10+(6*taumax))]))
+  tau = append(tau,rep(-taumax:taumax,3))
+  vars = append(vars,c(rep("ctr->rd",2*taumax+1),rep("dens->ctr",2*taumax+1),rep("dens->rd",2*taumax+1)))
+  pars = append(pars,rep(d$param_id[i],3*(2*taumax+1)))
+}
+dd = data.frame(corr=corr,tau=tau,vars=vars,pars=pars)
 
-g=ggplot(data.frame(tau=rep(-taumax:taumax,length(unique(d$replication))),corr=corr),aes(x=tau,y=corr))
-g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)
+g=ggplot(dd,aes(x=tau,y=corr,colour=vars))
+g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_wrap(~pars,scales = "free")
 
 
