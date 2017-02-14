@@ -144,26 +144,56 @@ g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)
 #############
 # test
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Simple/ModelCA/'))
-d=as.tbl(read.csv("res/exploration/2017_02_07_10_56_26_gridexplo.csv",sep=",",header = FALSE,stringsAsFactors = FALSE))
+#setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Simple/ModelCA/'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Statistics/Synthetic/rdb/20170210_gridexplo/'))
+#d=as.tbl(read.csv("res/exploration/2017_02_07_10_56_26_gridexplo.csv",sep=",",header = FALSE,stringsAsFactors = FALSE))
+d=as.tbl(read.csv("data/2017_02_10_18_41_22_gridexplo.csv",sep=",",header = FALSE,stringsAsFactors = FALSE))
 d = d[2:nrow(d),]
 for(j in 1:ncol(d)){d[,j]=as.numeric(unlist(d[,j]))}
-taumax=8
+#taumax=8
+taumax = 10
 colnames(d)<-c("centerNumber","globalDensity","id","localDensity","moran","networkSpeed","replication",paste0("rhoCentrRoad",-taumax:taumax),paste0("rhoDensCentre",-taumax:taumax),paste0("rhoDensRoad",-taumax:taumax),"weightCenter","weightDensity","weightRoad")
 d$param_id = paste0(d$weightRoad,"-",d$weightCenter,"-",d$weightDensity)
 
 corr = c();tau=c();vars=c();pars=c()
-for(i in 1:nrow(d)){
-  corr=append(corr,unlist(d[i,8:(8+(2*taumax))]))
-  corr=append(corr,unlist(d[i,(9+(2*taumax)):(9+(4*taumax))]))
-  corr=append(corr,unlist(d[i,(10+(4*taumax)):(10+(6*taumax))]))
-  tau = append(tau,rep(-taumax:taumax,3))
-  vars = append(vars,c(rep("ctr->rd",2*taumax+1),rep("dens->ctr",2*taumax+1),rep("dens->rd",2*taumax+1)))
-  pars = append(pars,rep(d$param_id[i],3*(2*taumax+1)))
+wd=c();wc=c();wr=c()
+dd = matrix(rep(0,(2*taumax + 1)*6*3*nrow(d)),ncol=6)
+for(i in 1:(nrow(d))){
+#for(i in which(d$weightRoad==0)){
+  if(i%%1000==0){show(i)}
+  #corr=append(corr,unlist(d[i,8:(8+(2*taumax))]))
+  #corr=append(corr,unlist(d[i,(9+(2*taumax)):(9+(4*taumax))]))
+  #corr=append(corr,unlist(d[i,(10+(4*taumax)):(10+(6*taumax))]))
+  dd[((i-1)*(2*taumax + 1)*3 + 1):((i-1)*(2*taumax + 1)*3 + 2*taumax + 1),1] = unlist(d[i,8:(8+(2*taumax))])
+  dd[((i-1)*(2*taumax + 1)*3 + 2*taumax + 2):((i-1)*(2*taumax + 1)*3 + 4*taumax + 2),1] = unlist(d[i,(9+(2*taumax)):(9+(4*taumax))])
+  dd[((i-1)*(2*taumax + 1)*3 + 4*taumax + 3):((i-1)*(2*taumax + 1)*3 + 6*taumax + 3),1] = unlist(d[i,(10+(4*taumax)):(10+(6*taumax))])
+  #tau = append(tau,rep(-taumax:taumax,3))
+  #vars = append(vars,c(rep("ctr->rd",2*taumax+1),rep("dens->ctr",2*taumax+1),rep("dens->rd",2*taumax+1)))
+  #pars = append(pars,rep(d$param_id[i],3*(2*taumax+1)))
+  #wd=append(wd,rep(d$weightDensity[i],3*(2*taumax+1)));wc=append(wc,rep(d$weightCenter[i],3*(2*taumax+1)));wr=append(wr,rep(d$weightRoad[i],3*(2*taumax+1)))
+  dd[((i-1)*(2*taumax + 1)*3 + 1):(i*(2*taumax + 1)*3),2] = rep(-taumax:taumax,3)
+  dd[((i-1)*(2*taumax + 1)*3 + 1):(i*(2*taumax + 1)*3),3] = c(rep("ctr->rd",2*taumax+1),rep("dens->ctr",2*taumax+1),rep("dens->rd",2*taumax+1))
+  dd[((i-1)*(2*taumax + 1)*3 + 1):(i*(2*taumax + 1)*3),4] = rep(d$weightDensity[i],3*(2*taumax+1))
+  dd[((i-1)*(2*taumax + 1)*3 + 1):(i*(2*taumax + 1)*3),5] = rep(d$weightCenter[i],3*(2*taumax+1))
+  dd[((i-1)*(2*taumax + 1)*3 + 1):(i*(2*taumax + 1)*3),6] = rep(d$weightRoad[i],3*(2*taumax+1))
 }
-dd = data.frame(corr=corr,tau=tau,vars=vars,pars=pars)
+
+# !! matrix of strings --> HUGE mistake for performance ?
+
+colnames(dd)<-c("corr","tau","vars","wdensity","wcenter","wroad")
+#dd[,1]<-as.numeric(dd[,1]);dd[,2]<-as.numeric(dd[,2]);dd[,4]<-as.numeric(dd[,4]);dd[,5]<-as.numeric(dd[,5]);dd[,6]<-as.numeric(dd[,6])
+#dd = data.frame(corr=corr,tau=tau,vars=vars,wdensity=wd,wcenter=wc,wroad=wr)#,pars=pars)
+dd = data.frame(corr=as.numeric(dd[,1]),tau=as.numeric(dd[,2]),vars=dd[,3],wdensity=as.numeric(dd[,4]),wcenter=as.numeric(dd[,5]),wroad=as.numeric(dd[,6]))#,pars=pars)
+# ultra dirty, very strange type handling
+#save(dd,file=paste0(Sys.getenv('CN_HOME'),'/Models/Statistics/Synthetic/visu/data/20170210.RData')) # save to reuse in shiny app
 
 g=ggplot(dd,aes(x=tau,y=corr,colour=vars))
 g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_wrap(~pars,scales = "free")
+
+# with facet grid
+g=ggplot(dd,aes(x=tau,y=corr,colour=vars))
+g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_grid(wd~wc,sc)
+
+
 
 
