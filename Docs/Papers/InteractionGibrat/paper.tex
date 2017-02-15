@@ -16,8 +16,12 @@ T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
-%% User-defined commands
+%% User-defined commands and packages
 %%%%%%%%%%%%%%%%%%%%%%%
+
+
+\usepackage{xparse}
+
 
 % Operators
 \DeclareMathOperator{\Cov}{Cov}
@@ -39,6 +43,29 @@ T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
 
 
+\DeclareDocumentCommand{\comment}{m o o o o}
+{\ifthenelse{\draft=1}{
+    \textcolor{red}{\textbf{C : }#1}
+    \IfValueT{#2}{\textcolor{blue}{\textbf{A1 : }#2}}
+    \IfValueT{#3}{\textcolor{ForestGreen}{\textbf{A2 : }#3}}
+    \IfValueT{#4}{\textcolor{red!50!blue}{\textbf{A3 : }#4}}
+    \IfValueT{#5}{\textcolor{Aquamarine}{\textbf{A4 : }#5}}
+ }{}
+}
+
+
+% todo
+\newcommand{\todo}[1]{
+    \ifthenelse{\draft=1}{\textcolor{red!50!blue}{\textbf{TODO : \textit{#1}}}}{}
+}
+
+
+
+
+
+
+
+
 
 
 \setcounter{secnumdepth}{3}
@@ -47,31 +74,58 @@ T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 %%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 
-\runninghead{Raimbault J.}
+%\runninghead{Raimbault J.}
+\runninghead{Author}
 
 \title{Indirect Evidence of Network Effects in a System of Cities}
 
-\author{Juste Raimbault\affilnum{1}\affilnum{2}}
+%\author{Juste Raimbault\affilnum{1}\affilnum{2}}
+\author{Author}
 
-\affiliation{\affilnum{1}UMR CNRS 8504 G{\'e}ographie-cit{\'e}s, Paris, France\\
-\affilnum{2}UMR-T IFSTTAR 9403 LVMT, Champs-sur-Marne, France}
 
-\corrauth{Juste Raimbault, UMR CNRS 8504 G{\'e}ographie-cit{\'e}s
-13 rue du Four,
-75006 Paris, France.}
+%\affiliation{\affilnum{1}UMR CNRS 8504 G{\'e}ographie-cit{\'e}s, Paris, France\\
+%\affilnum{2}UMR-T IFSTTAR 9403 LVMT, Champs-sur-Marne, France}
 
-\email{juste.raimbault@polytechnique.edu}
+%\corrauth{Juste Raimbault, UMR CNRS 8504 G{\'e}ographie-cit{\'e}s
+%13 rue du Four,
+%75006 Paris, France.}
+
+%\email{juste.raimbault@polytechnique.edu}
+\email{}
+
+
 
 \begin{abstract}
 We propose a simple model of urban growth for systems of cities, which investigate in particular the role of physical networks on interdependence of growth rates. Under the assumption of stochastic independence, a generalized non-linear formulation of recursive population growth captures spatial interactions between cities. At the second order, feedback of physical network, introduced as an abstraction of transportation network, is introduced as influencing average growth rates. Model exploration and calibration using large-scale computation and specific algorithms, yield typical characteristics of spatial interaction, such as decay distance, and their evolution in time under non-stationarity hypothesis. Furthermore, network effects are revealed by a fit improvement when adding network module.
 \end{abstract}
 
-\keywords{Urban Systems, Urban Growth, Spatial Interactions}
+\keywords{Urban Systems, Urban Growth, Spatial Interactions, Network Effects}
 
 \maketitle
 
 
 %%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%
+%% Figures and Results
+%%
+% Fig 1 : Empirical TS correlations
+%
+% Fig 2 : Implementation : Interface ; Run1 vs Run2 (ex better fit) ; Path density of shortest path heuristics
+%
+% Fig 3 : a) error = f(gravityDecays) when calibration is effective
+%         b) <gravityDecay argmin> = f(period) = "evolution of interaction distance in time"
+%
+% Fig. 4 : Better fit with feedback
+%
+% Fig 5 : Pareto feedback 
+
+
+
+
+
 
 
 
@@ -84,7 +138,8 @@ We propose a simple model of urban growth for systems of cities, which investiga
 
 Understanding processes driving urban growth is more crucial than ever, as urban population recently crossed the symbolic proportion of half world population~\cite{}.% TODO cite ? 
  Future of world economies and sustainability of future societies seem to be deeply interlinked with the dynamics of urban systems.%cite
- A better knowledge of how cities differentiate, interact and grow is thus a relevant topic both theoretically and for application. Many disciplines have studied models of urban growth with different objectives and taking different aspects into account. Economics still have a difficulty to consider spatial interactions in their models~\cite{krugman1998space}, whereas geography fails to embrace a certain level of complexity. The example of this two disciplines shows how it is difficult to make bridges, as it needed exceptional minds to translate from one to the other (as P. Hall did for Von Thunen work~\cite{taylor2016polymath}) % note : also quote here economic geo/geo economic ?
+ A better knowledge of how cities differentiate, interact and grow is thus a relevant topic both theoretically and for application. Many disciplines have studied models of urban growth with different objectives and taking different aspects into account. Economics are still reluctant to include spatial interactions in their models~\cite{krugman1998space}, whereas geography fails to embrace a certain level of complexity. \comment{what does it mean ?}
+  The example of this two disciplines shows how it is difficult to make bridges, as it needed exceptional minds to translate from one to the other (as P. Hall did for Von Thunen work~\cite{taylor2016polymath}) % note : also quote here economic geo/geo economic ?
 
 % broad review from different disciplines point of view
 % NOTE : justify scale here (eg not urban sprawl models)
