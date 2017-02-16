@@ -20,7 +20,7 @@
 
 \newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
 
-
+%\usepackage{subcaption}
 
 
 
@@ -80,6 +80,9 @@ Generation of hybrid synthetic data resembling real data to some criteria is an 
 
 % If your first paragraph (i.e. with the \dropcap) contains a list environment (quote, quotation, theorem, definition, enumerate, itemize...), the line after the list may have some extra indentation. If this is the case, add \parshape=0 to the end of the list environment.
 \dropcap{T}he use of synthetic data, in the sense of statistical populations generated randomly under constraints of patterns proximity to the studied system, is a widely used methodology, and more particularly in disciplines related to complex systems such as therapeutic evaluation~\cite{abadie2010synthetic}, territorial science~\cite{moeckel2003creating,pritchard2009advances}, machine learning~\cite{bolon2013review} or bio-informatics~\cite{van2006syntren}. It can consist in data desegregation by creation of a microscopic population with fixed macroscopic properties, or in the creation of new populations at the same scale than a given sample, with criteria of proximity to the real sample. These criteria will depend on expected applications and can for example vary from a restrictive statistical fit on given indicators, to weaker assumptions of similarity in aggregated patterns. In the case of chaotic systems, or systems where emergence plays a strong role, a microscopic property does not directly imply given macroscopic patterns, which reproduction is indeed one aim of modeling and simulation practices in complexity science. With the rise of new computational paradigms~\cite{arthur2015complexity}, data (simulated, measured or hybrid) shape our understanding of complex systems. Methodological tools for data-mining and modeling and simulation (including the generation of synthetic data) are therefore crucial to be developed.
+
+% Christian A. W. Bruhn, Stephen Hetterich, Cynthia Schuck-Paim, Esra Kürüm, Robert J. Taylor, Roger Lustig, Eugene D. Shapiro, Joshua L. Warren, Lone Simonsen, and Daniel M. Weinberger, Estimating the population-level impact of vaccines using synthetic controls. : Synthetic Controls
+
 
 Whereas first order (in the sense of distribution moments) is generally well used, it is not systematic nor simple to control generated data structure at second order, i.e. covariance structure between generated variables. Some specific examples can be found, such as in~\cite{ye2011investigation} where the sensitivity of discrete choices models to the distributions of inputs and to their dependance structure is examined. It is also possible to interpret complex networks generative models~\cite{newman2003structure} as the production of an interdependence structure for a system, contained within link topology. We introduce here a generic method taking into account dependance structure for the generation of synthetic datasets, more precisely with the mean of controlled correlation matrices.
 
@@ -147,7 +150,7 @@ The method is tested on an example with two assets from foreign exchange market 
 %%%%%%%%%%%%%%%%%%%
 \begin{figure}%[h!]
 \centering
-\includegraphics[width=0.6\textwidth,height=0.25\textheight]{figures/asset/ex_filtering}
+\includegraphics[width=\columnwidth]{figures/asset/ex_filtering}
 \caption{\textbf{Example of the multi-scalar structure of the signal, basis of the construction of synthetic signals | } \emph{Log-prices} are represented on a time window of around 3h for November 1st 2015 for asset EUR/USD, with 10min (purple) and 30min trends.}
 \label{fig:example_signal}
 \end{figure}
@@ -203,11 +206,11 @@ This case study stays a \emph{toy-model} and has no direct practical application
 
 
 %%%%%%%%%%%%%%%%%%%
-\begin{figure}[h!]
+\begin{figure}%[h!]
 \centering
 % figure : effective correlations, with confidence intervals (bootstrap), for the 3 filtering scales. ; AND expected corrected corrs from derivation above.
 %\vspace{-0.7cm}
-\includegraphics[width=0.8\textwidth,height=0.3\textheight]{figures/effectiveCorrs_withGoodTh_A4}
+\includegraphics[width=\columnwidth]{figures/effectiveCorrs_withGoodTh_A4}
 \caption{\small\textbf{Effective correlations obtained on synthetic data | } Dots represent estimated correlations on a synthetic dataset corresponding to 6 months between June and November 2015 (error-bars give 95\% confidence intervals obtained with standard Fisher method) ; scale color gives filtering frequency $\omega_1=10\textrm{min},30\textrm{min},1\textrm{h},2\textrm{h},4\textrm{h}$ ; solid lines give theoretical values for $\rho_e$ obtained by~\ref{eq:eff_corr} with estimated volatilities (dotted-line diagonal for reference) ; vertical red line position is the theoretical value such that $\rho = \rho_e$ with mean values for $\varepsilon_i$ on all points. We observe for high absolute correlations values a deviation from corrected values, what should be caused by non-verified independence and centered returns assumptions. Asymmetry is caused by the high value of $\rho_0 \simeq 0.71$.}
 \label{fig:effective_corrs}
 \end{figure}
@@ -215,17 +218,17 @@ This case study stays a \emph{toy-model} and has no direct practical application
 
 
 %%%%%%%%%%%%%%%%%%%
-\begin{figure}[h!]
+\begin{figure*}%[h!]
 % figure : performance of arma2 as a function of expected correlation.
 %\vspace{-0.7cm}
 \centering
-\includegraphics[width=0.48\textwidth,height=0.16\textheight]{figures/asset/pred_filt6}
-\includegraphics[width=0.48\textwidth,height=0.16\textheight]{figures/asset/pred_filt9}\\
-\includegraphics[width=0.48\textwidth,height=0.16\textheight]{figures/asset/pred_filt12}
-\includegraphics[width=0.48\textwidth,height=0.16\textheight]{figures/asset/lagged_corrs}
+\includegraphics[width=0.5\textwidth]{figures/asset/pred_filt6}
+\includegraphics[width=0.5\textwidth]{figures/asset/pred_filt9}\\
+\includegraphics[width=0.5\textwidth]{figures/asset/pred_filt12}
+\includegraphics[width=0.5\textwidth]{figures/asset/lagged_corrs}
 \caption{\small \textbf{Performance of a predictive model as a function of simulated correlations | } From left to right and top to bottom, three first graphs show for each asset the normalized performance of an ARMA model ($p=2,q=0$), defined as $\pi = \left(\frac{1}{T}\sum_t\left(\tilde{X}_i(t) - M_{\omega_1}\left[\tilde{X}_i\right](t)\right)^2 \right) / \sigma \left[ \tilde{X}_i \right]^2$ (95\% confidence intervals computed by $\pi = \bar{\pi} \pm (1.96\cdot \sigma [\pi])/\sqrt{T}$, local polynomial smoothing to ease reading). It is interesting to note the U-shape for EUR/USD, due to interference between components at different scales. Correlation between simulated noises deteriorates predictive power. The study of \emph{lagged correlations} (here $\rho [\Delta X_{\textrm{EURUSD}}(t),\Delta X_{\textrm{EURGBP}}(t-\tau)]$) on real data clarifies this phenomenon : fourth graph show an asymmetry in curves at any scale compared to zero lag $(\tau = 0)$ what leads fundamental components to increase predictive power for the dollar, amelioration then perturbed by correlations between simulated components. Dashed lines show time steps (in equivalent $\tau$ units) used by the ARMA at each scale, what allows to read the corresponding lagged correlation on fundamental component.}
 \label{fig:model_perf}
-\end{figure}
+\end{figure*}
 %%%%%%%%%%%%%%%%%%%
 
 
@@ -327,38 +330,41 @@ Coupling of generative models is done both at formal and operational levels. We 
 
 
 %%%%%%%%%%%%%%
-\begin{figure}
+\begin{figure*}
 
-%\begin{subfigure}[t]{0.35\linewidth}
+%\begin{subfigure}[t]{0.35\textwidth}
+\begin{minipage}{0.35\textwidth}
 \includegraphics[width=\textwidth]{figures/hist_crossCorMat_breaks30}
-%\caption{}
+\caption{}
+\end{minipage}
 %\end{subfigure}
-%\begin{subfigure}[t]{0.23\linewidth}
+
+\begin{minipage}{0.23\textwidth}
 \vspace{-6.5cm}
 \includegraphics[width=\textwidth]{figures/heatmap_maxAbsCor}\\
 \includegraphics[width=\textwidth]{figures/heatmap_amplCor}
 \caption{}
-%\end{subfigure}
-%\begin{subfigure}[t]{0.4\linewidth}
+\end{minipage}
+\begin{minipage}{0.4\textwidth}
 \includegraphics[width=\textwidth]{figures/pca_meanAbsCor_errorBars}
 \caption{}
-%\end{subfigure}\\
-%\begin{subfigure}[t]{0.54\linewidth}
+\end{minipage}\\
+\begin{minipage}{0.54\textwidth}
 \includegraphics[width=\textwidth]{figures/pca_realDistCol_meanAbsCorSize_withSpecificPoints}
 \caption{}
-%\end{subfigure}
-%\begin{subfigure}[t]{0.45\linewidth}
+\end{minipage}
+\begin{minipage}{0.45\textwidth}
 \vspace{-8.3cm}
    \includegraphics[width=0.49\textwidth]{figures/configs/1_param71861_seed0}
    \includegraphics[width=0.49\textwidth]{figures/configs/2_param71913_seed10}\\
    \includegraphics[width=0.49\textwidth]{figures/configs/3_param71918_seed0}
    \includegraphics[width=0.49\textwidth]{figures/configs/4_param71945_seed0}
    \caption{}
-%\end{subfigure}
+\end{minipage}
 
 \caption{\small\textbf{Exploration of feasible space for correlations between urban morphology and network structure | } \textbf{(a)} Distribution of crossed-correlations between vectors $\vec{M}$ of morphological indicators (in numbering order moran index, mean distance, entropy, hierarchy) and $\vec{N}$ of network measures (centrality, mean path length, speed, diameter). \textbf{(b)} Heatmaps for amplitude of correlations, defined as $a_{ij}=\max_k{\rho_{ij}^{(k)}}-\min_k{\rho_{ij}^{(k)}}$ and maximal absolute correlation, defined as $c_{ij}=\max_k\left| \rho_{ij}^{k} \right|$. \textbf{(c)} Projection of correlation matrices in a principal plan obtained by Principal Component Analysis on matrix population (cumulated variances: PC1=38\%, PC2=68\%). Error bars are initially computed as 95\% confidence intervals on each matrix element (by standard Fisher asymptotic method), and upper bounds after transformation are taken in principal plan. Scale color gives mean absolute correlation on full matrices. \textbf{(d)} Representation in the principal plan, scale color giving proximity to real data defined as $1 - \min_r \norm{\vec{M}-\vec{M}_r}$ where $\vec{M}_r$ is the set of real morphological measures, point size giving mean absolute correlation. \textbf{(e)} Configurations obtained for parameters giving the four emphasized points in (d), in order from left to right and top to bottom. We recognize polycentric city configurations (2 and 4), diffuse rural settlements (3) and aggregated weak density area (1). See appendice for exhaustive parameter values, indicators and corresponding correlations. For example $\bar{d}$ is highly correlated with $\bar{l},\bar{s}$ ($\simeq$0.8) in (1) but not for (3) although both correspond to rural environments ; in the urban case we observe also a broad variability : $\rho[\bar{d},\bar{c}]\simeq 0.34$ for (4) but $\simeq-0.41$ for (2), what is explained by a stronger role of gravitation hierarchy in (2) $\gamma=3.9,k_h=0.7$ (for (4), $\gamma=1.07,k_h=0.25$), whereas density parameters are similar.}
 \label{fig:densnwcor}
-\end{figure}
+\end{figure*}
 %%%%%%%%%%%%%%
 
 

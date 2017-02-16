@@ -6,11 +6,12 @@ library(ggplot2)
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/all/fixedgravity/20160920_fixedgravity_local'))
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/exploration/full/20160912_gridfull/data'))
+#setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/exploration/full/20160912_gridfull/data'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/20170216_test'))
 
 
-#res <- as.tbl(read.csv('population213.csv'))
-res <- as.tbl(read.csv('2016_09_12_16_56_26_GRID_FULL_GRID.csv'))
+#res <- as.tbl(read.csv('data/population1015.csv'))
+res <- as.tbl(read.csv('data/2017_02_16_13_32_46_TEST_CALIBGRAVITY_GRID.csv'))
 
 
 
@@ -20,22 +21,22 @@ res <- as.tbl(read.csv('2016_09_12_16_56_26_GRID_FULL_GRID.csv'))
 # 
 # d <- res %>% mutate(gfg=floor(feedbackGamma*6)/6,ggd=floor(gravityDecay/100)*100)
 # res%>%group_by(growthRate)%>%summarise(logmse=mean(logmse))
-d=res#[which(res$growthRate==0.007),]
-gp = ggplot(d,aes(x=growthRate,y=mselog,colour=gravityGamma,group=gravityGamma))
-gp+geom_line()+facet_grid(gravityWeight~gravityDecay,scales="free")#+stat_smooth()
+d=res[which(res$gravityDecay<50),]
+gp = ggplot(d,aes(x=gravityDecay,y=logmse,colour=gravityWeight,group=gravityWeight))
+gp+geom_line()+facet_grid(growthRate~gravityGamma,scales="free")#+stat_smooth()
 
 
 ######
-#params = c("growthRate","gravityWeight","gravityGamma","gravityDecay")#"growthRate","gravityWeight")
+params = c("growthRate","gravityWeight","gravityGamma","gravityDecay")#"growthRate","gravityWeight")
 #params = c("growthRate","gravityWeight","gravityGamma","gravityDecay","feedbackWeight","feedbackGamma","feedbackDecay")
-params = c("feedbackWeight","feedbackGamma","feedbackDecay")
+#params = c("feedbackWeight","feedbackGamma","feedbackDecay")
 d=res#[res$logmse<35&res$mselog<400,]
 plots=list()
 for(param in params){
   g=ggplot(d,aes_string(x="logmse",y="mselog",colour=param))
   plots[[param]]=g+geom_point()+scale_colour_gradient(low="yellow",high="red")
 }
-multiplot(plotlist = plots,cols=3)
+multiplot(plotlist = plots,cols=2)
 
 #M1
 data.frame(res[res$logmse<31.24&res$mselog<302.8125,])
