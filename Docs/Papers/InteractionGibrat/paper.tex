@@ -20,7 +20,7 @@ T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 %%%%%%%%%%%%%%%%%%%%%%%
 
 
-\usepackage{xparse}
+%\usepackage{xparse}
 
 
 % Operators
@@ -43,14 +43,20 @@ T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
 
 
-\DeclareDocumentCommand{\comment}{m o o o o}
-{\ifthenelse{\draft=1}{
-    \textcolor{red}{\textbf{C : }#1}
-    \IfValueT{#2}{\textcolor{blue}{\textbf{A1 : }#2}}
-    \IfValueT{#3}{\textcolor{ForestGreen}{\textbf{A2 : }#3}}
-    \IfValueT{#4}{\textcolor{red!50!blue}{\textbf{A3 : }#4}}
-    \IfValueT{#5}{\textcolor{Aquamarine}{\textbf{A4 : }#5}}
- }{}
+%\DeclareDocumentCommand{\comment}{m o o o o}
+%{\ifthenelse{\draft=1}{
+%    \textcolor{red}{\textbf{C : }#1}
+%    \IfValueT{#2}{\textcolor{blue}{\textbf{A1 : }#2}}
+%    \IfValueT{#3}{\textcolor{ForestGreen}{\textbf{A2 : }#3}}
+%    \IfValueT{#4}{\textcolor{red!50!blue}{\textbf{A3 : }#4}}
+%    \IfValueT{#5}{\textcolor{Aquamarine}{\textbf{A4 : }#5}}
+% }{}
+%}
+
+\def \draft {1}
+
+\newcommand{\com}[1]{
+    \ifthenelse{\draft=1}{\textcolor{red}{\textbf{C : } #1}}{}
 }
 
 
@@ -138,7 +144,7 @@ We propose a simple model of urban growth for systems of cities, which investiga
 
 Understanding processes driving urban growth is more crucial than ever, as urban population recently crossed the symbolic proportion of half world population~\cite{}.% TODO cite ? 
  Future of world economies and sustainability of future societies seem to be deeply interlinked with the dynamics of urban systems.%cite
- A better knowledge of how cities differentiate, interact and grow is thus a relevant topic both theoretically and for application. Many disciplines have studied models of urban growth with different objectives and taking different aspects into account. Economics are still reluctant to include spatial interactions in their models~\cite{krugman1998space}, whereas geography fails to embrace a certain level of complexity. \comment{what does it mean ?}
+ A better knowledge of how cities differentiate, interact and grow is thus a relevant topic both theoretically and for application. Many disciplines have studied models of urban growth with different objectives and taking different aspects into account. Economics are still reluctant to include spatial interactions in their models~\cite{krugman1998space}, whereas geography fails to embrace a certain level of complexity. \com{what does it mean ?}
   The example of this two disciplines shows how it is difficult to make bridges, as it needed exceptional minds to translate from one to the other (as P. Hall did for Von Thunen work~\cite{taylor2016polymath}) % note : also quote here economic geo/geo economic ?
 
 % broad review from different disciplines point of view
@@ -270,8 +276,8 @@ Basic stylized facts can be extracted from such a database, as it has already be
 
 \paragraph{Physical flows}
 
-As stated above, this modeling exercise focuses on exploring the role of physical flows, whatever the effective shape of the network. We do not need for this reason network data which is furthermore not easily available at different time periods, and physical flows are assumed to take the geographical shortest path that include terrain slope (to avoid geographical absurdities such as cities with a difficult access having an overestimated growth rate). Using the 1km resolution Digital Elevation Model openly available from IGN~\cite{}%cite bdalti
-, we construct an impedance field of the form
+As stated above, this modeling exercise focuses on exploring the role of physical flows, whatever the effective shape of the network. We choose for this reason not to use real network data which is furthermore not easily available at different time periods, and physical flows are assumed to take the geographical shortest path that include terrain slope. It avoids geographical absurdities such as cities with a difficult access having an overestimated growth rate. Using the 1km resolution Digital Elevation Model openly available from \emph{Institut Géographique National}~\cite{bdalti}, we construct an impedance field of the form
+
 \[
 Z = \left(1 + \frac{\alpha}{\alpha_0}\right)^{n_0}
 \]
@@ -328,10 +334,39 @@ Data preprocessing, result processing and models profiling are implemented in R.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Model Exploration}
+\subsection*{Calibrating the Gravity Model}
 
 % qualitative behavior : hierarchy inversions/ trajectories of normalized populations (cf papier Denise Anne etc)
 % need of synthetic data ?
+
+
+
+We propose to interpret the distance decay parameter the following way. Let fix an arbitrary fraction $\alpha$ and typical ranges for a local urban system $d_L$ and for a long range urban system $d_R$. Seeing $d_G$ as the decay at which the fraction $\alpha$ between the migration flow of these two systems is realized, we have $d_G = \frac{d_R - d_L}{\left| \ln{\alpha} \right|}$
+
+
+%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\centering
+
+
+\caption{\textbf{Calibrating the Gravity Model.} (a) Pareto-front with corresponding parameter values, for the full time range. (b) Effect of distance decay parameter. (c) Variation of typical interaction distance in time.}
+\label{fig:calib-gravity}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Unveiling Network Effects}
+
+
+
+\paragraph{Calibration using Genetic Algorithms}
+
+
+The optimization problem associated to model calibration does not present features allowing an easy solving (closed-form of a likelihood function, convexity or sparsity of the optimization problem, etc.), we must rely on alternative techniques to solve it. Brute force grid search is rapidly limited by the dimensionality curse
+
+
+
 
 
 
@@ -349,18 +384,6 @@ Data preprocessing, result processing and models profiling are implemented in R.
 
 
 
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Model Calibration}
-
-
-
-\paragraph{Calibration using Genetic Algorithms}
-
-
-The optimization problem associated to model calibration does not present features allowing an easy solving (closed-form of a likelihood function, convexity or sparsity of the optimization problem, etc.), we must rely on alternative techniques to solve it. Brute force grid search is rapidly limited by the dimensionality curse
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -457,9 +480,9 @@ Our focus on network effects remains quite limited since (i) we do not consider 
 
 
 %%%%%%%%%%%%%
-\begin{acks}
-The author would like to thank
-\end{acks}
+%\begin{acks}
+%The author would like to thank
+%\end{acks}
 %%%%%%%%%%%%%
 
 
