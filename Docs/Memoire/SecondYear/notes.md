@@ -1,6 +1,16 @@
 
 
 
+
+## Scaling
+
+* Jeu 23 fév 2017 09:26:04 CET * 
+
+https://arxiv.org/abs/1702.06623 : city def ; probabilistic fitting of scaling laws
+
+
+
+
 ## Epistemo
 
 * Sam  4 fév 2017 20:10:25 CET * 

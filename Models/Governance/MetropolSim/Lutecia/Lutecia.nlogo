@@ -156,6 +156,9 @@ globals[
   
   ;; coordinates of mayors, taken from setup file
   mayors-coordinates
+  mayors-populations
+  mayors-employments
+  mayors-names
   
   ;; position of ext patch
   ext-position
@@ -168,8 +171,8 @@ globals[
   gis-network-file
   gis-extent-file
   gis-centers-file
-  
-  
+  gis-population-raster-file
+  gis-sea-file
   
   ;;;;;;;;;;;;;
   ;; Transportation
@@ -335,6 +338,8 @@ patches-own [
   form-factor
   
   
+  sea?
+  
   
 ]
 
@@ -386,8 +391,8 @@ transportation-nodes-own[
 GRAPHICS-WINDOW
 346
 10
-798
-483
+800
+485
 15
 15
 14.333333333333334
@@ -897,7 +902,7 @@ SLIDER
 #-explorations
 0
 1000
-23
+10
 1
 1
 NIL

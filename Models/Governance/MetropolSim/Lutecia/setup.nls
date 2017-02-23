@@ -65,10 +65,17 @@ to setup-globals
   
   ;
   
-  set gis-network-file "setup/gis/test/network_3.shp"
-  set gis-extent-file "setup/gis/test/extent.shp"
-  set gis-centers-file "setup/gis/test/centers_2.shp"
+  ;set gis-network-file "setup/gis/test/network_3.shp"
+  set gis-network-file "setup/gis/guangdong/stylized/nw_simpl.shp"
+  ;set gis-extent-file "setup/gis/test/extent.shp"
+  set gis-extent-file "setup/gis/guangdong/stylized/frame.shp"
+  ;set gis-centers-file "setup/gis/test/centers_2.shp"
+  set gis-centers-file "setup/gis/guangdong/stylized/cities.shp"
+  set gis-sea-file "setup/gis/guangdong/stylized/sea.shp"
   
+  
+  ; population raster
+  set gis-population-raster-file "setup/gis/guangdong/pop2010_wgs84_georef.asc"
   
 end
 
@@ -87,6 +94,37 @@ end
 
 
 
+
+;;
+; setup patches
+to setup-patches
+  
+  ; enveloppe of the world
+  ;; (enventually resize here ?)
+  if setup-type = "gis" [
+    
+    ; world-enveloppe
+    gis:set-world-envelope gis:envelope-of gis:load-dataset gis-extent-file
+    
+    ; sea patches
+    foreach gis:feature-list-of gis:load-dataset gis-sea-file [
+      ask patches with [gis:contains? ? self] [set sea? true]
+    ]
+    
+  ]
+  
+  
+  ; setup patches number
+  let p 0
+  repeat count patches [
+    let x (floor (p / world-width)) + min-pxcor let y (p - world-width * floor (p / world-width)) + min-pycor
+    ask (patch x y) [set number p] set p p + 1
+  ]
+end
+
+
+
+
 ;;
 ; setup mayors and governed patches
 to setup-territories
@@ -100,7 +138,7 @@ to setup-territories
   
   ; create mayors
   create-mayors #-initial-territories [
-    initial-position-mayor
+    initial-position-mayor  
     new-mayor
   ]
   
@@ -114,24 +152,7 @@ to setup-territories
 end
 
 
-;;
-; setup patches
-to setup-patches
-  
-  ; enveloppe of the world
-  ;; (enventually resize here ?)
-  if setup-type = "gis" [
-    gis:set-world-envelope gis:envelope-of gis:load-dataset gis-extent-file 
-  ]
-  
-  
-  ; setup patches number
-  let p 0
-  repeat count patches [
-    let x (floor (p / world-width)) + min-pxcor let y (p - world-width * floor (p / world-width)) + min-pycor
-    ask (patch x y) [set number p] set p p + 1
-  ]
-end
+
 
 
 ;;
@@ -140,18 +161,29 @@ to setup-initial-distributions
   
   output-print "... Distributions"
   
-  ; use monocentric kernel application function
-  let centers [patch-here] of mayors with [self != regional-authority]
-  foreach centers [
-    apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" ?
-    apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" ?
+  ifelse setup-type != "gis-raster" [
+    ; use monocentric kernel application function
+    let centers [patch-here] of mayors with [self != regional-authority]
+    foreach centers [
+      apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" ?
+      apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" ?
+    ]
+    ;ask mayors with [self != regional-authority] [
+    ;   let center [patch-here] of self
+    ;   apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" center
+    ;   apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" center
+    ;]
+  ][
+    ; setup pop and employment from raster file
+    ;let gis-population-raster gis:load-dataset gis-population-raster-file
+    
   ]
-  ;ask mayors with [self != regional-authority] [
-  ;   let center [patch-here] of self
-  ;   apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" center
-  ;   apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" center
-  ;]
-  
+  let gis-population-raster gis:load-dataset gis-population-raster-file
+  gis:apply-raster gis-population-raster actives
+  ; replace Nans
+  ask patches [
+    if not (actives < 0 or actives > 0)[set actives 0]
+  ]
   
   
   ; setup global lists
@@ -235,7 +267,15 @@ to setup-initial-network
       foreach gis:vertex-lists-of ? [
         let i 0 let l ?
         foreach but-first ? [
-          set infra-list lput (list gis:location-of item i l gis:location-of ?) infra-list set i i + 1
+          let p1 gis:location-of item i l let p2 gis:location-of ?
+          ;output-print p1 output-print p2
+          if p1 != [] and p2 != [] [
+            set p1 ([list pxcor pycor] of patch first p1 last p1) set p2 ([list pxcor pycor] of patch first p2 last p2)
+            if p1 != p2 [
+              set infra-list lput (list p1 p2) infra-list
+            ]
+          ]
+          set i i + 1
         ]
         
       ]    
@@ -345,7 +385,7 @@ end
 ;  -> sets the globals mayors-coordinates
 to read-position-files
   
-  set mayors-coordinates []
+  set mayors-coordinates [] set mayors-populations [] set mayors-employments [] set mayors-names []
   set ext-position []
   
   if setup-type = "from-file"[
@@ -369,14 +409,19 @@ to read-position-files
     
     ; read coordinates and attributes
     let properties gis:property-names mayors-dataset
+    show properties
     foreach gis:feature-list-of mayors-dataset [
        let current-pop 0 if member? "POPULATION" properties [set current-pop gis:property-value ? "POPULATION"]
        let current-employment 0 if member? "EMPLOYMENT" properties [set current-employment gis:property-value ? "EMPLOYMENT"]
+       let current-name "" if member? "NAME" properties [set current-name gis:property-value ? "NAME"]
        foreach gis:vertex-lists-of ? [
           foreach ? [
            ; center coordinates
            set mayors-coordinates lput (gis:location-of ?) mayors-coordinates
            ;show current-pop show current-employment
+           set mayors-populations lput current-pop mayors-populations
+           set mayors-employments lput current-employment mayors-employments
+           set mayors-names lput current-name mayors-names
          ] 
        ]
     ]
