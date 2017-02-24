@@ -639,7 +639,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-1
+0.2
 0.05
 1
 NIL
@@ -949,7 +949,7 @@ total-time-steps
 total-time-steps
 0
 20
-10
+6
 1
 1
 NIL
@@ -1349,7 +1349,7 @@ seed
 seed
 -100000
 100000
-1
+4
 1
 1
 NIL
