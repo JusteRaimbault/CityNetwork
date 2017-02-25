@@ -560,8 +560,8 @@ SLIDER
 beta-discrete-choices
 beta-discrete-choices
 0
-2
-1.8
+5
+1.25
 0.05
 1
 NIL
@@ -902,7 +902,7 @@ SLIDER
 #-explorations
 0
 1000
-10
+21
 1
 1
 NIL
@@ -1349,7 +1349,7 @@ seed
 seed
 -100000
 100000
-4
+7
 1
 1
 NIL
