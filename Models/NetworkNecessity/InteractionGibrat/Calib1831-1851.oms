@@ -1,6 +1,8 @@
 import java.text.SimpleDateFormat
 import java.util.Date
 
+logger.level("FINE")
+
 //import Model._
 
 
@@ -64,8 +66,6 @@ val local = LocalEnvironment(50)
 val rates = Map("1831-1851"->0.12,"1841-1861"->0.17,"1851-1872"->0.13,"1881-1901"->0.075,
      "1891-1911"->0.08,"1921-1936"->0.08,"1946-1968"->0.13,"1962-1982"->0.1,"1975-1990"->0.05)
 */
-
-// define static period - shall be changed outside of script ?
 val period = "1831-1851"
 
 
@@ -111,7 +111,7 @@ val resdir = "20170224_calibperiod_nsga"
     SteadyStateEvolution(
       algorithm =   
         NSGA2(
-          mu = 300,
+          mu = 150,
           genome = 
             Seq(
               growthRate in Range(0.0, 0.1),
@@ -128,7 +128,7 @@ val resdir = "20170224_calibperiod_nsga"
       termination = 500
     )
   
-  val island = IslandEvolution(evolution, parallelism = 20,termination=150)//100, termination = 1000)
+  val island = IslandEvolution(evolution, parallelism = 25,termination=150)//100, termination = 1000)
 
   val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / period) 
 
