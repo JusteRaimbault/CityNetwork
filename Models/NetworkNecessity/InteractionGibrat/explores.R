@@ -7,13 +7,20 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/all/fixedgravity/20160920_fixedgravity_local'))
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/exploration/full/20160912_gridfull/data'))
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/20170220_test'))
+#setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/20170220_test'))
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/exploration/nofeedback/20170218_1831-1851'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/calibration'))
 
 
-res <- as.tbl(read.csv('population88.csv'))
+
+res <- as.tbl(read.csv('20170224_calibperiod_nsga/1841-1861/population100.csv'))
 #res <- as.tbl(read.csv('data/2017_02_18_20_25_12_CALIBGRAVITY_GRID.csv'))
 
+for(period in c("1831-1851","1841-1861","1851-1872","1881-1901")){
+  res <- as.tbl(read.csv(paste0('20170224_calibperiod_nsga/',period,'/population100.csv')))
+  show(mean(res$gravityDecay))
+  show(sd(res$gravityDecay))
+}
 
 
 
