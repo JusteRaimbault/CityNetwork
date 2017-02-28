@@ -13,11 +13,11 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/c
 
 
 
-res <- as.tbl(read.csv('20170224_calibperiod_nsga/1841-1861/population100.csv'))
+res <- as.tbl(read.csv('20170224_calibperiod_nsga/1891-1911/population66.csv'))
 #res <- as.tbl(read.csv('data/2017_02_18_20_25_12_CALIBGRAVITY_GRID.csv'))
 
-for(period in c("1831-1851","1841-1861","1851-1872","1881-1901")){
-  res <- as.tbl(read.csv(paste0('20170224_calibperiod_nsga/',period,'/population100.csv')))
+for(period in c("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911")){
+  res <- as.tbl(read.csv(paste0('20170224_calibperiod_nsga/',period,'/population66.csv')))
   show(mean(res$gravityDecay))
   show(sd(res$gravityDecay))
 }
