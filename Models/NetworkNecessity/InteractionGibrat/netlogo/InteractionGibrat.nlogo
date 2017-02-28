@@ -17,9 +17,13 @@ __includes [
    ; indicators
    "indicators.nls"
  
- 
- 
+   ;;;
+   ; display
    "display.nls"
+ 
+   ;;;
+   ; experiment
+   "experiments.nls"
  
    ;;;;;
    ;; utils
@@ -115,9 +119,9 @@ paths-own [
 
 @#$#@#$#@
 GRAPHICS-WINDOW
-345
+294
 20
-958
+907
 654
 100
 100
@@ -159,112 +163,112 @@ NIL
 1
 
 SLIDER
-69
-269
-203
-302
+64
+258
+198
+291
 growth-rate
 growth-rate
 0
 0.05
-0.0133
+0.0127
 0.0001
 1
 NIL
 HORIZONTAL
 
 OUTPUT
-1006
-484
-1390
-693
+991
+628
+1388
+798
 10
 
 SLIDER
-10
-312
-144
-345
+5
+301
+139
+334
 gravity-weight
 gravity-weight
 0
-1e-3
-1.28E-4
+2e-3
+2.45E-5
 1e-6
 1
 NIL
 HORIZONTAL
 
 SLIDER
-10
-349
-144
-382
+5
+338
+139
+371
 gravity-gamma
 gravity-gamma
 0.5
 5
-3.82
+1.87
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-10
-386
-144
-419
+5
+375
+139
+408
 gravity-decay
 gravity-decay
 1
-10000
-1093
-1
+500
+0.9500000000000003
+0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-162
-312
-303
-345
+143
+301
+284
+334
 feedback-weight
 feedback-weight
 0
 0.1
-0.0010
+0
 0.001
 1
 NIL
 HORIZONTAL
 
 SLIDER
-162
-350
-304
-383
+143
+339
+285
+372
 feedback-gamma
 feedback-gamma
 0
 5
-0.7
+0.8
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-162
-388
-304
-421
+143
+377
+285
+410
 feedback-decay
 feedback-decay
 0
 200
-0.7
+3.4
 0.1
 1
 NIL
@@ -293,7 +297,7 @@ BUTTON
 222
 154
 go full period
-go-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
+if ticks > 0 [reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
 NIL
 1
 T
@@ -316,10 +320,10 @@ current-date
 11
 
 BUTTON
-973
-409
-1084
-442
+779
+665
+890
+698
 random path
 ask one-of nodes [let p nw:weighted-path-to one-of other nodes \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]
 NIL
@@ -333,10 +337,10 @@ NIL
 1
 
 BUTTON
-1085
-409
-1148
-442
+891
+665
+954
+698
 clear
 ask paths [set hidden? true]
 NIL
@@ -350,10 +354,10 @@ NIL
 1
 
 BUTTON
-973
-445
-1084
-478
+779
+701
+890
+734
 random path cities
 ask one-of cities [let c2 one-of other cities let n2 [one-of nodes with-min [distance myself]] of c2 ask one-of nodes with-min [distance myself] [let p nw:weighted-path-to n2 \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]]
 NIL
@@ -374,13 +378,13 @@ CHOOSER
 visualization
 visualization
 "mse" "mse-log" "delta-previous-mse" "delta-previous-mse-log" "feedback-strength"
-4
+1
 
 PLOT
-1131
+1138
 10
 1403
-267
+259
 fit
 real
 sim
@@ -395,10 +399,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 BUTTON
-110
-168
-173
-201
+107
+161
+170
+194
 NIL
 go
 NIL
@@ -441,7 +445,73 @@ CHOOSER
 period
 period
 "1831-1851" "1841-1861" "1851-1872" "1881-1901" "1891-1911" "1921-1936" "1946-1968" "1962-1982" "1975-1999" "full"
+4
+
+PLOT
+1001
+293
+1402
+443
+profile-logmse
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
+
+PLOT
+1001
+446
+1402
+596
+profile-mselog
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
+
+PLOT
+921
+12
+1125
+179
+city-traj
+NIL
+NIL
+0.0
+2.0
+0.0
+10.0
+true
+false
+"set-current-plot-pen \"default\" plot [population] of one-of cities with [name = city-traj]\nset-current-plot-pen \"pen-1\" plot [population] of one-of cities with [name = city-traj]" ""
+PENS
+"default" 1.0 0 -14070903 true "" "plot [last population-history] of one-of cities with [name = city-traj]"
+"pen-1" 1.0 0 -5298144 true "" "plot [last expected-population-history] of one-of cities with [name = city-traj]"
+
+INPUTBOX
+919
+187
+1049
+247
+city-traj
+PARIS
+1
 0
+String
 
 @#$#@#$#@
 ## WHAT IS IT?
