@@ -113,7 +113,6 @@ paths-own [
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 345
@@ -143,10 +142,10 @@ ticks
 30.0
 
 BUTTON
-18
-15
-84
-48
+20
+119
+86
+152
 setup
 setup
 NIL
@@ -272,10 +271,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-18
-54
-84
-87
+20
+158
+86
+191
 reset
 reset
 NIL
@@ -289,10 +288,10 @@ NIL
 1
 
 BUTTON
-110
-31
-224
-64
+108
+121
+222
+154
 go full period
 go-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
 NIL
@@ -396,10 +395,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 BUTTON
-112
-78
-175
-111
+110
+168
+173
+201
 NIL
 go
 NIL
@@ -433,6 +432,16 @@ dest
 1
 0
 Number
+
+CHOOSER
+24
+18
+162
+63
+period
+period
+"1831-1851" "1841-1861" "1851-1872" "1881-1901" "1891-1911" "1921-1936" "1946-1968" "1962-1982" "1975-1999" "full"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
