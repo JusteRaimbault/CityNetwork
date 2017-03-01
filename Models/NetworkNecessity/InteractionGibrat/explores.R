@@ -7,20 +7,34 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/all/fixedgravity/20160920_fixedgravity_local'))
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/exploration/full/20160912_gridfull/data'))
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/20170228_test'))
+#setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/20170228_test'))
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/exploration/nofeedback/20170218_1831-1851'))
-#setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/calibration'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/calibration'))
 
 
 
-res <- as.tbl(read.csv('population117.csv'))
+res <- as.tbl(read.csv('20170224_calibperiod_nsga/1921-1936/population100.csv'))
 #res <- as.tbl(read.csv('data/2017_02_18_20_25_12_CALIBGRAVITY_GRID.csv'))
 
-for(period in c("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911")){
-  res <- as.tbl(read.csv(paste0('20170224_calibperiod_nsga/',period,'/population66.csv')))
-  show(mean(res$gravityDecay))
-  show(sd(res$gravityDecay))
+periods = c("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911","1921-1936","1946-1968","1962-1982","1975-1999")
+resdir = '20170224_calibperiod_nsga'
+params = c("growthRate","gravityWeight","gravityGamma","gravityDecay")
+
+plots=list()
+for(param in params){
+  cperiods = c();cparam=c();mselog=c();logmse=c()
+  for(period in periods){
+    latestgen = max(as.integer(sapply(strsplit(sapply(strsplit(list.files(paste0(resdir,'/',period)),"population"),function(s){s[2]}),".csv"),function(s){s[1]})))
+    res <- as.tbl(read.csv(paste0(resdir,'/',period,'/population',latestgen,'.csv')))
+    #show(mean(res$gravityDecay))
+    #show(sd(res$gravityDecay))
+    mselog=append(mselog,res$mselog);logmse=append(logmse,res$logmse)
+    cperiods=append(cperiods,rep(period,nrow(res)));cparam=append(cparam,res[[param]])
+  }
+  g=ggplot(data.frame(mselog=mselog,logmse=logmse,param=cparam,period=cperiods),aes_string(x="logmse",y="mselog",colour="param"))
+  plots[[param]]=g+geom_point()+scale_colour_gradient(low="blue",high="red")+facet_wrap(~period,scales = "free")
 }
+multiplot(plotlist = plots,cols=2)
 
 
 
@@ -39,7 +53,7 @@ gp+geom_line()+facet_grid(growthRate~gravityGamma,scales="free")#+stat_smooth()
 params = c("growthRate","gravityWeight","gravityGamma","gravityDecay")#"growthRate","gravityWeight")
 #params = c("growthRate","gravityWeight","gravityGamma","gravityDecay","feedbackWeight","feedbackGamma","feedbackDecay")
 #params = c("feedbackWeight","feedbackGamma","feedbackDecay")
-d=res#[res$logmse<24.5&res$mselog<6.35,]
+d=res#[which(res$gravityDecay<30),]#[res$logmse<24.5&res$mselog<6.35,]
 plots=list()
 for(param in params){
   g=ggplot(d,aes_string(x="logmse",y="mselog",colour=param))
