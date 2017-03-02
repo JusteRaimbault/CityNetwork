@@ -16,7 +16,7 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/c
 res <- as.tbl(read.csv('20170224_calibperiod_nsga/1921-1936/population100.csv'))
 #res <- as.tbl(read.csv('data/2017_02_18_20_25_12_CALIBGRAVITY_GRID.csv'))
 
-periods = c("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911","1921-1936","1946-1968","1962-1982","1975-1999")
+periods = c("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911","1921-1936","1946-1968","1962-1982")#,"1975-1999")
 resdir = '20170224_calibperiod_nsga'
 params = c("growthRate","gravityWeight","gravityGamma","gravityDecay")
 
@@ -26,8 +26,8 @@ for(param in params){
   for(period in periods){
     latestgen = max(as.integer(sapply(strsplit(sapply(strsplit(list.files(paste0(resdir,'/',period)),"population"),function(s){s[2]}),".csv"),function(s){s[1]})))
     res <- as.tbl(read.csv(paste0(resdir,'/',period,'/population',latestgen,'.csv')))
-    #show(mean(res$gravityDecay))
-    #show(sd(res$gravityDecay))
+    res=res[which(res$gravityWeight>0.0001&res$gravityDecay<50),]
+    show(paste0(period,' : dG = ',mean(res$gravityDecay),' +- ',sd(res$gravityDecay)))
     mselog=append(mselog,res$mselog);logmse=append(logmse,res$logmse)
     cperiods=append(cperiods,rep(period,nrow(res)));cparam=append(cparam,res[[param]])
   }
@@ -53,7 +53,7 @@ gp+geom_line()+facet_grid(growthRate~gravityGamma,scales="free")#+stat_smooth()
 params = c("growthRate","gravityWeight","gravityGamma","gravityDecay")#"growthRate","gravityWeight")
 #params = c("growthRate","gravityWeight","gravityGamma","gravityDecay","feedbackWeight","feedbackGamma","feedbackDecay")
 #params = c("feedbackWeight","feedbackGamma","feedbackDecay")
-d=res#[which(res$gravityDecay<30),]#[res$logmse<24.5&res$mselog<6.35,]
+d=res[which(res$gravityWeight>0.0001),]#[res$logmse<24.5&res$mselog<6.35,]
 plots=list()
 for(param in params){
   g=ggplot(d,aes_string(x="logmse",y="mselog",colour=param))
