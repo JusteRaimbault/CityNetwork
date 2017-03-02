@@ -171,7 +171,7 @@ growth-rate
 growth-rate
 0
 0.05
-0.0127
+0.0136
 0.0001
 1
 NIL
@@ -445,7 +445,7 @@ CHOOSER
 period
 period
 "1831-1851" "1841-1861" "1851-1872" "1881-1901" "1891-1911" "1921-1936" "1946-1968" "1962-1982" "1975-1999" "full"
-4
+9
 
 PLOT
 1001
@@ -496,11 +496,11 @@ NIL
 0.0
 10.0
 true
-false
-"set-current-plot-pen \"default\" plot [population] of one-of cities with [name = city-traj]\nset-current-plot-pen \"pen-1\" plot [population] of one-of cities with [name = city-traj]" ""
+true
+"set-current-plot-pen \"sim\" plot [population] of one-of cities with [name = city-traj]\nset-current-plot-pen \"real\" plot [population] of one-of cities with [name = city-traj]" ""
 PENS
-"default" 1.0 0 -14070903 true "" "plot [last population-history] of one-of cities with [name = city-traj]"
-"pen-1" 1.0 0 -5298144 true "" "plot [last expected-population-history] of one-of cities with [name = city-traj]"
+"sim" 1.0 0 -14070903 true "" "plot [last population-history] of one-of cities with [name = city-traj]"
+"real" 1.0 0 -5298144 true "" "plot [last expected-population-history] of one-of cities with [name = city-traj]"
 
 INPUTBOX
 919
@@ -508,7 +508,7 @@ INPUTBOX
 1049
 247
 city-traj
-PARIS
+THIONVILLE
 1
 0
 String
