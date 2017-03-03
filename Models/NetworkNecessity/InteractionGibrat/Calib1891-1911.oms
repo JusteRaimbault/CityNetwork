@@ -73,7 +73,7 @@ val period = "1891-1911"
 //val purpose = "periods_fullmodel_grid"
 //val purpose = "calibperiod_nsga"
 //val resdir = datestr+"_"+purpose
-val resdir = "20170224_calibperiod_nsga"
+val resdir = "20170302_calibperiod_full_nsga"
 
 
 //def calib(period: String) = {
@@ -117,10 +117,10 @@ val resdir = "20170224_calibperiod_nsga"
               growthRate in Range(0.0, 0.1),
               gravityWeight in Range(0.00005,0.01),
               gravityGamma in Range(1.0,10.0),
-              gravityDecay in Range(0.0,1000.0)//,
-              //feedbackWeight in Range(0.0,10.0),
-              //feedbackGamma in Range(0.0,100.0),
-              //feedbackDecay in Range(0.0,1e15)
+              gravityDecay in Range(0.0,1000.0),
+              feedbackWeight in Range(0.00005,10.0),
+              feedbackGamma in Range(0.0,100.0),
+              feedbackDecay in Range(0.0,1000.0)
             ),
           objectives = Seq(logmse,mselog)
         ),
@@ -128,7 +128,7 @@ val resdir = "20170224_calibperiod_nsga"
       termination = 500
     )
   
-  val island = IslandEvolution(evolution, parallelism = 25,termination=100)//100, termination = 1000)
+  val island = IslandEvolution(evolution, parallelism = 30,termination=200)//100, termination = 1000)
 
   val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / period) 
 
