@@ -508,7 +508,7 @@ INPUTBOX
 1049
 247
 city-traj
-THIONVILLE
+CAEN
 1
 0
 String

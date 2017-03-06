@@ -29,7 +29,7 @@ __includes [
   "heuristic-nw.nls"
   
   ;; tests 
-   "test/test_includes.nls"
+   ;"test/test_includes.nls"
    
    ;;;;
    ;; Utils
