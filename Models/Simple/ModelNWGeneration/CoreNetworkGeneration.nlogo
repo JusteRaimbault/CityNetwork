@@ -1,4 +1,4 @@
-extensions [matrix profiler nw gis]
+extensions [matrix profiler nw gis table context]
 
 __includes[
   
@@ -22,12 +22,13 @@ __includes[
   ;; -> raises a question : interdependance of lib
   ;;  -- shall pack as independant libs ?
   ;;
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ExplorationUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/FileUtilities.nls"  
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"  
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/GISNetworkUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LinkUtilities.nls"    
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls"
+  "utils/ExplorationUtilities.nls"
+  "utils/File.nls"  
+  "utils/List.nls"  
+  "utils/GISNetwork.nls"
+  "utils/Link.nls"    
+  "utils/EuclidianDistanceUtilities.nls"
+  "utils/String.nls"
     
 ]
 
@@ -36,16 +37,19 @@ __includes[
 globals [
   
   ;;runtime variables
-  ; This variables are defined by the user
-  ;  I0                   ;; flux initiaux
-  ;  D0                   ;; D initiaux
+  ; Parameters
+  
+  ;; Initial flows
+  ;I0
+  ;; Initial diameters               
+  ;D0                   
   ;  Df                   ;; D min final
   ;  c                    ;; nb de villes
 
-  ;; matrice d'incidence :: UNUSED VAR ?
-  incidence-matrix                  
-  Dmin                 ;; diamètre blanc
-  Dmax                 ;; diamètre noir
+  ;; incidence matrix
+  incidence-matrix            
+  Dmin                 
+  Dmax               
   ;  n0                   ;; nb initial de noeuds
   nodes-number                    ;; nb de noeuds
   center1                   ;; ville 1
@@ -83,34 +87,22 @@ globals [
 
 
 
-
-;;         
-
-
-
-
-
-
-;;node of the transportation network -> replaced by vertices
-;breed [noeuds noeud]
-
 ;;O/D and possible node of the abstract network
 breed [poles pole]
 
 ;;nw breeds
 breed [vertices vertex]
-breed [abstract-gis-paths abstract-gis-path]
+breed [abstract-gis-edges abstract-gis-edge]
+;
 
-abstract-gis-paths-own [
-             gis-feature
-           vertices-list
+abstract-gis-edges-own [
+   gis-feature
+   vertices-list
 ]
 
 undirected-link-breed [paths path]
 
 
-;;link of the transportation network -> replaced by path
-;undirected-link-breed [aretes arete]
 
 undirected-link-breed [real-links real-link]
 
@@ -121,30 +113,44 @@ patches-own[
 
 vertices-own [
   ;; pressure
-  pressure                    
-  ;  v                    ;; flux
-  k                    ;; coefficient
-  number               ;; numéro
+  pressure
+  
+  ;; flow    
+  ;v
+  ;; coefficient                  
+  k                    
+  ;; number
+  number               
 ]
+
 
 paths-own [
-  D                    ;; diametre
-  Q                    ;; flux
-  ;; length :: not needed ?
-  arete-length  
-  path-length               
+  ;; diameter
+  diameter
+  ;; flow
+  flow            
+  ;; length
+  path-length          
 ]
 
+
 poles-own [
-  population                   ;; population
-  acc-p                ;; accumulated population
+  ;; population
+  population
+  ;; accumulated population        
+  acc-p                
   pressure
 ]
 
 real-links-own[
-  d                    ;; distance of the link (the abstract network is weighted)
-  geometrical-flux     ;; flux in link calculated through topological structure of network
-  NRI                  ;; NRIa used in NRI calculation
+  ;; length of the link (the abstract network is weighted)
+  d         
+         
+  ;; flux in link calculated through topological structure of network
+  geometrical-flux 
+      
+  ;; NRIa used in NRI calculation
+  NRI                  
 ]
 
 
