@@ -5,7 +5,33 @@
 
 
 
+to update-display
+  display-density
+  display-network
+end
+
+
+
 to display-network
   ask cities [set shape "circle" set color green set size 0.1]
   ask roads [set color green set thickness 0.3]
+end
+
+
+
+
+
+
+;;
+; Color a given configuration (color gradient : number of people)
+to display-density
+  set sp-population sum [population] of patches
+  if sp-population > 0 [ask patches [set density population / sp-population]]
+  let ma max [density] of patches let mi min [density] of patches
+  ; density already normalized
+  ;let ma 1 let mi 0
+  ;ifelse ma > mi [ask patches [set pcolor scale-color red sp-density mi ma]]
+  ;[ask patches [set pcolor black]]
+  ifelse ma > mi [ask patches [set pcolor gradient:scale [[255 255 255][255 0 0]] density mi ma]]
+  [ask patches [set pcolor white]]
 end

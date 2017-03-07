@@ -3,4 +3,76 @@
 ;  general setup
 
 
+to setup
+  
+  if headless? != true [ca]
+  
+  setup-globals
+  
+  setup-density
+  
+  setup-network
+  
+  update-display
+  
+  reset-ticks
+  
+end
 
+
+
+to setup-globals
+  
+  set setup-method "synthetic-settlement"
+  
+  ;; setup
+  set setup-rank-size-exp 0.8
+  set setup-max-pop 200
+  set setup-center-density 20
+  ;set setup-center-number 5 
+  set setup-outside-links-number 6
+  
+end
+
+
+
+to setup-density
+ 
+  let i 1
+  repeat setup-center-number [
+    let current-pop setup-max-pop / (i ^ setup-rank-size-exp) set i i + 1
+    let current-patch one-of patches
+    create-cities 1 [move-to current-patch set city-population current-pop]
+    apply-monocentric-kernel "poisson" (sqrt (current-pop / (2 * pi * setup-center-density))) setup-center-density "population" current-patch
+  ]
+  
+end
+
+
+
+to setup-network
+  
+  ; cities already assumed setup
+  simple-connexification
+  ; add cities on the edge to avoid bord effect on network topology
+  create-cities setup-outside-links-number [let x 0 let y 0 ifelse random 2 = 0 [ifelse random 2 = 0[set x min-pxcor - 0.5][set x max-pxcor + 0.499] set y random-ycor][ifelse random 2 = 0 [set y max-pycor + 0.499][set y min-pycor - 0.5] set x random-ycor] setxy x y]
+  simple-connexification
+  
+  
+end
+
+
+
+
+to setup-density-from-file
+  
+  ca
+  if is-number? fixed-config-num [
+    set density-file density-file-from-dir "setup" fixed-config-num;"../../../Results/Synthetic/Density/20151106_Grid/pop"
+  ]
+  if is-string? fixed-config-num [set density-file fixed-config-num]
+  density-from-file density-file
+
+  display-density
+
+end

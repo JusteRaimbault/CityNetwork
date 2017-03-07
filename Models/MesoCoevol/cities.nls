@@ -68,7 +68,7 @@ to generate-cities [generation-method]
     ;set density-file "../../../Results/Synthetic/Density/20151106_Grid/pop/config_166.csv"
     density-from-file density-file
     
-    color-synth-pattern
+    display-density
     
     density-to-cities
   ]
@@ -130,7 +130,7 @@ to density-from-file [file]
    foreach rows [
       set j min-pycor
       foreach ? [
-        ask (patch i j) [set sp-occupants ?]
+        ask (patch i j) [set population ?]
         set j j + 1
       ]
       set i i + 1
@@ -167,7 +167,7 @@ to density-to-cities
      ;  stops when number of cities == #-cities
      ask patches [
        sprout-cities 1 [
-          set population sp-occupants
+          set city-population population
           new-city
        ]
      ]
@@ -182,9 +182,9 @@ to density-to-cities
   if density-to-cities-method = "intersection-density" [
     ; use alpha localization parameter for proba distribution
     repeat #-cities [
-       let ptot sum [sp-occupants] of patches
-       let stot sum [(sp-occupants / ptot) ^ sp-alpha-localization] of patches let r random-float 1 let s 0 let plist to-list patches let i 0 let p nobody
-       while [s < r] [set p item i plist set s s + (([(sp-occupants / ptot) ^ sp-alpha-localization] of p) / stot) set i i + 1]
+       let ptot sum [population] of patches
+       let stot sum [(population / ptot) ^ sp-alpha-localization] of patches let r random-float 1 let s 0 let plist to-list patches let i 0 let p nobody
+       while [s < r] [set p item i plist set s s + (([(population / ptot) ^ sp-alpha-localization] of p) / stot) set i i + 1]
        ask p [
          sprout-cities 1 [
            ;set population 1
@@ -196,7 +196,7 @@ to density-to-cities
     
     ; attribute population to cities
     ask patches [
-      ask one-of cities with-min [distance myself] [set population population + [sp-occupants] of myself] 
+      ask one-of cities with-min [distance myself] [set population population + [population] of myself] 
     ]
     
     set city-max-pop max [population] of cities

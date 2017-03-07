@@ -1,10 +1,7 @@
 extensions [table pathdir nw matrix context gradient]
 
 ;;;;
-;; Synthetic euclidian network generation
-;;
-;; First aim/thematic frame : spacematteriser SimpopNet
-;; Rq : for modularity, separate module should generate initial cities distribution ?
+;; Mesoscopic Co-evolution
 ;;
 ;;;;
 
@@ -15,16 +12,17 @@ extensions [table pathdir nw matrix context gradient]
 __includes [
   
   ;; main coevol
-  "main.nls"
   "setup.nls"
+  "main.nls"
+  
   
   ;; network in itself
-  "synth-eucl-nw.nls"
+  "euclidian-nw.nls"
   
-  ;; cities distribution
-  "synth-cities.nls"
-  ; or density
-   "density.nls"
+  ; cities distribution
+  "cities.nls"
+  ; density
+  "density.nls"
   
   ;; indicators
   "indicators.nls"
@@ -40,7 +38,7 @@ __includes [
    
    ;; experiment
    "experiment.nls"
-   
+  
    ;;;;
    ;; Utils
    ;;;;
@@ -51,19 +49,29 @@ __includes [
    ; other issue : utils/extensions dependancies - beurk ---
    ;  -> def of includes possible in .nls includes -> check if no conflict.
    
-   "lib/Network.nls"
-   "lib/AgentSet.nls"
-   "lib/Statistics.nls"
-   "lib/File.nls"
-   "lib/List.nls"
-   "lib/Link.nls"
-   "lib/Agent.nls"
-   "lib/String.nls"
+   "utils/Network.nls"
+   "utils/AgentSet.nls"
+   "utils/Statistics.nls"
+   "utils/File.nls"
+   "utils/List.nls"
+   "utils/Link.nls"
+   "utils/Agent.nls"
+   "utils/String.nls"
+   "utils/SpatialKernels.nls"
+   
    
 ]
 
 
 globals [
+  
+  ;;
+  ; setup
+  setup-rank-size-exp
+  setup-max-pop
+  setup-center-density
+  ;setup-center-number
+  setup-outside-links-number
   
   ;; network generation parameters
   
@@ -95,8 +103,25 @@ globals [
   
   pairs-total-weight
  
+  
+  ;;
+  ;  Multimodeling variables
+  
+  setup-method
+  
+  ; network-generation-method
+  
+  
+  
  
+ 
+  ;;
+  ; experiments
   experiment-id
+  
+  
+  ;;
+  headless?
   
 ]
 
@@ -117,8 +142,8 @@ patches-own [
  
  
  ;; density generation
- sp-density
- sp-occupants
+ density
+ population
  
  
 ]
@@ -126,7 +151,7 @@ patches-own [
 
 cities-own [
   ; population
-  population
+  city-population
   
   
   id
@@ -171,20 +196,20 @@ ticks
 30.0
 
 CHOOSER
-890
-19
-1076
-64
+885
+10
+1071
+55
 cities-generation-method
 cities-generation-method
 "zipf-christaller" "random" "prefAtt-diffusion-density" "from-density-file" "fixed-density"
 4
 
 CHOOSER
-891
-114
-1076
-159
+1079
+67
+1244
+112
 network-generation-method
 network-generation-method
 "simple-connexification" "neighborhood-gravity" "shortcuts" "random" "none"
@@ -359,16 +384,16 @@ MONITOR
 1370
 111
 patches-pop
-sum [sp-occupants] of patches
+sum [population] of patches
 17
 1
 11
 
 CHOOSER
-890
-66
-1076
-111
+885
+57
+1071
+102
 density-to-cities-method
 density-to-cities-method
 "hierarchical-aggreg" "random-aggreg" "intersection-density"
@@ -504,7 +529,7 @@ BUTTON
 1291
 325
 density file
-ca\nif is-number? fixed-config-num [\n    set density-file density-file-from-dir \"setup\" fixed-config-num;\"../../../Results/Synthetic/Density/20151106_Grid/pop\"\n]\nif is-string? fixed-config-num [set density-file fixed-config-num]\ndensity-from-file density-file\n\ncolor-synth-pattern
+setup-density-from-file
 NIL
 1
 T
@@ -516,11 +541,11 @@ NIL
 1
 
 BUTTON
-1057
-490
-1136
-523
-setup-indics
+922
+533
+1034
+566
+setup-nw-indics
 setup-nw-indicators
 NIL
 1
@@ -533,10 +558,10 @@ NIL
 1
 
 BUTTON
-1139
-490
-1214
-523
+920
+572
+995
+605
 nw indics
 compute-indicators
 NIL
@@ -687,10 +712,10 @@ cities-interaction-method
 0
 
 INPUTBOX
-1107
-367
-1255
-427
+668
+87
+816
+147
 fixed-config-num
 setup/config_0.csv
 1
@@ -715,10 +740,10 @@ NIL
 1
 
 INPUTBOX
-1257
-366
-1376
-426
+818
+106
+937
+166
 nw-file-prefix
 nwres/nw2
 1
@@ -754,12 +779,54 @@ seed
 Number
 
 BUTTON
-1139
-256
-1205
-289
+705
+552
+771
+585
 clear
 ca random-seed seed
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+678
+40
+826
+73
+setup-center-number
+setup-center-number
+1
+20
+8
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+678
+21
+828
+39
+Setup
+11
+0.0
+1
+
+BUTTON
+1109
+413
+1175
+446
+NIL
+setup
 NIL
 1
 T
@@ -773,11 +840,11 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+Co-evolution of Urban Form and Transportation Network 
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Preferential Attachment (parametric value of patches)/ diffusion for density ; multi-modeling heuristics for network
 
 ## HOW TO USE IT
 
