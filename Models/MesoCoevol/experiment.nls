@@ -1,0 +1,56 @@
+
+;;;;
+;; headless experiment
+
+
+;;;
+;; parameters :
+;    config : \in [1,10] or = file-path (for online density generation)
+;
+;    cities-number \in [50,150]
+;    g-radius \in [1,100]
+;    g-inflexion \in [0,10]
+;    hierachy-r \in [0,1]
+;    g-hierarchy-exponent \in [0,3]
+to setup-experiment [cities-number g-radius g-inflexion h-role g-hierarchy-exponent max-new-links-number alpha-loc config exp-id]
+  
+  ca
+  
+  show (word "params : " cities-number g-radius g-inflexion h-role g-hierarchy-exponent max-new-links-number config exp-id)
+  
+  ; config
+  ;if is-string? config [set fixed-config-num read-from-string config]
+  ;if is-number? config [set fixed-config-num config]
+  set fixed-config-num config
+  
+  ; network
+  set #-cities round cities-number
+  set gravity-radius g-radius
+  set gravity-inflexion g-inflexion
+  set hierarchy-role h-role
+  set gravity-hierarchy-exponent g-hierarchy-exponent
+  set #-max-new-links round max-new-links-number
+  
+  set sp-alpha-localization alpha-loc
+  
+  set experiment-id exp-id
+  
+  show (word "setup params : #-cities = " #-cities " ; gravity-radius = " gravity-radius " ; gravity-inflexion = " gravity-inflexion " ; hierarchy-role = " hierarchy-role " ; gravity-hierarchy-exponent = " gravity-hierarchy-exponent " ; #-max-new-links = " #-max-new-links)
+  
+end
+
+
+;;
+;  run ; indicators for network are then :
+;   nw-diameter ; mean-path-length ; mean-bw-centrality ; mean-relative-speed ; total-nw-length
+to run-experiment
+  heuristic-nw "from-density-file"
+  setup-nw-indicators
+  
+  compute-indicators
+  
+  export-nw (word "nwres/nw" experiment-id)
+  
+end
+
+
