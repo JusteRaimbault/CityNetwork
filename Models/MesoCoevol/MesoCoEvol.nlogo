@@ -18,11 +18,16 @@ __includes [
   
   ;; network in itself
   "euclidian-nw.nls"
+  "network.nls"
   
   ; cities distribution
   "cities.nls"
   ; density
   "density.nls"
+  
+  "patches.nls"
+  
+  
   
   ;; indicators
   "indicators.nls"
@@ -42,12 +47,6 @@ __includes [
    ;;;;
    ;; Utils
    ;;;;
-   
-   ; remark : generic path to include utils ? difficult as modif in NL and recompiling would be needed.
-   ; use ../.... ? -> assumes that CN_HOME < CS_HOME -- ok everywhere ?
-   
-   ; other issue : utils/extensions dependancies - beurk ---
-   ;  -> def of includes possible in .nls includes -> check if no conflict.
    
    "utils/Network.nls"
    "utils/AgentSet.nls"
@@ -97,11 +96,20 @@ globals [
   
   
   ;; network
+  
+  ; network update
+  network-update-time-mode ; "fixed-ticks" or "fixed-population"
+  network-update-ticks
+  
   shortest-paths
   nw-relative-speeds
   nw-distances
   
   pairs-total-weight
+ 
+ 
+  ; accessibility
+  accessibility-decay
  
   
   ;;
@@ -142,8 +150,19 @@ patches-own [
  
  
  ;; density generation
- density
+ ;  density <-> population : population-share
  population
+ population-share
+ 
+ ; closest city, on which nw measures are based
+ closest-city
+ 
+ ; explicative variables (includes population)
+ patch-distance-to-road
+ patch-closeness-centrality
+ patch-bw-centrality
+ patch-accessibility
+ 
  
  
 ]
@@ -153,16 +172,25 @@ cities-own [
   ; population
   city-population
   
-  
+  ; id
   id
+  
+  
+  ;; network variables
+  city-bw-centrality
+  city-closeness-centrality
+  city-accessibility
   
 ]
 
 
 roads-own [
+  
   capacity
   
+  ; length
   road-length
+  
   
   bw-centrality
   
@@ -541,23 +569,6 @@ NIL
 1
 
 BUTTON
-922
-533
-1034
-566
-setup-nw-indics
-setup-nw-indicators
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
 920
 572
 995
@@ -650,10 +661,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-803
-544
-909
-577
+797
+543
+903
+576
 heuristic nw
 ca\nheuristic-nw cities-generation-method\ndisplay-network
 NIL

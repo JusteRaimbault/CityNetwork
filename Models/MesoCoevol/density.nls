@@ -24,7 +24,7 @@ to setup-final-indicators
 end
 
 to go-for-one-time-step
-  go-synth-pattern
+  update-density
 end
 
 
@@ -33,7 +33,7 @@ end
 ;
 to setup-synth-pattern
   ; empty setup
-  ask patches [set density 0 set population 0]
+  ask patches [set population-share 0 set population 0]
   reset-ticks
   display-density
   
@@ -44,9 +44,9 @@ end
 ;;
 ; Go for one step of generation.
 ;
-to go-synth-pattern
+to update-density
   
-  reset-timer
+  ;reset-timer
   ;tic
   
   ;; add new inhabitants with proba proportionnal to density
@@ -56,7 +56,7 @@ to go-synth-pattern
   ; --> discrete choice model with beta param
   ;
   
-  let stot sum [density ^ sp-alpha-localization] of patches
+  let stot sum [population-share ^ sp-alpha-localization] of patches
   
   ifelse stot = 0 [
     repeat (floor sp-growth-rate) [ask one-of patches [set population population + 1]]
@@ -77,7 +77,7 @@ to go-synth-pattern
 
     repeat floor sp-growth-rate [
       let s 0 let r random-float 1 let i 0 let plist to-list patches
-      while [s < r] [ask item i plist [ set s s + ((density ^ sp-alpha-localization) / stot) if s >= r [set population population + 1] set i i + 1]]     
+      while [s < r] [ask item i plist [ set s s + ((population-share ^ sp-alpha-localization) / stot) if s >= r [set population population + 1] set i i + 1]]     
     ]
 
     
@@ -99,15 +99,10 @@ to go-synth-pattern
   
   
   
-  ; update density
+  ; update population share
   set sp-population sum [population] of patches
-  ask patches [set density population / sp-population]
+  ask patches [set population-share population / sp-population]
   
-  
-  
-  display-density
-  
-  tick
   
   ; stop if needed or if max time reached
   if sp-population >= sp-max-pop [stop]
@@ -121,7 +116,7 @@ end
 ; Generation of a synthetic pattern
 to generate-synth-pattern
   setup-synth-pattern
-  repeat total-time-steps [go-synth-pattern]
+  repeat total-time-steps [update-density]
 end
 
 

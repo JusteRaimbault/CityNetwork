@@ -1,0 +1,90 @@
+
+;;
+;  network evolution
+
+
+to update-network
+  
+  ; update only at some time steps
+  
+end
+
+
+
+
+
+;; 
+;  network indicators
+to cache-nw-measures
+  
+  ; caching shortest paths and measures
+  nw:set-context cities roads
+  ask roads [set road-length link-length set bw-centrality 0]
+  ask cities [set city-bw-centrality 0]
+  set shortest-paths table:make set nw-relative-speeds table:make set pairs-total-weight 0
+  let clist to-list cities let i 0 let j 1
+  repeat (length clist - 1) [
+    let c1 item i clist
+    set j i + 1
+    repeat (length clist - i - 1) [
+      ; compute shortest path
+      let c2 item j clist let path [] let tpath [] ask c1 [set path nw:weighted-path-to c2 "road-length" set tpath nw:turtles-on-weighted-path-to c2 "road-length"]
+      ; update link betweeness
+      let l 0 foreach path [ask ? [set l l + road-length set bw-centrality bw-centrality + 1]]
+      ; update node betweeness
+      foreach tpath [ask ? [set city-bw-centrality city-bw-centrality + 1]]
+      ; update shortest path table
+      table:put shortest-paths (list [who] of c1 [who] of c2) path table:put shortest-paths (list [who] of c2 [who] of c1) (rev path)
+      ; update nw distance table
+      table:put nw-distances (list [who] of c1 [who] of c2) l table:put nw-distances (list [who] of c2 [who] of c1) l
+      ; update relative speed table
+      let deucl 0 ask c1 [set deucl distance c2]
+      table:put nw-relative-speeds (list [who] of c1 [who] of c2) (deucl / l)
+      
+      set pairs-total-weight pairs-total-weight + [population] of c1 + [population] of c2
+      set j j + 1
+    ]
+    set i i + 1
+  ]
+  
+  
+  
+end
+
+
+;;
+; update cities vars from cache
+to update-cities-nw-vars
+  let n count cities
+  let diag sqrt (world-width ^ 2 + world-height ^ 2)
+  ask cities [
+    set city-bw-centrality city-bw-centrality * 2 / (n * (n - 1)) 
+    let otherids ([who] of other cities)
+    let distances map [table:get nw-distances (list who ?)] otherids
+    set city-accessibility list-times-element-wise (map [[city-population] of city ?] otherids) (map [exp ( - ? / accessibility-decay)] distances)
+    set city-closeness-centrality mean (map [diag / ?] distances)
+    
+  ]
+  
+end
+
+
+
+
+;;
+; compute only nw distances
+to compute-nw-distances
+  nw:set-context cities roads
+  ask roads [set road-length link-length]
+  set nw-distances table:make
+  let clist to-list cities let i 0 let j 1
+  repeat (length clist - 1) [
+    let c1 item i clist
+    set j i + 1
+    repeat (length clist - i - 1) [
+      let c2 item j clist let d 0 ask c1 [set d nw:weighted-distance-to c2 "road-length"]
+      table:put nw-distances (list [who] of c1 [who] of c2) d table:put nw-distances (list [who] of c2 [who] of c1) d set j j + 1
+    ]
+    set i i + 1
+  ]
+end

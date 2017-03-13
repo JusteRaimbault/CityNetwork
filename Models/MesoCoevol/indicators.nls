@@ -4,7 +4,7 @@
 
 
 to compute-indicators
-  setup-nw-indicators
+  cache-nw-measures
   output-print (word "diameter : " nw-diameter)
   output-print (word "path-length : " mean-path-length)
   output-print (word "centrality : " mean-bw-centrality)
@@ -13,48 +13,7 @@ to compute-indicators
 end
 
 
-;; network indicators
 
-to setup-nw-indicators
-  ; put shortest paths in cache
-  nw:set-context cities roads
-  ask roads [set road-length link-length set bw-centrality 0]
-  set shortest-paths table:make set nw-relative-speeds table:make set pairs-total-weight 0
-  let clist to-list cities let i 0 let j 1
-  repeat (length clist - 1) [
-    let c1 item i clist
-    set j i + 1
-    repeat (length clist - i - 1) [
-      let c2 item j clist let path [] ask c1 [set path nw:weighted-path-to c2 "road-length"]
-      let l 0 foreach path [ask ? [set l l + road-length set bw-centrality bw-centrality + 1]]
-      table:put shortest-paths (list [who] of c1 [who] of c2) path table:put shortest-paths (list [who] of c2 [who] of c1) (rev path) set j j + 1
-      let deucl 0 ask c1 [set deucl distance c2]
-      table:put nw-relative-speeds (list [who] of c1 [who] of c2) (deucl / l)
-      set pairs-total-weight pairs-total-weight + [population] of c1 + [population] of c2
-    ]
-    set i i + 1
-  ]
-  
-end
-
-
-;;
-; compute only nw distances
-to compute-nw-distances
-  nw:set-context cities roads
-  ask roads [set road-length link-length]
-  set nw-distances table:make
-  let clist to-list cities let i 0 let j 1
-  repeat (length clist - 1) [
-    let c1 item i clist
-    set j i + 1
-    repeat (length clist - i - 1) [
-      let c2 item j clist let d 0 ask c1 [set d nw:weighted-distance-to c2 "road-length"]
-      table:put nw-distances (list [who] of c1 [who] of c2) d table:put nw-distances (list [who] of c2 [who] of c1) d set j j + 1
-    ]
-    set i i + 1
-  ]
-end
 
 
 
@@ -81,6 +40,13 @@ end
 to-report mean-bw-centrality
   let n count cities
   report (mean [bw-centrality] of roads) * 2 / (n * (n - 1))
+end
+
+;;
+; nodes bw centrality
+to-report mean-city-bw-centrality
+  let n count cities
+  report (mean [city-bw-centrality] of cities) * 2 / (n * (n - 1))
 end
 
 ;;

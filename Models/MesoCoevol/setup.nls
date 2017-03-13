@@ -32,6 +32,16 @@ to setup-globals
   ;set setup-center-number 5 
   set setup-outside-links-number 6
   
+  set total-time-steps 20
+  
+  ; network update
+  set network-update-time-mode "fixed-ticks"
+  set network-update-ticks 5
+  
+  ; accessibility
+  set accessibility-decay 10
+  
+  
 end
 
 
@@ -57,6 +67,10 @@ to setup-network
   ; add cities on the edge to avoid bord effect on network topology
   create-cities setup-outside-links-number [let x 0 let y 0 ifelse random 2 = 0 [ifelse random 2 = 0[set x min-pxcor - 0.5][set x max-pxcor + 0.499] set y random-ycor][ifelse random 2 = 0 [set y max-pycor + 0.499][set y min-pycor - 0.5] set x random-ycor] setxy x y]
   simple-connexification
+  
+  ; compute initial nw measures
+  cache-nw-measures
+  update-cities-nw-vars
   
   
 end
