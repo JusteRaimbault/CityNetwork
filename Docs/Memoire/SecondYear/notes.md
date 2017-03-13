@@ -2,6 +2,33 @@
 
 
 
+## networkgrowth
+
+* Ven 10 mar 2017 18:27:06 CET * 
+
+Nomadic ecology shaped the highland geography of Asia’s Silk Roads : kind of network growth model by flows reinforcment (driven by site distribution and grass quality)
+
+
+
+## bib
+
+
+* Mer  8 mar 2017 22:36:13 CET * 
+
+"Les réseaux dans les territoires, du génie urbain à la ville durable"	in :  <em>De l'esprit de Vauban aux enjeux de Johannesburg</em>, Paris, La Documentation française, 25-44.
+(dans bib umr)
+Les effets structurants ou les raccourcis de l’explication géographique (Pumain 2014)
+
+
+## Coevolution
+
+* Mer  8 mar 2017 12:05:39 CET * 
+ 
+https://arxiv.org/pdf/1703.01246.pdf : coupling analysis to identify signals of coevolution
+// paper pnas material sciences : coevol
+
+
+
 ## Scaling
 
 * Jeu 23 fév 2017 09:26:04 CET * 
