@@ -11,14 +11,19 @@ extensions [table pathdir nw matrix context gradient]
 
 __includes [
   
-  ;; main coevol
+  ;; setup
   "setup.nls"
+  
+  ;; main coevol
   "main.nls"
   
-  
-  ;; network in itself
-  "euclidian-nw.nls"
+  ;; network growth
   "network.nls"
+  ;; heuristics
+  "euclidian-nw.nls"   ; diverse distance and gravity based heuristic 
+  "heuristic-nw.nls"   ; gravity based empirical heuristic
+  "biological-nw.nls"  ; biological network growth
+  
   
   ; cities distribution
   "cities.nls"
@@ -31,9 +36,7 @@ __includes [
   
   ;; indicators
   "indicators.nls"
-  
-  ;; wrapped nw generation for simple exploration
-  "heuristic-nw.nls"
+   
   
   ;; tests 
    "test/test-includes.nls"
@@ -57,7 +60,7 @@ __includes [
    "utils/Agent.nls"
    "utils/String.nls"
    "utils/SpatialKernels.nls"
-   
+   "utils/EuclidianDistance.nls"
    
 ]
 
@@ -89,10 +92,33 @@ globals [
   ;sp-alpha-localization
   ;sp-diffusion-steps
   ;sp-diffusion
-  sp-population
+  total-population
   
   ;; from density file (for coupling with scala density generator)
   density-file
+  
+  
+  ;; patch explicative variables globals
+  patch-population-max
+  patch-population-min
+  patch-distance-to-road-max
+  patch-distance-to-road-min
+  patch-closeness-centrality-max
+  patch-closeness-centrality-min
+  patch-bw-centrality-max
+  patch-bw-centrality-min
+  patch-accessibility-max
+  patch-accessibility-min
+  
+  ; linear aggreg coeficients
+  ;linear-aggreg-population-coef
+  ;linear-aggreg-distance-to-road-coef
+  ;linear-aggreg-closeness-centrality-coef
+  ;linear-aggreg-bw-centrality-coef
+  ;linear-aggreg-accessibility-coef
+  
+  
+  distance-to-roads-decay
   
   
   ;; network
@@ -107,6 +133,9 @@ globals [
   
   pairs-total-weight
  
+  
+  ; network vars
+  network-vars-decay
  
   ; accessibility
   accessibility-decay
@@ -118,7 +147,11 @@ globals [
   setup-method
   
   ; network-generation-method
+  ;   { "gravity-heuristic","biological","road-connexion" }
+  ;network-generation-method
   
+  ; patch value function
+  patch-value-function
   
   
  
@@ -151,11 +184,12 @@ patches-own [
  
  ;; density generation
  ;  density <-> population : population-share
- population
- population-share
+ patch-population
+ patch-population-share
  
  ; closest city, on which nw measures are based
- closest-city
+ patch-closest-city
+ patch-closest-city-distance
  
  ; explicative variables (includes population)
  patch-distance-to-road
@@ -163,7 +197,8 @@ patches-own [
  patch-bw-centrality
  patch-accessibility
  
- 
+ ; aggregated value (rbd style)
+ patch-value
  
 ]
 
@@ -179,6 +214,7 @@ cities-own [
   ;; network variables
   city-bw-centrality
   city-closeness-centrality
+  city-accessibilities
   city-accessibility
   
 ]
@@ -238,8 +274,8 @@ CHOOSER
 67
 1244
 112
-network-generation-method
-network-generation-method
+eucl-nw-generation-method
+eucl-nw-generation-method
 "simple-connexification" "neighborhood-gravity" "shortcuts" "random" "none"
 2
 
@@ -287,23 +323,6 @@ rank-size-exponent
 1
 NIL
 HORIZONTAL
-
-BUTTON
-1207
-256
-1293
-289
-generate
-;ca random-seed seed\ngenerate-synthetic-euclidian-network\ndisplay-network
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 SLIDER
 873
@@ -385,11 +404,11 @@ SLIDER
 462
 846
 495
-sp-diffusion
-sp-diffusion
+density-diffusion
+density-diffusion
 0
 0.5
-0.24
+0.1
 0.01
 1
 NIL
@@ -412,7 +431,7 @@ MONITOR
 1370
 111
 patches-pop
-sum [population] of patches
+total-population
 17
 1
 11
@@ -444,16 +463,16 @@ HORIZONTAL
 
 OUTPUT
 1047
-529
+477
 1396
-714
+662
 10
 
 BUTTON
-1298
-290
-1398
-323
+750
+593
+850
+626
 density->cities
 ask cities [die]\ndensity-to-cities
 NIL
@@ -467,12 +486,12 @@ NIL
 1
 
 BUTTON
-1298
-325
-1379
-358
+750
+628
+831
+661
 network
-reset-network\ngenerate-network network-generation-method
+reset-network\ngenerate-network eucl-nw-generation-method
 NIL
 1
 T
@@ -509,10 +528,10 @@ Density Generation
 1
 
 BUTTON
-1298
-255
-1362
-288
+677
+592
+741
+625
 cities
 ca\ngenerate-cities cities-generation-method
 NIL
@@ -552,10 +571,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-1208
-292
-1291
-325
+678
+627
+747
+660
 density file
 setup-density-from-file
 NIL
@@ -569,10 +588,10 @@ NIL
 1
 
 BUTTON
-920
-572
-995
-605
+747
+557
+822
+590
 nw indics
 compute-indicators
 NIL
@@ -660,23 +679,6 @@ SLIDER
 NIL
 HORIZONTAL
 
-BUTTON
-797
-543
-903
-576
-heuristic nw
-ca\nheuristic-nw cities-generation-method\ndisplay-network
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 TEXTBOX
 672
 154
@@ -733,23 +735,6 @@ setup/config_0.csv
 0
 String
 
-BUTTON
-806
-604
-908
-637
-experiment
-setup-experiment #-cities gravity-radius gravity-inflexion hierarchy-role gravity-hierarchy-exponent #-max-new-links sp-alpha-localization fixed-config-num 0\nrun-experiment
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 INPUTBOX
 818
 106
@@ -762,10 +747,10 @@ nwres/nw2
 String
 
 BUTTON
-1208
-329
-1279
-362
+678
+661
+749
+694
 nw file
 import-nw-from-file nw-file-prefix
 NIL
@@ -784,16 +769,16 @@ INPUTBOX
 1124
 314
 seed
-200
+0
 1
 0
 Number
 
 BUTTON
-705
-552
-771
-585
+678
+557
+744
+590
 clear
 ca random-seed seed
 NIL
@@ -832,10 +817,10 @@ Setup
 1
 
 BUTTON
-1109
-413
-1175
-446
+1082
+343
+1145
+376
 NIL
 setup
 NIL
@@ -846,6 +831,118 @@ NIL
 NIL
 NIL
 NIL
+1
+
+BUTTON
+1082
+379
+1145
+412
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+1076
+116
+1248
+161
+network-generation-method
+network-generation-method
+"gravity-heuristic" "biological" "road-connexion"
+0
+
+SLIDER
+1183
+244
+1392
+277
+linear-aggreg-population-coef
+linear-aggreg-population-coef
+0
+1
+0.5
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1183
+278
+1392
+311
+linear-aggreg-distance-to-road-coef
+linear-aggreg-distance-to-road-coef
+0
+1
+0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1183
+312
+1392
+345
+linear-aggreg-closeness-centrality-coef
+linear-aggreg-closeness-centrality-coef
+0
+1
+0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1183
+346
+1392
+379
+linear-aggreg-bw-centrality-coef
+linear-aggreg-bw-centrality-coef
+0
+1
+0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1183
+380
+1392
+413
+linear-aggreg-accessibility-coef
+linear-aggreg-accessibility-coef
+0
+1
+0.5
+0.1
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+675
+509
+813
+554
+display-variable
+display-variable
+"population" "patch-value"
 1
 
 @#$#@#$#@

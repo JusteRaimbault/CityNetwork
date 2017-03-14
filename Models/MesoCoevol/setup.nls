@@ -7,13 +7,21 @@ to setup
   
   if headless? != true [ca]
   
+  ; globals
   setup-globals
   
+  ; world
+  setup-world
+  
+  ; population density
   setup-density
   
+  ; initial network
   setup-network
   
-  update-display
+  patches:update-patch-values
+  
+  display:update-display
   
   reset-ticks
   
@@ -23,7 +31,19 @@ end
 
 to setup-globals
   
+  
+  ;;;
+  ;; Multi modeling options
+  
+  ; setup method
+  ;  choices : "synthetic-settlement" ; "empty"
   set setup-method "synthetic-settlement"
+  
+  ; patch values
+  set patch-value-function "linear-aggregation"
+  
+  ;;;
+  ;; Global vars
   
   ;; setup
   set setup-rank-size-exp 0.8
@@ -41,19 +61,42 @@ to setup-globals
   ; accessibility
   set accessibility-decay 10
   
+  ; distance to roads
+  set distance-to-roads-decay 10
+  
+  set network-vars-decay 1
+  
+  ; random seed
+  let cseed seed if seed = 0 [set cseed (random 200000) - 100000]
+  random-seed cseed
+  
+  
+end
+
+
+;;
+;  world size
+to setup-world
   
 end
 
 
 
+
 to setup-density
  
-  let i 1
-  repeat setup-center-number [
-    let current-pop setup-max-pop / (i ^ setup-rank-size-exp) set i i + 1
-    let current-patch one-of patches
-    create-cities 1 [move-to current-patch set city-population current-pop]
-    apply-monocentric-kernel "poisson" (sqrt (current-pop / (2 * pi * setup-center-density))) setup-center-density "population" current-patch
+  if setup-method = "synthetic-settlement" [
+    let i 1
+    repeat setup-center-number [
+      let current-pop setup-max-pop / (i ^ setup-rank-size-exp) set i i + 1
+      let current-patch one-of patches
+      create-cities 1 [move-to current-patch set city-population current-pop]
+      apply-monocentric-kernel "poisson" (sqrt (current-pop / (2 * pi * setup-center-density))) setup-center-density "patch-population" current-patch
+    ]
+  ]
+  
+  if setup-method = "empty" [
+     ask patches [set patch-population-share 0 set patch-population 0] 
   ]
   
 end
@@ -69,9 +112,11 @@ to setup-network
   simple-connexification
   
   ; compute initial nw measures
-  cache-nw-measures
-  update-cities-nw-vars
+  network:update-network-measures
   
+  ;
+  cities:update-patches-closest-cities
+  cities:update-cities-population
   
 end
 
@@ -87,6 +132,6 @@ to setup-density-from-file
   if is-string? fixed-config-num [set density-file fixed-config-num]
   density-from-file density-file
 
-  display-density
+  display:display-patches
 
 end

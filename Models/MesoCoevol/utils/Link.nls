@@ -6,6 +6,50 @@
 
 
 
+
+to-report link:intersection-with [x y]
+  let x1 0 let y1 0 let x2 0 let y2 0
+  ask end1[set x1 xcor
+  set y1 ycor]
+  ask end2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m1m2 = 0 [report end1]
+  if m2m = 0 [report end2]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+    
+  let mq 0 let xx 0 let yy 0 let m1q 0
+  
+  ifelse cost1 < 0 [
+     report end1
+  ]
+  [
+  ifelse cost2 < 0 [
+     report end2
+  ]
+  [set mq m1m * sqrt abs (1 - (cost1 ^ 2))
+   set m1q sqrt ((m1m ^ 2) - (mq ^ 2))  
+   set xx x1 + m1q * (x2 - x1) / m1m2
+   set yy y1 + m1q * (y2 - y1) / m1m2
+   
+   if count cities-on patch xx yy = 0 [
+       ask patch xx yy [sprout-cities 1]
+   ]
+   report one-of cities-on patch xx yy
+   
+   ]
+  ]
+  
+end
+
+
+
+
+
+
 ;;
 ; Given a link agentset, and both ends, reports links connecting both in the agentset
 to-report find-link [linkset e1 e2]

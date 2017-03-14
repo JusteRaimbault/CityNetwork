@@ -1,8 +1,7 @@
 
 
 ;;;;
-;; Synthetic generation of cities
-;;;;
+;; cities <=> centers <=> network nodes
 
 
 
@@ -11,12 +10,40 @@
 
 ;;
 ;  add some cities given density, before network update
-to add-cities
+to cities:add-cities
 
 
 end
 
 
+
+;;
+; link patch <-> cities
+to cities:update-patches-closest-cities
+  ask patches [
+    set patch-closest-city one-of (cities with-min [distance myself])
+    set patch-closest-city-distance distance patch-closest-city
+  ]
+end
+
+
+;;
+;
+to cities:update-accessibility
+  ask cities [
+    let otherids ([who] of other cities)
+    let distances map [table:get nw-distances (list who ?)] otherids
+    set city-accessibilities list-times-element-wise (map [[city-population] of city ?] otherids) (map [exp ( - ? / accessibility-decay)] distances)
+    set city-accessibility mean city-accessibilities
+  ]
+end
+
+
+;;
+;  update city population
+to cities:update-cities-population
+  ask cities [set city-population sum [patch-population] of patches with [patch-closest-city = myself]]
+end
 
 
 
@@ -32,7 +59,7 @@ to generate-cities [generation-method]
     set-population-distribution
     
      foreach populations [
-       create-cities 1 [set population ? setxy random-xcor random-ycor new-city] 
+       create-cities 1 [set city-population ? setxy random-xcor random-ycor new-city] 
      ]
   ]
   
@@ -44,7 +71,7 @@ to generate-cities [generation-method]
      foreach populations [
        let current-city nobody
        create-cities 1 [
-         set population ? set current-city self new-city
+         set city-population ? set current-city self new-city
        ]
        update-patches-weighted-pop
        let p next-christaller-patch
@@ -82,7 +109,7 @@ to generate-cities [generation-method]
     ;set density-file "../../../Results/Synthetic/Density/20151106_Grid/pop/config_166.csv"
     density-from-file density-file
     
-    display-density
+    display:display-patches
     
     density-to-cities
   ]
@@ -93,8 +120,8 @@ to generate-cities [generation-method]
   ]
   
   
-  set max-pop max [population] of cities 
-  set total-pop sum [population] of cities
+  set max-pop max [city-population] of cities 
+  set total-pop sum [city-population] of cities
   
 end
 
@@ -104,7 +131,7 @@ end
 ;  (to be used for christaller patch selection)
 to update-patches-weighted-pop
   ask patches [
-    set distance-weighted-total-pop sum [distance myself / population] of cities
+    set distance-weighted-total-pop sum [distance myself / city-population] of cities
   ]
 end
 
@@ -144,7 +171,7 @@ to density-from-file [file]
    foreach rows [
       set j min-pycor
       foreach ? [
-        ask (patch i j) [set population ?]
+        ask (patch i j) [set patch-population ?]
         set j j + 1
       ]
       set i i + 1
@@ -181,7 +208,7 @@ to density-to-cities
      ;  stops when number of cities == #-cities
      ask patches [
        sprout-cities 1 [
-          set city-population population
+          set city-population patch-population
           new-city
        ]
      ]
@@ -196,9 +223,9 @@ to density-to-cities
   if density-to-cities-method = "intersection-density" [
     ; use alpha localization parameter for proba distribution
     repeat #-cities [
-       let ptot sum [population] of patches
-       let stot sum [(population / ptot) ^ sp-alpha-localization] of patches let r random-float 1 let s 0 let plist to-list patches let i 0 let p nobody
-       while [s < r] [set p item i plist set s s + (([(population / ptot) ^ sp-alpha-localization] of p) / stot) set i i + 1]
+       let ptot sum [patch-population] of patches
+       let stot sum [(patch-population / ptot) ^ sp-alpha-localization] of patches let r random-float 1 let s 0 let plist to-list patches let i 0 let p nobody
+       while [s < r] [set p item i plist set s s + (([(patch-population / ptot) ^ sp-alpha-localization] of p) / stot) set i i + 1]
        ask p [
          sprout-cities 1 [
            ;set population 1
@@ -210,17 +237,31 @@ to density-to-cities
     
     ; attribute population to cities
     ask patches [
-      ask one-of cities with-min [distance myself] [set population population + [population] of myself] 
+      ask one-of cities with-min [distance myself] [set city-population city-population + [patch-population] of myself] 
     ]
     
-    set city-max-pop max [population] of cities
+    set city-max-pop max [city-population] of cities
     
-    ask cities [set size max (list (3 * population / city-max-pop) 0.3)]
+    ask cities [set size max (list (3 * city-population / city-max-pop) 0.3)]
     
   ]
   
   
   
+end
+
+
+
+;;
+; Setup for a synthetic pattern generation.
+;
+to setup-synth-pattern
+  ; empty setup
+  ask patches [set patch-population-share 0 set patch-population 0]
+  reset-ticks
+  display:display-patches
+  
+  ;set comp-time 0
 end
 
 
@@ -233,8 +274,8 @@ to randomly-cluster-cities
     ; draw a city at random given its population
     let c1 random-city cities let c2 random-city ([other cities in-radius gravity-radius] of c1)
     if c2 != nobody [
-      let p1 [population] of c1 let p2 [population] of c2 let t p1 / (p1 + p2)
-      let nc nobody create-cities 1 [set nc self set population (p1 + p2) setxy (([xcor] of c1)* t + (1 - t) * ([xcor] of c2)) (([ycor] of c1)* t + (1 - t) * ([ycor] of c2) ) new-city]
+      let p1 [city-population] of c1 let p2 [city-population] of c2 let t p1 / (p1 + p2)
+      let nc nobody create-cities 1 [set nc self set city-population (p1 + p2) setxy (([xcor] of c1)* t + (1 - t) * ([xcor] of c2)) (([ycor] of c1)* t + (1 - t) * ([ycor] of c2) ) new-city]
       ;output-print (word c1 c2)
       ask c1 [die] ask c2 [die]
     ]
@@ -244,12 +285,12 @@ end
 
 to-report random-city [cityset]
   ifelse any? cityset [
-    let stot sum [population] of cityset
+    let stot sum [city-population] of cityset
     let r random-float 1
     let s 0 let l to-list cityset let res first l let i 0
     while [s < r] [
       set res item i l
-      set s s + ([population] of res) / stot
+      set s s + ([city-population] of res) / stot
     ]
     report res
   ][
@@ -269,10 +310,10 @@ to cluster-cities
        foreach table:keys cities-interaction-table [let v table:get cities-interaction-table ? if v > m [set m v set m-key ?]]
        
        let k1 first m-key let k2 last m-key let c1 city k1 let c2 city k2
-       let p1 [population] of c1 let p2 [population] of c2
+       let p1 [city-population] of c1 let p2 [city-population] of c2
        let t p1 / (p1 + p2)
        ; create the new city
-       let nc nobody create-cities 1 [set nc self set population (p1 + p2) setxy (([xcor] of c1)* t + (1 - t) * ([xcor] of c2)) (([ycor] of c1)* t + (1 - t) * ([ycor] of c2) ) new-city]
+       let nc nobody create-cities 1 [set nc self set city-population (p1 + p2) setxy (([xcor] of c1)* t + (1 - t) * ([xcor] of c2)) (([ycor] of c1)* t + (1 - t) * ([ycor] of c2) ) new-city]
        ask city k1 [die] ask city k2 [die]
        ; update pop table
        update-cities-interaction-table k1 k2 nc

@@ -1,13 +1,7 @@
 
 ;;;;;;;;;;;;;;;;
-;; Generation of large scale density pattern for a system of cities
-;;;;;;;;;;;;;;;;
+;; population density growth
 
-
-;; patches variables
-;
-; patches-own :: sp-density, sp-occupants-number
-;
 
 
 ;;
@@ -19,36 +13,17 @@ to setup-exploration
   set total-time-steps floor (sp-max-pop / sp-growth-rate)
 end
 
-to setup-final-indicators
-  ;setup-indicator-computation
-end
 
-to go-for-one-time-step
-  update-density
-end
+
+
 
 
 ;;
-; Setup for a synthetic pattern generation.
-;
-to setup-synth-pattern
-  ; empty setup
-  ask patches [set population-share 0 set population 0]
-  reset-ticks
-  display-density
+; update density
+to density:update-density
   
-  ;set comp-time 0
-end
-
-
-;;
-; Go for one step of generation.
-;
-to update-density
-  
-  ;reset-timer
-  ;tic
-  
+  output-print (word "Tick " ticks " : updating density...")
+ 
   ;; add new inhabitants with proba proportionnal to density
   ; Function of the density ?
   ;  ex : power function will favorise greater aggregations ?
@@ -56,10 +31,10 @@ to update-density
   ; --> discrete choice model with beta param
   ;
   
-  let stot sum [population-share ^ sp-alpha-localization] of patches
+  let stot sum [patch-value ^ sp-alpha-localization] of patches
   
   ifelse stot = 0 [
-    repeat (floor sp-growth-rate) [ask one-of patches [set population population + 1]]
+    repeat (floor sp-growth-rate) [ask one-of patches [set patch-population patch-population + 1]]
     ][
 ;    ; draw random patches
 ;    let s 0 let f 0 let r [] repeat (floor sp-growth-rate) [set r lput random-float 1 r] set r sort r
@@ -77,7 +52,7 @@ to update-density
 
     repeat floor sp-growth-rate [
       let s 0 let r random-float 1 let i 0 let plist to-list patches
-      while [s < r] [ask item i plist [ set s s + ((population-share ^ sp-alpha-localization) / stot) if s >= r [set population population + 1] set i i + 1]]     
+      while [s < r] [ask item i plist [ set s s + ((patch-value ^ sp-alpha-localization) / stot) if s >= r [set patch-population patch-population + 1] set i i + 1]]     
     ]
 
     
@@ -89,23 +64,23 @@ to update-density
   ;;   -> set proba different from population ? (ex depending on neighbors if too high ? -> diffuse other variable ?)
   
   repeat sp-diffusion-steps [
-    diffuse population sp-diffusion
+    diffuse patch-population density-diffusion
     
     ; adjustement for bord effects
     ;  -> bord patches loose (missing-#-of-neighs * alpha ) % of population, that should have propagated outside the world
-    ask patches with [count neighbors < 8] [set population (population * (1 - sp-diffusion * (8 - count neighbors) / 8))]
+    ask patches with [count neighbors < 8] [set patch-population (patch-population * (1 - density-diffusion * (8 - count neighbors) / 8))]
     
   ]
   
   
   
   ; update population share
-  set sp-population sum [population] of patches
-  ask patches [set population-share population / sp-population]
+  set total-population sum [patch-population] of patches
+  ask patches [set patch-population-share patch-population / total-population]
   
   
   ; stop if needed or if max time reached
-  if sp-population >= sp-max-pop [stop]
+  if total-population >= sp-max-pop [stop]
   
   ;set comp-time comp-time + timer
 end
@@ -116,7 +91,7 @@ end
 ; Generation of a synthetic pattern
 to generate-synth-pattern
   setup-synth-pattern
-  repeat total-time-steps [update-density]
+  repeat total-time-steps [density:update-density]
 end
 
 

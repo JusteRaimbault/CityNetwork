@@ -3,6 +3,50 @@
 ;; headless experiment
 
 
+;;
+;  setup headless experiment
+;
+;  Parameters : 
+;    nw-heuristic \in {"gravity-heuristic","biological","road-connexion"}
+;    seed
+to setup-experiment [nw-heuristic rseed]
+  
+  show (word "params : network-generation-method = " nw-heuristic " ; seed = " rseed)
+  
+  ca
+  
+  set headless? true
+  
+  ; setup vars
+  
+  set network-generation-method nw-heuristic
+  
+  set seed rseed
+  
+  ; setup
+  setup
+  
+end
+
+
+;;
+;
+to run-experiment
+  
+end
+
+
+
+
+
+
+
+
+
+;;;;;
+;; Weak coupling
+
+
 ;;;
 ;; parameters :
 ;    config : \in [1,10] or = file-path (for online density generation)
@@ -12,7 +56,7 @@
 ;    g-inflexion \in [0,10]
 ;    hierachy-r \in [0,1]
 ;    g-hierarchy-exponent \in [0,3]
-to setup-experiment [cities-number g-radius g-inflexion h-role g-hierarchy-exponent max-new-links-number alpha-loc config exp-id]
+to setup-experiment-weak-coupling [cities-number g-radius g-inflexion h-role g-hierarchy-exponent max-new-links-number alpha-loc config exp-id]
   
   ca
   
@@ -43,9 +87,9 @@ end
 ;;
 ;  run ; indicators for network are then :
 ;   nw-diameter ; mean-path-length ; mean-bw-centrality ; mean-relative-speed ; total-nw-length
-to run-experiment
+to run-experiment-weak-coupling
   heuristic-nw "from-density-file"
-  cache-nw-measures
+  network:cache-nw-measures
   
   compute-indicators
   

@@ -14,7 +14,7 @@ to generate-synthetic-euclidian-network
   generate-cities cities-generation-method
   
   ; generic generate network function
-  generate-network network-generation-method
+  generate-network eucl-nw-generation-method
   
 end
 
@@ -197,19 +197,19 @@ end
 to-report basic-gravity [city1 city2 mode]
   ; tunable gravity-exponent ?
   let d12 0 ask city1 [set d12 distance city2] if d12 = 0 [show (word city1 city2)] ; not optimized, may be quicker to use potential vector and distance matrix
-  report [population] of city1 * [population] of city2 / (d12 ^ basic-gravity-exponent)
+  report [patch-population] of city1 * [patch-population] of city2 / (d12 ^ basic-gravity-exponent)
 end
 
 
 to-report generalized-gravity [city1 city2 mode]
-  let p1 [population] of city1 let p2 [population] of city2 let d12 0 ask city1 [set d12 distance city2]
+  let p1 [patch-population] of city1 let p2 [patch-population] of city2 let d12 0 ask city1 [set d12 distance city2]
   report (((p1 * p2) / (max-pop ^ 2)) ^ gravity-hierarchy-exponent)* exp( - d12 / gravity-radius)
   
 end
 
 
 to-report gravity [city1 city2 mode]
-  let p1 [population] of city1 let p2 [population] of city2
+  let p1 [city-population] of city1 let p2 [city-population] of city2
   let d12 0
   if mode = "euclidian" [ask city1 [set d12 distance city2]]
   if mode = "network" [
@@ -236,7 +236,7 @@ end
 to create-shortcuts [threshold number]
   let all-pairs []
   foreach table:keys nw-relative-speeds [
-    if table:get nw-relative-speeds ? < threshold [set all-pairs lput (list ? ([population] of city first ? + [population] of city last ?)) all-pairs]
+    if table:get nw-relative-speeds ? < threshold [set all-pairs lput (list ? ([city-population] of city first ? + [city-population] of city last ?)) all-pairs]
   ]
   
   ;let pairs sort-by [last ?1 < last ?2] all-pairs  (n-of (min (list number (length all-pairs))) )
@@ -278,6 +278,6 @@ to import-nw-from-file [prefix]
   
   foreach roads-ids [ask one-of cities with [id = first ?] [let c2 one-of cities with [id = last ?] if not road-neighbor? c2 [create-road-with c2]]]
   
-  display-network
+  display:display-network
 end
 

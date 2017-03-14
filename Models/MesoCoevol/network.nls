@@ -3,9 +3,80 @@
 ;  network evolution
 
 
-to update-network
+to network:update-network
   
   ; update only at some time steps
+  if network:network-update-condition [
+    
+    output-print (word "Tick " ticks " : updating network...")
+    
+    ; new centers to be connected
+    cities:add-cities
+    ; nw growth heuristic depends on pop growth, need to update city pop
+    cities:update-patches-closest-cities
+    cities:update-cities-population
+    
+    ; add links in themselves
+    network:grow-network
+    
+    ; update measures and variables
+    network:update-network-measures
+  
+  ]
+  
+end
+
+
+
+;;
+; update condition can be at fixed ticks, or more endogenous
+;   (depending on population for example : if coupling with a larger scale, becomes endog.)
+to-report network:network-update-condition
+  
+  ; called during setup by patch procedures : true if ticks are not set
+  
+  let res true
+  
+  if network-update-time-mode = "fixed-ticks" [carefully [set res ticks > 0 and ticks mod network-update-ticks = 0][set res true]]
+  
+  report res
+end
+
+
+
+;;
+;  update measures
+to network:update-network-measures
+  ; core measures
+  network:cache-nw-measures
+  
+  ; update cities vars
+  network:update-cities-nw-vars
+  
+end
+
+
+
+;;
+;  Network growth
+;   -> multi-modeling at this stage
+;
+to network:grow-network
+  
+  ; rbd style nw growth
+  if network-generation-method = "road-connexion" [
+    
+  ]
+  
+  ; gravity
+  if network-generation-method = "gravity-heuristic" [
+    
+  ]
+  
+  ; biological
+  if network-generation-method = "biological" [
+     
+  ]
   
 end
 
@@ -13,9 +84,12 @@ end
 
 
 
+
+
+
 ;; 
 ;  network indicators
-to cache-nw-measures
+to network:cache-nw-measures
   
   ; caching shortest paths and measures
   nw:set-context cities roads
@@ -41,7 +115,7 @@ to cache-nw-measures
       let deucl 0 ask c1 [set deucl distance c2]
       table:put nw-relative-speeds (list [who] of c1 [who] of c2) (deucl / l)
       
-      set pairs-total-weight pairs-total-weight + [population] of c1 + [population] of c2
+      set pairs-total-weight pairs-total-weight + [patch-population] of c1 + [patch-population] of c2
       set j j + 1
     ]
     set i i + 1
@@ -54,14 +128,15 @@ end
 
 ;;
 ; update cities vars from cache
-to update-cities-nw-vars
+to network:update-cities-nw-vars
   let n count cities
   let diag sqrt (world-width ^ 2 + world-height ^ 2)
   ask cities [
     set city-bw-centrality city-bw-centrality * 2 / (n * (n - 1)) 
     let otherids ([who] of other cities)
     let distances map [table:get nw-distances (list who ?)] otherids
-    set city-accessibility list-times-element-wise (map [[city-population] of city ?] otherids) (map [exp ( - ? / accessibility-decay)] distances)
+    set city-accessibilities list-times-element-wise (map [[city-population] of city ?] otherids) (map [exp ( - ? / accessibility-decay)] distances)
+    set city-accessibility mean city-accessibilities
     set city-closeness-centrality mean (map [diag / ?] distances)
     
   ]
@@ -73,7 +148,7 @@ end
 
 ;;
 ; compute only nw distances
-to compute-nw-distances
+to network:compute-nw-distances
   nw:set-context cities roads
   ask roads [set road-length link-length]
   set nw-distances table:make
