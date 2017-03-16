@@ -1,0 +1,80 @@
+import density._
+
+
+// Parameters
+// density
+val diffusion = Val[Double]
+val diffusionsteps = Val[Double]
+val alphalocalization = Val[Double]
+val growthrate = Val[Double]
+val population = Val[Double]
+// network
+val citiesNumber = Val[Double]
+val gravityRadius = Val[Double]
+val gravityInflexion = Val[Double]
+val hierarchyRole = Val[Double]
+val gravityHierarchyExponent = Val[Double]
+val maxNewLinksNumber = Val[Double]
+
+
+val replication = Val[Int]
+
+// Reporters
+val moran=Val[Double]
+val distance=Val[Double]
+val entropy=Val[Double]
+val slope=Val[Double]
+val rsquared=Val[Double]
+val nwDiameter = Val[Double]
+val meanPathLength = Val[Double]
+val meanBwCentrality = Val[Double]
+val meanRelativeSpeed = Val[Double]
+val nwLength = Val[Double]
+
+
+// config file
+val config=Val[File]
+
+// Model
+val densityModel =
+  ScalaTask(
+    """
+      | import density._
+      | val config = newFile()
+      | val gen = new PADGeneratorLauncher
+      | gen.main(100,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication,config)
+      | val moran = gen.moran
+      | val distance = gen.distance
+      | val entropy = gen.entropy
+      | val slope = gen.slope
+      | val rsquared = gen.rsquared
+    """.stripMargin
+  ) set (
+    imports += "density._",
+    plugins += pluginsOf[PADGeneratorLauncher],
+    inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication),
+    outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication),
+    outputs += (moran,distance,entropy,slope,rsquared),
+    outputs += config
+  )
+val densityModelCapsule = Capsule(densityModel)
+
+
+// density config
+val densityConfig = Val[String]
+
+
+// model
+val cmds = List("setup-experiment ${citiesNumber} ${gravityRadius} ${gravityInflexion} ${hierarchyRole} ${gravityHierarchyExponent} ${maxNewLinksNumber} ${densityConfig}","run-experiment")
+val nwModel = NetLogo5Task(workDirectory / "model/HEADLESS_SyntheticNetwork.nlogo", cmds,embedWorkspace = true) set (
+    inputs += (citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,densityConfig),
+    outputs +=(citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,densityConfig),
+    //outputs +=(nwDiameter,meanPathLength,meanBwCentrality,meanRelativeSpeed,nwLength),
+    netLogoOutputs += ("nw-diameter", nwDiameter),
+    netLogoOutputs += ("mean-path-length", meanPathLength),
+    netLogoOutputs += ("mean-bw-centrality",meanBwCentrality),
+    netLogoOutputs += ("mean-relative-speed",meanRelativeSpeed),
+    netLogoOutputs += ("total-nw-length",nwLength)
+)
+
+val nwModelCapsule = Capsule(nwModel)

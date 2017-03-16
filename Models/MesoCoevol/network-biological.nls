@@ -6,10 +6,26 @@
 ;
 to network-biological:grow-network
   
+  ; setup
   network-biological:setup
   
   
+  
   network-biological:evolve
+  
+  
+  ; simplify
+  network-biological:simplify-network
+  
+  ; extract
+  network-biological:to-real-network
+  
+  ; kill
+  network-biological:clear-network
+  
+  planarize-network cities roads
+  
+  simplify-network
   
 end
 
@@ -17,12 +33,15 @@ end
 ;;
 ;
 to network-biological:evolve
-  let t 0
-  repeat 20 [
-    debug (word "bionw : tick " t)
-    network-biological:go 
-    set t t + 1
+  
+  foreach [1 2 4] [
+    repeat ? * network-biological-steps [  
+      network-biological:go 
+    ]
+    network-biological:kill-weak-links
+    network-biological:keep-connex-component
   ]
+
 end
 
 
@@ -30,6 +49,9 @@ end
 ;;
 ; 
 to network-biological:go
+  
+  debug (word "bionw : tick " bio-ticks)
+  
   ;;memorize pipes
   let old-pipes biological-network-links with [diameter > network-biological-threshold]
   
@@ -43,6 +65,8 @@ to network-biological:go
   ;;display
   network-biological:update-display
 
+  set bio-ticks bio-ticks + 1
+
 end
 
 
@@ -55,7 +79,9 @@ to network-biological:setup
   ;; globals : as global parameters
   
   ;; setup nodes
-  ask patches [
+  ask patches with [count cities-here > 0] [sprout-biological-network-nodes 1 [set color black set size 0.5 set biological-network-node-number who]]
+  
+  ask n-of (count patches / 2) (patches with [count biological-network-nodes-here = 0]) [
     sprout-biological-network-nodes 1 [
       set color black set size 0.5 set biological-network-node-number who                   
     ]
@@ -67,7 +93,7 @@ to network-biological:setup
   ask roads [
     let e1 [one-of biological-network-nodes-on patch-here] of end1 let e2 [one-of biological-network-nodes-on patch-here] of end2
     let currentlength road-length
-    ask e1 [create-biological-network-link-with e2 [set bio-link-length currentlength set diameter network-biological-initial-diameter set thickness 0.2]] 
+    if e1 != e2 [ask e1 [create-biological-network-link-with e2 [set bio-link-length currentlength set diameter network-biological-initial-diameter set thickness 0.2]]]
   ]
   
   ; mesh
@@ -80,12 +106,14 @@ to network-biological:setup
     ]
   ]
   
+  ; connex component
+  network-biological:keep-connex-component
   
   network-biological:reset-numbers
   
   ; setup o-ds
   
-  
+  set bio-ticks 0
   
 end
 
@@ -117,8 +145,9 @@ end
 ;;
 ;
 to network-biological:choose-OD
-  set network-biological-o one-of cities
-  ask network-biological-o [set network-biological-d one-of other cities]
+  set network-biological-o n-of (count cities / 2) cities
+  set network-biological-d cities with [not member? self network-biological-o]
+  ;ask network-biological-o [set network-biological-d one-of other cities]
 end
 
 
@@ -171,13 +200,16 @@ to-report network-biological:get-io-flows
   ;; n-1 x 1 matrix
   let ioflows matrix:make-constant (network-biological-nodes-number - 1) 1 0
   
-  let aux [biological-network-node-number] of one-of (biological-network-nodes with-min [distance network-biological-o])
-  ; input
-  if aux != network-biological-nodes-number - 1 [matrix:set ioflows aux 0 network-biological-input-flow]
+  let number 0
+  ask network-biological-o [
+    set number [biological-network-node-number] of one-of (biological-network-nodes with-min [distance myself])
+    if number != network-biological-nodes-number - 1 [matrix:set ioflows number 0 network-biological-input-flow]
+  ]
   
-  set aux [biological-network-node-number] of one-of (biological-network-nodes with-min [distance network-biological-d])
-  ; output
-  if aux != network-biological-nodes-number - 1 [matrix:set ioflows aux 0 (- network-biological-input-flow)]
+  ask network-biological-d [
+    set number [biological-network-node-number] of one-of (biological-network-nodes with-min [distance myself])
+    if number != network-biological-nodes-number - 1 [matrix:set ioflows number 0 (- network-biological-input-flow)]
+  ]
   
   report ioflows
 end
@@ -207,7 +239,7 @@ to network-biological:update-diameters
   let dt 0.05
   let old-diameter diameter
   
-  let flow-gamma 1.8 
+  let flow-gamma 1.8
   let var (abs flow) ^ flow-gamma / (1 + (abs flow) ^ flow-gamma)
   
   set diameter dt * var + (1 - dt) * diameter
@@ -215,6 +247,118 @@ to network-biological:update-diameters
   ;;diameter variation
   set network-biological-total-diameter-variation network-biological-total-diameter-variation + (diameter - old-diameter)
   
+end
+
+
+
+to network-biological:keep-connex-component
+  nw:set-context biological-network-nodes biological-network-links
+  let clusters nw:weak-component-clusters let giant first sort-by [count ?1 > count ?2] clusters
+  ask biological-network-nodes with [not member? self giant] [ask my-links [die] die]
+end
+
+
+to network-biological:kill-weak-links
+  ask biological-network-links with [diameter < network-biological-threshold] [die]
+  ask biological-network-nodes with [count my-links = 0] [die]
+end
+
+
+to network-biological:simplify-network
+  let n count biological-network-nodes with [count my-biological-network-links < 3]
+  while [n > 0] [
+    let current-node biological-network-nodes with [count my-biological-network-links < 3]
+    ask current-node [
+       ifelse count my-biological-network-links = 1 [ask one-of my-biological-network-links [die] die][
+         let ends [] let l 0 let d 0 foreach to-list my-biological-network-links [set ends lput [other-end] of ? ends ask ? [set l l + bio-link-length set d d + diameter die]]
+         ask first ends [create-biological-network-link-with last ends [set bio-link-length l set diameter d / 2]] die
+       ]
+    ]
+    set n count biological-network-nodes with [count my-biological-network-links < 3] debug n
+  ]
+end
+
+
+to network-biological:to-real-network
+  ask biological-network-links [
+    let e1 nobody let le1 end1 ifelse [count cities-here] of le1 > 0 [set e1 [one-of cities-here] of le1][ask [patch-here] of le1 [sprout-cities 1 [set e1 self]]]
+    let e2 nobody let le2 end2 ifelse [count cities-here] of le2 > 0 [set e2 [one-of cities-here] of le2][ask [patch-here] of le2 [sprout-cities 1 [set e2 self]]]
+    ask e1 [create-road-with e2 [network:new-road]]
+  ]
+end
+
+
+
+;;
+; 
+to network-biological:abstract-real-network
+  ask biological-network-nodes with [count my-links with [diameter > network-biological-threshold] > 2 ] [
+    if not any? biological-network-poles-here [
+      hatch-biological-network-poles 1 [
+        set size 1
+        set real-pressure 0
+      ]
+    ]
+  ]
+  ask biological-network-poles [
+    let me self
+    let aux one-of biological-network-nodes
+    let aux1 aux
+    ask aux [
+      ask my-biological-network-links with [diameter > network-biological-threshold] [
+        let not-found true
+        ask biological-network-poles-on other-end [
+          
+          nw:set-context biological-network-nodes biological-network-links
+          let dist 0
+          ask one-of biological-network-nodes-here[
+            set dist nw:distance-to aux
+          ]
+          
+          create-biological-network-real-link-with me [
+            set real-link-length dist
+          ]
+          set not-found false
+        ]
+        let aux2 aux
+        set aux1 other-end
+        while [not-found] [
+          ask aux1 [
+            let s my-biological-network-links with [diameter > network-biological-threshold and other-end != aux2]
+            if not any? s [
+              set not-found false
+              stop
+            ]
+            ask one-of s [
+              ask biological-network-poles-on other-end [
+                
+                nw:set-context biological-network-nodes biological-network-links
+                let dist 0
+                ask one-of biological-network-nodes-here[
+                  set dist nw:distance-to aux
+                ]
+          
+                create-biological-network-real-link-with me [
+                  set real-link-length dist
+                ]
+                
+                
+                set not-found false
+              ]
+              set aux2 aux1
+              set aux1 other-end
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
+
+;ask real-links[
+;  
+;]
+
+
 end
 
 
@@ -228,10 +372,21 @@ to network-biological:clear-network
 end
 
 
+to network-biological:clear-real-network
+  ask biological-network-poles [die]
+  ask biological-network-real-links [die]
+end
+
+
+to network-biological:show-links
+  ask biological-network-nodes [set hidden? true]
+  ask biological-network-links [set hidden? true]
+  ask biological-network-links with [diameter > network-biological-threshold] [set color blue set hidden? false ask end1 [set hidden? false] ask end2 [set hidden? false]]
+end
 
 
 to network-biological:update-display
-  ask biological-network-links [set color scale-color grey diameter 0 network-biological-diameter-max]
-  ask biological-network-nodes [set color mean [color] of my-links]
+  ask biological-network-links [set hidden? false set color scale-color grey diameter network-biological-diameter-max 0]
+  ask biological-network-nodes [set hidden? false set color mean [color] of my-links]
 end
 

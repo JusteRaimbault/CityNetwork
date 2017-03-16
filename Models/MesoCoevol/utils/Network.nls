@@ -184,6 +184,21 @@ to connexify-network-link-projection
 end
 
 
+to simplify-network 
+  let n count cities with [count cities-here > 1]
+  while [n > 0] [
+     let current-city one-of cities with [count cities-here > 1]
+     let to-connect [] ask current-city [
+       ask other cities-here [
+          ask my-roads with [[patch-here] of other-end != [patch-here] of myself] [set to-connect lput other-end to-connect die] die
+       ]
+       foreach to-connect [if not road-neighbor? ? [create-road-with ? [network:new-road]]]
+     ]
+     set n count cities with [count cities-here > 1]
+  ]
+end
+
+
 
 
 

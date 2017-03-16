@@ -1,10 +1,7 @@
-extensions [table pathdir nw context matrix]
+extensions [table pathdir nw matrix context gradient morphology]
 
 ;;;;
-;; Synthetic euclidian network generation
-;;
-;; First aim/thematic frame : spacematteriser SimpopNet
-;; Rq : for modularity, separate module should generate initial cities distribution ?
+;; Mesoscopic Co-evolution
 ;;
 ;;;;
 
@@ -14,55 +11,75 @@ extensions [table pathdir nw context matrix]
 
 __includes [
   
-  ;; network in itself
-  "synth-eucl-nw.nls"
+  ;; setup
+  "setup.nls"
   
-  ;; cities distribution
-  "synth-cities.nls"
-  ; or density
-  "lib/embedded-synth-pattern.nls"
+  ;; main coevol
+  "main.nls"
+  
+  ;; network growth
+  "network.nls"
+  ;; heuristics
+  "network-euclidian.nls"   ; diverse distance and gravity based heuristic 
+  "network-heuristic.nls"   ; gravity based empirical heuristic
+  "network-biological.nls"  ; biological network growth
+  
+  
+  ; cities distribution
+  "cities.nls"
+  ; density
+  "density.nls"
+  
+  "patches.nls"
+  
+  
   
   ;; indicators
   "indicators.nls"
-  
-  ;; wrapped nw generation for simple exploration
-  "heuristic-nw.nls"
-  
-  ;; experiment
-  "experiment.nls"
+   
   
   ;; tests 
    "test/test-includes.nls"
-   "test/test-headless.nls"
    
+   ;; display
+   "display.nls"
+   
+   ;; experiment
+   "experiment.nls"
+  
    ;;;;
    ;; Utils
    ;;;;
    
-   ; remark : generic path to include utils ? difficult as modif in NL and recompiling would be needed.
-   ; use ../.... ? -> assumes that CN_HOME < CS_HOME -- ok everywhere ?
+   "utils/Network.nls"
+   "utils/AgentSet.nls"
+   "utils/Statistics.nls"
+   "utils/File.nls"
+   "utils/List.nls"
+   "utils/Link.nls"
+   "utils/Agent.nls"
+   "utils/String.nls"
+   "utils/SpatialKernels.nls"
+   "utils/EuclidianDistance.nls"
+   "utils/Logging.nls"
    
-   ; other issue : utils/extensions dependancies - beurk ---
-   ;  -> def of includes possible in .nls includes -> check if no conflict.
    
-   "lib/Network.nls"
-   "lib/AgentSet.nls"
-   "lib/Statistics.nls"
-   "lib/File.nls"
-   "lib/List.nls"
-   "lib/Link.nls"
-   "lib/Agent.nls"
-   "lib/String.nls"
-     
 ]
 
 
 globals [
   
+  ;;
+  ; setup
+  setup-rank-size-exp
+  setup-max-pop
+  setup-center-density
+  ;setup-center-number
+  setup-outside-links-number
+  
   ;; network generation parameters
   
   max-pop
-  total-pop
   
   ;; cities generation parameters
   populations
@@ -71,112 +88,283 @@ globals [
   
   ;; density generation params
   total-time-steps
-  sp-max-pop
-  ;sp-growth-rate
-  ;sp-alpha-localization
-  ;sp-diffusion-steps
-  ;sp-diffusion
-  sp-population
+  ;sp-max-pop
+  ;population-growth-rate
+  ;density-alpha-localization
+  ;density-diffusion-steps
+  ;density-diffusion
+  
+  ; total population
+  total-population
+  cities-total-population
   
   ;; from density file (for coupling with scala density generator)
   density-file
   
   
+  ;; patch explicative variables globals
+  patch-population-max
+  patch-population-min
+  patch-population-share-max
+  patch-population-share-min
+  patch-distance-to-road-max
+  patch-distance-to-road-min
+  patch-closeness-centrality-max
+  patch-closeness-centrality-min
+  patch-bw-centrality-max
+  patch-bw-centrality-min
+  patch-accessibility-max
+  patch-accessibility-min
+  
+  ; linear aggreg coeficients
+  ;linear-aggreg-population-coef
+  ;linear-aggreg-distance-to-road-coef
+  ;linear-aggreg-closeness-centrality-coef
+  ;linear-aggreg-bw-centrality-coef
+  ;linear-aggreg-accessibility-coef
+  
+  
+  distance-to-roads-decay
+  
+  
   ;; network
+  
+  ; network update
+  network-update-time-mode ; "fixed-ticks" or "fixed-population"
+  network-update-ticks
+  
+  ; growth parameters
+  network-max-new-cities-number
+  network-cities-max-density
+  network-cities-density-radius
+  network-distance-road-needed
+  network-distance-road-min
+  
+  ; indicator tables
   shortest-paths
   nw-relative-speeds
   nw-distances
   
   pairs-total-weight
+ 
+  
+  ; network vars
+  network-vars-decay
+ 
+  ; accessibility
+  accessibility-decay
+ 
+ 
+  ; biological network
+  ; parameters
+  network-biological-initial-diameter
+  network-biological-input-flow
+  ;network-biological-threshold
+ 
+  ; vars
+  network-biological-o
+  network-biological-d
+  network-biological-nodes-number
+  network-biological-new-links-number
+  network-biological-diameter-max
+  network-biological-total-diameter-variation
+  bio-ticks
+  
+  ;;
+  ; indicators
+  
+  indicator-sample-patches
+  patch-values-table
+  
+  ;;
+  ;  Multimodeling variables
+  
+  setup-method
+  
+  ; network-generation-method
+  ;   { "gravity-heuristic","biological","road-connexion" }
+  ;network-generation-method
+  
+  ; patch value function
+  patch-value-function
+  
+  ; heuristic network : city interaction method
+  ;
+  ;  TODO : multimodeling more easy with external architecture file precising modules and options ? would imply dependancies etc ; to be investigated further
+  cities-interaction-method ; \in {"gravity"}
+ 
+ 
+  ;;
+  ; experiments
+  experiment-id
   
   
-  ;;;;;;;;;;;;;;
-  ;; HEADLESS
-  ;;;;;;;;;;;;;;
+  ;;
+  headless?
   
-  ;; density
-  sp-diffusion
-  sp-diffusion-steps
-  sp-alpha-localization
-  sp-growth-rate
+  log-level
   
-  ; methods
-  cities-generation-method
-  density-to-cities-method
-  cities-interaction-method
+  
+  ;;;;;
+  ;; Weak coupling
+  
+  cities-generation-method ;  \in {"zipf-christaller";"random";"prefAtt-diffusion-density";"from-density-file";"fixed-density"}
+  density-to-cities-method ; \in {"hierarchical-aggreg" ; "random-aggreg" ; "intersection-density"}
+  
+  
+  ;;
+  ; HEADLESS
+  ; "simple-connexification" "neighborhood-gravity" "shortcuts" "random" "none"
+  eucl-nw-generation-method
+  setup-center-number
+  display-variable
   network-generation-method
-  
-  ; cities generation
+  seed
+  fixed-config-num
   city-max-pop
   #-cities
   rank-size-exponent
-  
-  ; network
   random-network-density
   neigh-gravity-threshold-quantile
   basic-gravity-exponent
-  ;gravity-hierarchy-exponent
-  ;gravity-radius
   shortcuts-threshold
   shorcuts-max-number
+  sp-max-pop
   
-  ; extended gravity parameters
-  ;hierarchy-role
-  ;gravity-inflexion
+  population-growth-rate
+  density-alpha-localization
+  density-diffusion-steps
+  density-diffusion
   
-  ;; experiment parameters
   gravity-radius
   gravity-inflexion
   hierarchy-role
   gravity-hierarchy-exponent
   #-max-new-links
-  ; breakdown-threshold ; deleted parameter, fixed new link number
   
+  linear-aggreg-population-coef
+  linear-aggreg-distance-to-road-coef
+  linear-aggreg-closeness-centrality-coef
+  linear-aggreg-bw-centrality-coef
+  linear-aggreg-accessibility-coef
   
-  ; fixed density config
-  fixed-config-num
+  network-biological-threshold
+  network-biological-steps
   
 ]
 
 
 breed [cities city]
 
-;; compatibility with nw utils ?
-breed [nw-nodes nw-node]
-
 undirected-link-breed [roads road]
 
-undirected-link-breed [gravity-links gravity-link]
 
 patches-own [
  
+ patch-population-share
  
  ;; cities generation
  distance-weighted-total-pop
  
  
  ;; density generation
- sp-density
- sp-occupants
+ ;  density <-> population : population-share
+ patch-population
+ ; patch-population-share -> first var for morphology call
  
+ ; closest city, on which nw measures are based
+ patch-closest-city
+ patch-closest-city-distance
+ 
+ ; explicative variables (includes population)
+ patch-distance-to-road
+ patch-closeness-centrality
+ patch-bw-centrality
+ patch-accessibility
+ 
+ ; aggregated value (rbd style)
+ patch-value
  
 ]
 
 
 cities-own [
   ; population
-  population 
+  city-population
+  
+  ; id
+  id
+  
+  
+  ;; network variables
+  city-bw-centrality
+  city-closeness-centrality
+  city-accessibilities
+  city-accessibility
+  
 ]
 
 
 roads-own [
+  
   capacity
   
+  ; length
   road-length
+  
   
   bw-centrality
   
 ]
+
+
+;;
+;  auxiliary breeds
+
+;;
+; biological network generation
+
+breed [biological-network-nodes biological-network-node]
+breed [biological-network-poles biological-network-pole]
+
+undirected-link-breed [biological-network-links biological-network-link]
+undirected-link-breed [biological-network-real-links biological-network-real-link]
+
+biological-network-nodes-own [
+  ;; pressure
+  pressure
+  ;; total capacity            
+  total-capacity          
+  ;; number
+  biological-network-node-number    
+]
+
+biological-network-poles-own [
+  real-pressure
+]
+
+
+biological-network-links-own [
+  ;; diameter
+  diameter
+  ;; flow
+  flow            
+  ;; length
+  bio-link-length    
+]
+
+biological-network-real-links-own [
+  real-link-length 
+]
+
+
+
+
+
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 4
@@ -185,7 +373,7 @@ GRAPHICS-WINDOW
 691
 -1
 -1
-6.5
+13.0
 1
 10
 1
@@ -196,82 +384,23 @@ GRAPHICS-WINDOW
 0
 1
 0
-99
+49
 0
-99
+49
 0
 0
 1
 ticks
 30.0
 
-BUTTON
-676
-39
-755
-72
-NIL
-test-nw
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-PLOT
-820
-15
-1195
-250
-gravity
-NIL
-NIL
-0.0
-0.01
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot count turtles"
-
-BUTTON
-676
-81
-782
-114
-NIL
-test-density
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-OUTPUT
-728
-443
-1085
-649
-10
-
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+Co-evolution of Urban Form and Transportation Network 
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Preferential Attachment (parametric value of patches)/ diffusion for density ; multi-modeling heuristics for network
 
 ## HOW TO USE IT
 

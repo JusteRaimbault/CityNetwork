@@ -1,0 +1,101 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+//logger.level("FINE")
+
+// unique id
+val id = Val[Int]
+val idpar = Val[Int]
+
+
+// Model
+val densityModel =
+  ScalaTask(
+    """
+      | import density._
+      | val config = newFile()
+      | val gen = new PADGeneratorLauncher
+      | gen.main(50,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication,config)
+      | val moran = gen.moran
+      | val distance = gen.distance
+      | val entropy = gen.entropy
+      | val slope = gen.slope
+      | val rsquared = gen.rsquared
+    """.stripMargin
+  ) set (
+    imports += "density._",
+    plugins += pluginsOf[PADGeneratorLauncher],
+    inputs += (id,idpar,diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber),
+    outputs += (id,idpar,diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber),
+    outputs += (moran,distance,entropy,slope,rsquared),
+    outputs += config
+  )
+val densityModelCapsule = Capsule(densityModel)
+
+
+// define a specific capsule to copy config out of density model
+//val densityFileHook = CopyFileHook(config,workDirectory / "pop/config_${id}.csv")
+val densityFileTask = ScalaTask("val densityConfig = \""+workDirectory.toString+"/pop/config_\"+input.id+\".csv\" ") set (
+  inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,moran,distance,entropy,slope,rsquared),
+  inputs += (id,idpar,config),
+  outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,moran,distance,entropy,slope,rsquared),
+  outputs += (densityConfig,config,id,idpar)
+)
+
+val copyHook = CopyFileHook(config,workDirectory / "pop/config_${id}.csv")
+
+
+// network model
+val cmds = List("setup-experiment ${citiesNumber} ${gravityRadius} ${gravityInflexion} ${hierarchyRole} ${gravityHierarchyExponent} ${maxNewLinksNumber} \"${densityConfig}\"","run-experiment")
+val nwModel = NetLogo5Task(workDirectory / "model/HEADLESS_SyntheticNetwork.nlogo", cmds,embedWorkspace = true) set (
+    inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,moran,distance,entropy,slope,rsquared,densityConfig,id,idpar),
+    outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,citiesNumber,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,moran,distance,entropy,slope,rsquared,id,idpar),
+    //outputs +=(nwDiameter,meanPathLength,meanBwCentrality,meanRelativeSpeed,nwLength),
+    netLogoOutputs += ("nw-diameter", nwDiameter),
+    netLogoOutputs += ("mean-path-length", meanPathLength),
+    netLogoOutputs += ("mean-bw-centrality",meanBwCentrality),
+    netLogoOutputs += ("mean-relative-speed",meanRelativeSpeed),
+    netLogoOutputs += ("total-nw-length",nwLength)
+)
+
+val nwModelCapsule = Capsule(nwModel)
+
+//val taskFlow = Capsule(densityModelCapsule -- (Capsule(densityFileTask) hook copyHook) -- (nwModelCapsule hook h))
+
+
+val rmPopFile = ScalaTask("val f = new File(\""+workDirectory.toString+"/pop/config_\"+input.id+\".csv\");f.delete()") set (inputs += id)
+
+
+
+val correplication = Val[Int]
+val correpid = Val[Int]
+
+// exploration
+
+
+val exploration = ExplorationTask (
+  ((LHS (
+    2,
+    diffusion in Range(0.0, 0.5),
+    alphalocalization in Range(0.1,4.0),
+    growthrate in Range(500.0,3000.0),
+    population in Range(10000.0,100000.0),
+    diffusionsteps in Range(1.0,5.0),
+    citiesNumber in Range(50.0, 120.0),
+    gravityRadius in Range(1.0,100.0),
+    gravityInflexion in Range(0.1,10.0),
+    hierarchyRole in Range(0.0,1.0),
+    gravityHierarchyExponent in Range(0.1,4.0),
+    maxNewLinksNumber in Range(4.0,20.0)
+  ) withIndex idpar) x (correplication in (UniformDistribution[Int]() take 100)) withIndex correpid) x(replication in (UniformDistribution[Int]() take 100)) withIndex id
+)
+val purpose = "LHS_DENSITYNW_DIRAC"
+
+// output hook
+val h = AppendToCSVFileHook(workDirectory / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
+
+// env
+//val local = LocalEnvironment(40)
+val grid = EGIEnvironment("vo.complex-systems.eu")
+
+//exploration -< ((densityModelCapsule on egi by 1000) -- (Capsule(densityFileTask) hook copyHook) -- (nwModelCapsule on egi by 1000 hook h)  -- rmPopFile)
+exploration -< ((densityModelCapsule on local) -- (Capsule(densityFileTask) hook copyHook) -- (nwModelCapsule on local hook h)  -- rmPopFile)

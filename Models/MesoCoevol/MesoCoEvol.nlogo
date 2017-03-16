@@ -159,7 +159,7 @@ globals [
   ; parameters
   network-biological-initial-diameter
   network-biological-input-flow
-  network-biological-threshold
+  ;network-biological-threshold
  
   ; vars
   network-biological-o
@@ -168,6 +168,7 @@ globals [
   network-biological-new-links-number
   network-biological-diameter-max
   network-biological-total-diameter-variation
+  bio-ticks
   
   ;;
   ; indicators
@@ -284,8 +285,10 @@ roads-own [
 ; biological network generation
 
 breed [biological-network-nodes biological-network-node]
+breed [biological-network-poles biological-network-pole]
 
 undirected-link-breed [biological-network-links biological-network-link]
+undirected-link-breed [biological-network-real-links biological-network-real-link]
 
 biological-network-nodes-own [
   ;; pressure
@@ -296,6 +299,11 @@ biological-network-nodes-own [
   biological-network-node-number    
 ]
 
+biological-network-poles-own [
+  real-pressure
+]
+
+
 biological-network-links-own [
   ;; diameter
   diameter
@@ -305,7 +313,9 @@ biological-network-links-own [
   bio-link-length    
 ]
 
-
+biological-network-real-links-own [
+  real-link-length 
+]
 
 
 
@@ -534,10 +544,10 @@ OUTPUT
 10
 
 BUTTON
-674
-611
-755
-644
+667
+562
+748
+595
 network
 reset-network\ngenerate-network eucl-nw-generation-method
 NIL
@@ -603,9 +613,9 @@ HORIZONTAL
 
 BUTTON
 749
-572
+561
 824
-605
+594
 nw indics
 compute-indicators
 NIL
@@ -751,10 +761,10 @@ seed
 Number
 
 BUTTON
-759
-611
-825
-644
+826
+562
+892
+595
 clear
 ca random-seed seed
 NIL
@@ -827,10 +837,10 @@ NIL
 1
 
 CHOOSER
-1048
-48
-1220
-93
+1045
+76
+1217
+121
 network-generation-method
 network-generation-method
 "gravity-heuristic" "biological" "road-connexion"
@@ -949,12 +959,44 @@ Linear aggreg coefs
 1
 
 BUTTON
-836
-582
-899
-615
-bio
-network-biological:clear-network\nnetwork-biological:grow-network
+675
+642
+746
+675
+go bio
+network-biological:go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+1044
+249
+1244
+282
+network-biological-threshold
+network-biological-threshold
+0
+2
+0.5
+0.1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+752
+642
+816
+675
+show bio
+network-biological:show-links
 NIL
 1
 T
@@ -964,6 +1006,89 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+814
+605
+892
+638
+connex
+network-biological:kill-weak-links\nnetwork-biological:keep-connex-component
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+675
+606
+741
+639
+clear bio
+network-biological:clear-network
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+743
+605
+811
+638
+setup bio
+network-biological:setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+819
+641
+884
+674
+simpl
+network-biological:simplify-network\n
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+1242
+249
+1416
+282
+network-biological-steps
+network-biological-steps
+0
+100
+50
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

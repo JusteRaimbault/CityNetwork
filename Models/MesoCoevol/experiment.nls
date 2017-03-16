@@ -9,7 +9,7 @@
 ;  Parameters : 
 ;    nw-heuristic \in {"gravity-heuristic","biological","road-connexion"}
 ;    seed
-to setup-experiment [nw-heuristic rseed]
+to setup-experiment [nw-heuristic growth-rate density-alpha diffusion-steps diffusion la-pop-coef la-droad-coef la-closeness la-bw la-accessibility grav-radius grav-inflexion grav-hierarchy-role grav-exponent grav-new-links bio-threshold bio-steps nw-update-time total-time rseed]
   
   show (word "params : network-generation-method = " nw-heuristic " ; seed = " rseed)
   
@@ -19,9 +19,36 @@ to setup-experiment [nw-heuristic rseed]
   
   ; setup vars
   
-  set network-generation-method nw-heuristic
+  if nw-heuristic = 0 [set network-generation-method "road-connexion"] if nw-heuristic = 1 [set network-generation-method "gravity-heuristic"] if nw-heuristic = 0 [set network-generation-method "biological"]
+  
+  set population-growth-rate growth-rate
+  set density-alpha-localization density-alpha
+  set density-diffusion-steps (floor diffusion-steps + 1)
+  set density-diffusion diffusion
+  
+  set linear-aggreg-population-coef la-pop-coef
+  set linear-aggreg-distance-to-road-coef la-droad-coef
+  set linear-aggreg-closeness-centrality-coef la-closeness
+  set linear-aggreg-bw-centrality-coef la-bw
+  set linear-aggreg-accessibility-coef la-accessibility
+  
+  set gravity-radius grav-radius
+  set gravity-inflexion grav-inflexion
+  set hierarchy-role grav-hierarchy-role
+  set gravity-hierarchy-exponent grav-exponent
+  set #-max-new-links grav-new-links
+  
+  set network-biological-threshold bio-threshold
+  set network-biological-steps (floor bio-steps)
+  
+  set network-update-ticks (floor nw-update-time)
+  set total-time-steps (floor total-time)
+  
   
   set seed rseed
+  
+  
+  setup:setup-headless
   
   ; setup
   setup:setup
@@ -32,7 +59,9 @@ end
 ;;
 ;
 to run-experiment
-  
+  repeat total-time-steps [
+    go
+  ]
 end
 
 
