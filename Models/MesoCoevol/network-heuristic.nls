@@ -1,35 +1,55 @@
 
 
-;; heuristic used for exploration
 
-to heuristic-nw [density-method]
-  
-  ; cities generation done by fastest method
-  set density-to-cities-method "intersection-density"
-  show density-method
-  generate-cities density-method
-  
-  heuristic-nw-generation
-  
+
+
+;;
+; Heuristic nw growth
+to network-heuristic:grow-network
+  network-heuristic:heuristic-nw-generation true
 end
 
 
 
-to heuristic-nw-generation
+
+;;
+; heuristic used for exploration (Weak coupling)
+to network-heuristic:full-heuristic-nw [density-method]
   
-  ; connexification
-  simple-connexification
+  ; cities generation done by fastest method
+  set density-to-cities-method "intersection-density"
+  show density-method
+  cities:generate-cities-from-scratch density-method
+  
+  network-heuristic:heuristic-nw-generation false
+  
+end
+
+
+;;
+; 
+;  @param iterative? full network generation or iterative step
+to network-heuristic:heuristic-nw-generation [iterative?]
+  
+  ;debug "... gravity heuristic nw"
+  
+  if not iterative? [
+    ; connexification
+    simple-connexification
+    ; compute nw distances
+    ;  !! is not optionnal, new generated cities are not taken into account yet in the nw. ==> DONE IN MAIN NETWORK
+    ;   TODO (could optimize more by computing only for new ones, as tree structure is the rule in the previous step)
+    network:compute-nw-distances
+  ]
+  
+  
   
   ; real potentials computation
-  set cities-interaction-method "gravity"
   set cities-interaction-table table:make
-  fill-cities-interaction-table "euclidian"
-  
-  ; compute nw distances
-  network:compute-nw-distances
+  cities:fill-cities-interaction-table "euclidian"
   
   ; nw interaction
-  fill-cities-interaction-table "network"
+  cities:fill-cities-interaction-table "network"
   
   ; gravity breakdown
   ; first get possible new link, sorting on strongest euclidian potentials
@@ -49,13 +69,13 @@ to heuristic-nw-generation
   foreach sublist sort-by [first ?1 < first ?2] bpot 0 #-max-new-links [   
      let c1 city (item 1 ?) let c2 city (item 2 ?)
      ask c1 [
-       if not road-neighbor? c2 [create-road-with c2 [new-road]]
+       if not road-neighbor? c2 [create-road-with c2 [network:new-road]]
      ]
      
      ; recompute nw distances and potentials
      planarize-network cities roads
      network:compute-nw-distances
-     fill-cities-interaction-table "network"
+     cities:fill-cities-interaction-table "network"
 
   ]
   

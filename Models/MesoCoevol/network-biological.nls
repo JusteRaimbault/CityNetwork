@@ -1,0 +1,237 @@
+
+;;
+; biological network growth
+
+;;
+;
+to network-biological:grow-network
+  
+  network-biological:setup
+  
+  
+  network-biological:evolve
+  
+end
+
+
+;;
+;
+to network-biological:evolve
+  let t 0
+  repeat 20 [
+    debug (word "bionw : tick " t)
+    network-biological:go 
+    set t t + 1
+  ]
+end
+
+
+
+;;
+; 
+to network-biological:go
+  ;;memorize pipes
+  let old-pipes biological-network-links with [diameter > network-biological-threshold]
+  
+  network-biological:update-pressures
+  
+  network-biological:update-flows-and-diameters
+  
+  ;;reporter for convergence tests
+  set network-biological-new-links-number count biological-network-links with [diameter > network-biological-threshold and not member? self old-pipes]
+
+  ;;display
+  network-biological:update-display
+
+end
+
+
+
+
+;;
+; setup nodes and links
+to network-biological:setup
+  
+  ;; globals : as global parameters
+  
+  ;; setup nodes
+  ask patches [
+    sprout-biological-network-nodes 1 [
+      set color black set size 0.5 set biological-network-node-number who                   
+    ]
+  ]
+  
+  ;; setup links
+  
+  ; setup following exisiting network
+  ask roads [
+    let e1 [one-of biological-network-nodes-on patch-here] of end1 let e2 [one-of biological-network-nodes-on patch-here] of end2
+    let currentlength road-length
+    ask e1 [create-biological-network-link-with e2 [set bio-link-length currentlength set diameter network-biological-initial-diameter set thickness 0.2]] 
+  ]
+  
+  ; mesh
+  ask biological-network-nodes [
+    create-biological-network-links-with other biological-network-nodes in-radius 1.5 [
+      set diameter 1 let di 0 ask end1 [set di distance other-end]
+      set bio-link-length di
+      set thickness 0.2
+      ;set color scale-color grey diameter diameter-max diameter-min
+    ]
+  ]
+  
+  
+  network-biological:reset-numbers
+  
+  ; setup o-ds
+  
+  
+  
+end
+
+
+to network-biological:update-pressures
+  ;; reset vertices numbers
+  network-biological:reset-numbers
+  ;; choose OD randomly
+  network-biological:choose-OD
+  
+  ;; solve the system
+  let pressures network-biological:solve-system
+  
+  ask biological-network-nodes [network-biological:set-pressures pressures]
+end
+
+
+to network-biological:update-flows-and-diameters
+  set network-biological-diameter-max max [diameter] of biological-network-links
+  set network-biological-total-diameter-variation 0
+  ask biological-network-links [
+    network-biological:update-flow
+    network-biological:update-diameters
+  ]
+end
+
+
+
+;;
+;
+to network-biological:choose-OD
+  set network-biological-o one-of cities
+  ask network-biological-o [set network-biological-d one-of other cities]
+end
+
+
+;;
+;
+to network-biological:reset-numbers
+  set network-biological-nodes-number count biological-network-nodes
+  let j 0 ask biological-network-nodes [set biological-network-node-number j set j j + 1]
+end
+
+
+
+;;
+;
+to-report network-biological:get-flow-matrix
+  let nodes-number count biological-network-nodes
+  ; (n-1 ; n-1) matrix to avoid singularity ?
+  let flow-matrix matrix:make-constant (nodes-number - 1) (nodes-number - 1) 0
+  ask biological-network-nodes [
+    if biological-network-node-number != nodes-number - 1 [
+      let total-flow 0
+      ask my-biological-network-links [
+        let s diameter / bio-link-length
+        set total-flow total-flow + s
+        if [biological-network-node-number] of other-end != nodes-number - 1 [
+          matrix:set flow-matrix [biological-network-node-number] of myself [biological-network-node-number] of other-end (- s)
+        ]
+      ]
+      matrix:set flow-matrix biological-network-node-number biological-network-node-number total-flow  
+    ]                    
+  ]
+
+  report flow-matrix
+end
+
+
+
+;;
+;  solve the system
+to-report network-biological:solve-system
+  let flow-matrix network-biological:get-flow-matrix
+  let io-flows network-biological:get-io-flows
+  report matrix:solve flow-matrix io-flows
+end
+
+
+
+
+to-report network-biological:get-io-flows
+  ;; n-1 x 1 matrix
+  let ioflows matrix:make-constant (network-biological-nodes-number - 1) 1 0
+  
+  let aux [biological-network-node-number] of one-of (biological-network-nodes with-min [distance network-biological-o])
+  ; input
+  if aux != network-biological-nodes-number - 1 [matrix:set ioflows aux 0 network-biological-input-flow]
+  
+  set aux [biological-network-node-number] of one-of (biological-network-nodes with-min [distance network-biological-d])
+  ; output
+  if aux != network-biological-nodes-number - 1 [matrix:set ioflows aux 0 (- network-biological-input-flow)]
+  
+  report ioflows
+end
+
+
+; vertices procedure
+;;reset pression matrix
+to network-biological:set-pressures [pressures]
+  set total-capacity sum [diameter / bio-link-length] of my-biological-network-links
+  ifelse biological-network-node-number = network-biological-nodes-number - 1 [
+    set pressure 0
+  ][
+    set pressure matrix:get pressures biological-network-node-number 0
+  ]
+end
+
+;;
+; Computes new flow
+to network-biological:update-flow
+  set flow diameter / bio-link-length * ([pressure] of end1 - [pressure] of end2)  
+end
+
+;;
+; update diamaters
+to network-biological:update-diameters
+  ;; delta t -> should put in one single constant
+  let dt 0.05
+  let old-diameter diameter
+  
+  let flow-gamma 1.8 
+  let var (abs flow) ^ flow-gamma / (1 + (abs flow) ^ flow-gamma)
+  
+  set diameter dt * var + (1 - dt) * diameter
+  
+  ;;diameter variation
+  set network-biological-total-diameter-variation network-biological-total-diameter-variation + (diameter - old-diameter)
+  
+end
+
+
+
+
+
+
+to network-biological:clear-network
+  ask biological-network-nodes [die]
+  ask biological-network-links [die]
+end
+
+
+
+
+to network-biological:update-display
+  ask biological-network-links [set color scale-color grey diameter 0 network-biological-diameter-max]
+  ask biological-network-nodes [set color mean [color] of my-links]
+end
+

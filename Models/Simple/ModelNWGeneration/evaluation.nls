@@ -5,7 +5,7 @@
 ;;
 ;
 to abstract-real-network
-  ask vertices with [ count my-links with [D > Df] > 2 ] [
+  ask vertices with [count my-links with [diameter > Df] > 2 ] [
     if not any? poles-here [
       hatch-poles 1 [
         set size 1
@@ -18,7 +18,7 @@ to abstract-real-network
     let aux one-of vertices-here
     let aux1 aux
     ask aux [
-      ask my-paths with [D > Df] [
+      ask my-paths with [diameter > Df] [
         let not-found true
         ask poles-on other-end [
           
@@ -29,7 +29,7 @@ to abstract-real-network
           ]
           
           create-real-link-with me [
-            set d dist
+            set real-link-length dist
           ]
           set not-found false
         ]
@@ -37,7 +37,7 @@ to abstract-real-network
         set aux1 other-end
         while [not-found] [
           ask aux1 [
-            let s my-paths with [D > Df and other-end != aux2]
+            let s my-paths with [diameter > Df and other-end != aux2]
             if not any? s [
               set not-found false
               stop
@@ -52,7 +52,7 @@ to abstract-real-network
                 ]
           
                 create-real-link-with me [
-                  set d dist
+                  set real-link-length dist
                 ]
                 
                 
@@ -86,7 +86,7 @@ end
 ;
 to-report cost
   ;;cost of construction
-  report sum [d] of real-links
+  report sum [real-link-length] of real-links
 end
 
 
@@ -109,7 +109,7 @@ to-report geometrical-NRI
   
   ;;first associates flows to each real links in the total network
   ;;travels are doubled but again not a problem thanks to the normalisation
-  ask real-links[set geometrical-flux 0 ]
+  ask real-links[set real-link-geometrical-flux 0 ]
   
   nw:set-context poles real-links
   
@@ -118,21 +118,22 @@ to-report geometrical-NRI
      ask other poles[
         let chemin nw:weighted-path-to start "d"
         foreach chemin[
-          ask ? [set geometrical-flux (geometrical-flux + 1) ]
+          ask ? [set real-link-geometrical-flux (real-link-geometrical-flux + 1) ]
         ]
      ]
   ]
   ;;c is Sum(t*x)
-  let cc sum [ d * geometrical-flux] of real-links
+  let cc sum [ real-link-length * real-link-geometrical-flux] of real-links
   
   ;;do the same, suppressing each link
-  ask real-links[
-     let dist d
+  ask real-links [
+    
+     let dist real-link-length
      
      ;;supress the link by putting very huge distance?
-     set d d * 10
+     set real-link-length real-link-length * 10
      
-     ask real-links[set geometrical-flux 0 ]
+     ask real-links[set real-link-geometrical-flux 0 ]
      
      nw:set-context poles real-links
    
@@ -141,21 +142,21 @@ to-report geometrical-NRI
      ask other poles[
         let chemin nw:weighted-path-to start "d"
         foreach chemin[
-             ask ? [set geometrical-flux (geometrical-flux + 1) ]
+             ask ? [set real-link-geometrical-flux (real-link-geometrical-flux + 1) ]
           ]
        ]
      ]
     
 
 
-     set NRI ((sum [d * geometrical-flux] of real-links) - cc)
+     set real-link-NRI ((sum [real-link-length * real-link-geometrical-flux] of real-links) - cc)
      
-     set d dist
+     set real-link-length dist
      
   ]
   
   let nn count poles
-  report (sum [NRI] of real-links)/(nn * (nn - 1))
+  report (sum [real-link-NRI] of real-links)/(nn * (nn - 1))
   
   
 end

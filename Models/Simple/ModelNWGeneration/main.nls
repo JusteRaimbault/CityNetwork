@@ -5,8 +5,23 @@
 
 to go
   ;;memorize pipes
-  let old-pipes paths with [D > Df]
+  let old-pipes paths with [diameter > Df]
   
+  update-pressures
+  
+  update-flows-and-diameters
+  
+  ;;reporter for convergence tests
+  set new-links-number count paths with [diameter > Df and not member? self old-pipes]
+
+  ;;display
+  update-display
+
+  tick
+end
+
+
+to update-pressures
   ;; reset vertices numbers
   ; TODO : necessary step ?
   reset-numbers
@@ -17,21 +32,16 @@ to go
   let pressures solve-system current-implantation
   
   ask vertices[set-pressures pressures]
-  
-  set Dmax max [D] of paths
+end
+
+
+to update-flows-and-diameters
+  set diameter-max max [diameter] of paths
   set total-diameter-variation 0
   ask paths[
     update-flow
     update-diameters
   ]
-
-  ;;reporter for convergence tests
-  set new-links-number count paths with [D > Df and not member? self old-pipes]
-
-  ;;display
-  update-display
-
-  tick
 end
 
 
@@ -47,7 +57,7 @@ to reset-numbers
   let j 0
   foreach sort vertices[
     ask ? [
-      set number j                         ;; actualiser la valeur de number
+      set number j                        
       set j j + 1
     ]
   ]
@@ -84,23 +94,20 @@ end
 ;
 to-report get-flow-matrix
   set nodes-number count vertices
-  let M matrix:make-constant (nodes-number - 1) (nodes-number - 1) 0 ;; n-1 x n-1 Matrice
+  let flow-matrix matrix:make-constant (nodes-number - 1) (nodes-number - 1) 0
   ask vertices[
-    if number = nodes-number - 1 [stop]
-    let kll 0
+    ;if number = nodes-number - 1 [stop]
+    let total-flow 0
     ask my-paths[
-      let s D / path-length
-      set kll kll + s
+      let s diameter / path-length
+      set total-flow total-flow + s
       if [number] of other-end != nodes-number - 1 [
-      matrix:set M [number] of myself [number] of other-end (- s) ]
+      matrix:set flow-matrix [number] of myself [number] of other-end (- s) ]
     ]
-    ;;counter matrix singularity : quantity that stays on the node -- note : not conservative ?
-    ;if kll < 0.1 [set kll 0.1]
-    ;; diagonal
-    matrix:set M number number kll                      
+    matrix:set flow-matrix number number total-flow                      
   ]
 
-  report M
+  report flow-matrix
 end
 
 
@@ -135,7 +142,7 @@ end
 ; vertices procedure
 ;;reset pression matrix
 to set-pressures [pressures]
-  set k sum [diameter / path-length] of my-paths
+  set total-capacity sum [diameter / path-length] of my-paths
   ifelse number = nodes-number - 1 [
     set pressure 0
   ][

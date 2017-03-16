@@ -48,8 +48,8 @@ globals [
 
   ;; incidence matrix
   incidence-matrix            
-  Dmin                 
-  Dmax               
+  diameter-min                 
+  diameter-max               
   ;  n0                   ;; nb initial de noeuds
   nodes-number                    ;; nb de noeuds
   center1                   ;; ville 1
@@ -114,11 +114,8 @@ patches-own[
 vertices-own [
   ;; pressure
   pressure
-  
-  ;; flow    
-  ;v
-  ;; coefficient                  
-  k                    
+  ;; total capacity            
+  total-capacity          
   ;; number
   number               
 ]
@@ -144,13 +141,13 @@ poles-own [
 
 real-links-own[
   ;; length of the link (the abstract network is weighted)
-  d         
+  real-link-length      
          
   ;; flux in link calculated through topological structure of network
-  geometrical-flux 
+  real-link-geometrical-flux 
       
   ;; NRIa used in NRI calculation
-  NRI                  
+  real-link-NRI                  
 ]
 
 
@@ -166,9 +163,9 @@ stations-own [
 GRAPHICS-WINDOW
 262
 12
-962
-563
-34
+681
+252
+20
 -1
 10.0
 1
@@ -180,10 +177,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--34
-34
+-20
+20
 0
-51
+20
 0
 0
 1
@@ -191,10 +188,10 @@ ticks
 30.0
 
 BUTTON
-109
-35
-172
-68
+170
+34
+233
+67
 setup
 setup
 NIL
@@ -208,10 +205,10 @@ NIL
 1
 
 BUTTON
-113
-74
-176
-107
+174
+73
+237
+106
 NIL
 go
 T
@@ -240,9 +237,9 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot max [D] of paths"
-"pen-1" 1.0 0 -7500403 true "" "plot min [D] of paths"
-"pen-2" 1.0 0 -2674135 true "" "plot mean [D] of paths"
+"default" 1.0 0 -16777216 true "" "plot max [diameter] of paths"
+"pen-1" 1.0 0 -7500403 true "" "plot min [diameter] of paths"
+"pen-2" 1.0 0 -2674135 true "" "plot mean [diameter] of paths"
 
 PLOT
 978
@@ -280,10 +277,10 @@ HORIZONTAL
 SLIDER
 8
 319
-100
+132
 352
-D0
-D0
+initial-diameter
+initial-diameter
 0
 1
 1
@@ -308,10 +305,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-103
-317
-195
-350
+140
+324
+232
+357
 Df
 Df
 0
@@ -328,7 +325,7 @@ BUTTON
 179
 430
 mark important aretes
-ask paths [set color white]\nask paths with [D > Df] [set color blue]
+ask paths [set color white]\nask paths with [diameter > Df] [set color blue]
 NIL
 1
 T
@@ -373,7 +370,7 @@ MONITOR
 1397
 55
 Net-length
-count paths with [D > Df]
+count paths with [diameter > Df]
 17
 1
 11
@@ -384,7 +381,7 @@ MONITOR
 1400
 103
 Length of abstract network
-sum [d] of real-links
+sum [real-link-length] of real-links
 17
 1
 11
@@ -550,7 +547,7 @@ count paths
 SWITCH
 14
 34
-104
+157
 67
 setup-from-file?
 setup-from-file?
@@ -587,10 +584,10 @@ data/romainville.shp
 String
 
 INPUTBOX
-93
-240
-259
-300
+10
+241
+176
+301
 grid-layer
 data/TestGrid.shp
 1

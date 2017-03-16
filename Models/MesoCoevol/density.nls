@@ -10,7 +10,7 @@ to setup-exploration
   ; set time steps
   setup-synth-pattern
   ; here fix max pop
-  set total-time-steps floor (sp-max-pop / sp-growth-rate)
+  set total-time-steps floor (sp-max-pop / population-growth-rate)
 end
 
 
@@ -31,28 +31,14 @@ to density:update-density
   ; --> discrete choice model with beta param
   ;
   
-  let stot sum [patch-value ^ sp-alpha-localization] of patches
+  let stot sum [patch-value ^ density-alpha-localization] of patches
   
   ifelse stot = 0 [
-    repeat (floor sp-growth-rate) [ask one-of patches [set patch-population patch-population + 1]]
+    repeat (floor population-growth-rate) [ask one-of patches [set patch-population patch-population + 1]]
     ][
-;    ; draw random patches
-;    let s 0 let f 0 let r [] repeat (floor sp-growth-rate) [set r lput random-float 1 r] set r sort r
-;    ;show r
-;    ; add 1 population to each
-;    ask patches [
-;      if f < (floor sp-growth-rate) [
-;        set s s + (sp-density ^ sp-alpha-localization)
-;        while [f < length r and (s / stot) > item f r] [
-;          ;show (word self " : " (s / stot) " - " item f r)
-;          set sp-occupants sp-occupants + 1 set f f + 1
-;        ]
-;      ]
-;    ]
-
-    repeat floor sp-growth-rate [
+    repeat floor population-growth-rate [
       let s 0 let r random-float 1 let i 0 let plist to-list patches
-      while [s < r] [ask item i plist [ set s s + ((patch-value ^ sp-alpha-localization) / stot) if s >= r [set patch-population patch-population + 1] set i i + 1]]     
+      while [s < r] [ask item i plist [ set s s + ((patch-value ^ density-alpha-localization) / stot) if s >= r [set patch-population patch-population + 1] set i i + 1]]     
     ]
 
     
@@ -63,7 +49,7 @@ to density:update-density
   ;; also different diffusion if effective local density is too high ? would be logical to have "realistic" distribs
   ;;   -> set proba different from population ? (ex depending on neighbors if too high ? -> diffuse other variable ?)
   
-  repeat sp-diffusion-steps [
+  repeat density-diffusion-steps [
     diffuse patch-population density-diffusion
     
     ; adjustement for bord effects
@@ -89,7 +75,7 @@ end
 
 ;;
 ; Generation of a synthetic pattern
-to generate-synth-pattern
+to density:generate-synth-pattern
   setup-synth-pattern
   repeat total-time-steps [density:update-density]
 end

@@ -2,6 +2,13 @@
 
 
 
+## coevol - gametheory
+
+* Jeu 16 mar 2017 10:33:23 CET * 
+
+{Dynamic landscape models of coevolutionary games} : coevolution in payoff matrices ?
+
+
 ## networkgrowth
 
 * Ven 10 mar 2017 18:27:06 CET * 

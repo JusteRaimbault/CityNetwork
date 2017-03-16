@@ -1,4 +1,4 @@
-extensions [table pathdir nw matrix context gradient]
+extensions [table pathdir nw matrix context gradient morphology]
 
 ;;;;
 ;; Mesoscopic Co-evolution
@@ -20,9 +20,9 @@ __includes [
   ;; network growth
   "network.nls"
   ;; heuristics
-  "euclidian-nw.nls"   ; diverse distance and gravity based heuristic 
-  "heuristic-nw.nls"   ; gravity based empirical heuristic
-  "biological-nw.nls"  ; biological network growth
+  "network-euclidian.nls"   ; diverse distance and gravity based heuristic 
+  "network-heuristic.nls"   ; gravity based empirical heuristic
+  "network-biological.nls"  ; biological network growth
   
   
   ; cities distribution
@@ -61,6 +61,8 @@ __includes [
    "utils/String.nls"
    "utils/SpatialKernels.nls"
    "utils/EuclidianDistance.nls"
+   "utils/Logging.nls"
+   
    
 ]
 
@@ -78,7 +80,6 @@ globals [
   ;; network generation parameters
   
   max-pop
-  total-pop
   
   ;; cities generation parameters
   populations
@@ -88,11 +89,14 @@ globals [
   ;; density generation params
   total-time-steps
   ;sp-max-pop
-  ;sp-growth-rate
-  ;sp-alpha-localization
-  ;sp-diffusion-steps
-  ;sp-diffusion
+  ;population-growth-rate
+  ;density-alpha-localization
+  ;density-diffusion-steps
+  ;density-diffusion
+  
+  ; total population
   total-population
+  cities-total-population
   
   ;; from density file (for coupling with scala density generator)
   density-file
@@ -101,6 +105,8 @@ globals [
   ;; patch explicative variables globals
   patch-population-max
   patch-population-min
+  patch-population-share-max
+  patch-population-share-min
   patch-distance-to-road-max
   patch-distance-to-road-min
   patch-closeness-centrality-max
@@ -127,6 +133,14 @@ globals [
   network-update-time-mode ; "fixed-ticks" or "fixed-population"
   network-update-ticks
   
+  ; growth parameters
+  network-max-new-cities-number
+  network-cities-max-density
+  network-cities-density-radius
+  network-distance-road-needed
+  network-distance-road-min
+  
+  ; indicator tables
   shortest-paths
   nw-relative-speeds
   nw-distances
@@ -140,6 +154,26 @@ globals [
   ; accessibility
   accessibility-decay
  
+ 
+  ; biological network
+  ; parameters
+  network-biological-initial-diameter
+  network-biological-input-flow
+  network-biological-threshold
+ 
+  ; vars
+  network-biological-o
+  network-biological-d
+  network-biological-nodes-number
+  network-biological-new-links-number
+  network-biological-diameter-max
+  network-biological-total-diameter-variation
+  
+  ;;
+  ; indicators
+  
+  indicator-sample-patches
+  patch-values-table
   
   ;;
   ;  Multimodeling variables
@@ -153,7 +187,10 @@ globals [
   ; patch value function
   patch-value-function
   
-  
+  ; heuristic network : city interaction method
+  ;
+  ;  TODO : multimodeling more easy with external architecture file precising modules and options ? would imply dependancies etc ; to be investigated further
+  cities-interaction-method ; \in {"gravity"}
  
  
   ;;
@@ -164,19 +201,26 @@ globals [
   ;;
   headless?
   
+  log-level
+  
+  
+  ;;;;;
+  ;; Weak coupling
+  
+  cities-generation-method ;  \in {"zipf-christaller";"random";"prefAtt-diffusion-density";"from-density-file";"fixed-density"}
+  density-to-cities-method ; \in {"hierarchical-aggreg" ; "random-aggreg" ; "intersection-density"}
+  
 ]
 
 
 breed [cities city]
-
-;; compatibility with nw utils ?
-breed [nw-nodes nw-node]
 
 undirected-link-breed [roads road]
 
 
 patches-own [
  
+ patch-population-share
  
  ;; cities generation
  distance-weighted-total-pop
@@ -185,7 +229,7 @@ patches-own [
  ;; density generation
  ;  density <-> population : population-share
  patch-population
- patch-population-share
+ ; patch-population-share -> first var for morphology call
  
  ; closest city, on which nw measures are based
  patch-closest-city
@@ -231,6 +275,47 @@ roads-own [
   bw-centrality
   
 ]
+
+
+;;
+;  auxiliary breeds
+
+;;
+; biological network generation
+
+breed [biological-network-nodes biological-network-node]
+
+undirected-link-breed [biological-network-links biological-network-link]
+
+biological-network-nodes-own [
+  ;; pressure
+  pressure
+  ;; total capacity            
+  total-capacity          
+  ;; number
+  biological-network-node-number    
+]
+
+biological-network-links-own [
+  ;; diameter
+  diameter
+  ;; flow
+  flow            
+  ;; length
+  bio-link-length    
+]
+
+
+
+
+
+
+
+
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 4
@@ -260,20 +345,10 @@ ticks
 30.0
 
 CHOOSER
-885
-10
-1071
-55
-cities-generation-method
-cities-generation-method
-"zipf-christaller" "random" "prefAtt-diffusion-density" "from-density-file" "fixed-density"
-4
-
-CHOOSER
-1079
-67
-1244
-112
+846
+14
+1011
+59
 eucl-nw-generation-method
 eucl-nw-generation-method
 "simple-connexification" "neighborhood-gravity" "shortcuts" "random" "none"
@@ -348,19 +423,19 @@ gravity-radius
 gravity-radius
 0
 10000
-2293
+7070
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-673
-355
-845
-388
-sp-growth-rate
-sp-growth-rate
+672
+356
+844
+389
+population-growth-rate
+population-growth-rate
 500
 3000
 1137
@@ -372,10 +447,10 @@ HORIZONTAL
 SLIDER
 673
 391
-846
+845
 424
-sp-alpha-localization
-sp-alpha-localization
+density-alpha-localization
+density-alpha-localization
 0
 4
 1.55
@@ -385,12 +460,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-674
-427
-846
-460
-sp-diffusion-steps
-sp-diffusion-steps
+673
+425
+845
+458
+density-diffusion-steps
+density-diffusion-steps
 0
 6
 2
@@ -436,16 +511,6 @@ total-population
 1
 11
 
-CHOOSER
-885
-57
-1071
-102
-density-to-cities-method
-density-to-cities-method
-"hierarchical-aggreg" "random-aggreg" "intersection-density"
-2
-
 SLIDER
 1067
 207
@@ -462,34 +527,17 @@ NIL
 HORIZONTAL
 
 OUTPUT
-1047
-477
-1396
-662
+953
+512
+1302
+697
 10
 
 BUTTON
-750
-593
-850
-626
-density->cities
-ask cities [die]\ndensity-to-cities
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-750
-628
-831
-661
+674
+611
+755
+644
 network
 reset-network\ngenerate-network eucl-nw-generation-method
 NIL
@@ -527,23 +575,6 @@ Density Generation
 0.0
 1
 
-BUTTON
-677
-592
-741
-625
-cities
-ca\ngenerate-cities cities-generation-method
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 MONITOR
 1279
 114
@@ -564,34 +595,17 @@ gravity-hierarchy-exponent
 gravity-hierarchy-exponent
 0
 10
-2.59
+3
 0.01
 1
 NIL
 HORIZONTAL
 
 BUTTON
-678
-627
-747
-660
-density file
-setup-density-from-file
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-747
-557
-822
-590
+749
+572
+824
+605
 nw indics
 compute-indicators
 NIL
@@ -635,15 +649,15 @@ NIL
 HORIZONTAL
 
 SLIDER
-862
-393
-1034
-426
+861
+389
+1033
+422
 hierarchy-role
 hierarchy-role
 0
 1
-0.1
+0.55
 0.01
 1
 NIL
@@ -673,7 +687,7 @@ SLIDER
 #-max-new-links
 0
 100
-23
+18
 1
 1
 NIL
@@ -714,20 +728,10 @@ Heuristic Network
 0.0
 1
 
-CHOOSER
-1081
-17
-1232
-62
-cities-interaction-method
-cities-interaction-method
-"gravity"
-0
-
 INPUTBOX
 668
 87
-816
+749
 147
 fixed-config-num
 setup/config_0.csv
@@ -736,38 +740,10 @@ setup/config_0.csv
 String
 
 INPUTBOX
-818
-106
-937
-166
-nw-file-prefix
-nwres/nw2
-1
-0
-String
-
-BUTTON
-678
-661
-749
-694
-nw file
-import-nw-from-file nw-file-prefix
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-INPUTBOX
-1067
-254
-1124
-314
+752
+87
+809
+147
 seed
 0
 1
@@ -775,10 +751,10 @@ seed
 Number
 
 BUTTON
-678
-557
-744
-590
+759
+611
+825
+644
 clear
 ca random-seed seed
 NIL
@@ -817,12 +793,12 @@ Setup
 1
 
 BUTTON
-1082
-343
-1145
-376
-NIL
+1281
+354
+1344
+387
 setup
+setup:setup
 NIL
 1
 T
@@ -834,10 +810,10 @@ NIL
 1
 
 BUTTON
-1082
-379
-1145
-412
+1281
+390
+1344
+423
 NIL
 go
 T
@@ -851,50 +827,50 @@ NIL
 1
 
 CHOOSER
-1076
-116
-1248
-161
+1048
+48
+1220
+93
 network-generation-method
 network-generation-method
 "gravity-heuristic" "biological" "road-connexion"
 0
 
 SLIDER
-1183
-244
-1392
-277
+1039
+319
+1248
+352
 linear-aggreg-population-coef
 linear-aggreg-population-coef
 0
 1
-0.5
+1
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1183
-278
-1392
-311
+1039
+353
+1248
+386
 linear-aggreg-distance-to-road-coef
 linear-aggreg-distance-to-road-coef
 0
 1
-0
+1
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1183
-312
-1392
-345
+1039
+387
+1248
+420
 linear-aggreg-closeness-centrality-coef
 linear-aggreg-closeness-centrality-coef
 0
@@ -906,10 +882,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1183
-346
-1392
-379
+1039
+421
+1248
+454
 linear-aggreg-bw-centrality-coef
 linear-aggreg-bw-centrality-coef
 0
@@ -921,10 +897,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1183
-380
-1392
-413
+1039
+455
+1248
+488
 linear-aggreg-accessibility-coef
 linear-aggreg-accessibility-coef
 0
@@ -938,11 +914,55 @@ HORIZONTAL
 CHOOSER
 675
 509
-813
+821
 554
 display-variable
 display-variable
-"population" "patch-value"
+"population" "patch-value" "new-city-proba"
+0
+
+BUTTON
+824
+521
+920
+554
+update display
+display:update-display
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+TEXTBOX
+1042
+297
+1192
+315
+Linear aggreg coefs
+11
+0.0
+1
+
+BUTTON
+836
+582
+899
+615
+bio
+network-biological:clear-network\nnetwork-biological:grow-network
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 1
 
 @#$#@#$#@

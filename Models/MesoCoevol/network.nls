@@ -19,6 +19,9 @@ to network:update-network
     ; add links in themselves
     network:grow-network
     
+    cities:update-patches-closest-cities
+    cities:update-cities-population
+    
     ; update measures and variables
     network:update-network-measures
   
@@ -63,19 +66,24 @@ end
 ;
 to network:grow-network
   
+  simple-connexification
+  
+  network:update-network-measures
+  
   ; rbd style nw growth
   if network-generation-method = "road-connexion" [
-    
+    ; with the connexion of new cities, nothing to do here, already mimics the rbd behavior
+    ; Q : deactivate this mechanism ? not necessarily relevant, as network must be connex
   ]
   
   ; gravity
   if network-generation-method = "gravity-heuristic" [
-    
+    network-heuristic:grow-network
   ]
   
   ; biological
   if network-generation-method = "biological" [
-     
+    network-biological:grow-network
   ]
   
 end
@@ -163,3 +171,35 @@ to network:compute-nw-distances
     set i i + 1
   ]
 end
+
+
+
+
+
+
+
+
+to network:import-nw-from-file [prefix]
+  let cities-coords read-numeric-csv-as-row-list (word prefix "_cities.csv") ";"
+  
+  foreach cities-coords [create-cities 1 [setxy item 0 ? item 1 ? set id item 2 ?]]
+  
+  let roads-ids read-numeric-csv-as-row-list (word prefix "_roads.csv") ";"
+  
+  foreach roads-ids [ask one-of cities with [id = first ?] [let c2 one-of cities with [id = last ?] if not road-neighbor? c2 [create-road-with c2]]]
+  
+  display:display-network
+end
+
+
+
+
+
+to network:new-road
+  set capacity 0.3
+  set thickness capacity
+  set color green
+end
+
+
+

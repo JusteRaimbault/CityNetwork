@@ -47,6 +47,8 @@ end
 ; update patch variables
 to update-patch-variables
   
+  output-print " ... patch vars"
+  
   ; population already updated in density
   
   ; network only vars
@@ -102,8 +104,9 @@ to-report distance-to-roads
   if count roads > 0 [
     let mx pxcor let my pycor let nearest-road first sort-on [distance-to-point mx my] roads ; TODO not optimal implementation
     let inter one-of turtles let e1 0 let e2 0
-    ask nearest-road [ set inter link:intersection-with mx my set e1 end1 set e2 end2 ]
-    set d distance inter if inter != e1 and inter != e2 [ask inter [die]]
+    ;ask nearest-road [ set inter link:intersection-with mx my set e1 end1 set e2 end2 ]
+    ;set d distance inter if inter != e1 and inter != e2 [ask inter [die]]
+    ask nearest-road [set d distance-to-point mx my]
   ]
   report exp ( - d / distance-to-roads-decay )
 end
@@ -116,6 +119,8 @@ end
 to update-patch-variable-globals
   set patch-population-max max [patch-population] of patches
   set patch-population-min min [patch-population] of patches
+  set patch-population-share-max max [patch-population-share] of patches
+  set patch-population-share-min min [patch-population-share] of patches
   set patch-distance-to-road-max max [patch-distance-to-road] of patches
   set patch-distance-to-road-min min [patch-distance-to-road] of patches
   set patch-closeness-centrality-max max [patch-closeness-centrality] of patches

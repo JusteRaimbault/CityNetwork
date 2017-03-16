@@ -11,10 +11,32 @@
 ;;
 ;  add some cities given density, before network update
 to cities:add-cities
+  
+  ; |P(new center) = f(population,local density of other centers,distance to roads)
+  ;  independence hypothesis : |P = pop-share * (dmax - density)/ dmax * exp( - (d - dr)^2 / sigma_r)
 
+  let added-cities-num 0
+
+  ask patches [
+     if added-cities-num < network-max-new-cities-number [
+       if random-float 1 < cities:patch-proba-new-city [
+         if count cities-here = 0 [
+           sprout-cities 1 [ new-city ]
+           set added-cities-num added-cities-num + 1
+         ]
+       ]
+     ]
+  ]
 
 end
 
+;;
+;
+to-report cities:patch-proba-new-city
+  let cities-density count (cities in-radius network-cities-density-radius)
+  if patch-distance-to-road > exp ( - network-distance-road-min / distance-to-roads-decay) [report 0]
+  report patch-population-share / patch-population-share-max * (network-cities-max-density - cities-density) / network-cities-max-density * exp ( - ((patch-distance-to-road - network-distance-road-needed)/ 10)^ 2)
+end
 
 
 ;;
@@ -28,7 +50,7 @@ end
 
 
 ;;
-;
+;  update accessibilities
 to cities:update-accessibility
   ask cities [
     let otherids ([who] of other cities)
@@ -43,14 +65,57 @@ end
 ;  update city population
 to cities:update-cities-population
   ask cities [set city-population sum [patch-population] of patches with [patch-closest-city = myself]]
+  set cities-total-population sum [city-population] of cities
 end
+
+
+
+
+
+
+
+
+;;
+;  Fill the potential table
+;    @parameter mode : real or nw distance taken into account
+to cities:fill-cities-interaction-table [mode]
+  
+  ;debug (word "... cities int table " mode)
+  
+  let city-list to-list cities
+  let i 0 let m 0 let m-key []
+  foreach but-last city-list [
+    let c1 ?
+    let j i + 1 while [j < length city-list][
+      let c2 item j city-list let key (list [who] of c1 [who] of c2 mode) let revkey (list [who] of c2 [who] of c1 mode)
+      let p12 cities:cities-interaction-force c1 c2 mode ; interaction force
+      table:put cities-interaction-table key p12
+      table:put cities-interaction-table revkey p12
+      set j j + 1 
+    ]
+    set i i + 1
+  ]
+  
+end
+
+
+;;
+;  Interaction between two cities
+to-report cities:cities-interaction-force [city1 city2 mode]
+  ;show (word cities-interaction-method " city1 city2 " mode)
+  ;report runresult (word cities-interaction-method " city1 city2 mode")
+  report gravity city1 city2 mode
+end
+
+
+
 
 
 
 
 ;;
 ;  for weak coupling : generate cities from scratch (including density) -- pb of modules hierarchy here : adapted archis -> foireux multimodelling...
-to generate-cities [generation-method]
+to cities:generate-cities-from-scratch [generation-method]
   
   
   
@@ -85,11 +150,11 @@ to generate-cities [generation-method]
      setup-synth-pattern
      ;set sp-max-pop sum populations
      ;set sp-max-pop sp-population
-     set total-time-steps floor (sp-max-pop / sp-growth-rate)
+     set total-time-steps floor (sp-max-pop / population-growth-rate)
      
-     generate-synth-pattern
+     density:generate-synth-pattern
      
-     ; than places 'abstract' nodes as cities depending on density distrib
+     ; then places 'abstract' nodes as cities depending on density distrib
      
      density-to-cities
      
@@ -120,8 +185,8 @@ to generate-cities [generation-method]
   ]
   
   
-  set max-pop max [city-population] of cities 
-  set total-pop sum [city-population] of cities
+  set max-pop max [city-population] of cities
+  set total-population sum [city-population] of cities
   
 end
 
@@ -224,8 +289,8 @@ to density-to-cities
     ; use alpha localization parameter for proba distribution
     repeat #-cities [
        let ptot sum [patch-population] of patches
-       let stot sum [(patch-population / ptot) ^ sp-alpha-localization] of patches let r random-float 1 let s 0 let plist to-list patches let i 0 let p nobody
-       while [s < r] [set p item i plist set s s + (([(patch-population / ptot) ^ sp-alpha-localization] of p) / stot) set i i + 1]
+       let stot sum [(patch-population / ptot) ^ density-alpha-localization] of patches let r random-float 1 let s 0 let plist to-list patches let i 0 let p nobody
+       while [s < r] [set p item i plist set s s + (([(patch-population / ptot) ^ density-alpha-localization] of p) / stot) set i i + 1]
        ask p [
          sprout-cities 1 [
            ;set population 1
@@ -316,7 +381,7 @@ to cluster-cities
        let nc nobody create-cities 1 [set nc self set city-population (p1 + p2) setxy (([xcor] of c1)* t + (1 - t) * ([xcor] of c2)) (([ycor] of c1)* t + (1 - t) * ([ycor] of c2) ) new-city]
        ask city k1 [die] ask city k2 [die]
        ; update pop table
-       update-cities-interaction-table k1 k2 nc
+       cities:update-cities-interaction-table k1 k2 nc
      ]
 end
 
@@ -364,7 +429,7 @@ end
 ;;
 ; c1,c2 : ids of deletd cities
 ; newcity : newcity
-to update-cities-interaction-table [n1 n2 newcity]
+to cities:update-cities-interaction-table [n1 n2 newcity]
   let to-remove [] foreach table:keys cities-interaction-table [if member? n1 ? or member? n2 ? [set to-remove lput ? to-remove]]
   foreach to-remove [table:remove cities-interaction-table ?]
   
@@ -374,7 +439,7 @@ to update-cities-interaction-table [n1 n2 newcity]
       let c2 self
       let k2 who let key (list k1 k2) let revkey (list k2 k1)
       if not (table:has-key? cities-interaction-table key or table:has-key? cities-interaction-table revkey) [
-        let p12 cities-interaction-force c1 c2 "euclidian"
+        let p12 cities:cities-interaction-force c1 c2 "euclidian"
         if p12 > m [set m p12 set m-key key]
         table:put cities-interaction-table key p12
       ]

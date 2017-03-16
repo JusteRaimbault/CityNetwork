@@ -138,9 +138,53 @@ to connexify-network [vertices-agentset edges-agentset]
       ; create link : need to find the breed of used links
       ; to color : final number of new links if #-initial clusters - 1
       ;run (word "create-" links-breed "-with mc2"); [set color gradient:scale (list extract-rgb red extract-rgb yellow) (#-new-links - (length clusters)) 0 #-new-links]")
-       create-road-with mc2
+       create-road-with mc2 [network:new-road]
     ]
     set clusters nw:weak-component-clusters
   ]
   
 end
+
+
+to connexify-network-link-projection
+  nw:set-context cities roads
+  let clusters nw:weak-component-clusters
+  let #-new-links length clusters - 1
+  
+  ;let links-breed agentset-uniform-singular-breed edges-agentset
+  
+  while [length clusters > 1] [
+    ; cluster with most links
+    let c1 first clusters let ma sum [count my-links] of c1 foreach but-first clusters [let cl sum [count my-links] of ? if cl > ma [set c1 ? set ma cl]]
+    ;show c1
+    let c1-links roads with [member? end1 c1 or member? end2 c1]
+    ;show c1-links
+    
+    let mi sqrt (world-width ^ 2 + world-height ^ 2)
+    let mc1 nobody let mc2 nobody
+    foreach clusters [
+      let c2 ? ;show c2
+      if c2 != c1 [
+        ask c2 [ask c1-links [let d distance-to-point [xcor] of myself [ycor] of myself if d < mi [set mi d set mc1 myself set mc2 self]]]
+      ]
+    ]
+    ask mc1 [
+       let inter [link:intersection-with [xcor] of myself [ycor] of myself] of mc2
+       ifelse inter = [end1] of mc2 or inter = [end2] of mc2 [create-road-with inter][
+          let e1 [end1] of mc2 let e2 [end2] of mc2 ask mc2 [die]
+          if inter != self [create-road-with inter [network:new-road]]
+          ask inter [create-road-with e1 [network:new-road] create-road-with e2 [network:new-road]]
+       ]
+    ]
+    
+    nw:set-context cities roads
+    set clusters nw:weak-component-clusters
+  ]
+  
+end
+
+
+
+
+
+

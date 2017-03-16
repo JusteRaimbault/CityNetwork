@@ -3,21 +3,24 @@
 ;  general setup
 
 
-to setup
+to setup:setup
   
   if headless? != true [ca]
   
   ; globals
-  setup-globals
+  setup:setup-globals
   
   ; world
-  setup-world
+  setup:setup-world
   
   ; population density
-  setup-density
+  setup:setup-density
   
   ; initial network
-  setup-network
+  setup:setup-network
+  
+  ; indicators
+  setup:setup-indicators
   
   patches:update-patch-values
   
@@ -29,7 +32,7 @@ end
 
 
 
-to setup-globals
+to setup:setup-globals
   
   
   ;;;
@@ -56,7 +59,24 @@ to setup-globals
   
   ; network update
   set network-update-time-mode "fixed-ticks"
-  set network-update-ticks 5
+  ;set network-update-ticks 5
+  set network-update-ticks 2
+  
+  ; network growth parameters
+  set network-max-new-cities-number 20
+  set network-cities-max-density 10
+  set network-cities-density-radius 5
+  set network-distance-road-needed 4
+  set network-distance-road-min 1
+  
+  ; heuristic-nw
+  set cities-interaction-method "gravity"
+  
+  ; biological network
+  set network-biological-initial-diameter 10
+  set network-biological-input-flow 10
+  set network-biological-threshold 5
+  
   
   ; accessibility
   set accessibility-decay 10
@@ -70,20 +90,21 @@ to setup-globals
   let cseed seed if seed = 0 [set cseed (random 200000) - 100000]
   random-seed cseed
   
+  set log-level "debug"
   
 end
 
 
 ;;
 ;  world size
-to setup-world
+to setup:setup-world
   
 end
 
 
 
 
-to setup-density
+to setup:setup-density
  
   if setup-method = "synthetic-settlement" [
     let i 1
@@ -103,7 +124,10 @@ end
 
 
 
-to setup-network
+;;
+;  nw setup method : TODO add from file, using network:import-network-from-file
+to setup:setup-network
+ 
   
   ; cities already assumed setup
   simple-connexification
@@ -121,9 +145,20 @@ to setup-network
 end
 
 
+;;
+; setup indicators
+to setup:setup-indicators
+  
+  set indicator-sample-patches to-list patches
+  
+  set patch-values-table table:make
+  
+end
 
 
-to setup-density-from-file
+
+
+to setup:setup-density-from-file
   
   ca
   if is-number? fixed-config-num [

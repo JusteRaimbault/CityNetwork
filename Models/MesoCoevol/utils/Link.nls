@@ -31,14 +31,19 @@ to-report link:intersection-with [x y]
      report end2
   ]
   [set mq m1m * sqrt abs (1 - (cost1 ^ 2))
-   set m1q sqrt ((m1m ^ 2) - (mq ^ 2))  
+   set m1q sqrt ((m1m ^ 2) - (mq ^ 2))
    set xx x1 + m1q * (x2 - x1) / m1m2
    set yy y1 + m1q * (y2 - y1) / m1m2
    
+   
    if count cities-on patch xx yy = 0 [
-       ask patch xx yy [sprout-cities 1]
+     ask patch xx yy [sprout-cities 1]
    ]
    report one-of cities-on patch xx yy
+   
+   ;let c nobody ask one-of cities [ hatch-cities 1 [setxy xx yy set c self]]
+   ;ask cities [if distance c = 0 and c != self [ask c [die] set c self]]
+   ;report c
    
    ]
   ]
