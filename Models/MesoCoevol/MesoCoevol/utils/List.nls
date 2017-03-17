@@ -1,0 +1,221 @@
+
+;;;;;;;;;;;;;;
+;; List Utilities
+;;;;;;;;;;;;;;
+
+
+;;agentset/list functions
+
+to-report to-list [agentset]
+  let res []
+  ask agentset [
+    set res lput self res 
+  ]
+  report res
+end
+
+
+;;
+; list to agentset - beware, O(n_agents*length(list))
+to-report to-agentset [l]
+  if length l = 0 [report nobody]
+  if is-turtle? first l [report turtles with [member? self l]]
+  if is-patch? first l [report patches with [member? self l]]
+  if is-link? first l [report links with [member? self l]]
+end
+
+
+
+;; normalised norm-p of a vector as list
+;
+; @param p \in [1,\infty[
+; @param l
+to-report norm-p [p l]
+  let res 0
+  let n length l
+  foreach l [set res res + (? ^ p)]
+  report (res / n) ^ (1 / p)
+end
+
+
+;;sequence function
+;
+; @param from
+; @param to
+; @param by
+to-report seq [from t by]
+  let res [] let current-val from let n 0
+  ifelse by = 0 [set n t][set n (floor ((t - from)/ by) + 1)]
+  repeat n [
+     set res lput current-val res
+     set current-val current-val + by
+  ]
+  report res
+end
+
+
+;;
+; R-style repetition of a single element
+;
+; @param element
+; @times number of times repeted
+to-report rep [element times]
+  let res [] repeat times [set res lput element res] report res
+end
+
+;;
+; increments an item in a counter list
+;
+; @param i index of counter
+; @param l list of counters
+; @param val increment by this value
+to-report incr-item [i l val]
+  report replace-item i l (item i l + val)
+end
+
+
+;;
+; concatenate a list of lists
+to-report concatenate [lists]
+  let res []
+  foreach lists [
+    foreach ? [
+      set res lput ? res 
+    ] 
+  ]  
+  report res
+end
+
+
+;;
+; reverse image of a list
+to-report rev [l]
+  let res []
+  foreach l [
+    set res fput ? res
+  ]
+  report res
+end
+
+
+
+;;;;;;;;;;
+;; generalized min,max,sum
+;;;;;;;;;;
+
+; note : would be better to report \infty for gen-min (generally used for comparisons) but does not exists
+to-report gen-min [l]
+  ifelse length l = 0 [
+    report 0
+  ][
+     report min l
+  ]
+end
+
+to-report gen-max [l]
+  ifelse length l = 0 [
+    report 0
+  ][
+     report max l
+  ]
+end
+
+to-report gen-sum [l]
+  ifelse length l = 0 [
+    report 0
+  ][
+     report sum l
+  ]
+end
+
+to-report gen-mean [l]
+  ifelse length l = 0 [
+    report 0
+  ][
+     report mean l
+  ]
+end
+
+
+
+;;;;;;;;;;;;;;;
+;; index of min, max
+;;;;;;;;;;;;;;;
+
+
+;;
+; reports index of min (last in case of multiple)
+to-report min-index [l]
+  let mi first l let res 0 let rem but-first l let i 1
+  while [length rem > 0][
+    if first rem <= mi [set mi first rem set res i]
+    set rem but-first rem set i i + 1
+  ]
+  report res
+end
+
+
+;;
+; index of max
+to-report max-index [l]
+  let ma first l let res 0 let rem but-first l let i 1
+  while [length rem > 0][
+    if first rem >= ma [set ma first rem set res i]
+    set rem but-first rem set i i + 1
+  ]
+  report res
+end
+
+
+
+
+;;;;;;;
+;; scalar product
+;;;;;;;
+
+
+;;
+; Computes scalar product between two lists
+;  if different lengths, take minimum
+to-report scalar-product [l1 l2]
+  let res 0
+  let n min list (length l1) (length l2) let i 0
+  repeat n [
+    set res res + (item i l1 * item i l2)
+    set i i + 1
+  ]
+  report res
+end
+
+
+;;;;;;
+;; Vectorial operations
+;;;;;;
+
+
+;;
+; Multiplies two lists element-wise
+; 
+; same length not necessarily required, will return shortest list size.
+to-report list-times-element-wise [l1 l2]
+  let res []
+  let i 0
+  let shortest [] let longest [] ifelse length l1 < length l2 [set shortest l1 set longest l2][set shortest l2 set longest l1]
+  foreach shortest [
+    set res lput (? * (item i longest)) res
+    set i i + 1 
+  ]
+  report res
+end
+
+
+
+
+
+
+
+
+
+
+
+

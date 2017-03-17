@@ -1,0 +1,213 @@
+
+;;;;;;;
+;; Synthetic euclidian nw generation, given cities distribtuion
+;;
+;; @requires :: cities/nw breeds
+;;;;;;;
+
+
+
+
+to generate-synthetic-euclidian-network
+  
+  ; external call to a city spatial distribution generation
+  cities:generate-cities-from-scratch cities-generation-method
+  
+  ; generic generate network function
+  generate-network eucl-nw-generation-method
+  
+end
+
+
+to reset-network
+  ask roads [die]
+end
+
+to reset-network-and-cities
+  ask roads [die] ask cities [die]
+end
+
+;;
+;  Network generation
+;  
+;  @param generation-method : String
+;
+to generate-network [generation-method]
+  
+  if generation-method = "random"[
+    random-network
+    planarize-network cities roads
+  ]
+  
+  
+  ;; TODO : locally random ; proba = f(distance) ? === gravity approach.
+  ; neigborhood size determines size of local clusters ?
+  
+  if generation-method = "gravity"[
+    ; start from a tree nw ?
+    simple-connexification
+    
+    ; then add gravity connexions
+    ; |P(e_ij) = (1  ... )
+    ;
+    ;  -> PB : what potentiel ? how does it break ? dieletric breakdown -> DLA // model prefAttDiffusion.
+    ; 
+    ;
+    
+    
+  ]
+  
+  if generation-method = "simple-connexification"[
+    simple-connexification
+  ]
+  
+  
+  if generation-method = "neighborhood-gravity"[
+    ; first do a simple connexification
+    simple-connexification
+    
+    ; then 'locally' add links
+    ;  -> uses the interaction potential
+    cities:fill-cities-interaction-table "euclidian"
+    
+    add-local-links-neigh-gravity
+    
+    ; replanarize network in case needed
+    ;planarize-network cities roads
+    
+  ]
+  
+  
+  
+  if generation-method = "shortcuts" [
+     simple-connexification
+     ; compute indicators
+     compute-indicators
+     ;
+     create-shortcuts shortcuts-threshold shorcuts-max-number
+     
+     planarize-network cities roads
+  ]
+  
+  
+  
+  
+end
+
+
+to random-network
+  let #-link floor (random-network-density * #-cities * (#-cities - 1) / 2)
+  repeat #-link [
+    ask one-of cities [
+      create-road-with one-of (other cities) with [not road-neighbor? myself]
+    ]
+  ]
+end
+
+
+to simple-connexification
+  ; we need to trick here the connexify network function, as its generic implementation fails with empty edgeset
+    ; -> connects the closest cities, what the algo should do in first step  - not exactly, depends on connex comps order (not deterministic ?)
+    
+    ; totally dirty : O(n^2)
+    ask one-of cities with-min [min map [distance ?] to-list (other cities)] [create-road-with one-of ((other cities) with-min [distance myself])]
+    
+    ;connexify-network cities roads
+    connexify-network-link-projection
+end
+
+
+
+
+;;
+; Create local link according to gravity function
+to add-local-links-neigh-gravity
+  ; connects deterministically biggest neigh-gravity-threshold-quantile quantile of interaction potential
+  let qv quantile (table-values cities-interaction-table) neigh-gravity-threshold-quantile
+  show qv
+  
+  foreach table:keys cities-interaction-table [
+     if table:get cities-interaction-table ? > qv [
+        let c1 city (first ?) let c2 city (last ?)
+        ask c1 [
+          if not road-neighbor? c2 [
+               create-road-with c2 [network:new-road]
+          ] 
+        ] 
+     ] 
+  ]
+end
+
+to-report table-values [table]
+  let res []
+  foreach table:keys table [
+    set res lput table:get table ? res 
+  ]
+  report res
+end
+
+
+
+
+
+to-report basic-gravity [city1 city2 mode]
+  ; tunable gravity-exponent ?
+  let d12 0 ask city1 [set d12 distance city2] if d12 = 0 [show (word city1 city2)] ; not optimized, may be quicker to use potential vector and distance matrix
+  report [patch-population] of city1 * [patch-population] of city2 / (d12 ^ basic-gravity-exponent)
+end
+
+
+to-report generalized-gravity [city1 city2 mode]
+  let p1 [patch-population] of city1 let p2 [patch-population] of city2 let d12 0 ask city1 [set d12 distance city2]
+  report (((p1 * p2) / (max-pop ^ 2)) ^ gravity-hierarchy-exponent)* exp( - d12 / gravity-radius)
+  
+end
+
+
+;;
+; gravity function between two cities
+to-report gravity [city1 city2 mode]
+  let p1 [city-population] of city1 let p2 [city-population] of city2
+  let d12 0
+  if mode = "euclidian" [ask city1 [set d12 distance city2]]
+  if mode = "network" [
+    ; network distances assumed already computed
+    set d12 table:get nw-distances (list [who] of city1 [who] of city2)
+  ]
+  report ( (1 - hierarchy-role) + hierarchy-role * (((p1 * p2) / (cities-total-population ^ 2)) ^ gravity-hierarchy-exponent))* exp( - d12 / (gravity-radius * (1 + (d12 / gravity-inflexion))))
+  
+end
+
+
+
+
+;;;;;;;;;;;;
+;;  Shorcuts method ; according to threshold of detour
+;;;;;;;;;;;;
+
+
+;;
+;  Assumes pairs perf has already been computed (nw-relative-speeds table is filled)
+;
+;  -> pb when potentials are not updated. propose a kind of nw growth heuristic where potential computation is based on sampling
+;
+to create-shortcuts [threshold number]
+  let all-pairs []
+  foreach table:keys nw-relative-speeds [
+    if table:get nw-relative-speeds ? < threshold [set all-pairs lput (list ? ([city-population] of city first ? + [city-population] of city last ?)) all-pairs]
+  ]
+  
+  ;let pairs sort-by [last ?1 < last ?2] all-pairs  (n-of (min (list number (length all-pairs))) )
+  let pairs n-of (min (list number (length all-pairs))) all-pairs
+  
+  foreach pairs [
+     ask city first first ? [if not link-neighbor? city last first ? [create-road-with city last first ? [network:new-road]]]
+  ]
+  
+end
+
+
+
+
+
+

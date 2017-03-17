@@ -1,0 +1,87 @@
+
+
+
+
+
+;;
+; Heuristic nw growth
+to network-heuristic:grow-network
+  network-heuristic:heuristic-nw-generation true
+end
+
+
+
+
+;;
+; heuristic used for exploration (Weak coupling)
+to network-heuristic:full-heuristic-nw [density-method]
+  
+  ; cities generation done by fastest method
+  set density-to-cities-method "intersection-density"
+  show density-method
+  cities:generate-cities-from-scratch density-method
+  
+  network-heuristic:heuristic-nw-generation false
+  
+end
+
+
+;;
+; 
+;  @param iterative? full network generation or iterative step
+to network-heuristic:heuristic-nw-generation [iterative?]
+  
+  ;debug "... gravity heuristic nw"
+  
+  if not iterative? [
+    ; connexification
+    simple-connexification
+    ; compute nw distances
+    ;  !! is not optionnal, new generated cities are not taken into account yet in the nw. ==> DONE IN MAIN NETWORK
+    ;   TODO (could optimize more by computing only for new ones, as tree structure is the rule in the previous step)
+    network:compute-nw-distances
+  ]
+  
+  
+  
+  ; real potentials computation
+  set cities-interaction-table table:make
+  cities:fill-cities-interaction-table "euclidian"
+  
+  ; nw interaction
+  cities:fill-cities-interaction-table "network"
+  
+  ; gravity breakdown
+  ; first get possible new link, sorting on strongest euclidian potentials
+  let gvals [] foreach table:keys cities-interaction-table [if member? "euclidian" ? [let g table:get cities-interaction-table ? set gvals lput (list g (first ?) (item 1 ?)) gvals]]
+  let potential-breakdowns sublist (sort-by [first ?1 > first ?2] gvals) 0 (min (list (length gvals) (5 * #-max-new-links)))
+  ; then breakdown if difference with network potential smaller than threshold
+
+  let bpot []
+  foreach potential-breakdowns [ 
+     let vn table:get cities-interaction-table (list (item 1 ?) (item 2 ?) "network") let vr first ?
+     
+     set bpot lput (list (vn / vr) (item 1 ?) (item 2 ?)) bpot
+     
+  ]
+  
+  ; sort on breakdown potentials
+  foreach sublist sort-by [first ?1 < first ?2] bpot 0 #-max-new-links [   
+     let c1 city (item 1 ?) let c2 city (item 2 ?)
+     ask c1 [
+       if not road-neighbor? c2 [create-road-with c2 [network:new-road]]
+     ]
+     
+     ; recompute nw distances and potentials
+     planarize-network cities roads
+     network:compute-nw-distances
+     cities:fill-cities-interaction-table "network"
+
+  ]
+  
+  ; planarize nw
+  planarize-network cities roads
+  
+  simplify-network
+  
+end

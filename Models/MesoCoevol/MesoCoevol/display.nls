@@ -1,0 +1,57 @@
+
+;;;;;
+;; display
+;;;;;
+
+
+;;
+; update display
+to display:update-display
+  if headless? != true [
+    display:display-patches
+    display:display-network
+  ]
+end
+
+
+
+to display:display-network
+  let ma max [city-population] of cities
+  ask cities [set shape "circle" set color green set size city-population / ma * 0.8]
+  ask roads [set color green set thickness 0.3]
+end
+
+
+
+
+
+
+;;
+; Color patches
+to display:display-patches
+  
+  if display-variable = "population" [
+    set total-population sum [patch-population] of patches
+    if total-population > 0 [ask patches [set patch-population-share patch-population / total-population]]
+    let ma max [patch-population-share] of patches let mi min [patch-population-share] of patches
+    ; density already normalized
+    ;let ma 1 let mi 0
+    ;ifelse ma > mi [ask patches [set pcolor scale-color red sp-density mi ma]]
+    ;[ask patches [set pcolor black]]
+    ifelse ma > mi [ask patches [set pcolor gradient:scale [[255 255 255][255 0 0]] patch-population-share mi ma]]
+    [ask patches [set pcolor white]]
+  ]
+  
+  if display-variable = "patch-value" [
+    let ma max [patch-value] of patches let mi min [patch-value] of patches
+    if mi = ma [set ma ma + 0.01]
+    ask patches[set pcolor scale-color yellow patch-value mi ma]
+  ]
+  
+  
+  if display-variable = "new-city-proba" [
+     ask patches[set pcolor scale-color yellow cities:patch-proba-new-city 0 0.05]
+  ]
+  
+  
+end
