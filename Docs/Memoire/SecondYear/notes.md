@@ -2,6 +2,16 @@
 
 
 
+
+
+## Culture et coevolution
+
+* Lun 20 mar 2017 17:11:52 CET *
+
+Autocatalytic networks in cognition and the origin of culture (Gabora's paper) : autocatalytiv nw : way to transkate coevol ? link with Portugali IRSSN ? -> interesting direction
+
+
+
 ## coevol - gametheory
 
 * Jeu 16 mar 2017 10:33:23 CET * 
