@@ -69,7 +69,7 @@ cities-own [
   ;;
   ; accessibility of the city (shimbel index)
   ; 
-  accessibility         
+  accessibility   
   
   ; temporary-attribut for the computation of lotery-potentiel
   potentiel-interaction 
@@ -110,16 +110,6 @@ crosses-own [ me? ]
 
 
 
-
-
-to compute-system-pot-int
-  set system-pot-int (sum [city-pot-int] of cities)
-end  
-  
-  
-to compute-city-pot-int
-   ask cities [set city-pot-int value-city-pot-int]
-end
  
  
 ; to compute-min-time-network
@@ -130,38 +120,6 @@ end
 ;   
 ; end
  
- 
-to-report city-min-time-neighbor
-     let l-MT []
-     ask other cities [
-          let MT 0
-          set MT time-network self myself
-          set l-MT lput MT l-MT
-                 ]
-  
-     report min l-mt
-end
-
- 
-; 
-
-to-report value-city-pot-int
-     let ppot -1
-     let listpotF []
-     let counter 1
-     
-     ask other cities [
-       let potF 0
-       set potF (( [population] of self) / ((time-network self myself + 1) ) ^ beta)    
-       set listpotF lput potF listpotF
-       set counter counter + 1 
-       ]
-     set ppot (
-       (sum listpotF) 
-       )
-
-     report ppot  
- end
 
   
  
@@ -619,42 +577,37 @@ lambda
 NIL
 HORIZONTAL
 
+PLOT
+994
+207
+1194
+357
+nw time test
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot time-network city 8 city 48"
+
 @#$#@#$#@
-## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+## MODEL SPECIFICATION
 
-## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
 
-## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
 
-## THINGS TO NOTICE
+## EXTENSIONS
 
-(suggested things for the user to notice while running the model)
-
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
-
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true

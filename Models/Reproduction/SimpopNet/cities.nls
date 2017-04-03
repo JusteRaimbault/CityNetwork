@@ -45,13 +45,46 @@ end
 
 
 
-  
+;;
+;
 to compute-tempor-pop
     ask cities [ 
       set N-city-pot-int (lambda ^ beta * ((count cities) / system-pot-int) * city-pot-int)
       set  tmp-pop (population * (1 + N-city-pot-int))
-      ]
+    ]
 end 
+  
+  
+  
+  
+;;
+; time to closest neighbor in network
+to-report city-min-time-neighbor
+     let l-MT []
+     ask other cities [
+        let MT time-network self myself
+        set l-MT lput MT l-MT
+     ]
+  
+     report min l-mt
+end
+
+ 
+;;
+; city gravity potential
+to-report value-city-pot-int
+     let ppot -1
+     let listpotF []
+     let counter 1
+     
+     ask other cities [
+       let potF (( [population] of self) / ((time-network self myself + 1) ) ^ beta)    
+       set listpotF lput potF listpotF
+       set counter counter + 1 
+     ]
+     report sum listpotF  
+ end
+
   
   
   
@@ -67,27 +100,25 @@ end
      ]
    
    ;; -- display : should be moved --
-   map-accesibility
+   map-accessibility
  end
  
  
 ; display
-to map-accesibility
-  let max-accesibility 0
-  set max-accesibility max [accessibility] of cities
-  ask cities[set color scale-color green accessibility 0 max-accesibility]
+to map-accessibility
+  let max-accessibility max [accessibility] of cities
+  ask cities[set color scale-color green accessibility 0 max-accessibility]
 end
 
 
 ;;
-; Shimbel accessibility
+; Shimbel accessibility = mean network travel time
 ;  A_i = \sum_j t_{nw}(i,j)
 to-report value-accessibility
      let acc -1
      let listpcc []
      let compteur 1
       ask other cities [
-       ;print (word "Appellé : " self)
        let tpspcc 0
        set tpspcc time-network self myself
        set listpcc lput tpspcc listpcc
