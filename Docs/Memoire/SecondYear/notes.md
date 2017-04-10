@@ -1,6 +1,29 @@
 
 
 
+## morphogenesis
+
+* Ven  7 avr 2017 18:40:58 CEST * 
+ 
+\cite{dumouchel1983auto} : colloque de Cerisy (// auto-org et politique ?) : des choses importantes sur al morphogenese ? // back su botanique (cf Varenne ; Niedermeyer) Thomas : modèle conditionnels qualitatifs (chaines de markov discretes ?)
+
+
+
+## Big Data
+
+* Mer  5 avr 2017 11:11:35 CEST * 
+
+\cite{2017arXiv170400480G} : article Galloti, Louf, Luck and Barthelemy, errors with new data
+
+
+
+## Real Estate transactions
+
+* Mer  5 avr 2017 09:36:50 CEST * 
+ 
+article sur grand Paris et zones en dvlpmt / a investir : http://www.lemonde.fr/argent/article/2017/04/04/immobilier-les-opportunites-du-grand-paris_5105720_1657007.html?utm_term=Autofeed&utm_campaign=Echobox&utm_medium=Social&utm_source=Twitter#link_time=1491310458
+
+
 
 
 

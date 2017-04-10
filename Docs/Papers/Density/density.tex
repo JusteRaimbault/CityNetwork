@@ -107,8 +107,8 @@
 \usepackage{rotating}
 
 % Remove comment for double spacing
-%\usepackage{setspace} 
-%\doublespacing
+\usepackage{setspace} 
+\doublespacing
 
 % Text layout
 \raggedright
@@ -182,19 +182,21 @@
 % Title must be 250 characters or less.
 % Please capitalize all terms in the title except conjunctions, prepositions, and articles.
 \begin{flushleft}
-{\Large
-%\textbf\newline{Calibration of a Spatialized Urban Growth Model - Submission to PLOS Journals}
-\textbf\newline{The City and its Form: Calibration of a Spatialized Urban Growth Model - Submission to PLOS Journals}
+{\Large\textbf\newline{
+%Calibration of a Spatialized Urban Growth Model
+Calibration of a Density-based Model of Urban Morphogenesis
+}
 }
 \newline
 % Insert author names, affiliations and corresponding author email (do not include titles, positions, or degrees).
 \\
-Raimbault Juste\textsuperscript{1}
+Raimbault Juste\textsuperscript{1,2,*}
 \\
 \bigskip
-\bf{1} UMR CNRS 8504 G{\'e}ographie-cit{\'e}s, Universit{\'e} Paris 7, Paris, France
+\bf{1} UMR CNRS 8504 G{\'e}ographie-cit{\'e}s, Paris, France
 \\
 \bigskip
+\bf{2} UMR-T 9403 IFSTTAR LVMT, Champs-sur-Marne, France
 
 % Insert additional author notes using the symbols described below. Insert symbol callouts after author names as necessary.
 % 
@@ -250,7 +252,7 @@ We propose a stochastic model of urban growth that generates spatial distributio
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Introduction}
+\section{Introduction}
 
 Urban Systems are complex socio-technical objects
 
@@ -278,9 +280,9 @@ Urban Systems are complex socio-technical objects
 % You may title this section "Methods" or "Models". 
 % "Models" is not a valid title for PLoS ONE authors. However, PLoS ONE
 % authors may use "Analysis" 
-\section*{Materials and Methods}
+\section{Materials and Methods}
 
-\subsection*{The urban growth model}
+\subsection{The urban growth model}
 
 
 
@@ -324,10 +326,12 @@ The model $D$ proceeds iteratively the following way. An square grid of width $N
 
 
 
-\subsection*{Indicators}
+\subsection{Indicators}
 
 
 % Literature on morphological analysis, method taken from [Le Nechet 2015] to qualify/quantify urban form. Why would form be relevant at this scale ? -> thematic references on variety of urban developments, rural settlements, etc. : form translates many spatial processes at this scale. [beware question of equifiniality : model is however themtically-based for processes].
+
+\cite{guerois2008built} : sort of morphological analysis
 
 
 % on other ways to quantify form ? -> ex fractal shape index ; recent research \cite{2016arXiv160808839C}
@@ -349,17 +353,42 @@ As our model is only density-based, we propose to quantify its outputs through s
 \[
 r = \frac{\sum_{i\neq j} w_{ij} \left(P_i - \bar{P}\right)\cdot\left(P_j - \bar{P}\right)}{\sum_{i\neq j} w_{ij} \sum_{i}{\left( P_i - \bar{P}\right)}^2}
 \]
-\item Mean distance between individuals, which gives an idea of population concentration
+\item Mean distance between individuals, which captures population concentration
 \[
-\bar{d} = 
+\bar{d} = \sum_{i<j} \frac{P_i P_j}{P^2} \cdot d_{ij}
 \]
 \end{enumerate}
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-% Results and Discussion can be combined.
-\section*{Results}
+\section{Results}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Real Data}
+
+We use the population density grid provided openly by 
+
+
+%% Data source (density grid), computation methodology [comparison of sampling/smoothing to avoid bord effects ?] -> reals values of morpho indics on 50kmx50km grids, on all Europe.
+%% + summary stats
+
+%Figure : Distributions of indicators values for real dataset of european densities, computed on 50kmx50km grids, with 10km offset to avoid bord effects. [TODO : add log-normal/normal fits ? ]
+%  -> cf Empirical Section
+
+Empirical morphological measures for calibration are the one described in the empirical chapter, i.e. the calibration is done on morphological objectives (entropy, hierarchy, spatial auto-correlation, mean distance) against real values computed on the set of 50km sized grid extracted from european density grid~\cite{eurostat}.
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Generating Synthetic Patterns}
+
 
 
 
@@ -403,7 +432,7 @@ The model as few parameters but is able to generate a very wide variety of shape
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Model Behavior}
+\subsection{Model Behavior}
 
 In the study of such a computational model of simulation, the lack of analytical tractability must be balanced by an extensive knowledge 
 
@@ -467,20 +496,7 @@ A statistical analysis (basic models) of indicator behaviors remains to be done 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Model Calibration}
-
-\paragraph{Real Data} We use the population density grid provided openly by 
-
-
-%% Data source (density grid), computation methodology [comparison of sampling/smoothing to avoid bord effects ?] -> reals values of morpho indics on 50kmx50km grids, on all Europe.
-%% + summary stats
-
-%Figure : Distributions of indicators values for real dataset of european densities, computed on 50kmx50km grids, with 10km offset to avoid bord effects. [TODO : add log-normal/normal fits ? ]
-%  -> cf Empirical Section
-
-Empirical morphological measures for calibration are the one described in the empirical chapter, i.e. the calibration is done on morphological objectives (entropy, hierarchy, spatial auto-correlation, mean distance) against real values computed on the set of 50km sized grid extracted from european density grid~\cite{eurostat}.
-
-
+\subsection{Model Calibration}
 
 
 
@@ -515,18 +531,18 @@ We plan in further work to extract the exact parameter space covering all real s
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Discussion}
+\section{Discussion}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Thematic interpretation of growth behavior}
+\subsection{Thematic interpretation of growth behavior}
 
 We still need to interpret the positions of typical shapes within parameter space in order to confirm the thematic interpretation of parameters. Depending on results of calibration refinement, we may obtain necessary and sufficient parameters to explain growth at this scale and a corresponding interpretation.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Integration into a multi-scale growth model}
+\subsection{Integration into a multi-scale growth model}
 
 It could be possible to couple this model with a Gibrat (or Favaro-pumain) at Europa scale (macro) (with addition of consistence on migration constraints), where meso growth rates which were exogenous before are top-down determined, and bottom-up feedback is done through local aggregation level, influence importance of each area.
 
@@ -547,7 +563,7 @@ It could be possible to couple this model with a Gibrat (or Favaro-pumain) at Eu
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Conclusion}
+\section{Conclusion}
 
 
 In conclusion, this first modeling step provide an accurately calibrated spatial urban growth model at the mesoscopic scale that can reproduce any European urban pattern in terms of urban form. Further work is needed for an interpretation of parameter influence and the determination of effective independent dimensions of the urban system at this scale. We will use this model for other purposes in the following.

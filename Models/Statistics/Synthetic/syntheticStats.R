@@ -195,5 +195,153 @@ g=ggplot(dd,aes(x=tau,y=corr,colour=vars))
 g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_grid(wd~wc,sc)
 
 
+###########
+## try to identify typical regimes by clustering
+
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/Statistics/Synthetic/rdb/20170210_gridexplo/')
+
+# compute mean
+meancorrs = as.tbl(dd) %>% group_by(wdensity,wcenter,wroad,vars,tau) %>% summarise(
+  corr=mean(corr)
+)
+
+meancorrs$vars=as.character(meancorrs$vars)
+
+# features
+#  tau_min,rho_min,tau_max,rho_max
+
+# do with summarise, not optimal but more ergonomic
+getFeature<-function(tau,rho,type="tau",fun=min,theta=0.1){
+  names(rho)<-tau
+  res = rho[which(rho==fun(rho))[1]]
+  restau = names(res)[1]
+  if(abs(res-mean(rho))/abs(mean(rho))<theta){res = 0;restau=0}
+  if(type=="tau"){return(as.numeric(restau))}
+  if(type=="rho"){return(res)}
+}
+
+getFeatures<-function(theta,withValues=TRUE){
+  if(withValues==TRUE){
+  resfeatures <- meancorrs %>% group_by(wdensity,wcenter,wroad)%>%summarise(
+    rhomin_ctrrd=getFeature(tau[vars=="ctr->rd"],corr[vars=="ctr->rd"],"rho",min,theta),
+    taumin_ctrrd=getFeature(tau[vars=="ctr->rd"],corr[vars=="ctr->rd"],"tau",min,theta),
+    rhomax_ctrrd=getFeature(tau[vars=="ctr->rd"],corr[vars=="ctr->rd"],"rho",max,theta),
+    taumax_ctrrd=getFeature(tau[vars=="ctr->rd"],corr[vars=="ctr->rd"],"tau",max,theta),
+    rhomin_densctr=getFeature(tau[vars=="dens->ctr"],corr[vars=="dens->ctr"],"rho",min,theta),
+    taumin_densctr=getFeature(tau[vars=="dens->ctr"],corr[vars=="dens->ctr"],"tau",min,theta),
+    rhomax_densctr=getFeature(tau[vars=="dens->ctr"],corr[vars=="dens->ctr"],"rho",max,theta),
+    taumax_densctr=getFeature(tau[vars=="dens->ctr"],corr[vars=="dens->ctr"],"tau",max,theta), 
+    rhomin_densrd=getFeature(tau[vars=="dens->rd"],corr[vars=="dens->rd"],"rho",min,theta),
+    taumin_densrd=getFeature(tau[vars=="dens->rd"],corr[vars=="dens->rd"],"tau",min,theta),
+    rhomax_densrd=getFeature(tau[vars=="dens->rd"],corr[vars=="dens->rd"],"rho",max,theta),
+    taumax_densrd=getFeature(tau[vars=="dens->rd"],corr[vars=="dens->rd"],"tau",max,theta)
+  )
+  }else{
+    resfeatures <- meancorrs %>% group_by(wdensity,wcenter,wroad)%>%summarise(
+      taumin_ctrrd=getFeature(tau[vars=="ctr->rd"],corr[vars=="ctr->rd"],"tau",min,theta),
+      taumax_ctrrd=getFeature(tau[vars=="ctr->rd"],corr[vars=="ctr->rd"],"tau",max,theta),
+      taumin_densctr=getFeature(tau[vars=="dens->ctr"],corr[vars=="dens->ctr"],"tau",min,theta),
+      taumax_densctr=getFeature(tau[vars=="dens->ctr"],corr[vars=="dens->ctr"],"tau",max,theta), 
+      taumin_densrd=getFeature(tau[vars=="dens->rd"],corr[vars=="dens->rd"],"tau",min,theta),
+      taumax_densrd=getFeature(tau[vars=="dens->rd"],corr[vars=="dens->rd"],"tau",max,theta)
+    )
+  }
+  return(resfeatures)
+}
+
+#theta=0.25
+thetas=seq(from=0.5,to=3.0,by=0.5)
+thstr=paste0(thetas[1],"-",thetas[length(thetas)])
+knums=2:15
+
+for(withValues in c(TRUE,FALSE)){
+
+  ccoef=c();cthetas=c();cknums=c();cdcoef=c();cdthetas=c();cdknums=c()
+  for(theta in thetas){
+    show(theta)
+    features=getFeatures(theta,withValues = withValues)
+
+    for(k in knums){
+      show(k)
+      km = kmeans(features[,4:ncol(features)],k,iter.max = 1000,nstart=5000)
+      ccoef=append(ccoef,km$betweenss/km$totss);cknums=append(cknums,k)
+    }
+    cthetas=append(cthetas,rep(theta,length(knums)))
+
+    cdcoef = append(cdcoef,diff(ccoef[(length(ccoef)-length(knums)+1):length(ccoef)]))
+    cdknums = append(cdknums,knums[2:length(knums)]);cdthetas=append(cdthetas,rep(theta,length(knums)-1))
+  }
+
+
+  g=ggplot(data.frame(ccoef=ccoef,knums=knums,theta=cthetas),aes(x=knums,y=ccoef,group=theta,color=theta))
+  g+geom_point()+geom_line()+xlab('Number of clusters')+ylab('Between-cluster variance proportion')
+  ggsave(file=paste0(resdir,'ccoef-knum_values',withValues,'_theta',thstr,'.pdf'),width=15,height=10,units = 'cm')
+  
+  
+  g=ggplot(data.frame(cdcoef=cdcoef,knums=cdknums,theta=cdthetas),aes(x=cdknums,y=cdcoef,group=theta,color=theta))
+  g+geom_point()+geom_line()+xlab('Number of clusters')+ylab('Between-cluster variance proportion increase')
+  ggsave(file=paste0(resdir,'dccoef-knum_values',withValues,'theta',thstr,'.pdf'),width=15,height=10,units = 'cm')
+}
+
+##
+# compute cluster center trajectories
+#  -> plot representative of regimes
+#theta=2.0
+#k=5
+
+withValues=FALSE
+for(k in c(5,6,7)){
+for(theta in c(1.0,2.0)){
+  show(paste0('k=',k,';theta=',theta))
+  
+features=getFeatures(theta,withValues = withValues)
+km = kmeans(features[,4:ncol(features)],k,iter.max = 1000,nstart=5000)
+clusters=as.character(km$cluster)
+#nath=0.01
+#for(i in 1:nrow(features)){sdists = sort(t(apply(km$centers,1,function(r){sqrt(sum((as.numeric(features[i,4:ncol(features)])-r)^2))})),decreasing = T);th=2*abs(sdists[1]-sdists[2])/(sdists[1]+sdists[2]);if(th<nath){show(th);clusters[i]=NA}}
+features$cluster=clusters
+
+g=ggplot(features,aes(x=wdensity,y=wcenter,fill=cluster))
+g+geom_raster()+facet_wrap(~wroad)+theme(legend.position = c(0.85, 0.15))+guides(fill=guide_legend(ncol=2))
+ggsave(file=paste0(resdir,'clusters-paramfacet_values',withValues,'theta',theta,'_k',k,'.png'),width=15,height=10,units = 'cm')
+
+## plot features in a principal component plane
+fcoords = features[,4:(ncol(features)-1)]
+pr=prcomp(fcoords)
+rotated = as.matrix(fcoords)%*%pr$rotation
+
+g=ggplot(data.frame(rotated,cluster=features$cluster),aes(x=PC1,y=PC2,color=cluster))
+g+geom_point()
+ggsave(file=paste0(resdir,'clusters-PCA-features_values',withValues,'theta',theta,'_k',k,'.png'),width=12,height=10,units = 'cm')
+
+#   some cleaning on extreme points ? / middle points ? -> not concluding
+
+# NOTE : adding values does not change much result
+centertrajs=data.frame()
+for(k in 1:nrow(km$centers)){
+  show(k)
+  pvals = features[features$cluster==as.character(k),1:3]
+  currentcorrs=data.frame()
+  for(i in 1:nrow(pvals)){
+    currentcorrs=rbind(currentcorrs,meancorrs[meancorrs$wdensity==pvals$wdensity[i]&meancorrs$wcenter==pvals$wcenter[i]&meancorrs$wroad==pvals$wroad[i],])
+  }
+  sumcorrs=currentcorrs%>%group_by(vars,tau)%>%summarise(rho=mean(corr))
+  centertrajs = rbind(centertrajs,cbind(sumcorrs,cluster=as.character(k)))
+}
+
+g=ggplot(centertrajs,aes(x=tau,y=rho,color=vars,group=vars))
+g+geom_point()+geom_line()+facet_wrap(~cluster)
+ggsave(file=paste0(resdir,'clusters-centertrajs-facetclust_values',withValues,'theta',theta,'_k',k,'.png'),width=20,height=10,units = 'cm')
+
+g=ggplot(centertrajs,aes(x=tau,y=rho,color=cluster,group=cluster))
+g+geom_point()+geom_line()+facet_wrap(~vars)
+ggsave(file=paste0(resdir,'clusters-centertrajs-facetvars_values',withValues,'theta',theta,'_k',k,'.png'),width=20,height=10,units = 'cm')
+
+}
+}
+
+
+
+
 
 
