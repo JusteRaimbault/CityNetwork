@@ -146,6 +146,9 @@ g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)
 
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Simple/ModelCA/'))
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Statistics/Synthetic/rdb/20170210_gridexplo/'))
+
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/Statistics/Synthetic/rdb/20170210_gridexplo/')
+
 #d=as.tbl(read.csv("res/exploration/2017_02_07_10_56_26_gridexplo.csv",sep=",",header = FALSE,stringsAsFactors = FALSE))
 d=as.tbl(read.csv("data/2017_02_10_18_41_22_gridexplo.csv",sep=",",header = FALSE,stringsAsFactors = FALSE))
 d = d[2:nrow(d),]
@@ -190,6 +193,13 @@ dd = data.frame(corr=as.numeric(dd[,1]),tau=as.numeric(dd[,2]),vars=dd[,3],wdens
 g=ggplot(dd,aes(x=tau,y=corr,colour=vars))
 g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_wrap(~pars,scales = "free")
 
+sdd=dd[dd$wdensity%in%c(0,1)&dd$wcenter%in%c(0,1)&dd$wroad%in%c(0,1),]
+pars = paste0(sdd$wdensity,"-",sdd$wcenter,"-",sdd$wroad)
+g=ggplot(data.frame(sdd,pars=pars),aes(x=tau,y=corr,colour=vars))
+g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_wrap(~pars,scales = "free",nrow = 2)+theme(legend.position = c(0.85, 0.15))+ylab("Lagged correlation")
+ggsave(paste0(resdir,'laggedcorrs_facetextreme.png'),width=35,height=20,units = 'cm')
+
+
 # with facet grid
 g=ggplot(dd,aes(x=tau,y=corr,colour=vars))
 g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_grid(wd~wc,sc)
@@ -198,7 +208,6 @@ g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_grid(wd~wc,sc)
 ###########
 ## try to identify typical regimes by clustering
 
-resdir = paste0(Sys.getenv('CN_HOME'),'/Results/Statistics/Synthetic/rdb/20170210_gridexplo/')
 
 # compute mean
 meancorrs = as.tbl(dd) %>% group_by(wdensity,wcenter,wroad,vars,tau) %>% summarise(

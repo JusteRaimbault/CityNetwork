@@ -177,6 +177,11 @@ globals[
   best-confs
   
   
+  ;;;;;;;;;
+  ;; headless
+  headless?
+  
+  
 ]
 
 ;;;;;;;;;;;;;;;;
@@ -363,7 +368,7 @@ density-coefficient
 density-coefficient
 0
 1
-0
+1
 0.1
 1
 NIL
@@ -393,7 +398,7 @@ distance-to-center-coefficient
 distance-to-center-coefficient
 0
 1
-1
+0
 0.1
 1
 NIL
@@ -588,7 +593,7 @@ max-ticks
 max-ticks
 1
 500
-59
+60
 1
 1
 NIL
@@ -1180,17 +1185,6 @@ NIL
 NIL
 NIL
 1
-
-SWITCH
-5
-204
-104
-237
-headless?
-headless?
-1
-1
--1000
 
 SWITCH
 281

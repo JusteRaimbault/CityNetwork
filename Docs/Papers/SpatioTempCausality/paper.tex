@@ -90,10 +90,26 @@ Nous décrivons ici une méthode générique, basée sur un test similaire à la
 Cette méthode doit dans un premier temps être testée et partiellement validée, ce que nous proposons de faire sur des données synthétiques. % cit Rochebrune ?
  \cite{raimbault2014hybrid} est un modèle simple de morphogenèse urbaine (modèle RBD) faisant un candidat intéressant pour notre test. En effet, les variables explicatives de la croissance urbaine, les processus d'extension du réseau et le couplage entre densité urbaine et réseau sont assez élémentaires. Cependant, hormis dans des cas extrêmes (distance au centre détermine valeur foncière uniquement, le réseau dépendra de manière causale de la densité, ou distance au réseau seule, la causalité devrait être inversée), les régimes mixtes n'exhibent pas de causalités évidentes : c'est donc un parfait cas pour tester si la méthode est capable d'en détecter.
 
-Nous explorons une grille de l'espace des paramètres du modèle RBD. Pour chaque valeur des paramètres, nous procédons à $N=100$ répétitions. % Le modèle a par ailleurs été exploré de nouveau pour reproduction et extension des résultats. % TODO appendice with full RBD exploration.
-Nous calculons sur l'ensemble des patches les corrélations retardées entre les variables suivantes : densité locale, distance au centre et distance au réseau. Une grille de pas 0.5 (26 combinaisons) est entièrement explorée en Appendice~\ref{}. Des regroupements par régimes peuvent se faire, lorsqu'un paramètre domine et impose le régime (par exemple )
+Nous utilisons une implémentation adaptée\footnote{disponible sur le dépôt ouvert du projet à \texttt{}} du modèle initial, permettant de capturer les valeurs des variables étudiées pour chaque patch et à chaque pas de temps.
+
+Nous explorons une grille de l'espace des paramètres du modèle RDB, faisant varier les paramètres de poids de la densité, de la distance au centre et de la distance au réseau, que l'on note respectivement $(w_{d},w_{c},w_{r})$, dans $\left[0;1\right]$ avec un pas de 0.1. Les autres paramètres sont fixés à leur valeurs par défaut données dans l'article. Pour chaque valeur des paramètres, nous procédons à $N=100$ répétitions ce qui est suffisant pour une bonne convergence des indicateurs. Les explorations sont effectuées via le logiciel OpenMole~\cite{reuillon2013openmole}.
+
+Nous calculons sur l'ensemble des patches les corrélations retardées entre les variables suivantes : densité locale, distance au centre et distance au réseau. Des regroupements par régimes peuvent se faire, lorsqu'un paramètre domine et impose le régime
 
 
+
+
+%%%%%%%%%%%%%%%
+\begin{figure*}[h]
+\centering
+\includegraphics[width=3.9cm]{figures/ex_60_wdens0_wroad1_wcenter1_seed272727}
+\includegraphics[width=3.9cm]{figures/ex_60_wdens1_wroad1_wcenter0_seed272727}
+\includegraphics[width=3.9cm]{figures/ex_60_wdens1_wroad1_wcenter1_seed272727}\\\vspace{0.2cm}
+\includegraphics[width=12cm]{figures/laggedcorrs_facetextreme}
+\caption{\textbf{Correlations dans le modèle RDB} (Première ligne) Exemples de configurations finales, obtenues avec $(w_{d},w_{c},w_{r})$ valant respectivement $(0,1,1)$,$(1,0,1)$, et $(1,1,1)$. (Deuxième ligne) Corrélations retardées, pour chaque combinaison des paramètres, en fonction du retard $\tau$. Les différentes couleurs correspondent }
+\label{fig:exrdb}
+\end{figure*}
+%%%%%%%%%%%%%%%
 
 
 
