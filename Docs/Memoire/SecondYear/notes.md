@@ -1,6 +1,14 @@
 
 
 
+
+## Multimodeling
+
+* Lun 17 avr 2017 11:38:37 CEST * 
+
+\cite{10.1371/journal.pone.0175194} : error when regressing on distance matrices when using aic
+
+
 ## morphogenesis
 
 * Ven  7 avr 2017 18:40:58 CEST * 
