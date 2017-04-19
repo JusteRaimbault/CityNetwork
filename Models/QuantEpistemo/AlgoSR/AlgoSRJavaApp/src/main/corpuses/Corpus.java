@@ -104,7 +104,11 @@ public abstract class Corpus implements Iterable<Reference> {
 		for(Reference r:references){
 			String[] row = {""};
 			if(!withAbstract){String[] tmp = {r.title.title,r.scholarID,r.year};row=tmp;}
-			else{String[] tmp = {r.title.title,r.scholarID,r.year,r.resume.resume};row=tmp;}
+			else{
+				String authorstr = "";for(String s:r.authors){authorstr=authorstr+s+",";}
+				String[] tmp = {r.title.title,r.scholarID,r.year,r.resume.resume,authorstr};
+				row=tmp;
+			}
 			datanodes.add(row);
 			for(Reference rc:r.citing){String[] edge = {rc.scholarID,r.scholarID};dataedges.add(edge);}	
 		}

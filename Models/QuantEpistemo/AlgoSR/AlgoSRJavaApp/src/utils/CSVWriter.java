@@ -23,7 +23,7 @@ public class CSVWriter {
 				//same row size requirement not checked
 				for(int j=0;j<data[i].length;j++){
 					//Log.output(data[i][j],"debug");
-					writer.write(textQuote+data[i][j]+textQuote);
+					writer.write(textQuote+data[i][j].replace(textQuote, "").replace("\n", " ").replace(delimiter," ")+textQuote);
 					if(j!=(data[i].length-1)){writer.write(delimiter);}
 				}
 				//if(i!=(data.length-1)){writer.write("\n");} // NO, each line including last must have endline
