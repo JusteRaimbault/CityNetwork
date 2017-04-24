@@ -8,10 +8,14 @@ library(igraph)
 
 
 # raw network
-edges <- read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit2_links.csv',sep=";",header=F,colClasses = c('character','character'))
-nodesabstr <- as.tbl(read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit2-abstract.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c(rep('character',5))))
-nodes <- as.tbl(read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit2.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character')))
-nodesprim <-read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit1-grepPumainSandersBretagnolle.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character'))
+#edges <- read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit2_links.csv',sep=";",header=F,colClasses = c('character','character'))
+edges <- read.csv('HyperNetwork/data/NetworkTerritories/cit2_links.csv',sep=";",header=F,colClasses = c('character','character'))
+
+#nodesabstr <- as.tbl(read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit2-abstract.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c(rep('character',5))))
+#nodes <- as.tbl(read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit2.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character')))
+nodes <- as.tbl(read.csv('HyperNetwork/data/NetworkTerritories/cit2.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character')))
+
+#nodesprim <-read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit1-grepPumainSandersBretagnolle.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character'))
 # add initial primary
 #nodesprimnoabstr <- read.csv('HyperNetwork/data/EvUrbTh-cit1.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character'))
 
@@ -23,12 +27,15 @@ nodesprim <-read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit1-grepPu
 # dim(left_join(nodes,nodesabstr,by=c("V2"="V2")))
 nodes=left_join(nodes,nodesabstr,by=c("V2"="V2"))
 nodes=nodes[,c(1:3,6:7)]
-names(nodes)<-c("title","id","year","abstract","authors")
-elabels = unique(c(edges$V1,edges$V2))
-empty=rep("",length(which(!elabels%in%nodes$id)))
-nodes=rbind(nodes,data.frame(title=empty,id=elabels[!elabels%in%nodes$id],year=empty,abstract=empty,authors=empty))
 
-raw <- graph_from_data_frame(edges,vertices = nodes[,c(2,1,3:7)])
+#names(nodes)<-c("title","id","year","abstract","authors")
+names(nodes)<-c("title","id","year")
+
+elabels = unique(c(edges$V1,edges$V2))
+empty=rep("_",length(which(!elabels%in%nodes$id)))
+nodes=rbind(nodes,data.frame(title=empty,id=elabels[!elabels%in%nodes$id],year=empty))#,abstract=empty,authors=empty))
+
+raw <- graph_from_data_frame(edges)#,vertices = nodes[,c(2,1,3)])#3:7)])
 
 #plot.igraph(raw,layout=layout_with_fr(raw),vertex.label=NA,vertex.size=1)
 
@@ -46,6 +53,8 @@ V(primary)$authoryear = paste0(V(primary)$authors,V(primary)$year)
 
 V(raw)$primtitle = ifelse(V(raw)$primary,paste0(V(primary)$authors,V(primary)$year),"")
 V(raw)$reduced_primtitle = ifelse(V(raw)$primary,sapply(V(raw)$title,function(s){paste0(substr(s,1,25),'...')}),"")
+V(raw)$reduced_title = sapply(V(raw)$title,function(s){substr(s,1,20)})
+
 
 rawcore = induced_subgraph(raw,which(degree(raw)>1))
 
@@ -53,7 +62,8 @@ write_graph(raw,file='EvolutiveUrbanTheory/data/citation.gml',format = 'gml')
 
 write_graph(primary,file='EvolutiveUrbanTheory/data/primary.gml',format = 'gml')
 
-write_graph(rawcore,file='EvolutiveUrbanTheory/data/primarycore.gml',format = 'gml')
+#write_graph(rawcore,file='EvolutiveUrbanTheory/data/primarycore.gml',format = 'gml')
+write_graph(rawcore,file='HyperNetwork/data/NetworkTerritories/rawcore.gml',format = 'gml')
 
 
 ##

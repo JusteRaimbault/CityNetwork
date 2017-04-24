@@ -2,6 +2,23 @@
 
 
 
+## Fitting Power laws
+
+* Ven 21 avr 2017 10:06:39 CEST * 
+
+\cite{gillespie2014fitting} : poweRlaw package
+
+
+
+
+## Full text mining
+
+* Jeu 20 avr 2017 17:57:57 CEST * 
+
+\cite{chavalarias2016evolution} : p-value evolution in medical literature : full text mining for parameter extraction ?
+
+
+
 ## Multimodeling
 
 * Lun 17 avr 2017 11:38:37 CEST * 
