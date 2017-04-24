@@ -16,7 +16,7 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/c
 #res <- as.tbl(read.csv('20170224_calibperiod_nsga/1921-1936/population100.csv'))
 #res <- as.tbl(read.csv('data/2017_02_18_20_25_12_CALIBGRAVITY_GRID.csv'))
 
-periods = c("1831-1851")#,"1841-1861","1851-1872","1881-1901")#,"1891-1911","1921-1936","1946-1968","1962-1982","1975-1999")
+periods = c("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911")#,"1921-1936","1946-1968","1962-1982","1975-1999")
 resdir = '20170302_calibperiod_full_nsga'
 params = c("growthRate","gravityWeight","gravityGamma","gravityDecay","feedbackGamma","feedbackDecay")#"feedbackWeight")
 

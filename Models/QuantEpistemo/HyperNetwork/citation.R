@@ -1,5 +1,5 @@
 
-# Citation Network Analysis of Evolutive Urban Theory
+# Citation Network Analysis
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo'))
 
@@ -25,17 +25,17 @@ nodes <- as.tbl(read.csv('HyperNetwork/data/NetworkTerritories/cit2.csv',sep=";"
 # nodes$V2[!nodes$V2%in%elabels]
 # elabels[!elabels%in%nodes$V2]
 # dim(left_join(nodes,nodesabstr,by=c("V2"="V2")))
-nodes=left_join(nodes,nodesabstr,by=c("V2"="V2"))
-nodes=nodes[,c(1:3,6:7)]
+#nodes=left_join(nodes,nodesabstr,by=c("V2"="V2"))
+#nodes=nodes[,c(1:3,6:7)]
 
 #names(nodes)<-c("title","id","year","abstract","authors")
 names(nodes)<-c("title","id","year")
 
 elabels = unique(c(edges$V1,edges$V2))
-empty=rep("_",length(which(!elabels%in%nodes$id)))
+empty=rep("",length(which(!elabels%in%nodes$id)))
 nodes=rbind(nodes,data.frame(title=empty,id=elabels[!elabels%in%nodes$id],year=empty))#,abstract=empty,authors=empty))
 
-raw <- graph_from_data_frame(edges)#,vertices = nodes[,c(2,1,3)])#3:7)])
+raw <- graph_from_data_frame(edges,vertices = nodes[,c(2,1,3)])#3:7)])
 
 #plot.igraph(raw,layout=layout_with_fr(raw),vertex.label=NA,vertex.size=1)
 
@@ -43,28 +43,31 @@ raw <- graph_from_data_frame(edges)#,vertices = nodes[,c(2,1,3)])#3:7)])
 # length(components(raw)$csize)
 
 raw = induced_subgraph(raw,which(components(raw)$membership==1))
-# ok finally one component with (Pumain, 97)
-V(raw)$primary = V(raw)$name%in%nodesprim$V2
+#V(raw)$primary = V(raw)$name%in%nodesprim$V2
 
-primary = induced_subgraph(raw,which(V(raw)$primary==TRUE))
-V(primary)$reduced_title = sapply(V(primary)$title,function(s){substr(s,1,20)})
+#primary = induced_subgraph(raw,which(V(raw)$primary==TRUE))
+#V(primary)$reduced_title = sapply(V(primary)$title,function(s){substr(s,1,20)})
 #V(primary)$cut_title = sapply(V(primary)$title,function(s){paste0(substr(s,1,floor(nchar(s)/2)),'\n',substr(s,floor(nchar(s)/2)+1,nchar(s)))})
-V(primary)$authoryear = paste0(V(primary)$authors,V(primary)$year)
+#V(primary)$authoryear = paste0(V(primary)$authors,V(primary)$year)
 
-V(raw)$primtitle = ifelse(V(raw)$primary,paste0(V(primary)$authors,V(primary)$year),"")
-V(raw)$reduced_primtitle = ifelse(V(raw)$primary,sapply(V(raw)$title,function(s){paste0(substr(s,1,25),'...')}),"")
-V(raw)$reduced_title = sapply(V(raw)$title,function(s){substr(s,1,20)})
+#V(raw)$primtitle = ifelse(V(raw)$primary,paste0(V(primary)$authors,V(primary)$year),"")
+#V(raw)$reduced_primtitle = ifelse(V(raw)$primary,sapply(V(raw)$title,function(s){paste0(substr(s,1,25),'...')}),"")
 
+V(raw)$reduced_title = sapply(V(raw)$title,function(s){paste0(substr(s,1,30),"...")})
+V(raw)$reduced_title = ifelse(degree(raw)>50,V(raw)$reduced_title,rep("",vcount(raw)))
+#V(raw)$reduced_title=rep("",vcount(raw))
 
 rawcore = induced_subgraph(raw,which(degree(raw)>1))
 
-write_graph(raw,file='EvolutiveUrbanTheory/data/citation.gml',format = 'gml')
+V(rawcore)$title = rep("",vcount(rawcore))
 
-write_graph(primary,file='EvolutiveUrbanTheory/data/primary.gml',format = 'gml')
+#write_graph(raw,file='EvolutiveUrbanTheory/data/citation.gml',format = 'gml')
+#write_graph(primary,file='EvolutiveUrbanTheory/data/primary.gml',format = 'gml')
 
 #write_graph(rawcore,file='EvolutiveUrbanTheory/data/primarycore.gml',format = 'gml')
 write_graph(rawcore,file='HyperNetwork/data/NetworkTerritories/rawcore.gml',format = 'gml')
 
+ecount(rawcore)/(vcount(rawcore)*(vcount(rawcore)-1))
 
 ##
 #  analysis of rawcore

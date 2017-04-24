@@ -18,6 +18,11 @@ source('functions.R')
 library(raster)
 library(ggplot2)
 library(dplyr)
+library(cartography)
+library(reshape2)
+library(classInt)
+library(rgdal)
+library(rgeos)
 
 # load data
 raw=read.csv(file="res/res/europe_areasize100_offset50_factor0.5_20160824.csv",sep=";",header=TRUE)
@@ -31,7 +36,7 @@ res=raw[rows,]
 
 allcorrs=data.frame()
 for(rhoasize in c(4,8,12)){
-istep=4;jstep=4;rhoasize=4
+istep=4;jstep=4;#rhoasize=4
 xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=istep)]
 ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=jstep)]
 xstep=diff(xcors)[1];ystep=diff(ycors)[2]
@@ -54,7 +59,7 @@ allcorrs=rbind(allcorrs,cbind(rhomorph,rep(rhoasize,nrow(rhomorph)),rep("morpho"
 allcorrs=rbind(allcorrs,cbind(rhonet,rep(rhoasize,nrow(rhonet)),rep("network",nrow(rhonet))))
 }
 #save(allcorrs,file='res/res/20160824_allcorrs.RData')
-
+#load('res/res/20160824_allcorrs.RData')
 
 load('res/res/sample4-8-12.RData')
 
@@ -110,7 +115,9 @@ for(j in 3:22){plot(dfToRaster(raw,col=j),main=colnames(raw)[j])}
 ##
 # pca analysis of corr matrices -> full matrix for now
 
-#istep=2;jstep=2;#rhoasize=10
+istep=5;jstep=5;rhoasize=12
+xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=istep)]
+ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=jstep)]
 
 #save(corrs,file='res/res/corrstemp.RData')
 #load('res/res/corrstemp.RData')
@@ -121,7 +128,7 @@ corrmat = corrmat[rows,]
 pca=prcomp(corrmat)
 summary(pca)
 rhopca = data.frame(getCorrMeasure(xcors,ycors,corrs,function(rho){if(!is.matrix(rho)){return(NA)};r=matrix(c(rho),ncol=length(rho))%*%as.matrix(pca$rotation);return(r[1,1])}))
-colnames(rhopca)<-c("lat","lon","rho")
+colnames(rhopca)<-c("lon","lat","rho")
 
 ###
 dd=d[d$measure=="meanabs",]
@@ -129,6 +136,42 @@ g=ggplot(dd)
 #g=ggplot(rhopca)
 g+geom_raster(aes(x=lat,y=lon,fill=rho))+scale_fill_gradient2(low="green",mid="white",high="brown",midpoint = median(dd$rho,na.rm=T))+#scale_fill_gradient2(low="#998ec3",mid="#f7f7f7",high="#f1a340")+#,midpoint = median(rhopca$rho,na.rm = T))+#scale_fill_gradient(low="yellow",high="red",name="PC1")+
   xlim(c(-11,32))+ylim(c(35.55,70))+facet_grid(type~delta)+ggtitle("Mean abs correlation")##+ggtitle("PCA (full matrix) ; delta = 4")#
+
+###
+
+g=ggplot(rhopca)
+g+geom_raster(aes(x=lat,y=lon,fill=rho))+scale_fill_gradient2(low="#998ec3",mid="#f7f7f7",high="#f1a340",midpoint = median(rhopca$rho,na.rm = T))+#scale_fill_gradient(low="yellow",high="red",name="PC1")+
+  xlim(c(-11,32))+ylim(c(35.55,70))+ggtitle("PCA (full matrix) ; delta = 4")#
+
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/Morphology/Coupled/Maps/')
+
+map <- function(data,col,coordcols,filename,main=""){
+  png(file=paste0(resdir,filename),width=12,height=10,units='cm',res=600)
+  par(mar=c(2,2,2,1))
+  cols <- carto.pal(pal1 = "green.pal",n1 = 5, pal2 = "red.pal",n2 = 5)
+  x = unlist(data[,col])
+  m=acast(data.frame(data[,coordcols],x),lat~lon);r = raster(m[seq(from=nrow(m),to=1,by=-1),])
+  crs(r)<-"+proj=longlat +datum=WGS84";extent(r)<-c(min(data$lon),max(data$lon),min(data$lat),max(data$lat))
+  breaks=classIntervals(x,10)
+  ticks = seq(round(minValue(r),digits=1),round(maxValue(r),digits=1), round((round(maxValue(r),digits=2) - round(minValue(r),digits=2))/5,digits=1))
+  plot(r,main=main,
+       col=cols,breaks=unique(breaks$brks),
+       legend.width = 1.5,
+       axis.args=list(at=ticks,labels=ticks,cex.axis=0.8)
+  )
+  dev.off()
+}
+
+countries = readOGR('gis','countries')
+country = countries[countries$CNTR_ID=="FR",]
+datapoints = SpatialPoints(data.frame(rhopca[,c("lon","lat")]),proj4string = countries@proj4string)
+selectedpoints = gContains(country,datapoints,byid = TRUE)
+
+map(rhopca[selectedpoints,],3,c(1,2),'corr_PCA_rhoasize12.png')
+
+
+
+
 
 # plot given area
 

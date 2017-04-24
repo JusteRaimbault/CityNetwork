@@ -69,6 +69,7 @@ map(c(10:20,22),'indics_network_all_discrquantiles.png',44,30,c(3,4),mar=c(2.5,2
 
 # selected network
 map(c(10,15,19,20),'indics_network_selected_discrquantiles.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
+map(c(10,13,19,20),'indics_network_selected_2_discrquantiles.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
 
 
 #####
