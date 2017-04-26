@@ -123,10 +123,18 @@ comunit = data.frame(id=rep(as.character(communes$INSEE_COMM),length(nwyears)),y
 comunit$id = as.character(comunit$id);comunit$year=as.character(comunit$year)
 
 decays = c(10,30,60,120)
+supyvars = list(pops,incomes,ginis)
+names(supyvars)<-c("pop","income","gini")
+
+#yvars = c("price","credit","count")
+yvars = c("pop","income","gini")
+
 
 corrs = data.frame();vars=c();cdecays=c();network=c();cyvars=c()
 for(yvar in yvars){
-  ydata = transactions[,c("annee","IRIS",yvar)];names(ydata)<-c("year","id","var")
+  show(yvar)
+  #ydata = transactions[,c("annee","IRIS",yvar)];names(ydata)<-c("year","id","var")
+  ydata = supyvars[[yvar]]
   for(mat in names(dmats)){
     show(mat)
     for(decay in decays){
@@ -136,9 +144,15 @@ for(yvar in yvars){
     }
   }
 }
-d = data.frame(corrs,var=vars,decay=cdecays,network=network,yvar=cyvars)
+dd = data.frame(corrs,var=vars,decay=cdecays,network=network,yvar=cyvars)
+#save(dd,file='res/res_times_sup.RData')
+#load('res/res_times_sup.RData');load('res/res_times.RData')
+d=rbind(d,dd);d$yvar=as.character(d$yvar)
 
-
+g=ggplot(d[!is.na(d$rho)&!(d$yvar%in%c("count")),],
+         aes(x=tau,y=rho,ymin=rhomin,ymax=rhomax,colour=decay,group=decay))
+g+geom_point()+geom_line()+geom_errorbar()+facet_grid(yvar~network,scales ="free")
+ggsave(file=paste0(resdir,'laggedcorrs_times_allvars.png'),width=22,height=20,unit='cm')
 
 
 
