@@ -43,7 +43,7 @@ decays=c();sdDecay=c();types=c();ctimes=c()
 for(period in periods){
   latestgen = max(as.integer(sapply(strsplit(sapply(strsplit(list.files(paste0(resdir,'/',period)),"population"),function(s){s[2]}),".csv"),function(s){s[1]})))
   res <- as.tbl(read.csv(paste0(resdir,'/',period,'/population',latestgen,'.csv')))
-  res=res[which(res$gravityWeight>0.0001&res$gravityDecay<200),]
+  #res=res[which(res$gravityWeight>0.0001&res$gravityDecay<200),]
   decays = append(decays,mean(res$gravityDecay));sdDecay = append(sdDecay,sd(res$gravityDecay));types = append(types,"pareto")
   decays = append(decays,res$gravityDecay[which(res$logmse==min(res$logmse))[1]]);sdDecay=append(sdDecay,0);types = append(types,"logmse")
   decays = append(decays,res$gravityDecay[which(res$mselog==min(res$mselog))[1]]);sdDecay=append(sdDecay,0);types = append(types,"mselog")

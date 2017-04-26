@@ -36,7 +36,7 @@ res=raw[rows,]
 
 allcorrs=data.frame()
 for(rhoasize in c(4,8,12)){
-istep=4;jstep=4;#rhoasize=4
+istep=4;jstep=4;#rhoasize=12
 xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=istep)]
 ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=jstep)]
 xstep=diff(xcors)[1];ystep=diff(ycors)[2]
