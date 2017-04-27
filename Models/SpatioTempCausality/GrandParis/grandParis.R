@@ -20,20 +20,21 @@ load('data/networks.RData')
 ##
 # transactions BIEN by iris
 
-bien <- as.tbl(read.csv(file = paste0(Sys.getenv('CN_HOME'),'/Data/BIEN/BIEN_min-noquote.csv'),stringsAsFactors = F))
-bien$REQ_PRIX=as.numeric(bien$REQ_PRIX)
-bien$MTCRED=as.numeric(bien$MTCRED)
+#bien <- as.tbl(read.csv(file = paste0(Sys.getenv('CN_HOME'),'/Data/BIEN/BIEN_min-noquote.csv'),stringsAsFactors = F))
+#bien$REQ_PRIX=as.numeric(bien$REQ_PRIX)
+#bien$MTCRED=as.numeric(bien$MTCRED)
 
 # a lot of transactions only after 2003, begin in 2003
 years = 2003:2012
 #nrow(bien[bien$annee%in%years])
 #length(unique(bien$IRIS)) -> 5417
 # filter on existing iris
-bien=bien[sapply(bien$IRIS,nchar)==9&!is.na(bien$REQ_PRIX),]
+#bien=bien[sapply(bien$IRIS,nchar)==9&!is.na(bien$REQ_PRIX),]
 
-transactions <- bien[bien$annee%in%years,] %>% group_by(annee,IRIS) %>% summarise(price=mean(REQ_PRIX,na.rm=T),credit=mean(MTCRED,na.rm=T),count=length(which(!is.na(REQ_PRIX))))
-transactions$annee = sapply(as.character(transactions$annee),function(s){substr(s,3,4)})
-
+#transactions <- bien[bien$annee%in%years,] %>% group_by(annee,IRIS) %>% summarise(price=mean(REQ_PRIX,na.rm=T),credit=mean(MTCRED,na.rm=T),count=length(which(!is.na(REQ_PRIX))))
+#transactions$annee = sapply(as.character(transactions$annee),function(s){substr(s,3,4)})
+#save(transactions,file='data/transactions.RData')
+load('data/transactions.RData')
 
 # - do some maps  - 
 

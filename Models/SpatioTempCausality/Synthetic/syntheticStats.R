@@ -189,6 +189,8 @@ colnames(dd)<-c("corr","tau","vars","wdensity","wcenter","wroad")
 dd = data.frame(corr=as.numeric(dd[,1]),tau=as.numeric(dd[,2]),vars=dd[,3],wdensity=as.numeric(dd[,4]),wcenter=as.numeric(dd[,5]),wroad=as.numeric(dd[,6]))#,pars=pars)
 # ultra dirty, very strange type handling
 #save(dd,file=paste0(Sys.getenv('CN_HOME'),'/Models/Statistics/Synthetic/visu/data/20170210.RData')) # save to reuse in shiny app
+#load(file=paste0(Sys.getenv('CN_HOME'),'/Models/SPatioTempCausality/Synthetic/visu/data/20170210.RData'))
+
 
 g=ggplot(dd,aes(x=tau,y=corr,colour=vars))
 g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_wrap(~pars,scales = "free")
