@@ -173,6 +173,8 @@ globals[
   gis-centers-file
   gis-population-raster-file
   gis-sea-file
+  gis-economic-areas-file
+  gis-governed-patches-file
   
   ;;;;;;;;;;;;;
   ;; Transportation
@@ -455,7 +457,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-1
+2
 
 TEXTBOX
 11
@@ -1128,8 +1130,8 @@ CHOOSER
 114
 setup-type
 setup-type
-"random" "from-file" "gis" "gis-raster"
-2
+"random" "from-file" "gis-synthetic" "gis"
+3
 
 SLIDER
 7
@@ -1369,6 +1371,17 @@ world-size
 1
 NIL
 HORIZONTAL
+
+SWITCH
+235
+75
+339
+108
+initial-nw?
+initial-nw?
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?

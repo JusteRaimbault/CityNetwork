@@ -1,5 +1,34 @@
 
 
+## Interdisc in Geography
+
+* Jeu  4 mai 2017 09:58:19 CEST * 
+
+http://echogeo.revues.org/14641
+
+
+## Open Science
+
+* Jeu  4 mai 2017 09:46:38 CEST * 
+
+http://blog.euroscientist.com/open-scientists-in-the-shoes-of-frustrated-academics-part-i-open-minded-scepticism/
+
+
+
+## Subjective Fieldwork
+
+* Mer  3 mai 2017 11:59:09 CEST * 
+
+\cite{larsimont2013depoussierer} : terrain subjectif, lien avec observation flottante ?
+
+
+
+## Big data and computation
+
+* Mer  3 mai 2017 09:32:27 CEST * 
+
+perfect xkcd comics : https://imgs.xkcd.com/comics/here_to_help.png
+
 
 
 ## Fitting Power laws

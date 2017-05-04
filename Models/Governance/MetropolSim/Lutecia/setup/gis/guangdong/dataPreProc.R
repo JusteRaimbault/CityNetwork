@@ -3,6 +3,7 @@
 
 library(dplyr)
 library(readODS)
+library(rgdal)
 
 areas <- as.tbl(read.csv(file=paste0(Sys.getenv('CN_HOME'),'/Models/Governance/MetropolSim/Lutecia/setup/gis/guangdong/stylized/data.csv'),sep=";",stringsAsFactors=F))
 
@@ -36,6 +37,22 @@ joined$Tertiary[is.na(joined$Tertiary)] =exp(loglm$coefficients[1]+ loglm$coeffi
 # export
 write.table(joined,file=paste0(Sys.getenv('CN_HOME'),'/Models/Governance/MetropolSim/Lutecia/setup/gis/guangdong/stylized/data.csv'),sep = ";",quote=F,row.names = F,col.names = T)
 
+
+
+####
+# join with gis layer
+
+data <- as.tbl(read.csv(file=paste0(Sys.getenv('CN_HOME'),'/Models/Governance/MetropolSim/Lutecia/setup/gis/guangdong/stylized/data.csv'),sep = ";",header=T))
+data$nameZH <- c("深圳","斗门","香洲","广州","诰命","江门","信汇","开平","河山",
+                 "肇庆","撕毁","会城","会养","徽州","中山","东莞")
+
+
+areas <- readOGR(paste0(Sys.getenv('CN_HOME'),'/Models/Governance/MetropolSim/Lutecia/setup/gis/guangdong/stylized'),'areas')
+areas$id <- as.numeric(as.character(areas$id))
+
+areas@data <- left_join(areas@data,data,by=c("id"="id"))
+
+writeOGR(obj = areas,dsn = paste0(Sys.getenv('CN_HOME'),'/Models/Governance/MetropolSim/Lutecia/setup/gis/guangdong/stylized'),layer = 'areas_data',driver = "ESRI Shapefile")
 
 
 

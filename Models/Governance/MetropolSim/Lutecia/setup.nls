@@ -64,15 +64,12 @@ to setup-globals
   set collaborations-wanted [] set collaborations-realized [] set collaborations-expected []
   
   ;
-  
-  ;set gis-network-file "setup/gis/test/network_3.shp"
   set gis-network-file "setup/gis/guangdong/stylized/nw_simpl.shp"
-  ;set gis-extent-file "setup/gis/test/extent.shp"
   set gis-extent-file "setup/gis/guangdong/stylized/frame.shp"
-  ;set gis-centers-file "setup/gis/test/centers_2.shp"
   set gis-centers-file "setup/gis/guangdong/stylized/cities.shp"
   set gis-sea-file "setup/gis/guangdong/stylized/sea.shp"
-  
+  set gis-economic-areas-file "setup/gis/guangdong/stylized/areas_data.shp"
+  set gis-governed-patches-file "setup/gis/guangdong/stylized/governed.shp"
   
   ; population raster
   set gis-population-raster-file "setup/gis/guangdong/pop2010_wgs84_georef.asc"
@@ -142,12 +139,36 @@ to setup-territories
     new-mayor
   ]
   
-  ; setup governance areas
-  ask patches [set governing-mayor one-of mayors with-min [distance myself] set pcolor [color] of governing-mayor]
-  ; no need to cache governed patches, quickly accessed ?
-  
   ; create regional authority
   create-mayors 1 [set regional-authority self set hidden? true]
+  
+  setup-governance-areas
+  
+  
+end
+
+
+;;
+;  setup governance areas
+to setup-governance-areas
+ 
+  if setup-type = "random" or setup-type = "from-file" or setup-type = "gis-synthetic" [
+    ask patches [set governing-mayor one-of ((mayors with-min [distance myself]) with [self != regional-authority]) set pcolor [color] of governing-mayor]
+  ]
+  
+  if setup-type = "gis" [
+    foreach gis:feature-list-of gis:load-dataset gis-governed-patches-file [
+      let area-name gis:property-value ? "NAME"
+      ask patches with [gis:contains? ? self or gis:intersects? ? self] [
+        set governing-mayor one-of mayors with [label = area-name]
+      ]
+    ]
+    
+    ; patches with no governing -> central authority
+    ask patches with [governing-mayor = 0] [set governing-mayor regional-authority]
+    
+  ] 
+  
   
 end
 
@@ -161,30 +182,9 @@ to setup-initial-distributions
   
   output-print "... Distributions"
   
-  ifelse setup-type != "gis-raster" [
-    ; use monocentric kernel application function
-    let centers [patch-here] of mayors with [self != regional-authority]
-    foreach centers [
-      apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" ?
-      apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" ?
-    ]
-    ;ask mayors with [self != regional-authority] [
-    ;   let center [patch-here] of self
-    ;   apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" center
-    ;   apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" center
-    ;]
-  ][
-    ; setup pop and employment from raster file
-    ;let gis-population-raster gis:load-dataset gis-population-raster-file
-    
-  ]
-  let gis-population-raster gis:load-dataset gis-population-raster-file
-  gis:apply-raster gis-population-raster actives
-  ; replace Nans
-  ask patches [
-    if not (actives < 0 or actives > 0)[set actives 0]
-  ]
+  setup-population-distribution
   
+  setup-employment-distribution
   
   ; setup global lists
   set patches-employments rep 0 count patches
@@ -192,6 +192,56 @@ to setup-initial-distributions
   ask patches [
     set patches-employments replace-item number patches-employments employments
     set patches-actives replace-item number patches-actives actives
+  ]
+  
+end
+
+;;
+; population distribution
+to setup-population-distribution
+   
+   if setup-type = "random" or setup-type = "from-file" or setup-type = "gis-synthetic" [
+     let centers [patch-here] of mayors with [self != regional-authority]
+     foreach centers [
+       apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" ?
+     ]
+   ]
+   
+   if setup-type = "gis" [
+      let gis-population-raster gis:load-dataset gis-population-raster-file
+      gis:apply-raster gis-population-raster actives
+      ; replace Nans
+      ask patches [
+        if not (actives < 0 or actives > 0)[set actives 0]
+      ]
+   ]
+   
+end
+
+;;
+; employments distribution
+to setup-employment-distribution
+  
+  if setup-type = "random" or setup-type = "from-file" or setup-type = "gis-synthetic" [
+    let centers [patch-here] of mayors with [self != regional-authority]
+    foreach centers [
+      apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" ?
+    ]
+  ]
+  
+  if setup-type = "gis" [
+    let economic-dataset gis:load-dataset gis-economic-areas-file
+    let properties gis:property-names economic-dataset
+  
+    foreach gis:feature-list-of economic-dataset [
+       let current-employment-cat0 0 if member? "PRMRY_S" properties [set current-employment-cat0 gis:property-value ? "PRMRY_S"]
+       let current-employment-cat1 0 if member? "TERTIRY" properties [set current-employment-cat1 gis:property-value ? "TERTIRY"]
+       let current-employment current-employment-cat0 + current-employment-cat1
+       let eco-area-patches patches with [gis:contains? ? self or gis:intersects? ? self]
+       if count eco-area-patches > 0 [
+         repeat 1000 [ask one-of eco-area-patches [set employments employments + current-employment / 1000]]
+       ] 
+    ]
   ]
   
 end
@@ -249,43 +299,44 @@ end
 ;  Done AFTER nw distance caching ; updates
 to setup-initial-network
   
-  if setup-type = "random" [
-    ;; try a radioconcentric network ? or use slime mould ?
-    ; -> may not be useful in a first time to have synthetic initial networks
-    
-    
-  ]
+  if initial-nw? != false [
   
-  
-  if setup-type = "gis" [
-    ; construct network from gis file
-    let old-config save-nw-config
-    let infra-list []
-    let network-dataset gis:load-dataset gis-network-file
+    if setup-type = "random" [
+      ;; try a radioconcentric network ? or use slime mould ?
+      ; -> may not be useful in a first time to have synthetic initial networks
     
-    foreach gis:feature-list-of network-dataset [   
-      foreach gis:vertex-lists-of ? [
-        let i 0 let l ?
-        foreach but-first ? [
-          let p1 gis:location-of item i l let p2 gis:location-of ?
-          ;output-print p1 output-print p2
-          if p1 != [] and p2 != [] [
-            set p1 ([list pxcor pycor] of patch first p1 last p1) set p2 ([list pxcor pycor] of patch first p2 last p2)
-            if p1 != p2 [
-              set infra-list lput (list p1 p2) infra-list
-            ]
-          ]
-          set i i + 1
-        ]
-        
-      ]    
     ]
+  
+  
+    if setup-type = "gis" [
+      ; construct network from gis file
+      let old-config save-nw-config
+      let infra-list []
+      let network-dataset gis:load-dataset gis-network-file
     
-    construct-infrastructure infra-list old-config
+      foreach gis:feature-list-of network-dataset [   
+        foreach gis:vertex-lists-of ? [
+          let i 0 let l ?
+          foreach but-first ? [
+            let p1 gis:location-of item i l let p2 gis:location-of ?
+            ;output-print p1 output-print p2
+            if p1 != [] and p2 != [] [
+              set p1 ([list pxcor pycor] of patch first p1 last p1) set p2 ([list pxcor pycor] of patch first p2 last p2)
+              if p1 != p2 [
+                set infra-list lput (list p1 p2) infra-list
+              ]
+            ]
+            set i i + 1
+          ]
+        
+        ]    
+      ]
+    
+      construct-infrastructure infra-list old-config
      
+    ]
+  
   ]
-  
-  
   
 end
 
