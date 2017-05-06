@@ -82,6 +82,12 @@ __includes [
   
   "exploration.nls"
   
+  ;;;;;;;;
+  ;; experiments
+  ;;;;;;;;
+  "experiments.nls"
+  
+  
   
   ;;;;;;;;;;
   ;; utils
@@ -111,6 +117,8 @@ __includes [
   
   "test/test-distances.nls"
   "test/test-transportation.nls"
+  "test/test-experiments.nls"
+  
   
 ]
 
@@ -263,6 +271,8 @@ globals[
   dmax
   
   
+  target-network-file
+  
   
   ;;;;;;;;;;;;;
   ;; Utils
@@ -283,6 +293,8 @@ globals[
   
   ;; HEADLESS
   headless?
+  
+  failed
   
 ]
 
@@ -382,6 +394,8 @@ transportation-links-own [
   ; tick on which the infra has been constructed
   age
   
+  status
+  
 ]
 
 ;; nodes of the transportation network
@@ -457,7 +471,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-2
+0
 
 TEXTBOX
 11
@@ -1379,6 +1393,17 @@ SWITCH
 108
 initial-nw?
 initial-nw?
+1
+1
+-1000
+
+SWITCH
+160
+184
+338
+217
+setup-from-world-file?
+setup-from-world-file?
 1
 1
 -1000

@@ -1,0 +1,61 @@
+;;;;;
+;; procedures for oml experiment
+
+to setup-experiment [regionalproba lambdaacc euclpace game constr-cost coll-cost target-network setuptype rnd-seed]
+  
+  clear-all
+  
+  show (word "Params : " regionalproba " ; " lambdaacc " ; "  euclpace)
+  
+  setup-headless-vars
+  
+  set headless? true
+  set failed 0
+  
+  set seed rnd-seed
+  
+  set setup-from-world-file? false
+  
+  set regional-decision-proba regionalproba
+  set lambda-accessibility lambdaacc 
+  set euclidian-min-pace euclpace
+  if game = 0 [set game-type "random"] if game = 1 [set game-type "simple-nash"] if game = 2 [set game-type "discrete-choices"]
+  set construction-cost constr-cost
+  set collaboration-cost coll-cost
+  
+  set with-externalities? false
+  ;ifelse with-ext = 1 [set with-externalities? true][set with-externalities? false]
+  ;set ext-growth-factor ext-growth
+  
+  ; target network file
+  set target-network-file (word "setup/target/network" target-network ".shp")
+  
+  ; setup type
+  if setuptype = 0 [] if setuptype = 1 [set setup-type "gis"]
+  
+  
+  ;; cache setup for performance in case of gis real situation
+  ifelse setup-from-world-file? [
+    import-world "setup/realsetup.csv"
+  ][
+    setup
+  ]
+  
+  ask transportation-links [set status "initial"]
+  
+
+end
+
+
+to run-experiment
+  ;; run
+  
+  carefully[
+    repeat total-time-steps [
+      go
+    ]
+  ]
+  [show error-message set failed 1]
+  ; indicators then called from openmole
+  
+end

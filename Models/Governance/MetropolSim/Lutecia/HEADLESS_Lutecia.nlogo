@@ -13,7 +13,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table context nw gradient numanal]
+extensions[matrix table context nw gradient numanal gis]
 
 __includes [
   
@@ -81,7 +81,7 @@ __includes [
   ; Experiments
   ;;;;;;;;;;
   
-  "experiment.nls"
+  "experiments.nls"
   
   
   ;;;;;;;;;;
@@ -111,6 +111,7 @@ __includes [
   ;;;;;;;;;;;
   
   "test/test-distances.nls"
+  "test/test-experiments.nls"
   
 ]
 
@@ -293,6 +294,30 @@ globals[
   failed
   
   to-construct
+  
+  
+  gis-network-file
+  gis-extent-file
+  gis-centers-file
+  gis-sea-file
+  gis-economic-areas-file
+  gis-governed-patches-file
+  gis-population-raster-file
+  
+  world-size
+  
+  seed
+  
+  initial-nw?
+  
+  mayors-populations
+  mayors-employments
+  mayors-names
+  
+  target-network-file
+  
+  setup-from-world-file?
+  
 ]
 
 
@@ -343,6 +368,8 @@ patches-own [
   form-factor
   
   
+  sea? 
+  
   
 ]
 
@@ -382,6 +409,8 @@ transportation-links-own [
   
   age
   
+  status
+  
 ]
 
 ;; nodes of the transportation network
@@ -393,11 +422,11 @@ transportation-nodes-own[
 GRAPHICS-WINDOW
 833
 27
-1078
-240
-6
-6
-14.0
+1287
+502
+15
+15
+14.333333333333334
 1
 10
 1
@@ -407,10 +436,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--6
-6
--6
-6
+-15
+15
+-15
+15
 0
 0
 1
