@@ -86,9 +86,11 @@ end
 to-report network:network-distances [e1 e2]
   let res 0
   ask e1 [
+    let dmin network:link-distance self (one-of e2)
     ask e2 [
-      set res res + network:link-distance myself self 
+      let d network:link-distance myself self if d < dmin [set dmin d]
     ]
+    set res res + dmin
   ]
   report res
 end
@@ -96,19 +98,31 @@ end
 ;;
 ; distance between two links
 to-report network:link-distance [l1 l2]
-  ; rough heuristic : mse between extremities ?
-  let res 0 let oend nobody
-  ask l1 [
-    ask end1 [
-      let e2 one-of (([both-ends] of l2) with-min [distance myself])
-      set oend one-of (([both-ends] of l2) with [self != e2])
-      ask e2 [set res res + distance myself]
+  
+  if link-distance-function = "distance-closest-ends" [
+    ; rough heuristic : mse between extremities ?
+    let res 0 let oend nobody
+    ask l1 [
+      ask end1 [
+        let e2 one-of (([both-ends] of l2) with-min [distance myself])
+        set oend one-of (([both-ends] of l2) with [self != e2])
+        ask e2 [set res res + distance myself]
+      ]
+      ask end2 [
+        ask oend [set res res + distance myself] 
+      ]
     ]
-    ask end2 [
-      ask oend [set res res + distance myself] 
-    ]
+    report res
   ]
-  report res
+  
+  if link-distance-function = "distance-projection" [
+    ; projection of l1 on l2 (-> non-symmetric)
+    let res 0 ask l1 [ask both-ends [set res res + distance-to-link l2]]
+    report res
+  ]
+  
+  
+  
 end
 
 
@@ -124,9 +138,9 @@ to network:ghost-network-from-gis [file]
             if p1 != [] and p2 != [] [
               set p1 ([list pxcor pycor] of patch first p1 last p1) set p2 ([list pxcor pycor] of patch first p2 last p2)
               if p1 != p2 [
-                create-transportation-nodes 1 [
+                create-ghost-transportation-nodes 1 [
                   new-transportation-node setxy first p1 last p1
-                  hatch 1 [setxy first p2 last p2 create-transportation-link-with myself [set status "ghost"]]
+                  hatch 1 [setxy first p2 last p2 create-ghost-transportation-link-with myself]
                 ]
               ]
             ]

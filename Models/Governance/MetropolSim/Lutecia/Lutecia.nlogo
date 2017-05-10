@@ -296,6 +296,9 @@ globals[
   
   failed
   
+  
+  link-distance-function
+  
 ]
 
 
@@ -403,6 +406,11 @@ breed[transportation-nodes transportation-node]
 
 transportation-nodes-own[
 ]
+
+
+undirected-link-breed[ghost-transportation-links ghost-transportation-link]
+
+breed[ghost-transportation-nodes ghost-transportation-node]
 @#$#@#$#@
 GRAPHICS-WINDOW
 346
@@ -1393,7 +1401,7 @@ SWITCH
 108
 initial-nw?
 initial-nw?
-1
+0
 1
 -1000
 

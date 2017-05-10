@@ -1,11 +1,22 @@
 ;;;;;
 ;; procedures for oml experiment
 
-to setup-experiment [regionalproba lambdaacc euclpace game constr-cost coll-cost target-network setuptype rnd-seed]
+to setup-experiment [regionalproba lambdaacc euclpace game constr-cost coll-cost target-network setuptype finalTime rnd-seed]
   
   clear-all
   
-  show (word "Params : " regionalproba " ; " lambdaacc " ; "  euclpace)
+  show (word "Params : regionalproba = " regionalproba " ; lambdaacc = " lambdaacc " ; euclpace = "  euclpace " ; game = " game " ; constr-cost = " constr-cost " ; coll-cost = " coll-cost)
+  
+  ;set setup-from-world-file? false
+  set setup-from-world-file? true
+  
+  ;; cache setup for performance in case of gis real situation
+  if setup-from-world-file? [
+    import-world "setup/realsetup.csv"
+    set setup-from-world-file? true
+  ]
+  
+  
   
   setup-headless-vars
   
@@ -14,12 +25,13 @@ to setup-experiment [regionalproba lambdaacc euclpace game constr-cost coll-cost
   
   set seed rnd-seed
   
-  set setup-from-world-file? false
+  
   
   set regional-decision-proba regionalproba
   set lambda-accessibility lambdaacc 
   set euclidian-min-pace euclpace
-  if game = 0 [set game-type "random"] if game = 1 [set game-type "simple-nash"] if game = 2 [set game-type "discrete-choices"]
+  ;if game = 0 [set game-type "random"] if game = 1 [set game-type "simple-nash"] if game = 2 [set game-type "discrete-choices"]
+  if floor game = 0 [set game-type "random"] if floor game = 1 [set game-type "simple-nash"] if floor game = 2 [set game-type "discrete-choices"]
   set construction-cost constr-cost
   set collaboration-cost coll-cost
   
@@ -33,16 +45,11 @@ to setup-experiment [regionalproba lambdaacc euclpace game constr-cost coll-cost
   ; setup type
   if setuptype = 0 [] if setuptype = 1 [set setup-type "gis"]
   
+  set total-time-steps finalTime
   
-  ;; cache setup for performance in case of gis real situation
-  ifelse setup-from-world-file? [
-    import-world "setup/realsetup.csv"
-  ][
+  if setup-from-world-file? = false [
     setup
   ]
-  
-  ask transportation-links [set status "initial"]
-  
 
 end
 

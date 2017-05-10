@@ -318,6 +318,8 @@ globals[
   
   setup-from-world-file?
   
+  link-distance-function
+  
 ]
 
 
@@ -418,6 +420,14 @@ breed[transportation-nodes transportation-node]
 
 transportation-nodes-own[
 ]
+
+; needs ghost breeds to not perturbate shortest paths update
+undirected-link-breed[ghost-transportation-links ghost-transportation-link]
+breed[ghost-transportation-nodes ghost-transportation-node]
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 833
@@ -445,6 +455,41 @@ GRAPHICS-WINDOW
 1
 ticks
 30.0
+
+PLOT
+11
+12
+211
+162
+plot 1
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count turtles"
+
+BUTTON
+28
+191
+201
+224
+NIL
+test-experiment-setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

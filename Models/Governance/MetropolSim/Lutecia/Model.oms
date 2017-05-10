@@ -1,0 +1,55 @@
+
+// Parameters
+val regionalproba = Val[Double]
+val lambdaacc = Val[Double]
+val euclpace = Val[Double]
+val game = Val[Double]
+val constrcost = Val[Double]
+val collcost=Val[Double]
+val targetNetwork = Val[Int]
+val setupType = Val[Int]
+
+val id = Val[Int]
+val replication = Val[Int]
+
+
+// reporters
+val accessibility=Val[Double]
+val traveldistance=Val[Double]
+val activesentropy=Val[Double]
+val empentropy=Val[Double]
+val stability=Val[Double]
+val gametype=Val[String]
+val expcollab=Val[Double]
+val wantedcollab=Val[Double]
+val realcollab=Val[Double]
+val failed=Val[Double]
+val targetDistance = Val[Double]
+
+
+// regionalproba lambdaacc euclpace game constr-cost coll-cost target-network setuptype finalTime rnd-seed
+val cmds = List(
+  "setup-experiment ${regionalproba} ${lambdaacc} ${euclpace} ${game} ${constrcost} ${collcost} ${targetNetwork} ${setupType} 5 ${replication}"//,
+  //"run-experiment"
+)
+
+val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) set(
+  inputs += (regionalproba,lambdaacc,euclpace,game,constrcost,collcost,targetNetwork,setupType,replication,id),
+  outputs += (regionalproba,lambdaacc,euclpace,game,constrcost,collcost,targetNetwork,setupType,replication,id),
+  netLogoOutputs += ("mean-accessibility patches", accessibility),
+  netLogoOutputs += ("mean-travel-distance", traveldistance),
+  netLogoOutputs += ("actives-entropy", activesentropy),
+  netLogoOutputs += ("employments-entropy", empentropy),
+  netLogoOutputs += ("stability",stability),
+  netLogoOutputs += ("regional-decision-proba", regionalproba),
+  netLogoOutputs += ("lambda-accessibility", lambdaacc),
+  netLogoOutputs += ("euclidian-min-pace", euclpace),
+  netLogoOutputs += ("game-type", gametype),
+  netLogoOutputs += ("construction-cost", constrcost),
+  netLogoOutputs += ("collaboration-cost", collcost),
+  netLogoOutputs += ("expected-collaboration-rate", expcollab),
+  netLogoOutputs += ("wanted-collaboration-rate", wantedcollab),
+  netLogoOutputs += ("realized-collaboration-rate", realcollab),
+  netLogoOutputs += ("target-network-distance",targetDistance),
+  netLogoOutputs += ("failed", failed)
+)

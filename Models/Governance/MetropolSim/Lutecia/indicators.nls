@@ -23,8 +23,10 @@ end
 ;;
 ;
 to-report target-network-distance
-  network:ghost-network-from-gis target-network-file
-  report network:network-distances transportation-links with [status = 0] transportation-links with [status = "ghost"]
+  ; kill potential previous target network
+  ;ask transportation-links with [status = "ghost"] [ask both-ends [die] die]
+  ;report network:network-distances transportation-links with [status = "initial"] transportation-links with [status = "ghost"]
+  report network:network-distances transportation-links ghost-transportation-links
 end
 
 
@@ -75,14 +77,16 @@ end
 
 ;; entropy of distribution of actives
 to-report actives-entropy
-  let atot sum [actives] of patches
-  report (- 1 / (ln count patches) * sum [actives / atot * ln (actives / atot)] of patches)
+  let actives-patches patches with [actives > 0]
+  let atot sum [actives] of actives-patches
+  report (- 1 / (ln count patches) * sum [actives / atot * ln (actives / atot)] of actives-patches)
 end
 
 ;; entropy of distribution of employments
 to-report employments-entropy
-  let etot sum [employments] of patches
-  report (- 1 / (ln count patches) * sum [employments / etot * ln (employments / etot)] of patches)
+  let employment-patches patches with [employments > 0]
+  let etot sum [employments] of employment-patches
+  report (- 1 / (ln count patches) * sum [employments / etot * ln (employments / etot)] of employment-patches)
 end
 
 
