@@ -244,15 +244,13 @@ We propose a stochastic model of urban growth that generates spatial distributio
 \linenumbers
 
 
-
-
 % http://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0166960&type=printable
 %  -> good example of short abmodeling plosone paper (on extended schelling model).
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\section{Introduction}
+\section*{Introduction}
 
 Urban Systems are complex socio-technical objects
 
@@ -277,12 +275,13 @@ Urban Systems are complex socio-technical objects
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-% You may title this section "Methods" or "Models". 
-% "Models" is not a valid title for PLoS ONE authors. However, PLoS ONE
-% authors may use "Analysis" 
-\section{Materials and Methods}
+\section*{Materials and Methods}
+%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{The urban growth model}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{The urban growth model}
 
 
 
@@ -297,30 +296,25 @@ Urban Systems are complex socio-technical objects
 
 % following Florent : \cite{fujita1996economics} oppose agglomeration and sprawl
 
-Our model is an extension of the diffusion-limited aggregation model studied in~\cite{batty2006hierarchy}. Indeed, the tension between antagonist aggregation and sprawl mechanisms may be an important process in urban morphogenesis. For example \cite{fujita1996economics} opposes centrifugal forces with centripetal forces in the equilibrium view of urban spatial systems, what is easily transferable to non-equilibrium systems in the framework of self-organized complexity : a urban structure is a far-from-equilibrium system that has been driven to this point by these opposite forces. The two contradictory processes of urban concentration and urban sprawl are captured by the model, what allows to reproduce with a good precision a large number of existing morphologies.
-% A generalization of the basic model is proposed in~\cite{raimbault2016calibration}. 
-
+Our model is based on widely accepted ideas of diffusion-aggregation processes for Urban Processes. The combination of attraction forces with repulsion, due for example to congestion, already yield a complex outcome that has been shown under some simplifying assumptions to be representative of urban growth processes. Such a model is studied by~\cite{batty2006hierarchy}. Indeed, the tension between antagonist aggregation and sprawl mechanisms may be an important process in urban morphogenesis. For example \cite{fujita1996economics} opposes centrifugal forces with centripetal forces in the equilibrium view of urban spatial systems, what is easily transferable to non-equilibrium systems in the framework of self-organized complexity : a urban structure is a far-from-equilibrium system that has been driven to this point by these opposite forces. The two contradictory processes of urban concentration and urban sprawl are captured by the model, what allows to reproduce with a good precision a large number of existing morphologies.
 
 
 \paragraph{Scale}
 
 % choice of scale : linked to the notion of morphogenesis
 
+The question at which scale is it relevant to quantify urban scale is a difficult one, that probably has no unique response
+
 
 \paragraph{Settings}
 
-%Precise formulation, description and formalization of the model. ; parameters and their possible interpretation ; def of parameter space.
+We formalize now the model, together with its parameters and their possible interpretations. The simulation model $D$ proceeds iteratively the following way. An square grid of width $N$, initially empty, is represented by population $(P_i(t))_{1\leq i\leq N^2}$. At each time step, until total population reaches a fixed parameter $P_m$,
 
-The model $D$ proceeds iteratively the following way. An square grid of width $N$, initially empty, is represented by population $(P_i(t))_{1\leq i\leq N^2}$. At each time step, until total population reaches a fixed parameter $P_m$,
 \begin{itemize}
 \item total population is increased of a fixed number $N_G$ (growth rate), following a preferential attachment such that 
 \[\Pb{P_i(t+1)=P_i(t)+1|P(t+1)=P(t)+1}=\frac{(P_i(t)/P(t))^{\alpha}}{\sum(P_i(t)/P(t))^{\alpha}}\]
 \item a fraction $\beta$ of population is diffused to four closest neighbors is operated $n_d$ times
 \end{itemize}
-
-
-
-
 
 
 
@@ -362,15 +356,14 @@ r = \frac{\sum_{i\neq j} w_{ij} \left(P_i - \bar{P}\right)\cdot\left(P_j - \bar{
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\section{Results}
+\section*{Results}
+%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Real Data}
-
-We use the population density grid provided openly by 
-
 
 %% Data source (density grid), computation methodology [comparison of sampling/smoothing to avoid bord effects ?] -> reals values of morpho indics on 50kmx50km grids, on all Europe.
 %% + summary stats
@@ -378,7 +371,24 @@ We use the population density grid provided openly by
 %Figure : Distributions of indicators values for real dataset of european densities, computed on 50kmx50km grids, with 10km offset to avoid bord effects. [TODO : add log-normal/normal fits ? ]
 %  -> cf Empirical Section
 
-Empirical morphological measures for calibration are the one described in the empirical chapter, i.e. the calibration is done on morphological objectives (entropy, hierarchy, spatial auto-correlation, mean distance) against real values computed on the set of 50km sized grid extracted from european density grid~\cite{eurostat}.
+We compute morphological measure on real urban density data, namely the population density grid of th European Union at 100m resolution provided openly by Eurostat~\cite{eurostat}. The morphological measures used for calibration are the one described above that are the same used to classify model outputs. The calibration of the model is thus done on morphological objectives (entropy, hierarchy, spatial auto-correlation, mean distance). We show in Fig.~\ref{fig:empirical} maps giving values of indicators for France, to ease readability. Map of the full European union are available in~\nameref{S1_Text}. The choice of the resolution, the space range, and the shape of the window on which indicators are computed, is made according to the thematic specifications of the model : % TODO justifications
+We however tested the sensitivity to window size and shape
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\begin{minipage}{width=0.7\textwidth}
+\includegraphics[width=\textwidth]{figures/indics_morpho_discrquantiles}
+\end{minipage}
+\begin{minipage}{width=0.28\textwidth}
+\includegraphics[width=\textwidth]{figures/cluster_pca_k5_morpho}
+\includegraphics[width=\textwidth]{figures/cluster_map_k5_morpho}
+\end{minipage}
+\caption{\textbf{Empirical values of morphological indicators.} }
+\label{fig:empirical}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -387,15 +397,14 @@ Empirical morphological measures for calibration are the one described in the em
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Generating Synthetic Patterns}
-
+\subsection*{Generating Synthetic Patterns}
 
 
 
 %Precise description of the implementation (pub openmole exploration etc, importance of intensive computation)
 
 
-The model was implemented in a first time in NetLogo~\cite{wilensky1999netlogo} for exploration and visualization purposes, later in \texttt{Scala} for performance reasons and easy integration into OpenMole~\cite{reuillon2013openmole} for HPC model exploration. Computation of indicator values on geographical data was done in \texttt{R} using the \texttt{raster} package~\cite{hijmans2015geographic}.
+The model was implemented in a first time in NetLogo~\cite{wilensky1999netlogo} for exploration and visualization purposes, later in \texttt{Scala} for performance reasons and easy integration into OpenMole~\cite{reuillon2013openmole} for HPC model exploration. Computation of indicator values on geographical data was done in \texttt{R} using the \texttt{raster} package~\cite{hijmans2015geographic}. Source code, processed data and results are available on the open repository of the project at \texttt{}. % TODO anonymize repo ?
 
 
 
@@ -407,7 +416,7 @@ The model was implemented in a first time in NetLogo~\cite{wilensky1999netlogo} 
 %variety of genered forms, examples of extreme shapes.
 
 
-The model as few parameters but is able to generate a very wide variety of shapes, extending beyond existing forms. In particular, its dynamical nature allows through $P_m$ parameter to choose final regime that can be non-stationarity (generally chaotic shapes), semi-stationarity or total stationarity. Fig.~\ref{fig:densitygeneration} shows examples of generated shapes.
+The model as few parameters but is able to generate a very wide variety of shapes, extending beyond existing forms. In particular, its dynamical nature allows through $P_m$ parameter to choose final regime that can be non-stationarity (generally chaotic shapes), semi-stationarity or full stationarity. Fig.~\ref{fig:densitygeneration} shows examples of generated shapes, and illustrates the variety of forms that can be produced by the model.
 
 
 
@@ -531,29 +540,21 @@ We plan in further work to extract the exact parameter space covering all real s
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\section{Discussion}
+\section*{Discussion}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Thematic interpretation of growth behavior}
+\subsection*{Thematic interpretation of growth behavior}
 
 We still need to interpret the positions of typical shapes within parameter space in order to confirm the thematic interpretation of parameters. Depending on results of calibration refinement, we may obtain necessary and sufficient parameters to explain growth at this scale and a corresponding interpretation.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Integration into a multi-scale growth model}
+\subsection*{Integration into a multi-scale growth model}
 
 It could be possible to couple this model with a Gibrat (or Favaro-pumain) at Europa scale (macro) (with addition of consistence on migration constraints), where meso growth rates which were exogenous before are top-down determined, and bottom-up feedback is done through local aggregation level, influence importance of each area.
 
-
-
-%%%%%
-%% 4.3 - Methodological application ?
-%%%%% -> maybe out of scope here ?
-
-% -> Accurately calibrated spatialized urban growth model, can reproduce any (european) urban pattern.
-% -> interpretation of parameter influence ; effective independant dimensions of the urban system at this scale.
 
 
 
@@ -563,7 +564,7 @@ It could be possible to couple this model with a Gibrat (or Favaro-pumain) at Eu
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\section{Conclusion}
+\section*{Conclusion}
 
 
 In conclusion, this first modeling step provide an accurately calibrated spatial urban growth model at the mesoscopic scale that can reproduce any European urban pattern in terms of urban form. Further work is needed for an interpretation of parameter influence and the determination of effective independent dimensions of the urban system at this scale. We will use this model for other purposes in the following.
@@ -575,14 +576,16 @@ In conclusion, this first modeling step provide an accurately calibrated spatial
 \section*{Supporting Information}
 
 % Include only the SI item label in the subsection heading. Use the \nameref{label} command to cite SI items in the text.
-\subsection*{S1 Figure}
-\label{S1_Figure}
-{\bf Bold the first sentence.}
+\subsection*{S1 Text}
+\label{S1_Text}
+{\bf Extended empirical study of morphological indicators.} Contains maps of indicators for all Europe, statistical distributions of indicators, and some sensitivity analysis to grid size and typology parameters.
+
+
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Acknowledgments}
+%\section*{Acknowledgments}
 
 
 
@@ -606,34 +609,28 @@ In conclusion, this first modeling step provide an accurately calibrated spatial
 \bibliographystyle{plos2015}
 \bibliography{/Users/Juste/Documents/ComplexSystems/CityNetwork/Biblio/Bibtex/CityNetwork}
 
-%
-%\begin{thebibliography}{1}
-%
-%\bibitem{tsai2005quantifying}
-%Tsai YH.
-%\newblock Quantifying urban form: compactness versus' sprawl'.
-%\newblock Urban studies. 2005;42(1):141--161.
-%
-%\bibitem{Schwarz201029}
-%Schwarz N.
-%\newblock Urban form revisited---Selecting indicators for characterising
-%  European cities.
-%\newblock Landscape and Urban Planning. 2010;96(1):29 -- 47.
-%\newblock Available from:
-%  \url{http://www.sciencedirect.com/science/article/pii/S0169204610000320}.
-%
-%\bibitem{le2015forme}
-%Le~N{\'e}chet F.
-%\newblock De la forme urbaine {\`a} la structure m{\'e}tropolitaine: une
-%  typologie de la configuration interne des densit{\'e}s pour les principales
-%  m{\'e}tropoles europ{\'e}ennes de l'Audit Urbain.
-%\newblock Cybergeo: European Journal of Geography. 2015;.
-%
-%\bibitem{wilensky1999netlogo}
-%Wilensky U.
-%\newblock NetLogo. 1999;.
-%
-%\end{thebibliography}
+
+
+
+
+
+
+%%%%%
+%% Voie de garage / idées
+
+
+%%%%%
+%% 4.3 - Methodological application ?
+%%%%% -> maybe out of scope here ?
+
+% -> Accurately calibrated spatialized urban growth model, can reproduce any (european) urban pattern.
+% -> interpretation of parameter influence ; effective independant dimensions of the urban system at this scale.
+
+
+
+
+
+
 
 
 
