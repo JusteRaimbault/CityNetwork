@@ -11,11 +11,16 @@
 to initial-position-mayor
   if setup-type = "random" [
     let m other mayors with [self != regional-authority]
+    show m
     let p nobody let potp patches with [pxcor < max-pxcor - 1 and pxcor > min-pxcor + 1 and pycor < max-pycor - 1 and pycor > min-pycor + 1]
-    ifelse m != nobody [
+    ifelse count m > 0 [
       set p one-of potp with [distance one-of m > 5]
     ][
-      set p one-of potp
+      ifelse #-initial-territories > 1 [
+        set p one-of potp
+      ][
+        set p patch 0 0
+      ]
     ]
     setxy [pxcor] of p [pycor] of p
   ]

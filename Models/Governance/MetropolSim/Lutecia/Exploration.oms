@@ -14,7 +14,7 @@ val exploration =  ExplorationTask(
     (collcost in (0.00005 to 0.00013 by 0.00002))
   ) withIndex id )*/
   ((LHS (
-    1,
+    2000,
     lambdaacc in Range(0.001,0.01),
     euclpace in Range(2.5,10.0),
     constrcost in Range(0.0005,0.005),
@@ -27,18 +27,20 @@ val exploration =  ExplorationTask(
   x (replication in (UniformDistribution[Int]() take 5))
 )
 
-val purpose = "test"
+//val purpose = "test"
 //val purpose = "grid"
-//val purpose = "lhs"
+val purpose = "lhs"
 
 
 // output
-val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv")
+val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
+  arraysOnSingleRow := true
+)
 
 
 
-val local = LocalEnvironment(5)
-//val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+//val local = LocalEnvironment(5)
+val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
-exploration -< (model on local hook indics_hook)
-//exploration -< (model on grid by 20 hook indics_hook)
+//exploration -< (model on local hook indics_hook)
+exploration -< (model on grid by 2 hook indics_hook)

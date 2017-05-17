@@ -9,15 +9,32 @@
 ;-> hierarchy case, population, evol hierarchy.  -- TODO --
 
 
+to update-indicators
+  foreach tracked-indicators [
+    let val run-result ?
+    table:put history-indicators ? (lput val (table:get history-indicators ?))
+  ]
+end
+
+
 to compute-indicators
   output-print (word "mean-accessibility : " mean-accessibility patches)
   output-print (word "mean-travel-distance : " mean-travel-distance)
-  output-print (word "actives-entropy : " actives-entropy)
+  output-print (word "actives-entropy : " entropy-actives)
   output-print (word "collaboration wanted : " wanted-collaboration-rate)
   output-print (word "collaboration realized : " realized-collaboration-rate)
   output-print (word "externality-decrep : " externality-decrepitude)
   ;output-print (word "mean-congestion : " mean-congestion)
 end
+
+
+;;
+; TS indicators
+to-report ts-indicator [indic]
+  report table:get history-indicators indic
+end
+
+
 
 
 ;;
@@ -75,19 +92,112 @@ to-report stability
 end
 
 
-;; entropy of distribution of actives
-to-report actives-entropy
-  let actives-patches patches with [actives > 0]
-  let atot sum [actives] of actives-patches
-  report (- 1 / (ln count patches) * sum [actives / atot * ln (actives / atot)] of actives-patches)
+
+
+;;;;
+;; Morphological indicators
+
+
+to-report moran-actives
+  report morphology:moran 0
 end
 
-;; entropy of distribution of employments
-to-report employments-entropy
-  let employment-patches patches with [employments > 0]
-  let etot sum [employments] of employment-patches
-  report (- 1 / (ln count patches) * sum [employments / etot * ln (employments / etot)] of employment-patches)
+to-report entropy-actives
+  report morphology:entropy 0
 end
+
+to-report slope-actives
+  report first morphology:slope 0
+end
+
+to-report slope-rsquared-actives
+  report last morphology:slope 0
+end
+
+to-report mean-distance-actives
+  report morphology:distance 0
+end
+
+to-report moran-employments
+  report morphology:moran 1
+end
+
+to-report entropy-employments
+  report morphology:entropy 1
+end
+
+to-report slope-employments
+  report first morphology:slope 1
+end
+
+to-report slope-rsquared-employments
+  report last morphology:slope 1
+end
+
+to-report mean-distance-employments
+  report morphology:distance 1
+end
+
+
+
+
+
+
+;;
+;  Network indicators
+
+
+to-report table-values [t]
+  let res []
+  foreach table:keys t [set res lput table:get t ? res]
+  report res
+end
+
+;;
+; nw diameter
+;  Normalized by world diag
+to-report nw-diameter
+  let diag sqrt (world-width ^ 2 + world-height ^ 2)
+  report max map [sum map [[road-length] of ?] ?] (table-values shortest-paths) / diag
+end
+
+
+;;
+; mean path length
+;  Normalized by world diagonal
+to-report mean-path-length
+  let diag sqrt (world-width ^ 2 + world-height ^ 2)
+  report (mean map [sum map [[road-length] of ?] ?] (table-values shortest-paths)) / diag
+end
+
+;;
+;  bw centrality, normalized by number of paths considered
+to-report mean-bw-centrality
+  let n count transportation-nodes
+  report (mean [bw-centrality] of transportation-links) * 2 / (n * (n - 1))
+end
+
+to-report mean-closeness-centrality
+  let n count transportation-nodes
+  report (mean [transportation-node-closeness-centrality] of transportation-nodes) / n
+end
+
+
+;;
+; mean relative speed, already normalized
+to-report mean-relative-speed
+  report mean table-values nw-relative-speeds
+end
+
+;;
+; nw length -> not normalized
+to-report total-nw-length
+  report sum [road-length] of transportation-links
+end
+
+
+
+
 
 
 
@@ -132,6 +242,32 @@ end
 to-report externality-decrepitude
   report externality-employments / (employments-max * ext-employments-proportion-of-max)
 end
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+;; DEPRECATED using morphology extension
+
+;; entropy of distribution of actives
+;to-report actives-entropy
+;  let actives-patches patches with [actives > 0]
+;  let atot sum [actives] of actives-patches
+;  report (- 1 / (ln count patches) * sum [actives / atot * ln (actives / atot)] of actives-patches)
+;end
+
+;; entropy of distribution of employments
+;to-report employments-entropy
+;  let employment-patches patches with [employments > 0]
+;  let etot sum [employments] of employment-patches
+;  report (- 1 / (ln count patches) * sum [employments / etot * ln (employments / etot)] of employment-patches)
+;end  
+  
   
 
 

@@ -8,16 +8,31 @@ val constrcost = Val[Double]
 val collcost=Val[Double]
 val targetNetwork = Val[Int]
 val setupType = Val[Int]
+val finalTime = Val[Int]
 
 val id = Val[Int]
 val replication = Val[Int]
 
 
 // reporters
-val accessibility=Val[Double]
-val traveldistance=Val[Double]
-val activesentropy=Val[Double]
-val empentropy=Val[Double]
+val accessibilityTS=Val[Array[Double]]
+val traveldistanceTS=Val[Array[Double]]
+
+// morphological : evolution of urban form
+//"moran-actives" "entropy-actives" "slope-actives" "slope-rsquared-actives" "mean-distance-actives"
+//"moran-employments" "entropy-employments" "slope-employments" "slope-rsquared-employments" "mean-distance-employments"
+val moranActivesTS = Val[Array[Double]]
+val entropyActivesTS = Val[Array[Double]]
+val slopeActivesTS = Val[Array[Double]]
+val slopeRsquaredActiveTS = Val[Array[Double]]
+val meanDistanceEmploymentsTS = Val[Array[Double]]
+val moranEmploymentsTS = Val[Array[Double]]
+val entropyEmploymentsTS = Val[Array[Double]]
+val slopeEmploymentsTS = Val[Array[Double]]
+val slopeRsquaredEmploymentsTS = Val[Array[Double]]
+val meanDistanceEmploymentsTS = Val[Array[Double]]
+
+
 val stability=Val[Double]
 val gametype=Val[String]
 val expcollab=Val[Double]
@@ -29,16 +44,17 @@ val targetDistance = Val[Double]
 
 // regionalproba lambdaacc euclpace game constr-cost coll-cost target-network setuptype finalTime rnd-seed
 val cmds = List(
-  "setup-experiment ${regionalproba} ${lambdaacc} ${euclpace} ${game} ${constrcost} ${collcost} ${targetNetwork} ${setupType} 5 ${replication}"//,
-  //"run-experiment"
+  "setup-experiment ${regionalproba} ${lambdaacc} ${euclpace} ${game} ${constrcost} ${collcost} ${targetNetwork} ${setupType} ${finalTime} ${replication}",
+  "run-experiment"
 )
 
 val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) set(
   inputs += (regionalproba,lambdaacc,euclpace,game,constrcost,collcost,targetNetwork,setupType,replication,id),
   outputs += (regionalproba,lambdaacc,euclpace,game,constrcost,collcost,targetNetwork,setupType,replication,id),
-  netLogoOutputs += ("mean-accessibility patches", accessibility),
-  netLogoOutputs += ("mean-travel-distance", traveldistance),
-  netLogoOutputs += ("actives-entropy", activesentropy),
+  netLogoOutputs += ("ts-indicator \"mean-accessibility patches\"", accessibility),
+  netLogoOutputs += ("ts-indicator \"mean-travel-distance\"", traveldistance),
+  netLogoOutputs += ("ts-indicator \"moran-actives\"", moranActivesTS),
+  netLogoOutputs += ("ts-indicator \"entropy-actives\"", entropyActivesTS),
   netLogoOutputs += ("employments-entropy", empentropy),
   netLogoOutputs += ("stability",stability),
   netLogoOutputs += ("regional-decision-proba", regionalproba),

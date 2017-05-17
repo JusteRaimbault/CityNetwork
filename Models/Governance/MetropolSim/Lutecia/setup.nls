@@ -48,6 +48,9 @@ to setup
   ; initial accessibilities
   setup-patch-variables
   
+  ; setup indicators
+  setup-indicators
+  
   ; display
   setup-display
   
@@ -75,6 +78,12 @@ to setup-globals
   set gis-population-raster-file "setup/gis/guangdong/pop2010_wgs84_georef.asc"
   
   set link-distance-function "distance-projection"
+  
+  ; indicators tracked in time
+  set tracked-indicators (list "mean-accessibility patches" "mean-travel-distance" 
+    "moran-actives" "entropy-actives" "slope-actives" "slope-rsquared-actives" "mean-distance-actives"
+    "moran-employments" "entropy-employments" "slope-employments" "slope-rsquared-employments" "mean-distance-employments"
+    )
   
 end
 
@@ -133,7 +142,7 @@ to setup-territories
   ; for now hardcoded path to setup file (unload gui)
   set ext-file "setup/ext.csv"
   
-  read-position-files
+  setup-mayor-characteristics
   
   ; create mayors
   create-mayors #-initial-territories [
@@ -343,7 +352,7 @@ to setup-initial-network
   ask transportation-links [set status "initial"]
   
   ; ghost nw at setup
-  network:ghost-network-from-gis target-network-file
+  if setup-type = "gis" [network:ghost-network-from-gis target-network-file]
   
   
 end
@@ -442,7 +451,7 @@ end
 ; Get number of mayors and position from csv file
 ;
 ;  -> sets the globals mayors-coordinates
-to read-position-files
+to setup-mayor-characteristics
   
   set mayors-coordinates [] set mayors-populations [] set mayors-employments [] set mayors-names []
   set ext-position []
@@ -490,12 +499,22 @@ to read-position-files
   
   
   ; corresponding number pf territories
-  set #-initial-territories length mayors-coordinates
+  if setup-type != "random" [set #-initial-territories length mayors-coordinates]
   
 end
 
 
-
+;;
+;  tracked indicators already assumed setup
+to setup-indicators
+  
+  set history-indicators table:make
+  
+  foreach tracked-indicators [
+    table:put history-indicators ? []
+  ]
+  
+end
 
 
 
