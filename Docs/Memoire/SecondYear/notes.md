@@ -1,7 +1,11 @@
 
 
 
+## cognition and modularity
 
+* Jeu 18 mai 2017 16:53:50 CEST * 
+
+\cite{Duncan16052017} : decomposition of complex situation for flui intelligence --> link with modularity and morphogenesis ?
 
 
 

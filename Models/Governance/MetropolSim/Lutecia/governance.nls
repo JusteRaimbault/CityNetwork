@@ -12,22 +12,26 @@
 ;
 to governance
   
-  output-print "governance"
+  if evolve-network? [
   
-  ; get agents making the decision
-  let decidors decision-makers
+    output-print "governance"
   
-  ; corresponding potential place for infrastructures
-  ;let infra-choices potential-infrastructures decidors
+    ; get agents making the decision
+    let decidors decision-makers
   
-  let old-config save-nw-config
-  set old-config lput nw-age old-config ; add nw age
-  ; construct the best one
-  construct-infrastructure (best-infrastructure decidors old-config) old-config
+    ; corresponding potential place for infrastructures
+    ;let infra-choices potential-infrastructures decidors
   
-  ; recompute patch vars here - as indicators are called after the end of this stage.
-  ;  Q : to gain perf, do it only at the end ? -- OK not so much time
-  compute-patches-variables
+    let old-config save-nw-config
+    set old-config lput nw-age old-config ; add nw age
+    ; construct the best one
+    construct-infrastructure (best-infrastructure decidors old-config) old-config
+  
+    ; recompute patch vars here - as indicators are called after the end of this stage.
+    ;  Q : to gain perf, do it only at the end ? -- OK not so much time
+    compute-patches-variables
+  
+  ]
   
 end
 
@@ -36,21 +40,36 @@ end
 ; Gets mayors taking the decision at this step - can be region ?
 to-report decision-makers
   
-  ifelse random-float 1 < regional-decision-proba [
+  ifelse random-float 1 < regional-decision-proba or #-initial-territories = 1 [
      ; regional decision
      report regional-authority
   ][
      ; local decision : choose according to wealth
-     ; choose neighbor pairs with maximal weight
-     ; dirty way ok as very few mayors
+     ; -> implement various ways to draw constructors ?
      ;
-     ;  -- TODO -- for now not random
-     ;
-     ;  @TODO implement various ways to choose constructors ?
-     ;
-     let ma 0 let maxpair []
-     ask mayors[ask other mayors [let etot [employments] of self + [employments] of myself if etot > ma [set ma etot set maxpair (list self myself)]]]
-     report maxpair
+     ; determinist : pair with max wealth
+     ;let ma 0 let maxpair []
+     ;ask mayors[ask other mayors [let etot [employments] of self + [employments] of myself if etot > ma [set ma etot set maxpair (list self myself)]]]
+     ;report maxpair
+     
+     ; uniform drawing proportionnal to wealth of each
+     ;  -> could test pair drawing
+     let local-mayors mayors with [self != regional-authority]
+     let etot sum [employments] of local-mayors
+     let firstbuilder nobody let r random-float 1 let s 0
+     ask local-mayors [set s s + (employments / etot) if s > r and firstbuilder = nobody [set firstbuilder self]]
+     ; draw the second
+     
+     ;;;;;;;;
+     ; not necessarily among neighbors ? -- TODO --
+     ;;;;;;;;
+     
+     let remaining-mayors mayors with [self != regional-authority and self != firstbuilder]
+     set etot sum [employments] of remaining-mayors
+     let secondbuilder nobody set r random-float 1 set s 0
+     ask remaining-mayors [set s s + (employments / etot) if s > r and secondbuilder = nobody [set secondbuilder self]]
+     
+     report (list firstbuilder secondbuilder)
   ]
   
 end

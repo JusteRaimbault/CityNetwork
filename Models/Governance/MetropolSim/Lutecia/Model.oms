@@ -1,22 +1,33 @@
 
 // Parameters
 val regionalproba = Val[Double]
-val lambdaacc = Val[Double]
+val lambdaAcc = Val[Double]
 val euclpace = Val[Double]
 val game = Val[Double]
 val constrcost = Val[Double]
 val collcost=Val[Double]
+val gammaCDA=Val[Double]
+val gammaCDE=Val[Double]
+val betaDC=Val[Double]
+val evolveNetwork = Val[Int]
 val targetNetwork = Val[Int]
 val setupType = Val[Int]
+val synthConfFile = Val[Int]
 val finalTime = Val[Int]
 
 val id = Val[Int]
 val replication = Val[Int]
 
 
-// reporters
+// reporters : time series
 val accessibilityTS=Val[Array[Double]]
+val minAccessibilityTS = Val[Array[Double]]
+val maxAccessibilityTS = Val[Array[Double]]
 val traveldistanceTS=Val[Array[Double]]
+val stabilityTS=Val[Array[Double]]
+val meanFlowTS = Val[Array[Double]]
+val minFlowTS = Val[Array[Double]]
+val maxFlowTS = Val[Array[Double]]
 
 // morphological : evolution of urban form
 //"moran-actives" "entropy-actives" "slope-actives" "slope-rsquared-actives" "mean-distance-actives"
@@ -24,16 +35,28 @@ val traveldistanceTS=Val[Array[Double]]
 val moranActivesTS = Val[Array[Double]]
 val entropyActivesTS = Val[Array[Double]]
 val slopeActivesTS = Val[Array[Double]]
-val slopeRsquaredActiveTS = Val[Array[Double]]
-val meanDistanceEmploymentsTS = Val[Array[Double]]
+val slopeRsquaredActivesTS = Val[Array[Double]]
+val meanDistanceActivesTS = Val[Array[Double]]
 val moranEmploymentsTS = Val[Array[Double]]
 val entropyEmploymentsTS = Val[Array[Double]]
 val slopeEmploymentsTS = Val[Array[Double]]
 val slopeRsquaredEmploymentsTS = Val[Array[Double]]
 val meanDistanceEmploymentsTS = Val[Array[Double]]
+val meanDistanceCentreActivesTS = Val[Array[Double]]
+val meanDistanceCentreEmploymentsTS = Val[Array[Double]]
+val centreActivesPropTS = Val[Array[Double]]
+val centreEmploymentsPropTS = Val[Array[Double]]
 
+// network indicators
+//total-nw-length mean-relative-speed mean-closeness-centrality mean-bw-centrality mean-path-length nw-diameter
+val nwLength = Val[Double]
+val nwRelativeSpeed = Val[Double]
+val nwCloseness = Val[Double]
+val nwBetweenness = Val[Double]
+val nwPathLength = Val[Double]
+val nwDiameter = Val[Double]
 
-val stability=Val[Double]
+// other indicators
 val gametype=Val[String]
 val expcollab=Val[Double]
 val wantedcollab=Val[Double]
@@ -42,27 +65,42 @@ val failed=Val[Double]
 val targetDistance = Val[Double]
 
 
-// regionalproba lambdaacc euclpace game constr-cost coll-cost target-network setuptype finalTime rnd-seed
+// regionalproba lambdaacc euclpace game constr-cost coll-cost gammaCDA gammaCDE betaDC evolveNetwork target-network setuptype synthconffile finalTime rnd-seed
 val cmds = List(
-  "setup-experiment ${regionalproba} ${lambdaacc} ${euclpace} ${game} ${constrcost} ${collcost} ${targetNetwork} ${setupType} ${finalTime} ${replication}",
+  "setup-experiment ${regionalproba} ${lambdaAcc} ${euclpace} ${game} ${constrcost} ${collcost} ${gammaCDA} ${gammaCDE} ${betaDC} ${evolveNetwork} ${targetNetwork} ${setupType} ${synthConfFile} ${finalTime} ${replication}",
   "run-experiment"
 )
 
 val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) set(
-  inputs += (regionalproba,lambdaacc,euclpace,game,constrcost,collcost,targetNetwork,setupType,replication,id),
-  outputs += (regionalproba,lambdaacc,euclpace,game,constrcost,collcost,targetNetwork,setupType,replication,id),
+  inputs += (regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,targetNetwork,setupType,synthConfFile,finalTime,replication,id),
+  outputs += (regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,targetNetwork,setupType,synthConfFile,finalTime,replication,id),
   netLogoOutputs += ("ts-indicator \"mean-accessibility patches\"", accessibility),
   netLogoOutputs += ("ts-indicator \"mean-travel-distance\"", traveldistance),
+  netLogoOutputs += ("ts-indicator \"stability\"",stabilityTS),
+  netLogoOutputs += ("ts-indicator \"mean-flow\"",meanFlowTS),
+  netLogoOutputs += ("ts-indicator \"min-flow\"",minFlowTS),
+  netLogoOutputs += ("ts-indicator \"max-flow\"",maxFlowTS),
   netLogoOutputs += ("ts-indicator \"moran-actives\"", moranActivesTS),
   netLogoOutputs += ("ts-indicator \"entropy-actives\"", entropyActivesTS),
-  netLogoOutputs += ("employments-entropy", empentropy),
-  netLogoOutputs += ("stability",stability),
-  netLogoOutputs += ("regional-decision-proba", regionalproba),
-  netLogoOutputs += ("lambda-accessibility", lambdaacc),
-  netLogoOutputs += ("euclidian-min-pace", euclpace),
+  netLogoOutputs += ("ts-indicator \"slope-actives\"", slopeActivesTS),
+  netLogoOutputs += ("ts-indicator \"slope-rsquared-actives\"", slopeRsquaredActivesTS),
+  netLogoOutputs += ("ts-indicator \"mean-distance-actives\"", meanDistanceActivesTS),
+  netLogoOutputs += ("ts-indicator \"moran-employments\"", moranEmploymentsTS),
+  netLogoOutputs += ("ts-indicator \"entropy-employments\"", entropyEmploymentsTS),
+  netLogoOutputs += ("ts-indicator \"slope-employments\"", slopeEmploymentsTS),
+  netLogoOutputs += ("ts-indicator \"slope-rsquared-employments\"", slopeRsquaredEmploymentsTS),
+  netLogoOutputs += ("ts-indicator \"mean-distance-employments\"", meanDistanceEmploymentsTS),
+  netLogoOutputs += ("ts-indicator \"mean-distance-to-centre-actives\"", meanDistanceCentreActivesTS),
+  netLogoOutputs += ("ts-indicator \"mean-distance-to-centre-employments\"", meanDistanceCentreEmploymentsTS),
+  netLogoOutputs += ("ts-indicator \"center-actives-prop\"", centreActivesPropTS),
+  netLogoOutputs += ("ts-indicator \"center-employments-prop\"", centreEmploymentsPropTS),
+  netLogoOutputs += ("total-nw-length",nwLength),
+  netLogoOutputs += ("mean-relative-speed",nwRelativeSpeed),
+  netLogoOutputs += ("mean-closeness-centrality",nwCloseness),
+  netLogoOutputs += ("mean-bw-centrality",nwBetweenness),
+  netLogoOutputs += ("mean-path-length",nwPathLength),
+  netLogoOutputs += ("nw-diameter",nwDiameter),
   netLogoOutputs += ("game-type", gametype),
-  netLogoOutputs += ("construction-cost", constrcost),
-  netLogoOutputs += ("collaboration-cost", collcost),
   netLogoOutputs += ("expected-collaboration-rate", expcollab),
   netLogoOutputs += ("wanted-collaboration-rate", wantedcollab),
   netLogoOutputs += ("realized-collaboration-rate", realcollab),

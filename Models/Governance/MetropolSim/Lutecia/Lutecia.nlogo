@@ -174,7 +174,7 @@ globals[
   ext-position
   
   ;; path to the setup files
-  ;positions-file
+  positions-file
   ext-file
   
   ;; GIS setup
@@ -185,6 +185,8 @@ globals[
   gis-sea-file
   gis-economic-areas-file
   gis-governed-patches-file
+  
+  ;conf-file
   
   ;;;;;;;;;;;;;
   ;; Transportation
@@ -210,6 +212,7 @@ globals[
   collaborations-realized
   collaborations-expected
   
+  ;evolve-network?
   
   
   ;;;;;;;;;;;;;
@@ -429,10 +432,10 @@ undirected-link-breed[ghost-transportation-links ghost-transportation-link]
 breed[ghost-transportation-nodes ghost-transportation-node]
 @#$#@#$#@
 GRAPHICS-WINDOW
-346
-10
-785
-470
+373
+11
+813
+472
 7
 7
 28.666666666666668
@@ -471,10 +474,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-343
-554
-409
-587
+406
+532
+472
+565
 setup
 setup
 NIL
@@ -488,10 +491,10 @@ NIL
 1
 
 CHOOSER
-8
-640
-127
-685
+9
+671
+128
+716
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
@@ -601,17 +604,17 @@ beta-discrete-choices
 beta-discrete-choices
 0
 5
-1.25
+1.8
 0.05
 1
 NIL
 HORIZONTAL
 
 BUTTON
-470
-554
-525
-587
+533
+532
+588
+565
 go
 ifelse ticks < total-time-steps [\n  go\n][stop]
 T
@@ -625,10 +628,10 @@ NIL
 0
 
 PLOT
-1096
+817
 10
-1324
-174
+988
+154
 convergence
 NIL
 NIL
@@ -761,10 +764,10 @@ TEXTBOX
 1
 
 BUTTON
-1398
-19
-1511
-52
+1374
+400
+1487
+433
 setup test nw
 setup-test-nw-mat
 NIL
@@ -778,10 +781,10 @@ NIL
 1
 
 BUTTON
-1398
-55
-1453
-88
+1374
+436
+1429
+469
 grid
 test-nw-mat-grid-nw
 NIL
@@ -795,10 +798,10 @@ NIL
 1
 
 BUTTON
-1399
-93
-1509
-126
+1375
+474
+1485
+507
 test shortest
 test-shortest-path
 NIL
@@ -812,10 +815,10 @@ NIL
 1
 
 MONITOR
-1329
-17
-1397
-62
+1305
+398
+1373
+443
 nw patches
 length nw-patches
 17
@@ -823,10 +826,10 @@ length nw-patches
 11
 
 MONITOR
-1338
-65
-1392
-110
+1314
+446
+1368
+491
 eff paths
 length table:keys network-shortest-paths
 17
@@ -834,10 +837,10 @@ length table:keys network-shortest-paths
 11
 
 MONITOR
-1339
-113
-1390
-158
+1315
+494
+1366
+539
 inters
 length nw-inters
 17
@@ -845,10 +848,10 @@ length nw-inters
 11
 
 BUTTON
-1399
-129
-1493
-162
+1375
+510
+1469
+543
 test inters
 test-closest-inter
 NIL
@@ -862,10 +865,10 @@ NIL
 1
 
 BUTTON
-1454
-55
-1517
-88
+1396
+546
+1459
+579
 rnd
 test-nw-mat-random-nw
 NIL
@@ -886,7 +889,7 @@ CHOOSER
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
-1
+2
 
 SLIDER
 5
@@ -912,7 +915,7 @@ congestion-price
 congestion-price
 0
 10
-1
+50
 0.1
 1
 NIL
@@ -942,7 +945,7 @@ SLIDER
 #-explorations
 0
 1000
-6
+25
 1
 1
 NIL
@@ -957,7 +960,7 @@ lambda-accessibility
 lambda-accessibility
 0
 0.1
-0.0050
+0.0010
 0.001
 1
 NIL
@@ -981,15 +984,15 @@ NIL
 1
 
 SLIDER
-418
-593
-542
-626
+481
+571
+605
+604
 total-time-steps
 total-time-steps
 0
 20
-20
+15
 1
 1
 NIL
@@ -997,9 +1000,9 @@ HORIZONTAL
 
 TEXTBOX
 184
-515
+558
 336
-550
+593
 __________________
 20
 0.0
@@ -1013,7 +1016,7 @@ CHOOSER
 game-type
 game-type
 "random" "simple-nash" "discrete-choices"
-2
+0
 
 TEXTBOX
 174
@@ -1036,10 +1039,10 @@ TEXTBOX
 1
 
 PLOT
-1098
-177
-1326
-353
+987
+10
+1152
+154
 accessibility
 NIL
 NIL
@@ -1069,20 +1072,20 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-342
-519
-529
-563
+405
+497
+592
+541
 __________________
 20
 0.0
 1
 
 BUTTON
-1336
-166
-1417
-199
+1312
+547
+1393
+580
 test dist
 setup\ntest-network-effect (patches with [pxcor = 0])\n;check-effective-distance 1180 684
 NIL
@@ -1096,10 +1099,10 @@ NIL
 1
 
 BUTTON
-135
-648
-210
-681
+134
+675
+209
+708
 update
 compute-patches-variables\ncolor-patches
 NIL
@@ -1130,10 +1133,10 @@ NIL
 1
 
 BUTTON
-1336
-201
-1409
-234
+1312
+582
+1385
+615
 nw effect
 test-network-effect patches
 NIL
@@ -1155,7 +1158,7 @@ collaboration-cost
 collaboration-cost
 0
 0.001
-5.3E-5
+5.0E-4
 1e-6
 1
 NIL
@@ -1169,7 +1172,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file" "gis-synthetic" "gis"
-0
+2
 
 SLIDER
 7
@@ -1180,17 +1183,17 @@ ext-growth-factor
 ext-growth-factor
 0
 20
-11.8
+1
 0.1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-412
-554
-467
-587
+475
+532
+530
+565
 go
 go
 NIL
@@ -1214,17 +1217,6 @@ with-externalities?
 1
 -1000
 
-INPUTBOX
-206
-10
-284
-70
-positions-file
-setup/triangle.csv
-1
-0
-String
-
 BUTTON
 934
 371
@@ -1243,10 +1235,10 @@ NIL
 1
 
 SLIDER
-153
-545
-266
-578
+6
+614
+119
+647
 ext-employments-proportion-of-max
 ext-employments-proportion-of-max
 0
@@ -1266,27 +1258,27 @@ gamma-cobb-douglas-e
 gamma-cobb-douglas-e
 0
 1
-0.85
+0.8
 0.05
 1
 NIL
 HORIZONTAL
 
 TEXTBOX
-10
-620
-160
-638
+11
+651
+161
+669
 Display
 11
 0.0
 1
 
 BUTTON
-343
-590
 406
-623
+568
+469
+601
 NIL
 luti
 NIL
@@ -1300,10 +1292,10 @@ NIL
 1
 
 PLOT
-862
-10
-1093
-173
+994
+241
+1154
+361
 externalities
 NIL
 NIL
@@ -1363,10 +1355,10 @@ NIL
 HORIZONTAL
 
 PLOT
-863
-179
-1093
-355
+832
+241
+992
+361
 externality mean acc
 NIL
 NIL
@@ -1389,7 +1381,7 @@ seed
 seed
 -100000
 100000
-7
+0
 1
 1
 NIL
@@ -1428,6 +1420,46 @@ SWITCH
 217
 setup-from-world-file?
 setup-from-world-file?
+1
+1
+-1000
+
+INPUTBOX
+209
+10
+366
+70
+conf-file
+setup/conf/synth_nonw.conf
+1
+0
+String
+
+PLOT
+1154
+10
+1322
+154
+morphology
+NIL
+NIL
+0.0
+0.1
+0.0
+0.1
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plotxy moran-actives slope-actives"
+
+SWITCH
+186
+532
+328
+565
+evolve-network?
+evolve-network?
 1
 1
 -1000

@@ -67,12 +67,13 @@ to setup-globals
   set collaborations-wanted [] set collaborations-realized [] set collaborations-expected []
   
   ;
-  set gis-network-file "setup/gis/guangdong/stylized/nw_simpl.shp"
-  set gis-extent-file "setup/gis/guangdong/stylized/frame.shp"
-  set gis-centers-file "setup/gis/guangdong/stylized/cities.shp"
-  set gis-sea-file "setup/gis/guangdong/stylized/sea.shp"
-  set gis-economic-areas-file "setup/gis/guangdong/stylized/areas_data.shp"
-  set gis-governed-patches-file "setup/gis/guangdong/stylized/governed.shp"
+  let conf read-conf-file conf-file
+  set gis-network-file table:get conf "gis-network-file"
+  set gis-extent-file table:get conf "gis-extent-file"
+  set gis-centers-file table:get conf "gis-centers-file"
+  set gis-sea-file table:get conf "gis-sea-file"
+  set gis-economic-areas-file table:get conf "gis-economic-areas-file"
+  set gis-governed-patches-file table:get conf "gis-governed-patches-file"
   
   ; population raster
   set gis-population-raster-file "setup/gis/guangdong/pop2010_wgs84_georef.asc"
@@ -83,6 +84,8 @@ to setup-globals
   set tracked-indicators (list "mean-accessibility patches" "mean-travel-distance" 
     "moran-actives" "entropy-actives" "slope-actives" "slope-rsquared-actives" "mean-distance-actives"
     "moran-employments" "entropy-employments" "slope-employments" "slope-rsquared-employments" "mean-distance-employments"
+    "mean-distance-to-centre-actives" "mean-distance-to-centre-employments" "center-actives-prop" "center-employments-prop"
+    "max-accessibility" "min-accessibility" "stability" "mean-flow" "min-flow" "max-flow"
     )
   
 end
@@ -106,6 +109,10 @@ end
 ;;
 ; setup patches
 to setup-patches
+  
+  if setup-type = "gis-synthetic" [
+    gis:set-world-envelope gis:envelope-of gis:load-dataset gis-extent-file 
+  ]
   
   ; enveloppe of the world
   ;; (enventually resize here ?)
@@ -319,7 +326,7 @@ to setup-initial-network
     ]
   
   
-    if setup-type = "gis" [
+    if setup-type = "gis" or setup-type = "gis-synthetic" [
       ; construct network from gis file
       let old-config save-nw-config
       let infra-list []
@@ -461,18 +468,18 @@ to setup-mayor-characteristics
   
     foreach but-first but-first lines [
       let p []
-      foreach explode ";" ? [set p lput read-from-string ? p]
+      foreach string:explode ";" ? [set p lput read-from-string ? p]
       set mayors-coordinates lput p mayors-coordinates
     ]
   
     ; ext file : one only ?
-    foreach explode ";" first but-first but-first read-file ext-file [
+    foreach string:explode ";" first but-first but-first read-file ext-file [
        set ext-position lput read-from-string ? ext-position
     ]
   ]
   
   
-  if setup-type = "gis" [
+  if setup-type = "gis" or setup-type = "gis-synthetic" [
     let mayors-dataset gis:load-dataset gis-centers-file
     
     ; read coordinates and attributes
@@ -528,6 +535,8 @@ to setup-headless-vars
   ;set log-level "VERBOSE"
   set total-time-steps 4
   
+  ; world size setup as function of setup type
+  ;set world-size 30
   
   ; initial distributions
   set actives-max 500 set employments-max 500
@@ -537,10 +546,10 @@ to setup-headless-vars
   
   
   ; luti params
-  set gamma-cobb-douglas-e 0.9
-  set gamma-cobb-douglas-a 0.65
-  set beta-discrete-choices 1.8
-  set lambda-accessibility 0.001
+  ;set gamma-cobb-douglas-e 0.9
+  ;set gamma-cobb-douglas-a 0.65
+  ;set beta-discrete-choices 1.8
+  ;set lambda-accessibility 0.001
   
   ; governance params
   set regional-decision-proba 0.5
@@ -549,13 +558,13 @@ to setup-headless-vars
   ;set game-type "random"
   set game-type "simple-nash"
   set infra-snapping-tolerance 2
-  set collaboration-cost 0.0001
-  set construction-cost 0.001 
+  ;set collaboration-cost 0.0001
+  ;set construction-cost 0.001 
   set beta-dc-game 400
 
   ; transportation params
   set network-min-pace 1
-  set euclidian-min-pace 5
+  ;set euclidian-min-pace 5
   set congestion-price 50
   
  
@@ -567,7 +576,7 @@ to setup-headless-vars
   
   set initial-nw? true
   
-  set world-size 30
+  
   
   
   

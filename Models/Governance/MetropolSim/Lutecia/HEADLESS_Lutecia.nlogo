@@ -13,7 +13,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table context nw gradient numanal gis]
+extensions[matrix table context nw gradient numanal gis morphology]
 
 __includes [
   
@@ -320,10 +320,25 @@ globals[
   
   link-distance-function
   
+  conf-file
+  tracked-indicators
+  history-indicators
+  evolve-network?
+  
+  shortest-paths
+  nw-relative-speeds
+  nw-distances
+  
 ]
 
 
 patches-own [
+  
+   ; number of actives on the patch
+  actives
+  
+  ; number of jobs on the patch
+  employments
   
   ; number of the patch (used as index in distance matrices)
   number
@@ -336,11 +351,7 @@ patches-own [
   ;  on the contrary to transportation infrastructure evolution, that evolves at a greater scale.
   ;  -> patch variables and not agents
   
-  ; number of actives on the patch
-  actives
-  
-  ; number of jobs on the patch
-  employments
+ 
   
   
   ;;;;;
@@ -400,6 +411,8 @@ undirected-link-breed[transportation-links transportation-link]
 
 transportation-links-own [
   
+  transportation-link-length
+  
   ; capacity of the link ; expressed as max trip per length unit 
   capacity
   
@@ -413,12 +426,15 @@ transportation-links-own [
   
   status
   
+  bw-centrality
+  
 ]
 
 ;; nodes of the transportation network
 breed[transportation-nodes transportation-node]
 
 transportation-nodes-own[
+  transportation-node-closeness-centrality
 ]
 
 ; needs ghost breeds to not perturbate shortest paths update
@@ -427,16 +443,15 @@ breed[ghost-transportation-nodes ghost-transportation-node]
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 833
 27
-1287
-502
-15
-15
-14.333333333333334
+1272
+487
+7
+7
+28.666666666666668
 1
 10
 1
@@ -446,10 +461,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--15
-15
--15
-15
+-7
+7
+-7
+7
 0
 0
 1
@@ -480,7 +495,7 @@ BUTTON
 201
 224
 NIL
-test-experiment-setup
+test-experiment
 NIL
 1
 T
