@@ -442,13 +442,12 @@ undirected-link-breed[ghost-transportation-links ghost-transportation-link]
 breed[ghost-transportation-nodes ghost-transportation-node]
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 833
 27
-1272
-487
+1273
+488
 7
 7
 28.666666666666668
