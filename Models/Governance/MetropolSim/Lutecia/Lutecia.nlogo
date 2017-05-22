@@ -889,7 +889,7 @@ CHOOSER
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
-2
+1
 
 SLIDER
 5
@@ -900,7 +900,7 @@ euclidian-min-pace
 euclidian-min-pace
 1
 50
-5
+10
 1
 1
 NIL
@@ -991,8 +991,8 @@ SLIDER
 total-time-steps
 total-time-steps
 0
-20
-15
+50
+50
 1
 1
 NIL
@@ -1172,7 +1172,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file" "gis-synthetic" "gis"
-2
+0
 
 SLIDER
 7
@@ -1474,6 +1474,24 @@ evolve-landuse?
 0
 1
 -1000
+
+PLOT
+1156
+155
+1328
+293
+mean-travel-distance
+NIL
+NIL
+0.0
+10.0
+75.0
+85.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean-effective-distance"
 
 @#$#@#$#@
 ## WHAT IS IT?

@@ -87,6 +87,7 @@ end
 
 ; mean travel distance
 to-report mean-travel-distance
+  if (sum [actives] of patches) * (sum [employments] of patches) = 0 [report 0]
   report sum [a-to-e-distance + e-to-a-distance] of patches / (2 * (sum [actives] of patches) * (sum [employments] of patches))
 end
 
@@ -95,6 +96,11 @@ to-report mean-network-distance
   
 end
 
+
+to-report mean-effective-distance
+  if effective-distance-matrix = 0 [report 0]
+  report mean map mean matrix:to-row-list effective-distance-matrix
+end
 
 ; mean congestion in network
 to-report mean-congestion
