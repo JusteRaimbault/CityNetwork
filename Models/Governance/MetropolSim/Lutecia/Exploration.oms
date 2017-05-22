@@ -17,40 +17,42 @@ val exploration =  ExplorationTask(
     (gammaCDA in (0.1 to 1.0 by 0.1))x
     (gammaCDE in (0.1 to 1.0 by 0.1))x
     (betaDC in (0.5 to 2.0 by 0.5))x
-    (synthConfFile in (0 to 2 by 1))
+    (synthConfFile in Seq("setup/conf/synth_nonw.conf","setup/conf/synth_cross.conf","setup/conf/synth_spider.conf"))
   ) withIndex id )*/
   ((LHS (
-    1,
-    //regionalproba in Range(0.0,1.0),
-    lambdaAcc in Range(0.001,0.01),
-    euclpace in Range(2.5,10.0),
-    //game in Range(1.0,2.999),
-    //constrcost in Range(0.0005,0.005),
-    //collcost in Range(0.00005,0.0005),
-    gammaCDA in Range(0.5,1.0),
-    gammaCDE in Range(0.5,1.0),
-    betaDC in Range(0.5,2.0)
+    1
+    ,regionalproba in Range(0.0,1.0)
+    //,lambdaAcc in Range(0.001,0.01)
+    //,euclpace in Range(2.5,10.0)
+    ,game in Range(1.0,2.999)
+    ,constrcost in Range(0.0,0.01)
+    ,collcost in Range(0.0,0.005)
+    //,gammaCDA in Range(0.5,1.0),
+    //,gammaCDE in Range(0.5,1.0),
+    //,betaDC in Range(0.5,2.0)
   )) withIndex id)
-  x (regionalproba is 1.0)
-  //x (lambdaacc is 0.001)
-  //x (euclpace is 5.0)
-  x (game is 1)
-  x (constrcost is 0.001)
-  x (collcost is 0.0001)
-  //x (gammaCDA is 0.9)
-  //x (gammaCDE is 0.65)
-  //x (betaDC is 1.8)
-  x (evolveNetwork is 0)
-  x (targetNetwork is 0)
+  //x (regionalproba is 1.0)
+  x (lambdaAcc is 0.001)
+  x (euclpace is 5.0)
+  //x (game is 1)
+  //x (constrcost is 0.001)
+  //x (collcost is 0.0001)
+  x (gammaCDA is 0.9)
+  x (gammaCDE is 0.65)
+  x (betaDC is 1.8)
+  x (evolveNetwork is 1)
+  x (evolveLanduse is 0)
+  x (targetNetwork is 1)
   x (setupType is 1)
-  x (synthConfFile is 0)
-  x (finalTime is 20)
-  x (replication in (UniformDistribution[Int]() take 50))
+  x (synthConfFile is "setup/conf/real_nonw.conf")
+  x (finalTime is 5)
+  x (replication in (UniformDistribution[Int]() take 5))
 )
 
 
-val purpose = "test"
+val purpose = "test_realnonw"
 //val purpose = "lhs"
+//val purpose = "grid_realnonw"
 
 
 // output
@@ -60,8 +62,8 @@ val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new Simp
 
 
 
-val local = LocalEnvironment(50)
+val local = LocalEnvironment(5)
 //val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
 exploration -< (model on local hook indics_hook)
-//exploration -< (model on grid by 2 hook indics_hook)
+//exploration -< (model on grid by 5 hook indics_hook)

@@ -1,0 +1,83 @@
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Governance/'))
+source(paste0(Sys.getenv('CN_HOME'),'/Models/Governance/MetropolSim/Lutecia/analysis/functions.R'))
+
+resdir = '20170521_sprawl/'
+res <- as.tbl(read.csv(file = '20170521_sprawl/data/20170521_222053_grid_sprawl.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
+
+finalTime = 20
+names(res)<-namesTS(c("accessibilityTS","betaDC","centreActivesPropTS","centreEmploymentsPropTS"
+              ,"collcost","constrcost","entropyActivesTS","entropyEmploymentsTS",
+              "euclpace","evolveNetwork","expcollab","failed","finalTime","game","gametype",
+              "gammaCDA","gammaCDE","id","lambdaAcc","maxFlowTS","meanDistanceActivesTS",
+              "meanDistanceCentreActivesTS","meanDistanceCentreEmploymentsTS","meanDistanceEmploymentsTS",
+              "meanFlowTS","minFlowTS","moranActivesTS","moranEmploymentsTS","nwBetweenness",
+              "nwCloseness","nwDiameter","nwLength","nwPathLength","nwRelativeSpeed","realcollab",
+              "regionalproba","replication","setupType","slopeActivesTS","slopeEmploymentsTS","slopeRsquaredActivesTS",
+              "slopeRsquaredEmploymentsTS","stabilityTS","synthConfFile","targetDistance","targetNetwork",
+              "traveldistanceTS","wantedcollab"
+              ),finalTime)
+
+
+##
+# morpho trajectories
+morphoActivesVars <- c(
+  "moranActives","entropyActives","meanDistanceActives","slopeActives"
+)
+morphoEmploymentsVars <- c(
+  "moranEmployments","entropyEmployments","meanDistanceEmployments","slopeEmployments"
+)
+params <- c("id","betaDC","gammaCDA","gammaCDE","lambdaAcc","euclpace","synthConfFile","nwLength")
+
+#melt(res[,morphoVars],id.vars="id")
+#morpho = res[,c(params,morphoVars)]
+
+morphoActivesTS = data.frame()
+morphoEmploymentsTS = data.frame()
+for(t in 1:finalTime){
+  show(t)
+  currentd = res[,c(params,paste0(morphoActivesVars,"TS",t))]
+  names(currentd)<-c(params,morphoActivesVars)
+  morphoActivesTS = rbind(morphoActivesTS,cbind(currentd,time=rep(t,nrow(currentd))))
+  currentd = res[,c(params,paste0(morphoEmploymentsVars,"TS",t))]
+  names(currentd)<-c(params,morphoEmploymentsVars)
+  morphoEmploymentsTS = rbind(morphoEmploymentsTS,cbind(currentd,time=rep(t,nrow(currentd))))
+}
+
+for(var in morphoActivesVars){morphoActivesTS[,var]<-(morphoActivesTS[,var]-min(morphoActivesTS[,var]))/(max(morphoActivesTS[,var])-min(morphoActivesTS[,var]))}
+pca = prcomp(morphoActivesTS[,morphoActivesVars])
+write.table(pca$rotation,file=paste0(resdir,"pca-morphoActives.csv"),col.names = T,row.names = T)
+
+morphoActivesTS=cbind(as.tbl(morphoActivesTS),as.tbl(as.data.frame(as.matrix(morphoActivesTS[,morphoActivesVars])%*%pca$rotation)))
+
+sres = as.tbl(morphoActivesTS)%>% group_by(id,time)%>%summarise(
+  PC1=mean(PC1),PC2=mean(PC2), betaDC=mean(betaDC),gammaCDA=mean(gammaCDA),
+  gammaCDE=mean(gammaCDE),lambdaAcc=mean(lambdaAcc),euclpace=mean(euclpace),
+  synthConfFile=synthConfFile[1],nwLength=mean(nwLength))
+
+# plot trajectories
+gammaCDA=0.9;gammaCDE=0.6
+dir.create(paste0(resdir,'morphoActiveTrajs_gammaCDA',gammaCDA,'_gammaCDE',gammaCDE))
+for(betaDC in unique(sres$betaDC)){for(euclpace in unique(sres$euclpace)){
+  #for(conf in c("synth_nonw","synth_cross","synth_spider")){
+#betaDC = 1.0;euclpace = 6.0;conf="setup/conf/synth_nonw.conf"
+#lambdaAcc = 0.002
+g=ggplot(sres[sres$gammaCDA==gammaCDA&sres$gammaCDE==gammaCDE&sres$betaDC==betaDC&sres$euclpace==euclpace,]#&sres$synthConfFile==paste0("setup/conf/",conf,".conf"),]
+         ,aes(x=PC1,y=PC2,group=id,colour=lambdaAcc))
+g+geom_point(size=0.1)+geom_path(arrow = arrow())+facet_wrap(~nwLength)#+facet_grid(gammaCDA~gammaCDE)
+ggsave(paste0(resdir,'morphoActiveTrajs_gammaCDA',gammaCDA,'_gammaCDE',gammaCDE,'/morphoActiveTrajsvaryinglambda_conf-',conf,"_betaDC",betaDC,"_euclpace",euclpace,'.pdf'),width = 30,height = 20,units = 'cm')
+#}
+  }}
+
+
+
+
+
+
+
+
+
+

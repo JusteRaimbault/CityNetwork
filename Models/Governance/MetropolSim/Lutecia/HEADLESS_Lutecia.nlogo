@@ -324,6 +324,7 @@ globals[
   tracked-indicators
   history-indicators
   evolve-network?
+  evolve-landuse?
   
   shortest-paths
   nw-relative-speeds
@@ -440,8 +441,6 @@ transportation-nodes-own[
 ; needs ghost breeds to not perturbate shortest paths update
 undirected-link-breed[ghost-transportation-links ghost-transportation-link]
 breed[ghost-transportation-nodes ghost-transportation-node]
-
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 833
@@ -494,7 +493,24 @@ BUTTON
 201
 224
 NIL
-test-experiment
+test-experiment-synth
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+32
+248
+171
+281
+NIL
+display-target-fit
 NIL
 1
 T

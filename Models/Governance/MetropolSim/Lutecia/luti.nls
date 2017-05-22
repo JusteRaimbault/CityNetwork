@@ -32,24 +32,28 @@ end
 ;   given a DC model 
 to relocate
 
-  output-print "... relocalization"
+  if evolve-landuse? [
+
+    output-print "... relocalization"
   
-  ; discrete choice model following utilities for employments and actives
-  let actives-number sum [actives] of patches let employments-number sum [employments] of patches
-  let a-dc-norm-factor sum [exp (beta-discrete-choices * a-utility)] of patches
-  let e-dc-norm-factor sum [exp (beta-discrete-choices * e-utility)] of patches
+    ; discrete choice model following utilities for employments and actives
+    let actives-number sum [actives] of patches let employments-number sum [employments] of patches
+    let a-dc-norm-factor sum [exp (beta-discrete-choices * a-utility)] of patches
+    let e-dc-norm-factor sum [exp (beta-discrete-choices * e-utility)] of patches
   
-  set diff-actives 0 set diff-employments 0
-  ; diff used as a conv check var, not necessary.
+    set diff-actives 0 set diff-employments 0
+    ; diff used as a conv check var, not necessary.
   
-  ask patches [
-    let prev-a actives let prev-e employments
-    set actives actives-number * exp (beta-discrete-choices * a-utility) / a-dc-norm-factor
-    set employments employments-number * exp (beta-discrete-choices * e-utility) / e-dc-norm-factor
-    set diff-actives diff-actives + abs (prev-a - actives) set diff-employments diff-employments + abs (prev-e - employments)
-    ; update global lists
-    set patches-employments replace-item number patches-employments employments
-    set patches-actives replace-item number patches-actives actives
+    ask patches [
+      let prev-a actives let prev-e employments
+      set actives actives-number * exp (beta-discrete-choices * a-utility) / a-dc-norm-factor
+      set employments employments-number * exp (beta-discrete-choices * e-utility) / e-dc-norm-factor
+      set diff-actives diff-actives + abs (prev-a - actives) set diff-employments diff-employments + abs (prev-e - employments)
+      ; update global lists
+      set patches-employments replace-item number patches-employments employments
+      set patches-actives replace-item number patches-actives actives
+    ]
+  
   ]
   
 end

@@ -498,7 +498,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-1
+9
 
 TEXTBOX
 11
@@ -604,7 +604,7 @@ beta-discrete-choices
 beta-discrete-choices
 0
 5
-1.8
+1.25
 0.05
 1
 NIL
@@ -945,7 +945,7 @@ SLIDER
 #-explorations
 0
 1000
-25
+5
 1
 1
 NIL
@@ -960,7 +960,7 @@ lambda-accessibility
 lambda-accessibility
 0
 0.1
-0.0010
+0.0050
 0.001
 1
 NIL
@@ -999,10 +999,10 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-184
-558
-336
-593
+182
+596
+334
+631
 __________________
 20
 0.0
@@ -1258,7 +1258,7 @@ gamma-cobb-douglas-e
 gamma-cobb-douglas-e
 0
 1
-0.8
+0.85
 0.05
 1
 NIL
@@ -1430,7 +1430,7 @@ INPUTBOX
 366
 70
 conf-file
-setup/conf/synth_nonw.conf
+setup/conf/synth_spider.conf
 1
 0
 String
@@ -1460,7 +1460,18 @@ SWITCH
 565
 evolve-network?
 evolve-network?
+0
 1
+-1000
+
+SWITCH
+185
+570
+329
+603
+evolve-landuse?
+evolve-landuse?
+0
 1
 -1000
 

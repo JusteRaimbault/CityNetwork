@@ -10,9 +10,10 @@ val gammaCDA=Val[Double]
 val gammaCDE=Val[Double]
 val betaDC=Val[Double]
 val evolveNetwork = Val[Int]
+val evolveLanduse = Val[Int]
 val targetNetwork = Val[Int]
 val setupType = Val[Int]
-val synthConfFile = Val[Int]
+val synthConfFile = Val[String]
 val finalTime = Val[Int]
 
 val id = Val[Int]
@@ -67,19 +68,19 @@ val targetDistance = Val[Double]
 
 // regionalproba lambdaacc euclpace game constr-cost coll-cost gammaCDA gammaCDE betaDC evolveNetwork target-network setuptype synthconffile finalTime rnd-seed
 val cmds = List(
-  "setup-experiment ${regionalproba} ${lambdaAcc} ${euclpace} ${game} ${constrcost} ${collcost} ${gammaCDA} ${gammaCDE} ${betaDC} ${evolveNetwork} ${targetNetwork} ${setupType} ${synthConfFile} ${finalTime} ${replication}",
+  "setup-experiment ${regionalproba} ${lambdaAcc} ${euclpace} ${game} ${constrcost} ${collcost} ${gammaCDA} ${gammaCDE} ${betaDC} ${evolveNetwork} ${evolveLanduse} ${targetNetwork} ${setupType} \"${synthConfFile}\" ${finalTime} ${replication}",
   "run-experiment"
 )
 
 val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) set(
-  inputs += (regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,targetNetwork,setupType,synthConfFile,finalTime,replication,id),
-  outputs += (regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,targetNetwork,setupType,synthConfFile,finalTime,replication,id),
-  //netLogoOutputs += ("ts-indicator \"mean-accessibility patches\"", accessibilityTS),
+  inputs += (regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,finalTime,replication,id),
+  outputs += (regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,finalTime,replication,id),
+  netLogoOutputs += ("ts-indicator \"overall-mean-accessibility\"", accessibilityTS),
   netLogoOutputs += ("ts-indicator \"mean-travel-distance\"", traveldistanceTS),
   netLogoOutputs += ("ts-indicator \"stability\"",stabilityTS),
-  //netLogoOutputs += ("ts-indicator \"mean-flow\"",meanFlowTS),
-  //netLogoOutputs += ("ts-indicator \"min-flow\"",minFlowTS),
-  //netLogoOutputs += ("ts-indicator \"max-flow\"",maxFlowTS),
+  netLogoOutputs += ("ts-indicator \"mean-flow\"",meanFlowTS),
+  netLogoOutputs += ("ts-indicator \"min-flow\"",minFlowTS),
+  netLogoOutputs += ("ts-indicator \"max-flow\"",maxFlowTS),
   netLogoOutputs += ("ts-indicator \"moran-actives\"", moranActivesTS),
   netLogoOutputs += ("ts-indicator \"entropy-actives\"", entropyActivesTS),
   netLogoOutputs += ("ts-indicator \"slope-actives\"", slopeActivesTS),
