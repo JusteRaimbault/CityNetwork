@@ -5,13 +5,17 @@ library(reshape2)
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Governance/'))
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Governance/MetropolSim/Lutecia/analysis/functions.R'))
 
-resdir = '20170521_sprawl/'
-res <- as.tbl(read.csv(file = '20170521_sprawl/data/20170521_222053_grid_sprawl.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
+resdir = '20170523_sprawl/'
+#resdir = '20170522_realnonw/'
+res <- as.tbl(read.csv(file = '20170523_sprawl/data/20170523_150406_grid_sprawl.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
+#res <- as.tbl(read.csv(file = '20170522_realnonw/data/20170522_174903_grid_realnonw_full.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
+
 
 finalTime = 20
+#finalTime = 10
 names(res)<-namesTS(c("accessibilityTS","betaDC","centreActivesPropTS","centreEmploymentsPropTS"
               ,"collcost","constrcost","entropyActivesTS","entropyEmploymentsTS",
-              "euclpace","evolveNetwork","expcollab","failed","finalTime","game","gametype",
+              "euclpace","evolveLanduse","evolveNetwork","expcollab","failed","finalTime","game","gametype",
               "gammaCDA","gammaCDE","id","lambdaAcc","maxFlowTS","meanDistanceActivesTS",
               "meanDistanceCentreActivesTS","meanDistanceCentreEmploymentsTS","meanDistanceEmploymentsTS",
               "meanFlowTS","minFlowTS","moranActivesTS","moranEmploymentsTS","nwBetweenness",
@@ -20,7 +24,9 @@ names(res)<-namesTS(c("accessibilityTS","betaDC","centreActivesPropTS","centreEm
               "slopeRsquaredEmploymentsTS","stabilityTS","synthConfFile","targetDistance","targetNetwork",
               "traveldistanceTS","wantedcollab"
               ),finalTime)
-
+#
+# 19 TS variables + 29 others -> 219 ?
+# -> 229 : 13064 / 25000
 
 ##
 # morpho trajectories
@@ -67,8 +73,10 @@ for(betaDC in unique(sres$betaDC)){for(euclpace in unique(sres$euclpace)){
 #lambdaAcc = 0.002
 g=ggplot(sres[sres$gammaCDA==gammaCDA&sres$gammaCDE==gammaCDE&sres$betaDC==betaDC&sres$euclpace==euclpace,]#&sres$synthConfFile==paste0("setup/conf/",conf,".conf"),]
          ,aes(x=PC1,y=PC2,group=id,colour=lambdaAcc))
-g+geom_point(size=0.1)+geom_path(arrow = arrow())+facet_wrap(~nwLength)#+facet_grid(gammaCDA~gammaCDE)
-ggsave(paste0(resdir,'morphoActiveTrajs_gammaCDA',gammaCDA,'_gammaCDE',gammaCDE,'/morphoActiveTrajsvaryinglambda_conf-',conf,"_betaDC",betaDC,"_euclpace",euclpace,'.pdf'),width = 30,height = 20,units = 'cm')
+g+geom_point(size=0.1)+geom_path(arrow = arrow())+facet_wrap(~synthConfFile)#+facet_grid(gammaCDA~gammaCDE)
+#ggsave(paste0(resdir,'morphoActiveTrajs_gammaCDA',gammaCDA,'_gammaCDE',gammaCDE,'/morphoActiveTrajsvaryinglambda_conf-',conf,"_betaDC",betaDC,"_euclpace",euclpace,'.pdf'),width = 30,height = 20,units = 'cm')
+ggsave(paste0(resdir,'morphoActiveTrajs_gammaCDA',gammaCDA,'_gammaCDE',gammaCDE,'/morphoActiveTrajsvaryinglambda_betaDC',betaDC,"_euclpace",euclpace,'.pdf'),width = 30,height = 20,units = 'cm')
+
 #}
   }}
 

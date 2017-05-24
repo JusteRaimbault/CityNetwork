@@ -6,7 +6,7 @@
 
 ;;
 ; General setup
-to setup
+to setup:setup
   
   ; if headless, no need to reset as all patch vars will be 0 and no agents (different model instances).
   if headless? = 0 [
@@ -16,7 +16,7 @@ to setup
   output-print "Setting up"
   
   ; globals
-  setup-globals
+  setup:setup-globals
   
   ; world
   setup-world
@@ -26,7 +26,7 @@ to setup
   setup-patches
   
   ; setup initial governance
-  setup-territories
+  setup:setup-territories
   
   ; setup initial configuration
   setup-initial-distributions
@@ -49,7 +49,7 @@ to setup
   setup-patch-variables
   
   ; setup indicators
-  setup-indicators
+  setup:setup-indicators
   
   ; display
   setup-display
@@ -62,7 +62,7 @@ end
 
 ;;
 ;  setup global variables
-to setup-globals
+to setup:setup-globals
   set to-construct []
   set collaborations-wanted [] set collaborations-realized [] set collaborations-expected []
   
@@ -142,14 +142,14 @@ end
 
 ;;
 ; setup mayors and governed patches
-to setup-territories
+to setup:setup-territories
   
   output-print "... Territories"
   
   ; for now hardcoded path to setup file (unload gui)
   set ext-file "setup/ext.csv"
   
-  setup-mayor-characteristics
+  setup:setup-mayor-characteristics
   
   ; create mayors
   create-mayors #-initial-territories [
@@ -458,7 +458,7 @@ end
 ; Get number of mayors and position from csv file
 ;
 ;  -> sets the globals mayors-coordinates
-to setup-mayor-characteristics
+to setup:setup-mayor-characteristics
   
   set mayors-coordinates [] set mayors-populations [] set mayors-employments [] set mayors-names []
   set ext-position []
@@ -513,7 +513,7 @@ end
 
 ;;
 ;  tracked indicators already assumed setup
-to setup-indicators
+to setup:setup-indicators
   
   set history-indicators table:make
   
@@ -527,7 +527,7 @@ end
 
 ;;
 ; default values ; for headless run
-to setup-headless-vars
+to setup:setup-headless-vars
   
   ; general 
   set #-initial-territories 2
@@ -566,8 +566,8 @@ to setup-headless-vars
   ; transportation params
   set network-min-pace 1
   ;set euclidian-min-pace 5
-  set congestion-price 50
-  
+  ;set congestion-price 50
+  set congestion-price 1
  
   ; externalities
   ;set with-externalities? false

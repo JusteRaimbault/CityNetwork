@@ -4,7 +4,19 @@
 #  data preparation
 
 library(dplyr)
+library(rgdal)
+library(rgeos)
+library(igraph)
+library(ggplot2)
 
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/SpatioTempCausality/SudAfrica'))
+
+nwdir = paste0(Sys.getenv('CN_HOME'),'/Data/SudAfrica/BDD_SA_reseau')
+
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/SudAfrica/')
+
+source("network.R")
+source("networkMeasures.R")
 
 # population
 
@@ -24,23 +36,63 @@ for(year in years){
 
 # network
 
-library(rgdal)
-library(rgeos)
-library(igraph)
-nwdir = paste0(Sys.getenv('CN_HOME'),'/Data/SudAfrica/BDD_SA_reseau')
-
 stations = readOGR(nwdir,'STATIONS')
 troncons = readOGR(nwdir,'TRONCONS')
 troncons@data$CLOSED[troncons@data$CLOSED==0]=3000
 
-gDisjoint(SpatialPoints(matrix(stations@coords[1,],nrow=1),proj4string = stations@proj4string),troncons)
-
-constructGraph<-function(year){
-   indexes = which(troncons@data$OPENED<year&troncons@data$CLOSED>year)
-   for(i in indexes){
-     coords = troncons@lines[[i]]@Lines[[1]]@coords
-     disto = colSums(apply(stations@coords,1,function(r){abs(r-coords[1,])}));rowo=which(dists==min(dists))
-     distd = colSums(apply(stations@coords,1,function(r){abs(r-coords[2,])}));rowd=which(dists==min(dists))
-     
-   }
+for(year in years){
+  currentstations = stations[stations$OPENED<=year&stations$CLOSED>year,]
+  currenttroncons = troncons[troncons$OPENED<=year&troncons$CLOSED>year,]
+  currentnetwork = addTransportationLayer(currentstations,currenttroncons,speed=6e-04,snap = 0.01)
+  save(currentnetwork,file=paste0('data/network',year,'.RData'))
 }
+  
+
+
+# evolution of network measures
+
+measures <- c(gamma,normalizedBetweenness,shortestPathMeasures,clustCoef,louvainModularity)
+
+cyears=c();cmeasures=c();cvals=c()
+for(year in years){
+  load(paste0('data/network',year,'.RData'))
+  E(currentnetwork)$weight = 1/E(currentnetwork)$length
+  for(measure in measures){
+     vals = measure(currentnetwork)
+     for(resname in names(vals)){
+       cvals = append(cvals,vals[[resname]]);cyears=append(cyears,year);cmeasures=append(cmeasures,resname)
+     }
+  }
+}
+
+res = data.frame(year=cyears,measure=cmeasures,val=cvals)
+
+g=ggplot(res,aes(x=year,y=val,color=measure,group=measure))
+g+geom_point()+geom_line()
+
+g=ggplot(res[!res$measure%in%c("diameter","vcount","ecount","mu","meanDegree","modularity"),],aes(x=year,y=val,color=measure,group=measure))
+g+geom_point()+geom_line()
+
+g=ggplot(res[res$measure%in%c("vcount","ecount"),],aes(x=year,y=val,color=measure,group=measure))
+g+geom_point()+geom_line()+ylab('measure')
+ggsave(paste0(resdir,'nwSize.pdf'),width=15,height=10,units = 'cm')
+
+
+g=ggplot(res[res$measure%in%c("alphaBetweenness","alphaCloseness"),],aes(x=year,y=val,color=measure,group=measure))
+g+geom_point()+geom_line()+ylab('measure')
+ggsave(paste0(resdir,'hierarchies_nw.pdf'),width=15,height=10,units = 'cm')
+
+g=ggplot(res[res$measure%in%c("meanBetweenness"),],aes(x=year,y=val,color=measure,group=measure))
+g+geom_point()+geom_line()+ylab('measure')
+ggsave(paste0(resdir,'meanBetweenness.pdf'),width=15,height=10,units = 'cm')
+
+g=ggplot(res[res$measure%in%c("meanCloseness"),],aes(x=year,y=val,color=measure,group=measure))
+g+geom_point()+geom_line()+ylab('measure')
+ggsave(paste0(resdir,'meanBetweenness.pdf'),width=15,height=10,units = 'cm')
+
+
+g=ggplot(res[res$measure%in%c("efficiency"),],aes(x=year,y=val,color=measure,group=measure))
+g+geom_point()+geom_line()+ylab('measure')
+ggsave(paste0(resdir,'efficiency.pdf'),width=15,height=10,units = 'cm')
+
+

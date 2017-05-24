@@ -20,7 +20,7 @@ val exploration =  ExplorationTask(
     (synthConfFile in Seq("setup/conf/synth_nonw.conf","setup/conf/synth_cross.conf","setup/conf/synth_spider.conf"))
   ) withIndex id )*/
   ((LHS (
-    1
+    1000
     ,regionalproba in Range(0.0,1.0)
     //,lambdaAcc in Range(0.001,0.01)
     //,euclpace in Range(2.5,10.0)
@@ -45,14 +45,14 @@ val exploration =  ExplorationTask(
   x (targetNetwork is 1)
   x (setupType is 1)
   x (synthConfFile is "setup/conf/real_nonw.conf")
-  x (finalTime is 5)
+  x (finalTime is 10)
   x (replication in (UniformDistribution[Int]() take 5))
 )
 
 
-val purpose = "test_realnonw"
+//val purpose = "test_realnonw"
 //val purpose = "lhs"
-//val purpose = "grid_realnonw"
+val purpose = "grid_realnonw"
 
 
 // output
@@ -62,8 +62,8 @@ val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new Simp
 
 
 
-val local = LocalEnvironment(5)
-//val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+//val local = LocalEnvironment(5)
+val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
-exploration -< (model on local hook indics_hook)
-//exploration -< (model on grid by 5 hook indics_hook)
+//exploration -< (model on local hook indics_hook)
+exploration -< (model on grid by 5 hook indics_hook)

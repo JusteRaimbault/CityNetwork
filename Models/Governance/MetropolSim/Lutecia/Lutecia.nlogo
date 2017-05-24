@@ -479,7 +479,7 @@ BUTTON
 472
 565
 setup
-setup
+setup:setup
 NIL
 1
 T
@@ -900,7 +900,7 @@ euclidian-min-pace
 euclidian-min-pace
 1
 50
-10
+5
 1
 1
 NIL
@@ -915,7 +915,7 @@ congestion-price
 congestion-price
 0
 10
-50
+1
 0.1
 1
 NIL
@@ -1087,7 +1087,7 @@ BUTTON
 1393
 580
 test dist
-setup\ntest-network-effect (patches with [pxcor = 0])\n;check-effective-distance 1180 684
+setup:setup\ntest-network-effect (patches with [pxcor = 0])\n;check-effective-distance 1180 684
 NIL
 1
 T
@@ -1172,7 +1172,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file" "gis-synthetic" "gis"
-0
+2
 
 SLIDER
 7
@@ -1460,7 +1460,7 @@ SWITCH
 565
 evolve-network?
 evolve-network?
-0
+1
 1
 -1000
 
@@ -1478,7 +1478,7 @@ evolve-landuse?
 PLOT
 1156
 155
-1328
+1344
 293
 mean-travel-distance
 NIL
