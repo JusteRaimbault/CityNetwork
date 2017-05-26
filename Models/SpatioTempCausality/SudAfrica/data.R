@@ -23,10 +23,19 @@ source("networkMeasures.R")
 popdatadir = paste0(Sys.getenv('CN_HOME'),'/Data/SudAfrica/pop')
 years = c(1911,1921,1936,1951,1960,1970,1980,1991)
 
+populations <- data.frame()
 for(year in years){
-  agglos = as.tbl(read.csv(paste0(popdatadir,'/',year,'_agglo.csv'),sep=';'))
-  
+  agglos = as.tbl(read.csv(paste0(popdatadir,'/',year,'_agglo.csv'),sep=';',stringsAsFactors = F,dec = ','))
+  cities = as.tbl(read.csv(paste0(popdatadir,'/',year,'_ville.csv'),sep=';',stringsAsFactors = F,dec = ','))
+  #show(as.numeric(agglos$ANNEE))
+  agglos = agglos[,c(1,2,5,6,7)];names(agglos)<-c("id","name","year","agglo","pop")
+  cities=cities[,c(1,2,5,6)];names(cities)<-c("id","name","agglo","pop")
+  cities$year = rep(year,nrow(cities))
+  populations=rbind(populations,agglos)
+  populations=rbind(populations,cities[,colnames(agglos)])
 }
+
+save(populations,file='data/pops.RData')
 
 
 
@@ -47,52 +56,21 @@ for(year in years){
   save(currentnetwork,file=paste0('data/network',year,'.RData'))
 }
   
+# distance matrices
 
-
-# evolution of network measures
-
-measures <- c(gamma,normalizedBetweenness,shortestPathMeasures,clustCoef,louvainModularity)
-
-cyears=c();cmeasures=c();cvals=c()
+distmats = list()
 for(year in years){
   load(paste0('data/network',year,'.RData'))
   E(currentnetwork)$weight = 1/E(currentnetwork)$length
-  for(measure in measures){
-     vals = measure(currentnetwork)
-     for(resname in names(vals)){
-       cvals = append(cvals,vals[[resname]]);cyears=append(cyears,year);cmeasures=append(cmeasures,resname)
-     }
-  }
+  distmat = distances(currentnetwork,v=which(!is.na(V(currentnetwork)$ident)),to=which(!is.na(V(currentnetwork)$ident)))
+  rownames(distmat)<-V(currentnetwork)$ident[!is.na(V(currentnetwork)$ident)]
+  colnames(distmat)<-V(currentnetwork)$ident[!is.na(V(currentnetwork)$ident)]
+  distmats[[as.character(year)]]<-distmat
 }
 
-res = data.frame(year=cyears,measure=cmeasures,val=cvals)
-
-g=ggplot(res,aes(x=year,y=val,color=measure,group=measure))
-g+geom_point()+geom_line()
-
-g=ggplot(res[!res$measure%in%c("diameter","vcount","ecount","mu","meanDegree","modularity"),],aes(x=year,y=val,color=measure,group=measure))
-g+geom_point()+geom_line()
-
-g=ggplot(res[res$measure%in%c("vcount","ecount"),],aes(x=year,y=val,color=measure,group=measure))
-g+geom_point()+geom_line()+ylab('measure')
-ggsave(paste0(resdir,'nwSize.pdf'),width=15,height=10,units = 'cm')
+save(distmats,file='data/distmats.RData')
 
 
-g=ggplot(res[res$measure%in%c("alphaBetweenness","alphaCloseness"),],aes(x=year,y=val,color=measure,group=measure))
-g+geom_point()+geom_line()+ylab('measure')
-ggsave(paste0(resdir,'hierarchies_nw.pdf'),width=15,height=10,units = 'cm')
 
-g=ggplot(res[res$measure%in%c("meanBetweenness"),],aes(x=year,y=val,color=measure,group=measure))
-g+geom_point()+geom_line()+ylab('measure')
-ggsave(paste0(resdir,'meanBetweenness.pdf'),width=15,height=10,units = 'cm')
-
-g=ggplot(res[res$measure%in%c("meanCloseness"),],aes(x=year,y=val,color=measure,group=measure))
-g+geom_point()+geom_line()+ylab('measure')
-ggsave(paste0(resdir,'meanBetweenness.pdf'),width=15,height=10,units = 'cm')
-
-
-g=ggplot(res[res$measure%in%c("efficiency"),],aes(x=year,y=val,color=measure,group=measure))
-g+geom_point()+geom_line()+ylab('measure')
-ggsave(paste0(resdir,'efficiency.pdf'),width=15,height=10,units = 'cm')
 
 
