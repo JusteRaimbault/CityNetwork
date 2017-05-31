@@ -1,6 +1,16 @@
 
 
 
+
+
+
+## Research directions
+
+* Mer 31 mai 2017 11:08:10 CEST * 
+
+verrous pour une recherche future sur les sytèmes territoriaux : ergodicité et non-stationarité : paradoxe ? -> relecture de chaque verrou/défi (partiellement ouverts dans la thèse, qui sont en fait des défis bien plus grands) comme un "paradoxe" ? [cf note carnet orga 31/05]
+
+
 ## cognition and modularity
 
 * Jeu 18 mai 2017 16:53:50 CEST * 

@@ -20,7 +20,7 @@ val exploration =  ExplorationTask(
     (synthConfFile in Seq("setup/conf/synth_nonw.conf","setup/conf/synth_cross.conf","setup/conf/synth_spider.conf"))
   ) withIndex id )*/
   ((LHS (
-    1000
+    5000
     ,regionalproba in Range(0.0,1.0)
     //,lambdaAcc in Range(0.001,0.01)
     //,euclpace in Range(2.5,10.0)
@@ -31,7 +31,7 @@ val exploration =  ExplorationTask(
     //,gammaCDE in Range(0.5,1.0),
     //,betaDC in Range(0.5,2.0)
   )) withIndex id)
-  //x (regionalproba is 1.0)
+  x (regionalproba is 1.0)
   x (lambdaAcc is 0.001)
   x (euclpace is 5.0)
   //x (game is 1)
@@ -41,9 +41,9 @@ val exploration =  ExplorationTask(
   x (gammaCDE is 0.65)
   x (betaDC is 1.8)
   x (evolveNetwork is 1)
-  x (evolveLanduse is 0)
+  x (evolveLanduse is 1)
   x (targetNetwork is 1)
-  x (setupType is 1)
+  x (setupType is 2)
   x (synthConfFile is "setup/conf/real_nonw.conf")
   x (finalTime is 10)
   x (replication in (UniformDistribution[Int]() take 5))
@@ -52,8 +52,8 @@ val exploration =  ExplorationTask(
 
 //val purpose = "test_realnonw"
 //val purpose = "lhs"
-val purpose = "grid_realnonw"
-
+//val purpose = "grid_realnonw"
+val purpose = "grid_sprawl"
 
 // output
 val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
@@ -66,4 +66,4 @@ val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new Simp
 val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
 //exploration -< (model on local hook indics_hook)
-exploration -< (model on grid by 5 hook indics_hook)
+exploration -< (model on grid by 10 hook indics_hook)

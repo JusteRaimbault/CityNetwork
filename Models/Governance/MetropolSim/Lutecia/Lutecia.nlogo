@@ -276,7 +276,7 @@ globals[
   dmax
   
   
-  target-network-file
+  ;target-network-file
   
   ;;;
   ; network measures
@@ -467,7 +467,7 @@ SLIDER
 #-initial-territories
 0
 5
-1
+2
 1
 1
 NIL
@@ -498,7 +498,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-9
+1
 
 TEXTBOX
 11
@@ -992,7 +992,7 @@ total-time-steps
 total-time-steps
 0
 50
-50
+15
 1
 1
 NIL
@@ -1016,7 +1016,7 @@ CHOOSER
 game-type
 game-type
 "random" "simple-nash" "discrete-choices"
-0
+1
 
 TEXTBOX
 174
@@ -1172,7 +1172,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file" "gis-synthetic" "gis"
-2
+0
 
 SLIDER
 7
@@ -1318,7 +1318,7 @@ infra-snapping-tolerance
 infra-snapping-tolerance
 0
 10
-2
+1
 1
 1
 NIL
@@ -1427,10 +1427,10 @@ setup-from-world-file?
 INPUTBOX
 209
 10
-366
+267
 70
 conf-file
-setup/conf/synth_spider.conf
+setup/conf/real.conf
 1
 0
 String
@@ -1460,7 +1460,7 @@ SWITCH
 565
 evolve-network?
 evolve-network?
-1
+0
 1
 -1000
 
@@ -1492,6 +1492,17 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot mean-effective-distance"
+
+INPUTBOX
+270
+9
+344
+69
+target-network-file
+setup/target/network0.shp
+1
+0
+String
 
 @#$#@#$#@
 ## WHAT IS IT?
