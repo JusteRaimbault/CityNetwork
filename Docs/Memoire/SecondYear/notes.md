@@ -3,6 +3,36 @@
 
 
 
+## Gouvernance
+
+* Jeu  1 jui 2017 10:31:31 CEST * 
+
+\cite{debrie2010contribution} : HDR Debrie : échelles de réseaux et territoires ; processus de gouvernance entre public et privé.
+
+
+## Economic Evolution of Networks
+
+* Jeu  1 jui 2017 10:18:01 CEST * 
+
+\cite{gluckler2007economic} : not transportation networks, but still evolutionnary perspective. // link with evolutionnary theory of economic change ? -> read the book.
+
+
+
+## Spatio-temporal non-stationarity
+
+* Jeu  1 jui 2017 10:14:45 CEST * 
+
+\cite{10.1371/journal.pbio.2002634} : relatively simple notion beyond equilibrium to take into account temporal non-stationarity ?
+
+
+## Medium China
+
+* Jeu  1 jui 2017 09:31:40 CEST * 
+
+\cite{au2006chinese} : chinese cities too small ? -> link with issues tackled in MEDIUM ?
+
+
+
 
 ## Research directions
 
