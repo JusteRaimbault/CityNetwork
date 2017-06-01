@@ -99,7 +99,7 @@
 % Sectioning commands
 % from http://tex.stackexchange.com/questions/109557/renewdefine-section-with-additional-argument
 
-
+%
 %\let\oldchapter\chapter
 %
 %\RenewDocumentCommand\chapter {s o o m m}
@@ -127,7 +127,7 @@
 %      }   
 %  }
 %
-%
+
 
 
 
@@ -266,20 +266,32 @@
 %  -> use this comment to ask questions on what other wrote/answer questions with optional arguments (up to 4 answers)
 
 
-\DeclareDocumentCommand{\comment}{m o o o o}
+\DeclareDocumentCommand{\comment}{o m o o o o}
 {\ifthenelse{\draft=1}{
-    \textcolor{red}{\textbf{C : }#1}
-    \IfValueT{#2}{\textcolor{blue}{\textbf{A1 : }#2}}
-    \IfValueT{#3}{\textcolor{ForestGreen}{\textbf{A2 : }#3}}
-    \IfValueT{#4}{\textcolor{red!50!blue}{\textbf{A3 : }#4}}
-    \IfValueT{#5}{\textcolor{Aquamarine}{\textbf{A4 : }#5}}
+  \IfValueT{#1}{
+      \textcolor{red}{\textbf{C (#1) : }#2}
+      \IfValueT{#3}{\textcolor{blue}{\textbf{A1 : }#3}}
+      \IfValueT{#4}{\textcolor{ForestGreen}{\textbf{A2 : }#4}}
+      \IfValueT{#5}{\textcolor{red!50!blue}{\textbf{A3 : }#5}}
+      \IfValueT{#6}{\textcolor{Aquamarine}{\textbf{A4 : }#6}}
+    }
+    \IfNoValueT{#1}{
+      \textcolor{red}{\textbf{C : }#2}
+      \IfValueT{#3}{\textcolor{blue}{\textbf{A1 : }#3}}
+      \IfValueT{#4}{\textcolor{ForestGreen}{\textbf{A2 : }#4}}
+      \IfValueT{#5}{\textcolor{red!50!blue}{\textbf{A3 : }#5}}
+      \IfValueT{#6}{\textcolor{Aquamarine}{\textbf{A4 : }#6}}
+    }
  }{}
 }
 
 
 % todo
-\newcommand{\todo}[1]{
-    \ifthenelse{\draft=1}{\textcolor{red!50!blue}{\textbf{TODO : \textit{#1}}}}{}
+\DeclareDocumentCommand{\todo}{o m}{
+  \ifthenelse{\draft=1}{
+    \IfValueT{#1}{\textcolor{red!50!blue}{\textbf{TODO (#1) : \textit{#2}}}}
+    \IfNoValueT{#1}{\textcolor{red!50!blue}{\textbf{TODO : \textit{#2}}}}
+  }{}
 }
 
 

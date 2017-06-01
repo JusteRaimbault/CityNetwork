@@ -1,6 +1,12 @@
 
 
 
+## Modes de communication
+
+* Jeu  1 jui 2017 11:16:56 CEST * 
+
+sur forme de com : cf disc avec Thibault, faire évoluer les modes de com, linéaire de la thèse nul : pourquoi et comment garder avantages et supprimant inconvénients : pistes ? // ce qu'on appelle le livre n'est jamais le même object, défini par al forme ET la fonction (donc les usages), et leur interrelation.
+
 
 
 ## Gouvernance
