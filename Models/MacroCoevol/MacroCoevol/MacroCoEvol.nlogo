@@ -1,233 +1,131 @@
 
-extensions [nw]
+extensions [gis matrix table gradient nw]
 
-__includes[
-   
+__includes [
+  
+   ;;;
+   ; setup
    "setup.nls"
+   
+   ;;;
+   ; main
    "main.nls"
-   "network.nls"
+ 
    "cities.nls"
-   "coevol.nls"
+   "network.nls"
+ 
+   ;;;
+   ; indicators
    "indicators.nls"
+ 
+   ;;;
+   ; display
    "display.nls"
+ 
+   ;;;
+   ; experiment
+   "experiments.nls"
+ 
+   ;;;;;
+   ;; utils
+   ;;;;;
    
-   ;;;;
-   ; utils
-   ;;;;
-   "local_utils/Link.nls"
-   
-   "utils/Network.nls"
+   "utils/File.nls"
+   "utils/String.nls"
+   "utils/Matrix.nls"
+   "utils/List.nls"
+    
 ]
 
 
-globals[
-  ; Because it does not exist natively in NetLogo
-  infinity
+
+globals [
   
-  ; Global needed for the computation of city-picking (network-growth)         
-  sumlottery      
+  ;;
+  ; dates
+  dates
   
-  ; Global needed for the computation of city-picking (network-growth)  
-  sumpop     
+  ;;
+  ; matrix of cities population in time
+  populations
   
-  ; the shortest possible time travel between two cities in the network at the tick t       
-  ;min-time-network  
-  system-pot-int    ;
+  ;;
+  ; corresponding real populations
+  real-populations
+  
+  ;;
+  ; distance matrices
+  distance-matrix
+  feedback-distance-matrix
+  
+  gravity-weights
+  feedback-weights
   
   
-  ;;;;;;;
-  ;; crossing links variables
-  ;;;;;;;
-  
-  x-cross           ;
-  y-cross           ;
-  crossing-link1    ;
-  crossing-link2    ;
+  ;;
+  ; shortest paths params
+  alpha0
+  n0
+   
 ]
 
+
+
+patches-own [
+ 
+  elevation
+  
+]
 
 
 breed [cities city]
 
-
 cities-own [
   
+  ; name
+  name
   
-  ; population of the city
-  population            
+  ; current population
+  population
   
-  ;;
-  ; potential interaction of the city with all the other-city of the system
-  ; @type list
-  city-pot-int
-           
-  ;;
-  ; Normalized potential interaction of the city with all the other-city of the system
-  ; @type list 
-  N-city-pot-int  
+  ; row index in pop matrix
+  index
   
-  ; the journey time to go the nearest neighbor of this city      
-  min-time-neighbor     
+  ; history of population
+  population-history
+  expected-population-history ; convenience variable
   
-  ;;
-  ; accessibility of the city (shimbel index)
-  ; 
-  accessibility   
+  ; for comparing between runs : previous population history
+  previous-population-history
   
-  ; temporary-attribut for the computation of lotery-potentiel
-  potentiel-interaction 
+  current-mse
   
-  ; temporary-attribut for the computation of city-growth
-  tmp-pop     
-  
-  ; force of attraction of the city over all the other in net migration of individuals          
-  attraction     
-  
-  ; only for the world creation       
-  categorie             
-  
-  network1
-  network2
-  network3
-  
- 
- ;; Outputs computation
- list-population
- list-accessibility
- list-attraction
- list-mean-linksspeed
+  color-var
+   
+]
+
+
+breed [nodes node]
+
+undirected-link-breed [paths path]
+
+paths-own [
+  impedance 
 ]
 
 
 
 
-links-own [
-  speed        ; 
-  weight       ; lenght / speed
-  list-speed   ;
-]
 
-breed [crosses cross]
-
-crosses-own [ me? ]
-
-
-
- 
- 
-; to compute-min-time-network
-;   
-;   ask cities [set min-time-neighbor city-min-time-neighbor]
-;   set min-time-network min [min-time-neighbor] of cities
-;   print min-time-network
-;   
-; end
- 
-
-  
- 
-
-
-;******************************************************
-; Actualisation of link parameters
-;******************************************************
-
-
-to actualisation-of-link
-    set speed current-speed
-    set weight (link-length / speed)
-    set color current-color 
-    set thickness 0.5
-end
-
-
-
-;******************************************************
-; Lottery mecanisms for the random selection of cities
-;******************************************************
-
-to-report city-1pick
-  ; The random election is made accroding to the population of the cities
-  let totpopI random-float sumlottery
-  let cityI nobody
-  ask cities
-  [if cityI = nobody
-    [ifelse (population ^ alpha) > totpopI
-      [set cityI self]
-      [set totpopI totpopI - (population ^ alpha)]
-    ]
-  ]
- report cityI 
-end
-
-
-
-;;
-; Preferential attachment growth mechanism ? (depending on interaction potential ?)
-to-report lottery-potentiel [#1pick]
-  ; The random election is made accroding to the interaction potentiel of each cities with the first city picked
-  calcul-potentiels #1pick
-  let pool-cities cities with [who != [who] of #1pick]
-  
-  let totpotentiel random-float sum [potentiel-interaction ^ alpha] of pool-cities
-  let city-picked nobody
-  ask pool-cities
-  [
-   if city-picked = nobody
-   [
-     ifelse (potentiel-interaction ^ alpha) > totpotentiel
-     [set city-picked self]
-     [set totpotentiel totpotentiel - (potentiel-interaction ^ alpha) ] 
-   ]
-  ]
-  report city-picked
-  
-end
-
-
-
-
-to update-lists-cities
-  ask cities
-  [
-   let pop  precision population 2
-
-   set list-population lput pop list-population  
-   set list-accessibility lput accessibility list-accessibility
-   set list-attraction lput attraction list-attraction
-   set list-mean-linksspeed lput (mean [speed] of my-links) list-mean-linksspeed
-  ]
-end
-
-
-
-to update-networks-info [#city]
-  let citiesPop reverse sort [population] of cities
-  let myRank (position ([population] of #city) citiesPop) + 1
-  
-  ifelse (ticks <= 70)[
-   ask #city [if (item 0 network1 = "") [ set network1 (list ticks myRank) ]]
-    ][
-    ifelse (ticks <= 150) [
-      ask #city [if (item 0 network2 = "") [ set network2 (list ticks myRank)]]
-      ][
-      ask #city [if (item 0 network3 = "") [ set network3 (list ticks myRank)]]
-      ]
-    ]
-end
-  
-;;;-------------------------------------------------------------------------------------------------------------------------
-
-  
 @#$#@#$#@
 GRAPHICS-WINDOW
-267
-17
-731
-502
-25
-25
-8.902
+294
+20
+907
+654
+100
+100
+3.0
 1
 10
 1
@@ -237,10 +135,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--25
-25
--25
-25
+-100
+100
+-100
+100
 0
 0
 1
@@ -248,28 +146,11 @@ ticks
 30.0
 
 BUTTON
-10
-310
-73
-354
-NIL
-go
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-10
-263
-73
-308
-NIL
+20
+119
+86
+152
+setup
 setup
 NIL
 1
@@ -281,169 +162,142 @@ NIL
 NIL
 1
 
-INPUTBOX
-193
-264
-260
-324
-myseed
-31
-1
+SLIDER
+64
+258
+198
+291
+growth-rate
+growth-rate
 0
-Number
-
-INPUTBOX
-113
-417
-166
-477
-speed1
-5
+0.05
+0.0136
+0.0001
 1
-0
-Number
+NIL
+HORIZONTAL
 
-CHOOSER
-78
-263
-183
-308
-city-growth-model
-city-growth-model
-"Gibrat" "coevolution"
-1
+OUTPUT
+991
+628
+1388
+798
+10
 
 SLIDER
-6
-417
-110
-450
-alpha
-alpha
+5
+301
+139
+334
+gravity-weight
+gravity-weight
 0
-10
-3
+2e-3
+2.45E-5
+1e-6
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+338
+139
+371
+gravity-gamma
+gravity-gamma
+0.5
+5
+1.87
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+375
+139
+408
+gravity-decay
+gravity-decay
+1
+500
+0.9500000000000003
 0.1
 1
 NIL
 HORIZONTAL
 
-MONITOR
-738
-171
-805
-216
-mean pop
-mean [population] of cities
+SLIDER
+143
+301
+284
+334
+feedback-weight
+feedback-weight
 0
+0.1
+0
+0.001
 1
-11
-
-PLOT
-738
-14
-911
-160
-Histogramme_poplation (20 classes)
 NIL
+HORIZONTAL
+
+SLIDER
+143
+339
+285
+372
+feedback-gamma
+feedback-gamma
+0
+5
+0.8
+0.1
+1
 NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" "set-histogram-num-bars 20\nset-plot-x-range 0 (max [population] of cities)\nset-plot-pen-interval ((max [population] of cities) / 20)"
-PENS
-"default" 1.0 1 -16777216 true "" "histogram ([population] of cities)"
+HORIZONTAL
 
-INPUTBOX
-166
-417
-217
-477
-speed2
-20
-1
+SLIDER
+143
+377
+285
+410
+feedback-decay
+feedback-decay
 0
-Number
-
-INPUTBOX
-216
-417
-266
-477
-speed3
-75
+200
+3.4
+0.1
 1
-0
-Number
-
-PLOT
-915
-15
-1096
-160
-System Population
 NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot sum [population] of cities"
-
-MONITOR
-808
-171
-872
-216
-min pop
-min [population] of cities
-0
-1
-11
-
-MONITOR
-875
-171
-943
-216
-max pop
-max [population] of cities
-0
-1
-11
-
-PLOT
-738
-228
-948
-384
-shimbel/population
-log (population)
-Shimbel
-1.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 2 -16777216 true "" "clear-plot ask cities [plotxy log population 10 accessibility]"
+HORIZONTAL
 
 BUTTON
-193
-325
-260
-358
-my-seed!
-random-seed myseed
+20
+158
+86
+191
+reset
+reset
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+108
+121
+222
+154
+go full period
+if ticks > 0 [reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
 NIL
 1
 T
@@ -455,137 +309,150 @@ NIL
 1
 
 MONITOR
-743
-399
-868
-444
-% mean annual growth
-((sum [population] of cities / 5490390 ) ^ (1 / (ticks - 1800)) - 1 ) * 100
-3
-1
-11
-
-TEXTBOX
-12
-371
-269
-413
-----------------------------------------------------------------\nNETWORK GROWTH Parameters
-11
-0.0
-1
-
-TEXTBOX
-12
+29
 494
-269
-536
-----------------------------------------------------------------\nGIBRAT Model Parameters
+86
+539
+date
+current-date
+17
+1
 11
-0.0
+
+BUTTON
+779
+665
+890
+698
+random path
+ask one-of nodes [let p nw:weighted-path-to one-of other nodes \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 1
 
-TEXTBOX
-7
-580
-274
-622
------------------------------------------------------------------\nCOEVOLUTION Model Parameters
-11
-0.0
+BUTTON
+891
+665
+954
+698
+clear
+ask paths [set hidden? true]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+779
+701
+890
+734
+random path cities
+ask one-of cities [let c2 one-of other cities let n2 [one-of nodes with-min [distance myself]] of c2 ask one-of nodes with-min [distance myself] [let p nw:weighted-path-to n2 \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 1
 
 CHOOSER
-78
-310
-183
-355
-Network-growth
-Network-growth
-"scenario" "coevolution"
-1
-
-SLIDER
-9
-540
-132
-573
-gibrat-mean
-gibrat-mean
-0
-0.02
-0.01
-0.001
-1
-NIL
-HORIZONTAL
-
-SLIDER
-131
-540
-254
-573
-gibrat-std
-gibrat-std
-0
-0.03
-0.01
-0.001
-1
-NIL
-HORIZONTAL
-
-SLIDER
-6
-455
-111
-488
-IS
-IS
-0
 20
-12
+554
+151
+599
+visualization
+visualization
+"mse" "mse-log" "delta-previous-mse" "delta-previous-mse-log" "feedback-strength"
 1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-131
-630
-255
-663
-beta
-beta
-0
-3
-1.1
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-6
-630
-130
-663
-lambda
-lambda
-0
-0.015
-0.01
-0.001
-1
-NIL
-HORIZONTAL
 
 PLOT
-994
-207
-1194
-357
-nw time test
+1138
+10
+1403
+259
+fit
+real
+sim
+9.0
+10.0
+9.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
+
+BUTTON
+107
+161
+170
+194
+NIL
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+INPUTBOX
+10
+608
+60
+668
+orig
+0
+1
+0
+Number
+
+INPUTBOX
+62
+608
+112
+668
+dest
+0
+1
+0
+Number
+
+CHOOSER
+174
+15
+266
+60
+period
+period
+"1831-1851" "1841-1861" "1851-1872" "1881-1901" "1891-1911" "1921-1936" "1946-1968" "1962-1982" "1975-1999" "full"
+9
+
+PLOT
+1001
+293
+1402
+443
+profile-logmse
 NIL
 NIL
 0.0
@@ -596,75 +463,102 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot time-network city 8 city 48"
+"default" 1.0 0 -16777216 true "" ""
+
+PLOT
+1001
+446
+1402
+596
+profile-mselog
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
+
+PLOT
+921
+12
+1125
+179
+city-traj
+NIL
+NIL
+0.0
+2.0
+0.0
+10.0
+true
+true
+"set-current-plot-pen \"sim\" plot [population] of one-of cities with [name = city-traj]\nset-current-plot-pen \"real\" plot [population] of one-of cities with [name = city-traj]" ""
+PENS
+"sim" 1.0 0 -14070903 true "" "plot [last population-history] of one-of cities with [name = city-traj]"
+"real" 1.0 0 -5298144 true "" "plot [last expected-population-history] of one-of cities with [name = city-traj]"
+
+INPUTBOX
+919
+187
+1049
+247
+city-traj
+CAEN
+1
+0
+String
 
 CHOOSER
-12
-10
-104
-55
+14
+18
+106
+63
 setup-type
 setup-type
-"synthetic" "stylized"
-1
-
-SLIDER
-9
-62
-183
-95
-synthetic-rank-size-exp
-synthetic-rank-size-exp
+"synthetic" "gis"
 0
-2
-0.8
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-96
-183
-129
-synthetic-cities-number
-synthetic-cities-number
-0
-100
-100
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-131
-184
-164
-synthetic-max-pop
-synthetic-max-pop
-0
-500000
-157000
-1000
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
+## WHAT IS IT?
 
-## MODEL SPECIFICATION
+(a general understanding of what the model is trying to show or explain)
 
+## HOW IT WORKS
 
+(what rules the agents use to create the overall behavior of the model)
 
+## HOW TO USE IT
 
+(how to use the model, including a description of each of the items in the Interface tab)
 
-## EXTENSIONS
+## THINGS TO NOTICE
 
+(suggested things for the user to notice while running the model)
+
+## THINGS TO TRY
+
+(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+
+## EXTENDING THE MODEL
+
+(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+
+## NETLOGO FEATURES
+
+(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+
+## RELATED MODELS
+
+(models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
+
+(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
@@ -860,12 +754,19 @@ Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
 sheep
 false
-0
-Rectangle -7500403 true true 151 225 180 285
-Rectangle -7500403 true true 47 225 75 285
-Rectangle -7500403 true true 15 75 210 225
-Circle -7500403 true true 135 75 150
-Circle -16777216 true false 165 76 116
+15
+Circle -1 true true 203 65 88
+Circle -1 true true 70 65 162
+Circle -1 true true 150 105 120
+Polygon -7500403 true false 218 120 240 165 255 165 278 120
+Circle -7500403 true false 214 72 67
+Rectangle -1 true true 164 223 179 298
+Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
+Circle -1 true true 3 83 150
+Rectangle -1 true true 65 221 80 296
+Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
+Polygon -7500403 true false 276 85 285 105 302 99 294 83
+Polygon -7500403 true false 219 85 210 105 193 99 201 83
 
 square
 false
@@ -954,11 +855,9 @@ Line -7500403 true 84 40 221 269
 wolf
 false
 0
-Polygon -7500403 true true 135 285 195 285 270 90 30 90 105 285
-Polygon -7500403 true true 270 90 225 15 180 90
-Polygon -7500403 true true 30 90 75 15 120 90
-Circle -1 true false 183 138 24
-Circle -1 true false 93 138 24
+Polygon -16777216 true false 253 133 245 131 245 133
+Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
+Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
 
 x
 false
@@ -971,27 +870,6 @@ NetLogo 5.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
-<experiments>
-  <experiment name="experiment" repetitions="1" runMetricsEveryStep="false">
-    <setup>setup
-random-seed myseed</setup>
-    <go>go</go>
-    <metric>max [population] of cities</metric>
-    <enumeratedValueSet variable="speed1">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="speed2">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="speed3">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="myseed">
-      <value value="153"/>
-      <value value="152"/>
-    </enumeratedValueSet>
-  </experiment>
-</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default

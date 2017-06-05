@@ -13,19 +13,14 @@ to setup
   
   setup-globals
   
-  let init_network_filename (word "setup/initial-state.csv")
- 
-  import-world init_network_filename
-  ; The import-world procedure also import the Random Number Generator (seed) which is associated to the file imported (Snet-init-appli.csv)
-  ; With the next procedure, we produce a new random-seed at each initialisation
-  random-seed new-seed
-  reset-ticks
+  setup-world
   
-  setup-links
- 
   setup-cities
   
+  setup-network
     
+  update-display  
+  
   reset-ticks
   tick-advance 1800
    
@@ -44,17 +39,70 @@ to setup-globals
 end
 
 
-to setup-links
-   ask links
-    [
-      set speed 1
-      set weight (link-length / speed)
-     ]  
+to setup-world
+  if setup-type = "stylized" [
+    let init_network_filename (word "setup/initial-state.csv")
+ 
+    import-world init_network_filename
+    ; The import-world procedure also import the Random Number Generator (seed) which is associated to the file imported (Snet-init-appli.csv)
+    ; With the next procedure, we produce a new random-seed at each initialisation
+  
+    random-seed new-seed
+  
+  ]
+  
+  if setup-type = "synthetic" [
+     
+     ; stylized setup synthetic parameters : 
+     ;    rank-size = 0.67
+     ;    #-cities = 100
+     ;    max-pop = 495525
+     
+     ; -> setup done in setup-cities and network
+     
+  ]
+  
 end
 
 
 
-to setup-cities    
+to setup-network
+    
+  if setup-type = "synthetic" [
+    ask cities [let c2 one-of ((other cities) with-min [distance myself]) if not link-neighbor? c2 [create-link-with c2]]
+    connexify-network-link-projection
+    
+    ; optional procedure to create "local" shortcuts
+    local-shortcuts
+    
+  ]
+  
+  setup-link-vars
+  
+  calculate-accessibility
+   
+end
+
+
+
+to setup-cities
+  
+  if setup-type = "synthetic" [
+    create-cities synthetic-cities-number [
+      ;setxy random-xcor random-ycor
+      move-to one-of patches with [count cities in-radius 3 = 0]
+      new-city
+     ]
+    let i 1 ask cities [set population synthetic-max-pop / (i ^ synthetic-rank-size-exp) set i i + 1]
+  ]
+  
+  
+  setup-cities-vars
+     
+end
+
+
+to setup-cities-vars
   ask cities [
       set list-population []
       set list-accessibility []
@@ -64,5 +112,12 @@ to setup-cities
       set network2 ["" ""]
       set network3 ["" ""]
   ]
-     
+end
+
+to setup-link-vars 
+  ask links
+    [
+      set speed 1
+      set weight (link-length / speed)
+     ] 
 end

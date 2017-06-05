@@ -1,0 +1,104 @@
+
+;;
+; network utils
+
+to connexify-network-link-projection
+  nw:set-context turtles links
+  let clusters nw:weak-component-clusters
+  let #-new-links length clusters - 1
+  
+  ;let links-breed agentset-uniform-singular-breed edges-agentset
+  
+  while [length clusters > 1] [
+    ; cluster with most links
+    let c1 first clusters let ma sum [count my-links] of c1 foreach but-first clusters [let cl sum [count my-links] of ? if cl > ma [set c1 ? set ma cl]]
+    ;show c1
+    let c1-links links with [member? end1 c1 or member? end2 c1]
+    ;show c1-links
+    
+    let mi sqrt (world-width ^ 2 + world-height ^ 2)
+    let mc1 nobody let mc2 nobody
+    foreach clusters [
+      let c2 ? ;show c2
+      if c2 != c1 [
+        ask c2 [ask c1-links [let d distance-to-point [xcor] of myself [ycor] of myself if d < mi [set mi d set mc1 myself set mc2 self]]]
+      ]
+    ]
+    ask mc1 [
+       let inter [link:intersection-with [xcor] of myself [ycor] of myself] of mc2
+       ifelse inter = [end1] of mc2 or inter = [end2] of mc2 [create-link-with inter][
+          let e1 [end1] of mc2 let e2 [end2] of mc2 ask mc2 [die]
+          if inter != self [create-link-with inter []]
+          ask inter [create-link-with e1 [] create-link-with e2 []]
+       ]
+    ]
+    
+    nw:set-context turtles links
+    set clusters nw:weak-component-clusters
+  ]
+  
+end
+
+to-report distance-to-point [x y]
+  let x1 0 let y1 0 let x2 0 let y2 0
+  ask end1[set x1 xcor
+  set y1 ycor]
+  ask end2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m2m = 0 [report 0]
+  if m1m2 = 0 [report m1m]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+  
+  if cost1 < 0 [report m1m]
+  if cost2 < 0 [report m2m]
+  report m1m * sqrt abs (1 - (cost1 ^ 2))
+end
+
+
+
+to-report link:intersection-with [x y]
+  let x1 0 let y1 0 let x2 0 let y2 0
+  ask end1[set x1 xcor
+  set y1 ycor]
+  ask end2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m1m2 = 0 [report end1]
+  if m2m = 0 [report end2]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+    
+  let mq 0 let xx 0 let yy 0 let m1q 0
+  
+  ifelse cost1 < 0 [
+     report end1
+  ]
+  [
+  ifelse cost2 < 0 [
+     report end2
+  ]
+  [set mq m1m * sqrt abs (1 - (cost1 ^ 2))
+   set m1q sqrt ((m1m ^ 2) - (mq ^ 2))
+   set xx x1 + m1q * (x2 - x1) / m1m2
+   set yy y1 + m1q * (y2 - y1) / m1m2
+   
+   
+   if count cities-on patch xx yy = 0 [
+     ask patch xx yy [sprout-crosses 1 [set hidden? true]]
+   ]
+   report one-of turtles-on patch xx yy
+   
+   ;let c nobody ask one-of cities [ hatch-cities 1 [setxy xx yy set c self]]
+   ;ask cities [if distance c = 0 and c != self [ask c [die] set c self]]
+   ;report c
+   
+   ]
+  ]
+  
+end
