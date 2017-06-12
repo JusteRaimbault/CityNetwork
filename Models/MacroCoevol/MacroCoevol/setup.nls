@@ -148,7 +148,7 @@ to setup:setup-matrices
   if setup-type = "synthetic" [
     ; distance matrix
     let n count cities
-    let xcors [] let ycors [] let pops [] foreach sort-by [[index] of ?1 > [index] of ?2] cities [ask ? [set xcors lput xcor xcors set ycors lput ycor ycors set pops lput population pops]]
+    let xcors [] let ycors [] let pops [] foreach sort-by [[index] of ?1 < [index] of ?2] cities [ask ? [set xcors lput xcor xcors set ycors lput ycor ycors set pops lput population pops]]
     let xi matrix:from-row-list (rep xcors n) let xj matrix:from-column-list (rep xcors n) let yi matrix:from-row-list (rep ycors n) let yj matrix:from-column-list (rep ycors n)
     set distance-matrix matrix:map sqrt ((matrix:times-element-wise (xi matrix:- xj) (xi matrix:- xj)) matrix:+ (matrix:times-element-wise (yi matrix:- yj) (yi matrix:- yj)))
     
@@ -202,6 +202,18 @@ end
 
 
 to setup:setup-headless
+  
+  ; for now only synthetic in experiments
+  set setup-type "synthetic"
+  
+  set show-virtual-flows? false
+  
+  ; test effect of cities number ?
+  set synthetic-cities-number 30
+  ;set synthetic-rank-size-exp 1.2
+  set synthetic-max-pop 100000
+  set network-reinforcment-exponent 1.0
+  set growth-rate 0.001
   
 end
 

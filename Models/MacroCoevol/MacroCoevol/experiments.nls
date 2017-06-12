@@ -25,18 +25,33 @@
 ;   distance-correlation var1 var2
 ;    with vars \in {city-population ; city-closeness-centrality ; city-accessibility}
 ;
-; - trajectory complexity and diversity
+; - trajectory complexity and diversity (for all vars)
 ;   rank-correlation
+;   trajectories-diversity
+;   trajectories-complexity
 
-to setup-experiment-virtual-network
+to setup-experiment-virtual-network [synth-ranksize nw-threshold nw-gmax final-time grav-weight grav-gamma grav-decay feed-weight feed-gamma feed-decay nw-type seed]
   
   ca
   
   set headless? true
   
+  random-seed seed
+  
   ; setup parameters
+  set synthetic-rank-size-exp synth-ranksize ;1.2
+  set network-reinforcment-threshold nw-threshold ;2.0
+  set network-reinforcment-gmax nw-gmax ;0.05
+  set final-time-step final-time
+  set gravity-weight grav-weight ; ~ 0.001
+  set gravity-gamma grav-gamma ; ~ 1
+  set gravity-decay grav-decay ;  < 200 (world diag : 284)
+  set feedback-weight feed-weight
+  set feedback-gamma feed-gamma
+  set feedback-decay feed-decay
   
-  
+  ; multi-modeling params
+  if nw-type = 0 [set network-type "virtual"] if nw-type = 1 [set network-type "physical"]
   
   setup:setup-headless
   

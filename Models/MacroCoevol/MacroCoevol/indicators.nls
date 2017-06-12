@@ -117,6 +117,45 @@ end
 
 
 
+;;
+; trajectories "diversity" for a given variable
+
+to-report normalized-trajectories [var]
+  ; store normalized trajs in table
+  let trajectories table:make
+  ask cities [let traj [] foreach seq 0 final-time-step 1 [set traj lput (table:get city-values-table (list ? var index)) traj] let ma max traj let mi min traj table:put trajectories index (map [(? - mi) / (ma - mi)] traj)]
+  report trajectories
+end
+
+to-report trajectories-diversity [var]
+  let trajectories normalized-trajectories var
+  let res 0
+  ask cities [
+    ask other cities [
+      let diff (map - (table:get trajectories index) (table:get trajectories [index] of myself))
+      set res res + (sqrt (sum (map * diff diff)))]
+  ]
+  report res / (count cities * (count cities - 1) * (final-time-step + 1))
+end
+
+
+;;
+; trajectories "complexity"
+
+to-report trajectories-complexity [var]
+  let trajectories normalized-trajectories var
+  let res 0
+  ask cities [
+    let traj table:get trajectories index
+    let prev-sign 0 if item 1 traj != item 0 traj [set prev-sign (item 1 traj - item 0 traj) / abs  (item 1 traj - item 0 traj)]
+    foreach seq 2 final-time-step 1 [ let t ?
+      let current-sign 0 if item t traj != item (t - 1) traj [set current-sign (item t traj - item (t - 1) traj) / abs  (item t traj - item (t - 1) traj)]
+      if prev-sign != current-sign [set res res + 1]
+    ]
+  ]
+  report res / (count cities * (final-time-step + 1))
+end
+
 
 ;;
 ; hierarchy
