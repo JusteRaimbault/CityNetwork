@@ -25,6 +25,9 @@ to setup
   ; cities
   setup-cities
   
+  setup-matrices
+  
+  update-weights
   
   reset-ticks
   
@@ -89,27 +92,38 @@ end
 ;;
 ; load data from files
 to setup-data
-  ;; population matrices
-  set real-populations read-numeric-csv-as-matrix (word "setup/pops/pop50_" period".csv") ","
-  set populations matrix:make-constant length matrix:get-column real-populations 0 length matrix:get-row real-populations 0 0
-  matrix:set-column populations 0 matrix:get-column real-populations 0
   
-  ;; distances
-  set distance-matrix read-numeric-csv-as-matrix "setup/dist50.csv" ","
-  set feedback-distance-matrix read-numeric-csv-as-matrix "setup/fdists50.csv" ","
+  if setup-type = "gis" [
+    ;; population matrices
+    set real-populations read-numeric-csv-as-matrix (word "setup/pops/pop50_" period".csv") ","
+    set populations matrix:make-constant length matrix:get-column real-populations 0 length matrix:get-row real-populations 0 0
+    matrix:set-column populations 0 matrix:get-column real-populations 0
   
-  ;; weights
-  set gravity-weights matrix:map [exp (- ? / gravity-decay)] distance-matrix
-  set feedback-weights matrix:map [exp (- ? / feedback-decay)] feedback-distance-matrix
+    ;; distances
+    set distance-matrix read-numeric-csv-as-matrix "setup/dist50.csv" ","
+    set feedback-distance-matrix read-numeric-csv-as-matrix "setup/fdists50.csv" ","
   
-  ;; dates
-  set dates map [read-from-string ?] (read-file (word "setup/dates/dates_" period ".csv"))
+    ;; dates
+    set dates map [read-from-string ?] (read-file (word "setup/dates/dates_" period ".csv"))
   
+  ]
   
 end
 
 
 to setup-cities
+  
+  if setup-type = "synthetic" [
+    let i 1
+    create-cities synthetic-cities-number [
+      ;setxy random-xcor random-ycor
+      move-to one-of patches with [count cities in-radius 10 = 0]
+      set index (i - 1)
+      set population synthetic-max-pop / (i ^ synthetic-rank-size-exp) set i i + 1
+      new-city
+     ]
+  ]
+  
   
   if setup-type = "gis" [
     let coords read-csv "setup/coords.csv" ","
@@ -123,6 +137,56 @@ to setup-cities
   
 end
 
+
+to setup-matrices
+  
+  if setup-type = "synthetic" [
+    ; distance matrix
+    let n count cities
+    let xcors [] let ycors [] let pops [] foreach sort-by [[index] of ?1 > [index] of ?2] cities [ask ? [set xcors lput xcor xcors set ycors lput ycor ycors set pops lput population pops]]
+    let xi matrix:from-row-list (rep xcors n) let xj matrix:from-column-list (rep xcors n) let yi matrix:from-row-list (rep ycors n) let yj matrix:from-column-list (rep ycors n)
+    set distance-matrix matrix:map sqrt ((matrix:times-element-wise (xi matrix:- xj) (xi matrix:- xj)) matrix:+ (matrix:times-element-wise (yi matrix:- yj) (yi matrix:- yj)))
+    
+    set initial-distance-matrix matrix:copy distance-matrix
+    
+    ; feedback distance matrix
+    let feedback-dist-rows []
+    let k 0
+    repeat n [
+      let cityk one-of cities with [index = k]
+      let xk matrix:make-constant n n [xcor] of cityk let yk matrix:make-constant n n [ycor] of cityk
+      let xik matrix:map zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xi matrix:- xk) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yk) (yi matrix:- yk))))
+      let xjk matrix:map zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xj matrix:- xk) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yk) (yj matrix:- yk))))
+      let sc1 (matrix:times-element-wise ((matrix:times-element-wise (xi matrix:- xj) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yj) (yi matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map zero-infinite distance-matrix) xik)))
+      let sc2 (matrix:times-element-wise ((matrix:times-element-wise (xj matrix:- xi) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yi) (yj matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map zero-infinite distance-matrix) xjk)))
+      let kfeedbackdistmat (matrix:map feedback-distance sc1 sc2 xik)
+      set feedback-dist-rows lput (flatten-dists-feedback kfeedbackdistmat) feedback-dist-rows
+      set k k + 1
+    ]
+    
+    set feedback-distance-matrix matrix:from-row-list feedback-dist-rows
+    
+    
+    ; dates
+    set dates seq 1 final-time-step 1
+    
+    ; population matrices
+    set populations matrix:make-constant n final-time-step 1 set real-populations matrix:make-constant n final-time-step 1
+    matrix:set-column populations 0 pops
+    
+  ]
+  
+end
+
+
+
+to setup-indicators
+  
+  set indicator-sample-cities to-list cities
+  
+  set city-values-table table:make
+  
+end
 
 
 to setup-display

@@ -17,12 +17,29 @@ to update-cities-populations
 end
 
 
+;;
+; city indicators
+
+to-report city-population
+  report population
+end
+
+to-report city-closeness-centrality
+   let d matrix:get-row distance-matrix index
+   let s 0 let i 0 foreach d [if i != index [set s s + 1 / ?] set i i + 1]
+   report s / ((length d) - 1)
+end
+
+to-report city-accessibility
+  let d matrix:get-row distance-matrix index
+  ;let pops 
+end
 
 
 to new-city
   set shape "circle" set color red
   set size ln population
-  set label name
+  if name != 0 [set label name]
   set population-history (list population) set expected-population-history (list population)
 end
 

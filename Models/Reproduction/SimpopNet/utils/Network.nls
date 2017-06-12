@@ -1,6 +1,113 @@
 
+
 ;;
 ; network utils
+
+;;
+; Planarize a network, by simply "flattening the bridges" == creating intersection for crossing links
+;
+;  Necessarily in O(#(edges-agentset)^2) as have to checkall intersections between links.
+to planarize-network [vertices-agentset edges-agentset]
+  
+  
+  ;; gore way ?
+  ;let links-breed agentset-uniform-singular-breed edges-agentset
+  
+  let edge-list to-list edges-agentset
+  let current-inter get-first-inter edge-list
+  while [length current-inter > 0][
+      let l2 last current-inter let l1 item 1 current-inter
+      let t11 [end1] of l1 let t12 [end2] of l1 let t21 [end1] of l2 let t22 [end2] of l2
+      let new-inter nobody ;need to hatch
+      ;ask t11 [hatch 1 [set city-population 0 new-city set new-inter self setxy first first current-inter last first current-inter]]
+      create-crosses 1 [set new-inter self setxy first first current-inter last first current-inter set hidden? true]
+      ask new-inter [
+        ;ask t11 [run (word "create-" links-breed "-with myself")]
+        ;ask t12 [run (word "create-" links-breed "-with myself")]
+        ;ask t21 [run (word "create-" links-breed "-with myself")]
+        ;ask t22 [run (word "create-" links-breed "-with myself")]
+        ask t11 [create-link-with myself]
+        ask t12 [create-link-with myself]
+        ask t21 [create-link-with myself]
+        ask t22 [create-link-with myself]
+      ]
+      ;remove and kill
+      set edge-list concatenate (list edge-list (to-list [my-links] of new-inter))
+      set edge-list remove l2 remove l1 edge-list
+      ask l1 [die] ask l2 [die]
+      set current-inter get-first-inter edge-list
+  ]
+  
+  
+end
+
+
+to-report get-first-inter [link-list]
+  let n length link-list let i 0 let j 0
+  repeat (n - 1)[
+     set j i + 1
+     repeat (n - i - 1) [
+       let inter strict-intersection-with-link item i link-list item j link-list
+       if length inter > 0 [report (list inter  item i link-list  item j link-list)]
+       set j j + 1
+     ]
+     set i i + 1 
+  ]
+  report []
+end
+
+
+;;
+; strict intersection (excludes ends)
+to-report strict-intersection-with-link [t1 t2]
+  let inter intersection-with-link t1 t2
+  if inter = [] [report inter]
+  if (abs([xcor] of [end1] of t1 - first inter) < 0.00001 and abs([ycor] of [end1] of t1 - last inter)< 0.00001) or (abs([xcor] of [end2] of t1 - first inter)< 0.00001 and abs([ycor] of [end2] of t1 - last inter)< 0.00001) or (abs([xcor] of [end1] of t2 - first inter)< 0.00001 and abs([ycor] of [end1] of t2 - last inter)< 0.00001) or (abs([xcor] of [end2] of t2 - first inter)< 0.00001 and abs([ycor] of [end2] of t2 - last inter)< 0.00001)[
+    report []
+  ]
+  report inter
+end
+
+to-report intersection-with-link [t1 t2]
+  if [xcor] of [end1] of t1 = [xcor] of [end2] of t1 and [ycor] of [end1] of t1 = [ycor] of [end2] of t1 [report []]
+  if [xcor] of [end1] of t2 = [xcor] of [end2] of t2 and [ycor] of [end1] of t2 = [ycor] of [end2] of t2 [report []]
+  let m1 [tan (90 - link-heading)] of t1
+  let m2 [tan (90 - link-heading)] of t2
+  ;; treat parallel/collinear lines as non-intersecting
+  if m1 = m2 [ report [] ]
+  ;; is t1 vertical? if so, swap the two turtles
+  if abs m1 = tan 90
+  [
+    ifelse abs m2 = tan 90
+      [ report [] ]
+      [ report intersection-with-link t2 t1 ]
+  ]
+  ;; is t2 vertical? if so, handle specially
+  if abs m2 = tan 90 [
+     ;; represent t1 line in slope-intercept form (y=mx+c)
+      let c1 [link-ycor - link-xcor * m1] of t1
+      ;; t2 is vertical so we know x already
+      let x [link-xcor] of t2
+      ;; solve for y
+      let y m1 * x + c1
+      ;; check if intersection point lies on both segments
+      if not [x-within? x] of t1 [ report [] ]
+      if not [y-within? y] of t2 [ report [] ]
+      report list x y
+  ]
+  ;; now handle the normal case where neither turtle is vertical;
+  ;; start by representing lines in slope-intercept form (y=mx+c)
+  let c1 [link-ycor - link-xcor * m1] of t1
+  let c2 [link-ycor - link-xcor * m2] of t2
+  ;; now solve for x
+  let x (c2 - c1) / (m1 - m2)
+  ;; check if intersection point lies on both segments
+  if not [x-within? x] of t1 [ report [] ]
+  if not [x-within? x] of t2 [ report [] ]
+  report list x (m1 * x + c1)
+end
+
+
 
 to connexify-network-link-projection
   nw:set-context turtles links

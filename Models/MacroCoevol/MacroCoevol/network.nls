@@ -5,4 +5,15 @@
 
 to evolve-network
   
+  if network-type = "virtual" [
+    ; virtual network : evolve only inpedance of distance matrix, corresponds thematically to speed of virtual network
+    ; simple growth equation :
+    ;   d_ij (t+1) = d_ij (t) * (1 + g_max * \frac{ (phi_ij/phi_0) ^ \gamma - 1 }{(phi_ij/phi_0) ^ \gamma + 1}
+    
+    ;set distance-matrix (matrix:times-element-wise distance-matrix (matrix:map [(network-reinforcment-threshold / (? + 1e-7)) ^ network-reinforcment-exponent] gravity-flows))
+    
+    set distance-matrix (matrix:times-element-wise distance-matrix (matrix:map [1 + (network-reinforcment-gmax * (1 - (? / network-reinforcment-threshold)^ network-reinforcment-exponent) / (1 + (? / network-reinforcment-threshold)^ network-reinforcment-exponent))] gravity-flows))
+    
+  ]
+  
 end

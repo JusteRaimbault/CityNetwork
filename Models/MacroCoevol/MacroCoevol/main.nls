@@ -53,12 +53,17 @@ to evolve-populations
   let diag-pops-gravity matrix:map [ ? ^ gravity-gamma] (matrix:times-scalar diag-pops sum prev-populations)
   let pots-gravity matrix:times diag-pops-gravity (matrix:times gravity-weights diag-pops-gravity)
   matrix:set-diag-scalar pots-gravity 0
-  let pots-feedback matrix:times feedback-weights (flatten-pops-feedback (matrix:map [ ? ^ feedback-gamma] (matrix:times (matrix:times diag-pops (matrix:make-constant n n 1)) diag-pops)))
   let mean-pot-gravity (matrix:sum pots-gravity) / (n * n)
+  set pots-gravity matrix:times-scalar pots-gravity (1 / mean-pot-gravity)
+  set gravity-flows pots-gravity
+  
+  ; feedbacks
+  let pots-feedback matrix:times feedback-weights (flatten-pops-feedback (matrix:map [ ? ^ feedback-gamma] (matrix:times (matrix:times diag-pops (matrix:make-constant n n 1)) diag-pops)))
+  
   let mean-pot-feedback (matrix:sum pots-feedback) / n
   
   ;; current populations
-  let gravity-growth (matrix:times-scalar (matrix:times pots-gravity (matrix:make-constant n 1 1)) (gravity-weight / (n * mean-pot-gravity)))
+  let gravity-growth (matrix:times-scalar (matrix:times pots-gravity (matrix:make-constant n 1 1)) (gravity-weight / n))
   let feedback-growth (matrix:times-scalar pots-feedback (2 * feedback-weight / (n * (n - 1) * mean-pot-feedback)))
   let r (matrix:times-scalar (matrix:times-element-wise (matrix:as-column-matrix prev-populations) (((matrix:make-constant n 1 growth-rate) matrix:+ gravity-growth) matrix:+ feedback-growth)) delta_t)
   ;show matrix:max r show matrix:min r
@@ -87,4 +92,31 @@ to-report flatten-pops-feedback [m]
     set i i + 1 
   ]
   report res
+end
+
+to-report flatten-dists-feedback [m]
+  let res [] let i 1
+  foreach but-last matrix:to-row-list m [
+     set res (concatenate list res (sublist ? i (length ?)))
+     set i i + 1
+  ]
+  report res
+end
+
+
+to-report feedback-distance [v1 v2 v3]
+  if v1 = 0 and v2 = 0 [report 0]
+  ifelse v1 <= 0 or v2 <= 0 [report 1e6][if abs v1 >= 1 [show v1 set v1 v1 / abs v1] report v3 * asin v1]
+end
+
+to-report zero-infinite [x]
+  ifelse x = 0 [report 1e10][report x]
+end
+
+
+to update-weights
+  ;; weights
+  set gravity-weights matrix:map [exp (- ? / gravity-decay)] distance-matrix
+  set feedback-weights matrix:map [exp (- ? / feedback-decay)] feedback-distance-matrix
+  
 end

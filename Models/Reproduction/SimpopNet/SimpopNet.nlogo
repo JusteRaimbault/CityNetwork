@@ -17,6 +17,7 @@ __includes[
    "local_utils/Link.nls"
    
    "utils/Network.nls"
+   "utils/List.nls"
 ]
 
 
@@ -152,9 +153,9 @@ to-report city-1pick
   let cityI nobody
   ask cities
   [if cityI = nobody
-    [ifelse (population ^ alpha) > totpopI
+    [ifelse (population ^ lottery-power) > totpopI
       [set cityI self]
-      [set totpopI totpopI - (population ^ alpha)]
+      [set totpopI totpopI - (population ^ lottery-power)]
     ]
   ]
  report cityI 
@@ -169,15 +170,15 @@ to-report lottery-potentiel [#1pick]
   calcul-potentiels #1pick
   let pool-cities cities with [who != [who] of #1pick]
   
-  let totpotentiel random-float sum [potentiel-interaction ^ alpha] of pool-cities
+  let totpotentiel random-float sum [potentiel-interaction ^ lottery-power] of pool-cities
   let city-picked nobody
   ask pool-cities
   [
    if city-picked = nobody
    [
-     ifelse (potentiel-interaction ^ alpha) > totpotentiel
+     ifelse (potentiel-interaction ^ lottery-power) > totpotentiel
      [set city-picked self]
-     [set totpotentiel totpotentiel - (potentiel-interaction ^ alpha) ] 
+     [set totpotentiel totpotentiel - (potentiel-interaction ^ lottery-power) ] 
    ]
   ]
   report city-picked
@@ -221,10 +222,10 @@ end
   
 @#$#@#$#@
 GRAPHICS-WINDOW
-267
-17
-731
-502
+474
+10
+938
+495
 25
 25
 8.902
@@ -318,8 +319,8 @@ SLIDER
 417
 110
 450
-alpha
-alpha
+lottery-power
+lottery-power
 0
 10
 3
@@ -329,10 +330,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-738
-171
-805
-216
+955
+167
+1022
+212
 mean pop
 mean [population] of cities
 0
@@ -340,10 +341,10 @@ mean [population] of cities
 11
 
 PLOT
-738
-14
-911
-160
+955
+10
+1128
+156
 Histogramme_poplation (20 classes)
 NIL
 NIL
@@ -380,10 +381,10 @@ speed3
 Number
 
 PLOT
-915
-15
-1096
-160
+1132
+11
+1313
+156
 System Population
 NIL
 NIL
@@ -398,10 +399,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot sum [population] of cities"
 
 MONITOR
-808
-171
-872
-216
+1025
+167
+1089
+212
 min pop
 min [population] of cities
 0
@@ -409,10 +410,10 @@ min [population] of cities
 11
 
 MONITOR
-875
-171
-943
-216
+1092
+167
+1160
+212
 max pop
 max [population] of cities
 0
@@ -420,10 +421,10 @@ max [population] of cities
 11
 
 PLOT
-738
-228
-948
-384
+955
+224
+1165
+380
 shimbel/population
 log (population)
 Shimbel
@@ -455,10 +456,10 @@ NIL
 1
 
 MONITOR
-743
-399
-868
-444
+960
+395
+1085
+440
 % mean annual growth
 ((sum [population] of cities / 5490390 ) ^ (1 / (ticks - 1800)) - 1 ) * 100
 3
@@ -581,10 +582,10 @@ NIL
 HORIZONTAL
 
 PLOT
-994
-207
-1194
-357
+1211
+203
+1411
+353
 nw time test
 NIL
 NIL
@@ -606,7 +607,7 @@ CHOOSER
 setup-type
 setup-type
 "synthetic" "stylized"
-1
+0
 
 SLIDER
 9
@@ -649,6 +650,51 @@ synthetic-max-pop
 500000
 157000
 1000
+1
+NIL
+HORIZONTAL
+
+SLIDER
+9
+164
+183
+197
+synthetic-city-max-degree
+synthetic-city-max-degree
+0
+6
+5
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+10
+197
+183
+230
+synthetic-shortcut-number
+synthetic-shortcut-number
+0
+100
+50
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+186
+62
+368
+95
+synthetic-shortcut-radius
+synthetic-shortcut-radius
+0
+20
+7
+1
 1
 NIL
 HORIZONTAL

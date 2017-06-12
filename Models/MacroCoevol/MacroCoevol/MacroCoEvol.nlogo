@@ -56,17 +56,27 @@ globals [
   ;;
   ; distance matrices
   distance-matrix
+  initial-distance-matrix
   feedback-distance-matrix
   
   gravity-weights
   feedback-weights
   
+  ; matrice of gravity flows
+  gravity-flows
   
   ;;
   ; shortest paths params
   alpha0
   n0
-   
+  
+  ;
+  ;total-time-steps
+  
+  ; indicators
+  indicator-sample-cities
+  city-values-table
+  
 ]
 
 
@@ -116,7 +126,6 @@ paths-own [
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 294
@@ -146,10 +155,10 @@ ticks
 30.0
 
 BUTTON
-20
-119
-86
-152
+30
+365
+96
+398
 setup
 setup
 NIL
@@ -164,36 +173,36 @@ NIL
 
 SLIDER
 64
-258
+454
 198
-291
+487
 growth-rate
 growth-rate
 0
 0.05
-0.0136
+0.0042
 0.0001
 1
 NIL
 HORIZONTAL
 
 OUTPUT
-991
-628
-1388
-798
+984
+677
+1381
+847
 10
 
 SLIDER
 5
-301
+497
 139
-334
+530
 gravity-weight
 gravity-weight
 0
-2e-3
-2.45E-5
+2e-2
+0.008235
 1e-6
 1
 NIL
@@ -201,14 +210,14 @@ HORIZONTAL
 
 SLIDER
 5
-338
+534
 139
-371
+567
 gravity-gamma
 gravity-gamma
 0.5
 5
-1.87
+0.73
 0.01
 1
 NIL
@@ -216,14 +225,14 @@ HORIZONTAL
 
 SLIDER
 5
-375
+571
 139
-408
+604
 gravity-decay
 gravity-decay
 1
 500
-0.9500000000000003
+13.6
 0.1
 1
 NIL
@@ -231,9 +240,9 @@ HORIZONTAL
 
 SLIDER
 143
-301
+497
 284
-334
+530
 feedback-weight
 feedback-weight
 0
@@ -246,9 +255,9 @@ HORIZONTAL
 
 SLIDER
 143
-339
+535
 285
-372
+568
 feedback-gamma
 feedback-gamma
 0
@@ -261,9 +270,9 @@ HORIZONTAL
 
 SLIDER
 143
-377
+573
 285
-410
+606
 feedback-decay
 feedback-decay
 0
@@ -275,10 +284,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-20
-158
-86
-191
+30
+404
+96
+437
 reset
 reset
 NIL
@@ -292,10 +301,10 @@ NIL
 1
 
 BUTTON
-108
-121
-222
-154
+118
+367
+232
+400
 go full period
 if ticks > 0 [reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
 NIL
@@ -309,10 +318,10 @@ NIL
 1
 
 MONITOR
-29
-494
-86
-539
+124
+608
+181
+653
 date
 current-date
 17
@@ -371,10 +380,10 @@ NIL
 1
 
 CHOOSER
-20
-554
-151
-599
+131
+661
+262
+706
 visualization
 visualization
 "mse" "mse-log" "delta-previous-mse" "delta-previous-mse-log" "feedback-strength"
@@ -399,10 +408,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 BUTTON
-107
-161
-170
-194
+117
+407
+180
+440
 NIL
 go
 NIL
@@ -438,20 +447,20 @@ dest
 Number
 
 CHOOSER
-174
-15
-266
-60
+191
+410
+283
+455
 period
 period
 "1831-1851" "1841-1861" "1851-1872" "1881-1901" "1891-1911" "1921-1936" "1946-1968" "1962-1982" "1975-1999" "full"
 9
 
 PLOT
-1001
-293
-1402
-443
+1003
+519
+1211
+669
 profile-logmse
 NIL
 NIL
@@ -466,10 +475,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 PLOT
-1001
-446
-1402
-596
+1214
+519
+1406
+669
 profile-mselog
 NIL
 NIL
@@ -497,10 +506,10 @@ NIL
 10.0
 true
 true
-"set-current-plot-pen \"sim\" plot [population] of one-of cities with [name = city-traj]\nset-current-plot-pen \"real\" plot [population] of one-of cities with [name = city-traj]" ""
+"if setup-type = \"gis\" [set-current-plot-pen \"sim\" plot [population] of one-of cities with [name = city-traj]]\nif setup-type = \"gis\" [set-current-plot-pen \"real\" plot [population] of one-of cities with [name = city-traj]]" ""
 PENS
-"sim" 1.0 0 -14070903 true "" "plot [last population-history] of one-of cities with [name = city-traj]"
-"real" 1.0 0 -5298144 true "" "plot [last expected-population-history] of one-of cities with [name = city-traj]"
+"sim" 1.0 0 -14070903 true "" "if setup-type = \"gis\" [plot [last population-history] of one-of cities with [name = city-traj]]"
+"real" 1.0 0 -5298144 true "" "if setup-type = \"gis\" [plot [last expected-population-history] of one-of cities with [name = city-traj]]"
 
 INPUTBOX
 919
@@ -522,6 +531,168 @@ setup-type
 setup-type
 "synthetic" "gis"
 0
+
+SLIDER
+1
+70
+110
+103
+synthetic-cities-number
+synthetic-cities-number
+0
+50
+30
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+-1
+103
+171
+136
+synthetic-max-pop
+synthetic-max-pop
+0
+100000
+100000
+1000
+1
+NIL
+HORIZONTAL
+
+SLIDER
+111
+70
+224
+103
+synthetic-rank-size-exp
+synthetic-rank-size-exp
+0
+1.5
+1.2
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+16
+328
+150
+361
+final-time-step
+final-time-step
+0
+30
+30
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+932
+271
+1125
+448
+rank-size
+NIL
+NIL
+0.0
+1.0
+3.0
+1.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
+
+CHOOSER
+13
+152
+116
+197
+network-type
+network-type
+"virtual" "physical"
+0
+
+SLIDER
+8
+200
+227
+233
+network-reinforcment-threshold
+network-reinforcment-threshold
+0
+5
+2
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+8
+233
+226
+266
+network-reinforcment-exponent
+network-reinforcment-exponent
+0
+1
+1
+0.01
+1
+NIL
+HORIZONTAL
+
+PLOT
+1144
+276
+1350
+417
+distances
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"pen-2" 1.0 0 -2674135 true "" "plot first matrix:min matrix:map zero-infinite distance-matrix"
+
+SLIDER
+9
+267
+227
+300
+network-reinforcment-gmax
+network-reinforcment-gmax
+0
+0.1
+0.05
+0.01
+1
+NIL
+HORIZONTAL
+
+SWITCH
+133
+144
+288
+177
+show-virtual-flows?
+show-virtual-flows?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?

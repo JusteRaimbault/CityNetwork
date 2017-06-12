@@ -144,6 +144,19 @@ end
 ;
 to local-shortcuts
   
+  repeat synthetic-shortcut-number [
+    ; draw randomly one city prop to pop conditionnally to degree
+    let potential-cities (cities with [count my-links < synthetic-city-max-degree])
+    let ptot sum [population] of potential-cities let r random-float 1 let s 0 let found? false
+    ask potential-cities [
+      set s s + (population / ptot)
+      if s > r and not found? [
+        set found? true let potential-dest (((other cities) in-radius synthetic-shortcut-radius) with [count my-links < synthetic-city-max-degree and not link-neighbor? myself])
+        if count potential-dest > 0 [create-link-with one-of potential-dest]
+      ] 
+    ]
+  ]
+  
 end
 
 
