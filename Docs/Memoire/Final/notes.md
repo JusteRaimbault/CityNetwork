@@ -1,6 +1,13 @@
 
 
 
+## Spatial evolutionnary games
+
+* Lun 12 jui 2017 19:40:37 CST * 
+
+http://www.pnas.org.sci-hub.cc/content/114/23/6046.full.pdf# : link with lutecia ?
+
+
 ## Modes de communication
 
 * Jeu  1 jui 2017 11:16:56 CEST * 

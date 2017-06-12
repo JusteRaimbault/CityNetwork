@@ -76,6 +76,10 @@ globals [
   ; indicators
   indicator-sample-cities
   city-values-table
+  indicator-sampling-time-step
+  
+  
+  headless?
   
 ]
 
@@ -160,7 +164,7 @@ BUTTON
 96
 398
 setup
-setup
+setup:setup
 NIL
 1
 T
@@ -202,7 +206,7 @@ gravity-weight
 gravity-weight
 0
 2e-2
-0.008235
+0
 1e-6
 1
 NIL
@@ -289,7 +293,7 @@ BUTTON
 96
 437
 reset
-reset
+setup:reset
 NIL
 1
 T
@@ -306,7 +310,7 @@ BUTTON
 232
 400
 go full period
-if ticks > 0 [reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
+if ticks > 0 [setup:reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
 NIL
 1
 T

@@ -100,7 +100,14 @@ end
 
 
 to-report quantile [x q]
-  report item (floor (q * (length x))) (sort x)
+  ifelse is-list? q [
+    let res [] let sortedx sort x
+    let indexes map [floor (? * (length x))] q
+    foreach indexes [set res lput (item ? sortedx) res]
+    report res
+  ][
+    report item (floor (q * (length x))) (sort x)
+  ]
 end
 
 

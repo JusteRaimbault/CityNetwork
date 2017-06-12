@@ -3,6 +3,63 @@
 ;  experiments
 
 
+
+;;
+; indicators :
+; - summary of trajectories
+;  population-hierarchies
+;  population-entropies
+;  population-summaries
+;  closeness-hierarchies
+;  closeness-entropies
+;  closeness-summaries
+;  accessibility-hierarchies
+;  accessibility-entropies
+;  accessibility-summaries
+;
+; - lagged correlations
+;   lagged-corrs var1 var2 6 0
+;    with vars \in {city-population ; city-closeness-centrality ; city-accessibility}
+;
+; - distance correlations
+;   distance-correlation var1 var2
+;    with vars \in {city-population ; city-closeness-centrality ; city-accessibility}
+;
+; - trajectory complexity and diversity
+;   rank-correlation
+
+to setup-experiment-virtual-network
+  
+  ca
+  
+  set headless? true
+  
+  ; setup parameters
+  
+  
+  
+  setup:setup-headless
+  
+  setup:setup
+  
+end
+
+
+
+
+
+to run-experiment
+  go-full-period
+end
+
+
+
+
+
+
+;;;;;;;;;;;
+;; LOCAL Experiment (with head)
+
 ;;
 ;  do a profile along one parameter, all other being fixed
 to profile [parameter p-min p-max p-step]
@@ -11,7 +68,7 @@ to profile [parameter p-min p-max p-step]
   foreach pvalues [
     show (word "profile : " parameter " = " ?)
     run (word "set " parameter " " ?)
-    reset
+    setup:reset
     go-full-period
     set res-logmse lput log-mse res-logmse set res-mselog lput mse-log res-mselog
   ]

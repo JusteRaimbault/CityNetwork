@@ -3,36 +3,36 @@
 ;  setup
 
 
-to setup
+to setup:setup
   
-  ca
+  if headless? != true [ca]
   
   ;;
   ; global vars
-  setup-globals
+  setup:setup-globals
   
   ;;
   ; world config
-  setup-world
+  setup:setup-world
   
   ;;
   ; load data files
-  setup-data
-  
-  ; TODO : check fit dates - pb with cst growth rates and ≠ ∆t
+  setup:setup-data
   
   ;;
   ; cities
-  setup-cities
+  setup:setup-cities
   
-  setup-matrices
+  setup:setup-matrices
   
   update-weights
   
-  reset-ticks
-  
-  setup-display
-  
+  setup:setup-indicators
+ 
+  reset-ticks 
+  setup:setup-display
+ 
+  indicators:update-indicators
   
   
   
@@ -41,9 +41,9 @@ end
 
 ;;
 ;  partial setup
-to reset
-  setup-globals
-  setup-data
+to setup:reset
+  setup:setup-globals
+  setup:setup-data
   reset-ticks
   clear-all-plots
   update-display
@@ -51,18 +51,23 @@ end
 
 
 
-to setup-globals
+to setup:setup-globals
   set alpha0 3 set n0 3
+  
+  set indicator-sampling-time-step 5
 end
 
 
-to setup-world
+to setup:setup-world
   
   if setup-type = "synthetic" [
     
   ]
   
   if setup-type = "gis" [
+    
+    ; TODO : check fit dates - pb with cst growth rates and ≠ ∆t
+    
     ;;
     ; raster patch elevation (for visual only)
     let elevation-raster gis:load-dataset "setup/mnt.asc"
@@ -91,7 +96,7 @@ end
 
 ;;
 ; load data from files
-to setup-data
+to setup:setup-data
   
   if setup-type = "gis" [
     ;; population matrices
@@ -111,7 +116,7 @@ to setup-data
 end
 
 
-to setup-cities
+to setup:setup-cities
   
   if setup-type = "synthetic" [
     let i 1
@@ -138,7 +143,7 @@ to setup-cities
 end
 
 
-to setup-matrices
+to setup:setup-matrices
   
   if setup-type = "synthetic" [
     ; distance matrix
@@ -168,10 +173,10 @@ to setup-matrices
     
     
     ; dates
-    set dates seq 1 final-time-step 1
+    set dates seq 0 final-time-step 1
     
     ; population matrices
-    set populations matrix:make-constant n final-time-step 1 set real-populations matrix:make-constant n final-time-step 1
+    set populations matrix:make-constant n (final-time-step + 1) 1 set real-populations matrix:make-constant n (final-time-step + 1) 1
     matrix:set-column populations 0 pops
     
   ]
@@ -180,7 +185,7 @@ end
 
 
 
-to setup-indicators
+to setup:setup-indicators
   
   set indicator-sample-cities to-list cities
   
@@ -189,9 +194,15 @@ to setup-indicators
 end
 
 
-to setup-display
+to setup:setup-display
   color-patches
   display-plots
+end
+
+
+
+to setup:setup-headless
+  
 end
 
 
