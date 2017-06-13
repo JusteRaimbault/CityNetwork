@@ -651,7 +651,7 @@ CHOOSER
 network-type
 network-type
 "virtual" "physical"
-1
+0
 
 SLIDER
 6
@@ -710,7 +710,7 @@ network-reinforcment-gmax
 network-reinforcment-gmax
 0
 0.1
-0.05
+0
 0.01
 1
 NIL

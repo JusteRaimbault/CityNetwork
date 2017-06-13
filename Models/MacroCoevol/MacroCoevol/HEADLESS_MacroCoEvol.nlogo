@@ -34,7 +34,8 @@ __includes [
    "utils/String.nls"
    "utils/Matrix.nls"
    "utils/List.nls"
-    
+   "utils/Network.nls"
+      
 ]
 
 
@@ -64,6 +65,7 @@ globals [
   
   ; matrice of gravity flows
   gravity-flows
+  feedback-flows
   
   ;;
   ; shortest paths params
@@ -105,6 +107,18 @@ globals [
   feedback-gamma
   feedback-decay
   
+  slime-mould-node-distance
+  physical-network-heuristic
+ 
+  synthetic-shortcut-number
+  synthetic-city-max-degree
+  synthetic-shortcut-radius
+  
+  shortest-paths
+  nw-relative-speeds
+  nw-distances
+  pairs-total-weight
+   
 ]
 
 
@@ -140,6 +154,9 @@ cities-own [
   
   color-var
    
+  city-bw-centrality
+  city-flow
+   
 ]
 
 
@@ -148,9 +165,18 @@ breed [nodes node]
 undirected-link-breed [paths path]
 
 paths-own [
-  impedance 
+  impedance
+  
+  path-length
+  bw-centrality
+  flow
+  feedback-flow
+  speed
+  relative-speed
+  effective-length
+  
+   
 ]
-
 
 
 @#$#@#$#@
