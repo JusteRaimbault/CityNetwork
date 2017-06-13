@@ -44,13 +44,20 @@ end
 
 
 to display-network
-  if show-virtual-flows? [
-    ask links [die]
-    let distance-diff distance-matrix matrix:- initial-distance-matrix
-    ask cities [
-      let currentdistdiff matrix:get-row distance-diff index
-      ask other cities [let d item index currentdistdiff if d < 0 [create-link-with myself [set thickness (abs d) / 10]]]
+  
+  if network-type = "virtual" [
+    if show-virtual-flows? [
+      ask links [die]
+      let distance-diff distance-matrix matrix:- initial-distance-matrix
+      ask cities [
+        let currentdistdiff matrix:get-row distance-diff index
+        ask other cities [let d item index currentdistdiff if d < 0 [create-link-with myself [set thickness (abs d) / 10]]]
+      ]
     ]
+  ]
+  
+  if network-type = "physical" [
+    ask links [set thickness effective-length / 10] 
   ]
 end
 

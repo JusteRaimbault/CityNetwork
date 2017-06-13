@@ -158,7 +158,6 @@ paths-own [
 ]
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 294
@@ -280,7 +279,7 @@ feedback-weight
 feedback-weight
 0
 0.1
-0.1
+0
 0.001
 1
 NIL
@@ -651,7 +650,7 @@ CHOOSER
 network-type
 network-type
 "virtual" "physical"
-0
+1
 
 SLIDER
 6
@@ -662,7 +661,7 @@ network-reinforcment-threshold
 network-reinforcment-threshold
 0
 5
-2
+0.1
 0.1
 1
 NIL
@@ -710,7 +709,7 @@ network-reinforcment-gmax
 network-reinforcment-gmax
 0
 0.1
-0
+0.05
 0.01
 1
 NIL
