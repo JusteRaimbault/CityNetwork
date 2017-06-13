@@ -33,7 +33,9 @@ to-report lagged-correlation [var1 var2 tau t0]
     set t t + 1
   ]
   let mx mean x set x map [? - mx] x let my mean y set y map [? - my] y
-  report mean (list-times-element-wise x y) / (standard-deviation x * standard-deviation y)
+  let sx standard-deviation x let sy standard-deviation y
+  if sx = 0 or sy = 0 [report 0]
+  report mean (list-times-element-wise x y) / (sx * sy)
 end
 
 
@@ -69,7 +71,9 @@ to-report correlation [var1 var2 time]
     ]
   ]
   let mx mean x set x map [? - mx] x let my mean y set y map [? - my] y
-  report mean (list-times-element-wise x y) / (standard-deviation x * standard-deviation y)
+  let sx standard-deviation x let sy standard-deviation y
+  if sx = 0 or sy = 0 [report 0]
+  report mean (list-times-element-wise x y) / (sx * sy)
 end
 
 
@@ -91,7 +95,8 @@ to-report distance-correlation [var1 var2]
        ]
     ]]
     let mx mean x set x map [? - mx] x let my mean y set y map [? - my] y
-    set res lput (mean (list-times-element-wise x y) / (standard-deviation x * standard-deviation y)) res
+    let sx standard-deviation x let sy standard-deviation y
+    ifelse sx = 0 or sy = 0 [set res lput 0 res][set res lput (mean (list-times-element-wise x y) / (sx * sy)) res]
     set i i + 1
   ]
   report res
@@ -112,7 +117,9 @@ to-report rank-correlation [var]
       set r0 lput (position (table:get city-values-table (list 0 var index)) sortedx0) r0
   ]]
   let m0 mean r0 set r0 map [? - m0] r0 let mf mean rf set rf map [? - mf] rf
-  report mean (list-times-element-wise r0 rf) / (standard-deviation r0 * standard-deviation rf)
+  let sigma0 standard-deviation r0 let sigmaf standard-deviation rf
+  if sigma0 = 0 or sigmaf = 0 [report 0] ; no NA, replace by 0
+  report mean (list-times-element-wise r0 rf) / (sigma0 * sigmaf)
 end
 
 
