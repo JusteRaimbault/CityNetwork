@@ -34,6 +34,8 @@ __includes [
    "utils/String.nls"
    "utils/Matrix.nls"
    "utils/List.nls"
+   "utils/Network.nls"
+    
     
 ]
 
@@ -64,11 +66,23 @@ globals [
   
   ; matrice of gravity flows
   gravity-flows
+  feedback-flows
   
   ;;
   ; shortest paths params
   alpha0
   n0
+  
+  
+  ;;
+  ; network growth
+  slime-mould-node-distance
+  
+  ; network measures
+  shortest-paths
+  nw-relative-speeds
+  nw-distances
+  pairs-total-weight
   
   ;
   ;total-time-steps
@@ -116,6 +130,10 @@ cities-own [
   
   color-var
    
+  ; network variables
+  city-bw-centrality
+  city-flow
+   
 ]
 
 
@@ -124,9 +142,20 @@ breed [nodes node]
 undirected-link-breed [paths path]
 
 paths-own [
+  
   impedance 
+  
+  speed ; effective weight
+  relative-speed ; speed per unit of distance
+  effective-length
+  
+  path-length
+  bw-centrality
+  flow
+  feedback-flow
+  
+  
 ]
-
 
 
 
@@ -159,10 +188,10 @@ ticks
 30.0
 
 BUTTON
-30
-365
-96
-398
+31
+494
+97
+527
 setup
 setup:setup
 NIL
@@ -176,10 +205,10 @@ NIL
 1
 
 SLIDER
-64
-454
-198
-487
+10
+536
+144
+569
 growth-rate
 growth-rate
 0
@@ -198,10 +227,10 @@ OUTPUT
 10
 
 SLIDER
-5
-497
-139
-530
+8
+573
+142
+606
 gravity-weight
 gravity-weight
 0
@@ -213,10 +242,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-5
-534
-139
-567
+8
+610
+142
+643
 gravity-gamma
 gravity-gamma
 0.5
@@ -228,10 +257,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-5
-571
-139
-604
+8
+647
+142
+680
 gravity-decay
 gravity-decay
 1
@@ -243,10 +272,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-143
-497
-284
-530
+146
+573
+287
+606
 feedback-weight
 feedback-weight
 0
@@ -258,10 +287,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-143
-535
-285
-568
+146
+611
+288
+644
 feedback-gamma
 feedback-gamma
 0
@@ -273,10 +302,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-143
-573
-285
-606
+146
+649
+288
+682
 feedback-decay
 feedback-decay
 0
@@ -288,10 +317,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-30
-404
-96
-437
+291
+657
+357
+690
 reset
 setup:reset
 NIL
@@ -305,10 +334,10 @@ NIL
 1
 
 BUTTON
-118
-367
-232
-400
+176
+494
+270
+527
 go full period
 if ticks > 0 [setup:reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
 NIL
@@ -322,10 +351,10 @@ NIL
 1
 
 MONITOR
-124
-608
-181
-653
+560
+659
+617
+704
 date
 current-date
 17
@@ -384,10 +413,10 @@ NIL
 1
 
 CHOOSER
-131
-661
-262
-706
+633
+658
+764
+703
 visualization
 visualization
 "mse" "mse-log" "delta-previous-mse" "delta-previous-mse-log" "feedback-strength"
@@ -412,10 +441,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 BUTTON
-117
-407
-180
-440
+106
+494
+169
+527
 NIL
 go
 NIL
@@ -429,10 +458,10 @@ NIL
 1
 
 INPUTBOX
-10
-608
-60
-668
+455
+658
+505
+718
 orig
 0
 1
@@ -440,10 +469,10 @@ orig
 Number
 
 INPUTBOX
-62
-608
-112
-668
+507
+658
+557
+718
 dest
 0
 1
@@ -451,10 +480,10 @@ dest
 Number
 
 CHOOSER
-191
-410
-283
-455
+362
+658
+454
+703
 period
 period
 "1831-1851" "1841-1861" "1851-1872" "1881-1901" "1891-1911" "1921-1936" "1946-1968" "1962-1982" "1975-1999" "full"
@@ -554,7 +583,7 @@ HORIZONTAL
 SLIDER
 -1
 103
-171
+168
 136
 synthetic-max-pop
 synthetic-max-pop
@@ -569,7 +598,7 @@ HORIZONTAL
 SLIDER
 111
 70
-224
+266
 103
 synthetic-rank-size-exp
 synthetic-rank-size-exp
@@ -582,10 +611,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-16
-328
-150
-361
+148
+536
+282
+569
 final-time-step
 final-time-step
 0
@@ -615,20 +644,20 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 CHOOSER
-13
-152
-116
-197
+11
+235
+114
+280
 network-type
 network-type
 "virtual" "physical"
 0
 
 SLIDER
-8
-200
-227
-233
+6
+290
+225
+323
 network-reinforcment-threshold
 network-reinforcment-threshold
 0
@@ -640,10 +669,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-8
-233
-226
-266
+6
+323
+224
+356
 network-reinforcment-exponent
 network-reinforcment-exponent
 0
@@ -673,30 +702,85 @@ PENS
 "pen-2" 1.0 0 -2674135 true "" "plot first matrix:min matrix:map zero-infinite distance-matrix"
 
 SLIDER
-9
-267
-227
-300
+7
+357
+225
+390
 network-reinforcment-gmax
 network-reinforcment-gmax
 0
 0.1
-0.05
+0
 0.01
 1
 NIL
 HORIZONTAL
 
 SWITCH
-133
-144
-288
-177
+296
+709
+451
+742
 show-virtual-flows?
 show-virtual-flows?
 0
 1
 -1000
+
+CHOOSER
+119
+235
+266
+280
+physical-network-heuristic
+physical-network-heuristic
+"slime-mould" "breakdown"
+0
+
+SLIDER
+4
+137
+144
+170
+synthetic-shortcut-number
+synthetic-shortcut-number
+0
+50
+30
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+145
+137
+287
+170
+synthetic-city-max-degree
+synthetic-city-max-degree
+0
+5
+4
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+4
+170
+179
+203
+synthetic-shortcut-radius
+synthetic-shortcut-radius
+0
+30
+20
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

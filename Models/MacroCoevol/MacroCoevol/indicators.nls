@@ -130,7 +130,11 @@ end
 to-report normalized-trajectories [var]
   ; store normalized trajs in table
   let trajectories table:make
-  ask cities [let traj [] foreach seq 0 final-time-step 1 [set traj lput (table:get city-values-table (list ? var index)) traj] let ma max traj let mi min traj table:put trajectories index (map [(? - mi) / (ma - mi)] traj)]
+  ask cities [
+    let traj []
+    foreach seq 0 final-time-step 1 [set traj lput (table:get city-values-table (list ? var index)) traj]
+    let ma max traj let mi min traj ifelse (ma - mi) != 0 [table:put trajectories index (map [(? - mi) / (ma - mi)] traj)][table:put trajectories index rep 0 (length traj)]
+  ]
   report trajectories
 end
 

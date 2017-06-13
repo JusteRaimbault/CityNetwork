@@ -23,6 +23,9 @@ to setup:setup
   ; cities
   setup:setup-cities
   
+  ;;
+  ; network
+  setup:setup-network
   setup:setup-matrices
   
   update-weights
@@ -55,6 +58,9 @@ to setup:setup-globals
   set alpha0 3 set n0 3
   
   set indicator-sampling-time-step 5
+  
+  set slime-mould-node-distance 20
+  
 end
 
 
@@ -143,6 +149,42 @@ to setup:setup-cities
 end
 
 
+
+to setup:setup-network
+  
+  if setup-type = "synthetic" and network-type != "virtual" [
+     
+     if physical-network-heuristic = "slime-mould" [
+        foreach seq min-pxcor max-pxcor slime-mould-node-distance [
+          let x ? foreach seq min-pycor max-pycor slime-mould-node-distance [
+            let y ? create-nodes 1 [setxy x y new-node]
+          ]
+        ]
+        
+        ask nodes [create-paths-with (other nodes in-radius (slime-mould-node-distance * sqrt 2)) [new-path]]
+        planarize-network nodes paths
+        ask cities [create-paths-with (other turtles in-radius (slime-mould-node-distance * (sqrt 2) / 2))[new-path]]
+        planarize-network turtles paths
+     ]
+     
+     if physical-network-heuristic = "breakdown" [
+        ask cities [let c2 one-of ((other cities) with-min [distance myself]) if not link-neighbor? c2 [create-link-with c2]]
+        connexify-network-link-projection
+    
+        ; optional procedure to create "local" shortcuts
+        local-shortcuts
+    
+        ; planarize
+        planarize-network turtles paths
+    ]
+      
+  ]
+  
+end
+
+
+
+
 to setup:setup-matrices
   
   if setup-type = "synthetic" [
@@ -208,6 +250,8 @@ to setup:setup-headless
   ; for now only synthetic in experiments
   set setup-type "synthetic"
   
+  set physical-network-heuristic "slime-mold"
+  
   set show-virtual-flows? false
   
   ; test effect of cities number ?
@@ -216,6 +260,10 @@ to setup:setup-headless
   set synthetic-max-pop 100000
   set network-reinforcment-exponent 1.0
   set growth-rate 0.001
+  
+  set synthetic-shortcut-number 30
+  set synthetic-city-max-degree 5
+  set synthetic-shortcut-radius 30
   
 end
 
