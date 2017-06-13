@@ -57,10 +57,19 @@ to evolve-populations
   matrix:set-diag-scalar pots-gravity 0
   let mean-pot-gravity (matrix:sum pots-gravity) / (n * n)
   set pots-gravity matrix:times-scalar pots-gravity (1 / mean-pot-gravity)
-  set gravity-flows pots-gravity
   
-  ; feedbacks
+  ; update gravity flows
+  set gravity-flows pots-gravity
+  set feedback-flows 
+  
+  ; feedbacks -> computation depends on heuristic
+  ; lets compute the euclidian by default, quite costless
   let pots-feedback matrix:times feedback-weights (flatten-pops-feedback (matrix:map [ ? ^ feedback-gamma] (matrix:times (matrix:times diag-pops (matrix:make-constant n n 1)) diag-pops)))
+  
+  if network-type = "physical" [
+    ; recompute pots-feedbacks on link flows : ! parameter gamma is different : specific var feedback-flow
+     
+  ]
   
   let mean-pot-feedback (matrix:sum pots-feedback) / n
   
