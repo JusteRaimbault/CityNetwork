@@ -166,9 +166,15 @@ to setup:setup-network
         ]
         
         ask nodes [create-paths-with (other nodes in-radius (slime-mould-node-distance * sqrt 2)) [new-path]]
+        ask n-of (0.4 * count links) links [die]
         planarize-network nodes paths
-        ask cities [create-paths-with (other turtles in-radius (slime-mould-node-distance * (sqrt 2) / 2))[new-path]]
-        planarize-network turtles paths
+        ask nodes [ ; jitter
+          set xcor (max (list min-pxcor (min (list max-pxcor (xcor - slime-mould-node-distance / 4 + (2 * random (slime-mould-node-distance / 4)))))))
+          set ycor (max (list min-pycor (min (list max-pycor (ycor - slime-mould-node-distance / 4 + (2 * random (slime-mould-node-distance / 4)))))))
+        ]
+        ;ask cities [create-paths-with (other turtles in-radius (slime-mould-node-distance * (sqrt 2) / 2))[new-path]]
+        connexify-network-link-projection
+        ;planarize-network turtles paths
      ]
      
      if physical-network-heuristic = "breakdown" [

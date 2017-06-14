@@ -39,8 +39,15 @@ to grow-network
     ; evolve speeds (i.e. impedances) following the slime mould
     ;  flows already computed in population (for feedbak if needed)
     
+    ;set physical-network-reinforcment-threshold quantile [flow] of links with [flow > 0] physical-network-reinforcment-quantile
+    
+    ;ask paths [
+    ;  set effective-length effective-length * (1 + (network-reinforcment-gmax * (physical-network-reinforcment-threshold ^ network-reinforcment-exponent - flow ^ network-reinforcment-exponent) / (physical-network-reinforcment-threshold ^ network-reinforcment-exponent + flow ^ network-reinforcment-exponent)))
+    ;]
+    
+    let mf max [flow] of paths
     ask paths [
-      set effective-length effective-length * (1 + (network-reinforcment-gmax * (1 - (flow / network-reinforcment-threshold)^ network-reinforcment-exponent) / (1 + (flow / network-reinforcment-threshold)^ network-reinforcment-exponent)))
+      set effective-length effective-length * (1 - (network-reinforcment-gmax * ((flow / mf) ^ network-reinforcment-exponent) ))
     ]
     
   ]
