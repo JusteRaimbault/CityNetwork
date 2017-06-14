@@ -164,7 +164,7 @@ Spatio-temporal Behavior in Complex Urban Systems\\\smallskip
 
 \sframe{Co-evolution}{
 
-% what is the co-evolution, why model it, what model exist
+% what is the co-evolution, why model it, what model exist (include our other works)
 
 }
 
@@ -174,6 +174,11 @@ Spatio-temporal Behavior in Complex Urban Systems\\\smallskip
 % question / objective
 
 % incl. schema on what is a strongly coupled co-evolutive model
+
+$\rightarrow$ \textit{introduce a simple but modular model of co-evolution of cities and networks at the scale of a system of Cities.}
+
+\medskip
+
 
 }
 
@@ -188,6 +193,16 @@ Spatio-temporal Behavior in Complex Urban Systems\\\smallskip
 \sframe{Model : Rationale}{
   % - explain choices, funding literature etc.
   % - considerations on randomness ; comparison with Simpopnet
+  
+  \begin{itemize}
+  
+  \item Cities represented by their population follow deterministic growth based on self growth (Gibrat) and interactions with other cities (similar to \cite{favaro2011gibrat})
+  
+  \item Drivers of network growth are flow demands
+  
+  \end{itemize}
+
+  
 }
 
 \sframe{Generic Model}{
@@ -212,6 +227,9 @@ Spatio-temporal Behavior in Complex Urban Systems\\\smallskip
 %   - synthetic physical : a first lesson ?
 
 % - a summary slide with "take home message" of results
+
+% - idea : use pse for diversity for example ?
+
 
 \sframe{Results}{
 
@@ -266,14 +284,85 @@ $\rightarrow$
 
 }
 
+
+
+
+
+
 \sframe{Model Formalization : Interactions}{
 
+\justify
+
+
+$\rightarrow$ Work under Gibrat independence assumptions, i.e. $\Covb{P_i(t)}{P_j(t)}=0$. If $\vec{P}(t+1)=\mathbf{R}\cdot \vec{P}(t)$ where $\mathbf{R}$ is also independent, then $\Eb{\vec{P}(t+1)}=\Eb{\mathbf{R}}\cdot\Eb{\vec{P}}(t)$. Consider expectancies only (higher moments computable similarly)
+
+\medskip
+
+$\rightarrow$ With $\vec{\mu}(t)=\Eb{\vec{P}(t)}$, we generalize this approach by taking $\vec{\mu}(t+1)=f(\vec{\mu}(t))$
+
+
 }
+
+
+\sframe{Model Formalization : Interactions}{
+
+Let $\vec{\mu}(t)=\Eb{\vec{P}(t)}$ cities population and $(d_{ij})$ distance matrix
+
+
+\medskip
+
+Model specified by
+
+\[
+f(\vec{\mu}) = r_0\cdot \mathbf{Id}\cdot \vec{\mu} + \mathbf{G}\cdot \mathbf{1} + \mathbf{N}
+\]
+
+ with 
+\begin{itemize}
+\item $G_{ij} = w_G\cdot \frac{V_{ij}}{<V_{ij}>}$ and $V_{ij} = \left(\frac{\mu_i\mu_j}{\sum{\mu_k}^2}\right)^{\gamma_G} \exp{(-d_{ij}/d_G)}$
+\item $N_{i} = w_N \cdot \sum_{kl} \left(\frac{\mu_k\mu_l}{\sum\mu}\right)^{\gamma_N}\exp{(-d_{kl,i})/d_N}$ where $d_{kl,i}$ is distance to shortest path between $k,l$ computed with slope impedance ($Z=\left(1+\alpha/\alpha_0\right)^{n_0}$ with $\alpha_0\simeq 3$)
+\end{itemize}
+
+
+}
+
 
 \sframe{Model Formalization : Network Growth}{
 
 }
 
+
+\sframe{Model Formalization : Indicators}{
+  \begin{itemize}
+  \item Initial-final rank correlation (changes in the hierarchy) for variable $X$ : $\rho\left[X_i(t=0),X_i(t=t_f)\right]$
+  \item Trajectory diversity for variable $X$ : with $\tilde{X}_i(t)\in \left[0;1\right]$ rescaled trajectories,
+  \[
+    \frac{2}{N\cdot(N-1)}\sum_{i<j} \left(\frac{1}{T}\int_{t} \left(\tilde{X}_i(t) - \tilde{X}_j(t)\right)^2 \right)^{\frac{1}{2}}
+  \]
+  \item Average trajectory complexity (number of inflexion points)
+  \end{itemize}
+}
+
+
+
+
+
+\sframe{Data : stylized facts}{
+
+
+Population data for French-cities (Pumain-INED database : 1831-1999)
+
+% correlation curves, non-stationarity of network effects
+
+\medskip
+
+\textit{Non-stationarity of log-returns correlations function of distance}
+
+\centering
+
+\includegraphics[width=0.8\textwidth,height=0.7\textheight]{figures/empirical_tsCorrelations}
+
+}
 
 
 
