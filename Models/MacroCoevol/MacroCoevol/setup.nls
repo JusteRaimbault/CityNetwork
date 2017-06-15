@@ -47,7 +47,10 @@ end
 to setup:reset
   setup:setup-globals
   setup:setup-data
-  setup:setup-matrices
+  ;setup:setup-matrices
+  setup:reset-populations
+  setup:reset-links
+  setup:reset-distances
   setup:setup-indicators
   reset-ticks
   clear-all-plots
@@ -56,6 +59,18 @@ to setup:reset
   if network-type = "virtual" [ask links [die]]
 end
 
+to setup:reset-populations
+  ask cities [set population matrix:get populations index 0]
+end
+
+to setup:reset-links
+  ask paths [new-path]
+  if network-type = "virtual" [ask links [die]]
+end
+
+to setup:reset-distances
+  set distance-matrix matrix:copy initial-distance-matrix
+end
 
 
 to setup:setup-globals
