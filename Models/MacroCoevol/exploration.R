@@ -15,12 +15,14 @@ taumax = 6
 lags = seq(from=-taumax,to=taumax,by=1)
 distcorrbins = 1:10
 
+timelyNames<-function(arraynames,samplingTimes){res=c();for(t in samplingTimes){res=append(res,paste0(arraynames,t))};return(res)}
+
 names(res)<-c(
-  paste0("accessibilityEntropies",samplingTimes),paste0("accessibilityHierarchies_alpha",samplingTimes),paste0("accessibilityHierarchies_rsquared",samplingTimes),paste0("accessibilitySummaries_mean",samplingTimes),paste0("accessibilitySummaries_median",samplingTimes),paste0("accessibilitySummaries_sd",samplingTimes),
-  paste0("closenessEntropies",samplingTimes),paste0("closenessHierarchies_alpha",samplingTimes),paste0("closenessHierarchies_rsquared",samplingTimes),paste0("closenessSummaries_mean",samplingTimes),paste0("closenessSummaries_median",samplingTimes),paste0("closenessSummaries_sd",samplingTimes),
+  timelyNames(c("accessibilityEntropies"),samplingTimes),timelyNames(c("accessibilityHierarchies_alpha","accessibilityHierarchies_rsquared"),samplingTimes),timelyNames(c("accessibilitySummaries_mean","accessibilitySummaries_median","accessibilitySummaries_sd"),samplingTimes),
+  timelyNames(c("closenessEntropies"),samplingTimes),timelyNames(c("closenessHierarchies_alpha","closenessHierarchies_rsquared"),samplingTimes),timelyNames(c("closenessSummaries_mean","closenessSummaries_median","closenessSummaries_sd"),samplingTimes),
   "complexityAccessibility","complexityCloseness","diversityAccessibility","diversityCloseness","diversityPop",
   "feedbackDecay","feedbackGamma","feedbackWeight","finalTime","gravityDecay","gravityGamma","gravityWeight","id","nwGmax","nwThreshold",
-  paste0("populationEntropies",samplingTimes),paste0("populationHierarchies_alpha",samplingTimes),paste0("populationHierarchies_rsquared",samplingTimes),paste0("populationSummaries_mean",samplingTimes),paste0("populationSummaries_median",samplingTimes),paste0("populationSummaries_sd",samplingTimes),
+  timelyNames(c("populationEntropies"),samplingTimes),timelyNames(c("populationHierarchies_alpha","populationHierarchies_rsquared"),samplingTimes),timelyNames(c("populationSummaries_mean","populationSummaries_median","populationSummaries_sd"),samplingTimes),
   "rankCorrAccessibility","rankCorrCloseness","rankCorrPop","replication",
   paste0("rhoClosenessAccessibility_tau",lags),
   paste0("rhoDistClosenessAccessibility",distcorrbins),paste0("rhoDistPopAccessibility",distcorrbins),paste0("rhoDistPopCloseness",distcorrbins),
@@ -54,6 +56,7 @@ for(var in vars){
 
 synthRankSize=1.5
 nwGmax=0.05
+#nwGmax=0.0
 
 dir.create(paste0(resdir,'indics'))
 
@@ -63,8 +66,10 @@ for(gravityWeight in unique(res$gravityWeight)){
              aes_string(x="time",y=var,color="nwThreshold",group="nwThreshold")
              )
     g+geom_point()+geom_smooth()+facet_grid(gravityGamma~gravityDecay)
+    #ggsave(paste0(resdir,'indics/no-nw_',var,'_gravityWeight',gravityWeight,'.pdf'),width=30,height=20,units='cm')
     ggsave(paste0(resdir,'indics/',var,'_gravityWeight',gravityWeight,'.pdf'),width=30,height=20,units='cm')
-  } 
+    
+   } 
 }
 
 ##
@@ -161,6 +166,14 @@ for(var in vars){
 }}
 
 
+synthrankSize = 1.5
+gravityWeight=0.00075
+
+g=ggplot(res[res$synthRankSize==synthrankSize&res$gravityWeight==gravityWeight,],aes_string(x="gravityDecay",y="diversityPop",color="gravityGamma",group="gravityGamma"))
+g+geom_point()+geom_smooth()+facet_grid(nwThreshold~nwGmax,scales="free")
+#ggsave(paste0(resdir,'complexity/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',nwGmax,'.pdf'),width=30,height=20,units='cm')
+
+# -> difficult to see an effect
 
 
 
