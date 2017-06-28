@@ -118,30 +118,34 @@ Data is the European population density grid~\cite{eurostat} \comment{(Florent) 
 
 \todo{recompute indicators with capacity and/or hierarchy when possible with speed limits, to check how they change, and also correlations.}
 
-We consider network aggregated indicators as a way to characterize transportation network properties on a given territory, the same way morphological indicators yielded information on urban structure. We propose to compute some simple indicators on same extents as for morphology, to be able to explore relations between these static measures. Static network analysis has been extensively documented in the literature, see \cite{louf2014typology} for a cross-sectional study of cities or \cite{2015arXiv151201268L} for exploration of new measures for the road network.
+
+\bpar{
+We consider network aggregated indicators as a way to characterize transportation network properties on a given territory, the same way morphological indicators yielded information on urban structure. We propose to compute some simple indicators on same extents as for morphology, to be able to explore relations between these static measures. Static network analysis has been extensively documented in the literature, see for example \cite{louf2014typology} for a cross-sectional study of cities or \cite{2015arXiv151201268L} for exploration of new measures for the road network.
+}{
+Nous considérons les mesures agrégées de réseau comme un moyen de caractériser les propriétés des réseaux de transport sur un territoire donné, de la même façon que les indicateurs morphologiques informent sur la structure urbaine. Nous proposons de calculer des indicateurs simples sur des étendues spatiales similaires à la morphologie, pour être en mesure d'explorer les relations entre ces mesures statiques. L'analyse statique de réseau a été intensément documentée dans la littérature, voir par example \cite{louf2014typology} pour une étude comparative des villes ou \cite{2015arXiv151201268L} pour l'exploration de nouvelles mesures pour le réseau de rues.
+}
 
 
 \subsubsection{Data preprocessing}{Pré-traitement des données}
 
-We work in a first time on road network, which structure is finely conditioned to territorial configuration of population densities. Furthermore, data for present day road network is available through the OpenStreetMap project~\cite{openstreetmap}. Its quality was investigated for different countries such as England~\cite{haklay2010good} and France~\cite{girres2010quality}. It was found to be of a quality equivalent to official surveys for the primary road network.
+
+\bpar{
+We work here with the road network, which structure is finely conditioned to territorial configuration of population densities. Furthermore, data for present day road network is openly available through the OpenStreetMap project~\cite{openstreetmap}. Its quality was investigated for different countries such as England~\cite{haklay2010good} and France~\cite{girres2010quality}. It was found to be of a quality equivalent to official surveys for the primary road network.
+}{
+Nous travaillons ici avec le réseau de rues, dont la structure est finement conditionnée aux configurations territoriales des densités de population. De plus, les données du réseau de routes actuel est disponible ouvertement par l'intermédiaire du projet OpenStreetMap (OSM)~\cite{openstreetmap}. Sa qualité a été étudiée pour différents pays comme l'Angleterre~\cite{haklay2010good} et la France~\cite{girres2010quality}. Il a été établi pour ces pays une qualité équivalente aux données officielles pour le réseau de rues primaire.
+}
+
 
 % data collected from http://download.geofabrik.de/europe.html
 
 % TODO : remarque : why not include artwork as appendix. science<->art (// poésies ?)
 
+\bpar{
+From the primary road segments, we compute the topological road network for all studied areas, at 100m granularity scale to be used consistently with the population grid. The OSM data is imported into \texttt{pgsql} using \texttt{osmosis}, is then aggregated at fixed granularity, and the resulting topological network is finally simplified with a split/merge algorithm.
+}{
+Pour les segments de rue primaires, nous calculons le réseau topologique pour l'ensemble des zones étudiées, à une granularité de 100m pour pouvoir être utilisé de manière cohérente avec les grilles de population. Les données OSM sont importées dans \texttt{pgsql} en utilisant \texttt{osmosis}~\cite{osmosis}, est ensuite agrégé à la granularité fixe, et le réseau topologique résultant est finalement simplifié avec un algorithme split/merge.
+}
 
-
-
-Dataset construction
-% brief description of nw simplification ; 
-
-Computation of topological road network for all Europe, at 100m granularity scale (to be used consistently with population grid~\cite{eurostat})
-
-\medskip
-
-$\rightarrow$ Import of OSM into \texttt{pgsql}, simplification at 100m granularity, topological simplification with split/merge algorithm
-
-\bigskip
 %
 %\begin{columns}
 %\begin{column}{width=0.7\textwidth}
@@ -233,31 +237,6 @@ Les indicateurs de réseau ont été calculés sur des zones similaires aux indi
 
 
 
-
-
-
-%%%%%%%%%%%%%%%%%%
-\subsubsection{Spatial non-stationarity and non-ergodicity}{Non-stationnarité spatiale et non-ergodicité}
-
-
-
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%
-Results : Computation of Indicators
-
-
-\textit{Computation of urban form indicators~\cite{le2015forme} and network indicators on $l_0=10km$ side square}
-
-%\includegraphics[width=\textwidth]{figures/pop-alphaBetweenness}
-
-
-
-
 %%%%%%%%%%%%%%%%%
 Results : Spatial Correlations
 
@@ -288,6 +267,58 @@ Results : Multi-scale Processes
 \medskip
 
 $\rightarrow$ Significant variation of mean correlation with $\delta$ (Left) and of normalized confidence interval (Right) given by $\left|\rho_+ - \rho_-\right|\cdot \delta$, as bounds theoretically vary as $\sqrt{N} \sim \sqrt{\delta^2}$ : implies multi-scalarity
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%
+\subsubsection{Application to China}{Application à la Chine}
+
+
+\bpar{
+Although \cite{zheng2014assessing} underlined a quick acceleration of OpenStreetMap road data completeness and accuracy, its use for computation of network indicators may be questioned. \cite{zhang2015density} highlights four regimes of data quality, partitioning China into regions among which qualitative behavior of OSM data varies. We choose in the following to work only on the regions where the quality is the highest, i.e. with high density and high diversity. % TODO precise which areas
+For density data, we use the gridded population data from~\cite{fu1km}. % TODO check also that
+}{
+
+}
+
+
+
+
+In \cite{10.1371/journal.pone.0107042} density grids for other countries across the world (ex. China) are provided\footnote{available at \url{http://www.worldpop.org.uk/}} soo we may repeat our analysis to other regions for comparison purposes. \comment{(Florent) comparer quoi ?}
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%
+\subsubsection{Spatial non-stationarity and non-ergodicity}{Non-stationnarité spatiale et non-ergodicité}
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%
+Results : Computation of Indicators
+
+
+\textit{Computation of urban form indicators~\cite{le2015forme} and network indicators on $l_0=10km$ side square}
+
+%\includegraphics[width=\textwidth]{figures/pop-alphaBetweenness}
+
+
 
 
 
@@ -374,34 +405,6 @@ $\rightarrow$ No direct results on time dynamics, but indirect : spatio-temporal
 
 
 
-
-
-%%%%%%%%%%%%%%%%%%
-\subsection{Application to China}{Application à la Chine}
-
-
-\bpar{
-Although \cite{zheng2014assessing} underlined a quick acceleration of OpenStreetMap road data completeness and accuracy, its use for computation of network indicators may be questioned. \cite{zhang2015density} highlights four regimes of data quality, partitioning China into regions among which qualitative behavior of OSM data varies. We choose in the following to work only on the regions where the quality is the highest, i.e. with high density and high diversity. % TODO precise which areas
-For density data, we use the gridded population data from~\cite{fu1km}. % TODO check also that
-}{
-
-}
-
-
-
-
-
-%\subsubsection{Further developments}{Développements}
-
-In \cite{10.1371/journal.pone.0107042} density grids for other countries across the world (ex. China) are provided\footnote{available at \url{http://www.worldpop.org.uk/}} soo we may repeat our analysis to other regions for comparison purposes. \comment{(Florent) comparer quoi ?}
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%
-%\subsection{Insights for interaction processes}
 
 
 
