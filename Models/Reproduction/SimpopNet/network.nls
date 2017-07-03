@@ -52,6 +52,8 @@ end
 
 to grow-net-scenario
   
+  ; HARDCORE !
+  
   if ticks = 1802 [ ask city 48 [ create-link-with city 58 [ actualisation-of-link ] ]]
   if ticks = 1805 [ ask link 58 38 [ actualisation-of-link ] ]
   if ticks = 1810 [ ask city 48 [ create-link-with city 91 [ actualisation-of-link ] ]]
@@ -136,3 +138,28 @@ to create-intersection
    set y-cross false
    adapt-graph
 end
+
+
+;;
+;
+to local-shortcuts
+  
+  repeat synthetic-shortcut-number [
+    ; draw randomly one city prop to pop conditionnally to degree
+    let potential-cities (cities with [count my-links < synthetic-city-max-degree])
+    let ptot sum [population] of potential-cities let r random-float 1 let s 0 let found? false
+    ask potential-cities [
+      set s s + (population / ptot)
+      if s > r and not found? [
+        set found? true let potential-dest (((other cities) in-radius synthetic-shortcut-radius) with [count my-links < synthetic-city-max-degree and not link-neighbor? myself])
+        if count potential-dest > 0 [create-link-with one-of potential-dest]
+      ] 
+    ]
+  ]
+  
+end
+
+
+
+
+  

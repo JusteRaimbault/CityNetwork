@@ -174,7 +174,7 @@ CHOOSER
 cities-generation-method
 cities-generation-method
 "zipf-christaller" "random" "prefAtt-diffusion-density" "from-density-file" "fixed-density"
-4
+0
 
 CHOOSER
 891
@@ -195,7 +195,7 @@ city-max-pop
 city-max-pop
 0
 10000
-238.13103939306257
+311.778651728036
 1
 1
 NIL
@@ -210,7 +210,7 @@ SLIDER
 #-cities
 0
 1000
-439
+236
 1
 1
 NIL
@@ -272,7 +272,7 @@ gravity-radius
 gravity-radius
 0
 10000
-15
+2293
 1
 1
 NIL

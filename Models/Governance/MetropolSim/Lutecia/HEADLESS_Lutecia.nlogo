@@ -13,7 +13,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table context nw gradient numanal]
+extensions[matrix table context nw gradient numanal gis morphology]
 
 __includes [
   
@@ -81,7 +81,7 @@ __includes [
   ; Experiments
   ;;;;;;;;;;
   
-  "experiment.nls"
+  "experiments.nls"
   
   
   ;;;;;;;;;;
@@ -111,6 +111,7 @@ __includes [
   ;;;;;;;;;;;
   
   "test/test-distances.nls"
+  "test/test-experiments.nls"
   
 ]
 
@@ -293,10 +294,52 @@ globals[
   failed
   
   to-construct
+  
+  
+  gis-network-file
+  gis-extent-file
+  gis-centers-file
+  gis-sea-file
+  gis-economic-areas-file
+  gis-governed-patches-file
+  gis-population-raster-file
+  
+  world-size
+  
+  seed
+  
+  initial-nw?
+  
+  mayors-populations
+  mayors-employments
+  mayors-names
+  
+  target-network-file
+  
+  setup-from-world-file?
+  
+  link-distance-function
+  
+  conf-file
+  tracked-indicators
+  history-indicators
+  evolve-network?
+  evolve-landuse?
+  
+  shortest-paths
+  nw-relative-speeds
+  nw-distances
+  
 ]
 
 
 patches-own [
+  
+   ; number of actives on the patch
+  actives
+  
+  ; number of jobs on the patch
+  employments
   
   ; number of the patch (used as index in distance matrices)
   number
@@ -309,11 +352,7 @@ patches-own [
   ;  on the contrary to transportation infrastructure evolution, that evolves at a greater scale.
   ;  -> patch variables and not agents
   
-  ; number of actives on the patch
-  actives
-  
-  ; number of jobs on the patch
-  employments
+ 
   
   
   ;;;;;
@@ -343,6 +382,8 @@ patches-own [
   form-factor
   
   
+  sea? 
+  
   
 ]
 
@@ -371,6 +412,8 @@ undirected-link-breed[transportation-links transportation-link]
 
 transportation-links-own [
   
+  transportation-link-length
+  
   ; capacity of the link ; expressed as max trip per length unit 
   capacity
   
@@ -382,22 +425,31 @@ transportation-links-own [
   
   age
   
+  status
+  
+  bw-centrality
+  
 ]
 
 ;; nodes of the transportation network
 breed[transportation-nodes transportation-node]
 
 transportation-nodes-own[
+  transportation-node-closeness-centrality
 ]
+
+; needs ghost breeds to not perturbate shortest paths update
+undirected-link-breed[ghost-transportation-links ghost-transportation-link]
+breed[ghost-transportation-nodes ghost-transportation-node]
 @#$#@#$#@
 GRAPHICS-WINDOW
 833
 27
-1078
-240
-6
-6
-14.0
+1273
+488
+7
+7
+28.666666666666668
 1
 10
 1
@@ -407,15 +459,67 @@ GRAPHICS-WINDOW
 0
 0
 1
--6
-6
--6
-6
+-7
+7
+-7
+7
 0
 0
 1
 ticks
 30.0
+
+PLOT
+11
+12
+211
+162
+plot 1
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count turtles"
+
+BUTTON
+28
+191
+201
+224
+NIL
+test-experiment-synth
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+32
+248
+171
+281
+NIL
+display-target-fit
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

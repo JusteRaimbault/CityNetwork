@@ -9,15 +9,63 @@
 ;-> hierarchy case, population, evol hierarchy.  -- TODO --
 
 
+to update-indicators
+  foreach tracked-indicators [
+    let val run-result ?
+    table:put history-indicators ? (lput val (table:get history-indicators ?))
+  ]
+end
+
+
 to compute-indicators
+  network:cache-nw-measures
+  
   output-print (word "mean-accessibility : " mean-accessibility patches)
   output-print (word "mean-travel-distance : " mean-travel-distance)
-  output-print (word "actives-entropy : " actives-entropy)
+  output-print (word "actives-entropy : " entropy-actives)
+  output-print (word "moran-actives : " moran-actives)
   output-print (word "collaboration wanted : " wanted-collaboration-rate)
   output-print (word "collaboration realized : " realized-collaboration-rate)
   output-print (word "externality-decrep : " externality-decrepitude)
-  ;output-print (word "mean-congestion : " mean-congestion)
+  output-print (word "mean-congestion : " mean-congestion)
+  output-print (word "total-nw-length : " total-nw-length)
+  output-print (word "mean-relative-speed : " mean-relative-speed)
+  output-print (word "mean-closeness-centrality : " mean-closeness-centrality)
+  output-print (word "mean-bw-centrality : " mean-bw-centrality)
+  output-print (word "mean-path-length : " mean-path-length)
+  output-print (word "nw-diameter : " nw-diameter)
 end
+
+to compute-network-indicators
+  network:cache-nw-measures
+  ; total-nw-length mean-relative-speed mean-closeness-centrality mean-bw-centrality mean-path-length nw-diameter
+  output-print (word "total-nw-length : " total-nw-length)
+  output-print (word "mean-relative-speed : " mean-relative-speed)
+  output-print (word "mean-closeness-centrality : " mean-closeness-centrality)
+  output-print (word "mean-bw-centrality : " mean-bw-centrality)
+  output-print (word "mean-path-length : " mean-path-length)
+  output-print (word "nw-diameter : " nw-diameter)
+end
+
+
+;;
+; TS indicators
+to-report ts-indicator [indic]
+  report table:get history-indicators indic
+end
+
+
+
+
+;;
+;
+to-report target-network-distance
+  ; kill potential previous target network
+  ;ask transportation-links with [status = "ghost"] [ask both-ends [die] die]
+  ;report network:network-distances transportation-links with [status = "initial"] transportation-links with [status = "ghost"]
+  report network:network-distances transportation-links ghost-transportation-links
+end
+
 
 
 ;;
@@ -29,6 +77,10 @@ to-report mean-accessibility [patchset]
   ifelse sum [actives] of patches > 0 and sum [employments] of patches > 0 and count patchset > 0 [
     report (sum [a-to-e-accessibility + e-to-a-accessibility] of patchset) / (2 * (sum [actives] of patches) * (sum [employments] of patches))
   ][report 0]
+end
+
+to-report overall-mean-accessibility
+  report mean-accessibility patches
 end
 
 ; min / max access
@@ -43,6 +95,7 @@ end
 
 ; mean travel distance
 to-report mean-travel-distance
+  if (sum [actives] of patches) * (sum [employments] of patches) = 0 [report 0]
   report sum [a-to-e-distance + e-to-a-distance] of patches / (2 * (sum [actives] of patches) * (sum [employments] of patches))
 end
 
@@ -52,9 +105,18 @@ to-report mean-network-distance
 end
 
 
+to-report mean-effective-distance
+  if effective-distance-matrix = 0 [report 0]
+  report mean map mean matrix:to-row-list effective-distance-matrix
+end
+
 ; mean congestion in network
 to-report mean-congestion
   report mean [congestion] of transportation-links
+end
+
+to-report mean-patch-congestion
+  report mean patches-congestion
 end
 
 
@@ -64,17 +126,146 @@ to-report stability
 end
 
 
-;; entropy of distribution of actives
-to-report actives-entropy
-  let atot sum [actives] of patches
-  report (- 1 / (ln count patches) * sum [actives / atot * ln (actives / atot)] of patches)
+to-report mean-flow
+  report matrix:mean flow-matrix
 end
 
-;; entropy of distribution of employments
-to-report employments-entropy
-  let etot sum [employments] of patches
-  report (- 1 / (ln count patches) * sum [employments / etot * ln (employments / etot)] of patches)
+to-report min-flow
+  report first matrix:min flow-matrix
 end
+
+to-report max-flow
+  report first matrix:max flow-matrix
+end
+
+
+;;;;
+;; Morphological indicators
+
+
+to-report moran-actives
+  report morphology:moran 0
+end
+
+to-report entropy-actives
+  report morphology:entropy 0
+end
+
+to-report slope-actives
+  report first morphology:slope 0
+end
+
+to-report slope-rsquared-actives
+  report last morphology:slope 0
+end
+
+to-report mean-distance-actives
+  report morphology:distance 0
+end
+
+to-report moran-employments
+  report morphology:moran 1
+end
+
+to-report entropy-employments
+  report morphology:entropy 1
+end
+
+to-report slope-employments
+  report first morphology:slope 1
+end
+
+to-report slope-rsquared-employments
+  report last morphology:slope 1
+end
+
+to-report mean-distance-employments
+  report morphology:distance 1
+end
+
+
+;;
+; mean distance to centre (to measure sprawl)
+to-report mean-distance-to-centre-actives
+  let atot sum [actives] of patches
+  report sum [actives / atot * distance (patch 0 0)] of patches
+end
+
+to-report mean-distance-to-centre-employments
+  let etot sum [employments] of patches
+  report sum [employments / etot * distance (patch 0 0)] of patches
+end
+
+to-report center-actives-prop
+  report [actives] of patch 0 0 / sum [actives] of patches
+end
+
+
+to-report center-employments-prop
+  report [employments] of patch 0 0 / sum [employments] of patches
+end
+
+
+
+;;
+;  Network indicators
+
+
+to-report table-values [t]
+  let res []
+  foreach table:keys t [set res lput table:get t ? res]
+  report res
+end
+
+;;
+; nw diameter
+;  Normalized by world diag
+to-report nw-diameter
+  if count transportation-nodes = 0 [report 0]
+  let diag sqrt (world-width ^ 2 + world-height ^ 2)
+  report max map [sum map [[transportation-link-length] of ?] ?] (table-values shortest-paths) / diag
+end
+
+
+;;
+; mean path length
+;  Normalized by world diagonal
+to-report mean-path-length
+  if count transportation-nodes = 0 [report 0]
+  let diag sqrt (world-width ^ 2 + world-height ^ 2)
+  report (mean map [sum map [[transportation-link-length] of ?] ?] (table-values shortest-paths)) / diag
+end
+
+;;
+;  bw centrality, normalized by number of paths considered
+to-report mean-bw-centrality
+  let n count transportation-nodes if n = 0 [report 0]
+  report (mean [bw-centrality] of transportation-links) * 2 / (n * (n - 1))
+end
+
+to-report mean-closeness-centrality
+  let n count transportation-nodes if n = 0 [report 0]
+  report (mean [transportation-node-closeness-centrality] of transportation-nodes) / n
+end
+
+
+;;
+; mean relative speed, already normalized
+to-report mean-relative-speed
+  if count transportation-nodes = 0 [report 0]
+  report mean table-values nw-relative-speeds
+end
+
+;;
+; nw length -> not normalized
+to-report total-nw-length
+  if count transportation-nodes = 0 [report 0]
+  report sum [road-length] of transportation-links
+end
+
+
+
+
 
 
 
@@ -119,6 +310,32 @@ end
 to-report externality-decrepitude
   report externality-employments / (employments-max * ext-employments-proportion-of-max)
 end
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+;; DEPRECATED using morphology extension
+
+;; entropy of distribution of actives
+;to-report actives-entropy
+;  let actives-patches patches with [actives > 0]
+;  let atot sum [actives] of actives-patches
+;  report (- 1 / (ln count patches) * sum [actives / atot * ln (actives / atot)] of actives-patches)
+;end
+
+;; entropy of distribution of employments
+;to-report employments-entropy
+;  let employment-patches patches with [employments > 0]
+;  let etot sum [employments] of employment-patches
+;  report (- 1 / (ln count patches) * sum [employments / etot * ln (employments / etot)] of employment-patches)
+;end  
+  
   
 
 

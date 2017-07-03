@@ -1,0 +1,107 @@
+
+;;
+; display
+
+
+to update-display
+  if headless? != true [
+    ; cities
+    display-cities
+  
+    ; network
+    display-network
+  
+    ; specific plots
+    display-plots
+  
+  ]
+end
+
+
+to color-patches
+  if setup-type = "gis" [
+    ;ask patches [set pcolor scale-color brown elevation 0 4000]
+    ask patches with [elevation = -1] [set pcolor white]
+    let gradient-mid 500
+    ask patches with [elevation <= gradient-mid and elevation != -1] [set pcolor gradient:scale (list extract-rgb green extract-rgb brown) elevation 0 gradient-mid]
+    ask patches with [elevation > gradient-mid and elevation != -1] [set pcolor gradient:scale (list extract-rgb brown extract-rgb white) elevation gradient-mid 4000]
+  ]
+end
+
+
+to display-cities
+  let ptot sum [population] of cities
+  
+  if visualization = "mse" [ask cities [set color-var (current-mse / population * ptot)]]
+  if visualization = "mse-log" [ask cities [set color-var city-mse-log ticks]]
+
+  let mi min [color-var] of cities let ma max [color-var] of cities
+  ask cities [
+    set size (ln population) ;/ 10
+    set color gradient:scale (list extract-rgb blue extract-rgb red) color-var mi ma
+  ]
+end
+
+
+to display-network
+  
+  if network-type = "virtual" [
+    if show-virtual-flows? [
+      ask links [die]
+      let distance-diff distance-matrix matrix:- initial-distance-matrix
+      ask cities [
+        let currentdistdiff matrix:get-row distance-diff index
+        ask other cities [let d item index currentdistdiff if d < 0 [create-link-with myself [set thickness (abs d) / 10]]]
+      ]
+    ]
+  ]
+  
+  if network-type = "physical" [
+    if link-display-var = "relative-speed" [
+      ;ask links [set thickness relative-speed / ((1 + network-reinforcment-gmax) ^ final-time-step)]
+      ;ask links [set hidden? false] ask paths with [path-length < effective-length] [set hidden? true]
+      let mi min [ln relative-speed] of links let ma max [ln relative-speed] of links
+      ask links [set thickness 10 * ((ln relative-speed) - mi) / (ma - mi) ]
+    ]
+    if link-display-var = "flow" [
+      ask links [set thickness 25 * ln (1 + flow)]
+      if ticks > 0 [ask links [set hidden? false] ask links with [flow = 0] [set hidden? true]]
+    ]
+  ]
+end
+
+
+to display-plots
+  ; fit plot
+  if setup-type = "gis" [
+    set-current-plot "fit" set-current-plot-pen "default"
+    let col gradient:scale (list extract-rgb blue extract-rgb red) ticks 0 (length dates)
+    set-plot-pen-color (approximate-rgb item 0 col item 1 col item 2 col)
+    let sim map ln (sort-by [?1 > ?2] (matrix:get-column populations ticks))
+    let real map ln (sort-by [?1 > ?2] (matrix:get-column real-populations ticks))
+    let i 0 plot-pen-up plotxy first real first sim
+    plot-pen-down
+    foreach sim [
+       plotxy item i real ? set i i + 1
+    ]
+  ]
+  
+  ; rank-size plot
+  set-current-plot "rank-size" set-current-plot-pen "default"
+  let col gradient:scale (list extract-rgb blue extract-rgb red) ticks 0 (length dates)
+  set-plot-pen-color (approximate-rgb item 0 col item 1 col item 2 col)
+  let pops map [log ? 10] (sort-by [?1 > ?2] (matrix:get-column populations ticks))
+  let ranks map [log ? 10] (seq 1 count cities 1)
+  let i 0 plot-pen-up plotxy first ranks first pops
+    plot-pen-down
+    foreach pops [
+       plotxy item i ranks ? set i i + 1
+    ]
+  
+end
+
+
+
+
+
+

@@ -5,19 +5,37 @@
 
 
 to export-data
-  let current-data []
   let current-time ticks
-  foreach data-export-patches [
-    ask ? [
-    ;set current-data lput (list "density" pdensity pxcor pycor ticks) current-data
-    ;set current-data lput (list "cdistance" pdistance-to-centre pxcor pycor ticks) current-data
-    ;set current-data lput (list "rdistance" pdistance-to-roads pxcor pycor ticks) current-data
-    ;set current-data lput (list "ceucldistance" distance one-of centres with-min [distance myself] pxcor pycor ticks) current-data
-    set current-data lput (list pxcor pycor current-time pdensity pdistance-to-centre pdistance-to-roads distance one-of centres with-min [distance myself]) current-data
+  if export-data? [
+    
+    let current-data []
+    foreach data-export-patches [
+      ask ? [
+      ;set current-data lput (list "density" pdensity pxcor pycor ticks) current-data
+      ;set current-data lput (list "cdistance" pdistance-to-centre pxcor pycor ticks) current-data
+      ;set current-data lput (list "rdistance" pdistance-to-roads pxcor pycor ticks) current-data
+      ;set current-data lput (list "ceucldistance" distance one-of centres with-min [distance myself] pxcor pycor ticks) current-data
+      set current-data lput (list pxcor pycor current-time pdensity pdistance-to-centre pdistance-to-roads (distance one-of centres with-min [distance myself])) current-data
+      ]
     ]
+    set data-to-export concatenate (list current-data data-to-export)
   ]
-  set data-to-export concatenate (list current-data data-to-export)
+  
+  if values-table? [
+     ; table : time, indic, patchx, patchy -> value
+     foreach data-export-patches [
+       ask ? [
+         table:put values-table (list current-time "density" pxcor pycor) pdensity
+         table:put values-table (list current-time "centre-distance" pxcor pycor) pdistance-to-centre
+         table:put values-table (list current-time "road-distance" pxcor pycor) pdistance-to-roads
+         table:put values-table (list current-time "centre-eucl-distance" pxcor pycor) (distance one-of centres with-min [distance myself])
+       ]
+     ]
+  ]
+  
+  if export-movie? [movie-grab-view]
 end
+
 
 to export-data-to-file
   let fileprefix (word "/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Statistics/Synthetic/rdb/" (replace (replace date-and-time " " "_") ":" "_"))
@@ -51,6 +69,45 @@ to calculate-reporters
     set line word line val if ? != last output-reporter-names [set line word line ";"]
   ]
   if output-file? [print-in-file output-file-name line]
+end
+
+
+
+;;
+; lagged correlation, between two vars, already
+;  assumed var stored
+to-report lagged-correlation [var1 var2 tau t0]
+  let current-time ticks
+  let x [] let y [] let firstvar var1 let secvar var2
+  if tau > 0 [set firstvar var2 set secvar var1]
+  let t (tau + 1 + t0)
+  repeat (current-time - tau - 1 - t0) [
+    foreach data-export-patches [ask ? [
+       set x lput ((table:get values-table (list t firstvar [pxcor] of ? [pycor] of ?)) - (table:get values-table (list (t - 1) firstvar [pxcor] of ? [pycor] of ?))) x
+       set y lput ((table:get values-table (list (t - tau) secvar [pxcor] of ? [pycor] of ?)) - (table:get values-table (list (t - tau - 1) secvar [pxcor] of ? [pycor] of ?))) y
+    ]]
+    set t t + 1
+  ]
+  let mx mean x set x map [? - mx] x let my mean y set y map [? - my] y
+  report mean (list-times-element-wise x y) / (standard-deviation x * standard-deviation y)
+end
+
+
+;;
+; set of lagged corrs for a given pair of vars
+to-report lagged-corrs [var1 var2 abstaumax t0]
+  ; get var values
+  let res []
+  let tau (- abstaumax)
+  repeat abstaumax + 1 [
+    set res lput (lagged-correlation var2 var1 (abs tau) t0) res
+    set tau tau + 1
+  ]
+  repeat abstaumax [
+    set res lput (lagged-correlation var1 var2 tau t0) res
+    set tau tau + 1
+  ]
+  report res
 end
 
 

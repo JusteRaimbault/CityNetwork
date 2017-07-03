@@ -5,21 +5,22 @@ import Model._
 
 // Exploration
 val exploration = ExplorationTask (
-   ((growthRate in (0.001 to 0.02 by 0.0005))x
-   (gravityWeight in (0.00001 to 0.001 by 0.0001))x
-   (gravityGamma in (0.2 to 1.5 by 0.2))x
-   (gravityDecay in (1.0 to 2000.0 by 50.0)) x
+   ((growthRate in (0.012 to 0.017 by 0.0001))x
+   (gravityWeight in (0.0 to 0.0015 by 0.0001))x
+   (gravityGamma in (1.0 to 4.0 by 0.2))x
+   (gravityDecay in (1.0 to 200.0 by 1.0)) x
    (gravityAlpha is 0.0) x //in (0.1 to 4.0 by 0.1)) x
    (feedbackWeight is 0.0)x//in (0.2 to 0.4 by 0.025)) x 
    (feedbackGamma is 1.0)x//in (0.2 to 2.0 by 0.2)) x 
    (feedbackDecay is 1.0) x 
-   (popFile is workDirectory / "data" / "pop50.csv") x
-   (distFile is workDirectory / "data"/ "dist50.csv") x
+   (popFile is workDirectory / "data" / "pops" / "pop50_1831-1851.csv") x
+   (distFile is workDirectory / "data" / "dist50.csv") x
    (fdistsFile is workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv")x
-   (dateFile is workDirectory / "data" / "dates.csv")
+   (dateFile is workDirectory / "data" / "dates" / "dates_1831-1851.csv")
   ) withIndex id
 )
-val purpose = "GRID_NOFEEDBACK_LOCAL"
+//val purpose = "GRID_NOFEEDBACK_LOCAL"
+val purpose = "CALIBGRAVITY_GRID"
 
 
 /*
@@ -46,15 +47,15 @@ val exploration = ExplorationTask (
 val purpose = "LHS_GRID_LOCAL"
 */
 
-val indics_hook = AppendToCSVFileHook(workDirectory / "res" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
+val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
 
 
 // Environement
-val local = LocalEnvironment(30)
+//val local = LocalEnvironment(50)
 //val grid = EGIEnvironment("vo.complex-systems.eu", openMOLEMemory = 2400, wallTime = 24 hours)
+val grid = EGIEnvironment("vo.complex-systems.eu")
 
-
-exploration -< (modelCapsule hook indics_hook on local)
+exploration -< (modelCapsule hook indics_hook on grid by 10000)
 
 
 

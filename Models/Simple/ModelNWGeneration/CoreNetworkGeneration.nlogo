@@ -1,4 +1,4 @@
-extensions [matrix profiler nw gis]
+extensions [matrix profiler nw gis table context]
 
 __includes[
   
@@ -22,12 +22,13 @@ __includes[
   ;; -> raises a question : interdependance of lib
   ;;  -- shall pack as independant libs ?
   ;;
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ExplorationUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/FileUtilities.nls"  
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/ListUtilities.nls"  
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/GISNetworkUtilities.nls"
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/LinkUtilities.nls"    
-  "/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/EuclidianDistanceUtilities.nls"
+  "utils/ExplorationUtilities.nls"
+  "utils/File.nls"  
+  "utils/List.nls"  
+  "utils/GISNetwork.nls"
+  "utils/Link.nls"    
+  "utils/EuclidianDistanceUtilities.nls"
+  "utils/String.nls"
     
 ]
 
@@ -36,16 +37,19 @@ __includes[
 globals [
   
   ;;runtime variables
-  ; This variables are defined by the user
-  ;  I0                   ;; flux initiaux
-  ;  D0                   ;; D initiaux
+  ; Parameters
+  
+  ;; Initial flows
+  ;I0
+  ;; Initial diameters               
+  ;D0                   
   ;  Df                   ;; D min final
   ;  c                    ;; nb de villes
 
-  ;; matrice d'incidence :: UNUSED VAR ?
-  incidence-matrix                  
-  Dmin                 ;; diamètre blanc
-  Dmax                 ;; diamètre noir
+  ;; incidence matrix
+  incidence-matrix            
+  diameter-min                 
+  diameter-max               
   ;  n0                   ;; nb initial de noeuds
   nodes-number                    ;; nb de noeuds
   center1                   ;; ville 1
@@ -83,34 +87,22 @@ globals [
 
 
 
-
-;;         
-
-
-
-
-
-
-;;node of the transportation network -> replaced by vertices
-;breed [noeuds noeud]
-
 ;;O/D and possible node of the abstract network
 breed [poles pole]
 
 ;;nw breeds
 breed [vertices vertex]
-breed [abstract-gis-paths abstract-gis-path]
+breed [abstract-gis-edges abstract-gis-edge]
+;
 
-abstract-gis-paths-own [
-             gis-feature
-           vertices-list
+abstract-gis-edges-own [
+   gis-feature
+   vertices-list
 ]
 
 undirected-link-breed [paths path]
 
 
-;;link of the transportation network -> replaced by path
-;undirected-link-breed [aretes arete]
 
 undirected-link-breed [real-links real-link]
 
@@ -121,30 +113,41 @@ patches-own[
 
 vertices-own [
   ;; pressure
-  pressure                    
-  ;  v                    ;; flux
-  k                    ;; coefficient
-  number               ;; numéro
+  pressure
+  ;; total capacity            
+  total-capacity          
+  ;; number
+  number               
 ]
+
 
 paths-own [
-  D                    ;; diametre
-  Q                    ;; flux
-  ;; length :: not needed ?
-  arete-length  
-  path-length               
+  ;; diameter
+  diameter
+  ;; flow
+  flow            
+  ;; length
+  path-length          
 ]
 
+
 poles-own [
-  population                   ;; population
-  acc-p                ;; accumulated population
+  ;; population
+  population
+  ;; accumulated population        
+  acc-p                
   pressure
 ]
 
 real-links-own[
-  d                    ;; distance of the link (the abstract network is weighted)
-  geometrical-flux     ;; flux in link calculated through topological structure of network
-  NRI                  ;; NRIa used in NRI calculation
+  ;; length of the link (the abstract network is weighted)
+  real-link-length      
+         
+  ;; flux in link calculated through topological structure of network
+  real-link-geometrical-flux 
+      
+  ;; NRIa used in NRI calculation
+  real-link-NRI                  
 ]
 
 
@@ -160,9 +163,9 @@ stations-own [
 GRAPHICS-WINDOW
 262
 12
-962
-563
-34
+681
+252
+20
 -1
 10.0
 1
@@ -174,10 +177,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--34
-34
+-20
+20
 0
-51
+20
 0
 0
 1
@@ -185,10 +188,10 @@ ticks
 30.0
 
 BUTTON
-109
-35
-172
-68
+170
+34
+233
+67
 setup
 setup
 NIL
@@ -202,10 +205,10 @@ NIL
 1
 
 BUTTON
-113
-74
-176
-107
+174
+73
+237
+106
 NIL
 go
 T
@@ -234,9 +237,9 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot max [D] of paths"
-"pen-1" 1.0 0 -7500403 true "" "plot min [D] of paths"
-"pen-2" 1.0 0 -2674135 true "" "plot mean [D] of paths"
+"default" 1.0 0 -16777216 true "" "plot max [diameter] of paths"
+"pen-1" 1.0 0 -7500403 true "" "plot min [diameter] of paths"
+"pen-2" 1.0 0 -2674135 true "" "plot mean [diameter] of paths"
 
 PLOT
 978
@@ -265,7 +268,7 @@ I0
 I0
 0
 50
-11.05
+11.1
 0.05
 1
 NIL
@@ -274,10 +277,10 @@ HORIZONTAL
 SLIDER
 8
 319
-100
+132
 352
-D0
-D0
+initial-diameter
+initial-diameter
 0
 1
 1
@@ -302,10 +305,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-103
-317
-195
-350
+140
+324
+232
+357
 Df
 Df
 0
@@ -322,7 +325,7 @@ BUTTON
 179
 430
 mark important aretes
-ask paths [set color white]\nask paths with [D > Df] [set color blue]
+ask paths [set color white]\nask paths with [diameter > Df] [set color blue]
 NIL
 1
 T
@@ -367,7 +370,7 @@ MONITOR
 1397
 55
 Net-length
-count paths with [D > Df]
+count paths with [diameter > Df]
 17
 1
 11
@@ -378,7 +381,7 @@ MONITOR
 1400
 103
 Length of abstract network
-sum [d] of real-links
+sum [real-link-length] of real-links
 17
 1
 11
@@ -544,7 +547,7 @@ count paths
 SWITCH
 14
 34
-104
+157
 67
 setup-from-file?
 setup-from-file?
@@ -581,10 +584,10 @@ data/romainville.shp
 String
 
 INPUTBOX
-93
-240
-259
-300
+10
+241
+176
+301
 grid-layer
 data/TestGrid.shp
 1

@@ -7,15 +7,12 @@ library(RColorBrewer)
 library(ggplot2)
 library(MASS)
 library(dplyr)
+library(cartography)
 
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 # data
-
-real_raw = read.csv(
-  paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/20150806_europe50km_10kmoffset_100x100grid.csv'),
-  sep=";"
-)
+real_raw = read.csv(paste0(Sys.getenv("CN_HOME"),'/Results/Morphology/Density/Numeric/20150806_europe50km_10kmoffset_100x100grid.csv'),sep=";")
 
 
 # no na
@@ -36,8 +33,8 @@ real =real_raw[!is.na(real_raw[,3])&!is.na(real_raw[,4])&!is.na(real_raw[,5])&!i
 
 
 indic="distance"
-p = ggplot(data.frame(x=real$y,y=1-real$x,density_max=real[[indic]]),aes(x=x,y=y,colour=density_max))
-p+geom_point()+xlab("")+ylab("")+labs(title=indic)+scale_colour_gradientn(colours=rev(rainbow(5)))+scale_y_continuous(breaks=NULL)+scale_x_continuous(breaks=NULL)
+p = ggplot(data.frame(x=real$y,y=1-real$x,density_max=real[[indic]]),aes(x=x,y=y,fill=density_max))
+p+geom_raster()+xlab("")+ylab("")+labs(title=indic)+scale_fill_gradientn(colours=rev(rainbow(5)))+scale_y_continuous(breaks=NULL)+scale_x_continuous(breaks=NULL)
 
 # * use spatial smoothing ? (bord effect of mask square shape, 
 #     give square patterns for "thresholded" indicators, as max or moran)
@@ -45,9 +42,15 @@ p+geom_point()+xlab("")+ylab("")+labs(title=indic)+scale_colour_gradientn(colour
 
 map<-function(indic){
   d=data.frame(x=real$y,y=1-real$x);d[[indic]]=real[[indic]]
-  p=ggplot(d,aes_string(x="x",y="y",colour=indic))
-  p+geom_point(shape=".",size=1)+xlab("")+ylab("")+labs(title=indic)+scale_colour_gradientn(colours=rev(rainbow(5)))+scale_y_continuous(breaks=NULL)+scale_x_continuous(breaks=NULL)
-}
+  p=ggplot(d,aes_string(x="x",y="y",fill=indic))
+  p+geom_raster()+xlab("")+ylab("")+xlim(c(11000,42000))+ylim(c(-40000,0))+
+    scale_fill_gradientn(colours=rev(rainbow(5)))#+scale_y_continuous(breaks=NULL)+scale_x_continuous(breaks=NULL)
+ + theme(axis.ticks = element_line(linetype = "blank"), 
+    panel.grid.major = element_line(linetype = "blank"), 
+    panel.grid.minor = element_line(linetype = "blank"), 
+    axis.text.x = element_text(size = 1), 
+    axis.text.y = element_text(size = 1), 
+    panel.background = element_rect(fill = NA)) +labs(x = NULL, y = NULL)}
 
 # multiplots
 indics=c("moran","distance","entropy","slope")
@@ -57,6 +60,23 @@ for(indic in indics){
  k=k+1
 }
 multiplot(plotlist=plots,cols=2)
+
+
+
+# map with cartography
+real$id = 1:nrow(real)
+spdf = SpatialPolygonsDataFrame(
+  SpatialPolygons(apply(real,1,function(r){
+    Polygons(list(Polygon(
+      matrix(data=c(r[1]-50,r[2]-50,r[1]+50,r[2]-50,r[1]+50,r[2]+50,r[1]-50,r[2]+50,r[1]-50,r[2]-50),ncol=2)
+      )),ID=as.character(r[10]))
+    })
+  ),data.frame(id=1:nrow(real),real[,1:9]),match.ID = FALSE)
+
+getGridLayer(spdf,cellsize = 100,spdfid = "id")
+
+
+
 
 
 ###########

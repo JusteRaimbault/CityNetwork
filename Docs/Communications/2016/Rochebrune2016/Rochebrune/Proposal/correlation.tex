@@ -1,0 +1,67 @@
+\input{WPHeader.tex}
+
+
+\title{\vspace{-1cm}Génération de Données Synthétiques Corrélées\\\medskip
+\textit{Journées de Rochebrune 2016}
+}
+\author{\noun{Juste Raimbault}$^{1,2}$\\
+$^{1}$ UMR CNRS 8504 Géographie-cités\\
+$^{2}$ UMR-T IFSTTAR 9403 LVMT
+}
+\date{}
+
+
+\maketitle
+
+\justify
+
+%\vspace{-0.5cm}
+
+L'utilisation de données synthétiques, au sens de populations statistiques d'individus générées aléatoirement sous la contrainte de reproduire certaines caractéristiques du système étudié, est une pratique méthodologique largement répandue dans de nombreuses disciplines, et particulièrement pour des problématiques liées aux systèmes complexes, telles que par exemple l'évaluation thérapeutique~\cite{abadie2010synthetic}, la géographie~\cite{moeckel2003creating}, ou l'apprentissage statistique~\cite{bolon2013review}. Si le premier ordre est bien maitrisé, il n'a à notre connaissance pas été proposé de méthode systématique permettant un contrôle au second ordre, c'est à dire où la structure de correlation estimée sur les données générées est maitrisée. Nous proposons une telle méthode ainsi que son application à deux exemples de systèmes complexes dans des domaines relativement éloignés.
+
+\vspace{-0.4cm}
+\paragraph{Description générique de la méthode}
+
+Soit un ensemble de processus stochastiques $X_I$ (l'index pouvant être le temps ou l'espace par exemple). On se propose, à partir d'un jeu de réalisations $\mathbf{X}=(X_{i,j})$, de générer une population statistique $\mathbf{\tilde{X}}=\tilde{X}_{i,j}$ telle que d'une part un certain critère de proximité aux données est vérifié, i.e. étant donné une précision $\varepsilon$ et un indicateur $f$, $\norm{f(\mathbf{X})-f(\mathbf{\tilde{X}})} < \varepsilon$, et d'autre part le niveau de correlation est controlé, i.e. étant donné une matrice fixant une structure de covariance $R$, $\Varb{(\tilde{X}_i)} = R$, où la matrice de variance/covariance est estimée sur la population synthétique.
+
+
+\vspace{-0.4cm}
+\paragraph{Application : séries temporelles financières}
+
+Un premier domaine d'application proposé pour notre méthode est celui des séries temporelles financières, signaux typiques de systèmes complexes hétérogènes et multiscalaires~\cite{mantegna2000introduction} et pour lesquels les corrélations ont fait l'objet d'abondants travaux (voir matrices aléatoires~\cite{2009arXiv0910.1205B}, analyse de réseaux~\cite{tumminello2005tool}).
+
+Considérons un réseau d'actifs $(X_i(t))_{1\leq i \leq N}$ échantillonés à haute fréquence (typiquement 1s), vus comme la superposition de signaux à des multiples échelles temporelles : $X_i=\sum_{\omega}{X_i^{\omega}}$ sur lesquels est appliqué un modèle de prédiction de tendance à une échelle temporelle $\omega_0$ donnée, représenté formellement comme un estimateur $M_{\omega_0} : (X_i) \mapsto \hat{X_i}$ dont l'objectif est la minimisation de l'erreur sur la tendance réelle $X_i^{\omega}$. Dans le cas d'estimateurs auto-regressifs multivariés, la performance dépendra entre autre des correlations respectives entre actifs et on peut alors l'estimer en appliquant la méthode. On assume une dynamique de Black-Scholes pour les actifs : $dX = \sigma\cdot dW$ avec $W$ processus de Wiener. Il est alors aisé de générer $\tilde{X}_i$ tel que $\Varb{\tilde{X}_i^{\omega_0}}=\Sigma R$ ($\Sigma$ variance estimée et $R$ matrice de corrélation fixée), par la simulation de processus de Wiener au niveau de corrélation fixé et tel que $X_i^{\omega < \omega_0} = \tilde{X}_i^{\omega < \omega_0}$ (critère de proximité au données : les composantes à plus basse fréquence sont identiques)\footnote{si $W_1 \indep W_1^{\indep}$, alors $W_2 = \rho_{12}W_1 + \sqrt{1-\rho_{12}^2}W_1^{\indep}$ est tel que $\rho(W_1,W_2)=\rho_{12}$. Les signaux suivants sont construits de la même manière par orthonormalisation de Gram. On isole alors la composante de la première fréquence $\omega_1 < \omega_0$ par filtrage, et on reconstruit les signaux synthétiques par $\tilde{X}_i = [\sum_{\omega<\omega_1}X_i^{\omega}]+\tilde{X}_i^{\omega_0}$}. La méthode est testée sur un exemple de deux actifs du marché des devises (EUR/USD et EUR/GBP), sur la période de l'année 2014, permettant d'obtenir un bruit sur les corrélations finales négligeable. Le test sur une dimension plus grande doit encore être implémenté, ainsi que l'application à l'étude de la performance de modèle prédictif.
+
+
+
+\vspace{-0.4cm}
+\paragraph{Application : données géographiques de densité et de réseaux}
+
+En géographie, l'utilisation de données synthétiques est plutôt axée vers l'utilisation de population synthétiques au sein de modèles agents (mobilité, modèles \emph{LUTI})~\cite{pritchard2009advances}. Il a récemment été proposé de contrôler systématiquement les effets de la configuration spatiale sur le comportement de modèles de simulation spatialisés~\cite{cottineau2015revisiting}, méthodologie pouvant être interprétée comme un contrôle par données statistiques spatiales.
+
+Dans notre cas, nous proposons de générer des systèmes de villes représentés par une densité spatiale de population $d(\vec{x})$ et la donnée d'un réseau de transport $n(\vec{x})$. L'utilisation d'un modèle $D$ type aggrégation-diffusion~\cite{batty2006hierarchy} permet de générer une distribution discrete de densité. Le modèle est calibré pour des objectifs morphologiques $M$ (entropie, hiérarchie, autocorrélation, densité) contre les valeurs calculées sur l'ensemble des grilles de taille 50km extraites de la grille européenne de densité~\cite{eurostat}. %Cit grille.
+D'autre part, on est capable de générer par un modèle $N$ un réseau de transport planaire à une échelle équivalente, étant donné une distribution de densité. On distribue un nombre fixé de noeuds de manière aléatoire en suivant la loi de probabilité spatiale donnée par les valeurs de densité, puis un algorithme déterministe de connexification permet d'obtenir un réseau arborescent. Le réseau est ensuite étendu par la création de boucles locales dans un rayon de voisinage $r_l$ ainsi que de raccourcis à une plus grande échelle $r_g$, aléatoirement selon un processus de rupture des potentiels gravitaires\footnote{Notons que ce choix est heuristique, et que d'autres types de modèles type réseau biologique auto-généré~\cite{tero2006physarum} par exemple pourraient également être envisagés, dans l'idée d'une architecture modulaire où le choix entre différentes implémentations d'une brique fonctionelle peut être vue comme méta-paramétre~\cite{cottineau2015incremental}.}.
+% detail network generation process
+% idea -> generate continuous center distribution given density as proba distribution ; tree-connexify network deterministically ; apply local loops and gravity-based adjustements. (check params to have enough degrees of freedom for a custom of global network measures. diameter or euclidian perf ?
+%At fixed density, the exploration of parameter space for network generation model provides a point cloud large enough to intersect real data, that we calculate on
+A densité fixée, les premières exploration de l'espace des paramètres du modèle de réseau synthétique suggèrent une assez bonne flexibilité sur des indicateurs globaux $G$ (diamètre, longueur cumulée, centralité moyenne, degré moyen). L'exploration systématique via le logiciel OpenMole~\cite{reuillon2013openmole} par calcul intensif est un travail en cours, ainsi que la calibration contre les mesures réelles calculées sur l'ensemble de l'Europe sur des zones identiques au modèle de densité, via les données de réseau routier d'OpenStreetMap. La connaissance très fine ainsi obtenue du comportement de $N$ (distribution statistiques sur une grille fine de l'espace des paramètres à trois dimensions), devrait permettre, étant donné une population de configuration de densités $\tilde{D}$, de déterminer via $N^{<-1>}$ une population de réseau $\tilde{N}$ telle que $\Covb{M}{G}$ a une structure fixée (via la détermination de la valeur des paramètres à utiliser pour chaque individu de $\tilde{D}$). On pourra éventuellement appliquer des algorithmes plus fins d'exploration pour atteindre des configurations exceptionelles réalisant un niveau de corrélation voulu~\cite{10.1371/journal.pone.0138212}. Les indicateurs globaux devraient ainsi être corrélés à un niveau contrôlé, tandis que les densités et réseaux restent cohérents dans l'espace de par la forme du réseau, conditionnelle à la distribution de densité. Les applications géographiques potentielles de cette implémentation de la méthode incluent le contrôle statistique de l'effet des corrélations entre ville et réseaux sur des modèles de simulation spatiaux par exemple.
+
+
+\medskip
+
+On a ainsi proposé une méthode abstraite de génération de données synthétiques corrélées à un niveau contrôlé. Son implémentation partielle dans deux domaines très différents montre sa flexibilité et l'éventail des applications potentielles. De manière générale, il est essentiel de généraliser de telles pratiques de validation systématique de modèles par étude statistique, en particulier pour les modèles agents pour lesquels la question de la validation reste encore relativement ouverte.
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+%% Biblio
+%%%%%%%%%%%%%%%%%%%%
+\footnotesize
+
+\bibliographystyle{apalike}
+\bibliography{/Users/Juste/Documents/ComplexSystems/CityNetwork/Biblio/Bibtex/CityNetwork,biblio}
+
+
+\end{document}

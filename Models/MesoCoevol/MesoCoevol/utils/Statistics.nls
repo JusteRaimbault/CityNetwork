@@ -1,0 +1,29 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Basic Stat functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; histogram retrieving count list
+; nbreaks = number of segments
+; reports counts
+to-report hist [x nbreaks]
+  ifelse x != [] [
+  let counts rep 0 nbreaks
+  let m min x let ma max x
+  foreach x [
+    let index floor ((? - m)/(ma - m)*(nbreaks - 1))
+    set counts replace-item index counts (item index counts + 1)
+  ]
+  
+  report counts
+  ][
+    report []
+  ]
+end
+
+
+
+; quantile function
+to-report quantile [x q]
+  if length x = 0 [report 0]
+  report item (floor (q * length x)) (sort x)
+end

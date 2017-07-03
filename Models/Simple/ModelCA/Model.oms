@@ -1,0 +1,39 @@
+
+// variables
+val weightDensity = Val[Double]
+val weightCenter = Val[Double]
+val weightRoad = Val[Double]
+val centerNumber = Val[Int]
+
+// indicators
+val networkSpeed = Val[Double]
+val localDensity = Val[Double]
+val globalDensity = Val[Double]
+val moran = Val[Double]
+
+// local vars correlations
+//  local vars : density ; centre-distance ; road-distance - note : eucl-dist is constant !
+val rhoDensCentre = Val[Array[Double]]
+val rhoDensRoad = Val[Array[Double]]
+val rhoCentrRoad = Val[Array[Double]]
+
+
+val id = Val[Int]
+val replication = Val[Int]
+
+//  setup-headless [weight-density weight-center weight-road #-centres final-time random-sd]
+// indicators : [ eval-speed , eval-density , spatial-autocorrelation-index , global-density]
+val cmds = Seq("setup-headless ${weightDensity} ${weightCenter} ${weightRoad} ${centerNumber} 30 ${replication}","run-experiment")
+
+val model =
+NetLogo5Task.workspace(workDirectory,"HEADLESS_base.nlogo",cmds) set(
+    inputs += (weightDensity,weightCenter,weightRoad,centerNumber,replication,id),
+    outputs += (weightDensity,weightCenter,weightRoad,centerNumber,replication,id),
+    netLogoOutputs += ("eval-speed", networkSpeed),
+    netLogoOutputs += ("eval-density", localDensity),
+    netLogoOutputs += ("global-density", globalDensity),
+    netLogoOutputs += ("spatial-autocorrelation-index", moran),
+    netLogoOutputs += ("lagged-corrs \"density\" \"centre-distance\" 8 5",rhoDensCentre),
+    netLogoOutputs += ("lagged-corrs \"density\" \"road-distance\" 8 5",rhoDensRoad),
+    netLogoOutputs += ("lagged-corrs \"centre-distance\" \"road-distance\" 8 5",rhoCentrRoad)
+)

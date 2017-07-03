@@ -22,7 +22,7 @@ to setup-gis
   ;;set cluster-treshold 10
   ;create-network-vertices-clustering
   ;;use classic nw creation function -> NEEDS SMALL GIS FILES !!!
-  create-network
+  create-network roads-layer 10
   
   
   
@@ -60,10 +60,10 @@ to setup-gis
   foreach to-list vertices [ask ? [set number i set i i + 1]]
 
   ask paths [
-    set D D0
-    set arete-length link-length
+    set diameter initial-diameter
+    set path-length link-length
     set thickness 0.2
-    set color scale-color grey D Dmax Dmin
+    set color scale-color grey diameter diameter-max diameter-min
   ]
 
   ;classic-setup
@@ -87,8 +87,8 @@ to setup
   set-default-shape vertices "dot"
   set-default-shape paths "line"
   set-default-shape poles "star"
-  set Dmin 0
-  set Dmax D0
+  set diameter-min 0
+  set diameter-max initial-diameter
   
   setup-vertices
   setup-paths
@@ -101,16 +101,11 @@ end
 
 to setup-vertices
   ask patches [
-    set pcolor white                           ;; couleur du fond
+    set pcolor white
     sprout-vertices 1 [
-      set color black                          ;; couleur des vertices
+      set color black            
       set size 0.5
-      set number who                           ;; numéro = who au départ
-      
-      ;;let hide the nodes ???
-      ;; Nope, they will be colored as the adjacent arete (max of color)
-      
-      
+      set number who                          
     ]
   ]
 end
@@ -119,13 +114,13 @@ end
 to setup-paths
   ask vertices [
     create-paths-with other vertices in-radius 1.5 [
-      set D D0
+      set diameter initial-diameter
       let di 0
       let otherend end2
       ask end1 [ set di distance otherend ]
-      set arete-length di
+      set path-length di
       set thickness 0.2
-      set color scale-color grey D Dmax Dmin
+      set color scale-color grey diameter diameter-max diameter-min
     ]
   ]
 end
@@ -153,8 +148,12 @@ to setup-cities
   ;;then diffusion procedure -> ok don't diffuse, does not seem useful !
   ;;repeat diffusion-times [diffuse4 density diffusion-prop]
   
-  foreach gis:feature-list-of gis:load-dataset centers-layer [
-    ask patches [if gis:contains? self ? [set density 1] ];; no need to normalize 
+  ifelse setup-from-file?[
+    foreach gis:feature-list-of gis:load-dataset centers-layer [
+      ask patches [if gis:contains? self ? [set density 1] ];; no need to normalize 
+    ]
+  ][
+     ask n-of centers-number (patches with [count vertices in-radius 5 > 0])[set density 1]
   ]
   
   ask patches with [density > 0] [sprout 1 [set color red set shape "circle" set size 3]]
@@ -171,10 +170,10 @@ end
 ;;explo specific setup
 to setup-exploration
   ask paths [
-    set D D0
-    set arete-length link-length
+    set diameter initial-diameter
+    set path-length link-length
     set thickness 0.2
-    set color scale-color grey D Dmax Dmin
+    set color scale-color grey diameter diameter-max diameter-min
   ]
   
   ;;kill abstract nw

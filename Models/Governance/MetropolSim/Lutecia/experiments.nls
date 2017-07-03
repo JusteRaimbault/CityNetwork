@@ -1,0 +1,98 @@
+;;;;;
+;; procedures for oml experiment
+
+to setup-experiment [regionalproba lambdaacc euclpace game constr-cost coll-cost gammaCDA gammaCDE betaDC evolveNetwork evolveLanduse target-network setuptype conffile finalTime rnd-seed]
+  
+  clear-all
+  
+  show (word "Params : regionalproba = " regionalproba " ; lambdaacc = " lambdaacc " ; euclpace = "  euclpace " ; game = " game " ; constr-cost = " constr-cost " ; coll-cost = " coll-cost
+     " ; gammaCDA = " gammaCDA " ; gammaCDE = " gammaCDE " ; betaDC = " betaDC " ; evolveNetwork = " evolveNetwork
+    )
+  
+  ; conf file
+  ;if conf-file = 0 [set conf-file "setup/conf/synth_nonw.conf"] if conf-file = 1 [set conf-file "setup/conf/synth_cross.conf"] if conf-file = 2 [set conf-file "setup/conf/synth_spider.conf"]  
+  set conf-file conffile
+  let conf read-conf-file conf-file
+  set setup-from-world-file? false
+  if table:has-key? conf "world-file" [set setup-from-world-file? true]
+    
+  ;; cache setup for performance in case of gis real situation
+  if setup-from-world-file? [
+    import-world (table:get conf "world-file")
+    set setup-from-world-file? true
+    random-seed rnd-seed
+  ]
+  
+  
+  
+  setup:setup-headless-vars
+  
+  set headless? true
+  set failed 0
+  
+  set seed rnd-seed
+  
+  
+  set regional-decision-proba regionalproba
+  set lambda-accessibility lambdaacc 
+  set euclidian-min-pace euclpace
+  if floor game = 0 [set game-type "random"] if floor game = 1 [set game-type "simple-nash"] if floor game = 2 [set game-type "discrete-choices"]
+  set construction-cost constr-cost
+  set collaboration-cost coll-cost
+  
+  set gamma-cobb-douglas-e gammaCDE ;0.9
+  set gamma-cobb-douglas-a gammaCDA ;0.65
+  set beta-discrete-choices betaDC ; 1.8
+  ; dirty boolean conversion
+  if evolveNetwork = 0 [set evolve-network? false] if evolveNetwork = 1 [set evolve-network? true]
+  if evolveLanduse = 0 [set evolve-landuse? false] if evolveLanduse = 1 [set evolve-landuse? true]
+  
+  set with-externalities? false
+  ;ifelse with-ext = 1 [set with-externalities? true][set with-externalities? false]
+  ;set ext-growth-factor ext-growth
+  
+  ; target network file
+  ; network0 : planned ; network1 : real
+  set target-network-file (word "setup/target/network" target-network ".shp")
+  
+  ; setup type
+  if setuptype = 0 [set setup-type "random"]
+  if setuptype = 1 [set setup-type "gis-synthetic"]
+  if setuptype = 2 [set setup-type "gis"]
+  
+  
+
+  set total-time-steps finalTime
+  
+  if setup-from-world-file? = false [
+    set world-size 15
+    setup:setup
+  ]
+
+end
+
+
+to run-experiment
+  ;; run
+  
+  carefully[
+    repeat total-time-steps [
+      go
+    ]
+  ]
+  [show error-message set failed 1]
+  ; indicators then called from openmole
+  
+  ; cache network measures first
+  network:cache-nw-measures
+  
+end
+
+
+to export-real-world
+  setup-experiment 1.0 0.01 5 1 0.01 0.005 0.9 0.65 1.8 1 1 0 2 "setup/conf/real_fullsetup.conf" 10 0
+  
+  show "setup ok, exporting world"
+  
+  export-world "setup/realsetup.csv"
+end

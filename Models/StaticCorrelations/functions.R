@@ -48,6 +48,8 @@ getCorrMatrices<-function(xcors,ycors,xyrhoasize,res,f=function(m){cor(m[,c(-1,-
       rows = abs(res[,1]-x)<xyrhoasize/2&abs(res[,2]-y)<xyrhoasize/2
       rho = f(NA)#matrix(NA,nrow(res),ncol(res)))
       #show(length(which(rows)))
+      #rho = list()#atrix(NA,(ncol(res)-2),(ncol(res)-2))
+      #if(length(which(rows))>0){show(length(which(rows)))}
       if(length(which(rows))>10){# arbitrary threshold to have a minimal quantity of measures
         #show(res[rows,c(-1,-2)])
         #rho = cor(res[rows,c(-1,-2)])

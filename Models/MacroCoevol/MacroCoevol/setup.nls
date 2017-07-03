@@ -1,0 +1,315 @@
+
+;;
+;  setup
+
+
+to setup:setup
+  
+  if headless? != true [ca]
+  
+  ;;
+  ; global vars
+  setup:setup-globals
+  
+  ;;
+  ; world config
+  setup:setup-world
+  
+  ;;
+  ; load data files
+  setup:setup-data
+  
+  ;;
+  ; cities
+  setup:setup-cities
+  
+  ;;
+  ; network
+  setup:setup-network
+  setup:setup-matrices
+  
+  update-weights
+  
+  setup:setup-indicators
+ 
+  reset-ticks 
+  setup:setup-display
+ 
+  indicators:update-indicators
+  
+  
+  
+end
+
+
+;;
+;  partial setup
+to setup:reset
+  setup:setup-globals
+  setup:setup-data
+  ;setup:setup-matrices
+  setup:reset-populations
+  setup:reset-links
+  setup:reset-distances
+  setup:setup-indicators
+  reset-ticks
+  clear-all-plots
+  update-display
+  ; for virtual
+  if network-type = "virtual" [ask links [die]]
+end
+
+to setup:reset-populations
+  ask cities [set population matrix:get populations index 0]
+end
+
+to setup:reset-links
+  ask paths [new-path]
+  if network-type = "virtual" [ask links [die]]
+end
+
+to setup:reset-distances
+  set distance-matrix matrix:copy initial-distance-matrix
+end
+
+
+to setup:setup-globals
+  set alpha0 3 set n0 3
+  
+  set indicator-sampling-time-step 5
+  
+  set slime-mould-node-distance 20
+  
+end
+
+
+to setup:setup-world
+  
+  if setup-type = "synthetic" [
+    
+  ]
+  
+  if setup-type = "gis" [
+    
+    ; TODO : check fit dates - pb with cst growth rates and ≠ ∆t
+    
+    ;;
+    ; raster patch elevation (for visual only)
+    let elevation-raster gis:load-dataset "setup/mnt.asc"
+    ; world envelope : xmin 1000 xmax 11000 ymin 61250 ymax 71200
+    ;gis:set-world-envelope gis:envelope-of elevation-raster
+    gis:set-world-envelope (list 100000 1100000 6125000 7120000)
+    gis:apply-raster elevation-raster elevation
+    ; deal with NaNs
+    ask patches with [not (elevation < 0 or elevation > 0)] [set elevation -1]
+  
+    ;;
+    ; setup geographical path network
+    ask patches with [elevation > 0] [sprout-nodes 1 [set hidden? true]]
+    ask nodes [
+      create-paths-with other nodes in-radius 1.5 with [not link-neighbor? myself] [
+        set hidden? true
+        let slope atan (abs ([elevation] of end1 - [elevation] of end2)) (link-length * 1000)
+        set impedance link-length * (1 + (slope / alpha0)^ n0)
+      ]
+  ]
+  
+  ]
+  
+end
+
+
+;;
+; load data from files
+to setup:setup-data
+  
+  if setup-type = "gis" [
+    ;; population matrices
+    set real-populations read-numeric-csv-as-matrix (word "setup/pops/pop50_" period".csv") ","
+    set populations matrix:make-constant length matrix:get-column real-populations 0 length matrix:get-row real-populations 0 0
+    matrix:set-column populations 0 matrix:get-column real-populations 0
+  
+    ;; distances
+    set distance-matrix read-numeric-csv-as-matrix "setup/dist50.csv" ","
+    set feedback-distance-matrix read-numeric-csv-as-matrix "setup/fdists50.csv" ","
+  
+    ;; dates
+    set dates map [read-from-string ?] (read-file (word "setup/dates/dates_" period ".csv"))
+  
+  ]
+  
+end
+
+
+to setup:setup-cities
+  
+  if setup-type = "synthetic" [
+    let i 1
+    create-cities synthetic-cities-number [
+      ;setxy random-xcor random-ycor
+      move-to one-of patches with [count cities in-radius 10 = 0]
+      set index (i - 1)
+      set population synthetic-max-pop / (i ^ synthetic-rank-size-exp) set i i + 1
+      new-city
+     ]
+  ]
+  
+  
+  if setup-type = "gis" [
+    let coords read-csv "setup/coords.csv" ","
+    let i 0
+    foreach coords [
+      let cname first ? let x read-from-string item 1 ? let y read-from-string last ?
+      create-cities 1 [set name cname set-coords-l93 x y set index i set population matrix:get real-populations i 0 new-city]
+      set i i + 1 
+    ]
+  ]
+  
+end
+
+
+
+to setup:setup-network
+  
+  if setup-type = "synthetic" and network-type != "virtual" [
+     
+     if physical-network-heuristic = "slime-mould" [
+        foreach seq min-pxcor max-pxcor slime-mould-node-distance [
+          let x ? foreach seq min-pycor max-pycor slime-mould-node-distance [
+            let y ? create-nodes 1 [setxy x y new-node]
+          ]
+        ]
+        
+        ask nodes [create-paths-with (other nodes in-radius (slime-mould-node-distance * sqrt 2)) [new-path]]
+        ask n-of (0.4 * count links) links [die]
+        planarize-network nodes paths
+        ask nodes [ ; jitter
+          set xcor (max (list min-pxcor (min (list max-pxcor (xcor - slime-mould-node-distance / 4 + (2 * random (slime-mould-node-distance / 4)))))))
+          set ycor (max (list min-pycor (min (list max-pycor (ycor - slime-mould-node-distance / 4 + (2 * random (slime-mould-node-distance / 4)))))))
+        ]
+        ;ask cities [create-paths-with (other turtles in-radius (slime-mould-node-distance * (sqrt 2) / 2))[new-path]]
+        connexify-network-link-projection
+        ;planarize-network turtles paths
+     ]
+     
+     if physical-network-heuristic = "breakdown" [
+        ask cities [let c2 one-of ((other cities) with-min [distance myself]) if not link-neighbor? c2 [create-link-with c2]]
+        connexify-network-link-projection
+    
+        ; optional procedure to create "local" shortcuts
+        local-shortcuts
+    
+        ; planarize
+        planarize-network turtles paths
+    ]
+     
+    ; setup link vars
+    ask paths [new-path]
+    ask paths with [path-length = 0] [die]
+      
+  ]
+  
+end
+
+
+
+
+to setup:setup-matrices
+  
+  if setup-type = "synthetic" [
+    
+    let n count cities
+    
+    if network-type = "virtual" [
+      ; distance matrix
+      
+      let xcors [] let ycors [] let pops [] foreach sort-by [[index] of ?1 < [index] of ?2] cities [ask ? [set xcors lput xcor xcors set ycors lput ycor ycors set pops lput population pops]]
+      let xi matrix:from-row-list (rep xcors n) let xj matrix:from-column-list (rep xcors n) let yi matrix:from-row-list (rep ycors n) let yj matrix:from-column-list (rep ycors n)
+      set distance-matrix matrix:map sqrt ((matrix:times-element-wise (xi matrix:- xj) (xi matrix:- xj)) matrix:+ (matrix:times-element-wise (yi matrix:- yj) (yi matrix:- yj)))
+    ]
+    
+    if network-type = "physical" [
+      set distance-matrix matrix:make-constant n n 0  set gravity-flows matrix:make-constant n n 0 set feedback-flows matrix:make-constant n n 0
+      update-distance-matrices 
+    ]
+    
+    
+    set initial-distance-matrix matrix:copy distance-matrix
+    
+    ; feedback distance matrix
+    let xcors [] let ycors [] let pops [] foreach sort-by [[index] of ?1 < [index] of ?2] cities [ask ? [set xcors lput xcor xcors set ycors lput ycor ycors set pops lput population pops]]
+    let xi matrix:from-row-list (rep xcors n) let xj matrix:from-column-list (rep xcors n) let yi matrix:from-row-list (rep ycors n) let yj matrix:from-column-list (rep ycors n)
+    let feedback-dist-rows []
+    let k 0
+    repeat n [
+      let cityk one-of cities with [index = k]
+      let xk matrix:make-constant n n [xcor] of cityk let yk matrix:make-constant n n [ycor] of cityk
+      let xik matrix:map zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xi matrix:- xk) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yk) (yi matrix:- yk))))
+      let xjk matrix:map zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xj matrix:- xk) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yk) (yj matrix:- yk))))
+      let sc1 (matrix:times-element-wise ((matrix:times-element-wise (xi matrix:- xj) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yj) (yi matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map zero-infinite distance-matrix) xik)))
+      let sc2 (matrix:times-element-wise ((matrix:times-element-wise (xj matrix:- xi) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yi) (yj matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map zero-infinite distance-matrix) xjk)))
+      let kfeedbackdistmat (matrix:map feedback-distance sc1 sc2 xik)
+      set feedback-dist-rows lput (flatten-dists-feedback kfeedbackdistmat) feedback-dist-rows
+      set k k + 1
+    ]
+    
+    set feedback-distance-matrix matrix:from-row-list feedback-dist-rows
+    
+    
+    ; dates
+    set dates seq 0 final-time-step 1
+    
+    ; population matrices
+    set populations matrix:make-constant n (final-time-step + 1) 1 set real-populations matrix:make-constant n (final-time-step + 1) 1
+    matrix:set-column populations 0 pops
+    
+  ]
+  
+end
+
+
+
+to setup:setup-indicators
+  
+  set indicator-sample-cities to-list cities
+  
+  set city-values-table table:make
+  
+end
+
+
+to setup:setup-display
+  if headless? != true [
+    color-patches
+    display-plots
+  ]
+end
+
+
+
+to setup:setup-headless
+  
+  ; for now only synthetic in experiments
+  set setup-type "synthetic"
+  
+  set physical-network-heuristic "slime-mold"
+  
+  set show-virtual-flows? false
+  
+  ; test effect of cities number ?
+  set synthetic-cities-number 30
+  ;set synthetic-rank-size-exp 1.2
+  set synthetic-max-pop 100000
+  set network-reinforcment-exponent 1.0
+  set growth-rate 0.001
+  
+  set synthetic-shortcut-number 30
+  set synthetic-city-max-degree 5
+  set synthetic-shortcut-radius 30
+  
+end
+
+
+
+
+

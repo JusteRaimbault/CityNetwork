@@ -1,0 +1,71 @@
+
+// Parameters
+// density
+val diffusion = Val[Double]
+val diffusionsteps = Val[Double]
+val alphalocalization = Val[Double]
+val growthrate = Val[Double]
+
+// utility
+val laPopCoef = Val[Double]
+val laDroadCoef = Val[Double]
+val laCloseness = Val[Double]
+val laBw = Val[Double]
+val laAccessibility = Val[Double]
+
+// network
+val nwHeuristic = Val[Int]
+
+// gravity
+val gravityRadius = Val[Double]
+val gravityInflexion = Val[Double]
+val hierarchyRole = Val[Double]
+val gravityHierarchyExponent = Val[Double]
+val maxNewLinksNumber = Val[Double]
+
+//biological
+val bioThreshold = Val[Double]
+val bioSteps = Val[Double]
+
+// time params
+val nwUpdateTime = Val[Double]
+val totalTime = Val[Double]
+
+val id = Val[Int]
+val replication = Val[Int]
+
+// Reporters
+// morphology
+val moran=Val[Double]
+val distance=Val[Double]
+val entropy=Val[Double]
+val slope=Val[Double]
+val rsquared=Val[Double]
+// network
+val nwDiameter = Val[Double]
+val meanPathLength = Val[Double]
+val meanBwCentrality = Val[Double]
+val meanClosenessCentrality = Val[Double]
+val meanRelativeSpeed = Val[Double]
+val nwLength = Val[Double]
+
+
+
+
+// model
+// setup-experiment [nw-heuristic growth-rate density-alpha diffusion-steps diffusion la-pop-coef la-droad-coef la-closeness la-bw la-accessibility grav-radius grav-inflexion grav-hierarchy-role grav-exponent grav-new-links bio-threshold bio-steps nw-update-time total-time rseed]
+val cmds = List("setup-experiment ${nwHeuristic} ${growthrate} ${alphalocalization} ${diffusionsteps} ${diffusion} ${laPopCoef} ${laDroadCoef} ${laCloseness} ${laBw} ${laAccessibility} ${gravityRadius} ${gravityInflexion} ${hierarchyRole} ${gravityHierarchyExponent} ${maxNewLinksNumber} ${bioThreshold} ${bioSteps} ${nwUpdateTime} ${totalTime} ${replication}","run-experiment")
+val model = NetLogo5Task(workDirectory / "model/HEADLESS_MesoCoEvol.nlogo", cmds,embedWorkspace = true) set (
+    inputs += (nwHeuristic,growthrate,alphalocalization,diffusionsteps,diffusion,laPopCoef,laDroadCoef,laCloseness,laBw,laAccessibility,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,bioThreshold,bioSteps,nwUpdateTime,totalTime,replication,id),
+    outputs += (nwHeuristic,growthrate,alphalocalization,diffusionsteps,diffusion,laPopCoef,laDroadCoef,laCloseness,laBw,laAccessibility,gravityRadius,gravityInflexion,hierarchyRole,gravityHierarchyExponent,maxNewLinksNumber,bioThreshold,bioSteps,nwUpdateTime,totalTime,replication,id),
+    netLogoOutputs += ("moran", moran),
+    netLogoOutputs += ("mean-distance", distance),
+    netLogoOutputs += ("entropy", entropy),
+    netLogoOutputs += ("slope", slope),
+    netLogoOutputs += ("slope-rsquared", rsquared),
+    netLogoOutputs += ("mean-path-length", meanPathLength),
+    netLogoOutputs += ("mean-bw-centrality",meanBwCentrality),
+    netLogoOutputs += ("mean-city-closeness-centrality",meanClosenessCentrality),
+    netLogoOutputs += ("mean-relative-speed",meanRelativeSpeed),
+    netLogoOutputs += ("total-nw-length",nwLength)
+)

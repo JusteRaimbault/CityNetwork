@@ -7,13 +7,162 @@
 
 
 
+
+;; report the link corresponding to coordinates
+to-report network:new-infra [coords]
+  let e1 nobody let new-link nobody
+  ifelse length first coords = 2 and length last coords = 2[
+  create-transportation-nodes 1 [new-transportation-node setxy first first coords last first coords set e1 self]
+  create-transportation-nodes 1 [
+    new-transportation-node setxy first last coords last last coords
+    create-transportation-link-with e1 [new-transportation-link set new-link self]
+  ]
+  
+  ; check if link is valid
+  let valid? false
+  ask new-link [
+    foreach footprint [ask ? [set valid? (valid? or not member? number nw-patches)]]
+  ]
+  ifelse valid? [
+    report new-link
+  ][
+    verbose "¡¡ Unvalid infrastructure !!"
+    ask new-link [ask both-ends [die] die]
+    report nobody
+  ]
+  ][report nobody]
+end
+
+
+
+
+
+to-report network:random-infra [patchset infra-length]
+  ; first end is taken in patchset
+  let p1 one-of patchset
+  
+  ; fixed infra length
+  let p2 nobody if p1 != nobody [ask p1 [set p2 one-of patchset with [abs(distance myself - infra-length) < 1.5]]]
+  if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patchset with [distance myself < infra-length]]]]
+  if p2 = nobody [ if p1 != nobody [ask p1 [set p2 one-of patches with [abs(distance myself - infra-length) < 1.5]]]] ; if patchset too small, test other end on all patches
+  
+  let c1 [] let c2 []
+  
+  ifelse p2 = nobody or p1 = nobody [
+    set c1 (list random-pxcor random-pycor) set c2 (list random-pxcor random-pycor)
+  ][
+    ; for each existing infrastructure, check if closer than snapping threshold, report projection if needed
+    set c1 (list [pxcor] of p1 [pycor] of p1) set c2 (list [pxcor] of p2 [pycor] of p2)
+    ask transportation-links [
+       ask p1 [
+         if distance-to-link myself < infra-snapping-tolerance [
+           ask myself [set c1 coord-of-projection-of ([pxcor] of p1) ([pycor] of p1)]
+         ]
+       ]
+       ask p2 [
+         if distance-to-link myself < infra-snapping-tolerance [
+           ask myself [set c2 coord-of-projection-of ([pxcor] of p2) ([pycor] of p2)]
+         ]
+       ]
+    ]
+    
+    
+  ]
+  
+  ifelse (first c1 = first c2 and last c1 = last c2) or (first c1 = last c2 and last c1 = first c2)[
+      report (list [] []) 
+    ]
+    [
+      report (list c1 c2) 
+    ] 
+end
+
+
+
+
+;;
+; get a geometrical distance measure between two networks
+;  -> area of non-crossing polygons ?
+to-report network:network-distances [e1 e2]
+  if count e1 = 0 or count e2 = 0 [report 0]
+  let res 0
+  ask e1 [
+    let dmin network:link-distance self (one-of e2)
+    ask e2 [
+      let d network:link-distance myself self if d < dmin [set dmin d]
+    ]
+    set res res + dmin
+  ]
+  report res
+end
+
+;;
+; distance between two links
+to-report network:link-distance [l1 l2]
+  
+  if link-distance-function = "distance-closest-ends" [
+    ; rough heuristic : mse between extremities ?
+    let res 0 let oend nobody
+    ask l1 [
+      ask end1 [
+        let e2 one-of (([both-ends] of l2) with-min [distance myself])
+        set oend one-of (([both-ends] of l2) with [self != e2])
+        ask e2 [set res res + distance myself]
+      ]
+      ask end2 [
+        ask oend [set res res + distance myself] 
+      ]
+    ]
+    report res
+  ]
+  
+  if link-distance-function = "distance-projection" [
+    ; projection of l1 on l2 (-> non-symmetric)
+    let res 0 ask l1 [ask both-ends [set res res + distance-to-link l2]]
+    report res
+  ]
+  
+  
+  
+end
+
+
+;;
+;  create a virtual network for comparison
+to network:ghost-network-from-gis [file]
+  foreach gis:feature-list-of gis:load-dataset file [   
+        foreach gis:vertex-lists-of ? [
+          let i 0 let l ?
+          foreach but-first ? [
+            let p1 gis:location-of item i l let p2 gis:location-of ?
+            ;output-print p1 output-print p2
+            if p1 != [] and p2 != [] [
+              set p1 ([list pxcor pycor] of patch first p1 last p1) set p2 ([list pxcor pycor] of patch first p2 last p2)
+              if p1 != p2 [
+                create-ghost-transportation-nodes 1 [
+                  new-transportation-node setxy first p1 last p1
+                  hatch 1 [setxy first p2 last p2 create-ghost-transportation-link-with myself]
+                ]
+              ]
+            ]
+            set i i + 1
+          ]
+        
+        ]    
+      ]
+end
+
+
+
+
+
 to new-transportation-node
-  set shape "circle" set size 0.4 set color red
+  set shape "circle" set size 0.2 set color red
 end
 
 
 to new-transportation-link
-  set color red set thickness 0.4
+  set color red set thickness 0.2
   
   ; define capacity ?
   
@@ -26,7 +175,7 @@ end
 
 ;;
 ;  memorize links age in a table
-to-report nw-age
+to-report network:network-age
   let res table:make
   ask transportation-links [
     foreach footprint [
@@ -42,7 +191,7 @@ end
 ;;
 ;  Update age variable of links
 ;    with memorized nw-age in table patch -> age
-to update-network-age [old-nw-age]
+to network:update-network-age [old-nw-age]
   ask transportation-links [
     let new-age 0 let ages rep 0 (ticks + 1); ages memorized in a list
     foreach footprint [
@@ -63,3 +212,54 @@ to update-network-age [old-nw-age]
   
   
 end
+
+
+
+;; 
+;  network indicators
+to network:cache-nw-measures
+  
+  ;simplify-network
+  
+  ; caching shortest paths and measures
+  nw:set-context transportation-nodes transportation-links
+  ask transportation-links [set transportation-link-length link-length set bw-centrality 0]
+  set shortest-paths table:make set nw-relative-speeds table:make set nw-distances table:make
+  let clist to-list transportation-nodes let i 0 let j 1
+  repeat (length clist - 1) [
+    let c1 item i clist
+    set j i + 1
+    repeat (length clist - i - 1) [
+      ; compute shortest path
+      let c2 item j clist let path [] ask c1 [set path nw:weighted-path-to c2 "transportation-link-length"]
+      ; update link betweeness
+      let l 0 foreach path [ask ? [set l l + transportation-link-length set bw-centrality bw-centrality + 1]]
+      ; if the network is not connected, some kind of infinite value
+      if l = 0 [set l 100 * sqrt (world-width ^ 2 + world-height ^ 2)]
+      ; update shortest path table
+      table:put shortest-paths (list [who] of c1 [who] of c2) path table:put shortest-paths (list [who] of c2 [who] of c1) (rev path)
+      ; update nw distance table
+      table:put nw-distances (list [who] of c1 [who] of c2) l table:put nw-distances (list [who] of c2 [who] of c1) l
+      ; update relative speed table
+      let deucl 0 ask c1 [set deucl distance c2]
+      table:put nw-relative-speeds (list [who] of c1 [who] of c2) (deucl / l)
+
+      set j j + 1
+    ]
+    set i i + 1
+  ]
+  
+  ; using computed distances, can get closenesses
+  ask transportation-nodes [
+    let n1 who let s 0
+    ask other transportation-nodes [
+      let n2 who set s s + table:get nw-distances (list n1 n2)
+    ]
+    set transportation-node-closeness-centrality s
+  ]
+  
+  
+  
+end
+
+

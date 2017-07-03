@@ -1,0 +1,135 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
+// variables
+val synthRankSize = Val[Double]
+val nwThreshold = Val[Double]
+val nwGmax = Val[Double]
+val finalTime = Val[Int]
+val gravityWeight = Val[Double]
+val gravityGamma = Val[Double]
+val gravityDecay = Val[Double]
+val feedbackWeight = Val[Double]
+val feedbackGamma = Val[Double]
+val feedbackDecay = Val[Double]
+
+// indicators
+// distributions
+val populationHierarchies = Val[Array[Double]]
+val populationEntropies = Val[Array[Double]]
+val populationSummaries = Val[Array[Double]]
+val closenessHierarchies = Val[Array[Double]]
+val closenessEntropies = Val[Array[Double]]
+val closenessSummaries = Val[Array[Double]]
+val accessibilityHierarchies = Val[Array[Double]]
+val accessibilityEntropies = Val[Array[Double]]
+val accessibilitySummaries = Val[Array[Double]]
+
+// lagged corrs
+val rhoPopCloseness = Val[Array[Double]]
+val rhoPopAccessibility = Val[Array[Double]]
+val rhoClosenessAccessibility = Val[Array[Double]]
+
+// distance corrs
+val rhoDistPopCloseness = Val[Array[Double]]
+val rhoDistPopAccessibility = Val[Array[Double]]
+val rhoDistClosenessAccessibility = Val[Array[Double]]
+
+// trajectories
+val rankCorrPop = Val[Double]
+val rankCorrCloseness = Val[Double]
+val rankCorrAccessibility = Val[Double]
+val diversityPop = Val[Double]
+val diversityCloseness = Val[Double]
+val diversityAccessibility = Val[Double]
+val complexityCloseness = Val[Double]
+val complexityAccessibility = Val[Double]
+
+val id = Val[Int]
+val replication = Val[Int]
+
+// setup-experiment-virtual-network [synth-ranksize nw-threshold nw-gmax final-time grav-weight grav-gamma grav-decay
+//         feed-weight feed-gamma feed-decay nw-type seed]
+
+val cmds = Seq("setup-experiment-virtual-network ${synthRankSize} ${nwThreshold} ${nwGmax} ${finalTime} ${gravityWeight} ${gravityGamma} ${gravityDecay} ${feedbackWeight} ${feedbackGamma} ${feedbackDecay} 0 ${replication}","run-experiment")
+
+val model =
+NetLogo5Task.workspace(workDirectory,"HEADLESS_MacroCoEvol.nlogo",cmds) set(
+    inputs += (synthRankSize,nwThreshold,nwGmax,finalTime,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,replication,id),
+    outputs += (synthRankSize,nwThreshold,nwGmax,finalTime,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,replication,id),
+    netLogoOutputs += ("population-hierarchies", populationHierarchies),
+    netLogoOutputs += ("population-entropies", populationEntropies),
+    netLogoOutputs += ("population-summaries", populationSummaries),
+    netLogoOutputs += ("closeness-hierarchies", closenessHierarchies),
+    netLogoOutputs += ("closeness-entropies", closenessEntropies),
+    netLogoOutputs += ("closeness-summaries", closenessSummaries),
+    netLogoOutputs += ("accessibility-hierarchies", accessibilityHierarchies),
+    netLogoOutputs += ("accessibility-entropies", accessibilityEntropies),
+    netLogoOutputs += ("accessibility-summaries", accessibilitySummaries),
+    netLogoOutputs += ("lagged-corrs \"city-population\" \"city-closeness-centrality\" 6 0",rhoPopCloseness),
+    netLogoOutputs += ("lagged-corrs \"city-population\" \"city-accessibility\" 6 0",rhoPopAccessibility),
+    netLogoOutputs += ("lagged-corrs \"city-closeness-centrality\" \"city-accessibility\" 6 0",rhoClosenessAccessibility),
+    netLogoOutputs += ("distance-correlation \"city-population\" \"city-closeness-centrality\"",rhoDistPopCloseness),
+    netLogoOutputs += ("distance-correlation \"city-population\" \"city-accessibility\"",rhoDistPopAccessibility),
+    netLogoOutputs += ("distance-correlation \"city-closeness-centrality\" \"city-accessibility\"",rhoDistClosenessAccessibility),
+    netLogoOutputs += ("rank-correlation \"city-population\"",rankCorrPop),
+    netLogoOutputs += ("rank-correlation \"city-closeness-centrality\"",rankCorrCloseness),
+    netLogoOutputs += ("rank-correlation \"city-accessibility\"",rankCorrAccessibility),
+    netLogoOutputs += ("trajectories-diversity \"city-population\"",diversityPop),
+    netLogoOutputs += ("trajectories-diversity \"city-closeness-centrality\"",diversityCloseness),
+    netLogoOutputs += ("trajectories-diversity \"city-accessibility\"",diversityAccessibility),
+    netLogoOutputs += ("trajectories-complexity \"city-closeness-centrality\"",complexityCloseness),
+    netLogoOutputs += ("trajectories-complexity \"city-accessibility\"",complexityAccessibility)
+)
+
+
+
+// exploration task
+
+// (synthRankSize,nwThreshold,nwGmax,finalTime,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,replication,id)
+
+val exploration =  ExplorationTask(
+  /*(((synthRankSize in (0.5 to 1.5 by 0.5)) x
+    (nwThreshold in (0.5 to 4.5 by 0.5)) x
+    (nwGmax in (0.0 to 0.05 by 0.05)) x
+    (gravityWeight in (0.00025 to 0.001 by 0.00025)) x
+    (gravityGamma in (0.5 to 1.5 by 0.5)) x
+    (gravityDecay in (10.0 to 210.0 by 50.0))
+  ) withIndex id )*/
+  ((LHS (
+    1
+    ,synthRankSize in Range(0.5,1.5)
+    ,nwThreshold in Range(0.0,5.0)
+    ,nwGmax in Range(0.0,0.05)
+    ,gravityWeight in Range(0.0,0.001)
+    ,gravityGamma in Range(0.0,2.0)
+    ,gravityDecay in Range(0.0,200.0)
+  )) withIndex id)
+    x (finalTime is 30)
+  //x (synthRankSize is 1.1)
+  //x (nwThreshold is 2.0)
+  //x (nwGmax is 0.05)
+  //x (gravityWeight is 0.0005)
+  //x (gravityGamma is 1.0)
+  //x (gravityDecay is 50.0)
+  x (feedbackWeight is 0.0)
+  x (feedbackGamma is 1.0)
+  x (feedbackDecay is 1.0)
+  x (replication in (UniformDistribution[Int]() take 50))
+)
+
+val purpose = "test_local"
+// val purpose = grid_virtual
+
+// output
+val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
+  arraysOnSingleRow := true
+)
+
+
+
+val local = LocalEnvironment(50)
+//val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+
+exploration -< (model on local hook indics_hook)
+//exploration -< (model on grid by 10 hook indics_hook)

@@ -17,9 +17,13 @@ __includes [
    ; indicators
    "indicators.nls"
  
- 
- 
+   ;;;
+   ; display
    "display.nls"
+ 
+   ;;;
+   ; experiment
+   "experiments.nls"
  
    ;;;;;
    ;; utils
@@ -113,15 +117,11 @@ paths-own [
 
 
 
-
-
-
-
 @#$#@#$#@
 GRAPHICS-WINDOW
-345
+294
 20
-958
+907
 654
 100
 100
@@ -146,10 +146,10 @@ ticks
 30.0
 
 BUTTON
-18
-15
-84
-48
+20
+119
+86
+152
 setup
 setup
 NIL
@@ -163,77 +163,77 @@ NIL
 1
 
 SLIDER
-69
-269
-203
-302
+64
+258
+198
+291
 growth-rate
 growth-rate
 0
 0.05
-0.0040
-0.001
+0.0136
+0.0001
 1
 NIL
 HORIZONTAL
 
 OUTPUT
-1006
-484
-1390
-693
+991
+628
+1388
+798
 10
 
 SLIDER
-10
-312
-144
-345
+5
+301
+139
+334
 gravity-weight
 gravity-weight
 0
-0.1
-0.0010
-0.001
+2e-3
+2.45E-5
+1e-6
 1
 NIL
 HORIZONTAL
 
 SLIDER
-10
-349
-144
-382
+5
+338
+139
+371
 gravity-gamma
 gravity-gamma
 0.5
 5
-2
+1.87
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+375
+139
+408
+gravity-decay
+gravity-decay
+1
+500
+0.9500000000000003
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-10
-386
-144
-419
-gravity-decay
-gravity-decay
-1
-1000
-100
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-162
-312
-303
-345
+143
+301
+284
+334
 feedback-weight
 feedback-weight
 0
@@ -245,40 +245,40 @@ NIL
 HORIZONTAL
 
 SLIDER
-162
-350
-304
-383
+143
+339
+285
+372
 feedback-gamma
 feedback-gamma
 0
 5
-2
+0.8
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-162
-388
-304
-421
+143
+377
+285
+410
 feedback-decay
 feedback-decay
 0
 200
-50
-1
+3.4
+0.1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-18
-54
-84
-87
+20
+158
+86
+191
 reset
 reset
 NIL
@@ -292,12 +292,12 @@ NIL
 1
 
 BUTTON
-110
-31
-224
-64
+108
+121
+222
+154
 go full period
-go-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
+if ticks > 0 [reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
 NIL
 1
 T
@@ -309,10 +309,10 @@ NIL
 1
 
 MONITOR
-984
-23
-1041
-68
+29
+494
+86
+539
 date
 current-date
 17
@@ -320,10 +320,10 @@ current-date
 11
 
 BUTTON
-973
-409
-1084
-442
+779
+665
+890
+698
 random path
 ask one-of nodes [let p nw:weighted-path-to one-of other nodes \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]
 NIL
@@ -337,10 +337,10 @@ NIL
 1
 
 BUTTON
-1085
-409
-1148
-442
+891
+665
+954
+698
 clear
 ask paths [set hidden? true]
 NIL
@@ -354,13 +354,13 @@ NIL
 1
 
 BUTTON
-973
-445
-1084
-478
+779
+701
+890
+734
 random path cities
 ask one-of cities [let c2 one-of other cities let n2 [one-of nodes with-min [distance myself]] of c2 ask one-of nodes with-min [distance myself] [let p nw:weighted-path-to n2 \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]]
-T
+NIL
 1
 T
 OBSERVER
@@ -371,14 +371,147 @@ NIL
 1
 
 CHOOSER
-975
-83
-1173
-128
+20
+554
+151
+599
 visualization
 visualization
-"mse" "mse-log" "delta-previous-mse" "delta-previous-mse-log"
-2
+"mse" "mse-log" "delta-previous-mse" "delta-previous-mse-log" "feedback-strength"
+1
+
+PLOT
+1138
+10
+1403
+259
+fit
+real
+sim
+9.0
+10.0
+9.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
+
+BUTTON
+107
+161
+170
+194
+NIL
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+INPUTBOX
+10
+608
+60
+668
+orig
+0
+1
+0
+Number
+
+INPUTBOX
+62
+608
+112
+668
+dest
+0
+1
+0
+Number
+
+CHOOSER
+24
+18
+162
+63
+period
+period
+"1831-1851" "1841-1861" "1851-1872" "1881-1901" "1891-1911" "1921-1936" "1946-1968" "1962-1982" "1975-1999" "full"
+9
+
+PLOT
+1001
+293
+1402
+443
+profile-logmse
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
+
+PLOT
+1001
+446
+1402
+596
+profile-mselog
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
+
+PLOT
+921
+12
+1125
+179
+city-traj
+NIL
+NIL
+0.0
+2.0
+0.0
+10.0
+true
+true
+"set-current-plot-pen \"sim\" plot [population] of one-of cities with [name = city-traj]\nset-current-plot-pen \"real\" plot [population] of one-of cities with [name = city-traj]" ""
+PENS
+"sim" 1.0 0 -14070903 true "" "plot [last population-history] of one-of cities with [name = city-traj]"
+"real" 1.0 0 -5298144 true "" "plot [last expected-population-history] of one-of cities with [name = city-traj]"
+
+INPUTBOX
+919
+187
+1049
+247
+city-traj
+CAEN
+1
+0
+String
 
 @#$#@#$#@
 ## WHAT IS IT?

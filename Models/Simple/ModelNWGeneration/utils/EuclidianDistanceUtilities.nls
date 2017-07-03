@@ -1,0 +1,155 @@
+;;Euclidian distance calculation utilities functions
+
+
+
+;turtle or patch procedure reporting the distance to a given link
+to-report distance-to-link [l]
+  let x1 0 let y1 0 let x2 0 let y2 0 let e1 0 let e2 0 let x 0 let y 0
+  ask l [set e1 end1 set e2 end2]
+  ;ifelse is-turtle? self [set x xcor set y ycor][set x pxcor set y pycor]
+  set x pxcor set y pycor
+  ask e1[set x1 xcor
+  set y1 ycor]
+  ask e2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m2m = 0 [report 0]
+  if m1m2 = 0 [report m1m]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+  
+  if cost1 < 0 [report m1m]
+  if cost2 < 0 [report m2m]
+  report m1m * sqrt abs (1 - (cost1 ^ 2))
+end
+
+
+
+
+
+;link procedure which calculates the distance to a given point
+to-report distance-to-point [x y]
+  let x1 0 let y1 0 let x2 0 let y2 0
+  ask end1[set x1 xcor
+  set y1 ycor]
+  ask end2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m2m = 0 [report 0]
+  if m1m2 = 0 [report m1m]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+  
+  if cost1 < 0 [report m1m]
+  if cost2 < 0 [report m2m]
+  report m1m * sqrt abs (1 - (cost1 ^ 2))
+end
+
+
+;report a turtle on the projection of point x y on the calling link
+to-report projection-of [x y]
+  let x1 0 let y1 0 let x2 0 let y2 0
+  ask end1[set x1 xcor
+  set y1 ycor]
+  ask end2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m1m2 = 0 [report end1]
+  if m2m = 0 [report end2]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+    
+  let mq 0 let xx 0 let yy 0 let m1q 0
+  
+  ifelse cost1 < 0 [
+     report end1
+
+  ]
+  [
+  ifelse cost2 < 0 [
+     report end2
+
+  ]
+  [set mq m1m * sqrt abs (1 - (cost1 ^ 2))
+   set m1q sqrt ((m1m ^ 2) - (mq ^ 2))  
+   set xx x1 + m1q * (x2 - x1) / m1m2
+   set yy y1 + m1q * (y2 - y1) / m1m2
+   
+   if count turtles-on patch xx yy = 0 [
+     ask patch xx yy [sprout 1 [
+       setxy xx yy
+       ]
+     ]
+   ]
+  report one-of turtles-on patch xx yy
+   ]
+  ]
+  
+end
+
+
+
+;;same as projection but doesn't pose the problem of killing the turtle or not (which survived sometimes anyway, why? -> because internally created? lost the pointer? :(...)
+to-report coord-of-projection-of [x y]
+  let x1 0 let y1 0 let x2 0 let y2 0
+  ask end1[set x1 xcor
+  set y1 ycor]
+  ask end2 [set x2 xcor
+  set y2 ycor]
+  let m1m sqrt (((x1 - x ) ^ 2) + ((y1 - y) ^ 2))
+  let m2m sqrt (((x2 - x ) ^ 2) + ((y2 - y) ^ 2))
+  let m1m2 sqrt (((x1 - x2 ) ^ 2) + ((y1 - y2) ^ 2))
+  if m1m = 0 or m1m2 = 0 [report list [xcor] of end1 [ycor] of end1]
+  if m2m = 0 [report list [xcor] of end2 [ycor] of end2]
+  let cost1 (((x - x1)*(x2 - x1)) + ((y - y1)*(y2 - y1)))/(m1m * m1m2)
+  let cost2 (((x - x2)*(x1 - x2)) + ((y - y2)*(y1 - y2)))/(m2m * m1m2)
+    
+  let mq 0 let xx 0 let yy 0 let m1q 0
+  
+  ifelse cost1 < 0 [
+     report list [xcor] of end1 [ycor] of end1
+
+  ]
+  [
+  ifelse cost2 < 0 [
+     report list [xcor] of end2 [ycor] of end2
+
+  ]
+  [set mq m1m * sqrt abs (1 - (cost1 ^ 2))
+   set m1q sqrt ((m1m ^ 2) - (mq ^ 2))  
+   set xx x1 + m1q * (x2 - x1) / m1m2
+   set yy y1 + m1q * (y2 - y1) / m1m2
+   
+   report list xx yy
+   ]
+  ]
+  
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;
+;; Utilities "specific" to CA sprawl model, rather generic however
+;;;;;;;;;;;;;;;;;;;
+
+;;  Issues with breeds --> again in specific model
+
+
+
+
+
+
+
+
+
+
+
+
+
+

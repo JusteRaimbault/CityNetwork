@@ -6,11 +6,13 @@
 
 
 ;***************************************************************************
-; Indexes computation (journey time, sinuosity, intercation potential, etc)
+; Indexes computation (travel time, sinuosity, interaction potential, etc)
 ;******************************************************************************
 
 
+;;
 ;; Interctaion potential = (Pi*Pj)^beta-pop / (Tij)^beta-time
+;   -> network gravity
 to calcul-potentiels [#1pick]
   ask cities with [who != [who] of #1pick]
   [
@@ -35,9 +37,21 @@ to-report Efficacity-index [#startpoint #destination]
   report IndS
 end
 
+
+;;
+;  TODO : hardcore computationally : shortest distance recomputed in each potential function for each other city !!!
+;  
 to-report time-network [#startpoint #destination]
   let DistNetwork false
   set DistNetwork [ nw:weighted-distance-to #startpoint "weight" ] of #destination
   report DistNetwork
 end
+
+
+
+
+
+
+
+
 

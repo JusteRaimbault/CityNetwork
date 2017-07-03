@@ -1,0 +1,133 @@
+
+;;
+;  patch measures and values
+
+
+
+to patches:update-patch-values
+  
+  update-patch-variables
+  
+
+  ; provisory for only prefatt
+  ask patches [set patch-value get-patch-value]
+
+end
+
+
+
+
+;;
+; function giving patch value as a function of explicative variables
+;
+;  Q : for linear aggreg, genericize list of variables taken into account ? not at this point of multi-modeling yet..
+to-report get-patch-value
+  
+  ; linear agreg - rbd style
+  if patch-value-function = "linear-aggregation" [
+    let c1 linear-aggreg-population-coef let c2 linear-aggreg-distance-to-road-coef let c3 linear-aggreg-closeness-centrality-coef let c4 linear-aggreg-bw-centrality-coef let c5 linear-aggreg-accessibility-coef    
+    let d1 patch-population let d2 patch-distance-to-road let d3 patch-closeness-centrality let d4 patch-bw-centrality let d5 patch-accessibility
+    let dd1 patch-population-max - patch-population-min let dd2 patch-distance-to-road-max - patch-distance-to-road-min let dd3 patch-closeness-centrality-max - patch-closeness-centrality-min let dd4 patch-bw-centrality-max - patch-bw-centrality-min let dd5 patch-accessibility-max - patch-accessibility-min
+    if dd1 = 0 [set c1 0 set dd1 1] if dd2 = 0 [set c2 0 set dd2 1] if dd3 = 0 [set c3 0 set dd3 1] if dd4 = 0 [set c4 0 set dd4 1] if dd5 = 0 [set c5 0 set dd5 1]
+    let c c1 + c2 + c3 + c4 + c5 if c = 0 [report 0] ; with empty initial config, 0 values : equiprob taken into account in density growth
+    
+    report ((c1 * (d1 - patch-population-min) / dd1) + (c2 * (d2 - patch-distance-to-road-min) / dd2) + (c3 * (d3 - patch-closeness-centrality-min) / dd3) + (c4 * (d4 - patch-bw-centrality-min) / dd4) + (c5 * (d5 - patch-accessibility-min) / dd5) ) / c
+    
+  ]
+  
+  
+  report 0
+  
+end
+
+
+
+
+;;
+; update patch variables
+to update-patch-variables
+  
+  output-print " ... patch vars"
+  
+  ; population already updated in density
+  
+  ; network only vars
+  patches:update-network-variables
+  
+  ; accessibility (coupled)
+  cities:update-cities-population
+  cities:update-accessibility
+  patches:update-accessibility
+  
+  
+  
+  update-patch-variable-globals
+  
+end
+
+
+;;
+; update patches network only vars
+to patches:update-network-variables
+  
+  ; update only if the network has changed, i.e. if network-update-condition
+  
+  if network:network-update-condition [
+    ; distance to roads
+    ask patches [set patch-distance-to-road distance-to-roads]
+    
+    ; centralities
+    ask patches [
+      set patch-closeness-centrality ([city-closeness-centrality] of patch-closest-city) * exp (- patch-closest-city-distance / network-vars-decay)
+      set patch-bw-centrality ([city-bw-centrality] of patch-closest-city) * exp (- patch-closest-city-distance / network-vars-decay)
+    ]
+  ]
+  
+end
+
+
+;;
+; update patches accessibility
+to patches:update-accessibility
+  ask patches [
+    set patch-accessibility ([city-accessibility] of patch-closest-city)* exp (- patch-closest-city-distance / network-vars-decay)
+  ]
+end
+
+
+
+
+;;
+; Patch procedure : distance to network
+to-report distance-to-roads
+  let d sqrt (world-width ^ 2 + world-height ^ 2)
+  if count roads > 0 [
+    let mx pxcor let my pycor let nearest-road first sort-on [distance-to-point mx my] roads ; TODO not optimal implementation
+    let inter one-of turtles let e1 0 let e2 0
+    ;ask nearest-road [ set inter link:intersection-with mx my set e1 end1 set e2 end2 ]
+    ;set d distance inter if inter != e1 and inter != e2 [ask inter [die]]
+    ask nearest-road [set d distance-to-point mx my]
+  ]
+  report exp ( - d / distance-to-roads-decay )
+end
+
+
+
+
+;;
+;  globals for performance
+to update-patch-variable-globals
+  set patch-population-max max [patch-population] of patches
+  set patch-population-min min [patch-population] of patches
+  set patch-population-share-max max [patch-population-share] of patches
+  set patch-population-share-min min [patch-population-share] of patches
+  set patch-distance-to-road-max max [patch-distance-to-road] of patches
+  set patch-distance-to-road-min min [patch-distance-to-road] of patches
+  set patch-closeness-centrality-max max [patch-closeness-centrality] of patches
+  set patch-closeness-centrality-min min [patch-closeness-centrality] of patches
+  set patch-bw-centrality-max max [patch-bw-centrality] of patches
+  set patch-bw-centrality-min min [patch-bw-centrality] of patches
+  set patch-accessibility-max max [patch-accessibility] of patches
+  set patch-accessibility-min min [patch-accessibility] of patches
+end
+

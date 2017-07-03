@@ -1,19 +1,21 @@
 
 ;;;;;;;;;;;;;;;;;;;;;
-;; MetropolSim v3.0
 ;;
+;; LUTECIA Model
+;;
+;; (MetropolSim v3.0)
 ;; Major changes since v2
 ;;   - matrix dynamic shortest path (euclidian and nw) computation
 ;;   - simplified population structure (one csp)
 ;;   - game-theoretical governance management
 ;;
-;; TODO - possible extensions :
+;; Possible extensions (v4) :
 ;;    * add different transportation modes ?
 ;;    * add csp ? not prioritary.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-extensions[matrix table context nw shell gradient numanal]
+extensions[matrix table context nw shell gradient numanal gis morphology]
 
 __includes [
   
@@ -82,6 +84,12 @@ __includes [
   
   "exploration.nls"
   
+  ;;;;;;;;
+  ;; experiments
+  ;;;;;;;;
+  "experiments.nls"
+  
+  
   
   ;;;;;;;;;;
   ;; utils
@@ -111,6 +119,8 @@ __includes [
   
   "test/test-distances.nls"
   "test/test-transportation.nls"
+  "test/test-experiments.nls"
+  
   
 ]
 
@@ -156,13 +166,27 @@ globals[
   
   ;; coordinates of mayors, taken from setup file
   mayors-coordinates
+  mayors-populations
+  mayors-employments
+  mayors-names
   
   ;; position of ext patch
   ext-position
   
   ;; path to the setup files
-  ;positions-file
+  positions-file
   ext-file
+  
+  ;; GIS setup
+  gis-network-file
+  gis-extent-file
+  gis-centers-file
+  gis-population-raster-file
+  gis-sea-file
+  gis-economic-areas-file
+  gis-governed-patches-file
+  
+  ;conf-file
   
   ;;;;;;;;;;;;;
   ;; Transportation
@@ -188,6 +212,7 @@ globals[
   collaborations-realized
   collaborations-expected
   
+  ;evolve-network?
   
   
   ;;;;;;;;;;;;;
@@ -251,6 +276,15 @@ globals[
   dmax
   
   
+  ;target-network-file
+  
+  ;;;
+  ; network measures
+  shortest-paths
+  nw-relative-speeds
+  nw-distances
+  
+  
   
   ;;;;;;;;;;;;;
   ;; Utils
@@ -272,11 +306,27 @@ globals[
   ;; HEADLESS
   headless?
   
+  failed
+  
+  
+  link-distance-function
+  
+  tracked-indicators
+  history-indicators
+  
 ]
 
 
 
 patches-own [
+  
+  ; number of actives on the patch
+  actives
+  
+  ; number of jobs on the patch
+  employments
+  
+  
   
   ; number of the patch (used as index in distance matrices)
   number
@@ -288,14 +338,6 @@ patches-own [
   ; do not need mobile agents as deterministic evolution, considering at this time scale that random effect is averaged
   ;  on the contrary to transportation infrastructure evolution, that evolves at a greater scale.
   ;  -> patch variables and not agents
-  
-  ; number of actives on the patch
-  actives
-  
-  ; number of jobs on the patch
-  employments
-  
-  
   
   
   
@@ -328,6 +370,8 @@ patches-own [
   form-factor
   
   
+  sea?
+  
   
 ]
 
@@ -356,6 +400,9 @@ undirected-link-breed[transportation-links transportation-link]
 
 transportation-links-own [
   
+  transportation-link-length
+  bw-centrality
+  
   ; capacity of the link ; expressed as max trip per length unit 
   capacity
   
@@ -368,22 +415,30 @@ transportation-links-own [
   ; tick on which the infra has been constructed
   age
   
+  status
+  
 ]
 
 ;; nodes of the transportation network
 breed[transportation-nodes transportation-node]
 
 transportation-nodes-own[
+  transportation-node-closeness-centrality
 ]
+
+
+undirected-link-breed[ghost-transportation-links ghost-transportation-link]
+
+breed[ghost-transportation-nodes ghost-transportation-node]
 @#$#@#$#@
 GRAPHICS-WINDOW
-346
-10
-811
-496
-6
-6
-35.0
+373
+11
+813
+472
+7
+7
+28.666666666666668
 1
 10
 1
@@ -393,10 +448,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--6
-6
--6
-6
+-7
+7
+-7
+7
 0
 0
 1
@@ -404,10 +459,10 @@ ticks
 30.0
 
 SLIDER
-9
-33
-140
-66
+4
+77
+135
+110
 #-initial-territories
 #-initial-territories
 0
@@ -419,12 +474,12 @@ NIL
 HORIZONTAL
 
 BUTTON
-9
-611
-75
-644
+406
+532
+472
+565
 setup
-setup
+setup:setup
 NIL
 1
 T
@@ -436,14 +491,14 @@ NIL
 1
 
 CHOOSER
-380
-611
-499
-656
+9
+671
+128
+716
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
-5
+1
 
 TEXTBOX
 11
@@ -457,19 +512,19 @@ Setup parameters
 
 TEXTBOX
 9
-161
+193
 159
-179
+211
 Runtime parameters
 11
 0.0
 1
 
 SLIDER
-9
-71
-184
-104
+7
+116
+182
+149
 actives-spatial-dispersion
 actives-spatial-dispersion
 0
@@ -481,10 +536,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-8
-105
-184
-138
+6
+150
+182
+183
 employments-spatial-dispersion
 employments-spatial-dispersion
 0
@@ -496,10 +551,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-185
-71
-294
-104
+183
+116
+292
+149
 actives-max
 actives-max
 0
@@ -511,10 +566,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-184
-105
-294
-138
+182
+150
+292
+183
 employments-max
 employments-max
 0
@@ -527,9 +582,9 @@ HORIZONTAL
 
 SLIDER
 0
-203
+235
 178
-236
+268
 gamma-cobb-douglas-a
 gamma-cobb-douglas-a
 0
@@ -542,24 +597,24 @@ HORIZONTAL
 
 SLIDER
 3
-273
+305
 172
-306
+338
 beta-discrete-choices
 beta-discrete-choices
 0
-2
-1.8
+5
+1.25
 0.05
 1
 NIL
 HORIZONTAL
 
 BUTTON
-136
-611
-191
-644
+533
+532
+588
+565
 go
 ifelse ticks < total-time-steps [\n  go\n][stop]
 T
@@ -573,10 +628,10 @@ NIL
 0
 
 PLOT
-1096
+817
 10
-1324
-174
+988
+154
 convergence
 NIL
 NIL
@@ -592,17 +647,17 @@ PENS
 "pen-1" 1.0 0 -12087248 true "" "plot diff-actives"
 
 OUTPUT
-910
-477
-1368
-833
+838
+410
+1295
+704
 10
 
 TEXTBOX
 6
-186
+218
 156
-204
+236
 LUTI
 11
 0.0
@@ -610,9 +665,9 @@ LUTI
 
 TEXTBOX
 188
-184
+216
 338
-202
+234
 Governance
 11
 0.0
@@ -620,9 +675,9 @@ Governance
 
 SLIDER
 184
-203
+235
 333
-236
+268
 regional-decision-proba
 regional-decision-proba
 0
@@ -635,9 +690,9 @@ HORIZONTAL
 
 TEXTBOX
 174
-202
+234
 189
-233
+265
 |
 25
 0.0
@@ -645,9 +700,9 @@ TEXTBOX
 
 TEXTBOX
 174
-223
+255
 189
-254
+286
 |
 25
 0.0
@@ -655,9 +710,9 @@ TEXTBOX
 
 TEXTBOX
 174
-245
+277
 189
-276
+308
 |
 25
 0.0
@@ -665,9 +720,9 @@ TEXTBOX
 
 SLIDER
 5
-372
+404
 170
-405
+437
 network-min-pace
 network-min-pace
 0
@@ -680,9 +735,9 @@ HORIZONTAL
 
 TEXTBOX
 4
-331
+363
 207
-358
+390
 _________________
 20
 0.0
@@ -690,9 +745,9 @@ _________________
 
 TEXTBOX
 5
-357
+389
 155
-375
+407
 Transportation
 11
 0.0
@@ -700,19 +755,19 @@ Transportation
 
 TEXTBOX
 174
-267
+299
 189
-298
+330
 |
 25
 0.0
 1
 
 BUTTON
-1398
-19
-1511
-52
+1374
+400
+1487
+433
 setup test nw
 setup-test-nw-mat
 NIL
@@ -726,10 +781,10 @@ NIL
 1
 
 BUTTON
-1398
-55
-1453
-88
+1374
+436
+1429
+469
 grid
 test-nw-mat-grid-nw
 NIL
@@ -743,10 +798,10 @@ NIL
 1
 
 BUTTON
-1399
-93
-1509
-126
+1375
+474
+1485
+507
 test shortest
 test-shortest-path
 NIL
@@ -760,10 +815,10 @@ NIL
 1
 
 MONITOR
-1329
-17
-1397
-62
+1305
+398
+1373
+443
 nw patches
 length nw-patches
 17
@@ -771,10 +826,10 @@ length nw-patches
 11
 
 MONITOR
-1338
-65
-1392
-110
+1314
+446
+1368
+491
 eff paths
 length table:keys network-shortest-paths
 17
@@ -782,10 +837,10 @@ length table:keys network-shortest-paths
 11
 
 MONITOR
-1339
-113
-1390
-158
+1315
+494
+1366
+539
 inters
 length nw-inters
 17
@@ -793,10 +848,10 @@ length nw-inters
 11
 
 BUTTON
-1399
-129
-1493
-162
+1375
+510
+1469
+543
 test inters
 test-closest-inter
 NIL
@@ -810,10 +865,10 @@ NIL
 1
 
 BUTTON
-1454
-55
-1517
-88
+1396
+546
+1459
+579
 rnd
 test-nw-mat-random-nw
 NIL
@@ -827,10 +882,10 @@ NIL
 1
 
 CHOOSER
-501
-611
-639
-656
+678
+523
+816
+568
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
@@ -838,9 +893,9 @@ log-level
 
 SLIDER
 5
-408
+440
 169
-441
+473
 euclidian-min-pace
 euclidian-min-pace
 1
@@ -853,9 +908,9 @@ HORIZONTAL
 
 SLIDER
 5
-442
+474
 169
-475
+507
 congestion-price
 congestion-price
 0
@@ -868,14 +923,14 @@ HORIZONTAL
 
 SLIDER
 184
-241
+273
 333
-274
+306
 road-length
 road-length
 0
 20
-3
+2
 1
 1
 NIL
@@ -883,14 +938,14 @@ HORIZONTAL
 
 SLIDER
 186
-313
+345
 334
-346
+378
 #-explorations
 #-explorations
 0
 1000
-113
+5
 1
 1
 NIL
@@ -898,9 +953,9 @@ HORIZONTAL
 
 SLIDER
 4
-307
+339
 171
-340
+372
 lambda-accessibility
 lambda-accessibility
 0
@@ -912,10 +967,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-908
-439
-1002
-472
+836
+372
+930
+405
 indicators
 compute-indicators
 NIL
@@ -929,25 +984,25 @@ NIL
 1
 
 SLIDER
-197
-611
-321
-644
+481
+571
+605
+604
 total-time-steps
 total-time-steps
 0
-20
-4
+50
+15
 1
 1
 NIL
 HORIZONTAL
 
 TEXTBOX
-184
-483
-336
-518
+182
+596
+334
+631
 __________________
 20
 0.0
@@ -955,19 +1010,19 @@ __________________
 
 CHOOSER
 186
-348
+380
 338
-393
+425
 game-type
 game-type
 "random" "simple-nash" "discrete-choices"
-2
+1
 
 TEXTBOX
 174
-289
-189
 321
+189
+353
 |
 25
 0.0
@@ -975,19 +1030,19 @@ TEXTBOX
 
 TEXTBOX
 174
-312
+344
 192
-342
+374
 |
 25
 0.0
 1
 
 PLOT
-1098
-177
-1326
-353
+987
+10
+1152
+154
 accessibility
 NIL
 NIL
@@ -1003,9 +1058,9 @@ PENS
 
 SLIDER
 5
-477
+509
 168
-510
+542
 lambda-flows
 lambda-flows
 0
@@ -1017,22 +1072,22 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-13
-578
-200
-622
+405
+497
+592
+541
 __________________
 20
 0.0
 1
 
 BUTTON
-1336
-166
-1417
-199
+1312
+547
+1393
+580
 test dist
-setup\ntest-network-effect (patches with [pxcor = 0])\n;check-effective-distance 1180 684
+setup:setup\ntest-network-effect (patches with [pxcor = 0])\n;check-effective-distance 1180 684
 NIL
 1
 T
@@ -1044,10 +1099,10 @@ NIL
 1
 
 BUTTON
-382
-660
-457
-693
+134
+675
+209
+708
 update
 compute-patches-variables\ncolor-patches
 NIL
@@ -1061,10 +1116,10 @@ NIL
 1
 
 BUTTON
-1139
-441
-1221
-474
+1067
+374
+1149
+407
 test connex
 test-connex-components
 NIL
@@ -1078,10 +1133,10 @@ NIL
 1
 
 BUTTON
-1336
-201
-1409
-234
+1312
+582
+1385
+615
 nw effect
 test-network-effect patches
 NIL
@@ -1096,49 +1151,49 @@ NIL
 
 SLIDER
 185
-395
+427
 333
-428
+460
 collaboration-cost
 collaboration-cost
 0
 0.001
-5.3E-5
+5.0E-4
 1e-6
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-143
-21
-235
-66
+139
+69
+231
+114
 setup-type
 setup-type
-"random" "from-file"
+"random" "from-file" "gis-synthetic" "gis"
 0
 
 SLIDER
 7
-550
+582
 152
-583
+615
 ext-growth-factor
 ext-growth-factor
 0
 20
-11.8
+1
 0.1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-78
-611
-133
-644
+475
+532
+530
+565
 go
 go
 NIL
@@ -1153,31 +1208,20 @@ NIL
 
 SWITCH
 5
-514
+546
 151
-547
+579
 with-externalities?
 with-externalities?
 1
 1
 -1000
 
-INPUTBOX
-237
-10
-315
-70
-positions-file
-setup/triangle.csv
-1
-0
-String
-
 BUTTON
-1006
-438
-1098
-471
+934
+371
+1026
+404
 construct
 if mouse-down? [\n  if length to-construct < 2[\n    set to-construct lput (list mouse-xcor mouse-ycor) to-construct\n  ]\n  if length to-construct = 2[\n    construct-infrastructure (list to-construct) save-nw-config\n    compute-patches-variables\n    update-display\n    set to-construct []\n    verbose (word \"mean-travel-distance : \" mean-travel-distance)\n    stop\n  ]\n  wait 0.2\n  \n]
 T
@@ -1191,10 +1235,10 @@ NIL
 1
 
 SLIDER
-153
-513
-266
-546
+6
+614
+119
+647
 ext-employments-proportion-of-max
 ext-employments-proportion-of-max
 0
@@ -1207,34 +1251,34 @@ HORIZONTAL
 
 SLIDER
 0
-238
+270
 177
-271
+303
 gamma-cobb-douglas-e
 gamma-cobb-douglas-e
 0
 1
-0.65
+0.85
 0.05
 1
 NIL
 HORIZONTAL
 
 TEXTBOX
-382
-591
-532
-609
+11
+651
+161
+669
 Display
 11
 0.0
 1
 
 BUTTON
-9
-647
-72
-680
+406
+568
+469
+601
 NIL
 luti
 NIL
@@ -1248,10 +1292,10 @@ NIL
 1
 
 PLOT
-862
-10
-1093
-173
+994
+241
+1154
+361
 externalities
 NIL
 NIL
@@ -1267,14 +1311,14 @@ PENS
 
 SLIDER
 185
-277
+309
 335
-310
+342
 infra-snapping-tolerance
 infra-snapping-tolerance
 0
 10
-2
+1
 1
 1
 NIL
@@ -1282,9 +1326,9 @@ HORIZONTAL
 
 SLIDER
 185
-430
+462
 335
-463
+495
 construction-cost
 construction-cost
 0
@@ -1297,9 +1341,9 @@ HORIZONTAL
 
 SLIDER
 185
-466
+498
 334
-499
+531
 beta-dc-game
 beta-dc-game
 0
@@ -1311,10 +1355,10 @@ NIL
 HORIZONTAL
 
 PLOT
-863
-179
-1093
-355
+832
+241
+992
+361
 externality mean acc
 NIL
 NIL
@@ -1327,6 +1371,138 @@ false
 "clear-plot" ""
 PENS
 "default" 1.0 0 -16777216 true "" "if external-facility != 0 [plot (mean [current-accessibility] of patches with [member? number external-facility]) / initial-max-acc]"
+
+SLIDER
+6
+33
+98
+66
+seed
+seed
+-100000
+100000
+0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+100
+34
+203
+67
+world-size
+world-size
+0
+50
+15
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+235
+75
+339
+108
+initial-nw?
+initial-nw?
+0
+1
+-1000
+
+SWITCH
+160
+184
+338
+217
+setup-from-world-file?
+setup-from-world-file?
+1
+1
+-1000
+
+INPUTBOX
+209
+10
+267
+70
+conf-file
+setup/conf/real.conf
+1
+0
+String
+
+PLOT
+1154
+10
+1322
+154
+morphology
+NIL
+NIL
+0.0
+0.1
+0.0
+0.1
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plotxy moran-actives slope-actives"
+
+SWITCH
+186
+532
+328
+565
+evolve-network?
+evolve-network?
+0
+1
+-1000
+
+SWITCH
+185
+570
+329
+603
+evolve-landuse?
+evolve-landuse?
+0
+1
+-1000
+
+PLOT
+1156
+155
+1344
+293
+mean-travel-distance
+NIL
+NIL
+0.0
+10.0
+75.0
+85.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean-effective-distance"
+
+INPUTBOX
+270
+9
+344
+69
+target-network-file
+setup/target/network0.shp
+1
+0
+String
 
 @#$#@#$#@
 ## WHAT IS IT?

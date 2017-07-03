@@ -1,0 +1,353 @@
+%% Commands
+
+\newcommand{\noun}[1]{\textsc{#1}}
+
+% command fort head of chapter citation
+\newcommand{\headercit}[3]{
+\begin{multicols}{2}
+\phantom{}
+\columnbreak
+\textit{#1}
+
+ - \noun{#2}~#3
+\end{multicols}
+}
+
+
+
+%% Math
+
+% Operators
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\Proba}{\mathbb{P}}
+
+\newcommand{\Covb}[2]{\ensuremath{\Cov\!\left[#1,#2\right]}}
+\newcommand{\Eb}[1]{\ensuremath{\E\!\left[#1\right]}}
+\newcommand{\Pb}[1]{\ensuremath{\Proba\!\left[#1\right]}}
+\newcommand{\Varb}[1]{\ensuremath{\Var\!\left[#1\right]}}
+
+% norm
+\newcommand{\norm}[1]{\| #1 \|}
+
+% independent
+\newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
+
+
+% amsthm environments
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{lemma}{Lemma}
+
+\newenvironment{proof}[1][Proof]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+
+
+
+
+\newcommand{\qed}{\nobreak \ifvmode \relax \else
+      \ifdim\lastskip<1.5em \hskip-\lastskip
+      \hskip1.5em plus0em minus0.5em \fi \nobreak
+      \vrule height0.75em width0.5em depth0.25em\fi}
+
+
+% Patents
+
+\newcommand{\reels}{\mathbb{R}}
+\newcommand{\naturels}{\mathbb{N}}
+\newcommand{\relatifs}{\mathbb{Z}}
+\newcommand{\rat}{\mathbb{Q}}
+\newcommand{\complex}{\mathbb{C}}
+\newcommand{\esp}{\mathbb{E}}
+\newcommand{\proba}{\mathbb{P}}
+\newcommand{\var}{\operatorname{Var}}
+\newcommand{\cov}{\operatorname{Cov}}
+\newcommand{\Tau}{\mathrm{T}}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%
+%%  Additional packages
+%%%%%%%%%%%%%%%%%%%
+
+%\usepackage{subcaption}
+
+\usepackage{amssymb}
+
+\usepackage{multicol}
+
+\usepackage{bbm}
+
+% chinese
+%\usepackage{ctex}
+%\setCJKmainfont[BoldFont=FandolSong-Bold.otf,ItalicFont=FandolKai-Regular.otf]{FandolSong-Regular.otf}
+%\setCJKsansfont[BoldFont=FandolHei-Bold.otf]{FandolHei-Regular.otf}
+%\setCJKmonofont{FandolFang-Regular.otf}
+
+%  --> needs XeLateX ? then needs to comment pdflatex options in class definition.
+
+\usepackage{mdframed}
+
+
+%%
+% Threeparttable
+\usepackage[flushleft]{threeparttable}
+
+
+%%%
+
+\renewcommand{\PrelimText}{%
+  \footnotesize[\,\today\ at \thistime\ -- \texttt{Thesis}~\myVersion\,]}
+
+
+%%%%%%%%
+% bilingual version
+\usepackage{xparse}
+\usepackage{ifthen}
+
+
+% biling paragraph
+
+\newcommand{\bpar}[2]{
+    \ifthenelse{\thelanguage=0}{#1}{}
+    \ifthenelse{\thelanguage=1}{#2}{}
+}
+
+
+% Sectioning commands
+% from http://tex.stackexchange.com/questions/109557/renewdefine-section-with-additional-argument
+
+%
+%\let\oldchapter\chapter
+%
+%\RenewDocumentCommand\chapter {s o o m m}
+%   {
+%    \IfBooleanTF{#1}                   
+%        {
+%        \ifthenelse{\thelanguage=0}{\oldchapter*{#4}}{}
+%        \ifthenelse{\thelanguage=1}{\oldchapter*{#5}}{}
+%          \IfNoValueF{#2}            % if TOC arg is given create a TOC entry
+%            {          
+%              \ifthenelse{\thelanguage=0}{\addcontentsline{toc}{chapter}{#2}}{}
+%              \ifthenelse{\thelanguage=1}{\addcontentsline{toc}{chapter}{#3}}{}
+%            }
+%        }  
+%      {                              % no star given 
+%        \IfNoValueTF{#2}
+%          {
+%            \ifthenelse{\thelanguage=0}{\oldchapter{#4}}{}
+%            \ifthenelse{\thelanguage=1}{\oldchapter{#5}}{}
+%           }       % no TOC arg
+%          { 
+%            \ifthenelse{\thelanguage=0}{\oldchapter[#2]{#4}}{}
+%            \ifthenelse{\thelanguage=1}{\oldchapter[#3]{#5}}{}
+%           }
+%      }   
+%  }
+%
+
+
+
+
+\let\oldsection\section
+
+\RenewDocumentCommand\section {s o o m m}
+   {
+    \IfBooleanTF{#1}                   
+        {
+        \ifthenelse{\thelanguage=0}{\oldsection*{#4}}{}
+        \ifthenelse{\thelanguage=1}{\oldsection*{#5}}{}
+          \IfNoValueF{#2}            % if TOC arg is given create a TOC entry
+            {          
+              \ifthenelse{\thelanguage=0}{\addcontentsline{toc}{section}{#2}}{}
+              \ifthenelse{\thelanguage=1}{\addcontentsline{toc}{section}{#3}}{}
+            }
+        }  
+      {                              % no star given 
+        \IfNoValueTF{#2}
+          {
+            \ifthenelse{\thelanguage=0}{\oldsection{#4}}{}
+            \ifthenelse{\thelanguage=1}{\oldsection{#5}}{}
+           }       % no TOC arg
+          { 
+            \ifthenelse{\thelanguage=0}{\oldsection[#2]{#4}}{}
+            \ifthenelse{\thelanguage=1}{\oldsection[#3]{#5}}{}
+           }
+      }   
+  }
+
+\let\oldsubsection\subsection
+
+\RenewDocumentCommand\subsection {s o o m m}
+   {
+    \IfBooleanTF{#1}                   
+        {
+        \ifthenelse{\thelanguage=0}{\oldsubsection*{#4}}{}
+        \ifthenelse{\thelanguage=1}{\oldsubsection*{#5}}{}
+          \IfNoValueF{#2}            % if TOC arg is given create a TOC entry
+             {          
+              \ifthenelse{\thelanguage=0}{\addcontentsline{toc}{subsection}{#2}}{}
+              \ifthenelse{\thelanguage=1}{\addcontentsline{toc}{subsection}{#3}}{}
+            }
+        }  
+      {                              % no star given 
+        \IfNoValueTF{#2}
+          {
+           \ifthenelse{\thelanguage=0}{\oldsubsection{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldsubsection{#5}}{}
+           }       % no TOC arg
+          { 
+           \ifthenelse{\thelanguage=0}{\oldsubsection[#2]{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldsubsection[#3]{#5}}{}
+           }
+      }   
+  }
+
+
+\let\oldsubsubsection\subsubsection
+
+\RenewDocumentCommand\subsubsection {s o o m m}
+   {
+    \IfBooleanTF{#1}   
+        {
+        \ifthenelse{\thelanguage=0}{\oldsubsubsection*{#4}}{}
+        \ifthenelse{\thelanguage=1}{\oldsubsubsection*{#5}}{}
+          \IfNoValueF{#2}            % if TOC arg is given create a TOC entry
+             {          
+              \ifthenelse{\thelanguage=0}{\addcontentsline{toc}{subsubsection}{#2}}{}
+              \ifthenelse{\thelanguage=1}{\addcontentsline{toc}{subsubsection}{#3}}{}
+            }
+        }  
+      {                              % no star given 
+        \IfNoValueTF{#2}
+          {
+           \ifthenelse{\thelanguage=0}{\oldsubsubsection{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldsubsubsection{#5}}{}
+           }       % no TOC arg
+          { 
+           \ifthenelse{\thelanguage=0}{\oldsubsubsection[#2]{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldsubsubsection[#3]{#5}}{}
+           }
+      }   
+  }
+  
+  
+  
+\let\oldparagraph\paragraph
+
+\RenewDocumentCommand\paragraph {s m m}
+   {
+    \IfBooleanTF{#1}
+        {
+        \ifthenelse{\thelanguage=0}{\oldparagraph*{#2}}{}
+        \ifthenelse{\thelanguage=1}{\oldparagraph*{#3}}{}
+        }  
+      { 
+           \ifthenelse{\thelanguage=0}{\oldparagraph{#2}}{}
+           \ifthenelse{\thelanguage=1}{\oldparagraph{#3}}{}   
+      }   
+  }
+
+
+\let\oldcaption\caption
+
+\RenewDocumentCommand\caption {o o m m}
+   {
+        \IfNoValueTF{#1}
+          {
+           \ifthenelse{\thelanguage=0}{\oldcaption{#3}}{}
+           \ifthenelse{\thelanguage=1}{\oldcaption{#4}}{}
+           }       % no TOC arg
+          { 
+           \ifthenelse{\thelanguage=0}{\oldcaption[#1]{#3}}{}
+           \ifthenelse{\thelanguage=1}{\oldcaption[#2]{#4}}{}
+           }
+      } 
+      
+      
+        
+%%%%%%%%%%
+%  Citation
+
+\let\oldcite\cite
+\renewcommand{\cite}[1]{[\oldcite{#1}]}
+
+
+
+%%%%%%%%%%
+
+ 
+\newcommand{\stars}{\vspace{1cm}\noindent\hspace{0.45\textwidth}$\star$\hspace{0.1\textwidth} $\star$\\
+
+%\vspace{0.1\textwidth}% \sqrt(2)/2*a
+
+\noindent\hspace{0.505\textwidth} $\star$\vspace{1cm}
+}
+
+
+
+
+%%%%%%%%%%
+%  Drafting
+
+% writing utilities
+
+% comments	 and responses
+%  -> use this comment to ask questions on what other wrote/answer questions with optional arguments (up to 4 answers)
+
+
+\DeclareDocumentCommand{\comment}{o m o o o o}
+{\ifthenelse{\draft=1}{
+  \IfValueT{#1}{
+      \textcolor{red}{\textbf{C (#1) : }#2}
+      \IfValueT{#3}{\textcolor{blue}{\textbf{A1 : }#3}}
+      \IfValueT{#4}{\textcolor{ForestGreen}{\textbf{A2 : }#4}}
+      \IfValueT{#5}{\textcolor{red!50!blue}{\textbf{A3 : }#5}}
+      \IfValueT{#6}{\textcolor{Aquamarine}{\textbf{A4 : }#6}}
+    }
+    \IfNoValueT{#1}{
+      \textcolor{red}{\textbf{C : }#2}
+      \IfValueT{#3}{\textcolor{blue}{\textbf{A1 : }#3}}
+      \IfValueT{#4}{\textcolor{ForestGreen}{\textbf{A2 : }#4}}
+      \IfValueT{#5}{\textcolor{red!50!blue}{\textbf{A3 : }#5}}
+      \IfValueT{#6}{\textcolor{Aquamarine}{\textbf{A4 : }#6}}
+    }
+ }{}
+}
+
+
+% todo
+\DeclareDocumentCommand{\todo}{o m}{
+  \ifthenelse{\draft=1}{
+    \IfValueT{#1}{\textcolor{red!50!blue}{\textbf{TODO (#1) : \textit{#2}}}}
+    \IfNoValueT{#1}{\textcolor{red!50!blue}{\textbf{TODO : \textit{#2}}}}
+  }{}
+}
+
+
+
+% provisory part, removed if not draft
+
+
+\newcommand{\provisory}[1]{
+    \ifthenelse{\draft=1}{
+    \color{blue} \textbf{\textit{PROVISORY}} #1 \color{black}
+    }{}
+}
+
+%\newenvironment{provisory}{\par\color{blue}}{\par}
+
+
+
+
+
+
+
+
+
+
+
+

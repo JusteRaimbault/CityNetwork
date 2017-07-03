@@ -5,29 +5,43 @@
 
 to go
   ;;memorize pipes
-  let old-pipes paths with [D > Df]
+  let old-pipes paths with [diameter > Df]
   
-  reset-numbers                          ;; redéfinir les numéros des vertices
-  choose-OD                         ;; choisir deux poles au hasard
-  let Pm p-system current-implantation
+  update-pressures
   
-  ask vertices[reset-p Pm]
+  update-flows-and-diameters
   
-  set Dmax max [D] of paths
-  set total-diameter-variation 0
-  ask paths[
-    reset-Q
-    reset-D
-  ]
-
   ;;reporter for convergence tests
-  set new-links-number count paths with [D > Df and not member? self old-pipes]
+  set new-links-number count paths with [diameter > Df and not member? self old-pipes]
 
   ;;display
-  color-paths-and-nodes
-
+  update-display
 
   tick
+end
+
+
+to update-pressures
+  ;; reset vertices numbers
+  ; TODO : necessary step ?
+  reset-numbers
+  ;; choose OD randomly
+  choose-OD
+  
+  ;; solve the system
+  let pressures solve-system current-implantation
+  
+  ask vertices[set-pressures pressures]
+end
+
+
+to update-flows-and-diameters
+  set diameter-max max [diameter] of paths
+  set total-diameter-variation 0
+  ask paths[
+    update-flow
+    update-diameters
+  ]
 end
 
 
@@ -43,67 +57,76 @@ to reset-numbers
   let j 0
   foreach sort vertices[
     ask ? [
-      set number j                         ;; actualiser la valeur de number
+      set number j                        
       set j j + 1
     ]
   ]
 end
 
 to choose-OD
-  ask center1 [color-patch]
-  ask center2 [color-patch]
+  ;ask center1 [color-patch]
+  ;ask center2 [color-patch]
+  
   ;;randomly choose origin and destination according to the densities
   let s sum [density] of patches
-  let r random-float s
-  let sacc 0
-  let found? false
+  let r random-float s let sacc 0 let found? false
   ask patches [if not found? [set sacc sacc + density if sacc >= r [set center1 self set found? true]]]
-  set r random-float s
-  set sacc 0 set found? false
+  set r random-float s set sacc 0 set found? false
   ask patches [if not found? [set sacc sacc + density if sacc >= r [set center2 self set found? true]]]
   
   ask center1 [set pcolor green set n-times n-times + 1]
   ask center2 [set pcolor green set n-times n-times + 1]
 end
 
-to-report p-system [implantation]
-  let M setup-M
-  let Vm setup-V implantation
-  report matrix:solve M Vm
+
+
+;;
+;  solve the system
+to-report solve-system [implantation]
+  let flow-matrix get-flow-matrix
+  let io-flows get-io-flows implantation
+  report matrix:solve flow-matrix io-flows
 end
 
-to-report setup-M
+
+
+;;
+;
+to-report get-flow-matrix
   set nodes-number count vertices
-  let M matrix:make-constant (nodes-number - 1) (nodes-number - 1) 0 ;; n-1 x n-1 Matrice
+  let flow-matrix matrix:make-constant (nodes-number - 1) (nodes-number - 1) 0
   ask vertices[
-    if number = nodes-number - 1 [stop]
-    let kll 0
+    ;if number = nodes-number - 1 [stop]
+    let total-flow 0
     ask my-paths[
-      let s D / arete-length
-      set kll kll + s
+      let s diameter / path-length
+      set total-flow total-flow + s
       if [number] of other-end != nodes-number - 1 [
-      matrix:set M [number] of myself [number] of other-end (- s) ]          ;; éléments hors la diagonale
+      matrix:set flow-matrix [number] of myself [number] of other-end (- s) ]
     ]
-    ;;counter matrix singularity : quantity that stays on the node -- note : not conservative ?
-    ;if kll < 0.1 [set kll 0.1]
-    matrix:set M number number kll                      ;; éléments sur la diagonale
+    matrix:set flow-matrix number number total-flow                      
   ]
 
-  report M
+  report flow-matrix
 end
 
-to-report setup-V [implantation]
-  let Vm matrix:make-constant (nodes-number - 1) 1 0 ;; n-1 x 1 Matrice
+
+
+to-report get-io-flows [implantation]
+  ;; n-1 x 1 matrix
+  let Vm matrix:make-constant (nodes-number - 1) 1 0
+  
   let aux [number] of one-of (vertices with-min [distance center1])
-  if aux != nodes-number - 1 [
-  matrix:set Vm aux 0 I0]                  ;; élément différent de 0
+  ; input
+  if aux != nodes-number - 1 [matrix:set Vm aux 0 I0]
+  
   set aux [number] of one-of (vertices with-min [distance center2])
-  if aux != nodes-number - 1 [
-  matrix:set Vm aux 0 (- I0)]              ;; élément différent de 0
+  ; output
+  if aux != nodes-number - 1 [matrix:set Vm aux 0 (- I0)]
   
   ;;add constants flux coming from the implantation
   foreach implantation [
-     ask ?[
+     ask ? [
         let num [number] of one-of (vertices with-min [distance myself])
         if num != nodes-number - 1 [matrix:set Vm num 0 ((matrix:get Vm num 0) + (incoming-fraction * I0))]
         let dest one-of patches with [density > 0]
@@ -112,50 +135,54 @@ to-report setup-V [implantation]
      ] 
   ]
   
-  
-  
   report Vm
 end
 
 
 ; vertices procedure
 ;;reset pression matrix
-to reset-p [Pm]
-  set k sum [D / arete-length] of my-paths
-  ifelse number = nodes-number - 1
-  [ set pressure 0 ]
-  [ set pressure matrix:get Pm number 0 ]                 ;; actualiser la valeur de p
+to set-pressures [pressures]
+  set total-capacity sum [diameter / path-length] of my-paths
+  ifelse number = nodes-number - 1 [
+    set pressure 0
+  ][
+    set pressure matrix:get pressures number 0
+  ]
 end
 
-;;paths procedure
-;;calculates new Q coef
-to reset-Q
-  set Q D / arete-length * ([pressure] of end1 - [pressure] of end2)  
+
+;;
+; Computes new flow
+to update-flow
+  set flow diameter / path-length * ([pressure] of end1 - [pressure] of end2)  
 end
 
-to reset-D ;paths procedure
+;paths procedure
+to update-diameters
   ;; delta t -> should put in one single constant
   let dt 0.05
-  let oldD D                 
-  set D dt * f + (1 - dt) * D
+  let old-diameter diameter
   
-  ;;diameter variation :
-  set total-diameter-variation total-diameter-variation + (D - oldD)
+  let flow-gamma 1.8 
+  let var (abs flow) ^ flow-gamma / (1 + (abs flow) ^ flow-gamma)
+  
+  set diameter dt * var + (1 - dt) * diameter
+  
+  ;;diameter variation
+  set total-diameter-variation total-diameter-variation + (diameter - old-diameter)
   
 end
 
-to-report f                        ;; paths procedure
-  let g 1.8                     ;; gamma
-  report (abs Q) ^ g / (1 + (abs Q) ^ g)
-end
 
-to new-noeud
-  set size 0.5 set color green
-end
 
-to new-arete
-  set thickness 0.2 set color green
-end
+
+;to new-noeud
+;  set size 0.5 set color green
+;end
+
+;to new-arete
+;  set thickness 0.2 set color green
+;end
 
 
 

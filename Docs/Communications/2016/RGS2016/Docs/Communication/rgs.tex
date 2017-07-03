@@ -1,0 +1,695 @@
+\documentclass[french,11pt]{beamer}
+
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\Proba}{\mathbb{P}}
+
+\newcommand{\Covb}[2]{\ensuremath{\Cov\!\left[#1,#2\right]}}
+\newcommand{\Eb}[1]{\ensuremath{\E\!\left[#1\right]}}
+\newcommand{\Pb}[1]{\ensuremath{\Proba\!\left[#1\right]}}
+\newcommand{\Varb}[1]{\ensuremath{\Var\!\left[#1\right]}}
+
+% norm
+\newcommand{\norm}[1]{\| #1 \|}
+
+\newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
+
+
+
+
+
+\usepackage{mathptmx,amsmath,amssymb,graphicx,bibentry,bbm,babel,ragged2e}
+
+\makeatletter
+
+\newcommand{\noun}[1]{\textsc{#1}}
+\newcommand{\jitem}[1]{\item \begin{justify} #1 \end{justify} \vfill{}}
+\newcommand{\sframe}[2]{\frame{\frametitle{#1} #2}}
+
+\newenvironment{centercolumns}{\begin{columns}[c]}{\end{columns}}
+%\newenvironment{jitem}{\begin{justify}\begin{itemize}}{\end{itemize}\end{justify}}
+
+\usetheme{Warsaw}
+\setbeamertemplate{footline}[text line]{}
+\setbeamercolor{structure}{fg=purple!50!blue, bg=purple!50!blue}
+
+\setbeamersize{text margin left=15pt,text margin right=15pt}
+
+\setbeamercovered{transparent}
+
+
+\@ifundefined{showcaptionsetup}{}{%
+ \PassOptionsToPackage{caption=false}{subfig}}
+\usepackage{subfig}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+
+
+\makeatother
+
+\begin{document}
+
+
+\title{For a Cautious Use of Big Data and Computation}
+
+\author{J.~Raimbault$^{1,2}$\\
+\texttt{juste.raimbault@parisgeo.cnrs.fr}
+}
+
+
+\institute{$^{1}$UMR CNRS 8504 G{\'e}ographie-cit{\'e}s\\
+$^{2}$UMR-T IFSTTAR 9403 LVMT\\
+}
+
+
+\date{RGS-AC 2016\\\smallskip
+\textit{Session Geocomputation : The Next 20 years}\\\smallskip
+31st September 2016
+}
+
+\frame{\maketitle}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%
+%%
+%% IDEAS
+%%
+%%  -> ex of synthetic data - interpolation, extrapolation.
+%%  -> ex of Pok.Go (cf geotamtam mail) : direct on data without thinking ?
+%%  -> Claims : make a stronger link between computational practices and maths/stats ? (if possible) - need more interdisciplinarity to do that.
+%%     Geography in the center of that dynamic, but not all for granted ! (eg not simulate Gibrat as the fool example !)
+%%     It implies the need for elaborated theory : here trash West/Bettencourt.
+%%  -> Mention Cybergeo/CybergeoNetworks
+%%
+%%  - example with journal/paper title : what ?
+
+
+
+%%%%%%%%%
+%% Abstract
+
+%\textbf{Keywords : }\textit{Data Deluge, Computational Science, City-transportation Interactions, Spatio-temporal Correlations}
+
+%The so-called \emph{big data revolution} resides as much in the availability of large datasets of novel and various types as in the always increasing available computational power. Although the \emph{computational shift} (\cite{arthur2015complexity}) is central for a science aware of complexity and is undeniably the basis of future modeling practices in geography as \cite{banos2013pour} points out, we argue that both \emph{data deluge} and \emph{computational potentialities} are dangerous if not framed into a proper theoretical and formal framework. The first may bias research directions towards available datasets (as e.g. numerous twitter mobility studies) with the risk to disconnect from a theoretical background, whereas the second may overshadow preliminaries analytical resolutions essential for a consistent use of simulations. We illustrate this idea with an example on well-studied geographical objects that are interactions between networks and territories. We compute static correlations between indicators of urban form and indicators of road network topology, using open datasets of european population density (\cite{eurostat}) and OpenStreetMap. A mathematical derivation of the link between spatial covariance at fixed time and dynamical covariance for spatio-temporal stochastic processes, combined with a theory of city-transportation interactions within evolutive urban systems on long times (\cite{bretagnolle:tel-00459720}), allows to infer knowledge on involved \emph{geographical processes} from empirical static correlations. In particular we show the regional nature of dynamic interactions, confirming the non-ergodicity of urban systems (\cite{pumain2012urban}). We argue that the two conditions for this result are indeed the ones endangered by incautious big-data enthusiasm, concluding that a main challenge for future Geocomputation is a wise integration of novel practices within the existing body of knowledge.
+
+
+%%%%%%
+%% Program at http://conference.rgs.org/AC2016/38
+%%
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%
+\section{Introduction}
+%%%%%%%%%%%%%%%%%
+
+
+
+% introduce question with anecdote
+%  idea : These Gleyze ultra-limited ; 5 years later These Claire exponential growth in computational power used ?
+
+\sframe{Computational power : exponential capabilities}{
+
+\justify
+
+\vspace{-0.5cm}
+
+\textit{Moore's law in Geocomputation ?}
+
+\bigskip
+
+\begin{itemize}
+
+\item \justify \cite{gleyze2005vulnerabilite} : urban network analyses, concludes that ``limited by computation''
+
+$\rightarrow$ 10 years later : \cite{2015arXiv151201268L} !
+\end{itemize}
+\medskip
+\begin{itemize}
+\item \justify First Simpop models~\cite{sanders1997simpop} ``calibrated'' by hand
+
+$\rightarrow$ today Simpoplocal~\cite{schmitt2014half} and Marius 
+
+\cite{cottineau2015modular} calibrated on grid, billions of simulations !
+\end{itemize}
+\medskip
+\begin{itemize}
+\item \justify Space syntax : from the theoretical origins~\cite{hillier1989social} to large-scale applications~\cite{hillier2016fourth}
+
+\end{itemize}
+
+}
+
+
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{New and Big Data}{
+
+\textit{Larger dataset can be processed, new type of data available :}
+
+\bigskip
+
+
+\begin{itemize}
+\item \justify Mobility studied through various type of data : new data from transportation systems~\cite{o2014mining}, from Social Networks 
+
+\cite{frank2014constructing}, other types such as mobile phone data 
+
+\cite{de2016death}% ex papers cb transactions
+\end{itemize}
+
+\medskip
+
+\begin{itemize}
+\item Opening of ``classic'' dataset should allow ever more meta-analyses % ex city dock
+\end{itemize}
+
+\medskip
+
+\begin{itemize}
+\item \justify New ways to do research, more interactive, crowd-sourced science and data ? \cite{2016arXiv160606162C} ; \cite{cybergeo20} % CybergeoNetworks and MetaZipf
+\end{itemize}
+
+
+}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{But to what purpose ?}{
+
+% Barthelemy Paris
+\cite{barthelemy2013self} : new data and methods, but reinvent the wheel !
+
+\bigskip
+
+\includegraphics[width=\textwidth]{figures/bartpaper}
+
+}
+%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{But to what purpose ?}{
+
+Exaggerating agent-based modeling ? Up to simulating the world at scale 1:1 !
+
+\medskip
+
+% Axtell economy
+\includegraphics[width=\textwidth]{figures/exaxt}
+
+}
+%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{But to what purpose ?}{
+% here trash Gibrat simulation ?
+
+\textit{Other worrying examples :}
+
+\begin{itemize}
+\item \cite{robin_cura_2014_11415} : waste computational ressources to simulate mean and variance of Gibrat model ( = recheck the Central Limit Theorem !), which is fully solved otherwise~\cite{gabaix1999zipf}
+\medskip
+\item Recently seen on Geotamtam : rush on new data (Pokemon Go) before thinking !
+\medskip
+\item \cite{louail2016crowdsourcing} draw social equity policy recommandations by acting on mobility, from credit card transaction data but totally disconnected from Urban Form.
+\end{itemize}
+
+}
+%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Theories and Computation}{
+% state the main idea
+% -> Claims : make a stronger link between computational practices and maths/stats ? (if possible) - need more interdisciplinarity to do that.
+%%     Geography in the center of that dynamic, but not all for granted ! (eg not simulate Gibrat as the fool example !)
+%%     It implies the need for elaborated theory : here trash West/Bettencourt.
+
+\justify
+
+\textbf{Claim : } The computational shift~\cite{arthur2015complexity} and simulation practices will be central in geography~\cite{banos2013pour}, but may also be dangerous :
+\begin{itemize}
+\item Data deluge may impose research subjects and elude theory
+\item Computation may elude model construction and solving
+\end{itemize}
+
+\bigskip
+
+$\rightarrow$ \textit{Make a stronger link between computational practices, computer science, mathematics, statistics and theoretical geography}% (Note : precise purpose of TQG, but seems forgotten sometimes)
+
+\medskip
+
+$\rightarrow$ \textit{Theoretical and Quantitative Geography in the center of this dynamic, as it was its initial purpose that seems forgotten in some cases}
+
+}
+%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%
+\section{Case study}
+%%%%%%%%%%%%%%%%%
+
+% develop concrete example
+
+
+\sframe{Case study : Context and Rationale}{
+% interactions between networks and territories
+
+\textbf{Study of interactions between network and territories :}
+
+\medskip
+
+$\rightarrow$ \textit{searching for stylized facts, what can be learnt from static correlations between urban form and road network ?}
+
+\bigskip
+
+\textbf{Theoretical Background : } \textit{A Theory of co-evolutive networked human territories} proposed in~\cite{raimbault2016memoire}, that in particular postulates an important role of networks in the morphogenesis of complex adaptive urban systems that are human territories
+
+\bigskip
+
+$\rightarrow$ \textit{investigation of stationarity and ergodicity properties of relation between road network and population distribution ; implies spatiality of correlations and link static-dynamic}
+% because means link between dynamic and static ; and also spatiality of correlations
+
+}
+
+
+\sframe{Dataset construction}{
+% brief description of nw simplification ; 
+
+Computation of topological road network for all Europe, at 100m granularity scale (to be used consistently with population grid~\cite{eurostat})
+
+\medskip
+
+$\rightarrow$ Import of OSM into \texttt{pgsql}, simplification at 100m granularity, topological simplification with split/merge algorithm
+
+\bigskip
+%
+%\begin{columns}
+%\begin{column}{width=0.7\textwidth}
+%
+%\end{column}
+%\begin{column}{width=0.3\textwidth}
+%\textit{.} % TODO summary stats here.
+%\end{column}
+%\end{columns}
+
+\begin{columns}
+\begin{column}{0.7\textwidth}
+    \includegraphics[width=\textwidth,height=0.5\textheight]{figures/ex_nw}
+\end{column}
+\begin{column}{0.3\textwidth}
+   \textit{$\simeq 44\cdot 10^6$ links in initial OSM db, $\simeq 61\cdot 10^6$ in first simplified layer, $\simeq 21\cdot 10^6$ in final database}
+\end{column}
+\end{columns}
+
+
+}
+
+
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Results : Computation of Indicators}{
+
+
+\textit{Computation of urban form indicators~\cite{le2015forme} and network indicators on $l_0=10km$ side square}
+
+\includegraphics[width=\textwidth]{figures/pop-alphaBetweenness}
+
+}
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Results : Spatial Correlations}{
+
+\textit{Computation of spatial correlation on square areas of width $\delta\cdot l_0$ (with typically $\delta = 4, \ldots , 16$)}
+
+\centering
+
+\includegraphics[width=\textwidth,height=0.7\textheight]{figures/corr_PCA_delta4}
+
+$\rightarrow$ \textit{local spatial stationarity of processes}
+
+}
+
+
+%%%%%%%%%%%%%%%%%
+%\sframe{Results : Stationarity scales}{
+% maps
+% 
+%}
+
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Results : Multi-scale Processes}{
+% plots
+%\includegraphics[width=0.33\textwidth]{figures/corrs-distrib_varyingdelta_bytype} % -> in supp material
+\includegraphics[width=0.5\textwidth]{figures/corrs-summary_varyingdelta_bytype_extended1}
+\includegraphics[width=0.5\textwidth]{figures/normalized_CI_delta}
+
+\medskip
+
+$\rightarrow$ Significant variation of mean correlation with $\delta$ (Left) and of normalized confidence interval (Right) given by $\left|\rho_+ - \rho_-\right|\cdot \delta$, as bounds theoretically vary as $\sqrt{N} \sim \sqrt{\delta^2}$ : implies multi-scalarity
+
+}
+
+
+
+
+
+\sframe{Empirical Findings (Formalization)}{
+
+$Y_i\left[\vec{x},t\right]$ spatio-temporal stochastic process, verifies empirically :
+
+\bigskip
+
+\begin{enumerate}
+\item Local spatial autocorrelation is present and bounded by $l_{\rho}$ (in other words the processes are continuous in space) : at any $\vec{x}$ and $t$, $\left|\rho_{\norm{\Delta \vec{x}} < l_{\rho}}\left[Y_i (\vec{x}+\Delta \vec{x},t), Y_i (\vec{x},t) \right]\right| > 0$.
+\medskip
+\item Processes are locally parametrized : $Y_i = Y_i\left[\alpha_i\right]$, where $\alpha_i (\vec{x})$ varies with $l_{\alpha}$, with $l_{\alpha} \gg l_{\rho}$ and weakly locally stationary in space.
+\medskip
+%\item Spatial correlations between processes have a sense at an intermediate scale $l$ such that $l_{\alpha}\gg l \gg l_{\rho}$.
+%\item Processes covariance stationarity times scale as $\sqrt{l}$.
+%\item Local ergodicity is present at scale $l$ and dynamics are locally chaotic.
+\item Processes are multi-scalar : since $\rho(\delta = \infty) > \rho (\delta = 0 )$, a necessary non-linear correction on processes spatial averages in correlation computation is present.
+% add computation in supplementary materials / papers. -> later
+\end{enumerate}
+}
+
+
+\sframe{Analytical Deductions}{
+
+1. \textbf{Regimes of temporal correlations.} Let assume local ergodicity in $\vec{x}_0$ at scale $\delta \cdot l_0$ (reasonable with urban growth and network extension in recent times). The Ergodic theorem implies that $\exists \mathcal{T}$ such that
+
+\[<Y_i (t) >_{\norm{\vec{x}-\vec{x}_0} < \delta\cdot l_0} = <Y_i (\vec{x}_0)>_{t\in \mathcal{T}}\] 
+
+With spatial stationarity, $<Y_i>_{\vec{x}_0}=<Y_i>_{\vec{x}_1}$, thus $\mathcal{T}$ must be constant to be invariant by translation. By contraposition and (2), processes have different dynamical characteristics.
+% if translate in a given direction, looses a small part, must be compensated by the area translated by delta (overlap), thus must be constant.
+
+\bigskip
+
+2. \textbf{Global non-ergodicity.} Let $X_k$ a partition of space into local areas. We have $<\cdot>_x = \sum_k w_k <\cdot>_{x_k} =_{(1)} \sum_k w_k <\cdot>_{\mathcal{T}_k} $. On the other hand, global ergodicity would give $<\cdot>_t = <\cdot>_{\mathcal{T}} = \sum_k w_k <\cdot>_{\mathcal{T}}$ and $\sum_k w_k \left(<\cdot>_{\mathcal{T}} - <\cdot>_{\mathcal{T}_k}\right) = 0$. Being true on each subset implies $\mathcal{T}=\mathcal{T}_k$, what contradicts (1).
+
+
+}
+
+
+%
+%
+%%%%%%%%%%%%%%%%%%
+%\sframe{Stationarity and Ergodicity}{
+%
+%\begin{itemize}
+%\item Assuming local ergodicity, spatial local stationarity implies and temporal local stationarity
+%
+%\item Spatial non-stationarity \textbf{at the second order}$\implies$ temporal scale variations $\implies$ non-ergodicity
+%
+%\end{itemize}
+%
+%}
+%
+
+
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Case study : implications}{
+% thematic conclusion of the case study on ergodicity
+
+$\rightarrow$ Still points to explore :
+\begin{itemize}
+\item variable correlations areas (size and shape in space)
+\item same work on cities population/train network data, which are also dynamical databases : extrapolation of ergodicity parameters ?
+\item correlations of returns : link between $\rho\left[\Delta_t Y\right]$ and $\rho\left[\Delta_x Y\right]$ (more difficult : if pure local ergodicity, $\exists$ a permutation making the correspondance) % may be difficult to identify 
+\item Link between $\Delta_{\delta}\rho (\delta)$ and process derivatives ?
+\end{itemize}
+
+\bigskip
+
+$\rightarrow$ We show the regional nature of network-territories interactions, in particular the non-ergodicity of urban systems on \textbf{the interaction these components}
+
+\bigskip
+
+$\rightarrow$ No direct results on time dynamics, but indirect : spatio-temporal processes do not have same speed and react/diffuse differently
+
+
+}
+
+
+
+
+%%%%%%%%%%%%%%%%%
+\section{Discussion}
+%%%%%%%%%%%%%%%%%
+
+% explain why example justify our point of view
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Discussion}{
+
+\justify
+
+1. \textit{Is a theory-free quantitative geography possible ?}
+
+\medskip
+
+$\rightarrow$ close to the trap of black-box data-mining analysis ; still poor explanatory power, can exhibit relations but not reconstruct processes
+
+
+\bigskip
+
+2. \textit{Is a pure computational quantitative geography possible ?}
+
+\medskip
+
+$\rightarrow$ even gaining 3 orders of magnitudes in computational power does not solve the dimensionality curse
+
+\bigskip
+
+\textbf{In our case study : } Without theory, would not know which objects, measures and properties to look at (e.g. multi-scale and dynamical nature of processes) ; without analytics : no conclusion from empirical analysis.
+
+
+}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Conclusion}{
+
+\justify
+
+$\rightarrow$ Nothing is really new, and more than ever we need simple but powerful theories {\`a}-la-Occam~\cite{batty2016theoretical}
+
+\bigskip
+
+$\rightarrow$ Need for a wise integration of new techniques/rediscovering into existing body of knowledge : multi-modeling and model families (see Cottineau, Rey and Reuillon presentation) as one way to do that ?
+
+\bigskip
+
+$\rightarrow$ Interdisciplinarity (and Nexus ?!) necessary to achieve that.
+
+
+}
+
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Reserve}{
+
+\textbf{Reserve Slides}
+
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Network Simplification Algorithm}{
+
+\begin{enumerate}
+\item Filter OSM links (highway tag) and insert into \texttt{pgsql} with \texttt{osmosis}~\cite{osmosis}
+\item First simplification : two cells of base raster (population density) are linked if and only if they are linked by OSM link (associated type/speed)
+\item Topological simplification :
+\begin{itemize}
+\item split the space into a partition, simplify within each box
+\item construct independent merging subsets of the partition, merge sequentially for each subset.
+\end{itemize}
+
+\end{enumerate}
+
+\bigskip
+
+%$\rightarrow$
+% summary stats etc -> in main slides
+
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Indicators}{
+
+\textbf{Morphological Indicators : } Density, Spatial Autocorrelation, Entropy, Mean Distance, Hierarchy
+
+\bigskip
+
+\textbf{Network Indicators : } betweenness (mean/hierarchy), closeness (mean/hierarchy), mean link length, network performance, mean path length, diameter, components, clustering coefficient, density
+
+\bigskip
+
+\textbf{Correlation Measures : } Pearson test ; correlation matrices then aggregated (mean, mean absolute, first principal component (three first PC 11, 9, 6
+\% variance with $\delta = 4$))
+
+
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%
+\sframe{Implementation}{
+Mostly implemented in R (with osmosis and postgres for database management).
+
+\bigskip
+
+Source code available at \texttt{https://github.com/JusteRaimbault/CityNetwork/tree/master}
+
+\texttt{/Models/StaticCorrelations}
+
+\bigskip
+
+Database available on request (large).
+
+}
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Morphology Classification}{
+\includegraphics[width=\textwidth,height=0.8\textheight]{figures/clust_k3-11}
+}
+
+%%%%%%%%%%%%%%%%%
+\sframe{Morphology Distribution}{
+\includegraphics[width=\textwidth]{figures/hists_GOOD}
+}
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Network Distribution}{
+\includegraphics[width=\textwidth]{figures/distribs_allindics} % network stat distrib
+
+}
+
+%%%%%%%%%%%%%%%%%
+\sframe{Correlations}{
+$\delta = 10$
+\includegraphics[width=\textwidth]{figures/corr_PCA_delta10}
+}
+
+%%%%%%%%%%%%%%%%%
+\sframe{Correlations}{
+\includegraphics[width=0.5\textwidth]{figures/scatter_mean_colnetwork}
+\includegraphics[width=0.5\textwidth]{figures/scatter_meanabs_colnetwork}
+}
+
+
+%%%%%%%%%%%%%%%%%
+\sframe{Correlation distributions}{
+\includegraphics[width=\textwidth]{figures/corrs-distrib_varyingdelta_bytype} 
+}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sframe{Theory : Pillars}{
+\begin{enumerate}
+\item \textit{Networked Human Territories} $\rightarrow$ Raffestin approach to territory combined with Dupuy theory of networks.
+\item \textit{Evolutive Urban Theory} $\rightarrow$ City Systems as complex Adaptive systems, applied to human settlements in general and thus territorial systems.
+\item \textit{Urban Morphogenesis} $\rightarrow$ Morphogenesis as autonomous rules to explain growth of urban form. Used as the provider of modular decompositions.
+\item \textit{Boundaries and Co-evolution} $\rightarrow$ Co-evolution as the existence of \textit{niche}, consequence of boundary patterns.
+\end{enumerate}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sframe{Theory : Specification}{
+\begin{itemize}
+\jitem{Previous def. of territorial systems}
+\jitem{Modular decomposition and stationarity : existence of scales}
+\jitem{Feedback loops between and inside scales yield weak emergence, thus complexity}
+\jitem{Morphogenesis gives modular decomposition and co-evolution}
+\jitem{\textbf{Main assumption.} Necessity of Networks : networks are necessary component of co-evolutive niches.}
+\end{itemize}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[allowframebreaks]
+\frametitle{References}
+\bibliographystyle{apalike}
+\bibliography{/Users/Juste/Documents/ComplexSystems/CityNetwork/Biblio/Bibtex/CityNetwork,biblio}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
