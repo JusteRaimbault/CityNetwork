@@ -12,6 +12,26 @@ library(igraph)
 
 
 
+#'
+#' 
+#' get mask raster with good resolution
+#' 
+getRaster<-function(file,newresolution=0,reproject=F){
+  provraster <- raster(file)
+  if(reproject==F&newresolution==0){return(provraster)}
+  if(reproject==F){
+    return(raster(extent(provraster),nrow=nrow(provraster)*yres(provraster)/newresolution,ncol=ncol(provraster)*xres(provraster)/newresolution,crs=crs(provraster)))
+  }else{
+    ext =extent(provraster)
+    xmin=ext@xmin;xmax=ext@xmax;ymin=ext@ymin;ymax=ext@ymax
+    wgs84=CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+    wgs84extent = extent(spTransform(SpatialPoints(matrix(data=c(xmin,ymin,xmax,ymax),ncol=2,byrow=T),crs(provraster)),wgs84))
+    return(raster(wgs84extent,nrow=nrow(provraster)*yres(provraster)/newresolution,ncol=ncol(provraster)*xres(provraster)/newresolution,crs=wgs84))
+  }
+}
+
+
+
 ##############'
 #'
 #' Get coordinates of cells

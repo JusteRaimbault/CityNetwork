@@ -10,18 +10,17 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 
 source('nwSimplFunctions.R')
 
-densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
+#densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
+densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/PopulationGrid_China2010.tif"))
 xr=xres(densraster);yr=yres(densraster)
 
 latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
 lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 
-latmin=46.34;latmax=48.94;lonmin=0.0;lonmax=3.2 # coordinates for db 'centre'
+#latmin=46.34;latmax=48.94;lonmin=0.0;lonmax=3.2 # coordinates for db 'centre'
 #latmin=49.4;latmax=50.25;lonmin=5.65;lonmax=6.6 # coordinates for db 'luxembourg'
 #latmin=49.9;latmax=50.183488;lonmin=5.7300013;lonmax=6.53 # coordinates for db 'luxembourg'
 
-#r=raster(nrows=floor((latmax-latmin)*2000),ncols=floor((lonmax-lonmin)*2000),xmn=lonmin,xmx=lonmax,ymn=latmin,ymx=latmax,crs=crs(densraster))
-#densraster=r
 
 ncells = 200
 
