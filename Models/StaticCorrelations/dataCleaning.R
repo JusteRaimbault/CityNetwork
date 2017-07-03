@@ -18,14 +18,34 @@ library(dplyr)
 
 load('res/res/20160826_parallcorrs_corrTest_unlisted_nona_goodCols.RData')
 
-sumcorrsmean = as.tbl(allcorrs[allcorrs$measure=='mean',]) %>% group_by(delta,type) %>% summarise(meanrho=mean(rho,na.rm=TRUE),rhosd=sd(rho,na.rm=TRUE))
-sumcorrsmeanmin = as.tbl(allcorrs[allcorrs$measure=='mean',]) %>% group_by(delta,type) %>% summarise(meanrho=mean(rhomin,na.rm=TRUE),rhosd=sd(rhomin,na.rm=TRUE))
-sumcorrsmeanmax = as.tbl(allcorrs[allcorrs$measure=='mean',]) %>% group_by(delta,type) %>% summarise(meanrho=mean(rhomax,na.rm=TRUE),rhosd=sd(rhomax,na.rm=TRUE))
-sumcorrsmeanabs = as.tbl(allcorrs[allcorrs$measure=='meanabs',]) %>% group_by(delta,type) %>% summarise(meanrho=mean(rho,na.rm=TRUE),rhosd=sd(rho,na.rm=TRUE))
-sumcorrsmeanabsmin = as.tbl(allcorrs[allcorrs$measure=='meanabs',]) %>% group_by(delta,type) %>% summarise(meanrho=mean(rhomin,na.rm=TRUE),rhosd=sd(rhomin,na.rm=TRUE))
-sumcorrsmeanabsmax = as.tbl(allcorrs[allcorrs$measure=='meanabs',]) %>% group_by(delta,type) %>% summarise(meanrho=mean(rhomax,na.rm=TRUE),rhosd=sd(rhomax,na.rm=TRUE))
+d=as.tbl(allcorrs[allcorrs$measure=='mean',])
+#d=as.tbl(allcorrs)
+d$rhomax=as.numeric(as.character(d$rhomax))
+d$delta=as.numeric(as.character(d$delta))
+d$measure=as.character(d$measure)
+d$type=as.character(d$type)
+
+#d=d[d$delta==4|d$delta==8|d$delta==12,]
+
+#save(d,file='res/res/sample4-8-12.RData')
+
+sumcorrsmean = as.tbl(d) %>% group_by(delta,type) %>% summarise(meanrho=mean(rho,na.rm=TRUE),rhosd=sd(rho,na.rm=TRUE))
+sumcorrsmeanmin = as.tbl(d) %>% group_by(delta,type) %>% summarise(meanrho=mean(rhomin,na.rm=TRUE),rhosd=sd(rhomin,na.rm=TRUE))
+sumcorrsmeanmax = as.tbl(d) %>% group_by(delta,type) %>% summarise(meanrho=mean(rhomax,na.rm=TRUE),rhosd=sd(rhomax,na.rm=TRUE))
+
+
+d=as.tbl(allcorrs[allcorrs$measure=='meanabs',])
+d$rhomax=as.numeric(as.character(d$rhomax))
+d$delta=as.numeric(as.character(d$delta))
+d$measure=as.character(d$measure)
+d$type=as.character(d$type)
+
+sumcorrsmeanabs = as.tbl(d) %>% group_by(delta,type) %>% summarise(meanrho=mean(rho,na.rm=TRUE),rhosd=sd(rho,na.rm=TRUE))
+sumcorrsmeanabsmin = as.tbl(d) %>% group_by(delta,type) %>% summarise(meanrho=mean(rhomin,na.rm=TRUE),rhosd=sd(rhomin,na.rm=TRUE))
+sumcorrsmeanabsmax = as.tbl(d) %>% group_by(delta,type) %>% summarise(meanrho=mean(rhomax,na.rm=TRUE),rhosd=sd(rhomax,na.rm=TRUE))
 
 save(sumcorrsmean,sumcorrsmeanmin,sumcorrsmeanmax,sumcorrsmeanabs,sumcorrsmeanabsmin,sumcorrsmeanabsmax,file='res/res/sumcorrs.RData')
+
 
 
 

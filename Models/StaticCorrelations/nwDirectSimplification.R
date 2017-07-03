@@ -26,7 +26,7 @@ latmin=46.34;latmax=48.94;lonmin=0.0;lonmax=3.2 # coordinates for db 'centre'
 ncells = 200
 
 # get coordinates
-#coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
+coords <- getCoords(densraster,lonmin,latmin,lonmax,latmax,ncells)
 
 # export grid for viz
 # gridlines=list();i=1
@@ -39,11 +39,12 @@ ncells = 200
 tags=c("motorway","trunk","primary","secondary","tertiary","unclassified","residential")
 
 # db config
-global.osmdb='europe';global.dbport=5433;global.dbuser="juste";global.dbhost=""
+#global.osmdb='europe';global.dbport=5433;global.dbuser="juste";global.dbhost=""
 #global.osmdb='centre';global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost"
+global.osmdb='idf';global.dbport=5433;global.dbuser="juste"
 
 # destination bases
-global.destdb_full='nw_full';global.destdb_prov='nw_prov';global.destdb_simpl='nw_simpl'
+global.destdb_full='nw_idf_full';global.destdb_prov='nw_idf_prov';global.destdb_simpl='nw_idf_simpl'
 
 # reinit dbs
 #system('./runtest.sh')
