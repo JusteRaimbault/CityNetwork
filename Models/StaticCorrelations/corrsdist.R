@@ -17,6 +17,7 @@ cl <- makeCluster(20,outfile='log')
 registerDoParallel(cl)
 
 parallcorrs <- foreach(rhoasize=rhoasizes) %dopar% {
+  try({
   source('functions.R')
   allcorrs=data.frame()
   istep=2;jstep=2;
@@ -27,39 +28,44 @@ parallcorrs <- foreach(rhoasize=rhoasizes) %dopar% {
   corrs = getCorrMatrices(xcors,ycors,xyrhoasize,res,f=corrTest)
   
   # means
-  rhocross_est_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$estimate[1:7,8:20]))})
-  rhocross_inf_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$conf.int.min[1:7,8:20]))})
-  rhocross_sup_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$conf.int.max[1:7,8:20]))})
-  rhomorph_est_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$estimate[1:7,1:7]))})
-  rhomorph_inf_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$conf.int.min[1:7,1:7]))})
-  rhomorph_sup_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$conf.int.max[1:7,1:7]))})
-  rhonet_est_mean = getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$estimate[8:20,8:20]))})
-  rhonet_inf_mean = getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$conf.int.min[8:20,8:20]))})
-  rhonet_sup_mean = getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(rho$conf.int.max[8:20,8:20]))})
-  
+  rhocross_est_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$estimate)<-0;return(mean(rho$estimate[1:7,8:20]))})
+  rhocross_inf_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.min)<-0;return(mean(rho$conf.int.min[1:7,8:20]))})
+  rhocross_sup_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.max)<-0;return(mean(rho$conf.int.max[1:7,8:20]))})
+  rhomorph_est_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$estimate)<-0;return(mean(rho$estimate[1:7,1:7]))})
+  rhomorph_inf_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.min)<-0;return(mean(rho$conf.int.min[1:7,1:7]))})
+  rhomorph_sup_mean=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.max)<-0;return(mean(rho$conf.int.max[1:7,1:7]))})
+  rhonet_est_mean = getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$estimate)<-0;return(mean(rho$estimate[8:20,8:20]))})
+  rhonet_inf_mean = getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.min)<-0;return(mean(rho$conf.int.min[8:20,8:20]))})
+  rhonet_sup_mean = getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.max)<-0;return(mean(rho$conf.int.max[8:20,8:20]))})
+
+  show(rhocross_est_mean)
+  show(rhomorph_est_mean)
+  show(rhonet_est_mean)  
+
   # mean abs
-  rhocross_est_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(abs(rho$estimate[1:7,8:20])))})
-  rhocross_inf_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(abs(rho$conf.int.min[1:7,8:20])))})
-  rhocross_sup_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(abs(rho$conf.int.max[1:7,8:20])))})
-  rhomorph_est_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(abs(rho$estimate[1:7,1:7])))})
-  rhomorph_inf_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(abs(rho$conf.int.min[1:7,1:7])))})
-  rhomorph_sup_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(abs(rho$conf.int.max[1:7,1:7])))})
-  rhonet_est_meanabs = getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(abs(rho$estimate[8:20,8:20])))})
-  rhonet_inf_meanabs = getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(abs(rho$conf.int.min[8:20,8:20])))})
-  rhonet_sup_meanabs = getCorrMeasure(xcors,ycors,corrs,function(rho){diag(rho)<-0;return(mean(abs(rho$conf.int.max[8:20,8:20])))})
+  rhocross_est_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$estimate)<-0;return(mean(abs(rho$estimate[1:7,8:20])))})
+  rhocross_inf_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.min)<-0;return(mean(abs(rho$conf.int.min[1:7,8:20])))})
+  rhocross_sup_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.max)<-0;return(mean(abs(rho$conf.int.max[1:7,8:20])))})
+  rhomorph_est_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$estimate)<-0;return(mean(abs(rho$estimate[1:7,1:7])))})
+  rhomorph_inf_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.min)<-0;return(mean(abs(rho$conf.int.min[1:7,1:7])))})
+  rhomorph_sup_meanabs=getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.max)<-0;return(mean(abs(rho$conf.int.max[1:7,1:7])))})
+  rhonet_est_meanabs = getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$estimate)<-0;return(mean(abs(rho$estimate[8:20,8:20])))})
+  rhonet_inf_meanabs = getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.min)<-0;return(mean(abs(rho$conf.int.min[8:20,8:20])))})
+  rhonet_sup_meanabs = getCorrMeasure(xcors,ycors,corrs,function(rho){if(is.na(rho)){return(NA)};diag(rho$conf.int.max)<-0;return(mean(abs(rho$conf.int.max[8:20,8:20])))})
   
   # store
   allcorrs=rbind(allcorrs,cbind(rhocross_est_mean,rhocross_inf_mean,rhocross_sup_mean,rep(rhoasize,nrow(rhocross_est_mean)),rep("cross",nrow(rhocross_est_mean)),rep("mean",nrow(rhocross_est_mean))))
-  allcorrs=rbind(allcorrs,cbind(rhomorph_est_mean,rhomorph_inf_mean,rhomorph_sup_mean,rep(rhoasize,nrow(rhomorph)),rep("morpho",nrow(rhomorph)),rep("mean",nrow(rhocross_est_mean))))
-  allcorrs=rbind(allcorrs,cbind(rhonet_est_mean,rhonet_inf_mean,rhonet_sup_mean,rep(rhoasize,nrow(rhonet)),rep("network",nrow(rhonet)),rep("mean",nrow(rhocross_est_mean))))
+  allcorrs=rbind(allcorrs,cbind(rhomorph_est_mean,rhomorph_inf_mean,rhomorph_sup_mean,rep(rhoasize,nrow(rhomorph_est_mean)),rep("morpho",nrow(rhomorph_est_mean)),rep("mean",nrow(rhomorph_est_mean))))
+  allcorrs=rbind(allcorrs,cbind(rhonet_est_mean,rhonet_inf_mean,rhonet_sup_mean,rep(rhoasize,nrow(rhonet_est_mean)),rep("network",nrow(rhonet_est_mean)),rep("mean",nrow(rhonet_est_mean))))
   allcorrs=rbind(allcorrs,cbind(rhocross_est_meanabs,rhocross_inf_meanabs,rhocross_sup_meanabs,rep(rhoasize,nrow(rhocross_est_mean)),rep("cross",nrow(rhocross_est_mean)),rep("meanabs",nrow(rhocross_est_mean))))
-  allcorrs=rbind(allcorrs,cbind(rhomorph_est_meanabs,rhomorph_inf_meanabs,rhomorph_sup_meanabs,rep(rhoasize,nrow(rhomorph)),rep("morpho",nrow(rhomorph)),rep("meanabs",nrow(rhocross_est_mean))))
-  allcorrs=rbind(allcorrs,cbind(rhonet_est_meanabs,rhonet_inf_meanabs,rhonet_sup_meanabs,rep(rhoasize,nrow(rhonet)),rep("network",nrow(rhonet)),rep("meanabs",nrow(rhocross_est_mean))))
+  allcorrs=rbind(allcorrs,cbind(rhomorph_est_meanabs,rhomorph_inf_meanabs,rhomorph_sup_meanabs,rep(rhoasize,nrow(rhomorph_est_mean)),rep("morpho",nrow(rhomorph_est_mean)),rep("meanabs",nrow(rhomorph_est_mean))))
+  allcorrs=rbind(allcorrs,cbind(rhonet_est_meanabs,rhonet_inf_meanabs,rhonet_sup_meanabs,rep(rhoasize,nrow(rhonet_est_mean)),rep("network",nrow(rhonet_est_mean)),rep("meanabs",nrow(rhonet_est_mean))))
   
   return(allcorrs)
+  })
 }
 
-save(parallcorrs,file='res/res/20160825_parallcorrs_corrTest.RData')
+save(parallcorrs,file='res/res/20160826_parallcorrs_corrTest.RData')
 
 # do some unlisting and shit
 
@@ -78,7 +84,7 @@ colnames(allcorrs)=c("lat","lon","rho","rhomin","rhomax","delta","type")
 allcorrs$rho=as.numeric(as.character(allcorrs$rho));allcorrs$lat=as.numeric(as.character(allcorrs$lat));allcorrs$lon=as.numeric(as.character(allcorrs$lon));allcorrs$delta=as.numeric(as.character(allcorrs$delta))
 allcorrs$type=as.character(allcorrs$type)
 
-save(allcorrs,file='res/res/20160825_parallcorrs_corrTest_unlisted.RData')
+save(allcorrs,file='res/res/20160826_parallcorrs_corrTest_unlisted.RData')
 
 
 
