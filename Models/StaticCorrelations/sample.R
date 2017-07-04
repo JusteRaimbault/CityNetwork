@@ -19,6 +19,6 @@ save(g,file='sample/roads_bleau.RData')
 
 
 ######
-load('sample/roads_rnd.RData')
-
+#load('sample/roads_rnd.RData')
+#load('sample/roads_bleau.RData')
 
