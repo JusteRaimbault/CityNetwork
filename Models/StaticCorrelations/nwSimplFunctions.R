@@ -215,11 +215,16 @@ graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
   #show(edgelist$length)
   if(!is.null(edgelist$length)){E(g)$length=edgelist$length}
   else{
+    elengths=c()
     bothends = ends(g,E(g))
     x1 = V(g)$x[bothends[,1]];x2 = V(g)$x[bothends[,2]]
     y1 = V(g)$y[bothends[,1]];y2 = V(g)$y[bothends[,2]]
-    E(g)$length=sqrt((x1-x2)^2+(y1-y2)^2)
+    for(k in 1:length(x1)){
+      elengths=append(elengths,spDistsN1(pts = matrix(c(x1[k],y1[k]),nrow=1),pt = c(x2[k],y2[k]),longlat = TRUE))
+    }
+    E(g)$length=elengths;
   }
+  
   gg=simplify(g,edge.attr.comb="min")
   return(gg)
 }
