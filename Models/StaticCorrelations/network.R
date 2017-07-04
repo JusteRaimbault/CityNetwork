@@ -23,6 +23,24 @@ library(rgdal)
 #  - graph size (-> density)
 
 
+
+getPopulation<-function(g,densraster){
+  verticessp=SpatialPoints(data.frame(x=V(g)$x,y=V(g)$y),proj4string = crs(densraster))
+  ext = extent(verticessp)
+  vertices = ppp(V(g)$x,V(g)$y,window=owin(c(ext@xmin,ext@xmax),c(ext@ymin,ext@ymax)))
+  diric = dirichlet(vertices)
+  for(i in 1:length(diric$tiles)){diric$tiles[[i]]$id = V(g)$name[i]}
+  diricsp = SpatialPolygons(lapply(diric$tiles,function(tile){
+    Polygons(list(Polygon(
+      matrix(data=c(tile$bdry[[1]]$x,tile$bdry[[1]]$x[1],tile$bdry[[1]]$y,tile$bdry[[1]]$y[1]),nrow=length(tile$bdry[[1]]$x)+1,byrow=F)        
+    )),ID = tile$id)})
+  ,proj4string = crs(densraster)
+  )
+  extr = extract(densraster,diricsp,df=T,fun=sum,na.rm=T)
+  
+}
+
+
 #'
 #' basic stats
 #'
