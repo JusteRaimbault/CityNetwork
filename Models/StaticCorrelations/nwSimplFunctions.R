@@ -124,7 +124,7 @@ getMergingSequences<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
 #' @requires global variables : osmdb, dbport
 #' 
 linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags,osmdb=global.osmdb,dbuser=global.dbuser,dbport=global.dbport,dbhost=global.dbhost){
-  #show(osmdb)
+  show(paste0('getting lines within [',lonmin,'-',lonmax,']x[',latmin,'-',latmax,'] on db ',osmdb))
   pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=osmdb,user=dbuser,port=dbport,host=dbhost)
   
   q = paste0(
@@ -140,13 +140,14 @@ linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags,osmdb=global.osmdb,
   data = fetch(query,n=-1)
   geoms = data$geom
   roads=list();k=1
+  show(paste0(' -> ',length(geoms),' segments'))
   for(i in 1:length(geoms)){
     r=try(readWKT(geoms[i])@lines[[1]],silent=TRUE)
     if(!inherits(r,"try-error")){
        r@ID=as.character(i)
        roads[[k]]=r;k=k+1
     }
-  } 
+  }
   
   dbDisconnect(pgsqlcon)
   
