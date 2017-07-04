@@ -10,9 +10,14 @@ library(rgdal)
 densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/PopulationGrid_China2010.tif"))
 #densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
 
-ext =extent(densraster)
-xmin=ext@xmin;xmax=ext@xmax;ymin=ext@ymin;ymax=ext@ymax
-wgs84=CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-wgs84extent = extent(spTransform(SpatialPoints(matrix(data=c(xmin,ymin,xmax,ymax),ncol=2,byrow=T),crs(densraster)),wgs84))
+#ext =extent(densraster)
+#xmin=ext@xmin;xmax=ext@xmax;ymin=ext@ymin;ymax=ext@ymax
+#wgs84=CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+#wgs84extent = extent(spTransform(SpatialPoints(matrix(data=c(xmin,ymin,xmax,ymax),ncol=2,byrow=T),crs(densraster)),wgs84))
+#r = raster(wgs84extent,nrow=nrow(densraster)*10,ncol=ncol(densraster)*10,crs=wgs84)
 
-r = raster(wgs84extent,nrow=nrow(densraster)*10,ncol=ncol(densraster)*10,crs=wgs84)
+r = disaggregate(densraster,fact=10)
+
+reprojected <- projectRaster(from=r,crs=wgs84)
+
+writeRaster(reprojected, filename=paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/pop2010_100m_wgs84.tif"),format='GTiff')

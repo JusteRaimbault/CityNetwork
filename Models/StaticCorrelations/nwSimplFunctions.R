@@ -47,6 +47,9 @@ getCoords<-function(r,xmin,ymin,xmax,ymax,cells){
   return(coords)
 }
 
+#'
+#' @param cells : area size in number of cells
+#' @param offset : number of cells between two consecutive areas
 getCoordsOffset<-function(r,xmin,ymin,xmax,ymax,cells,offset){
   rows_min = seq(from=rowFromY(r,ymax),to=rowFromY(r,ymin)-cells,by=offset)
   rows_max = seq(from=rowFromY(r,ymax)+cells,to=rowFromY(r,ymin),by=offset)-1
