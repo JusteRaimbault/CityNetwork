@@ -8,21 +8,21 @@ source('nwSimplFunctions.R')
 
 densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
 
-global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost";global.nwdb='nwtest_simpl_4'
-#global.dbport=5433;global.dbuser="juste";global.dbhost="";global.nwdb='nw_simpl_4'
+#global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost";global.nwdb='nwtest_simpl_4'
+global.dbport=5433;global.dbuser="juste";global.dbhost="";global.nwdb='nw_simpl_4'
 
-#latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
-#lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
-latmin=46.85;latmax=48.05;lonmin=1.0;lonmax=2.7 
+latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
+lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 #latmin=46.3;latmax=49.0;lonmin=0.0;lonmax=3.2 # full centre -- pb : bord effects
 
+areaname = 'europe'
 areasize = 100
 factor=0.5
 offset = 50
 # estimated comp time : 1461240*0.02539683/20/60 ~ 30hours
 # (upper bound, without empty areas)
 
-purpose = paste0('europe_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+purpose = paste0(areaname,'_areasize',areasize,'_offset',offset,'_factor',factor,'_')
 #purpose = paste0('testcentre_areasize',areasize,'_offset',offset,'_factor',factor,'_')
 
 # coords using lon-lat
@@ -99,11 +99,6 @@ colnames(v)=c("lonmin","latmin","moran","distance","entropy","slope","rsquaredsl
 
 show(paste0("Ellapsed Time : ",proc.time()[3]-startTime))
 
-
-#gg = ggplot(v)
-#gg+geom_raster(aes(x=lonmin,y=latmin,fill=vcount))+scale_color_continuous(low='yellow',high='red')
-
-#
 # 
 # # store in data file
 write.table(

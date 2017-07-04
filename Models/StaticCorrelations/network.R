@@ -52,7 +52,6 @@ networkBetweenness <- function(g){
     }else{res$alphaBetweenness = 0}
   }
   else{res$meanBetweenness = 0;res$alphaBetweenness=0}
-  # hierarchy
   return(res)
 }
 

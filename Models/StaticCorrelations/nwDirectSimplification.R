@@ -10,7 +10,7 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 
 source('nwSimplFunctions.R')
 
-#densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
+#densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"),newresolution=0,reproject=F)
 densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/PopulationGrid_China2010.tif"),newresolution=100,reproject=T)
 xr=xres(densraster);yr=yres(densraster)
 
@@ -31,7 +31,7 @@ tags=c("motorway","trunk","primary","secondary","tertiary","unclassified","resid
 # db config
 #global.osmdb='europe';global.dbport=5433;global.dbuser="juste";global.dbhost=""
 #global.osmdb='centre';global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost"
-global.dbport=5433;global.dbuser="juste"
+global.dbport=5433;global.dbuser="juste";global.dbhost=""
 
 # origin db
 global.osmdb='china'
