@@ -218,10 +218,12 @@ graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
   if(!is.null(edgelist$length)){E(g)$length=edgelist$length}
   else{
     elengths=c()
-    bothends = ends(g,E(g))
+    bothends = ends(g,E(g),names=FALSE)
     x1 = V(g)$x[bothends[,1]];x2 = V(g)$x[bothends[,2]]
     y1 = V(g)$y[bothends[,1]];y2 = V(g)$y[bothends[,2]]
     for(k in 1:length(x1)){
+	#show(V(g)$name[bothends[k,1]]);show(V(g)$name[bothends[k,2]])      
+	#show(paste0(x1[k],x2[k],y1[k],y2[k]))
       elengths=append(elengths,spDistsN1(pts = matrix(c(x1[k],y1[k]),nrow=1),pt = c(x2[k],y2[k]),longlat = TRUE))
     }
     E(g)$length=elengths;
@@ -420,7 +422,7 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=TR
     if(simplify==TRUE){  
       res$sg = simplifyGraph(res$gg,bounds = c(lonmin,latmin,lonmax,latmax),xr,yr)
     }
-    show(res)
+    #show(res)
   }
   return(res)
 }

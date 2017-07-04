@@ -52,10 +52,10 @@ startTime = proc.time()[3]
 # construction of local graphs
 #  -- fills nw_full and nw_prov databases
 
-#res <- foreach(i=1:nrow(coords)) %dopar% {
-#  source('nwSimplFunctions.R')
-for(i in 1:nrow(coords)){
-  show(i)
+res <- foreach(i=1:nrow(coords)) %dopar% {
+  source('nwSimplFunctions.R')
+#for(i in 1:nrow(coords)){
+#  show(i)
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
   localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr)
   exportGraph(localGraph$gg,dbname=global.destdb_full)
