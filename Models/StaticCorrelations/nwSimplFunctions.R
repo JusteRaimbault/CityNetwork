@@ -124,7 +124,7 @@ getMergingSequences<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
 #' @requires global variables : osmdb, dbport
 #' 
 linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags,osmdb=global.osmdb,dbuser=global.dbuser,dbport=global.dbport,dbhost=global.dbhost){
-  show(paste0('getting lines within [',lonmin,'-',lonmax,']x[',latmin,'-',latmax,'] on db ',osmdb))
+  #show(paste0('getting lines within [',lonmin,'-',lonmax,']x[',latmin,'-',latmax,'] on db ',osmdb))
   pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=osmdb,user=dbuser,port=dbport,host=dbhost)
   
   q = paste0(
@@ -136,11 +136,12 @@ linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags,osmdb=global.osmdb,
     q=paste0(q,"tags::hstore->'highway'='",tags[length(tags)],"')")
   }
   q=paste0(q,";")
+  #show(q);
   query = dbSendQuery(pgsqlcon,q)
   data = fetch(query,n=-1)
   geoms = data$geom
   roads=list();k=1
-  show(paste0(' -> ',length(geoms),' segments'))
+  #show(paste0(' -> ',length(geoms),' segments'))
   for(i in 1:length(geoms)){
     r=try(readWKT(geoms[i])@lines[[1]],silent=TRUE)
     if(!inherits(r,"try-error")){
@@ -203,9 +204,13 @@ graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
   if(is.null(edgelist$edgelist)){return(make_empty_graph())}
   if(from_query==TRUE){edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);}
   else{edgesmat=edgelist$edgelist}
+  #show(edgesmat)
   g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
+  #show(g)
   gcoords = xyFromCell(densraster,as.numeric(V(g)$name))
   V(g)$x=gcoords[,1];V(g)$y=gcoords[,2]
+  #show(g)
+  #show(edgelist$length)
   E(g)$length=edgelist$length
   gg=simplify(g,edge.attr.comb="min")
   return(gg)
@@ -395,6 +400,7 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=TR
   if(length(roads$roads)>0){
     edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
     show(paste0("   size (graph size) : ",length(edgelist$edgelist)))
+    #show(edgelist$edgelist)
     res$gg= graphFromEdges(edgelist,densraster)
     if(simplify==TRUE){  
       res$sg = simplifyGraph(res$gg,bounds = c(lonmin,latmin,lonmax,latmax),xr,yr)

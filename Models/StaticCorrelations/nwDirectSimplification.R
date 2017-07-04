@@ -54,7 +54,7 @@ startTime = proc.time()[3]
 
 #res <- foreach(i=1:nrow(coords)) %dopar% {
 #  source('nwSimplFunctions.R')
-for(i in 1:20){
+for(i in 1:nrow(coords)){
   show(i)
   lonmin=coords[i,1];lonmax=coords[i,3];latmin=coords[i,4];latmax=coords[i,2]
   localGraph = constructLocalGraph(lonmin,latmin,lonmax,latmax,tags,xr,yr)
