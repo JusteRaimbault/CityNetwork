@@ -18,3 +18,7 @@ g = graphFromEdges(graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname=global.
 save(g,file='sample/roads_rnd.RData')
 
 
+######
+load('sample/roads_rnd.RData')
+
+
