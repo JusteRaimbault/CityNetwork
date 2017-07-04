@@ -6,19 +6,20 @@
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 source('nwSimplFunctions.R')
 
-#densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
-densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/PopulationGrid_China2010.tif"),newresolution=100,reproject=T)
+densraster <- raster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"))
+#densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/PopulationGrid_China2010.tif"),newresolution=100,reproject=T)
 
 
 #global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost";global.nwdb='nwtest_simpl_4'
 global.dbport=5433;global.dbuser="juste";global.dbhost="";global.nwdb='nw_simpl_4'
 
-latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
-lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
-#latmin=46.3;latmax=49.0;lonmin=0.0;lonmax=3.2 # full centre -- pb : bord effects
+#latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
+#lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
+latmin=46.3;latmax=49.0;lonmin=0.0;lonmax=3.2 # full centre -- pb : bord effects
 
 #areaname = 'europe'
-areaname = 'china'
+#areaname = 'china'
+areaname = 'centre'
 areasize = 100
 factor=0.5
 offset = 50
