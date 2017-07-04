@@ -205,9 +205,11 @@ graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
   if(from_query==TRUE){edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);}
   else{edgesmat=edgelist$edgelist}
   #show(edgesmat)
+  validedges=!is.na(edgesmat[,1])&!is.na(edgesmat[,2])
+  edgesmat=edgesmat[validedges,]
   edgelist$speed[is.na(edgelist$speed)]=0
   edgelist$type[is.na(edgelist$type)]=""
-  g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
+  g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed[validedges],type=edgelist$type[validedges]),directed=FALSE)
   #show(g)
   gcoords = xyFromCell(densraster,as.numeric(V(g)$name))
   V(g)$x=gcoords[,1];V(g)$y=gcoords[,2]

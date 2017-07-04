@@ -12,7 +12,7 @@ CREATE TABLE links (
   destination BIGINT,
   length REAL,
   speed REAL,
-  roadtype VARCHAR(10),
+  roadtype VARCHAR(50),
   geography GEOGRAPHY(LINESTRING,4326)
 );
 
