@@ -50,6 +50,7 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
   x=rowFromY(densraster,latmin);y=colFromX(densraster,lonmin);
   e<-getValuesBlock(densraster,row=x,nrows=areasize,col=y,ncols=areasize)
   g = graphFromEdges(graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname=global.nwdb),densraster,from_query = FALSE)
+  V(g)$population <- getPopulation(g,densraster)
   if(sum(is.na(e))/length(e)<0.5){
     res=tryCatch({
     #show("computing indicators...")
