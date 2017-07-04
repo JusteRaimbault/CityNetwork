@@ -211,7 +211,13 @@ graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
   V(g)$x=gcoords[,1];V(g)$y=gcoords[,2]
   #show(g)
   #show(edgelist$length)
-  E(g)$length=edgelist$length
+  if(!is.null(edgelist$length)){E(g)$length=edgelist$length}
+  else{
+    bothends = ends(g,E(g))
+    x1 = V(g)$x[bothends[,1]];x2 = V(g)$x[bothends[,2]]
+    y1 = V(g)$y[bothends[,1]];y2 = V(g)$y[bothends[,2]]
+    E(g)$length=sqrt((x1-x2)^2+(y1-y2)^2)
+  }
   gg=simplify(g,edge.attr.comb="min")
   return(gg)
 }
@@ -405,6 +411,7 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=TR
     if(simplify==TRUE){  
       res$sg = simplifyGraph(res$gg,bounds = c(lonmin,latmin,lonmax,latmax),xr,yr)
     }
+    show(res)
   }
   return(res)
 }
