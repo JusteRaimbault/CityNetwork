@@ -47,22 +47,30 @@ getPopulation<-function(g,densraster){
 #'
 #' basic stats
 #'
-networkSize <- function(g){
-  res=list()
-  if(vcount(g)>0){
-    res$density = ecount(g)/(vcount(g)*(vcount(g)-1)/2)
-    res$vcount=vcount(g);res$ecount=ecount(g)
-  }
-  else{
-    res$density=0
-    res$vcount=0;res$ecount=0
-  }
-  return(res)
+networkSummary <- function(g=NULL){
+  if(is.null(g)){return(list(vcount=NA,ecount=NA,gamma=NA,meanDegree=NA,mu=NA,alpha=NA,meanLinkLength=NA,meanNodePop=NA,meanClustCoef=NA,components=NA))}
+  if(vcount(g)==0){return(list(vcount=0,ecount=0,gamma=0,meanDegree=0,mu=1,alpha=0,meanLinkLength=0,meanNodePop=0,meanClustCoef=0,components=0))}
+  return(
+    list(
+      vcount=vcount(g),
+      ecount=ecount(g),
+      gamma = 2*ecount(g)/(vcount(g)*(vcount(g)-1)),
+      meanDegree = mean(degree(g)),
+      mu = ecount(g) - vcount(g) + 1,
+      alpha = (ecount(g) - vcount(g) + 1)/(2*vcount(g)-5),
+      meanLinkLength=mean(E(g)$length),
+      meanNodePop=mean(V(g)$population),
+      meanClustCoef=mean(transitivity(g,type="weighted",weights=E(g)$length,isolates="zero")),
+      components = length(components(g)$csize)
+    )
+  )
 }
 
 #'
 #' mean betweenness
-networkBetweenness <- function(g){
+#'  -- do not compute pop weighted betweenness, too costly to go through all paths --
+networkBetweenness <- function(g=NULL){
+  if(is.null(g)){return(list(meanBetweenness=NA,alphaBetweenness=NA))}
   b=betweenness(g,weights=E(g)$length,normalized=TRUE)
   res=list()
   b[is.nan(b)|is.na(b)]=0
@@ -77,80 +85,79 @@ networkBetweenness <- function(g){
 }
 
 
-# check distribution
-# -> better with weights
-#plot(log(1:length(V(g))),sort(log(betweenness(g,weights=E(g)$length)),decreasing = TRUE))
 
-networkCloseness <- function(g){
-  b = closeness(g,weights=E(g)$length,normalized=TRUE)
+hierarchy<-function(b){
   res=list()
   b[is.nan(b)|is.na(b)]=0
   if(length(b)>0){
-    res$meanCloseness = mean(b)
+    res$mean= mean(b)
     if(length(which(is.finite(log(b))))>0){
-      res$alphaCloseness = lm(data = data.frame(x=log(1:length(which(is.finite(log(b))))),y=sort(log(b)[is.finite(log(b))],decreasing = TRUE)),formula = y~x)$coefficients[2]
-    }else{res$alphaBetweenness = 0}
+      res$alpha = lm(data = data.frame(x=log(1:length(which(is.finite(log(b))))),y=sort(log(b)[is.finite(log(b))],decreasing = TRUE)),formula = y~x)$coefficients[2]
+    }else{res$alpha = 0}
   }
-  else{res$meanCloseness = 0;res$alphaCloseness=0}
+  else{res$mean = 0;res$alpha=0}
   return(res)
 }
 
-#plot(log(1:length(V(g))),sort(log(closeness(g,weights=E(g)$length)),decreasing = TRUE))
 
 #'
-#' mean link length
-meanLength<-function(g){
-  if(vcount(g)==0){return(0)}
-  return(mean(E(g)$length))
-}
-
-#'
-#' mean degree
-#'
-meanDegree<-function(g){
-  if(vcount(g)==0){return(0)}
-  return(mean(degree(g)))
-}
-
-#'
-#' mean clust coef
-#'
-meanClustCoef<-function(g){
-  if(vcount(g)==0){return(0)}
-  return(mean(transitivity(g,type="weighted",weights=E(g)$length,isolates="zero")))
-}
-
-
-#'
-#' components
-#'
-componentsNumber<-function(g){
-  return(length(components(g)$csize))
-}
-
-#'
-#' Network performance
-pathMeasures <-function(g){
-  if(vcount(g)==0){return(list(networkPerf=NA,meanPathLength=NA,diameter=NA))}
+#' Path related measures
+#'   - diameter
+#'   - euclidian perf (detours)
+#'   - distance closeness mean = average path length
+#'   - distance closeness alpha
+#'   - average travel time (perf with speed) = time closeness mean
+#'   - avreage travel time alpha
+#'   - weighted travel time closeness = accessibility mean
+#'   - accessibility alpha
+pathMeasures <-function(g=NULL){
+  if(is.null(g)){return(list(diameter=NA,euclPerf=NA,meanCloseness=NA,alphaCloseness=NA,meanTravelTime=NA,alphaTravelTime=NA,meanAccessibility=NA,alphaAccessibility=NA))}
+  if(vcount(g)==0){return(list(diameter=NA,euclPerf=NA,meanCloseness=NA,alphaCloseness=NA,meanTravelTime=NA,alphaTravelTime=NA,meanAccessibility=NA,alphaAccessibility=NA))}
+  res=list()
+  
+  # adjust missing speeds
+  E(g)$speed[E(g)$speed==0]=50
+  
+  # compute distances and times
   d = distances(g,weights=E(g)$length)
-  diag(d)<-1
+  times = distances(g,weights=E(g)$length/E(g)$speed)
+  
+  diag(d)<-Inf
+  # compute eucl matrix
   n=length(V(g))
   xi=matrix(rep(V(g)$x,n),nrow = n,byrow = TRUE);xj=matrix(rep(V(g)$x,n),nrow = n,byrow = FALSE)
   yi=matrix(rep(V(g)$y,n),nrow = n,byrow = TRUE);yj=matrix(rep(V(g)$y,n),nrow = n,byrow = FALSE)
   deucl = sqrt((xi-xj)^2+(yi-yj)^2)
   r = deucl / d
-  res=list()
-  res$networkPerf = sum(r)/n*(n-1)
-  # TODO nw perf is not normalized by distance -- cannot be compared
-  diag(d)<-Inf
-  res$meanPathLength = mean(d[d!=Inf])
+  res$euclPerf = sum(r)/n*(n-1)
   res$diameter = max(d[d!=Inf])
-  # renormalize networkPerf for comparability (TODO add d^{eucl}_{max})
-  res$networkPerf = res$networkPerf * res$meanPathLength
+  
+  # closeness
+  closeness = hierarchy(apply(d,1,function(r){mean(1/r)}))
+  res$meanCloseness = closeness$mean;res$alphaCloseness = closeness$alpha
+  
+  # travel time
+  times[times==Inf]=0
+  traveltime = hierarchy(apply(times,1,function(r){mean(r)}))
+  res$meanTravelTime = traveltime$mean;res$alphaTravelTime = traveltime$alpha
+  
+  # accessibility
+  accessibilities = (times%*%matrix(data=V(g)$population/sum(V(g)$population),nrow=nrow(times)))[,1]
+  res$alphaAccessibility=hierarchy(accessibilities)$alpha
+  res$meanAccessibility = sum(accessibilities*V(g)$population/sum(V(g)$population))
+  
   return(res)
 }
 
 
+
+louvainModularity<-function(g=NULL){
+  if(is.null(g)){return(list(modularity=NA))}
+  com=cluster_louvain(g)
+  return(list(
+    modularity = max(com$modularity)
+  ))
+}
 
 
 
