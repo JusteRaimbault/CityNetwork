@@ -25,6 +25,7 @@ library(rgdal)
 
 
 getPopulation<-function(g,densraster){
+  if(vcount(g)==0){return(c())}
   verticessp=SpatialPoints(data.frame(x=V(g)$x,y=V(g)$y),proj4string = crs(densraster))
   ext = extent(verticessp)
   vertices = ppp(V(g)$x,V(g)$y,window=owin(c(ext@xmin,ext@xmax),c(ext@ymin,ext@ymax)))
@@ -36,8 +37,10 @@ getPopulation<-function(g,densraster){
     )),ID = tile$id)})
   ,proj4string = crs(densraster)
   )
-  extr = extract(densraster,diricsp,df=T,fun=sum,na.rm=T)
-  
+  cropped = crop(densraster,ext)
+  extr = extract(cropped,diricsp,na.rm=T,fun=sum,df=T)#weights=T,normalizeWeights=F)
+  # ex : 931.49767 instead of 907.5153 -> ok use direct computation
+  return(extr[,2])
 }
 
 
