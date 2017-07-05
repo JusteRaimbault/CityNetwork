@@ -5,20 +5,18 @@ from treetagger import TreeTagger
 
 
 
+#
+def run_kw_extraction(source) :
+    if source=='--mysql':
+        kw_extraction(utils.get_data('SELECT id,abstract FROM refdesc WHERE abstract_keywords IS NULL;','mysql'),'mysql','abstract')
+        #kw_extraction(data,'full')
+    else :
+        # only csv alternate sources for now ; exports
+        corpus = utils.corpus_from_csv(source,";")
 
-def run_fulltext_kw_extraction(data):
-    kw_extraction(data,'full')
 
 
-# 'SELECT id,abstract FROM refdesc WHERE abstract_keywords IS NULL;'
-def run_kw_extraction() :
-     run_kw_extraction_data(utils.get_data('SELECT id,abstract FROM refdesc WHERE abstract_keywords IS NULL;','mysql'))
-
-
-def run_kw_extraction_data(data) :
-    kw_extraction(data,'abstract')
-
-def kw_extraction(data,text_type):
+def kw_extraction(data,target,text_type):
     for ref in data:
         print(ref)
 	    if ref[1] is not None:
@@ -27,11 +25,14 @@ def kw_extraction(data,text_type):
             kwtext = ""
 	        for multistem in keywords:
 	            kwtext=kwtext+reduce(lambda s1,s2 : s1+' '+s2,multistem)+";"
-	            print(kwtext)
-            if text_type=='abstract':
-                utils.query_mysql("INSERT INTO refdesc (id,language,abstract_keywords,abstract) VALUES (\'"+ref[0].encode('utf8')+"\',\'"+language.encode('utf8')+"\',\'"+kwtext+"\',\'"+ref[1].encode('utf8')+"\') ON DUPLICATE KEY UPDATE language = VALUES(language),abstract_keywords=VALUES(abstract_keywords),abstract=VALUES(abstract);")
-            else :
-                utils.query_mysql("INSERT INTO refdesc (id,fulltext_keywords) VALUES (\'"+ref[0].encode('utf8')+"\',\'"+ref[1].encode('utf8')+"\') ON DUPLICATE KEY UPDATE fulltext_keywords = VALUES(fulltext_keywords);")
+                #print(kwtext)
+            if target=='mysql'
+                if text_type=='abstract':
+                    utils.query_mysql("INSERT INTO refdesc (id,language,abstract_keywords,abstract) VALUES (\'"+ref[0].encode('utf8')+"\',\'"+language.encode('utf8')+"\',\'"+kwtext+"\',\'"+ref[1].encode('utf8')+"\') ON DUPLICATE KEY UPDATE language = VALUES(language),abstract_keywords=VALUES(abstract_keywords),abstract=VALUES(abstract);")
+                else :
+                    utils.query_mysql("INSERT INTO refdesc (id,fulltext_keywords) VALUES (\'"+ref[0].encode('utf8')+"\',\'"+ref[1].encode('utf8')+"\') ON DUPLICATE KEY UPDATE fulltext_keywords = VALUES(fulltext_keywords);")
+            if target=='sqlite':
+
 
 
 

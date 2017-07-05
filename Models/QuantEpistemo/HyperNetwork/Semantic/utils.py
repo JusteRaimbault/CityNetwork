@@ -31,6 +31,19 @@ def read_file(f):
         currentLine = conf.readline().replace('\n','')
     return(res)
 
+def corpus_from_csv(f,delimiter):
+    data = open(f,'r')
+    res=[]
+    currentLine = data.readline().replace('\n','')
+    i=0
+    while currentLine != '' :
+        t=str.split(currentLine,delimiter)
+        res.append({'title':t[0].replace("\"",""),'id':t[1].replace("\"",""),'year':t[2].replace("\"",""),'abstract':t[3].replace("\"",""),'authors':t[4].replace("\"","")})
+        currentLine = data.readline().replace('\n','')
+        print(t[1])
+        i=i+1
+    return(res)
+
 
 def read_csv_as_dico(f,delimiter,key_column,value_column):
     data = open(f,'r')
@@ -138,13 +151,13 @@ def insertmany_sqlite(query,values,database):
     conn.close()
 
 
-def implode(l,delimiter):
-    res=''
-    i=0
-    for k in l:
-        res = res+str(k)
-	if i<len(l)-1 : res=res+delimiter
-    return(res)
+#def implode(l,delimiter):
+#    res=''
+#    i=0
+#    for k in l:
+#        res = res+str(k)
+#        if i<len(l)-1:res=res+delimiter
+#    return(res)
 
 
 def import_kw_dico(database,collection):
@@ -176,10 +189,10 @@ def import_kw_dico_req(request,source):
     for row in data :
         #ref_id = row[0].encode('utf8','ignore')
         ref_id=row[0]
-	#print(ref_id)
+        #print(ref_id)
         #keywords_raw = row[1].encode('utf8','ignore').split(';')
         keywords_raw = row[1].split(';')
-	keywords = [keywords_raw[i] for i in range(len(keywords_raw)-1)]
+        keywords = [keywords_raw[i] for i in range(len(keywords_raw)-1)]
         # pb with last delimiter in
         ref_kw_dico[ref_id] = keywords
         for kw in keywords :
@@ -250,7 +263,7 @@ def export_list(l,fileprefix,withDate):
     outfile=open(fileprefix+datestr+'.csv','w')
     for k in l :
         outfile.write(k)
-	outfile.write('\n')
+    outfile.write('\n')
 
 
 
@@ -262,11 +275,14 @@ def export_matrix_csv(m,fileprefix,delimiter,withDate):
         #print(len(r))
 	#print(r)
         for c in range(len(r)) :
-            #print(str(r[c]))
-	    t=''
+            print(str(r[c]))
+        t=''
 	    #print(r[c][0])
-	    if isinstance(r[c],unicode) : t=unicode(r[c]).encode('utf8','ignore')
-	    else : t = str(r[c])
-            outfile.write(t)
-            if c < len(r)-1 : outfile.write(delimiter)
-        outfile.write('\n')
+        if isinstance(r[c],unicode) :
+            t=unicode(r[c]).encode('utf8','ignore')
+        else :
+            t = str(r[c])
+        outfile.write(t)
+        if c < len(r)-1 :
+            outfile.write(delimiter)
+    outfile.write('\n')

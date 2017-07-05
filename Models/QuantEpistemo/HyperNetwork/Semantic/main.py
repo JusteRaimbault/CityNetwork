@@ -8,7 +8,8 @@ def run():
 
     if task=='--keywords-extraction':
         ## extract keywords
-        kwExtraction.run_kw_extraction()
+        source = sys.argv[2]
+        kwExtraction.run_kw_extraction(source)
 
     if task=='--stats':
         ## stats
