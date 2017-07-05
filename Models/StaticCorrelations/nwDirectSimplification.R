@@ -10,8 +10,8 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 
 source('nwSimplFunctions.R')
 
-#densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"),newresolution=0,reproject=F)
-densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/PopulationGrid_China2010.tif"),newresolution=100,reproject=T)
+densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"),newresolution=0,reproject=F)
+#densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/PopulationGrid_China2010.tif"),newresolution=100,reproject=T)
 xr=xres(densraster);yr=yres(densraster)
 
 latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
@@ -34,9 +34,12 @@ tags=c("motorway","trunk","primary","secondary","tertiary","unclassified","resid
 global.dbport=5433;global.dbuser="juste";global.dbhost=""
 
 # origin db
-global.osmdb='china'
+#global.osmdb='china'
+global.osmdb='europe'
 # destination bases
-global.destdb_full='china_nw_full';global.destdb_prov='china_nw_prov';global.destdb_simpl='china_nw_simpl'
+#global.destdb_full='china_nw_full';global.destdb_prov='china_nw_prov';global.destdb_simpl='china_nw_simpl'
+global.destdb_full='europe_nw_full';global.destdb_prov='europe_nw_prov';global.destdb_simpl='europe_nw_simpl'
+
 
 # reinit dbs
 system(paste0('./setupDB.sh ',global.destdb_full))
@@ -71,7 +74,7 @@ mergingSequences = getMergingSequences(densraster,lonmin,latmin,lonmax,latmax,nc
 
 prevdb=global.destdb_prov
 for(l in 1:length(mergingSequences)){
-   currentdb=paste0('nw_simpl_',l)
+   currentdb=paste0(global.destdb_simpl,'_',l)
    system(paste0('./setupDB.sh ',currentdb))
    show(paste0("merging : ",l))
    seq = mergingSequences[[l]]
