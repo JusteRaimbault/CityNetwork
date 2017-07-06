@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import time,sys
-import relevant,utils,stats,cybergeo,kwExtraction
+import relevant,utils,stats,cybergeo,kwExtraction,dbmanagement
 
 
 def run():
@@ -8,8 +8,10 @@ def run():
 
     if task=='--keywords-extraction':
         ## extract keywords
+        if sys.nargs != 4 : raise(Exception('Usage : --keywords-extraction sourcefile.csv outfile.sqlite3'))
         source = sys.argv[2]
-        kwExtraction.run_kw_extraction(source)
+        target = sys.argv[3]
+        kwExtraction.run_kw_extraction(source,target)
 
     if task=='--stats':
         ## stats
@@ -17,7 +19,15 @@ def run():
 
     if task=='--relevance-estimation':
         ## relevance estimation
+        source = sys.argv[2]
+        mongodb = sys.argv[3]
+
+        # migrate keywords to mongo
+        dbmanagement.keywords_to_mongo(source,mongodb)
+        # estimate relevance
         relevant.relevant_full_corpus(50000)
+        # export dico to R
+        #sys.exec()
 
     if task=='--cybergeo':
         cybergeo.extract_cybergeo_keywords()

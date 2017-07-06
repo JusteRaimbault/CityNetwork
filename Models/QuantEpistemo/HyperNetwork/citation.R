@@ -57,6 +57,7 @@ V(raw)$reduced_title = sapply(V(raw)$title,function(s){paste0(substr(s,1,30),"..
 V(raw)$reduced_title = ifelse(degree(raw)>50,V(raw)$reduced_title,rep("",vcount(raw)))
 #V(raw)$reduced_title=rep("",vcount(raw))
 
+
 rawcore = induced_subgraph(raw,which(degree(raw)>1))
 
 V(rawcore)$title = rep("",vcount(rawcore))
@@ -68,6 +69,13 @@ V(rawcore)$title = rep("",vcount(rawcore))
 write_graph(rawcore,file='HyperNetwork/data/NetworkTerritories/rawcore.gml',format = 'gml')
 
 ecount(rawcore)/(vcount(rawcore)*(vcount(rawcore)-1))
+
+##
+# analysis of raw
+
+mean(degree(raw,mode = 'in'))
+mean(degree(rawcore,mode = 'in'))
+
 
 ##
 #  analysis of rawcore
