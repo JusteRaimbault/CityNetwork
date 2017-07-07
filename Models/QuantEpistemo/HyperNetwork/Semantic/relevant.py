@@ -7,9 +7,9 @@ import kwFunctions,utils,butils
 
 
 
-def relevant_full_corpus(kwLimit,eth):
+def relevant_full_corpus(corpus,kwLimit,eth):
     #corpus = utils.get_data('SELECT id FROM refdesc WHERE abstract_keywords IS NOT NULL;','../../Data/dumps/20160224_cybergeo.sqlite3')
-    corpus = utils.get_ids('cybergeo','keywords')
+    #corpus = utils.get_ids('cybergeo','keywords')
     occurence_dicos = utils.import_kw_dico('cybergeo','keywords')
     mongo = pymongo.MongoClient('localhost',27017)
     database = mongo['relevant']

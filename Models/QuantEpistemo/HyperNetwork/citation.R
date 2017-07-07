@@ -60,7 +60,7 @@ V(raw)$reduced_title = ifelse(degree(raw)>50,V(raw)$reduced_title,rep("",vcount(
 
 rawcore = induced_subgraph(raw,which(degree(raw)>1))
 
-V(rawcore)$title = rep("",vcount(rawcore))
+#V(rawcore)$title = rep("",vcount(rawcore))
 
 #write_graph(raw,file='EvolutiveUrbanTheory/data/citation.gml',format = 'gml')
 #write_graph(primary,file='EvolutiveUrbanTheory/data/primary.gml',format = 'gml')
@@ -73,6 +73,7 @@ ecount(rawcore)/(vcount(rawcore)*(vcount(rawcore)-1))
 ##
 # analysis of raw
 
+mean(degree(raw))
 mean(degree(raw,mode = 'in'))
 mean(degree(rawcore,mode = 'in'))
 
@@ -113,9 +114,11 @@ show(paste0(mean(mods)," +- ",sd(mods)))
 # -> 260 sds, ultra significant
 
 # content of communities
+d=degree(rawcore,mode='in')
 for(c in unique(com$membership)){
-  show(c)
-  show(V(rawcore)$title[com$membership==c&V(rawcore)$primary==T])
+  show(paste0("Community ",c))
+  show(length(which(com$membership==c)))
+  show(V(rawcore)$title[com$membership==c&d>8])
 }
 
 
