@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os,nltk,time,locale,sys,utils
+import os,nltk,time,locale,sys,utils,functools
 from treetagger import TreeTagger
 from langdetect import detect
 
@@ -32,7 +32,7 @@ def kw_extraction(data,target,text_type):
             keywords = extract_keywords(ref[1],ref[0],language)
             kwtext = ""
             for multistem in keywords:
-	            kwtext=kwtext+reduce(lambda s1,s2 : s1+' '+s2,multistem)+";"
+	            kwtext=kwtext+functools.reduce(lambda s1,s2 : s1+' '+s2,multistem)+";"
                 #print(kwtext)
             if target=='mysql':
                 if text_type=='abstract':
@@ -105,13 +105,13 @@ def extract_keywords(raw_text,id,language):
                 if potential_multi_term(tags,language) :
                     multistem = []
                     if language == 'en':
-                        multistem = [str.lower(stemmer.stem(tagged_text[k][0]).encode('utf8','ignore')) for k in range(i,i+l)]
+                        multistem = [str.lower(stemmer.stem(tagged_text[k][0])) for k in range(i,i+l)]
                     else :#in case of french or other languages, terms are already stemmed by TreeTagger
                         for k in range(i,i+l):
                             if tagged_text[k][2]!="<unknown>":
                                 stem = tagged_text[k][2]
                             else :
                                 stem = tagged_text[k][0]
-                            multistem.append(str.lower(stem.encode('utf8','ignore')))
+                            multistem.append(str.lower(stem))
                     multiterms.append(multistem)
     return multiterms
