@@ -39,13 +39,13 @@ def kw_extraction(data,target,text_type):
                 else :
                     utils.query_mysql("INSERT INTO refdesc (id,fulltext_keywords) VALUES (\'"+ref[0].encode('utf8')+"\',\'"+ref[1].encode('utf8')+"\') ON DUPLICATE KEY UPDATE fulltext_keywords = VALUES(fulltext_keywords);")
             else :
-                utils.insert_sqlite("INSERT INTO refdesc (id,language,abstract_keywords,abstract) VALUES (\'"+ref[0].encode('utf8')+"\',\'"+language.encode('utf8')+"\',\'"+kwtext+"\',\'"+ref[1].encode('utf8')+"\') ON DUPLICATE KEY UPDATE language = VALUES(language),abstract_keywords=VALUES(abstract_keywords),abstract=VALUES(abstract);",target)
+                utils.insert_sqlite("INSERT INTO refdesc (id,language,abstract_keywords,abstract) VALUES (\'"+ref[0]+"\',\'"+language+"\',\'"+kwtext+"\',\'"+ref[1]+"\');",target)
 
 
 
 
 def potential_multi_term(tagged,language):
-    languages = ['en','fr','zh-cn']
+    languages = ['en','fr']
     res = True
     for tag in tagged :
         if len(tag)>=2 :
@@ -76,10 +76,6 @@ def extract_keywords(raw_text,id,language):
 
     stemmer = nltk.PorterStemmer()
 
-    # Construct text
-
-    # Tokens
-
     if language == 'en':
         tokens = nltk.word_tokenize(raw_text)
         # filter undesirable words and format
@@ -88,7 +84,10 @@ def extract_keywords(raw_text,id,language):
         tagged_text = nltk.pos_tag(text)
     else:
         ttlangdico = {'fr':'french'}
-        tt = TreeTagger(encoding='utf-8',language=ttlangdico[language])
+        if language in ttlangdico :
+            tt = TreeTagger(language=ttlangdico[language])
+        else :
+            tt = TreeTagger()
         tagged_text =tt.tag(raw_text.replace('\'',' ').replace(u'\u2019',' ').replace(u'\xab',' ').replace(u'\xbb',' '))
 
     print(tagged_text)

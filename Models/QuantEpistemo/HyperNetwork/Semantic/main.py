@@ -8,7 +8,7 @@ def run():
 
     if task=='--keywords-extraction':
         ## extract keywords
-        if sys.nargs != 4 : raise(Exception('Usage : --keywords-extraction sourcefile.csv outfile.sqlite3'))
+        if len(sys.argv) != 4 : raise(Exception('Usage : --keywords-extraction sourcefile.csv outfile.sqlite3'))
         source = sys.argv[2]
         target = sys.argv[3]
         kwExtraction.run_kw_extraction(source,target)
