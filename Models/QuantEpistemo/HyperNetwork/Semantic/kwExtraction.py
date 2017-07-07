@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import nltk,time,locale,sys,utils
+import os,nltk,time,locale,sys,utils
 from treetagger import TreeTagger
-
+from langdetect import detect
 
 
 
@@ -23,8 +23,9 @@ def run_kw_extraction(source,target) :
 
 def kw_extraction(data,target,text_type):
     if target!='mysql': # init the sqlite db
-        utils.insert_sqlite("CREATE TABLE refdesc (id TEXT,language TEXT,abstract_keywords TEXT,abstract TEXT);",target)
-    for ref in data:
+        os.remove(target)
+	utils.insert_sqlite("CREATE TABLE refdesc (id TEXT,language TEXT,abstract_keywords TEXT,abstract TEXT);",target)
+for ref in data:
         print(ref)
         if ref[1] is not None:
             language = get_language(ref[1])

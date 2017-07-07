@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import time,sys
-import relevant,utils,stats,cybergeo,kwExtraction,dbmanagement
+import relevant,utils,stats,kwExtraction,dbmanagement
 
 
 def run():
@@ -29,10 +29,10 @@ def run():
         # export dico to R
         #sys.exec()
 
-    if task=='--cybergeo':
-        cybergeo.extract_cybergeo_keywords()
-        #cybergeo.extract_relevant_cybergeo(2000)
-        #cybergeo.extract_relevant_cybergeo_fulltext(20)
+#    if task=='--cybergeo':
+#        cybergeo.extract_cybergeo_keywords()
+#        #cybergeo.extract_relevant_cybergeo(2000)
+#        #cybergeo.extract_relevant_cybergeo_fulltext(20)
 
 def main():
 
