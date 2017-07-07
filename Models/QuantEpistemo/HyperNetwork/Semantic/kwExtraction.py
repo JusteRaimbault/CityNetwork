@@ -28,8 +28,9 @@ def kw_extraction(data,target,text_type):
     for ref in data:
         print(ref)
         if ref[1] is not None:
-            language = get_language(ref[1])
-            keywords = extract_keywords(ref[1],ref[0],language)
+            raw_text = normalize_text(ref[1])
+            language = get_language(raw_text)
+            keywords = extract_keywords(raw_text,ref[0],language)
             kwtext = ""
             for multistem in keywords:
 	            kwtext=kwtext+functools.reduce(lambda s1,s2 : s1+' '+s2,multistem)+";"
@@ -70,6 +71,9 @@ def get_language(text):
     #return max(((lang, len(words & stopwords)) for lang, stopwords in STOPWORDS_DICT.items()), key = lambda x: x[1])[0]
     return(detect(text))
 
+def normalize_text(raw_text):
+    return(raw_text.replace('\\n',' ').replace('\n',' ').replace('\'',' ').replace(u'\u2019',' ').replace(u'\xab',' ').replace(u'\xbb',' '))
+
 
 def extract_keywords(raw_text,id,language):
 
@@ -89,7 +93,7 @@ def extract_keywords(raw_text,id,language):
             tt = TreeTagger(language=ttlangdico[language])
         else :
             tt = TreeTagger()
-        tagged_text =tt.tag(raw_text.replace('\'',' ').replace(u'\u2019',' ').replace(u'\xab',' ').replace(u'\xbb',' '))
+        tagged_text =tt.tag(raw_text)
 
     print(tagged_text)
 
