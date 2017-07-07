@@ -41,7 +41,7 @@ def kw_extraction(data,target,text_type):
                 else :
                     utils.query_mysql("INSERT INTO refdesc (id,fulltext_keywords) VALUES (\'"+ref[0].encode('utf8')+"\',\'"+ref[1].encode('utf8')+"\') ON DUPLICATE KEY UPDATE fulltext_keywords = VALUES(fulltext_keywords);")
             else :
-                utils.insert_sqlite("INSERT INTO refdesc (id,language,abstract_keywords,abstract) VALUES (\'"+ref[0]+"\',\'"+language+"\',\'"+kwtext+"\',\'"+ref[1]+"\');",target)
+                utils.insert_sqlite("INSERT INTO refdesc (id,language,abstract_keywords,abstract) VALUES (\'"+ref[0]+"\',\'"+language+"\',\'"+kwtext+"\',\'"+raw_text+"\');",target)
 
 
 

@@ -132,6 +132,7 @@ def fetchone_sqlite(query,database):
 
 
 def insert_sqlite(query,database):
+    print(query)
     conn = configure_sqlite(database)
     cursor = conn.cursor()
     cursor.execute(query)
