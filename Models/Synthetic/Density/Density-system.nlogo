@@ -1,5 +1,5 @@
 
-extensions [gis pathdir profiler rserve shell]
+extensions [gis pathdir profiler rserve shell morphology]
 
 __includes [
   
@@ -22,6 +22,8 @@ __includes [
   "utils/gui/ViewUtilities.nls"
   "utils/exploration/ExplorationUtilities.nls"
   "utils/io/FileUtilities.nls"
+  "utils/misc/String.nls"
+  
   ;"utils/Timer.nls"
   
 ]
@@ -98,7 +100,7 @@ sp-diffusion
 sp-diffusion
 0
 0.5
-0.262
+0.0060
 0.001
 1
 NIL
@@ -112,8 +114,8 @@ SLIDER
 sp-growth-rate
 sp-growth-rate
 0
-10000
-127
+50000
+24
 1
 1
 NIL
@@ -162,7 +164,7 @@ sp-diffusion-steps
 sp-diffusion-steps
 0
 10
-2
+1
 1
 1
 NIL
@@ -177,7 +179,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-1.32
+0.41
 0.01
 1
 NIL
@@ -195,21 +197,21 @@ sum [sp-occupants] of patches
 11
 
 INPUTBOX
-769
-445
+744
+420
 959
-532
+487
 real-pattern-file
-/Users/Juste/Documents/ComplexSystems/CityNetwork/Data/PopulationDensity/raw/popu01clcv5.tif
+conf/x32201y18701.csv
 1
 1
 String
 
 BUTTON
-770
-365
-838
-398
+858
+326
+926
+359
 save view
 save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Density/Examples/comparable/ex\" [\"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\" \"sp-population\"]
 NIL
@@ -230,8 +232,8 @@ SLIDER
 sp-max-pop
 sp-max-pop
 0
-100000
-5730
+500000
+6370
 10
 1
 NIL
@@ -323,9 +325,9 @@ NIL
 
 BUTTON
 770
-402
+376
 842
-435
+409
 setup real
 setup-real-pattern
 NIL
@@ -437,6 +439,23 @@ comp-time
 17
 1
 11
+
+BUTTON
+989
+555
+1083
+588
+indicators
+compute-indicators
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
