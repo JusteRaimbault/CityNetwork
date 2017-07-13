@@ -17,7 +17,7 @@
 ; no closing, 
 to setup
   ca
-  rserve:init 6311 "localhost"
+  ;rserve:init 6311 "localhost"
   setup-synth-pattern
 end
 
@@ -182,11 +182,13 @@ end
 to color-synth-pattern
   set sp-population sum [sp-occupants] of patches
   if sp-population > 0 [ask patches [set sp-density sp-occupants / sp-population]]
-  ;let ma max [ln sp-density] of patches let mi min [ln sp-density] of patches
   let ma max [sp-density] of patches let mi min [sp-density] of patches
+  ;let ma max [ln (alpha-viz * (1 + sp-density))] of patches let mi min [ln (alpha-viz * (1 + sp-density))] of patches
   ; density already normalized
   ;let ma 1 let mi 0
-  ifelse ma > mi [ask patches [set pcolor scale-color red (sp-density) mi ma]]
+  show mi show ma
+  ;ifelse ma > mi [ask patches [set pcolor scale-color red (ln (alpha-viz * (1 + sp-density))) mi ma]]
+  ifelse ma > mi [ask patches [set pcolor scale-color red sp-density mi ma]]
   [ask patches [set pcolor black]]
 end
 
