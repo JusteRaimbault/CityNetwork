@@ -47,11 +47,30 @@ end
 to setup:reset
   setup:setup-globals
   setup:setup-data
+  ;setup:setup-matrices
+  setup:reset-populations
+  setup:reset-links
+  setup:reset-distances
+  setup:setup-indicators
   reset-ticks
   clear-all-plots
   update-display
+  ; for virtual
+  if network-type = "virtual" [ask links [die]]
 end
 
+to setup:reset-populations
+  ask cities [set population matrix:get populations index 0]
+end
+
+to setup:reset-links
+  ask paths [new-path]
+  if network-type = "virtual" [ask links [die]]
+end
+
+to setup:reset-distances
+  set distance-matrix matrix:copy initial-distance-matrix
+end
 
 
 to setup:setup-globals
@@ -162,9 +181,15 @@ to setup:setup-network
         ]
         
         ask nodes [create-paths-with (other nodes in-radius (slime-mould-node-distance * sqrt 2)) [new-path]]
+        ask n-of (0.4 * count links) links [die]
         planarize-network nodes paths
-        ask cities [create-paths-with (other turtles in-radius (slime-mould-node-distance * (sqrt 2) / 2))[new-path]]
-        planarize-network turtles paths
+        ask nodes [ ; jitter
+          set xcor (max (list min-pxcor (min (list max-pxcor (xcor - slime-mould-node-distance / 4 + (2 * random (slime-mould-node-distance / 4)))))))
+          set ycor (max (list min-pycor (min (list max-pycor (ycor - slime-mould-node-distance / 4 + (2 * random (slime-mould-node-distance / 4)))))))
+        ]
+        ;ask cities [create-paths-with (other turtles in-radius (slime-mould-node-distance * (sqrt 2) / 2))[new-path]]
+        connexify-network-link-projection
+        ;planarize-network turtles paths
      ]
      
      if physical-network-heuristic = "breakdown" [
@@ -177,6 +202,10 @@ to setup:setup-network
         ; planarize
         planarize-network turtles paths
     ]
+     
+    ; setup link vars
+    ask paths [new-path]
+    ask paths with [path-length = 0] [die]
       
   ]
   
@@ -188,15 +217,28 @@ end
 to setup:setup-matrices
   
   if setup-type = "synthetic" [
-    ; distance matrix
+    
     let n count cities
-    let xcors [] let ycors [] let pops [] foreach sort-by [[index] of ?1 < [index] of ?2] cities [ask ? [set xcors lput xcor xcors set ycors lput ycor ycors set pops lput population pops]]
-    let xi matrix:from-row-list (rep xcors n) let xj matrix:from-column-list (rep xcors n) let yi matrix:from-row-list (rep ycors n) let yj matrix:from-column-list (rep ycors n)
-    set distance-matrix matrix:map sqrt ((matrix:times-element-wise (xi matrix:- xj) (xi matrix:- xj)) matrix:+ (matrix:times-element-wise (yi matrix:- yj) (yi matrix:- yj)))
+    
+    if network-type = "virtual" [
+      ; distance matrix
+      
+      let xcors [] let ycors [] let pops [] foreach sort-by [[index] of ?1 < [index] of ?2] cities [ask ? [set xcors lput xcor xcors set ycors lput ycor ycors set pops lput population pops]]
+      let xi matrix:from-row-list (rep xcors n) let xj matrix:from-column-list (rep xcors n) let yi matrix:from-row-list (rep ycors n) let yj matrix:from-column-list (rep ycors n)
+      set distance-matrix matrix:map sqrt ((matrix:times-element-wise (xi matrix:- xj) (xi matrix:- xj)) matrix:+ (matrix:times-element-wise (yi matrix:- yj) (yi matrix:- yj)))
+    ]
+    
+    if network-type = "physical" [
+      set distance-matrix matrix:make-constant n n 0  set gravity-flows matrix:make-constant n n 0 set feedback-flows matrix:make-constant n n 0
+      update-distance-matrices 
+    ]
+    
     
     set initial-distance-matrix matrix:copy distance-matrix
     
     ; feedback distance matrix
+    let xcors [] let ycors [] let pops [] foreach sort-by [[index] of ?1 < [index] of ?2] cities [ask ? [set xcors lput xcor xcors set ycors lput ycor ycors set pops lput population pops]]
+    let xi matrix:from-row-list (rep xcors n) let xj matrix:from-column-list (rep xcors n) let yi matrix:from-row-list (rep ycors n) let yj matrix:from-column-list (rep ycors n)
     let feedback-dist-rows []
     let k 0
     repeat n [

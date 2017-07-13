@@ -1,6 +1,15 @@
 
 
 
+## misc
+
+* Jeu 22 jui 2017 00:06:26 CST * 
+
+https://arxiv.org/pdf/1706.04862.pdf : data pop plus précise ?
+
+http://cybergeo.revues.org/28388 : applis
+
+
 ## Spatial evolutionnary games
 
 * Lun 12 jui 2017 19:40:37 CST * 

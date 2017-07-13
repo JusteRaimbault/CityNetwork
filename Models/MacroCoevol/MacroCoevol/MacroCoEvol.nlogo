@@ -157,8 +157,6 @@ paths-own [
   
 ]
 
-
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 294
@@ -235,7 +233,7 @@ gravity-weight
 gravity-weight
 0
 2e-2
-0.007731
+0.002857
 1e-6
 1
 NIL
@@ -250,7 +248,7 @@ gravity-gamma
 gravity-gamma
 0.5
 5
-0.5
+0.65
 0.01
 1
 NIL
@@ -265,7 +263,7 @@ gravity-decay
 gravity-decay
 1
 500
-30.4
+63.9
 0.1
 1
 NIL
@@ -280,7 +278,7 @@ feedback-weight
 feedback-weight
 0
 0.1
-0.1
+0
 0.001
 1
 NIL
@@ -295,7 +293,7 @@ feedback-gamma
 feedback-gamma
 0
 5
-0.8
+0.5
 0.1
 1
 NIL
@@ -310,7 +308,7 @@ feedback-decay
 feedback-decay
 0
 200
-75.6
+78
 0.1
 1
 NIL
@@ -604,7 +602,7 @@ synthetic-rank-size-exp
 synthetic-rank-size-exp
 0
 1.5
-1.2
+1.1
 0.1
 1
 NIL
@@ -618,7 +616,7 @@ SLIDER
 final-time-step
 final-time-step
 0
-30
+100
 30
 1
 1
@@ -651,7 +649,7 @@ CHOOSER
 network-type
 network-type
 "virtual" "physical"
-0
+1
 
 SLIDER
 6
@@ -662,7 +660,7 @@ network-reinforcment-threshold
 network-reinforcment-threshold
 0
 5
-2
+2.5
 0.1
 1
 NIL
@@ -676,7 +674,7 @@ SLIDER
 network-reinforcment-exponent
 network-reinforcment-exponent
 0
-1
+10
 1
 0.01
 1
@@ -709,8 +707,8 @@ SLIDER
 network-reinforcment-gmax
 network-reinforcment-gmax
 0
-0.1
-0
+0.5
+0.05
 0.01
 1
 NIL
@@ -778,6 +776,46 @@ synthetic-shortcut-radius
 30
 20
 1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+9
+391
+236
+424
+physical-network-reinforcment-threshold
+physical-network-reinforcment-threshold
+0
+0.1
+3.456499387327971E-5
+0.0005
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+458
+721
+596
+766
+link-display-var
+link-display-var
+"relative-speed" "flow"
+1
+
+SLIDER
+6
+426
+264
+459
+physical-network-reinforcment-quantile
+physical-network-reinforcment-quantile
+0
+1
+0
+0.1
 1
 NIL
 HORIZONTAL

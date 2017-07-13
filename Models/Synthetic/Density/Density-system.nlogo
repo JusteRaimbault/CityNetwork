@@ -1,5 +1,5 @@
 
-extensions [gis pathdir profiler rserve shell]
+extensions [gis pathdir profiler rserve shell morphology]
 
 __includes [
   
@@ -22,6 +22,8 @@ __includes [
   "utils/gui/ViewUtilities.nls"
   "utils/exploration/ExplorationUtilities.nls"
   "utils/io/FileUtilities.nls"
+  "utils/misc/String.nls"
+  
   ;"utils/Timer.nls"
   
 ]
@@ -98,7 +100,7 @@ sp-diffusion
 sp-diffusion
 0
 0.5
-0.262
+0.166
 0.001
 1
 NIL
@@ -112,8 +114,8 @@ SLIDER
 sp-growth-rate
 sp-growth-rate
 0
-10000
-127
+50000
+750
 1
 1
 NIL
@@ -142,7 +144,7 @@ BUTTON
 834
 286
 setup
-setup-synth-pattern
+setup
 NIL
 1
 T
@@ -162,7 +164,7 @@ sp-diffusion-steps
 sp-diffusion-steps
 0
 10
-2
+1
 1
 1
 NIL
@@ -177,7 +179,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-1.32
+1.46
 0.01
 1
 NIL
@@ -195,23 +197,23 @@ sum [sp-occupants] of patches
 11
 
 INPUTBOX
-769
-445
+744
+420
 959
-532
+487
 real-pattern-file
-/Users/Juste/Documents/ComplexSystems/CityNetwork/Data/PopulationDensity/raw/popu01clcv5.tif
+conf/x21001y21101.csv
 1
 1
 String
 
 BUTTON
-770
-365
-838
-398
+655
+628
+723
+661
 save view
-save-view-params \"/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Density/Examples/comparable/ex\" [\"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\" \"sp-population\"]
+save-view-params save-file [\"sp-diffusion\" \"sp-growth-rate\" \"sp-diffusion-steps\" \"sp-alpha-localization\" \"ticks\" \"sp-population\"]
 NIL
 1
 T
@@ -230,46 +232,12 @@ SLIDER
 sp-max-pop
 sp-max-pop
 0
-100000
-5730
+1000000
+987260
 10
 1
 NIL
 HORIZONTAL
-
-BUTTON
-769
-290
-846
-323
-setup indics
-setup-indicator-computation
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-850
-290
-921
-323
-eval indics
-setup-indicator-computation\noutput-print word \"moran :\" moran-index\noutput-print word \"distance :\" average-distance-individuals\noutput-print word \"entropy :\" entropy\noutput-print word \"rank-size-slope :\" rank-size-slope\noutput-print word \"rank-size-resquared :\" rank-size-rsquared
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 OUTPUT
 964
@@ -306,26 +274,9 @@ sum [sp-density] of patches
 
 BUTTON
 770
-326
-853
-359
-start Rserve
-output-print shell:exec \"/usr/bin/R -e \\\"library(RServe);RServe()\\\"\"
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-770
-402
+376
 842
-435
+409
 setup real
 setup-real-pattern
 NIL
@@ -357,10 +308,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 SLIDER
-767
-544
-864
-577
+756
+492
+853
+525
 real-row
 real-row
 0
@@ -372,10 +323,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-867
-544
-959
-577
+856
+492
+948
+525
 real-col
 real-col
 0
@@ -387,10 +338,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-767
-580
-867
-613
+756
+528
+856
+561
 real-factor
 real-factor
 0
@@ -402,10 +353,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-869
-580
-961
-613
+858
+528
+950
+561
 real-size
 real-size
 0
@@ -437,6 +388,66 @@ comp-time
 17
 1
 11
+
+BUTTON
+989
+555
+1083
+588
+indicators
+compute-indicators
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1094
+557
+1158
+590
+color
+color-synth-pattern
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+1099
+594
+1222
+627
+alpha-viz
+alpha-viz
+0
+1e10
+10000000000
+1
+1
+NIL
+HORIZONTAL
+
+INPUTBOX
+736
+577
+981
+672
+save-file
+/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Density/Examples/calibration/calib3_
+1
+1
+String
 
 @#$#@#$#@
 ## WHAT IS IT?

@@ -49,6 +49,17 @@ to-report int-local-density
   
 end
 
+to compute-indicators
+  
+  ask patches with [sp-occupants < 1] [set sp-occupants 0]
+  
+  output-print (word "moran = " moran-index)
+  output-print (word "distance = " average-distance-individuals)
+  output-print (word "slope = " rank-size-slope)
+  output-print (word "rsquared = " rank-size-rsquared)
+  output-print (word "entropy = " entropy)
+end
+
 
 ;;
 ; Moran index for densities
@@ -57,7 +68,9 @@ end
 ;  Requires setup before.
 to-report moran-index
   
-  report rserve:get "moranIndex()"
+  report morphology:moran 0
+  
+  ;report rserve:get "moranIndex()"
   
   ;; direct computation is very slow (complexity - ask, distance)
   ; external call to R primitives using matrix convolution should be a huge gain of time
@@ -89,6 +102,9 @@ end
 
 ; heuristic mean
 to-report average-distance-individuals
+  
+  report morphology:distance 0
+  
 ;  let pop-patches to-list max-n-of (min list ((count patches) / 30) count patches with [sp-occupants > 1]) patches [sp-occupants]
 ;  let s 0 let o 0
 ;  foreach pop-patches [
@@ -100,20 +116,28 @@ to-report average-distance-individuals
 ;  ]
 ;  
 ;  report s / (o * sqrt (world-width ^ 2 + world-height ^ 2))
-  report rserve:get "averageDistance()"
+ ; report rserve:get "averageDistance()"
 end
 
 
 to-report rank-size-slope
-  report item 0 rserve:get "rankSizeSlope()"
+  report item 0 morphology:slope 1
+  
+  ;report item 0 rserve:get "rankSizeSlope()"
 end
 
 to-report rank-size-rsquared
-  report item 1 rserve:get "rankSizeSlope()"
+  
+  report item 1 morphology:slope 1
+  
+  ;report item 1 rserve:get "rankSizeSlope()"
 end
 
 to-report entropy
-  report rserve:get "entropy()"
+  
+  report morphology:entropy 0
+  
+  ;report rserve:get "entropy()"
 end
 
 

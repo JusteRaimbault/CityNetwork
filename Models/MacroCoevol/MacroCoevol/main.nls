@@ -52,16 +52,19 @@ to evolve-populations
   let n length prev-populations
   
   let diag-pops (matrix:make-diag prev-populations)
-  let diag-pops-gravity matrix:map [ ? ^ gravity-gamma] (matrix:times-scalar diag-pops sum prev-populations)
+  let diag-pops-gravity matrix:map [ ? ^ gravity-gamma] (matrix:times-scalar diag-pops sum prev-populations) ; ? should be 1 / sum prev-populations -> ok the term simplifies when normalized by mean-pot-gravity
   let pots-gravity matrix:times diag-pops-gravity (matrix:times gravity-weights diag-pops-gravity)
   matrix:set-diag-scalar pots-gravity 0
   let mean-pot-gravity (matrix:sum pots-gravity) / (n * n)
   set pots-gravity matrix:times-scalar pots-gravity (1 / mean-pot-gravity)
   
   ; update gravity flows
-  set gravity-flows pots-gravity
+  set gravity-flows matrix:copy pots-gravity
+  
   ; update feedback flows
-  ;set feedback-flows 
+  let diag-pops-feedback matrix:map [ ? ^ feedback-gamma] diag-pops
+  let pots-feedback-flows matrix:times diag-pops-feedback (matrix:times (matrix:make-constant n n 1) diag-pops-feedback) matrix:set-diag-scalar pots-feedback-flows 0
+  set feedback-flows matrix:copy pots-feedback-flows
   
   ; feedbacks -> computation depends on heuristic
   ; lets compute the euclidian by default, quite costless
@@ -69,6 +72,12 @@ to evolve-populations
   
   if network-type = "physical" [
     ; recompute pots-feedbacks on link flows : ! parameter gamma is different : specific var feedback-flow
+    
+    ;  - cache nw measures (!! normalisation feedback-flows)
+    network:cache-nw-measures
+    
+    ;  - recompute pots-feedback based on links
+    ; TODO
      
   ]
   

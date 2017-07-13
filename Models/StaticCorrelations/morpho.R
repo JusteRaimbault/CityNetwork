@@ -23,32 +23,38 @@ spatialWeights <- function (N,P){
 
 # load data -> global variable
 # @requires : vars rdens, rpop are defined
-rdens_file="temp_raster_dens.asc"
-rpop_file = "temp_raster_pop.asc"
+#rdens_file="temp_raster_dens.asc"
+#rpop_file = "temp_raster_pop.asc"
 #show(paste0('Loading rasters from ',rdens_file,' , ',rpop_file))
-r_dens = raster(rdens_file)
-m = as.matrix(r_dens)
-m[is.na(m)] <- 0
-r_dens = raster(m)
-r_pop = raster(rpop_file)
-m = as.matrix(r_pop)
-m[is.na(m)] <- 0
-r_pop = raster(m)
+#r_dens = raster(rdens_file)
+#m = as.matrix(r_dens)
+#m[is.na(m)] <- 0
+#r_dens = raster(m)
+#r_pop = raster(rpop_file)
+#m = as.matrix(r_pop)
+#m[is.na(m)] <- 0
+#r_pop = raster(m)
 
 
 # total population
-totalPopulation<-function(r_pop){
-  return(cellStats(r_pop,'sum'))
+summaryPopulation<-function(m=NULL){
+  if(is.null(m)){return(list(totalPop=NA,maxPop=NA,minPop=NA,medPop=NA))}
+  r_pop=raster(m)
+  return(list(
+      totalPop = cellStats(r_pop,'sum'),
+      maxPop = cellStats(r_pop,'max'),
+      minPop = cellStats(r_pop,'min')
+    )
+  )
 }
 
-maxPopulation<-function(r_pop){
-  return(cellStats(r_pop,'max'))
-}
 
 
 #moran index 
-moranIndex <- function(r_dens){
-  return(Moran(r_dens,spatialWeights(nrow(r_dens)-1,ncol(r_dens)-1)))
+moranIndex <- function(m=NULL){
+  if(is.null(m)){return(list(moran=NA))}
+  r_dens=raster(m/sum(m))
+  return(list(moran=Moran(r_dens,spatialWeights(nrow(r_dens)-1,ncol(r_dens)-1))))
 }
 
 # same with use of focal
@@ -80,22 +86,28 @@ distanceMatrix <- function(N,P){
 # still very heavy computationally
 # uses focal instead as in Moran Index computation.
 #
-averageDistance <- function(r_pop){
-  return(cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0)*r_pop,sum) / ( cellStats(r_pop,sum)^2 * sqrt(nrow(r_pop)*ncol(r_pop)/pi)))
+averageDistance <- function(m=NULL){
+  if(is.null(m)){return(list(averageDistance=NA))}
+  r_pop=raster(m)
+  return(list(averageDistance=cellStats(focal(r_pop,distanceMatrix(nrow(r_pop)-1,ncol(r_pop)-1),sum,pad=TRUE,padValue=0)*r_pop,sum) / ( cellStats(r_pop,sum)^2 * sqrt(nrow(r_pop)*ncol(r_pop)/pi))))
 }
 
 
 # distribution entropy --> rough equivalent of integrated local density ?
-entropy <- function(r_dens){
+entropy <- function(m=NULL){
+  if(is.null(m)){return(list(entropy=NA))}
+  r_dens=raster(m/sum(m))
   m= values(r_dens)*cellStats(r_dens,function(x,...){na.omit(log(x))})
   m[is.na(m)]=0
-  return(-1 / log(ncell(r_dens)) * sum(m) )
+  return(list(entropy = -1 / log(ncell(r_dens)) * sum(m) ))
 }
 
 
 # rank-size slope
 # -> linear regression on sorted log series
-rankSizeSlope <- function(r_pop){
+rankSizeSlope <- function(m=NULL){
+  if(is.null(m)){return(list(rankSizeAlpha =NA,rankSizeRSquared = NA))}
+  r_pop = raster(m)
   size = cellStats(r_pop,function(x,...){na.omit(log(x))})
   size = size[size>0] # at least one person
   size=sort(size,decreasing=TRUE)
@@ -103,8 +115,12 @@ rankSizeSlope <- function(r_pop){
   rank = log(1:length(size))
   if(length(size)>0){
     reg = lm(size~rank,data.frame(rank,size))
-  return(c(reg$coefficients[2],summary(reg)$r.squared))
-  }else{return(c(NA,NA))}
+  return(list(
+      rankSizeAlpha = reg$coefficients[2],
+      rankSizeRSquared = summary(reg)$r.squared
+    )
+  )
+  }else{return(list(rankSizeAlpha =NA,rankSizeRSquared = NA))}
 }
 
 

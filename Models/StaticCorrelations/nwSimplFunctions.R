@@ -12,6 +12,26 @@ library(igraph)
 
 
 
+#'
+#' 
+#' get mask raster with good resolution
+#' 
+getRaster<-function(file,newresolution=0,reproject=F){
+  provraster <- raster(file)
+  if(reproject==F&newresolution==0){return(provraster)}
+  if(reproject==F){
+    return(raster(extent(provraster),nrow=nrow(provraster)*yres(provraster)/newresolution,ncol=ncol(provraster)*xres(provraster)/newresolution,crs=crs(provraster)))
+  }else{
+    ext =extent(provraster)
+    xmin=ext@xmin;xmax=ext@xmax;ymin=ext@ymin;ymax=ext@ymax
+    wgs84=CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+    wgs84extent = extent(spTransform(SpatialPoints(matrix(data=c(xmin,ymin,xmax,ymax),ncol=2,byrow=T),crs(provraster)),wgs84))
+    return(raster(wgs84extent,nrow=nrow(provraster)*yres(provraster)/newresolution,ncol=ncol(provraster)*xres(provraster)/newresolution,crs=wgs84))
+  }
+}
+
+
+
 ##############'
 #'
 #' Get coordinates of cells
@@ -27,6 +47,9 @@ getCoords<-function(r,xmin,ymin,xmax,ymax,cells){
   return(coords)
 }
 
+#'
+#' @param cells : area size in number of cells
+#' @param offset : number of cells between two consecutive areas
 getCoordsOffset<-function(r,xmin,ymin,xmax,ymax,cells,offset){
   rows_min = seq(from=rowFromY(r,ymax),to=rowFromY(r,ymin)-cells,by=offset)
   rows_max = seq(from=rowFromY(r,ymax)+cells,to=rowFromY(r,ymin),by=offset)-1
@@ -104,7 +127,7 @@ getMergingSequences<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
 #' @requires global variables : osmdb, dbport
 #' 
 linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags,osmdb=global.osmdb,dbuser=global.dbuser,dbport=global.dbport,dbhost=global.dbhost){
-  #show(osmdb)
+  #show(paste0('getting lines within [',lonmin,'-',lonmax,']x[',latmin,'-',latmax,'] on db ',osmdb))
   pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=osmdb,user=dbuser,port=dbport,host=dbhost)
   
   q = paste0(
@@ -116,17 +139,19 @@ linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags,osmdb=global.osmdb,
     q=paste0(q,"tags::hstore->'highway'='",tags[length(tags)],"')")
   }
   q=paste0(q,";")
+  #show(q);
   query = dbSendQuery(pgsqlcon,q)
   data = fetch(query,n=-1)
   geoms = data$geom
   roads=list();k=1
+  #show(paste0(' -> ',length(geoms),' segments'))
   for(i in 1:length(geoms)){
     r=try(readWKT(geoms[i])@lines[[1]],silent=TRUE)
     if(!inherits(r,"try-error")){
        r@ID=as.character(i)
        roads[[k]]=r;k=k+1
     }
-  } 
+  }
   
   dbDisconnect(pgsqlcon)
   
@@ -182,10 +207,31 @@ graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
   if(is.null(edgelist$edgelist)){return(make_empty_graph())}
   if(from_query==TRUE){edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);}
   else{edgesmat=edgelist$edgelist}
-  g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed,type=edgelist$type),directed=FALSE)
+  #show(edgesmat)
+  validedges=!is.na(edgesmat[,1])&!is.na(edgesmat[,2])
+  edgesmat=edgesmat[validedges,]
+  edgelist$speed[is.na(edgelist$speed)]=0
+  edgelist$type[is.na(edgelist$type)]=""
+  g = graph_from_data_frame(data.frame(edgesmat,speed=edgelist$speed[validedges],type=edgelist$type[validedges]),directed=FALSE)
+  #show(g)
   gcoords = xyFromCell(densraster,as.numeric(V(g)$name))
   V(g)$x=gcoords[,1];V(g)$y=gcoords[,2]
-  E(g)$length=edgelist$length
+  #show(g)
+  #show(edgelist$length)
+  if(!is.null(edgelist$length)){E(g)$length=edgelist$length}
+  else{
+    elengths=c()
+    bothends = ends(g,E(g),names=FALSE)
+    x1 = V(g)$x[bothends[,1]];x2 = V(g)$x[bothends[,2]]
+    y1 = V(g)$y[bothends[,1]];y2 = V(g)$y[bothends[,2]]
+    for(k in 1:length(x1)){
+	#show(V(g)$name[bothends[k,1]]);show(V(g)$name[bothends[k,2]])      
+	#show(paste0(x1[k],x2[k],y1[k],y2[k]))
+      elengths=append(elengths,spDistsN1(pts = matrix(c(x1[k],y1[k]),nrow=1),pt = c(x2[k],y2[k]),longlat = TRUE))
+    }
+    E(g)$length=elengths;
+  }
+  
   gg=simplify(g,edge.attr.comb="min")
   return(gg)
 }
@@ -374,10 +420,12 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=TR
   if(length(roads$roads)>0){
     edgelist <- graphEdgesFromLines(roads = roads,baseraster = densraster)
     show(paste0("   size (graph size) : ",length(edgelist$edgelist)))
+    #show(edgelist$edgelist)
     res$gg= graphFromEdges(edgelist,densraster)
     if(simplify==TRUE){  
       res$sg = simplifyGraph(res$gg,bounds = c(lonmin,latmin,lonmax,latmax),xr,yr)
     }
+    #show(res)
   }
   return(res)
 }
