@@ -39,7 +39,7 @@ networkFunctions<-c(networkSummary,networkBetweenness,pathMeasures,louvainModula
 # create // cluster
 library(doParallel)
 #cl <- makeCluster(20,outfile='log')
-cl <- makeCluster(4,outfile='logtest')
+cl <- makeCluster(8,outfile='logtest')
 registerDoParallel(cl)
 
 startTime = proc.time()[3]
@@ -49,7 +49,7 @@ startTime = proc.time()[3]
 #for(i in 1:nrow(coords)){show(i)
 
 #res <- foreach(i=1:nrow(coords)) %dopar% {
-res <- foreach(i=1:2000) %dopar% {
+res <- foreach(i=sample(1:nrow(coords),size = 256,replace = F)) %dopar% {
   #show(i)
   tryCatch({
   source('morpho.R');source('nwSimplFunctions.R');source('network.R')
@@ -87,7 +87,7 @@ stopCluster(cl)
 
 
 save(res,file=paste0('res/',purpose,'temp.RData'))
-#load(paste0('res/coupled_',purpose,'temp.RData'))
+#load(paste0('res/',purpose,'temp.RData'))
 
 # get results into data frame
 #vals_mat = matrix(0,length(res),length(res[[1]]))
