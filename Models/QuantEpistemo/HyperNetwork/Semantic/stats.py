@@ -1,7 +1,25 @@
 # -*- coding: utf-8 -*-
 import utils
+from langdetect import detect
 
 # export from base for stats
+
+def corpus_languages(f):
+    corpus = utils.corpus_from_csv(f,";")
+    corpus_size = len(corpus)
+    languages={}
+    for ref in corpus :
+        try :
+            lang = detect(ref['title'])
+        except Exception :
+            lang = 'unknown'
+        if lang not in languages :
+            languages[lang]=0
+        languages[lang]=languages[lang]+1
+    for lang in languages.keys():
+        languages[lang]=languages[lang]/corpus_size
+    return(languages)
+
 
 def full_stats():
     export_ref_info()
@@ -24,15 +42,15 @@ def export_secondaryref_info(request,outfile):
     # put in dico
     data_dico = dict()
     for row in data :
-	r = list(row)
+        r = list(row)
         #print('r : '+r[0].encode('utf8'))
-	data_dico[r[0].encode('utf8')]=[r[i] for i in range(1,len(r))]
+        data_dico[r[0].encode('utf8')]=[r[i] for i in range(1,len(r))]
     for i in ids :
         #print(i[0])
         if i[0].encode('utf8') in data_dico :
 	    #print('i : '+i[0].encode('utf8'))
 	    #print(data_dico[i[0].encode('utf8')])
-	    res.append(data_dico[i[0].encode('utf8')])
+            res.append(data_dico[i[0].encode('utf8')])
     utils.export_matrix_csv(res,outfile,'\t',False)
     #utils.export_list(ids,outfile+'_id',False)
 

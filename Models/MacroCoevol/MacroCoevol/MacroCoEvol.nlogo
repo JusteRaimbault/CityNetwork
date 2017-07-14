@@ -157,7 +157,6 @@ paths-own [
   
 ]
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 294
@@ -650,7 +649,7 @@ CHOOSER
 network-type
 network-type
 "virtual" "physical"
-0
+1
 
 SLIDER
 6

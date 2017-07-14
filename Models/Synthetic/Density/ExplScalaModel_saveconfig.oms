@@ -1,0 +1,148 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+import scala.sys.process._
+import density._
+
+logger.level("FINE")
+
+// Parameters
+val diffusion = Val[Double]
+val diffusionsteps = Val[Double]
+val alphalocalization = Val[Double]
+val growthrate = Val[Double]
+val population = Val[Double]
+
+// Exploration
+val replication = Val[Int]
+val id=Val[Int]
+
+// Reporters
+val moran=Val[Double]
+val distance=Val[Double]
+val entropy=Val[Double]
+val slope=Val[Double]
+val rsquared=Val[Double]
+
+// config file
+val config=Val[File]
+
+// Model
+val model =
+  ScalaTask(
+    """
+      | val config = newFile()
+      | val gen = new PADGeneratorLauncher
+      | gen.main(100,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication,config)
+      | val moran = gen.moran
+      | val distance = gen.distance
+      | val entropy = gen.entropy
+      | val slope = gen.slope
+      | val rsquared = gen.rsquared
+    """.stripMargin
+  ) set (
+    imports += "density._",
+    plugins += pluginsOf[PADGeneratorLauncher],
+    inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,id),
+    outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,id),
+    outputs += (moran,distance,entropy,slope,rsquared),
+    outputs += config
+  )
+val modelCapsule = Capsule(model)
+
+
+// Exploration
+val exploration = ExplorationTask (
+  /*LHS (
+    1000,
+    diffusion in Range(0.0, 0.5),
+    alphalocalization in Range(0.1,4.0),
+    growthrate in Range(500.0,30000.0),
+    population in Range(10000.0,1000000.0),
+    diffusionsteps in Range(1.0,5.0)
+  ) withIndex id*/
+  (diffusion is 0.25) x
+  (alphalocalization is 1.4) x
+  (growthrate is 700) x
+  (population is 1000000) x
+  (diffusionsteps is 1.0) x
+  (id is 1)
+)
+val purpose = "GRIDGENERATION"
+
+//Replication
+val replicate = ExplorationTask(replication in (UniformDistribution[Int]() take 1)) set (
+  inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,id),outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,id)
+)
+
+// aggregation task to get best config
+val aggregate = ScalaTask("""
+     //dirty
+     var mi = input.moran(0)*input.moran(0) + input.distance(0)*input.distance(0) + input.entropy(0)*input.entropy(0) + input.slope(0)*input.slope(0)+ input.rsquared(0)*input.rsquared(0)
+     var minIndex = 0
+     val mmoran = input.moran.sum / input.moran.length ; val mdistance = input.distance.sum / input.distance.length ; val mentropy = input.entropy.sum / input.entropy.length ; val mslope = input.slope.sum / input.slope.length ; val mrsquared = input.rsquared.sum / input.rsquared.length
+     for(i <- 0 to (input.moran.length - 1)){
+       val m = (input.moran(i) - mmoran)*(input.moran(i)-mmoran) + (input.distance(i) - mdistance )*(input.distance(i) - mdistance) + (input.entropy(i) - mentropy)*(input.entropy(i) - mentropy) + (input.slope(i) - mslope)*(input.slope(i)- mslope) + (input.rsquared(i) - mrsquared)*(input.rsquared(i) - mrsquared)
+       if(m < mi){
+         minIndex = i;mi = m
+       }
+     }
+     val config = input.config(minIndex)
+     val id = input.id(0)""".stripMargin
+ ) set (
+  inputs += (moran.toArray,distance.toArray,entropy.toArray,slope.toArray,rsquared.toArray,config.toArray,id.toArray),
+  outputs += (config,id)
+)
+
+
+// Hooks
+val copy_hook = CopyFileHook(config,workDirectory / "pop/config_${id}.csv")
+
+val indics_hook = AppendToCSVFileHook(
+    workDirectory / "res" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv",
+    diffusion,diffusionsteps,alphalocalization,growthrate,population,moran,distance,entropy,slope,rsquared,replication,id
+)
+
+
+val replicationCapsule = replicate -< (modelCapsule hook indics_hook) >- (aggregate hook copy_hook)
+
+
+// Environement
+val local = LocalEnvironment(1)
+//val grid = EGIEnvironment("vo.complex-systems.eu", openMOLEMemory = 2400, wallTime = 24 hours)
+
+
+//(exploration -< replicationCapsule) + (modelCapsule on grid by 1000)
+(exploration -< replicationCapsule) + (modelCapsule on local)
+
+
+// effective values
+
+/*
+val exploration =  ExplorationTask(
+  (diffusion in (0.01 to 0.01 by 1.0)) x
+    (diffusionsteps in (1.0 to 2.0 by 1.0)) x
+    (alphalocalization in (1.2 to 1.2 by 1.0)) x
+    (growthrate in (1000.0 to 1000.0 by 1.0)) x
+    (population in (1000000.0 to 1000000.0 by 1.0)) withIndex id
+)
+
+val purpose = "TEST"
+
+// refined bounds from first exploration
+val exploration = ExplorationTask (
+  LHS (
+    100000,
+    diffusion in Range(0.0, 0.5),
+    alphalocalization in Range(0.1,4.0),
+    growthrate in Range(500.0,30000.0),
+    population in Range(10000.0,1000000.0),
+    diffusionsteps in Range(1.0,5.0)
+  ) x (replication in UniformDistribution[Int]() take 20) withIndex id
+)
+
+val purpose = "GRID"
+*/
+
+/*
+
+*/
