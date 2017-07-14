@@ -28,7 +28,7 @@ val model =
   ScalaTask(
     """
       | val config = newFile()
-      | val gen = new PADGeneratorLauncher
+      | val gen = new density.PADGeneratorLauncher
       | gen.main(100,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication,config)
       | val moran = gen.moran
       | val distance = gen.distance
@@ -37,13 +37,13 @@ val model =
       | val rsquared = gen.rsquared
     """.stripMargin
   ) set (
-    imports += "density._",
-    plugins += pluginsOf[PADGeneratorLauncher],
+    //imports += "density._",
+    plugins += pluginsOf[density.PADGeneratorLauncher],
     inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,id),
     outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication,id),
     outputs += (moran,distance,entropy,slope,rsquared)
   )
-val modelCapsule = Capsule(model)
+//val modelCapsule = Capsule(model)
 
 
 // Exploration
@@ -56,17 +56,18 @@ val exploration = ExplorationTask (
     population in Range(10000.0,1000000.0),
     diffusionsteps in Range(1.0,5.0)
   ) withIndex id*/
-  (diffusion in (0.01 to 0.01 by 1.0)) x
+  ((diffusion in (0.01 to 0.01 by 1.0)) x
   (diffusionsteps in (1.0 to 1.0 by 1.0)) x
   (alphalocalization in (1.2 to 1.2 by 1.0)) x
   (growthrate in (1000.0 to 1000.0 by 1.0)) x
-  (population in (100000.0 to 100000.0 by 1.0)) withIndex id
+  (population in (100000.0 to 100000.0 by 1.0)) withIndex id)
+  x (replication in (UniformDistribution[Int]() take 100))
 )
 
 //Replication
-val replicate = ExplorationTask(replication in (UniformDistribution[Int]() take 100)) set (
-  inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,id),outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,id,replication)
-)
+//val replicate = ExplorationTask(replication in (UniformDistribution[Int]() take 100)) set (
+//  inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,id),outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,id,replication)
+//)
 
 val purpose = "TEST_REPLICATION_LOCAL"
 
@@ -75,7 +76,7 @@ val indics_hook = AppendToCSVFileHook(
     diffusion,diffusionsteps,alphalocalization,growthrate,population,moran,distance,entropy,slope,rsquared,replication,id
 )
 
-val replicationCapsule = replicate -< (modelCapsule hook indics_hook)
+//val replicationCapsule = replicate -< (modelCapsule hook indics_hook)
 
 
 // Environement
@@ -83,4 +84,4 @@ val local = LocalEnvironment(50)
 //val grid = EGIEnvironment("vo.complex-systems.eu", openMOLEMemory = 2400, wallTime = 24 hours)
 
 //(exploration -< replicationCapsule) + (modelCapsule on grid by 1000)
-(exploration -< replicationCapsule) + (modelCapsule on local)
+exploration -< (model on local hook indics_hook)
