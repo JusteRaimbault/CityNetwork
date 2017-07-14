@@ -27,8 +27,8 @@ offset = 50
 # estimated comp time : 1461240*0.02539683/20/60 ~ 30hours
 # (upper bound, without empty areas)
 
-#purpose = paste0(areaname,'coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
-purpose = paste0('test_',areaname,'_coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+purpose = paste0(areaname,'coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+#purpose = paste0('test_',areaname,'_coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
 
 # coords using lon-lat
 coords <- getCoordsOffset(densraster,lonmin,latmin,lonmax,latmax,areasize,offset)
@@ -38,8 +38,8 @@ networkFunctions<-c(networkSummary,networkBetweenness,pathMeasures,louvainModula
 
 # create // cluster
 library(doParallel)
-#cl <- makeCluster(20,outfile='log')
-cl <- makeCluster(8,outfile='logtest')
+cl <- makeCluster(20,outfile='log')
+#cl <- makeCluster(8,outfile='logtest')
 registerDoParallel(cl)
 
 startTime = proc.time()[3]
@@ -48,8 +48,8 @@ startTime = proc.time()[3]
 #values = data.frame()
 #for(i in 1:nrow(coords)){show(i)
 
-#res <- foreach(i=1:nrow(coords)) %dopar% {
-res <- foreach(i=sample(1:nrow(coords),size = 256,replace = F)) %dopar% {
+res <- foreach(i=1:nrow(coords)) %dopar% {
+#res <- foreach(i=sample(1:nrow(coords),size = 256,replace = F)) %dopar% {
   #show(i)
   tryCatch({
   source('morpho.R');source('nwSimplFunctions.R');source('network.R')

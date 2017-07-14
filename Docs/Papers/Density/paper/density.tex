@@ -235,10 +235,6 @@ We propose a stochastic model of urban growth that generates spatial distributio
 
 \linenumbers
 
-
-% http://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0166960&type=printable
-%  -> good example of short abmodeling plosone paper (on extended schelling model).
-
 \justify
 
 
@@ -302,20 +298,16 @@ The rest of this paper is organized as follows: we first describe formally the m
 
 
 
-%Preferential attchment and diffusion, extension of [Batty, 2006]. small litt. prefAtt and then Urban sprawl, opposed forces that must shape morphology of urban systems. choice of a scale at which spatial form has a sense but city system is ‘’wide enough” : 50-100km, meso-scale ?
-
-
 \cite{2016arXiv160806313S} : how Simon model generates power law (paper more general to be quoted ?) ; first mover : path dependency of obtained shapes.
 
 
 
-Our model is based on widely accepted ideas of diffusion-aggregation processes for Urban Processes. The combination of attraction forces with repulsion, due for example to congestion, already yield a complex outcome that has been shown under some simplifying assumptions to be representative of urban growth processes. Such a model is studied by~\cite{batty2006hierarchy}. Indeed, the tension between antagonist aggregation and sprawl mechanisms may be an important process in urban morphogenesis. For example \cite{fujita1996economics} opposes centrifugal forces with centripetal forces in the equilibrium view of urban spatial systems, what is easily transferable to non-equilibrium systems in the framework of self-organized complexity : a urban structure is a far-from-equilibrium system that has been driven to this point by these opposite forces. The two contradictory processes of urban concentration and urban sprawl are captured by the model, what allows to reproduce with a good precision a large number of existing morphologies.
+Our model is based on widely accepted ideas of diffusion-aggregation processes for Urban Processes. The combination of attraction forces with repulsion, due for example to congestion, already yield a complex outcome that has been shown under some simplifying assumptions to be representative of urban growth processes. A model capturing these processes was introduced by~\cite{batty2006hierarchy}. Indeed, the tension between antagonist aggregation and sprawl mechanisms may be an important process in urban morphogenesis. For example \cite{fujita1996economics} opposes centrifugal forces with centripetal forces in the equilibrium view of urban spatial systems, what is easily transferable to non-equilibrium systems in the framework of self-organized complexity : a urban structure is a far-from-equilibrium system that has been driven to this point by these opposite forces. The two contradictory processes of urban concentration and urban sprawl are captured by the model, what allows to reproduce with a good precision a large number of existing morphologies.
 
-
-
-% choice of scale : linked to the notion of morphogenesis
 
 The question at which scale is it possible and relevant to define and try to simulate urban form is rather open, and will in fact depend on which issues are being tackled. 
+
+choice of scale : linked to the notion of morphogenesis ; choice of a scale at which spatial form has a sense but city system is ‘’wide enough” : 50-100km, meso-scale ?
 
 
 
@@ -328,7 +320,9 @@ We formalize now the model, together with its parameters and their possible inte
 
 \begin{itemize}
 \item total population is increased of a fixed number $N_G$ (growth rate), following a preferential attachment such that 
-\[\Pb{P_i(t+1)=P_i(t)+1|P(t+1)=P(t)+1}=\frac{(P_i(t)/P(t))^{\alpha}}{\sum(P_i(t)/P(t))^{\alpha}}\]
+\begin{equation}
+\Pb{P_i(t+1)=P_i(t)+1|P(t+1)=P(t)+1}=\frac{(P_i(t)/P(t))^{\alpha}}{\sum(P_i(t)/P(t))^{\alpha}}
+\end{equation}
 \item a fraction $\beta$ of population is diffused to cell neighborhood, this operation being repeated $n_d$ times
 \end{itemize}
 
@@ -339,13 +333,12 @@ We formalize now the model, together with its parameters and their possible inte
 \paragraph*{Indicators}
 
 
-% Literature on morphological analysis, method taken from [Le Nechet 2015] to qualify/quantify urban form. Why would form be relevant at this scale ? -> thematic references on variety of urban developments, rural settlements, etc. : form translates many spatial processes at this scale. [beware question of equifiniality : model is however themtically-based for processes].
-
 \cite{guerois2008built} : sort of morphological analysis
 
 
 % on other ways to quantify form ? -> ex fractal shape index ; recent research \cite{2016arXiv160808839C}
 
+% Why would form be relevant at this scale ? -> thematic references on variety of urban developments, rural settlements, etc. : form translates many spatial processes at this scale. [beware question of equifiniality : model is however themtically-based for processes].
 
 As our model is only density-based, we propose to quantify its outputs through spatial morphology, i.e. characteristics of density spatial distribution. We need therefore quantities having a certain level of robustness and invariance. For example, two polycentric cities should be classified as morphologically close whereas a direct comparison of distributions (Earth Mover Distance e.g.) could give a very high distance between configurations depending on center positions. To tackle this issue, we refer to the Urban Morphology Analysis literature which proposes an extensive set of indicators to describe urban form~\cite{tsai2005quantifying}. The number of dimensions can be reduced to obtain a robust description with a few number of independent indicators~\cite{Schwarz201029}. For the choice of indicators, we follow the analysis done in~\cite{le2015forme} where a typology of large european cities is obtained in consistence with qualitative knowledge. Let denote $(P_i)_{1\leq i \leq N}$ the population of cells, sorted in decreasing order, $d_{ij}$ the distance between cells $i,j$, and $P=\sum_{i=1}^{N} P_i$ total population. The indicators are the following :
 
@@ -488,7 +481,7 @@ We sample the Parameter space using a Latin Hypercube Sampling. Parameter bounds
 Our model can be understood as a type of reaction-diffusion model, that have been widely used in other fields such as biology: similar processes were used for example by Turing in its seminal paper on morphogenesis~\cite{turing1952chemical}. An other way to formulate the model typical to these approaches is by using Partial Differential Equations. We propose to gain insights into long-time dynamics by studying them on a simplified case. We consider the system in one dimension, such that $x\in \left[0;1\right]$ with $1/\delta x$ cells of size $\delta x$. Each cell is characterized by its population as a random variable $P(x,t)$. We work on their expected values $p(x,t) = \Eb{P(x,t)}$, and assume that $n_d=1$. As developed in Supplementary Material~\nameref{S2_Text}, we show that this simplified process verifies the following PDE:
 
 \begin{equation}\label{eq:pde}
-\delta t \cdot \frac{\partial p}{\partial t} = \frac{N_G \cdot p^{\alpha-2}}{P_{\alpha}(t)}\cdot \left(p^2 + \frac{\alpha \beta \delta x^2}{2}\cdot \left[ \frac{\partial^2 p}{\partial x^2} \cdot p + (\alpha - 1) \left(\frac{\partial p}{\partial x}\right)^2 \right] \right) - p
+\delta t \cdot \frac{\partial p}{\partial t} = \frac{N_G \cdot p^{\alpha}}{P_{\alpha}(t)} + \frac{\beta \delta x^2}{2} \cdot \frac{\partial^2 p}{\partial x^2} + \frac{\alpha \beta \delta x^2}{2}\cdot \frac{N_G \cdot p^{\alpha-2}}{P_{\alpha}(t)} \cdot \left[ \frac{\partial^2 p}{\partial x^2} \cdot p + (\alpha - 1) \left(\frac{\partial p}{\partial x}\right)^2 \right]
 \end{equation}
 
 
