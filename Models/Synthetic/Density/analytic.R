@@ -61,6 +61,12 @@ g=ggplot(res[res$t>2000,],aes(x=x,y=p,colour=t,group=t))
 g+geom_line()
 
 
+# bifurcations
+res<-sim1dprefAttDiff(c(rep(c(rep(0,100),1,rep(0,100)),10)),3.0,0.001,10,100000,timesample=10000)
+g=ggplot(res[res$t>2000,],aes(x=x,y=p,colour=t,group=t))
+g+geom_line()
+
+
 
 
 
