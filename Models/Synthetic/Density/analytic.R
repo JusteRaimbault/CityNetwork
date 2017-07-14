@@ -30,7 +30,7 @@ res<-sim1dprefAttDiff(c(rep(0,100),1,rep(0,100)),0.5,0.1,10,1000000,timesample=1
 g=ggplot(res[res$t>2000,],aes(x=x,y=p,colour=t,group=t))
 g+geom_line()#+scale_y_log10()
 
-res<-sim1dprefAttDiff(c(rep(0,10000),1,rep(0,10000)),0.5,0.1,10,100000,timesample=10000)
+res<-sim1dprefAttDiff(c(rep(0,10000),1,rep(0,10000)),0.5,0.2,10,100000,timesample=10000)
 g=ggplot(res[res$t>2000,],aes(x=x,y=p,colour=t,group=t))
 g+geom_line()
 
