@@ -263,7 +263,8 @@ As the short term trend is towards a mostly urbanized
 
 \cite{courtat2011mathematics} morphogenesis for roads
 
-Cellular automata \cite{ward2000stochastically}
+Cellular automata \cite{ward2000stochastically} \cite{GEAN:GEAN940}
+
 
 \cite{frankhauser1998fractal}
 
@@ -414,7 +415,7 @@ The model is implemented both in NetLogo~\cite{wilensky1999netlogo} for explorat
 
 \paragraph{Generated Shapes}
 
-The model has a relatively small number of parameters but is able to generate a very wide variety of shapes, extending beyond existing forms. In particular, its dynamical nature allows through $P_m$ parameter to choose final regime that can be non-stationarity (generally chaotic shapes), semi-stationarity or full stationarity. Fig.~\ref{fig:densitygeneration} shows examples of generated shapes, and illustrates the variety of forms that can be produced by the model.
+The model has a relatively small number of parameters but is able to generate a very wide variety of shapes, extending beyond existing forms. In particular, its dynamical nature allows through $P_m$ parameter to choose final regime that can be non-stationarity (generally chaotic shapes), semi-stationarity or full stationarity. Fig.~\ref{fig:fig2} shows examples of generated shapes, and illustrates the variety of forms that can be produced by the model.
 
 
 
@@ -427,7 +428,7 @@ The model has a relatively small number of parameters but is able to generate a 
 %ex_sp-diffusion=0.0060_sp-growth-rate=25_sp-diffusion-steps=1_sp-alpha-localization=0.4_ticks=176_sp-population=4400.000000000003.png
 %ex_sp-diffusion=0.0060_sp-growth-rate=268_sp-diffusion-steps=1_sp-alpha-localization=1.6_ticks=285_sp-population=76376.00000000033.png
 \caption{\textbf{Example of the variety of generated urban shapes.}}
-\label{fig:densitygeneration}
+\label{fig:fig2}
 \end{figure}
 %%%%%%%%%%%%%
 
@@ -437,15 +438,14 @@ The model has a relatively small number of parameters but is able to generate a 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Model Behavior}
 
-%(pub openmole exploration etc, importance of intensive computation)
+
 
 In the study of such a computational model of simulation, the lack of analytical tractability must be balanced by an extensive knowledge of model behavior in the parameter space. 
 
+%(pub openmole exploration etc, importance of intensive computation)
+
 \paragraph{Convergence}
 
-
-
-%convergence properties of indicators ; number of repetitions needed for consistence of results. [histograms and stats of $\sigma$ %TODO]
 
 Indicators show good convergence property and bimodal statistical distribution for cumulated points in the parameter space confirm the existence of superposed regimes : gaussian distribution gives stationary configurations, whereas inverse log-normal distribution are close to real data shape and correspond to non-stationary regime. For one point and a large number of repetitions, we find that 50 repetitions are enough to obtain a 95\% confidence interval smaller than $\sigma$ around indicator mean. 
 
@@ -453,32 +453,18 @@ Indicators show good convergence property and bimodal statistical distribution f
 
 \paragraph{Exploration of parameter space}
 
-We sample the Parameter space using a Latin Hypercube Sampling. Parameter bounds are $\alpha \in [0.2,2],\beta \in [0,0.1],n_d \in \{0,\ldots , 4\}, N_G \in [500,3000], P_m \in [2000,100000]$. %Fig.\ref{fig:densityscatter} shows the result.
+We sample the Parameter space using a Latin Hypercube Sampling. Parameter bounds are $\alpha \in [0.2,2],\beta \in [0,0.1],n_d \in \{0,\ldots , 4\}, N_G \in [500,3000], P_m \in [2000,100000]$.
 
 
 
 
-
-%
 %%%%%%%%%%%%%
-%\begin{figure}
-%\hspace{-2cm}
-%\includegraphics[width=1.4\textwidth]{Figures/PartII/Modeling/UrbanGrowth/all_alphaLoc}
-%\caption[LHS exploration of density model]{Scatterplots of indicators distribution in an hypercube of the parameter space. We show here the influence of one parameter (localization exponent $\alpha$). Red points correspond to real data.}
-%\label{fig:densityscatter}
-%\end{figure}
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/Fig3.png}
+\caption{\textbf{Behavior of indicators.}}
+\label{fig:fig3}
+\end{figure}
 %%%%%%%%%%%%%
-%
-%
-%
-%
-
-
-
-% Q : 3D plots as supp material ?
-
-%Figure : on 2 first PC of morpho indicators, localization of typical shapes (monocentric city, polycentric city, diffuse rural settlements, aggregated rural settlements) / comparing generated shape with a typical real one
-
 
 
 
@@ -488,7 +474,21 @@ We sample the Parameter space using a Latin Hypercube Sampling. Parameter bounds
 %%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Semi-analytical Analysis}\label{subsec:analytical}
 
-Our model can be understood as a type of reaction-diffusion model, that have been widely used in other fields such as biology: similar processes were used for example by Turing in its seminal paper on morphogenesis~\cite{turing1952chemical}. An other way to formulate the model typical to these approaches is by using Partial Differential Equations. We propose to gain insights into long-time dynamics by studying them on a simplified case. We consider the system in one dimension, such that $x\in \left[0;1\right]$ with $1/\delta x$ cells of size $\delta x$. Each cell is characterized by its population as a random variable $P(x,t)$. We work on their expected values $p(x,t) = \Eb{P(x,t)}$, and assume that $n_d=1$.
+Our model can be understood as a type of reaction-diffusion model, that have been widely used in other fields such as biology: similar processes were used for example by Turing in its seminal paper on morphogenesis~\cite{turing1952chemical}. An other way to formulate the model typical to these approaches is by using Partial Differential Equations. We propose to gain insights into long-time dynamics by studying them on a simplified case. We consider the system in one dimension, such that $x\in \left[0;1\right]$ with $1/\delta x$ cells of size $\delta x$. Each cell is characterized by its population as a random variable $P(x,t)$. We work on their expected values $p(x,t) = \Eb{P(x,t)}$, and assume that $n_d=1$. As developed in Supplementary Material~\nameref{S2_Text}, we show that this simplified process verifies the following PDE:
+
+\begin{equation}\label{eq:pde}
+\delta t \cdot \frac{\partial p}{\partial t} = \frac{N_G \cdot p^{\alpha-2}}{P_{\alpha}(t)}\cdot \left(p^2 + \frac{\alpha \beta \delta x^2}{2}\cdot \left[ \frac{\partial^2 p}{\partial x^2} \cdot p + (\alpha - 1) \left(\frac{\partial p}{\partial x}\right)^2 \right] \right) - p
+\end{equation}
+
+
+We learn the following properties:
+\begin{enumerate}
+\item Existence of a stationary solution for population proportion
+\item Characteristic distance of the stationary distribution
+\item Existence of bifurcations in the random case
+\end{enumerate}
+
+% thus the model must be used in a non-stationary way in time and space, $\gamma = P_m / N_G$ is crucial.
 
 
 
@@ -507,7 +507,7 @@ We use a specific calibration process: a principal component analysis allows to 
 \begin{figure}
 %\hspace{-2cm}
 %\includegraphics[width=\textwidth]{Figures/PartII/Modeling/UrbanGrowth/pcaDiff_thresholds}
-\caption[Precise calibration of the model]{\textbf{Precise calibration of the model.} The principal component analysis is conducted to maximize the spread of the differences between real data and model output, i.e. on the set $\{\left|R_i - M_j\right|\}$ where $R_i$ is the set of real points, $M_j$ the set of model outputs. We select then the overlapping cloud at threshold $\theta$, by taking models output closer to real point cloud than $\theta$ in the (PC1,PC2) plan.}
+\caption[Precise calibration of the model]{\textbf{Calibration of the model.} The principal component analysis is conducted to maximize the spread of the differences between real data and model output, i.e. on the set $\{\left|R_i - M_j\right|\}$ where $R_i$ is the set of real points, $M_j$ the set of model outputs. We select then the overlapping cloud at threshold $\theta$, by taking models output closer to real point cloud than $\theta$ in the (PC1,PC2) plan.}
 \label{fig:densitycalib}
 \end{figure}
 %%%%%%%%%%%%%%
@@ -528,20 +528,22 @@ more refined model : thresholded aggregation and diffusion (distance to center f
 
 We plan in further work to extract the exact parameter space covering all real situations and provide interpretation of its shape (correlations between parameters). Its volume in different directions should give the relative importance of parameters.
 
-%[possible development : application of Calibration Profile algo to check relative influence of parameters + ad hoc linear algebra on regression of 3.2.3 to do the same]
+
 
 
 We also use the parameter space exploration algorithm~\cite{10.1371/journal.pone.0138212} implemented in OpenMole, and obtain in Fig.~\ref{fig:densitypse} the lower bound in Moran-entropy plan, that unexpectedly exhibit a scaling relationship that we aim to explore further.
 
 %%%%%%%%%%%%%
-%\begin{figure}
-%%\hspace{-2cm}
-%\includegraphics[width=\textwidth]{Figures/PartII/Modeling/UrbanGrowth/scaling_entropy_moran}
-%\caption[PSE exploration]{Scatterplots of Moran against Entropy, with blue points obtained with LHS and red with PSE exploration. Lower bound is in green.}
-%\label{fig:densitypse}
-%\end{figure}
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/Fig5.png}
+\caption{\textbf{PSE exploration.} Scatterplotsof Moran against Entropy, with blue points obtained with LHS and red with PSE exploration. Lower bound is in green.}
+\label{fig:fig5}
+\end{figure}
 %%%%%%%%%%%%%
 
+
+
+%[possible development : application of Calibration Profile algo to check relative influence of parameters + ad hoc linear algebra on regression of 3.2.3 to do the same]
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
