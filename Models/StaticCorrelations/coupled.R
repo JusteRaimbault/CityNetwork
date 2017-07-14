@@ -27,8 +27,8 @@ offset = 50
 # estimated comp time : 1461240*0.02539683/20/60 ~ 30hours
 # (upper bound, without empty areas)
 
-#purpose = paste0(areaname,'coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
-purpose = paste0('test_',areaname,'_coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+purpose = paste0(areaname,'coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+#purpose = paste0('test_',areaname,'_coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
 
 # coords using lon-lat
 coords <- getCoordsOffset(densraster,lonmin,latmin,lonmax,latmax,areasize,offset)
@@ -38,8 +38,8 @@ networkFunctions<-c(networkSummary,networkBetweenness,pathMeasures,louvainModula
 
 # create // cluster
 library(doParallel)
-#cl <- makeCluster(20,outfile='log')
-cl <- makeCluster(4,outfile='log')
+cl <- makeCluster(20,outfile='log')
+#cl <- makeCluster(8,outfile='logtest')
 registerDoParallel(cl)
 
 startTime = proc.time()[3]
@@ -48,9 +48,10 @@ startTime = proc.time()[3]
 #values = data.frame()
 #for(i in 1:nrow(coords)){show(i)
 
-#res <- foreach(i=1:nrow(coords)) %dopar% {
-res <- foreach(i=1:500) %dopar% {
-  show(i)
+res <- foreach(i=1:nrow(coords)) %dopar% {
+#res <- foreach(i=sample(1:nrow(coords),size = 256,replace = F)) %dopar% {
+  #show(i)
+  tryCatch({
   source('morpho.R');source('nwSimplFunctions.R');source('network.R')
   morphoFunctions<-c(summaryPopulation,rankSizeSlope,moranIndex,averageDistance,entropy)
   networkFunctions<-c(networkSummary,networkBetweenness,pathMeasures,louvainModularity)
@@ -60,7 +61,7 @@ res <- foreach(i=1:500) %dopar% {
   y=rowFromY(densraster,latmin);x=colFromX(densraster,lonmin);
   e<-getValuesBlock(densraster,row=y,nrows=areasize,col=x,ncols=areasize)
   g = graphFromEdges(graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname=global.nwdb),densraster,from_query = FALSE)
-  V(g)$population <- getPopulation(g,densraster)
+  if(vcount(g)>0){V(g)$population <- getPopulation(g,densraster)}
   xcor = (lonmin + lonmax / 2);ycor = (latmin + latmax) / 2
   nores=c(xcor=xcor,ycor=ycor)
   for(f in morphoFunctions){nores=append(nores,unlist(f()))}
@@ -76,8 +77,8 @@ res <- foreach(i=1:500) %dopar% {
 	   }
     ,error=function(e){return(res=nores)})
   }else{res=nores}
-  res
-  
+  return(res)
+  },error=function(e){return(res=NA)})
   #values=rbind(values,res)
   #colnames(values)<-names(res)
 }
@@ -86,7 +87,7 @@ stopCluster(cl)
 
 
 save(res,file=paste0('res/',purpose,'temp.RData'))
-#load(paste0('res/coupled_',purpose,'temp.RData'))
+#load(paste0('res/',purpose,'temp.RData'))
 
 # get results into data frame
 #vals_mat = matrix(0,length(res),length(res[[1]]))

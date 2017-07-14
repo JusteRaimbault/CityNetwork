@@ -93,7 +93,7 @@ stopCluster(cl)
 # ellapsed time
 show(paste0("Ellapsed : ",(proc.time()[3]-startTime)))
 
-
+# for Europe : "Ellapsed : 370915.584"
 
 
 
