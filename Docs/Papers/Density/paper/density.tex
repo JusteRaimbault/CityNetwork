@@ -444,22 +444,44 @@ The model has a relatively small number of parameters but is able to generate a 
 
 
 
-In the study of such a computational model of simulation, the lack of analytical tractability must be balanced by an extensive knowledge of model behavior in the parameter space. 
+In the study of such a computational model of simulation, the lack of analytical tractability must be compensated by an extensive knowledge of model behavior in the parameter space~\cite{banos2013pour}. This type of approach is typical of what Arthur calls the \emph{Computational shift in modern science}~\cite{arthur2015complexity}.
 
-%(pub openmole exploration etc, importance of intensive computation)
 
 \paragraph{Convergence}
 
-First of all we need to assess the convergence of the model and its behavior regarding stochasticity. We run for a sparse grid of the parameter space consisting of 81 points, with 100 repetitions for each point. Corresponding histograms are shown in~\nameref{S1_Text}. Indicators show good convergence properties.
+First of all we need to assess the convergence of the model and its behavior regarding stochasticity. We run for a sparse grid of the parameter space consisting of 81 points, with 100 repetitions for each point. Corresponding histograms are shown in~\nameref{S1_Text}. Indicators show good convergence properties: most of indicators are easily statistically discernable across parameter points, and these are distinguished without ambiguity when taking into account all indicators. We use this experiment to find a reasonable number of repetitions needed in larger experiments. For each point, we estimate the Sharpe ratios for each indicators as 
+
+% -> 10 repetitions give 1.24 \sigma : ok with these sharp
+
+%       id       meanMoran            sdMoran           sharpeMoran        meanSlope      
+% Min.   : 0   Min.   :0.0000997   Min.   :4.387e-05   Min.   : 0.9372   Min.   :-2.1220  
+% 1st Qu.:20   1st Qu.:0.0026494   1st Qu.:3.055e-04   1st Qu.: 6.8929   1st Qu.:-1.0264  
+% Median :40   Median :0.0102259   Median :1.024e-03   Median :10.0594   Median :-0.7326  
+% Mean   :40   Mean   :0.0245863   Mean   :1.707e-03   Mean   :12.5250   Mean   :-0.7889  
+% 3rd Qu.:60   3rd Qu.:0.0330126   3rd Qu.:2.469e-03   3rd Qu.:14.1114   3rd Qu.:-0.4594  
+% Max.   :80   Max.   :0.1174664   Max.   :6.309e-03   Max.   :50.0461   Max.   :-0.1470  
+%    sdSlope          sharpeSlope       meanEntropy       sdEntropy         sharpeEntropy      
+% Min.   :0.001956   Min.   :  9.104   Min.   :0.2161   Min.   :4.852e-05   Min.   :    6.904  
+% 1st Qu.:0.004311   1st Qu.: 17.323   1st Qu.:0.5240   1st Qu.:2.192e-04   1st Qu.:   18.503  
+% Median :0.019704   Median : 40.997   Median :0.8685   Median :7.370e-03   Median :   69.986  
+% Mean   :0.035573   Mean   : 57.884   Mean   :0.7529   Mean   :1.618e-02   Mean   : 3244.566  
+% 3rd Qu.:0.047804   3rd Qu.: 72.753   3rd Qu.:0.9865   3rd Qu.:3.037e-02   3rd Qu.: 4479.465  
+% Max.   :0.225275   Max.   :293.529   Max.   :0.9982   Max.   :5.675e-02   Max.   :20571.273  
+%  meanDistance       sdDistance       sharpeDistance   
+% Min.   :0.09208   Min.   :0.001579   Min.   :  1.922  
+% 1st Qu.:0.44556   1st Qu.:0.002742   1st Qu.:  4.243  
+% Median :0.89682   Median :0.020469   Median : 24.374  
+% Mean   :0.68723   Mean   :0.050225   Mean   :152.769  
+% 3rd Qu.:0.91474   3rd Qu.:0.105676   3rd Qu.:326.653  
+% Max.   :0.92342   Max.   :0.182181   Max.   :579.846  
 
 
-For one point and a large number of repetitions, we find that 50 repetitions are enough to obtain a 95\% confidence interval smaller than $\sigma$ around indicator mean. 
 
 
 
 \paragraph{Exploration of parameter space}
 
-We sample the Parameter space using a Latin Hypercube Sampling. Parameter bounds are $\alpha \in [0.2,2],\beta \in [0,0.1],n_d \in \{0,\ldots , 4\}, N_G \in [500,3000], P_m \in [2000,100000]$.
+We sample the Parameter space using a Latin Hypercube Sampling, with parameter as $\alpha \in [0.1,4],\beta \in [0,0.5],n_d \in \{1,\ldots , 5\}, N_G \in [500,30000], P_m \in [1e4,1e6]$. This type of cribbing is a good compromise to have a reasonable sampling without being subject to the dimensionality curse within normal computation capabilities. 
 
 
 
@@ -497,6 +519,18 @@ This section allow us to learn the following properties, that are important to b
 \end{enumerate}
 
 % thus the model must be used in a non-stationary way in time and space, $\gamma = P_m / N_G$ is crucial.
+
+
+
+
+%%%%%%%%%%%%%
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/Fig4.png}
+\caption{\textbf{Randomness and frozen accidents.}}
+\label{fig:fig4}
+\end{figure}
+%%%%%%%%%%%%%
+
 
 
 
@@ -543,7 +577,7 @@ We also use the parameter space exploration algorithm~\cite{10.1371/journal.pone
 
 %%%%%%%%%%%%%
 \begin{figure}
-\includegraphics[width=\textwidth]{figures/Fig5.png}
+\includegraphics[width=\textwidth]{figures/Fig6.png}
 \caption{\textbf{PSE exploration.} Scatterplotsof Moran against Entropy, with blue points obtained with LHS and red with PSE exploration. Lower bound is in green.}
 \label{fig:fig5}
 \end{figure}

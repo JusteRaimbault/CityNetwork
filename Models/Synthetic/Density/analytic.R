@@ -5,7 +5,7 @@ library(dplyr)
 sim1dprefAttDiff<-function(x0,alpha,beta,growth,t,nd=1,timesample=0,random=T){
   res<-x0
   tres=data.frame(t=rep(0,length(x0)),x=1:length(x0),y=x0,p=x0/sum(x0))
-  for(t in 2:(t+1)){
+  for(t in 1:t){
     tmp = res
     if(random==T){
       for(k in sample(1:length(x0),size=growth,replace = T,prob=tmp^alpha/sum(tmp^alpha))){
@@ -62,9 +62,34 @@ g+geom_line()
 
 
 # bifurcations
-res<-sim1dprefAttDiff(c(rep(c(rep(0,100),1,rep(0,100)),10)),3.0,0.001,10,100000,timesample=10000)
-g=ggplot(res[res$t>2000,],aes(x=x,y=p,colour=t,group=t))
+
+resdir=paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Density/Analytic/')
+
+res<-sim1dprefAttDiff(c(rep(c(rep(0,10),rep(1,10),rep(0,10)),5)),1.4,0.1,10,2000,timesample=1)
+g=ggplot(res,aes(x=x,y=p,colour=t,group=t))
 g+geom_line()
+
+g=ggplot(res,aes(x=t,y=x,fill=cut(p,11)))
+g+geom_raster()+scale_fill_brewer(palette = "Spectral",name='proportion')#+stdtheme
+
+
+# do it for different runs with fixed seeds
+res=data.frame()
+nseeds=9
+for(seed in 1:nseeds){
+  set.seed(seed+100)
+  res=rbind(res,sim1dprefAttDiff(c(rep(c(rep(0,10),rep(1,10),rep(0,10)),5)),1.4,0.1,10,10000,timesample=10)
+)
+}
+seeds=c();for(seed in 1:nseeds){seeds=append(seeds,rep(seed,nrow(res)/nseeds))}
+res$seed = seeds
+
+g=ggplot(res,aes(x=t,y=x,fill=cut(p,11)))
+g+geom_raster()+scale_fill_brewer(palette = "Spectral",name='proportion',direction = -1)+facet_wrap(~seed)+stdtheme
+ggsave(paste0(resdir,'bifurcations.png'),width=30,height=20,units='cm')
+
+
+
 
 
 
