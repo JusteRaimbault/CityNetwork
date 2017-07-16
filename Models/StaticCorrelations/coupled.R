@@ -38,7 +38,7 @@ networkFunctions<-c(networkSummary,networkBetweenness,pathMeasures,louvainModula
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(20,outfile='log')
+cl <- makeCluster(10,outfile='log')
 #cl <- makeCluster(8,outfile='logtest')
 registerDoParallel(cl)
 
