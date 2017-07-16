@@ -79,8 +79,11 @@ g+geom_point(pch=".")+stat_smooth(span = 0.4)+xlab("alpha")+stdtheme
 ggsave(file=paste0(resdir,'distance_alpha_diffsteps4_rate41-78.png'),width=19,height=10,units = 'cm')
 
 
-
+############
 # histograms
+
+# with LHS explo
+
 res$alpha = cut_interval(res$alphalocalization,n=10)
 res$beta = cut_interval(res$diffusion,n=10)
 res$rate=res$population/res$growthrate
@@ -97,9 +100,44 @@ g+geom_density(alpha=0.2)+stdtheme#+facet_grid(beta~rate_discr,scales = "free")
 g=ggplot(res[res$diffsteps==4&res$diffusion>0.45&res$rate>78.4,],aes(x=moran,fill=alpha))
 g+geom_density(alpha=0.2)+stdtheme#+facet_grid(beta~rate_discr,scales = "free")
 
+# with targeted explo
+res = as.tbl(read.csv('res/2017_07_14_08_47_47_REPLICATION_LOCAL.csv',sep=','))
+
+resdir = resdir=paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Density/20170714_Replication/')
+
+res[,"growthrate/steps"]=paste0(res$growthrate,'/',res$diffusionsteps)
+g=ggplot(res,aes_string(x="moran",fill="`growthrate/steps`"))
+g+geom_density(alpha=0.4)+facet_grid(diffusion~alphalocalization,scales='free')+stdtheme
+ggsave(file=paste0(resdir,'hist_moran.png'),width=30,height=20,units = 'cm')
+
+g=ggplot(res,aes_string(x="distance",fill="`growthrate/steps`"))
+g+geom_density(alpha=0.4)+facet_grid(diffusion~alphalocalization,scales='free')+stdtheme
+ggsave(file=paste0(resdir,'hist_distance.png'),width=30,height=20,units = 'cm')
+
+g=ggplot(res,aes_string(x="entropy",fill="`growthrate/steps`"))
+g+geom_density(alpha=0.4)+facet_grid(diffusion~alphalocalization,scales='free')+stdtheme
+ggsave(file=paste0(resdir,'hist_entropy.png'),width=30,height=20,units = 'cm')
+
+g=ggplot(res,aes_string(x="slope",fill="`growthrate/steps`"))
+g+geom_density(alpha=0.4)+facet_grid(diffusion~alphalocalization,scales='free')+stdtheme
+ggsave(file=paste0(resdir,'hist_slope.png'),width=30,height=20,units = 'cm')
+
+# values of sigma
+sres = res %>% group_by(id) %>% summarise(
+  meanMoran=mean(moran),sdMoran=sd(moran),sharpeMoran = mean(moran)/sd(moran),
+  meanSlope=mean(slope),sdSlope=sd(slope),sharpeSlope = abs(mean(slope)/sd(slope)),
+  meanEntropy=mean(entropy),sdEntropy=sd(entropy),sharpeEntropy = mean(entropy)/sd(entropy),
+  meanDistance=mean(distance),sdDistance=sd(distance),sharpeDistance = mean(distance)/sd(distance)
+)
+summary(sres)
 
 
 #########
+
+res = as.tbl(read.csv(paste0(Sys.getenv("CN_HOME"),'/Results/Synthetic/Density/20151110_GridLHS/2015_11_10_18_11_05_GRID_LHS.csv'),sep=','))
+
+resdir=paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Density/20151110_GridLHS/')
+
 
 sres = res %>% group_by(id) %>% summarise(
   beta=mean(diffusion),diffusionsteps=floor(mean(diffusionsteps)),alpha=mean(alphalocalization),growthrate=mean(growthrate),population=mean(population),rate=mean(population)/mean(growthrate),
@@ -128,6 +166,10 @@ g+geom_point(pch='.')
 g=ggplot(sres,aes(x=PC1,y=PC2))
 g+geom_point(pch='.')+geom_point(data=real,aes(x=PC1,y=PC2),colour='red',pch='.')
 ggsave(file=paste0(resdir,'calib.png'),width=21,height=20,units='cm')
+
+png(filename = paste0(resdir,'scatter.png'),width = 20,height=20,units = 'cm',res = 600)
+plot(rbind(sres[,c("moran","slope","entropy","distance")],real[,c("moran","slope","entropy","distance")]),col=c(rep(rgb(0,0,0,0.2),nrow(sres)),rep(rgb(1,0,0,0.2),nrow(real))),pch='.')
+dev.off()
 
 # particular points
 source(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations/morpho.R'))

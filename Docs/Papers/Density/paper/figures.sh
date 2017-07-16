@@ -11,8 +11,11 @@ montage figuresraw/ex_sp-diffusion\=0.05_sp-growth-rate\=76_sp-diffusion-steps\=
 montage figuresraw/slope_alpha_diffsteps1_rate13-26.png figuresraw/slope_alpha_diffsteps4_rate41-78.png figuresraw/distance_alpha_diffsteps1_rate13-26.png figuresraw/distance_alpha_diffsteps4_rate41-78.png -tile 2x2 -geometry +5+5 figures/Fig3.png 
 
 # fig 4
-
+cp figuresraw/bifurcations.png figures/Fig4.png
 
 # fig 5
-cp figuresraw/scaling_entropy_moran.png figures/Fig5.png
+
+
+# fig 6
+cp figuresraw/scaling_entropy_moran.png figures/Fig6.png
 
