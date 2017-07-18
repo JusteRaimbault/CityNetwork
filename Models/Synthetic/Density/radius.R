@@ -47,35 +47,35 @@ res <- foreach(i=1:nrow(params)) %dopar% {
 save(res,file='res/radius_deterministic.RData')
 
 ###
-# load('res/radius.RData')
-# library(ggplot2)
-# 
-# d = data.frame(params,radius=unlist(res))
-# g=ggplot(d,aes(x=log(alpha),y=log(radius),colour=beta,group=beta))
-# g+geom_line()
-# 
-# g=ggplot(d,aes(x=log(beta),y=log(radius),colour=alpha,group=alpha))
-# g+geom_line()
-# 
-# fit=data.frame()
-# for(alpha in unique(d$alpha)){
-#   reg = lm(lradius~lbeta,data.frame(lbeta=log(d$beta[d$alpha==alpha]),lradius=log(d$radius[d$alpha==alpha])))
-#   summary(reg)$adj.r.squared
-#   fit=rbind(fit,data.frame(k=reg$coefficients[1],ksd=summary(reg)$coefficients[1,2],p=reg$coefficients[2],psd=summary(reg)$coefficients[2,2],rsq=summary(reg)$adj.r.squared,alpha=alpha))
-# }
-# 
-# g=ggplot(fit,aes(x=alpha,y=k,ymin=k-ksd,ymax=k+ksd))
-# g+geom_line()+geom_errorbar()
-# 
-# g=ggplot(fit,aes(x=alpha,y=log(-(log(k)/k-log(fit$k[nrow(fit)])/fit$k[nrow(fit)]))))
-# g+geom_line()+stat_smooth(span=2)
-# 
-# g=ggplot(fit,aes(x=alpha,y=p))
-# g+geom_line()+geom_errorbar(ymin=fit$p-fit$psd,ymax=fit$p+fit$psd)+stat_smooth(span = 0.4)+ylim(c(0.469,0.5))
-# 
-# g=ggplot(fit,aes(x=alpha,y=rsq))
-# g+geom_line()
-# 
+load('res/radius_deterministic.RData')
+library(ggplot2)
+
+d = data.frame(params,radius=unlist(res))
+g=ggplot(d,aes(x=log(alpha),y=log(radius),colour=beta,group=beta))
+g+geom_line()
+
+g=ggplot(d[d$alpha>1,],aes(x=log(beta),y=log(radius),colour=alpha,group=alpha))
+g+geom_line()
+
+fit=data.frame()
+for(alpha in unique(d$alpha)){
+  reg = lm(lradius~lbeta,data.frame(lbeta=log(d$beta[d$alpha==alpha]),lradius=log(d$radius[d$alpha==alpha])))
+  summary(reg)$adj.r.squared
+  fit=rbind(fit,data.frame(k=reg$coefficients[1],ksd=summary(reg)$coefficients[1,2],p=reg$coefficients[2],psd=summary(reg)$coefficients[2,2],rsq=summary(reg)$adj.r.squared,alpha=alpha))
+}
+
+g=ggplot(fit,aes(x=alpha,y=k,ymin=k-ksd,ymax=k+ksd))
+g+geom_line()+geom_errorbar()
+
+g=ggplot(fit,aes(x=alpha,y=log(-(log(k)/k-log(fit$k[nrow(fit)])/fit$k[nrow(fit)]))))
+g+geom_line()+stat_smooth(span=2)
+
+g=ggplot(fit,aes(x=alpha,y=p))
+g+geom_line()+geom_errorbar(ymin=fit$p-fit$psd,ymax=fit$p+fit$psd)+stat_smooth(span = 0.4)+ylim(c(0.469,0.5))
+
+g=ggplot(fit,aes(x=alpha,y=rsq))
+g+geom_line()
+
 
 
 
