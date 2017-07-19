@@ -2,11 +2,13 @@ library(ggplot2)
 library(dplyr)
 
 
-sim1dprefAttDiff<-function(x0,alpha,beta,growth,t,nd=1,timesample=0,random=T){
+sim1dprefAttDiff<-function(x0,alpha,beta,growth,t,nd=1,timesample=0,random=T,withDiffs=F){
   res<-x0
   tres=data.frame(t=rep(0,length(x0)),x=1:length(x0),y=x0,p=x0/sum(x0))
+  if(withDiffs){tres=cbind(tres,data.frame(dx=rep(0,nrow(tres)),dt=rep(0,nrow(tres))))}
   for(t in 1:t){
     tmp = res
+    if(withDiffs){prevres=res}
     if(random==T){
       for(k in sample(1:length(x0),size=growth,replace = T,prob=tmp^alpha/sum(tmp^alpha))){
         tmp[k]<-tmp[k]+1
@@ -15,7 +17,17 @@ sim1dprefAttDiff<-function(x0,alpha,beta,growth,t,nd=1,timesample=0,random=T){
       tmp = tmp + (tmp^alpha/sum(tmp^alpha))*growth
     }
     res=tmp*(1-beta) + beta/2*(c(tmp[2:length(tmp)],0)+c(0,tmp[1:(length(tmp)-1)]))
-    if(timesample>0&t%%timesample==0){show(t);tres=rbind(tres,data.frame(t=rep(t,length(x0)),x=1:length(x0),y=res,p=res/sum(res)))}
+    if(timesample>0&t%%timesample==0){
+      currentdata=data.frame(t=rep(t,length(x0)),x=1:length(x0),y=res,p=res/sum(res))
+      if(withDiffs){
+        Palpha=sum(res^alpha)
+        dx = c(0,diff(res));dx2 = c(0,diff(dx))
+        dxterm = ng*res^alpha/Palpha + alpha*beta*(alpha - 1)/2*ng*res^(alpha-2)/Palpha*dx^2 + beta/2*dx2*(1 + alpha*ng*res^(alpha-1)/Palpha)
+        dtterm = res - prevres
+        currentdata=cbind(currentdata,dx=dxterm,dt=dtterm)
+      }
+      show(t);tres=rbind(tres,currentdata)
+    }
   }
   if(timesample==0){return(res)}
   else{return(tres)}
@@ -100,22 +112,22 @@ ggsave(paste0(resdir,'bifurcations.png'),width=30,height=20,units='cm')
 
 # manual check
 alpha=0.5;beta=0.1;ng=10;
-res<-sim1dprefAttDiff(c(rep(0,1000),1,rep(0,1000)),alpha,beta,ng,1000,timesample = 1,random = F)
-
-diffs = data.frame()
-for(t in 2:max(res$t)){
-  show(t)
-  currentpop=res$y[res$t==t]
-  Palpha=sum(currentpop^alpha)
-  dx = c(0,diff(currentpop));dx2 = c(0,diff(dx))
-  dxterm = ng*currentpop^alpha/Palpha + alpha*beta*(alpha - 1)/2*ng*currentpop^(alpha-2)/Palpha*dx^2 + beta/2*dx2*(1 + alpha*ng*currentpop^(alpha-1)/Palpha)
-  diffs=rbind(diffs,data.frame(dt=currentpop-res$y[res$t==t-1]),dx=dxterm,x=res$x[res$t==t],t=rep(t,length(currentpop)))
-}
-
-g=ggplot(res,aes(x=t,y=x,fill=cut(p,11)))
+#res<-sim1dprefAttDiff(c(rep(0,1000),1,rep(0,1000)),alpha,beta,ng,1000,timesample = 1,random = F)
+res<-sim1dprefAttDiff(c(rep(1,1000)),alpha,beta,ng,10000000,timesample = 100000,random = F,withDiffs = T)
 
 
+g=ggplot(diffs[abs(diffs$dt-diffs$dx)<1e-5,],aes(x=t,y=x,fill=cut(dt-dx,11)))
+#g=ggplot(diffs,aes(x=t,y=x,fill=cut(dt-dx,11)))
+g+geom_raster()+scale_fill_brewer(palette = "Spectral",direction = -1)
 
+g=ggplot(res[abs(2*(res$dt-res$dx)/(res$dt+res$dx))<0.5,],aes(x=t,y=x,fill=cut(2*(dt-dx)/(dt+dx),11)))
+#g=ggplot(res,aes(x=t,y=x,fill=cut(2*(dt-dx)/(dt+dx),11)))
+g+geom_raster()+scale_fill_brewer(palette = "Spectral",direction = -1)
+
+
+plot(diffs$dt[diffs$x==1000&diffs$t>400],type='l');
+points(diffs$dx[diffs$x==1000&diffs$t>400],type='l',col='red')
+plot(diffs$dt[diffs$x==1000&diffs$t>400]-diffs$dx[diffs$x==1000&diffs$t>400],type='l')
 
 
 
