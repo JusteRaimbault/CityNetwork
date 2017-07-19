@@ -26,9 +26,11 @@ res<-sim1dprefAttDiff(c(rep(0,100),1,rep(0,100)),0.5,0.1,10,100000)
 plot(1:ncol(res),res[nrow(res),],type='l')
 
 
-res<-sim1dprefAttDiff(c(rep(0,100),1,rep(0,100)),0.5,0.1,10,1000000,timesample=1000)
+res<-sim1dprefAttDiff(c(rep(0,100),1,rep(0,100)),1.0,0.01,10,2000000,timesample=10000,random = F)
 g=ggplot(res[res$t>2000,],aes(x=x,y=p,colour=t,group=t))
+#g=ggplot(res,aes(x=x,y=p,colour=t,group=t))
 g+geom_line()#+scale_y_log10()
+plot(diff((as.tbl(res)%>%group_by(t)%>%summarise(pop=sum(y)))$pop),type='l')
 
 res<-sim1dprefAttDiff(c(rep(0,10000),1,rep(0,10000)),0.5,0.2,10,100000,timesample=10000)
 g=ggplot(res[res$t>2000,],aes(x=x,y=p,colour=t,group=t))
@@ -88,7 +90,29 @@ g=ggplot(res,aes(x=t,y=x,fill=cut(p,11)))
 g+geom_raster()+scale_fill_brewer(palette = "Spectral",name='proportion',direction = -1)+facet_wrap(~seed)+stdtheme
 ggsave(paste0(resdir,'bifurcations.png'),width=30,height=20,units='cm')
 
+# !! must check if indeed stationary !!
 
+
+#####
+# equation verification
+
+# forall (x,t) such that -x_m < x < x_m and t > 0
+
+# manual check
+alpha=0.5;beta=0.1;ng=10;
+res<-sim1dprefAttDiff(c(rep(0,1000),1,rep(0,1000)),alpha,beta,ng,1000,timesample = 1,random = F)
+
+diffs = data.frame()
+for(t in 2:max(res$t)){
+  show(t)
+  currentpop=res$y[res$t==t]
+  Palpha=sum(currentpop^alpha)
+  dx = c(0,diff(currentpop));dx2 = c(0,diff(dx))
+  dxterm = ng*currentpop^alpha/Palpha + alpha*beta*(alpha - 1)/2*ng*currentpop^(alpha-2)/Palpha*dx^2 + beta/2*dx2*(1 + alpha*ng*currentpop^(alpha-1)/Palpha)
+  diffs=rbind(diffs,data.frame(dt=currentpop-res$y[res$t==t-1]),dx=dxterm,x=res$x[res$t==t],t=rep(t,length(currentpop)))
+}
+
+g=ggplot(res,aes(x=t,y=x,fill=cut(p,11)))
 
 
 

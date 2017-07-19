@@ -2,7 +2,8 @@ import pymongo,json,sys
 
 jsonfile = sys.argv[1]
 database = sys.argv[2]
-mongohost = sys.argv[3]
+#mongohost = sys.argv[3]
+mongohost = open('mongohost').readlines()[0].replace('\n','')
 
 mongo = pymongo.MongoClient(mongohost)
 db = mongo[database]
