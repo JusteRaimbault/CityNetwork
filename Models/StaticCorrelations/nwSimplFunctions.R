@@ -181,18 +181,45 @@ graphEdgesFromLines<-function(roads,baseraster){
   return(list(edgelist=edgelist,speed=edgespeed,type=edgetype))
 }
 
+
+#'
+#'
+defaultDBParams<-function(dbsystem='',dbhost='',dbport=0,dbname=''){
+  return(list(
+    dbsystem=ifelse(nchar(dbsystem)>0,dbsystem,'mongo'),
+    dbhost=ifelse(nchar(dbhost)>0,dbhost,'127.0.0.1'),
+    dbport=ifelse(dbport>0,dbport,29019),
+    dbname=ifelse(nchar(dbname)>0,dbname,'china')
+  ))
+}
+
 #'
 #' Retrieve graph from a simplified base (basic request)
 #' 
-graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbname,dbport=global.dbport,dbuser=global.dbuser,dbhost=global.dbhost){
-  pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport,host=dbhost)
-  q = paste0(
-    "SELECT origin,destination,length,speed,roadtype FROM links",
-    " WHERE ST_Intersects(ST_MakeEnvelope(",lonmin,",",latmin,",",lonmax,",",latmax,",4326),","geography);")
-  show(q)
-  query = dbSendQuery(pgsqlcon,q)
-  data = fetch(query,n=-1)
-  dbDisconnect(pgsqlcon)
+graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbparams=defaultDBParams()){
+    # pgsql params : dbname,dbport=global.dbport,dbuser=global.dbuser,dbhost=global.dbhost
+  if(!'dbsystem'%in%names(dbparams)){stop('error : db config')}
+  if(dbparams['dbsystem']=='pgsql'){
+    dbname=dbparams['dbname'];dbport=dbparams['dbport'];dbuser=dbparams['dbuser'];dbhost=dbparams['dbhost']
+    pgsqlcon = dbConnect(dbDriver("PostgreSQL"), dbname=dbname,user=dbuser,port=dbport,host=dbhost)
+    q = paste0(
+      "SELECT origin,destination,length,speed,roadtype FROM links",
+      " WHERE ST_Intersects(ST_MakeEnvelope(",lonmin,",",latmin,",",lonmax,",",latmax,",4326),","geography);")
+    show(q)
+    query = dbSendQuery(pgsqlcon,q)
+    data = fetch(query,n=-1)
+    dbDisconnect(pgsqlcon)
+  }
+  if(dbparams['dbsystem']=='mongo'){
+    mongo <- mongoDbConnect(dbparams['dbname'],dbparams['dbhost'], dbport=dbparams['dbport'])
+    query = paste0('{"geometry":{$geoWithin:{$geometry:{type:"Polygon",coordinates:[[[',lonmin,',',latmin,'],[',lonmin,',',latmax,'],[',lonmax,',',latmax,'],[',lonmax,',',latmin,'],[',lonmin,',',latmin,'],]]}}}}')
+    show(query)
+    fields = '{"ORIGIN":1,"DESTINATIO":1,"LENGTH":1,"SPEED":1,"ROADTYPE":1}'
+    data <- dbGetQueryForKeys(mongo,'network',query,fields)
+    dbDisconnect(mongo)
+    names(data)<-c("origin","destination","length","speed","roadtype")
+  }
+  
   if(length(data)==0){return(list())}
   res=list(edgelist=data.frame(from=data$origin,to=data$destination),speed=data$speed,type=data$speed,length=data$length)
   return(res)
@@ -443,7 +470,7 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=TR
 #'   - simplify graph [check if same function can be used]
 mergeLocalGraphs<-function(bbox,xr,yr,dbname){
   lonmin=min(bbox[1],bbox[5]);latmax=max(bbox[2],bbox[6]);lonmax=max(bbox[3],bbox[7]);latmin=min(bbox[4],bbox[8])
-  edges = graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbname=dbname)
+  edges = graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbparams = list(dbname=dbname,dbhost=global.dbhost,dbport=global.dbport,dbhost=global.dbhost,dbuser=global.dbuser))
   res=list()
   if(length(edges$edgelist)>0){
     res$sg = simplifyGraph(graphFromEdges(edges,densraster,from_query = FALSE),bounds=c(lonmin,latmin,lonmax,latmax),xr,yr)
