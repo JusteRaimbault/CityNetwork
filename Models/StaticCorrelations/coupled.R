@@ -4,6 +4,8 @@
 #
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
+library(RMongo)
+
 source('nwSimplFunctions.R');source('network.R');source('morpho.R')
 
 #densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"),newresolution=0,reproject=F)
@@ -13,6 +15,7 @@ densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid
 
 #global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost";global.nwdb='nwtest_simpl_4'
 global.dbport=5433;global.dbuser="juste";global.dbhost="";global.nwdb='china_nw_simpl_4'
+mongo<-mongoDbConnect('china','127.0.0.1',29019)
 
 latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
 lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
@@ -28,7 +31,7 @@ offset = 50
 # (upper bound, without empty areas)
 
 #purpose = paste0(areaname,'coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
-purpose = paste0('test_',areaname,'_coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+purpose = paste0('testmongo_',areaname,'_coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
 
 # coords using lon-lat
 coords <- getCoordsOffset(densraster,lonmin,latmin,lonmax,latmax,areasize,offset)

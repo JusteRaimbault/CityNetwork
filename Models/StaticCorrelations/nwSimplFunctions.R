@@ -2,12 +2,12 @@
 # nw simplification functions
 
 
-library(RPostgreSQL)
-library(rgeos)
-library(rgdal)
+#library(RPostgreSQL)
+#library(rgeos)
+#library(rgdal)
 library(raster)
 library(igraph)
-
+library(RMongo)
 
 
 
@@ -211,8 +211,9 @@ graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbparams=defaultDBParam
     dbDisconnect(pgsqlcon)
   }
   if(dbparams['dbsystem']=='mongo'){
-    mongo <- mongoDbConnect(dbparams['dbname'],dbparams['dbhost'], dbport=dbparams['dbport'])
-    query = paste0('{"geometry":{$geoWithin:{$geometry:{type:"Polygon",coordinates:[[[',lonmin,',',latmin,'],[',lonmin,',',latmax,'],[',lonmax,',',latmax,'],[',lonmax,',',latmin,'],[',lonmin,',',latmin,'],]]}}}}')
+    #show(paste0('Connecting to ',dbparams['dbname'],' at ',dbparams['dbhost'],' port ',dbparams['dbport']))
+    #mongo <- mongoDbConnect(dbparams['dbname'],dbparams['dbhost'],dbparams['dbport'])
+    query = paste0('{"geometry":{$geoWithin:{$geometry:{type:"Polygon",coordinates:[[[',lonmin,',',latmin,'],[',lonmin,',',latmax,'],[',lonmax,',',latmax,'],[',lonmax,',',latmin,'],[',lonmin,',',latmin,']]]}}}}')
     show(query)
     fields = '{"ORIGIN":1,"DESTINATIO":1,"LENGTH":1,"SPEED":1,"ROADTYPE":1}'
     data <- dbGetQueryForKeys(mongo,'network',query,fields)
