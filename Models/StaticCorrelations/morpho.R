@@ -154,6 +154,11 @@ extractSubRaster<- function(file,r,c,size,factor){
   #writeRaster(r,paste0(Sys.getenv("CN_HOME"),'/Models/Synthetic/Density/temp_raster_pop.asc'),format="ascii",overwrite=TRUE)
 }
 
+getCoordinates<-function(file,r,c){
+  raw <- raster(file)
+  return(spTransform(xyFromCell(raw,cellFromRowCol(raw,rownr = r,colnr = c),spatial = T),CRS("+proj=longlat +datum=WGS84")))
+}
+
 
 
 
