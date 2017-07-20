@@ -4,9 +4,9 @@
 ###
 
 library(igraph)
-library(RPostgreSQL)
-library(rgeos)
-library(rgdal)
+#library(RPostgreSQL)
+#library(rgeos)
+#library(rgdal)
 library(spatstat)
 
 
