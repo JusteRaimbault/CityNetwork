@@ -159,8 +159,14 @@ sres=cbind(sres,pcsynth)
 pcreal = as.tbl(data.frame(as.matrix(real[,c("moran","distance","entropy","slope")])%*%pr$rotation))
 real=cbind(real,pcreal)
 
+
 g=ggplot(sres,aes(x=PC1,y=PC2,colour=beta))
-g+geom_point(pch='.')
+g+geom_point()+stdtheme
+ggsave(file=paste0(resdir,'pc_colbeta.png'),width=14.6,height=12,units='in',dpi = 300)
+
+g=ggplot(sres,aes(x=PC1,y=PC2,colour=alpha))
+g+geom_point()+stdtheme
+ggsave(file=paste0(resdir,'pc_colalpha.png'),width=14.6,height=12,units='in',dpi = 300)
 
 
 g=ggplot(sres,aes(x=PC1,y=PC2))
@@ -173,29 +179,63 @@ dev.off()
 
 # particular points
 source(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations/morpho.R'))
-
+rasterfile=paste0(Sys.getenv('CN_HOME'),'/Data/PopulationDensity/raw/popu01clcv5.tif')
+# reprojected raster ? -> ok, same cells !
 
 # calib 1 :
 d=sqrt((real$moran-0.020)^2+(real$entropy-0.912)^2+(real$slope+0.617)^2+(real$distance-0.926)^2)
 data.frame(real[d==min(d),])
 xcor=33701;ycor=17401
+getCoordinates(rasterfile,xcor,ycor)
+matrix(c(moran=0.020,distance=0.926,entropy=0.912,slope=-0.617),nrow=1)%*%rot
+# real : PC1 = 0.9544645 ; PC2 = 0.3296364 ; coordinates : -2.607152,39.74274 - Spain, Castilla-La Mancha, Cuenca
+# synth : PC1 = 0.9487267 PC2 = 0.3245882 ; beta=0.108 ; NG=637 ; nd=1 ; alpha=1.14 ; population=13235.648362769914
 
 # calib 2 :
 d=sqrt((real$moran-0.014)^2+(real$entropy-0.63)^2+(real$slope+0.614)^2+(real$distance-0.776)^2)
 data.frame(real[d==min(d),])
 xcor=4601;ycor=36001
+getCoordinates(rasterfile,xcor,ycor)
+matrix(c(moran=0.014,distance=0.776,entropy=0.63,slope=-0.614),nrow=1)%*%rot
+# real : PC1 = 0.7004772 ; PC2 = 0.2195029 ; coordinates : 27.16068,65.889 - Finland, Lapland
+# synth :  PC1 = 0.6870686 ; PC2 = 0.2287785 ; beta=0.0060 ; NG=25 ; nd=1 ; alpha=0.4 ; population=849.895449367323
 
-#
-d=sqrt((real$moran-0.138)^2+(real$entropy-0.853)^2+(real$slope+0.30)^2+(real$distance-0.758)^2)
+
+# calib 3 : 
+d=sqrt((real$moran-0.1087)^2+(real$entropy-0.9405)^2+(real$slope+0.413)^2+(real$distance-0.8862)^2)
 data.frame(real[d==min(d),])
-xcor=4501;ycor=33401
+xcor=32001;ycor=17701
+getCoordinates(rasterfile,xcor,ycor)
+matrix(c(moran=0.1087,distance=0.8862,entropy=0.9405,slope=-0.413),nrow=1)%*%rot
+# real : PC1 = 1.017064 ; PC2 = 0.3510089 ; coordinates : -2.561874,41.30203 - Spain, Castilla et Leon, Soria
+# synth : PC1 = 1.005976 PC2 = 0.3950987 ; beta=0.166; NG=100;nd=1;alpha=1;population=10017.238452906771
+
+# calib 4 :
+# PC1 0, PC2 0.6
+d=sqrt((sres$PC1)^2+(sres$PC2-0.6)^2)
+data.frame(sres[d==min(d),])
+matrix(c(moran=0.14263,distance=0.2194,entropy=0.7156,slope=-1.5606),nrow=1)%*%rot
+d=sqrt((real$moran-0.14263)^2+(real$entropy-0.7156)^2+(real$slope+1.5606)^2+(real$distance-0.2194)^2)
+data.frame(real[d==min(d),])
+xcor=36801;ycor=48801
+d=sqrt((real$PC1)^2+(real$PC2-0.6)^2)
+data.frame(real[d==min(d),])
+xcor=27801;ycor=40601;getCoordinates(rasterfile,xcor,ycor)
+# real : PC1 = -0.00177 ; PC2 = 0.6006739 ; coordinates : 25.7361,44.69989 - Romania, Bucharest
+# synth : PC1 = -0.0543461 PC2 = 0.5798307 ; beta=0.432;NG=1273;nd=4;alpha=3.87;population=63024.359885979036
 
 
+#################
 
+# extract the real configurations
 
-conf=extractSubRaster(paste0(Sys.getenv('CN_HOME'),'/Data/PopulationDensity/raw/popu01clcv5.tif'),r = xcor ,c=ycor,size=500,factor = 0.2)
+conf=extractSubRaster(rasterfile,r = xcor ,c=ycor,size=500,factor = 0.2)
 write.table(conf,file=paste0('conf/x',xcor,'y',ycor,'.csv'),row.names = F,col.names = F,sep=';')
 
+
+
+
+# -- Tests --
 
 #
 #  most right in synth point cloud
@@ -223,9 +263,4 @@ xcor = 21001;ycor=21101
 d=sqrt((sres$moran-0.2409049)^2+(sres$entropy-0.889)^2+(sres$slope+1.99)^2+(sres$distance-0.676)^2)
 data.frame(sres[d==min(d),])
 
-
-
-
-conf=extractSubRaster(paste0(Sys.getenv('CN_HOME'),'/Data/PopulationDensity/raw/popu01clcv5.tif'),r = xcor ,c=ycor,size=500,factor = 0.2)
-write.table(conf,file=paste0('conf/x',xcor,'y',ycor,'.csv'),row.names = F,col.names = F,sep=';')
 

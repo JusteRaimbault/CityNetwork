@@ -1,11 +1,13 @@
 library(ggplot2)
 library(dplyr)
 
+resdir=paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Density/Analytic/')
+
 
 sim1dprefAttDiff<-function(x0,alpha,beta,growth,t,nd=1,timesample=0,random=T,withDiffs=F){
   res<-x0
   tres=data.frame(t=rep(0,length(x0)),x=1:length(x0),y=x0,p=x0/sum(x0))
-  if(withDiffs){tres=cbind(tres,data.frame(dx=rep(0,nrow(tres)),dt=rep(0,nrow(tres))))}
+  if(withDiffs){tres=cbind(tres,data.frame(dx=rep(0,nrow(tres)),dt=rep(0,nrow(tres)),dtproba=rep(0,nrow(tres))))}
   for(t in 1:t){
     tmp = res
     if(withDiffs){prevres=res}
@@ -23,8 +25,8 @@ sim1dprefAttDiff<-function(x0,alpha,beta,growth,t,nd=1,timesample=0,random=T,wit
         Palpha=sum(res^alpha)
         dx = c(0,diff(res));dx2 = c(0,diff(dx))
         dxterm = ng*res^alpha/Palpha + alpha*beta*(alpha - 1)/2*ng*res^(alpha-2)/Palpha*dx^2 + beta/2*dx2*(1 + alpha*ng*res^(alpha-1)/Palpha)
-        dtterm = res - prevres
-        currentdata=cbind(currentdata,dx=dxterm,dt=dtterm)
+        dtterm = res - prevres;dtproba=res/sum(res) - prevres/sum(prevres)
+        currentdata=cbind(currentdata,dx=dxterm,dt=dtterm,dtproba=dtproba)
       }
       show(t);tres=rbind(tres,currentdata)
     }
@@ -38,7 +40,7 @@ res<-sim1dprefAttDiff(c(rep(0,100),1,rep(0,100)),0.5,0.1,10,100000)
 plot(1:ncol(res),res[nrow(res),],type='l')
 
 
-res<-sim1dprefAttDiff(c(rep(0,100),1,rep(0,100)),1.0,0.01,10,2000000,timesample=10000,random = F)
+res<-sim1dprefAttDiff(c(rep(0,100),1,rep(0,100)),3.0,0.01,10,1000000,timesample=10000,random = T)
 g=ggplot(res[res$t>2000,],aes(x=x,y=p,colour=t,group=t))
 #g=ggplot(res,aes(x=x,y=p,colour=t,group=t))
 g+geom_line()#+scale_y_log10()
@@ -59,6 +61,10 @@ g+geom_line()
 res<-sim1dprefAttDiff(c(rep(0,50),1,rep(0,100),1,rep(0,50)),2.4,0.001,10,100000,timesample=1000)
 g=ggplot(res[res$t>2000,],aes(x=x,y=p,colour=t,group=t))
 g+geom_line()
+# !! -> has not converged !!
+res<-sim1dprefAttDiff(c(rep(0,50),1,rep(0,100),1,rep(0,50)),2.4,0.001,10,10000000,timesample=100000)
+g=ggplot(res[res$t>2000,],aes(x=x,y=p,colour=t,group=t))
+g+geom_line()
 
 g=ggplot(res%>%group_by(t)%>%summarise(pop=sum(y)),aes(x=t,y=c(0,diff(pop))))
 g+geom_line()
@@ -77,7 +83,6 @@ g+geom_line()
 
 # bifurcations
 
-resdir=paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Density/Analytic/')
 
 res<-sim1dprefAttDiff(c(rep(c(rep(0,10),rep(1,10),rep(0,10)),5)),1.4,0.1,10,2000,timesample=1)
 g=ggplot(res,aes(x=x,y=p,colour=t,group=t))
@@ -113,7 +118,9 @@ ggsave(paste0(resdir,'bifurcations.png'),width=30,height=20,units='cm')
 # manual check
 alpha=0.5;beta=0.1;ng=10;
 #res<-sim1dprefAttDiff(c(rep(0,1000),1,rep(0,1000)),alpha,beta,ng,1000,timesample = 1,random = F)
-res<-sim1dprefAttDiff(c(rep(1,1000)),alpha,beta,ng,10000000,timesample = 100000,random = F,withDiffs = T)
+#res<-sim1dprefAttDiff(c(rep(1,1000)),alpha,beta,ng,10000000,timesample = 100000,random = F,withDiffs = T)
+res<-sim1dprefAttDiff(exp(-(-200:200/40)^2),alpha,beta,ng,100000,timesample = 1000,random = F,withDiffs = T)
+
 
 
 g=ggplot(diffs[abs(diffs$dt-diffs$dx)<1e-5,],aes(x=t,y=x,fill=cut(dt-dx,11)))
@@ -131,6 +138,41 @@ plot(diffs$dt[diffs$x==1000&diffs$t>400]-diffs$dx[diffs$x==1000&diffs$t>400],typ
 
 
 
+# stationarity ?
+alpha=3.5;beta=0.01;ng=10;
+res<-sim1dprefAttDiff(exp(-(-200:200/40)^2),alpha,beta,ng,1000000,timesample = 10000,random = F,withDiffs = T)
+g=ggplot(res[abs(res$dtproba)<1e-8,],aes(x=t,y=x,fill=cut(dtproba,11)))
+g+geom_raster()+scale_fill_brewer(palette = "Spectral")#+stdtheme
+
+g=ggplot(res,aes(x=t,y=x,fill=cut(dt,11)))
+g+geom_raster()+scale_fill_brewer(palette = "Spectral")#+stdtheme
 
 
+g=ggplot(res,aes(x=x,y=y,colour=t,group=t))
+g+geom_line()
+
+
+
+#####
+## 'numerical' proof convergence : facet alpha, beta
+
+res=data.frame()
+for(alpha in c(0.5,1.0,1.5)){
+  for(lbeta in c(-2,-1.5,-1)){
+    beta = 10^lbeta
+    show(paste0("alpha=",alpha,',beta=',beta))
+    currentres=sim1dprefAttDiff(c(rep(0,100),1,rep(0,100)),alpha,beta,10,1000000,timesample=10000,random = F)
+    res=rbind(res,cbind(currentres,data.frame(alpha=rep(alpha,nrow(currentres)),beta=rep(beta,nrow(currentres)))))
+  }
+}
+
+g=ggplot(res[res$t>2000,],aes(x=x,y=p,colour=t,group=t))
+g+geom_line()+facet_grid(alpha~beta,scales='free')+stdtheme
+ggsave(paste0(resdir,'stationary.png'),width=30,height=20,units='cm')
+
+sres = res%>%group_by(alpha,beta)%>%filter(t==max(t))%>%summarise(pmax=max(p))
+
+g=ggplot(sres,aes(x=beta,y=pmax,col=alpha,group=alpha))
+g+geom_line()
+# -> interesting !
 

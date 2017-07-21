@@ -1,6 +1,14 @@
 
 
 
+
+## Zipf
+
+* Ven 21 jul 2017 11:09:53 CST * 
+
+https://arxiv.org/pdf/1707.04285.pdf : lien Gabaix ; rigorous analysis of Zipf law ?
+
+
 ## misc
 
 * Jeu 22 jui 2017 00:06:26 CST * 

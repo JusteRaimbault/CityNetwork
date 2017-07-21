@@ -100,7 +100,7 @@ sp-diffusion
 sp-diffusion
 0
 0.5
-0.166
+0.432
 0.001
 1
 NIL
@@ -115,7 +115,7 @@ sp-growth-rate
 sp-growth-rate
 0
 50000
-750
+1273
 1
 1
 NIL
@@ -164,7 +164,7 @@ sp-diffusion-steps
 sp-diffusion-steps
 0
 10
-1
+4
 1
 1
 NIL
@@ -179,7 +179,7 @@ sp-alpha-localization
 sp-alpha-localization
 0
 10
-1.46
+3.87
 0.01
 1
 NIL
@@ -202,7 +202,7 @@ INPUTBOX
 959
 487
 real-pattern-file
-conf/x21001y21101.csv
+conf/x27801y40601.csv
 1
 1
 String
@@ -233,7 +233,7 @@ sp-max-pop
 sp-max-pop
 0
 1000000
-987260
+62470
 10
 1
 NIL
@@ -444,7 +444,7 @@ INPUTBOX
 981
 672
 save-file
-/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Density/Examples/calibration/calib3_
+/Users/Juste/Documents/ComplexSystems/CityNetwork/Results/Synthetic/Density/Examples/calibration/calib4
 1
 1
 String

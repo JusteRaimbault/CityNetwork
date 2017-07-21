@@ -7,7 +7,7 @@
 
 \subsection*{Partial Differential Equation}
 
-We propose to derive the PDE in a simplified setting. To recall the configuration given in main text, the system has one dimension, such that $x\in \left[0;1\right]$ with $1/\delta x$ cells of size $\delta x$, and we use the expected values of cell population $p(x,t) = \Eb{P(x,t)}$. We furthermore take $n_d=1$. Larger values would imply derivatives at an order higher than 2 but the following results on the existence of a stationary solution should still hold. 
+We propose to derive the PDE in a simplified setting. To recall the configuration given in main text, the system has one dimension, such that $x\in \mathbb{R}$ with $1/\delta x$ cells of size $\delta x$, and we use the expected values of cell population $p(x,t) = \Eb{P(x,t)}$. We furthermore take $n_d=1$. Larger values would imply derivatives at an order higher than 2 but the following results on the existence of a stationary solution should still hold. 
 
 Denoting $\tilde{p}(x,t)$ the intermediate populations obtained after the aggregation stage, we have
 
@@ -35,12 +35,47 @@ Assuming the partial derivatives exist, and as $\delta x \ll 1$, we make the app
 and therefore at the second order
 
 \[
-p(x,t+\delta t) = \tilde{p} + \frac{\beta \delta x}{2}
+p(x,t+\delta t) = \tilde{p} + \frac{\beta \delta x^2}{2} \cdot \frac{\partial^2 \tilde{p}}{\partial x^2}
 \]
 
+Substituting $\tilde{p}$ gives
+
+\[
+\begin{split}
+\frac{\partial^2 \tilde{p}}{\partial x^2} & = \frac{\partial^2 p}{\partial x^2} + \frac{N_G}{P_\alpha}\cdot \frac{\partial}{\partial x}\left[\alpha \frac{\partial p}{\partial x} p^{\alpha - 1}\right]\\
+& = \frac{\partial^2 p}{\partial x^2} + \alpha \frac{N_G}{P_\alpha} \left[\frac{\partial^2 p}{\partial x^2} p^{\alpha - 1} + (\alpha - 1) \left( \frac{\partial p}{\partial x}\right)^2 p^{\alpha - 2}\right]
+\end{split}
+\]
+
+By supposing that $\frac{\partial p}{\partial t}$ exists and that $\delta t$ is small, we have $p(x,t+\delta t) - p(x,t) \simeq \delta t\frac{\partial p}{\partial t}$, what finally yields , by combining the results above, the partial differential equation
 
 
-\subsection*{Characteristic stationary distance}
+\begin{equation}\label{eq:pde}
+\delta t \cdot \frac{\partial p}{\partial t} = \frac{N_G \cdot p^{\alpha}}{P_{\alpha}(t)} + \frac{\alpha \beta (\alpha - 1) \delta x^2}{2}\cdot \frac{N_G \cdot p^{\alpha-2}}{P_{\alpha}(t)} \cdot \left(\frac{\partial p}{\partial x}\right)^2 + \frac{\beta \delta x^2}{2} \cdot \frac{\partial^2 p}{\partial x^2} \cdot\left[ 1 + \alpha \frac{N_G p^{\alpha - 1}}{P_{\alpha(t)}} \right]
+\end{equation}
+
+
+
+Initial conditions should be specified as $p_0(x) = p(x,t_0)$. To have a well-posed problem similar to more classical PDE problems, we need to assume a domain and boundary conditions. A finite support is expressed by $p(x,t)=0$ for all $t$ and $x$ such that $\left|x\right|>x_m$.
+
+%An infinite domain implies that density, in the sense of population proportion $d(x,t) = \frac{p(x,t)}{P_1(t)}$, goes to zero anywhere when time goes to infinity. Indeed, $P_1(t)=N_G\cdot t$. If $d(x,t)$ does not vanish, there exist $t_1$ such that  -> not that simple indeed
+
+
+\subsection*{Stationary solution for density}
+
+The non-linearity and the integral terms making the equation above out of the scope for analytical resolution, we study its behavior numerically in some case. We show that on a finite domain
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figuresraw/stationary}
+\caption{}
+\label{}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -53,6 +88,9 @@ The previous analyses were done on a deterministic version of the system. How ca
 
 
 
+
+% \subsection*{Stationary radius}
+% indeed at intermediate time - scaling behavior interesting, but not mature.
 
 
 

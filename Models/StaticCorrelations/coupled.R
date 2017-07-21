@@ -14,7 +14,8 @@ densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid
 
 
 #global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost";global.nwdb='nwtest_simpl_4'
-global.dbport=5433;global.dbuser="juste";global.dbhost="";global.nwdb='china_nw_simpl_4'
+#global.dbport=5433;global.dbuser="juste";global.dbhost="";global.nwdb='china_nw_simpl_4'
+global.nwdb='china'
 mongo<-mongoDbConnect('china','127.0.0.1',29019)
 
 latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
