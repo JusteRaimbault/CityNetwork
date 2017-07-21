@@ -24,7 +24,8 @@ sim1dprefAttDiff<-function(x0,alpha,beta,growth,t,nd=1,timesample=0,random=T,wit
         dtterm = res - prevres;dtproba=res/sum(res) - prevres/sum(prevres)
         currentdata=cbind(currentdata,dx=dxterm,dt=dtterm,dtproba=dtproba)
       }
-      show(t);tres=rbind(tres,currentdata)
+      #show(t);
+      tres=rbind(tres,currentdata)
     }
   }
   if(timesample==0){return(res)}
@@ -39,7 +40,7 @@ getRadius<-function(alpha,beta){
 
 getPmax<-function(alpha,beta){
   sim<-sim1dprefAttDiff(c(rep(0,100),1,rep(0,100)),alpha,beta,10,1000000,timesample=10000,random = F)
-  return(max(sim$p[sim$t==max(sim$t),]))
+  return(max(sim$p[sim$t==max(sim$t)]))
 }
 
 params = data.frame()
@@ -57,8 +58,9 @@ registerDoParallel(cl)
 startTime = proc.time()[3]
 
 res <- foreach(i=1:nrow(params)) %dopar% {
-  show(paste0(i,'/',nrow(params)))
+   show(paste0(i,'/',nrow(params)))
    alpha = params[i,1];beta=params[i,2]
+   show(paste0('alpha=',alpha,';beta=',beta))
    return(getPmax(alpha,beta))
    #return(getRadius(alpha,beta))
 }
