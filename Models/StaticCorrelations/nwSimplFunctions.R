@@ -218,7 +218,8 @@ graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbparams=defaultDBParam
     fields = '{"ORIGIN":1,"DESTINATIO":1,"LENGTH":1,"SPEED":1,"ROADTYPE":1}'
     data <- dbGetQueryForKeys(mongo,'network',query,fields)
     dbDisconnect(mongo)
-    names(data)<-c("origin","destination","length","speed","roadtype")
+    show(paste0('data size : ',length(data)))
+    if(length(data)>0){names(data)<-c("origin","destination","length","speed","roadtype")}
   }
   
   if(length(data)==0){return(list())}

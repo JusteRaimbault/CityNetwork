@@ -30,8 +30,8 @@ offset = 50
 # estimated comp time : 1461240*0.02539683/20/60 ~ 30hours
 # (upper bound, without empty areas)
 
-#purpose = paste0(areaname,'coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
-purpose = paste0('testmongo_',areaname,'_coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+purpose = paste0(areaname,'coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
+#purpose = paste0('testmongo_',areaname,'_coupled_areasize',areasize,'_offset',offset,'_factor',factor,'_')
 
 # coords using lon-lat
 coords <- getCoordsOffset(densraster,lonmin,latmin,lonmax,latmax,areasize,offset)
@@ -51,9 +51,11 @@ startTime = proc.time()[3]
 #values = data.frame()
 #for(i in 1:nrow(coords)){show(i)
 
-#res <- foreach(i=1:nrow(coords)) %dopar% {
-res <- foreach(i=sample(1:nrow(coords),size = 500,replace = F)) %dopar% {
-  #show(i)
+res <- foreach(i=1:nrow(coords)) %dopar% {
+#res <- foreach(i=sample(1:nrow(coords),size = 500,replace = F)) %dopar% {
+  show(paste0('row : ',i,'/',nrow(coords)))
+  library(RMongo)
+  mongo<-mongoDbConnect('china','127.0.0.1',29019)
   tryCatch({
   source('morpho.R');source('nwSimplFunctions.R');source('network.R')
   morphoFunctions<-c(summaryPopulation,rankSizeSlope,moranIndex,averageDistance,entropy)
@@ -64,6 +66,7 @@ res <- foreach(i=sample(1:nrow(coords),size = 500,replace = F)) %dopar% {
   y=rowFromY(densraster,latmin);x=colFromX(densraster,lonmin);
   e<-getValuesBlock(densraster,row=y,nrows=areasize,col=x,ncols=areasize)
   g = graphFromEdges(graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbparams=defaultDBParams(dbname=global.nwdb)),densraster,from_query = FALSE)
+  show(paste0('graph : ',vcount(g)))
   if(vcount(g)>0){V(g)$population <- getPopulation(g,densraster)}
   xcor = (lonmin + lonmax / 2);ycor = (latmin + latmax) / 2
   nores=c(xcor=xcor,ycor=ycor)
@@ -81,7 +84,7 @@ res <- foreach(i=sample(1:nrow(coords),size = 500,replace = F)) %dopar% {
     ,error=function(e){return(res=nores)})
   }else{res=nores}
   return(res)
-  },error=function(e){return(res=NA)})
+  },error=function(e){show(e);return(res=NA)})
   #values=rbind(values,res)
   #colnames(values)<-names(res)
 }
