@@ -39,7 +39,7 @@ getRadius<-function(alpha,beta){
 
 getPmax<-function(alpha,beta){
   sim<-sim1dprefAttDiff(c(rep(0,100),1,rep(0,100)),alpha,beta,10,1000000,timesample=10000,random = F)
-  return(max(sim$p[sim$t==max(sim$t),]))
+  return(max(sim$p[sim$t==max(sim$t)]))
 }
 
 params = data.frame()
