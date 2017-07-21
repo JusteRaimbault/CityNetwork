@@ -24,8 +24,7 @@ sim1dprefAttDiff<-function(x0,alpha,beta,growth,t,nd=1,timesample=0,random=T,wit
         dtterm = res - prevres;dtproba=res/sum(res) - prevres/sum(prevres)
         currentdata=cbind(currentdata,dx=dxterm,dt=dtterm,dtproba=dtproba)
       }
-      #show(t);
-      tres=rbind(tres,currentdata)
+      show(t);tres=rbind(tres,currentdata)
     }
   }
   if(timesample==0){return(res)}
@@ -58,9 +57,8 @@ registerDoParallel(cl)
 startTime = proc.time()[3]
 
 res <- foreach(i=1:nrow(params)) %dopar% {
-   show(paste0(i,'/',nrow(params)))
+  show(paste0(i,'/',nrow(params)))
    alpha = params[i,1];beta=params[i,2]
-   show(paste0('alpha=',alpha,';beta=',beta))
    return(getPmax(alpha,beta))
    #return(getRadius(alpha,beta))
 }
@@ -100,5 +98,23 @@ save(res,file='res/pmax.RData')
 # g+geom_line()
 # 
 
+
+####
+## pmax
+load('res/pmax.RData')
+library(ggplot2)
+resdir=paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Density/Analytic/')
+d = data.frame(params,pmax=unlist(res))
+
+g=ggplot(d,aes(x=alpha,y=pmax,color=beta,group=beta))
+g+geom_line()+stdtheme
+ggsave(paste0(resdir,'pmax_alpha.png'),width=15,height=10,units='cm')
+
+g=ggplot(d,aes(x=log(beta),y=pmax,color=alpha,group=alpha))
+g+geom_line()+stdtheme
+ggsave(paste0(resdir,'pmax_logbeta.png'),width=15,height=10,units='cm')
+
+#g=ggplot(d[log(d$beta)>-5,],aes(x=log(beta),y=pmax,color=alpha,group=alpha))
+#g+geom_line()
 
 
