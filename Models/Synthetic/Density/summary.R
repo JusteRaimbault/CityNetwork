@@ -159,8 +159,14 @@ sres=cbind(sres,pcsynth)
 pcreal = as.tbl(data.frame(as.matrix(real[,c("moran","distance","entropy","slope")])%*%pr$rotation))
 real=cbind(real,pcreal)
 
+
 g=ggplot(sres,aes(x=PC1,y=PC2,colour=beta))
-g+geom_point(pch='.')
+g+geom_point()+stdtheme
+ggsave(file=paste0(resdir,'pc_colbeta.png'),width=14.6,height=12,units='in',dpi = 300)
+
+g=ggplot(sres,aes(x=PC1,y=PC2,colour=alpha))
+g+geom_point()+stdtheme
+ggsave(file=paste0(resdir,'pc_colalpha.png'),width=14.6,height=12,units='in',dpi = 300)
 
 
 g=ggplot(sres,aes(x=PC1,y=PC2))

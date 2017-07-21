@@ -14,7 +14,9 @@ montage figuresraw/slope_alpha_diffsteps1_rate13-26.png figuresraw/slope_alpha_d
 cp figuresraw/bifurcations.png figures/Fig4.png
 
 # fig 5
-
+montage figuresraw/pc_colalpha.png figuresraw/pc_colbeta.png -tile 2x1 -geometry +40+0 figuresraw/fig5tmp.png
+montage figuresraw/fig5tmp.png figuresraw/synth.png -tile 1x2 -geometry +0+10 figures/Fig5.png
+rm figuresraw/fig5tmp.png
 
 # fig 6
 cp figuresraw/scaling_entropy_moran.png figures/Fig6.png
