@@ -252,22 +252,72 @@
   }
 
 
+      
+        
+        
+%%%%%%%%%%
+%  Figures
+  
+               
+% to adjust figure size
+% \begin{adjustwidth}[]{leftmargin}{rightmargin}
+% optionnal arg switches between odd and even pages
+
+\usepackage[strict]{changepage}
+
+\let\oldfigure\figure
+\let\oldendfigure\endfigure          
+               
+\RenewDocumentEnvironment{figure}{o}
+ {%
+  \IfNoValueTF{#1}
+   {
+     \oldfigure
+   }%
+    {
+     \oldfigure[#1]  
+    }
+    \begin{adjustwidth*}{-2cm}{-4cm}
+ }
+ {\end{adjustwidth*}
+ \oldendfigure}
+        
+        
+        
+
 \let\oldcaption\caption
 
-\RenewDocumentCommand\caption {o o m m}
+\RenewDocumentCommand\caption {s o o m m}
    {
-        \IfNoValueTF{#1}
+   \captionsetup{font=small,margin={2cm,-2cm},width=\linewidth}%}%
+   \IfBooleanTF{#1}   
+        {
+        \IfNoValueTF{#2}
           {
-           \ifthenelse{\thelanguage=0}{\oldcaption{#3}}{}
-           \ifthenelse{\thelanguage=1}{\oldcaption{#4}}{}
+           \ifthenelse{\thelanguage=0}{\oldcaption*{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldcaption*{#5}}{}
+           }       % no TOC arg
+          {
+           \ifthenelse{\thelanguage=0}{\oldcaption*[#2]{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldcaption*[#3]{#5}}{}
+           }
+        }  
+      {
+        \IfNoValueTF{#2}
+          {
+           \ifthenelse{\thelanguage=0}{\oldcaption{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldcaption{#5}}{}
            }       % no TOC arg
           { 
-           \ifthenelse{\thelanguage=0}{\oldcaption[#1]{#3}}{}
-           \ifthenelse{\thelanguage=1}{\oldcaption[#2]{#4}}{}
+           \ifthenelse{\thelanguage=0}{\oldcaption[#2]{#4}}{}
+           \ifthenelse{\thelanguage=1}{\oldcaption[#3]{#5}}{}
            }
+           
+        }
       } 
       
-      
+        
+        
         
 %%%%%%%%%%
 %  Citation
