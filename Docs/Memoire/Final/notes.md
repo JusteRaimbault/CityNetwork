@@ -2,6 +2,15 @@
 
 
 
+
+## Synergy
+
+* Lun 24 jul 2017 09:45:50 CST * 
+
+https://arxiv.org/pdf/1707.06662.pdf -> Klaus Jaffe http://jasss.soc.surrey.ac.uk/5/3/3/Jaffe.html
+
+
+
 ## Zipf
 
 * Ven 21 jul 2017 11:09:53 CST * 

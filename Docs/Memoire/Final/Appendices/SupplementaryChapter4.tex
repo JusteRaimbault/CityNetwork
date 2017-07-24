@@ -4,6 +4,7 @@
 
 %----------------------------------------------------------------------------------------
 
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \section{Static Correlations}{Correlations Statiques}
@@ -30,6 +31,29 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Network Simplification Algorithm}{Algorithme de Simplification du Réseau}
+
+ 
+ 
+More precisely we use the following procedure :
+\begin{itemize}
+\item a background raster (which resolution $r$ gives the snapping parameter for aggregation) is constructed from a reference raster and the extent of network. This grid gives spatial aggregation units for network nodes.
+\item for each feature of the road dataset, corresponding connected raster cells are stored with corresponding impedance and distance in a sparse adjacency matrix.
+\item Network is simplified by iterative suppression of nodes with degree two, with keeping link speed and real length to their effective value.
+\end{itemize}
+
+% \cite{2016arXiv161101890B} : interactive appli for network simplification
+
+
+
+\paragraph{Implementation}{Implémentation}
+
+A \texttt{PostGIS} database is used to store raw and simplified network, in order to perform efficient spatial requests, compared for example to initial \texttt{osm} data formats (\texttt{osm} or \texttt{pbf}). However the size of storage of data into this base is much higher (factor 10) so processing was parallelized between european countries. Consistence is ensured by the use of the same common density raster as simplification canvas. Final network is stored into the Postgis database for efficient indicator computation given a spatial extent. \comment{(Florent) y'a t'il un effet de bord dans les carrés 50x50 qui se trouvent à la frontière de 2 pays}[pas avec nouvelle parallelisation pas par pays mais par split and merge (TODO rewrite nouvel algo)]
+
+
+\paragraph{Sensitivity to simplification parameters}{Sensibilité aux paramètres de simplification}
+
+Sensitivity of indicators to raster resolution and to degree simplification algorithm must still be tested to ensure the relevance of data preprocessing.
+
 
 
 

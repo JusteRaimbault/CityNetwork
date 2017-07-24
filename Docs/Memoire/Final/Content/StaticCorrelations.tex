@@ -71,16 +71,15 @@ Le but n'étant pas de comparer les territoires sur lesquels ces indicateurs son
 
 \paragraph{Urban Morphology}{Morphologie Urbaine}
 
-%  biblio spatial structure etc Florent : paper density
 
+\bpar{
+\cite{guerois2008built} studies the form of European cities using a simple measure of density slopes from the center to the periphery. We need however quantities having a certain level of robustness and invariance. For example, two polycentric cities should be classified as morphologically close whereas a direct comparison of distributions (with the Earth Mover Distance for example) could give a very high distance between configurations depending on center positions. The use of fractal indexes is a possibility suggested by~\cite{2016arXiv160808839C}. We choose to refer to the literature in Urban Morphology which proposes an extensive set of indicators to describe urban form~\cite{tsai2005quantifying}. The number of dimensions can be reduced to obtain a robust description with a few number of independent indicators~\cite{Schwarz201029}. Note that here we consider indicators on population density only, and that more elaborated considerations on Urban Form include for example the distribution of economic opportunities and the combination of these two fields through accessibility measures. For the choice of indicators, we follow the analysis done in~\cite{le2015forme} in which a morphological typology of large european cities is obtained.
+}{
+\cite{guerois2008built} étudie la forme des villes Européennes par l'utilisation d'une mesure simple des gradients de densité du centre vers la périphérie. Nous avons cependant besoin de mesures ayant un certain niveau de robustesse et d'invariance. Par exemple, deux villes polycentriques devraient être classifiées comme morphologiquement proches tandis qu'une comparaison directe des distributions (avec une distance de Monge par exemple) pourra donner une distance très élevée entre les configurations selon la position des centres. L'utilisation d'indices issus de l'analyse fractale est une possibilité suggérée par~\cite{2016arXiv160808839C}. Nous choisissons de nous référer à la littérature en morphologie urbaine qui propose des jeux d'indicateurs variés pour décrire la forme urbaine~\cite{tsai2005quantifying}. Le nombre de dimensions peut être réduit pour obtenir une description robuste avec un petit nombre d'indicateurs indépendants~\cite{Schwarz201029}. Il faut noter que nous ne considérons ici des indicateurs sur la densité de population seule, et que des considérations plus élaborées sur la forme urbaine incluent par exemple la distribution des opportunités économiques et la combinaison de ces deux champs par des mesures d'accessibilité. Pour le choix des indicateurs, nous suivons l'analyse faite dans~\cite{le2015forme} où une typologie morphologique des grandes villes européennes est obtenue.
+}
 
-% def des indicateurs : papier morphologie
-
-
- \cite{guerois2008built} studies the form of European cities using a simple measure of density slopes from the center to the periphery. We need however quantities having a certain level of robustness and invariance. For example, two polycentric cities should be classified as morphologically close whereas a direct comparison of distributions (with the Earth Mover Distance for example) could give a very high distance between configurations depending on center positions. The use of fractal indexes is a possibility suggested by~\cite{2016arXiv160808839C}. We choose to refer to the literature in Urban Morphology which proposes an extensive set of indicators to describe urban form~\cite{tsai2005quantifying}. The number of dimensions can be reduced to obtain a robust description with a few number of independent indicators~\cite{Schwarz201029}. Note that here we consider indicators on population density only, and that more elaborated considerations on Urban Form include for example the distribution of economic opportunities and the combination of these two fields through accessibility measures. For the choice of indicators, we follow the analysis done in~\cite{le2015forme} in which a morphological typology of large european cities is obtained.
-
-
-We give now the formal definition of morphological indicators. Let write $M=N^2$ the number of cells, $d_{ij}$ the distance between cells $i,j$, and $P=\sum_{i=1}^{N} P_i$ total population. We measure Urban Form using:
+\bpar{
+We give now the formal definition of morphological indicators. We consider gridded population data $(P_i)_{1\leq i \leq N^2}$, write $M=N^2$ the number of cells, $d_{ij}$ the distance between cells $i,j$, and $P=\sum_{i=1}^{M} P_i$ total population. We measure Urban Form using:
 
 \begin{enumerate}
 \item Rank-size slope $\gamma$, expressing the degree of hierarchy in the distribution, computed by fitting with Ordinary Least Squares a power law distribution by $\ln \left( P_{\tilde{i}}/P_0\right) \sim k + \gamma\cdot \ln \left(\tilde{i}/i_0\right)$ where $\tilde{i}$ are the indexes of the distribution sorted in decreasing order. It is always negative, and values close to zero mean a flat distribution.
@@ -100,8 +99,30 @@ Positive values will imply aggregation spots (``density centers''), negative val
 \]
 where $d_M$ is a normalisation constant taken as the diagonal of the world in our case.
 \end{enumerate}
+}{
+Nous donnons à présent une définition formelle des indicateurs morphologiques. Nous considérons des données de population en grille $(P_i)_{1\leq i \leq N^2}$, écrivons $M=N^2$ le nombre de cellules, $d_{ij}$ la distance entre les cellules $i,j$, et $P=\sum_{i=1}^{M} P_i$ la population totale. La forme urbaine est mesurée par : 
 
+\begin{enumerate}
+\item Pente de la loi rang-taille $\gamma$, qui exprime le degré de hiérarchie de la distribution, calculé en ajustant une loi de puissance par Moindres Carrés Ordinaires par $\ln \left( P_{\tilde{i}}/P_0\right) \sim k + \gamma\cdot \ln \left(\tilde{i}/i_0\right)$ où $\tilde{i}$ sont les indices de la distribution triée de manière décroissante. Elle est toujours négative, et des valeurs proches de zéro signifient une distribution plate.
+\item Entropie de la distribution, qui exprime l'uniformité de la distribution:
+\begin{equation}
+\mathcal{E} = \sum_{i=1}^{M}\frac{P_i}{P}\cdot \ln{\frac{P_i}{P}}
+\end{equation}
+$\mathcal{E}=0$ signifie que toute la population est dans une cellule tandis que $\mathcal{E}=0$ signifie que la population est distribuée uniformément.
+\item L'auto-corrélation spatiale donnée par l'indice de Moran, avec des poids spatiaux simples donnés par $w_{ij} = 1/d_{ij}$
+\[
+I = \frac{\sum_{i\neq j} w_{ij} \left(P_i - \bar{P}\right)\cdot\left(P_j - \bar{P}\right)}{\sum_{i\neq j} w_{ij} \sum_{i}{\left( P_i - \bar{P}\right)}^2}
+\]
+Des valeurs positives impliques des lieux d'agrégation (``centres de densité''), des valeurs négatives des fortes variations locales, tandis que $I=0$ correspond à des valeurs de population totalement aléatoires.
+\item Distance moyenne entre individus, qui capture la concentration de la population
+\[
+\bar{d} = \frac{1}{d_M}\cdot \sum_{i<j} \frac{P_i P_j}{P^2} \cdot d_{ij}
+\]
+où $d_M$ est une constante de normalisation que nous prenons comme la diagonale de l'étendue considérée dans notre cas.
+\end{enumerate}
+}
 
+Les deux premiers indexes ne sont pas spatiaux, mais nécessaires pour une bonne qualification des distributions de population, et sont complétés par les deux derniers prenant en compte l'espace.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -111,19 +132,23 @@ where $d_M$ is a normalisation constant taken as the diagonal of the world in ou
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
-\includegraphics[width=\textwidth]{Figures/Density/Fig1}
+\centering
+\includegraphics[width=0.9\linewidth]{Figures/Density/Fig1}
 %\includegraphics[width=\textwidth]{figures/indics_morpho_discrquantiles}\\
 %\includegraphics[width=0.49\textwidth]{figures/cluster_pca_k5_morpho}
 %\includegraphics[width=0.49\textwidth]{figures/cluster_map_k5_morpho}
-\caption[Empirical values of morphological indicators][Distribution spatiale des indicateurs morphologiques]{\textbf{Empirical values of morphological indicators.} \textit{(Top four maps)} Spatial distribution of the morphological indicators for France. Scale color discretization is done using quantiles to ease map readability. \textit{Bottom Left} Projection of morphological values on the two first components on a Principal Component analysis. Color gives cluster in an unsupervised classification (see text). \textit{Bottom right} Spatial distribution of clusters.}{}
+\caption[Empirical values of morphological indicators][Distribution spatiale des morphologies]{\textbf{Empirical values of morphological indicators.} \textit{(Top four maps)} Spatial distribution of the morphological indicators for France. Scale color discretization is done using quantiles to ease map readability. \textit{(Bottom Left)} Projection of morphological values on the two first components on a Principal Component analysis. Color gives cluster in an unsupervised classification (see text). \textit{(Bottom right)} Spatial distribution of clusters.}{\textbf{Valeurs empiriques de indicateurs morphologiques.} \textit{(Quatre cartes du haut)} Distribution spatiale des indicateurs morphologiques pour la France. La détermination de l'échelle de couleur est faite par quantiles pour faciliter la lecture des cartes. \textit{(Bas gauche)} Projection des valeurs morphologiques sur les deux premières composantes d'une analyse en composantes principales. La couleur donne le cluster dans une classification non supervisée (voir texte). \textit{(Bas droite)} Distribution spatiale des clusters.}
 \label{fig:staticcorrs:empirical}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
+\bpar{
 We compute the morphological measures given above on real urban density data, using the population density grid of the European Union at 100m resolution provided openly by Eurostat~\cite{eurostat}. The choice of the resolution, the spatial range, and the shape of the window on which indicators are computed, is made according to the thematic specifications of the model. We consider 50km wide square windows to be in accordance with the expected spatial range of one model instance. As it also does not make sense to have a too detailed resolution because of data quality, we take $N=100$ and aggregate the initial raster data at a 500m resolution to meet this size on real windows. To have a rather continuous distribution of indicators in space, we overlap windows by setting an offset of 10km between each, what also somehow rules out the question of window shape bias by the ``continuity'' of values. We tested the sensitivity to window size by computing samples with 30km and 100km window sizes and obtained rather similar spatial distributions. We show in Fig.~\ref{fig:empirical} maps giving values of indicators for France only to ease maps readability. The first striking feature is the diversity of morphological patterns across the full territory. The auto-correlation is naturally high in Metropolitan areas, with the Parisian surroundings clearly detached. When looking at other indicators, it is interesting to denote regional regimes: rural areas have much less hierarchy in the South than in the North, whereas the average distance is rather uniformly distributed except for mountain areas. Regions of very high entropy are observed in the Center and South-West. To have a better insight into morphological regimes, we use unsupervised classification with a simple k-means algorithm, for which the number of clusters $k=5$ witnesses a transition in inter-cluster variance. The split between classes is plotted in Fig.~\ref{fig:empirical}, bottom-left panel, where we show measures projected on the two first components of a Principal Component Analysis (explaining 71\% of variance). The map of morphological classes confirms a North-South opposition in a background rural regime (clear green against blue), the existence of mountainous (red) and metropolitan (dark green) regimes. Such a variety of settlements forms will be the target for the model.
-
+}{
+Nous calculons les mesures morphologiques données ci-dessus sur des données réelles de densité, en utilisant
+}
 
 
 
@@ -151,17 +176,6 @@ Data is the European population density grid~\cite{eurostat} \comment{(Florent) 
 
 
 Pour avoir une idée des valeurs typiques de chacun des indicateurs, on pourra se référer aux distributions empiriques données en Appendice~\ref{app:sec:staticcorrelations}.
-
-
-
-%%%%%%%%%%%%%%%%%
-Results : Computation of Indicators
-
-
-\textit{Computation of urban form indicators~\cite{le2015forme} and network indicators on $l_0=10km$ side square}
-
-%\includegraphics[width=\textwidth]{figures/pop-alphaBetweenness}
-
 
 
 
@@ -238,32 +252,10 @@ Pour les segments de rue primaires, nous calculons le réseau topologique pour l
 %\end{columns}
 
 
-
-
-
-
-\paragraph{Simplification algorithm}{Algorithme de simplification}
-
 For a given dataset corresponding to a subset of the overall road network, it is necessary to simplify network structure by spatial aggregation as initial data presents very detailed features and thus a very large numbers of nodes ($\simeq 10^10$ for Europe dataset). \comment{(Florent) c'est un peu confus, tu devrais d'abord dire : ce que tu as, les pb que ça pose, comment les résoudre}
- Such a level of precision is not needed in our study since density data is already aggregated at 500m resolution. It is possible to drastically reduce network size by spatial aggregation of nodes and link replacements. More precisely we use the following procedure :
-\begin{itemize}
-\item a background raster (which resolution $r$ gives the snapping parameter for aggregation) is constructed from a reference raster and the extent of network. This grid gives spatial aggregation units for network nodes.
-\item for each feature of the road dataset, corresponding connected raster cells are stored with corresponding impedance and distance in a sparse adjacency matrix.
-\item Network is simplified by iterative suppression of nodes with degree two, with keeping link speed and real length to their effective value.
-\end{itemize}
-
-% \cite{2016arXiv161101890B} : interactive appli for network simplification
+ Such a level of precision is not needed in our study since density data is already aggregated at 500m resolution. It is possible to drastically reduce network size by spatial aggregation of nodes and link replacements. The detailed algorithm and implementation are detailed in Supplementary material~\ref{app:sec:staticcorrelations}.
 
 
-
-\paragraph{Implementation}{Implémentation}
-
-A \texttt{PostGIS} database is used to store raw and simplified network, in order to perform efficient spatial requests, compared for example to initial \texttt{osm} data formats (\texttt{osm} or \texttt{pbf}). However the size of storage of data into this base is much higher (factor 10) so processing was parallelized between european countries. Consistence is ensured by the use of the same common density raster as simplification canvas. Final network is stored into the Postgis database for efficient indicator computation given a spatial extent. \comment{(Florent) y'a t'il un effet de bord dans les carrés 50x50 qui se trouvent à la frontière de 2 pays}[pas avec nouvelle parallelisation pas par pays mais par split and merge (TODO rewrite nouvel algo)]
-
-
-\paragraph{Sensitivity to simplification parameters}{Sensibilité aux paramètres de simplification}
-
-Sensitivity of indicators to raster resolution and to degree simplification algorithm must still be tested to ensure the relevance of data preprocessing.
 
 
 \subsubsection{Indicators}{Indicateurs}
@@ -295,8 +287,7 @@ Dans notre cas, nous résumons la structure macroscopique du réseau par un jeu 
 \item mean network speed
 \end{itemize}
 
-
-L'accessibilité est bien considérée comme un indicateur de réseau, puisque son calcule implique d'attribuer des poids aux noeuds par un population correspondante.
+L'accessibilité est bien considérée comme un indicateur de réseau, puisque son calcul implique d'attribuer des poids aux noeuds par un population correspondante, et revient ensuite à une centralité de proximité pondérée.
 
 \bpar{
 These indicators are used to capture a rough picture of the structure. Refined work at smaller scales (intra-urban road network) and with more elaborated measures that allow to differentiate more precisely local form, was recently done by Lagesse in~\cite{2015arXiv151201268L}.
@@ -308,7 +299,7 @@ Ces indicateurs sont utilisés pour avoir une idée large de la forme du réseau
 
 \subsubsection{Network Shape and Resilience}{Forme de Réseau et Résilience}
 
-L'idée fondamentale motivant le calcul d'indicateurs de réseau est d'obtenir une réduction de dimension drastique, s'il est possible d'associer certains ``types'' de réseau à des valeurs typiques d'indicateurs. On est très loin d'une connaissance fine de typologies qui associeraient propriétés topologiques, dynamiques et processus de génération du réseau, le tout dans des typologies. De même que lier ces propriétés à des caractéristiques dérivées, comme la résilience qui est une propriété aux définitions diverses pour laquelle~\cite{Gao:2016ty} introduit une approche par la sensibilité des processus dynamiques. Afin d'illustrer d'une part la difficulté de caractériser les réseaux et d'autre part les potentialités offertes par notre base de données, nous développons en Appendice~\ref{app:sec:staticcorrelations} une courte analyse des propriétés de résilience au sens de~\cite{} pour des réseaux typiques.
+L'idée fondamentale motivant le calcul d'indicateurs de réseau est d'obtenir une réduction de dimension drastique, s'il est possible d'associer certains ``types'' de réseau à des valeurs typiques d'indicateurs. On est très loin d'une connaissance fine de typologies qui associeraient propriétés topologiques, dynamiques et processus de génération du réseau, le tout dans des typologies. De même que lier ces propriétés à des caractéristiques dérivées, comme la résilience qui est une propriété aux définitions diverses pour laquelle~\cite{Gao:2016ty} introduit une approche par la sensibilité des processus dynamiques. Afin d'illustrer d'une part la difficulté de caractériser les réseaux et d'autre part les potentialités offertes par notre base de données, nous développons en Appendice~\ref{app:sec:staticcorrelations} une courte analyse des propriétés de résilience au sens de~\cite{ash2007optimizing} pour des réseaux typiques.
 
 
 
@@ -316,7 +307,7 @@ L'idée fondamentale motivant le calcul d'indicateurs de réseau est d'obtenir u
 
 
 \bpar{}{
-Les indicateurs de réseau ont été calculés sur les mêmes zones que les indicateurs de forme urbaine, 
+Les indicateurs de réseau ont été calculés sur les mêmes zones que les indicateurs de forme urbaine, pour pouvoir les mettre en correspondance directe et calculer les correlations par la suite.
 
 }
 
@@ -334,6 +325,7 @@ Les indicateurs de réseau ont été calculés sur les mêmes zones que les indi
 \subsubsection{Spatial Correlations}{Corrélations spatiales}
 
 
+Pour les correlations : zones de correlation pas trop grandes, carrés de base indicateurs plus petits : Computation of urban form indicators~\cite{le2015forme} and network indicators on $l_0=10km$ side square
 
 
 %%%%%%%%%%%%%%%%%
@@ -407,21 +399,10 @@ In \cite{10.1371/journal.pone.0107042} density grids for other countries across 
 
 
 
-
-
-
-
-
-
-
-
-
-
 Empirical Findings (Formalization)
 
 $Y_i\left[\vec{x},t\right]$ spatio-temporal stochastic process, verifies empirically :
 
-\bigskip
 
 \begin{enumerate}
 \item Local spatial autocorrelation is present and bounded by $l_{\rho}$ (in other words the processes are continuous in space) : at any $\vec{x}$ and $t$, $\left|\rho_{\norm{\Delta \vec{x}} < l_{\rho}}\left[Y_i (\vec{x}+\Delta \vec{x},t), Y_i (\vec{x},t) \right]\right| > 0$.
@@ -454,26 +435,10 @@ With spatial stationarity, $<Y_i>_{\vec{x}_0}=<Y_i>_{\vec{x}_1}$, thus $\mathcal
 
 
 
-%
-%
-%%%%%%%%%%%%%%%%%%
-%\sframe{Stationarity and Ergodicity}{
-%
-%\begin{itemize}
-%\item Assuming local ergodicity, spatial local stationarity implies and temporal local stationarity
-%
-%\item Spatial non-stationarity \textbf{at the second order}$\implies$ temporal scale variations $\implies$ non-ergodicity
-%
-%\end{itemize}
-%
-%}
-%
-
-
-
-
 Case study : implications
 % thematic conclusion of the case study on ergodicity
+
+Assuming local ergodicity, spatial local stationarity implies and temporal local stationarity. Spatial non-stationarity \textbf{at the second order}$\implies$ temporal scale variations $\implies$ non-ergodicity
 
 $\rightarrow$ Still points to explore :
 \begin{itemize}
@@ -502,6 +467,7 @@ $\rightarrow$ No direct results on time dynamics, but indirect : spatio-temporal
 
 
 
+\stars
 
 
 
