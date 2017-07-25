@@ -7,7 +7,7 @@ import utils
 
 # extract relevant keywords, using unithood and termhood
 #  @returns [tselected,p_tsel_dico] : dico kw -> termhood ; dico patent -> kws
-def extract_relevant_keywords(corpus,kwLimit,occurence_dicos):
+def extract_relevant_keywords(corpus,kwLimit,eth,occurence_dicos):
     print('Extracting relevant keywords...')
 
     #[ref_kw_dico,kw_ref_dico] = utils.extract_sub_dicos(corpus,occurence_dicos)
@@ -86,7 +86,7 @@ def extract_relevant_keywords(corpus,kwLimit,occurence_dicos):
     for kw in tselected.keys():
         for ki in coocs[kw].keys():
             if ki in tselected :
-                if coocs[kw][ki] >= 10 :
+                if coocs[kw][ki] >= eth :
                     edge_list.append({'edge' : kw+";"+ki, 'weight' : coocs[kw][ki]})
 
     return([tselected,dico,freqselected,edge_list])

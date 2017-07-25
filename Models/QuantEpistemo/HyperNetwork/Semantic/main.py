@@ -21,11 +21,13 @@ def run():
         ## relevance estimation
         source = sys.argv[2]
         mongodb = sys.argv[3]
+        kwLimit = sys.argv[4]
+        eth = sys.argv[5]
 
         # migrate keywords to mongo
         dbmanagement.keywords_to_mongo(source,mongodb)
         # estimate relevance
-        relevant.relevant_full_corpus(50000)
+        relevant.relevant_full_corpus(mongodb,int(kwLimit),int(eth))
         # export dico to R
         #sys.exec()
 

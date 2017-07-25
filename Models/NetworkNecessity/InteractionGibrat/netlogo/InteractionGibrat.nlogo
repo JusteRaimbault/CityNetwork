@@ -177,10 +177,10 @@ NIL
 HORIZONTAL
 
 OUTPUT
-981
-1068
-1378
-1238
+8
+433
+264
+603
 10
 
 SLIDER
@@ -192,7 +192,7 @@ gravity-weight
 gravity-weight
 0
 2e-3
-2.45E-5
+1.18E-4
 1e-6
 1
 NIL
@@ -222,7 +222,7 @@ gravity-decay
 gravity-decay
 1
 500
-0.9500000000000003
+269.4
 0.1
 1
 NIL
@@ -252,7 +252,7 @@ feedback-gamma
 feedback-gamma
 0
 5
-0.8
+1
 0.1
 1
 NIL
@@ -308,10 +308,10 @@ NIL
 1
 
 MONITOR
-29
-494
-86
-539
+226
+24
+283
+69
 date
 current-date
 17
@@ -319,12 +319,12 @@ current-date
 11
 
 BUTTON
-779
-665
-890
-698
+719
+662
+830
+695
 random path
-ask one-of nodes [let p nw:weighted-path-to one-of other nodes \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]
+ask one-of nodes [let p nw:weighted-path-to one-of other nodes \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color pink]]]]
 NIL
 1
 T
@@ -336,10 +336,10 @@ NIL
 1
 
 BUTTON
-891
-665
-954
-698
+831
+662
+894
+695
 clear
 ask paths [set hidden? true]
 NIL
@@ -353,12 +353,12 @@ NIL
 1
 
 BUTTON
-779
-701
-890
-734
+719
+698
+830
+731
 random path cities
-ask one-of cities [let c2 one-of other cities let n2 [one-of nodes with-min [distance myself]] of c2 ask one-of nodes with-min [distance myself] [let p nw:weighted-path-to n2 \"impedance\" if p != false [foreach p [ask ? [set hidden? false set color red]]]]]
+display-random-city-path
 NIL
 1
 T
@@ -370,10 +370,10 @@ NIL
 1
 
 CHOOSER
-20
-554
-151
-599
+441
+661
+572
+706
 visualization
 visualization
 "mse" "mse-log" "delta-previous-mse" "delta-previous-mse-log" "feedback-strength"
@@ -381,9 +381,9 @@ visualization
 
 PLOT
 919
-243
-1312
-628
+270
+1331
+653
 model fit
 real
 simulated
@@ -415,10 +415,10 @@ NIL
 1
 
 INPUTBOX
-10
-608
-60
-668
+11
+623
+61
+683
 orig
 0
 1
@@ -426,10 +426,10 @@ orig
 Number
 
 INPUTBOX
-62
-608
-112
-668
+63
+623
+113
+683
 dest
 0
 1
@@ -485,8 +485,8 @@ PENS
 PLOT
 919
 20
-1312
-243
+1331
+271
 city trajectory
 time
 population
@@ -502,12 +502,12 @@ PENS
 "real" 1.0 0 -5298144 true "" "plot [last expected-population-history] of one-of cities with [name = city-traj]"
 
 INPUTBOX
-644
-665
-774
-725
+584
+662
+714
+722
 city-traj
-CAEN
+DIJON
 1
 0
 String

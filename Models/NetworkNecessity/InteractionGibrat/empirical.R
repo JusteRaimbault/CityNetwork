@@ -13,7 +13,7 @@ stdtheme= theme(axis.title = element_text(size = 22),
 
 source('functions.R')
 
-Ncities = 300
+Ncities = 400
 d = loadData(Ncities)
 cities = d$cities;dates=d$dates;distances=d$distances
 pops = cities[,4:ncol(cities)]
@@ -86,7 +86,7 @@ for(t in 1:length(t0)){
       #localcorrsinf = append(localcorrsinf,r$conf.int[1]);
       localcorrsinf[k]=r$conf.int[1]
       #localcorrssup = append(localcorrssup,r$conf.int[2]);
-      localcorrsinf[k]=r$conf.int[2]
+      localcorrssup[k]=r$conf.int[2]
       k=k+1
     }
   }
@@ -98,7 +98,9 @@ for(t in 1:length(t0)){
   #years=append(years,rep(dates[current_dates[length(current_dates)]],length(g[g!=1])))
 }
 
-g = ggplot(data.frame(corrs=corrs,corrsinf=corrsinf,corrssup=corrssup,d=dists,year=as.character(years)))
+g = ggplot(data.frame(corrs=corrs,
+                      #corrsinf=corrsinf,corrssup=corrssup,
+                      d=dists,year=as.character(years)))
 g+geom_smooth(aes(x=d,y=corrs,colour=year))+
   #geom_smooth(aes(x=d,y=corrsinf,colour=year))+
   #geom_smooth(aes(x=d,y=corrssup,colour=year))+
