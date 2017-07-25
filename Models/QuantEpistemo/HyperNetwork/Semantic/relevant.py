@@ -22,6 +22,7 @@ def relevant_full_corpus(mongo_base,kwLimit,eth):
     [keywords,dico,frequencies,edge_list] = kwFunctions.extract_relevant_keywords(corpus,kwLimit,eth,occurence_dicos)
     print('insert relevant...')
     for kw in keywords.keys():
+        print(kw+' ; '+str(keywords[kw])+' ; '+str(len(corpus)/frequencies[kw]))
         butils.update_kw_tm(kw,keywords[kw],frequencies[kw],math.log(keywords[kw])*math.log(len(corpus)/frequencies[kw]),database,relevant)
     print('insert edges...')
     #database[network].delete_many({"weight":{"$gt":0}})
