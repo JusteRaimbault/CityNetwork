@@ -254,26 +254,8 @@ where $d_{kl,i}$ is distance to shortest path between $k,l$ computed with slope 
 
 \paragraph{Population data}
 
-We work with the Pumain-INED historical database for French Cities, which give populations of \emph{Aires Urbaines} (INSEE definition) at time intervals of mostly 5 years, from 1830 to 1995. % TODO precise dates as footnote ?
-The latest version of the database, described in~\cite{pumain1986fichier} integrates the definition of Urban Areas, allowing to follow them on long time-period, according to Bretagnole's long time cities ontology~\cite{bretagnolle:tel-00459720} (that constructs a definition of cities as evolving entities which boundaries are not fixed in time).
+We work with the Pumain-INED historical database for French Cities~\cite{pumain1986fichier}, which give populations of \emph{Aires Urbaines} (INSEE definition) at time intervals of mostly 5 years, from 1830 to 1999. The latest version of the database integrates Urban Areas, allowing to follow them on long time-period, according to Bretagnole's long time cities ontology~\cite{bretagnolle:tel-00459720}, that constructs a definition of cities as evolving entities which boundaries are not fixed in time.
 
-
-\paragraph{Stylized facts}
-
-Basic stylized facts can be extracted from such a database, as it has already been widely explored in the literature~\cite{}. %TODO
- We show in figure~\ref{fig:ts-correlations} mean time-series correlation as a function of distance
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{figure}
-\centering
-\includegraphics[width=0.8\textwidth]{figures/empirical_tsCorrelations}
-\caption{\textbf{Time-series correlations as a function of distance.} Solid line correspond to smoothed correlations, computed between each normalized population time-series, on successive periods. More precisely, we consider overlapping 50 years time-windows finishing respectively in (1881,1906,1931,1962,1999) and compute on each, for each couple of cities $(i,j)$, an estimated correlation $\hat{\rho}_{ij}=\rho\left[\Delta \tilde{P}_i, \Delta \tilde{P}_j\right]$}
-\label{fig:ts-correlations}
-\end{figure}
-%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \paragraph{Physical flows}
@@ -284,9 +266,7 @@ As stated above, this modeling exercise focuses on exploring the role of physica
 Z = \left(1 + \frac{\alpha}{\alpha_0}\right)^{n_0}
 \]
 
-We took fixed parameter values $\alpha_0 = 3$ (corresponding to approximatively a 5\% slope) and $n_0 = 3$. Supplementary Material S1 justifies this choice by investigating the sensibility of paths to these parameters.
-
-% TODO : supplementary material showing paths for different param values ?
+We take fixed parameter values $\alpha_0 = 3$ (corresponding to approximatively the real world value of a 5\% slope) and $n_0 = 3$. 
 
 
 
@@ -298,7 +278,6 @@ Our model is assumed as hybrid as it relies on semi-parametrization on real data
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Model Evaluation}
-% this subsection AFTER data as it is thanks to data that the model is semi-parametrized
 
 We work on an explanatory rather than an exploratory model, and indicators to evaluate model outputs are therefore not linked to a performance of trajectories or obtained final states, but to a distance to phenomenon we want to explain, i.e. the data. We use therefore the following complementary indicators :
 
@@ -318,10 +297,33 @@ We work on an explanatory rather than an exploratory model, and indicators to ev
 
 
 
+
+\subsection*{Stylized facts}
+
+Basic stylized facts can be extracted from such a database, as it has already been widely explored in the literature~\cite{guerin1990150}.
+
+We show in figure~\ref{fig:ts-correlations} mean time-series correlation as a function of distance
+
+More precisely, we consider overlapping 50 years time-windows finishing respectively in (1881,1906,1931,1962,1999) and compute on each, for each couple of cities $(i,j)$, an estimated correlation $\hat{\rho}_{ij}=\rho\left[\Delta \tilde{P}_i, \Delta \tilde{P}_j\right]$
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{figures/empirical_tsCorrelations}
+\caption{\textbf{Time-series correlations as a function of distance.} Solid line correspond to smoothed correlations, computed between each normalized population time-series, on successive periods.}
+\label{fig:ts-correlations}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Implementation}
 
-Data preprocessing, result processing and models profiling are implemented in R. For performances reasons and an easier integration into the OpenMole software for model exploration described by~\cite{reuillon2013openmole}, a \texttt{scala} version was also developed. The typical question of trade-off between implementation performance and interoperability appeared quickly as an issue, as a blind exploration and calibration can difficultly provide useful thematic conclusions for that kind of model. Finding an improvement in model fit among one parameter dimension is significant if the geographical situation is visualized and the improvement is confirmed as reasonable and not an absurdity.
+Data preprocessing, result processing and models profiling are implemented in \texttt{R}. For performances reasons and an easier integration into the OpenMole software for model exploration described by~\cite{reuillon2013openmole}, a \texttt{scala} version was also developed. The typical question of trade-off between implementation performance and interoperability appeared quickly as an issue, as a blind exploration and calibration can difficultly provide useful thematic conclusions for that kind of model. Finding an improvement in model fit among one parameter dimension is significant if the geographical situation is visualized and the improvement is confirmed as reasonable and not an absurdity.
 
 
 %%%%%%%%%%%%%%%%%%%
@@ -398,9 +400,13 @@ The optimization problem associated to model calibration does not present featur
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Full Model Calibration}
+
+We focus in this last experiment on quantifying the ``performance'' of the model, taking into account its predictive abilities, but also its structure. More precisely, we want to tackle the issue of overfitting, which has been for long recognized in Machine Learning for example~\cite{dietterich1995overfitting}
+
 \paragraph{Quantifying overfitting : Empirical AIC}
 
-% here put empirical AIC ?
 
 % \cite{2017arXiv170108673P} : selecting number of states in HMM, analog ?
 % \cite{biernacki2000assessing} : other type of computational aic-type indicator.
@@ -420,6 +426,10 @@ Under certain assumptions, the order of magnitude of second term appears to be n
 \[
 \norm{\int f \log{\left(\frac{S^{(k)}}{M^{(k')}}\right)}} = \norm{\int f \log{\left(1 + \frac{s^{(k)}}{M^{(k')}}\right)}}
 \]
+
+
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -506,34 +516,34 @@ Our focus on network effects remains quite limited since (i) we do not consider 
 
 
 %%%%%%%%%%%%%
-\section*{Physical Flows Parametrization}
+%\section*{Physical Flows Parametrization}
 
-We show in Fig.~\ref{fig:shortest-path-densities} footprints of shortest paths, revealing how different values make the path more or less realistic regarding the elevation map. A rather rough validation can also been done by comparing these with the actual current shortest paths by the road network. These are computed using the road network dataset provided by~\cite{} % dataverse simplified road network
-and which construction is detailed in~\cite{}. % working paper version of datapaper ?
-For each path, we can define a measure of geographical distance as, given $(\vec{l}_i (s), \vec{l}_j (s))$ normalized linear parametrization of two paths $(p_i,p_j)$, by
+%We show in Fig.~\ref{fig:shortest-path-densities} footprints of shortest paths, revealing how different values make the path more or less realistic regarding the elevation map. A rather rough validation can also been done by comparing these with the actual current shortest paths by the road network. These are computed using the road network dataset provided by~\cite{} % dataverse simplified road network
+%and which construction is detailed in~\cite{}. % working paper version of datapaper ?
+%For each path, we can define a measure of geographical distance as, given $(\vec{l}_i (s), \vec{l}_j (s))$ normalized linear parametrization of two paths $(p_i,p_j)$, by
 
-\[
-d(p_i,p_j) = \int_{s=0}^1 \norm{\vec{l}_i (s) - \vec{l}_j (s)} ds
-\] 
+%\[
+%d(p_i,p_j) = \int_{s=0}^1 \norm{\vec{l}_i (s) - \vec{l}_j (s)} ds
+%\] 
 
-We show in Fig.~\ref{fig:paths-geodistance}
-
-
-%%%%%%%%%%%%%
-\begin{figure}
-
-\caption{Densities of shortest paths, computed with the 1225 shortest between all 50 cities included in the dataset, for different values of parameters $(\alpha_0,n_0)$.}
-\label{fig:shortest-path-densities}
-\end{figure}
-%%%%%%%%%%%%%
+%We show in Fig.~\ref{fig:paths-geodistance}
 
 
 %%%%%%%%%%%%%
-\begin{figure}
+%\begin{figure}
+%
+%\caption{Densities of shortest paths, computed with the 1225 shortest between all 50 cities included in the dataset, for different values of parameters $(\alpha_0,n_0)$.}
+%\label{fig:shortest-path-densities}
+%\end{figure}
+%%%%%%%%%%%%%
 
-\caption{Errors on shortest paths using the geographical path heuristic. (a) Distribution of integrated distance between paths. (b) Density maps for both heuristic and real paths.}
-\label{fig:paths-geodistance}
-\end{figure}
+
+%%%%%%%%%%%%%
+%\begin{figure}
+
+%\caption{Errors on shortest paths using the geographical path heuristic. (a) Distribution of integrated distance between paths. (b) Density maps for both heuristic and real paths.}
+%\label{fig:paths-geodistance}
+%\end{figure}
 %%%%%%%%%%%%%
 
 
@@ -541,13 +551,9 @@ We show in Fig.~\ref{fig:paths-geodistance}
 %\section*{Reproducibility}
 
 %%%%%%%%%%
-% - DATA available where ?
-% - give git commits that have produced exactly the results.
+% - DATA available where ? -> git repo
+% - give git commits that have produced exactly the results : NO, anonymized
 % -> not necessary, and the subrepo should be cloned/anonymized. put that in main text.
-
-
-
-
 
 
 

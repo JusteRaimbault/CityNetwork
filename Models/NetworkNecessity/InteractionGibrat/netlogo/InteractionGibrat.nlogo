@@ -116,7 +116,6 @@ paths-own [
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 294
@@ -178,10 +177,10 @@ NIL
 HORIZONTAL
 
 OUTPUT
-991
-628
-1388
-798
+981
+1068
+1378
+1238
 10
 
 SLIDER
@@ -381,13 +380,13 @@ visualization
 1
 
 PLOT
-1138
-10
-1403
-259
-fit
+919
+243
+1312
+628
+model fit
 real
-sim
+simulated
 9.0
 10.0
 9.0
@@ -448,10 +447,10 @@ period
 9
 
 PLOT
-1001
-293
-1402
-443
+991
+733
+1392
+883
 profile-logmse
 NIL
 NIL
@@ -466,10 +465,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 PLOT
-1001
-446
-1402
-596
+991
+886
+1392
+1036
 profile-mselog
 NIL
 NIL
@@ -484,13 +483,13 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 PLOT
-921
-12
-1125
-179
-city-traj
-NIL
-NIL
+919
+20
+1312
+243
+city trajectory
+time
+population
 0.0
 2.0
 0.0
@@ -503,10 +502,10 @@ PENS
 "real" 1.0 0 -5298144 true "" "plot [last expected-population-history] of one-of cities with [name = city-traj]"
 
 INPUTBOX
-919
-187
-1049
-247
+644
+665
+774
+725
 city-traj
 CAEN
 1

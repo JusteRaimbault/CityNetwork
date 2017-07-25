@@ -77,17 +77,17 @@ val resdir = "20170302_calibperiod_full_nsga"
 
 
 //def calib(period: String) = {
-  
+
   //val filename = s"pop50_${period}.csv"
   //val datefilenames = s"dates_${period}.csv"
   val filename = "pop50_"+period+".csv"
   val datefilenames = "dates_"+period+".csv"
-  
-  
+
+
   val fileSetting = ExplorationTask(
     (popFile is workDirectory / "data" / "pops" / filename ) x //"pops" / filename) x
     (distFile is workDirectory / "data"/ "dist50.csv") x
-    (fdistsFile is workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv") x 
+    (fdistsFile is workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv") x
     (dateFile is workDirectory / "data" / "dates" / datefilenames) x
     (id in Seq(1)) x (gravityAlpha in Seq(0.0))
     x (feedbackWeight in Seq(1.0))// x (feedbackGamma in Seq(1.0)) x (feedbackDecay in Seq(1.0))// x
@@ -109,10 +109,10 @@ val resdir = "20170302_calibperiod_full_nsga"
 
   val evolution =
     SteadyStateEvolution(
-      algorithm =   
+      algorithm =
         NSGA2(
           mu = 200,
-          genome = 
+          genome =
             Seq(
               growthRate in Range(0.0, 0.1),
               gravityWeight in Range(0.00005,0.01),
@@ -127,10 +127,10 @@ val resdir = "20170302_calibperiod_full_nsga"
       evaluation = eval,
       termination = 500
     )
-  
+
   val island = IslandEvolution(evolution, parallelism = 30,termination=200)//100, termination = 1000)
 
-  val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / period) 
+  val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / period)
 
   (island on local hook savePopulation)
   //(island on grid hook savePopulation)
@@ -147,5 +147,3 @@ val firstCapsule = Capsule(EmptyTask())
 val calibrations = periods.map(calib)
 calibrations.map(firstCapsule -- _).reduce(_ & _)
 */
-
-

@@ -1,7 +1,7 @@
 import java.text.SimpleDateFormat
 import java.util.Date
 
-logger.level("DEBUG")
+logger.level("FINE")
 
 //import Model._
 
@@ -59,7 +59,7 @@ val modelCapsule = Capsule(model)
 
 
 
-val local = LocalEnvironment(10)
+val local = LocalEnvironment(50)
 //val grid = EGIEnvironment("vo.complex-systems.eu")
 
 /*
@@ -77,31 +77,29 @@ val period = "1831-1851"
 //val purpose = "periods_fullmodel_grid"
 //val purpose = "calibperiod_nsga"
 //val resdir = datestr+"_"+purpose
-val resdir = "20170725_calibperiod_gravityfixedweight_nsga"
+val resdir = "20170302_calibperiod_full_nsga"
 
 
 //def calib(period: String) = {
-
+  
   //val filename = s"pop50_${period}.csv"
   //val datefilenames = s"dates_${period}.csv"
   val filename = "pop50_"+period+".csv"
   val datefilenames = "dates_"+period+".csv"
-
-
+  
+  
   val fileSetting = ExplorationTask(
     (popFile is workDirectory / "data" / "pops" / filename ) x //"pops" / filename) x
     (distFile is workDirectory / "data"/ "dist50.csv") x
-    (fdistsFile is workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv") x
+    (fdistsFile is workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv") x 
     (dateFile is workDirectory / "data" / "dates" / datefilenames) x
     (id in Seq(1)) x (gravityAlpha in Seq(0.0))
-    x (feedbackWeight is 0.0)
-    x (feedbackGamma is 1.0)
-    x (feedbackDecay is 1.0)
-    //x (growthRate in Seq(rates(period)))
-    x (gravityWeight is 0.001)
+    x (feedbackWeight in Seq(1.0))// x (feedbackGamma in Seq(1.0)) x (feedbackDecay in Seq(1.0))// x
+    //(growthRate in Seq(rates(period)))
+    //x (gravityWeight is (growthRate / 20))
   ) set(
-    inputs += (growthRate,/*gravityWeight,*/gravityGamma,gravityDecay/*,feedbackWeight,feedbackGamma,feedbackDecay*/),
-    outputs += (growthRate,/*gravityWeight,*/gravityGamma,gravityDecay/*,feedbackWeight,feedbackGamma,feedbackDecay*/)
+    inputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackGamma,feedbackDecay),
+    outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackGamma,feedbackDecay)
   )
 
 /*
@@ -115,28 +113,28 @@ val resdir = "20170725_calibperiod_gravityfixedweight_nsga"
 
   val evolution =
     SteadyStateEvolution(
-      algorithm =
+      algorithm =   
         NSGA2(
           mu = 200,
-          genome =
+          genome = 
             Seq(
               growthRate in Range(0.0, 0.1),
-              //gravityWeight in Range(0.00005,0.01),
+              gravityWeight in Range(0.00005,0.01),
               gravityGamma in Range(1.0,10.0),
               gravityDecay in Range(0.0,1000.0),
               //feedbackWeight in Range(0.00005,10.0),
-              //feedbackGamma in Range(0.0,100.0),
-              //feedbackDecay in Range(0.0,1000.0)
+              feedbackGamma in Range(0.0,100.0),
+              feedbackDecay in Range(0.0,1000.0)
             ),
           objectives = Seq(logmse,mselog)
         ),
       evaluation = eval,
       termination = 500
     )
+  
+  val island = IslandEvolution(evolution, parallelism = 30,termination=200)//100, termination = 1000)
 
-  val island = IslandEvolution(evolution, parallelism = 10,termination=100)
-
-  val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / period)
+  val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / period) 
 
   (island on local hook savePopulation)
   //(island on grid hook savePopulation)
@@ -153,3 +151,5 @@ val firstCapsule = Capsule(EmptyTask())
 val calibrations = periods.map(calib)
 calibrations.map(firstCapsule -- _).reduce(_ & _)
 */
+
+
