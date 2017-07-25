@@ -213,7 +213,12 @@ Some confusion may arise when surveying at stochastic and deterministic models o
 \subsection*{Model description}
 
 We choose to work on a deterministic extension of the Gibrat model, what is equivalent to consider only expectancies in time as explained in the previous subsection. Let $\vec{P}(t)=(P_i(t))_i$ be the population of cities in time. Under Gibrat independence assumptions, we have $\Covb{P_i(t)}{P_j(t)}=0$. A linear extended version would write $\vec{P}(t+1)=\mathbf{R}\cdot \vec{P}(t)$ where $\mathbf{R}$ is an independent random matrix of growth rates (identity in the original case). It yields directly thanks to the independence assumptions that $\Eb{\vec{P}(t+1)}=\Eb{\mathbf{R}}\cdot\Eb{\vec{P}}(t)$. We generalize this linear relation to a non-linear relation that allows to be more consistent regarding some thematic considerations, by taking with denoting $\vec{\mu}(t)=\Eb{\vec{P}(t)}$, the relation $\vec{\mu}(t+1)=f(\vec{\mu}(t))$ (note that in that case, stochastic and deterministic versions are not equivalent anymore\footnote{precisely because of the non-linearity % develop sketch of computation ? - Q under which conditions we can impose a covariance structure that produces interdependencies between expectancies ? seems to be a very broader question, need to do some thinking on that.
-}). 
+}).
+
+% rationale : pourquoi gravity ?
+\cite{masucci2013gravity}
+
+
 In our case, we take
 
 \begin{equation}
@@ -239,13 +244,30 @@ where $d_{kl,i}$ is distance to shortest path between $k,l$ computed with slope 
  Under assumption of non-stationarity, temporal evolution of fitted parameters corresponding to this feedback should therefore contain information on the evolution of transportation modes.
 
 
-% TODO idea : fixed gravity weight to find significant gravity param -- investigate why saturation at \infty
+% idea : fixed gravity weight to find significant gravity param -- investigate why saturation at \infty
 
+% a note on non-negative growth rates
 
 \paragraph{Model Parameter Space}
 
+% rationale of each parameters
 
 
+% Tab 1 : summary of model parameters
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}[h]
+\small\sf\centering
+\caption{Model Parameters summary.}
+\begin{tabular}{|l|l|l|l|}
+\toprule
+Parameter & Notation & Process & Range\\
+\midrule
+Growth Rate & r_0 & Endogenous growth & $\left[ 0,1\right]$ \\\hrule
+\bottomrule
+\end{tabular}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -329,10 +351,28 @@ Data preprocessing, result processing and models profiling are implemented in \t
 %%%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-% figures : netlogo interface / typical output ?
+\includegraphics[width=\textwidth]{figures/Fig2}
 \caption{Example of output of the model. The graphical interface allows to explore interactively on which cities changes operate after a parameter change, what is necessary to interpret raw calibration results.}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Model Exploration}
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/Fig3}
+\caption{Evidence of network effects revealed by model exploration. Feedback with fixed gravity : first evidences of network effects ; confirmed with effect of $\alpha_0$}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%
+
+
+
 
 
 
@@ -343,24 +383,15 @@ Data preprocessing, result processing and models profiling are implemented in \t
 % qualitative behavior : hierarchy inversions/ trajectories of normalized populations (cf papier Denise Anne etc)
 % need of synthetic data ?
 
+\cite{batty1972calibration}
 
+saturation : better for logmse == error on big cities : a priori the interaction range would change with size - as potential development for future model
 
 We propose to interpret the distance decay parameter the following way. Let fix an arbitrary fraction $\alpha$ and typical ranges for a local urban system $d_L$ and for a long range urban system $d_R$. Seeing $d_G$ as the decay at which the fraction $\alpha$ between the migration flow of these two systems is realized, we have $d_G = \frac{d_R - d_L}{\left| \ln{\alpha} \right|}$
 
 
-%%%%%%%%%%%%%%%%%%%%
-\begin{figure}
-\centering
+\paragraph{Non-stationarity in time}
 
-
-\caption{\textbf{Calibrating the Gravity Model.} (a) Pareto-front with corresponding parameter values, for the full time range. (b) Effect of distance decay parameter. (c) Variation of typical interaction distance in time.}
-\label{fig:calib-gravity}
-\end{figure}
-%%%%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Unveiling Network Effects}
 
 
 
@@ -371,19 +402,28 @@ The optimization problem associated to model calibration does not present featur
 
 
 
-
+%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\centering
+\caption{\textbf{Calibrating the Gravity Model.} Pareto-front on successive periods, with effect of distance decay parameter.}
+\label{fig:calib-gravity}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-\includegraphics[width=0.48\textwidth]{figures/logmse-feedbackDecay_ZOOM}
-\includegraphics[width=0.48\textwidth]{figures/mselog-feedbackDecay_ZOOM}\\
-\includegraphics[width=0.48\textwidth]{figures/logmse-feedbackDecay_ZOOM_fixedgravity}
-\includegraphics[width=0.48\textwidth]{figures/mselog-feedbackDecay_ZOOM_fixedgravity}
-\caption{Evidence of network effects revealed by model exploration. Feedback with fixed gravity : first evidences of network effects ; confirmed with effect of $\alpha_0$}
+\caption{\textbf{Interaction ranges.} Values of optimal interaction range parameter.}
+\label{fig:gravitydecay}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Unveiling Network Effects}
 
 
 
@@ -394,9 +434,13 @@ The optimization problem associated to model calibration does not present featur
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{figures/allperiods_feedbackWeight}
-\caption{\textbf{Pareto fronts for bi-objective calibration.} Steady-state populations are obtained using Island Genetic Algorithm embedded in \texttt{OpenMole}, with parameters, and on independent time periods as detailed in text. We show  corresponding parameter values for $w_N$, for the gravity-only model (Top) and the full model (Bottom). Full graphs are available in Supplementary materials.}
+\caption{\textbf{Pareto fronts for bi-objective calibration.} Steady-state populations are obtained using Island Genetic Algorithm embedded in \texttt{OpenMole}, with parameters, and on independent time periods as detailed in text. We show  corresponding parameter values for $w_N$, for the gravity-only model (Top) and the full model (Bottom).}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 
 
 
@@ -404,6 +448,7 @@ The optimization problem associated to model calibration does not present featur
 \subsection*{Full Model Calibration}
 
 We focus in this last experiment on quantifying the ``performance'' of the model, taking into account its predictive abilities, but also its structure. More precisely, we want to tackle the issue of overfitting, which has been for long recognized in Machine Learning for example~\cite{dietterich1995overfitting}
+
 
 \paragraph{Quantifying overfitting : Empirical AIC}
 
@@ -426,6 +471,8 @@ Under certain assumptions, the order of magnitude of second term appears to be n
 \[
 \norm{\int f \log{\left(\frac{S^{(k)}}{M^{(k')}}\right)}} = \norm{\int f \log{\left(1 + \frac{s^{(k)}}{M^{(k')}}\right)}}
 \]
+
+
 
 
 
