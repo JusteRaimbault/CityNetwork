@@ -8,22 +8,24 @@ library(RMongo)
 
 source('nwSimplFunctions.R');source('network.R');source('morpho.R')
 
-#densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"),newresolution=0,reproject=F)
+densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"),newresolution=0,reproject=F)
 #densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/PopulationGrid_China2010.tif"),newresolution=100,reproject=T)
-densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/pop2010_100m_wgs84.tif"),newresolution=0,reproject=F)
+#densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/pop2010_100m_wgs84.tif"),newresolution=0,reproject=F)
 
 
 #global.dbport=5433;global.dbuser="Juste";global.dbhost="localhost";global.nwdb='nwtest_simpl_4'
 #global.dbport=5433;global.dbuser="juste";global.dbhost="";global.nwdb='china_nw_simpl_4'
-global.nwdb='china'
-mongo<-mongoDbConnect('china','127.0.0.1',29019)
+#global.nwdb='china'
+global.nwdb='europe'
+#mongo<-mongoDbConnect('china','127.0.0.1',29019)
+mongo<-mongoDbConnect('europe','127.0.0.1',29019)
 
 latmin=extent(densraster)@ymin;latmax=extent(densraster)@ymax;
 lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 #latmin=46.3;latmax=49.0;lonmin=0.0;lonmax=3.2 # full centre -- pb : bord effects
 
-#areaname = 'europe'
-areaname = 'china'
+areaname = 'europe'
+#areaname = 'china'
 #areaname = 'centre'
 areasize = 100
 factor=0.1
@@ -56,7 +58,8 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
 #res <- foreach(i=sample(1:nrow(coords),size = 500,replace = F)) %dopar% {
   show(paste0('row : ',i,'/',nrow(coords)))
   library(RMongo)
-  mongo<-mongoDbConnect('china','127.0.0.1',29019)
+  #mongo<-mongoDbConnect('china','127.0.0.1',29019)
+  mongo<-mongoDbConnect('europe','127.0.0.1',29019)
   tryCatch({
   source('morpho.R');source('nwSimplFunctions.R');source('network.R')
   morphoFunctions<-c(summaryPopulation,rankSizeSlope,moranIndex,averageDistance,entropy)
@@ -80,7 +83,8 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
       res = c(xcor=xcor,ycor=ycor)
       for(f in morphoFunctions){res=append(res,unlist(f(m)))}
       for(f in networkFunctions){res=append(res,unlist(f(g)))}
-      return(res)
+      show(res)
+	return(res)
 	   }
     ,error=function(e){return(res=nores)})
   }else{res=nores}
