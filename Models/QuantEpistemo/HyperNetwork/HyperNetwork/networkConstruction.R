@@ -99,7 +99,8 @@ computeThemProbas<-function(gg,com,keyword_dico){
 constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,edge_th,target,mongo){
   #
   relevant <- dbGetQuery(mongo,relevantcollection,'{}')
-  dico <- mongo.find.all(mongo,kwcollection)
+  dicoraw <- dbGetQuery(mongo,kwcollection)
+  # has to do some string splitting
   
   #relevant = data.frame(keyword=sapply(relevant,function(d){d$keyword}),
   #                      cumtermhood=sapply(relevant,function(d){d$cumtermhood}),

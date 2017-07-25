@@ -13,16 +13,16 @@ kwLimit = 50000
 eth = 10
 
 if(task=='--semantic-construction'){
+  #mongo <- mongoDbConnect('nwterrit','127.0.0.1',27017)
   mongo <- mongoDbConnect(mongobase,'127.0.0.1',27017)
   ####
   ## Construct the semantic nw
   #   mongo -> RData
-  relevantCollection = paste0('relevant.relevant_full_',kwLimit)
-  kwcollection = '.keywords'
-  nwcollection = paste0('relevant.network_full_50000_eth',eth)
-  edge_th = 50
-  target = 'processed/relevant_full_50000_eth50_nonfiltdico'
-  constructSemanticNetwork(relevantcollection,kwcollection,nwcollection,edge_th,target,mongo)
+  relevantCollection = paste0('relevant_',kwLimit)
+  kwcollection = 'keywords'
+  nwcollection = paste0('relevant.network_full_',kwLimit,'_eth',eth)
+  target = paste0('processed/relevant_full_',kwLimit,'_eth',eth,'_nonfiltdico')
+  constructSemanticNetwork(relevantcollection,kwcollection,nwcollection,eth,target,mongo)
 }
 
 
