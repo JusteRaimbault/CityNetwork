@@ -16,12 +16,14 @@ def relevant_full_corpus(mongo_base,kwLimit,eth):
     database = mongo[mongo_base]
     relevant = 'relevant_'+str(kwLimit)
     network = 'network_'+str(kwLimit)+'_eth'+str(eth)
-    database[relevant].delete_many({"cumtermhood":{"$gt":0}})
+    #database[relevant].delete_many({"cumtermhood":{"$gt":0}})
+    database[relevant].drop()
     database[relevant].create_index('keyword')
     [keywords,dico,frequencies,edge_list] = kwFunctions.extract_relevant_keywords(corpus,kwLimit,eth,occurence_dicos)
     print('insert relevant...')
     for kw in keywords.keys():
         butils.update_kw_tm(kw,keywords[kw],frequencies[kw],math.log(keywords[kw])*math.log(len(corpus)/frequencies[kw]),database,relevant)
     print('insert edges...')
-    database[network].delete_many({"weight":{"$gt":0}})
+    #database[network].delete_many({"weight":{"$gt":0}})
+    database[network].drop()
     database[network].insert_many(edge_list)
