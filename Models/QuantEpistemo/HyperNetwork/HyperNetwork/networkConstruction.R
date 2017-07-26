@@ -106,7 +106,7 @@ constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,
   dico=sapply(dicoraw$keywords,function(s){strsplit(trimws(gsub("[",'',gsub("]",'',gsub('\"','',s),fixed=T),fixed=T)),' , ')})
   names(dico)=as.character(dicoraw$id)
   
-  relevant = relevant[,c('keyword','cumtermhood','docfreq','tidf')]
+  relevant = relevant[,c('keyword','cumtermhood','docfrequency','tidf')]
   #relevant = data.frame(keyword=sapply(relevant,function(d){d$keyword}),
   #                      cumtermhood=sapply(relevant,function(d){d$cumtermhood}),
   #                      docfreq=sapply(relevant,function(d){d$docfrequency}),

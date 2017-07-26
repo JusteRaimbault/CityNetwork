@@ -5,8 +5,8 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetw
 
 source('networkConstruction.R')
 
-args <- commandArgs(trailingOnly = TRUE)
-task = args[1]
+args <- commandArgs(trailingOnly = F)
+task = args[4]
 show(paste0('Running ',task,'...'))
 
 mongobase = 'nwterrit'
@@ -21,7 +21,7 @@ if(task=='--semantic-construction'){
   ####
   ## Construct the semantic nw
   #   mongo -> RData
-  relevantCollection = paste0('relevant_',kwLimit)
+  relevantcollection = paste0('relevant_',kwLimit)
   kwcollection = 'keywords'
   nwcollection = paste0('network_',kwLimit,'_eth',eth)
   dir.create('processed')
