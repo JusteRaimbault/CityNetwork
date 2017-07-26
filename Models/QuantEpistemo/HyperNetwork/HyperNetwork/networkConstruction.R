@@ -97,10 +97,14 @@ computeThemProbas<-function(gg,com,keyword_dico){
 #' @description Construct semantic coocurrence graph directly from nw table in mongo. Kw dico is reconstructed here (not that efficient in R)
 #' 
 constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,edge_th,target,mongo){
-  #
+  #relevantcollection='relevant_1000'
   relevant <- dbGetQuery(mongo,relevantcollection,'{}')
-  dicoraw <- dbGetQuery(mongo,kwcollection)
+  #kwcollection='keywords'
+  # has to fix limit ? ok reasonable corpuses
+  dicoraw <- dbGetQueryForKeys(mongo,kwcollection,'{}','{"id":1,"keywords":1}',skip=0,limit=100000)
   # has to do some string splitting
+  dico=sapply(dicoraw$keywords,function(s){strsplit(trimws(gsub("[",'',gsub("]",'',gsub('\"','',s),fixed=T),fixed=T)),' , ')})
+  names(dico)=as.character(dicoraw$id)
   
   #relevant = data.frame(keyword=sapply(relevant,function(d){d$keyword}),
   #                      cumtermhood=sapply(relevant,function(d){d$cumtermhood}),

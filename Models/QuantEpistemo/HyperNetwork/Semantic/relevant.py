@@ -25,9 +25,9 @@ def relevant_full_corpus(mongo_base,kwLimit,eth):
         #print(kw+' ; '+str(keywords[kw])+' ; '+str(len(corpus)/frequencies[kw]))
         lf=0
         try:
-            lf= math.log(keywords[kw])*math.log(len(corpus)/frequencies[kw])
+            lf= math.log(keywords[kw])*math.log(float(len(corpus))/float(frequencies[kw]))
         except Exception as e:
-            print('ERROR : 'kw+' ; '+str(keywords[kw])+' ; '+str(len(corpus))+' ; '+str(frequencies[kw]))
+            print('ERROR : '+kw+' ; '+str(keywords[kw])+' ; '+str(len(corpus))+' ; '+str(frequencies[kw]))
         butils.update_kw_tm(kw,keywords[kw],frequencies[kw],lf,database,relevant)
     print('insert edges...')
     #database[network].delete_many({"weight":{"$gt":0}})
