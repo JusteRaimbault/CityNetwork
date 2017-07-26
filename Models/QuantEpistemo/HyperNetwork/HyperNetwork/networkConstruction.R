@@ -106,6 +106,7 @@ constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,
   dico=sapply(dicoraw$keywords,function(s){strsplit(trimws(gsub("[",'',gsub("]",'',gsub('\"','',s),fixed=T),fixed=T)),' , ')})
   names(dico)=as.character(dicoraw$id)
   
+  relevant = relevant[,c('keyword','cumtermhood','docfreq','tidf')]
   #relevant = data.frame(keyword=sapply(relevant,function(d){d$keyword}),
   #                      cumtermhood=sapply(relevant,function(d){d$cumtermhood}),
   #                      docfreq=sapply(relevant,function(d){d$docfrequency}),
@@ -119,26 +120,31 @@ constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,
   for(i in 1:length(srel$keyword)){rel[[srel$keyword[i]]]=i}
   
   # construct kw dico : ID -> keywords
-  keyword_dico = list()
-  for(i in 1:length(dico)){
-    if(i%%100==0){show(paste0('dico : ',i/length(dico),'%'))}
-    #kws = unique(dico[[i]]$keywords)
-    kws = dico[[i]]$keywords
-    #show(kws)
-    if(length(kws)>0){
-      #kws = kws[sapply(kws,function(w){w %in% srel$keyword})]
-      keyword_dico[[dico[[i]]$id]]=kws
-    }
-  }
+  keyword_dico = dico
+  #keyword_dico = list()
+  #for(i in 1:length(dico)){
+  #  if(i%%100==0){show(paste0('dico : ',i/length(dico),'%'))}
+  #  #kws = unique(dico[[i]]$keywords)
+  #  kws = dico[[i]]$keywords
+  #  #show(kws)
+  #  if(length(kws)>0){
+  #    #kws = kws[sapply(kws,function(w){w %in% srel$keyword})]
+  #    keyword_dico[[dico[[i]]$id]]=kws
+  #  }
+  #}
   
   # construct now edge dataframe
-  edges <- mongo.find.all(mongo,nwcollection)
+  #edges <- mongo.find.all(mongo,nwcollection)
+  # nwcollection = 'network_10000_eth5'
+  show('Getting edges...')
+  edges <- dbGetQueryForKeys(mongo,nwcollection,paste0('{"weight":{$gt:',edge_th-1,'}}'),'{"edge":1,"weight":1}',skip=0,limit=1000000000)
+  
   e1=c();e2=c();weights=c()
-  for(i in 1:length(edges)){
+  for(i in 1:nrow(edges)){
     if(i%%1000==0){show(paste0('edges : ',i/length(edges),'%'))}
-    w=edges[[i]]$weight
-    if(w>=edge_th){
-       e = strsplit(edges[[i]]$edge,";")[[1]]
+    w=edges$weight[i]
+    if(w>=edge_th){ # should be always verified
+       e = strsplit(edges$edge[i],";")[[1]]
        if(e[1]!=e[2]){# avoid self loops, weight info is already contained in doc frequency of nodes
          e1=append(e1,e[1]);e2=append(e2,e[2]);weights=append(weights,w)
        }
@@ -148,6 +154,8 @@ constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,
   res = list()
   res$g = graph_from_data_frame(data.frame(from=e1,to=e2,weight=weights),directed=FALSE,vertices = relevant)
   res$keyword_dico=keyword_dico
+  
+  show(g)
   
   save(res,file=paste0(target,'.RData'))
   

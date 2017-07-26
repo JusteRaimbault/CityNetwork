@@ -1,28 +1,32 @@
 
 ##
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork'))
 
 source('networkConstruction.R')
 
 args <- commandArgs(trailingOnly = TRUE)
 task = args[1]
+show(paste0('Running ',task,'...'))
 
 mongobase = 'nwterrit'
-kwLimit = 50000
-eth = 10
+kwLimit = 10000
+eth = 5
+eth_graph = 10
 
 if(task=='--semantic-construction'){
   #mongo <- mongoDbConnect('nwterrit','127.0.0.1',27017)
+  options( java.parameters = "-Xmx4G" ) # to ensure large edge queries
   mongo <- mongoDbConnect(mongobase,'127.0.0.1',27017)
   ####
   ## Construct the semantic nw
   #   mongo -> RData
   relevantCollection = paste0('relevant_',kwLimit)
   kwcollection = 'keywords'
-  nwcollection = paste0('relevant.network_full_',kwLimit,'_eth',eth)
-  target = paste0('processed/relevant_full_',kwLimit,'_eth',eth,'_nonfiltdico')
-  constructSemanticNetwork(relevantcollection,kwcollection,nwcollection,eth,target,mongo)
+  nwcollection = paste0('network_',kwLimit,'_eth',eth)
+  dir.create('processed')
+  target = paste0('processed/relevant_full_',kwLimit,'_eth',eth_graph,'_nonfiltdico')
+  constructSemanticNetwork(relevantcollection,kwcollection,nwcollection,eth_graph,target,mongo)
 }
 
 
