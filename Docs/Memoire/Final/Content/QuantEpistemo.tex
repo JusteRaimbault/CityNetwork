@@ -128,8 +128,8 @@ Les détails précis concernant l'implémentation de l'algorithme ainsi qu'une a
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{table}
 \centering
-\includegraphics[width=\textwidth]{Figures/QuantEpistemo/corpusesDistances}
-\caption[Stationary lexical proximities][Proximités lexicales stationnaires]{Symmetric matrix of lexical proximities between final corpuses, defined as the sum of overall final keywords co-occurrences between corpuses, normalized by number of final keywords (100). We obtain very low values, confirming that corpuses are significantly far. Size of final corpuses is given as $W$.}{Matrice symétrique des proximités lexicales entre les corpus finaux, définies comme la somme des co-occurrences totale de mots-clés finaux entre corpus, normalisé par le nombre de mots-clés finaux (100). Les valeurs obtenues sont considérablement faibles, ce qui confirme que les corpus sont éloignés de manière significative. La taille des corpus finaux est donnée par $W$. \comment{(Arnaud) a developper}}
+\includegraphics[width=0.8\linewidth]{Figures/QuantEpistemo/corpusesDistances}
+\caption[Stationary lexical proximities][Proximités lexicales stationnaires]{Symmetric matrix of lexical proximities between final corpuses, defined as the sum of overall final keywords co-occurrences between corpuses, normalized by number of final keywords (100). We obtain very low values, confirming that corpuses are significantly far. Size of final corpuses is given as $W$.}{Matrice symétrique des proximités lexicales entre les corpus finaux, définies comme la somme des co-occurrences totale de mots-clés finaux entre corpus, normalisé par le nombre de mots-clés finaux (100). La taille des corpus finaux est donnée par $W$. Les valeurs obtenues pour les proximités sont considérablement faibles, ce qui confirme que les corpus sont éloignés de manière significative (voir texte).}
 \label{tab:quantepistemo:lexical}
 \end{table}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -206,7 +206,7 @@ Notre approche implique des spécifications pour le jeu de données utilisé, à
 
 \paragraph{Initial Corpus}{Corpus Initial}
 
-Notre corpus initial est construit à partir de l'état de l'art établi en~\ref{sec:modelingsa}. % composition, logic
+Notre corpus initial est construit à partir de l'état de l'art établi en~\ref{sec:modelingsa}. Sa composition complète est donnée en Appendice~\ref{app:sec:quantepistemo}. Celui-ci est pris de taille raisonnable, mais les méthodes utilisées ici ont été développées sur des données massives, pour les brevets par exemple~\cite{bergeaud2017classifying}.
 
 
 \paragraph{Citation Data}{Données de citation}
@@ -215,9 +215,7 @@ Notre corpus initial est construit à partir de l'état de l'art établi en~\ref
 Citation data is collected from \texttt{Google Scholar}, that is the only source for incoming citations~\cite{noruzi2005google} in our case as the journal is poorly in other databases\footnote{or was just added as in the case of \textit{Web of Science}, indexing \textit{Cybergeo} since May 2016}. We are aware of the possible biaises using this single source (see e.g.~\cite{bohannon2014scientific})\footnote{or \texttt{http:\/\/iscpif.fr\/blog\/2016\/02\/the-strange-arithmetic-of-google-scholars}}, but these critics are more directed towards search results than citation counts. %The automatic collection requires the use of an open source data crawling software to pipe requests, namely \texttt{TorPool}~\cite{torpool} that provides a Java API allowing an easy integration into our application. Using it, a crawler can retrieve html pages and get backward citation data, i.e. all citing articles for a given initial article.
  We retrieve that way two sub-corpuses: references \emph{citing} Cybergeo and references \emph{citing the ones cited} by cybergeo. At this stage, the full corpus contains around $4\cdot10^5$ references.
 }{
-Le réseau de citations est reconstruit à partir de \texttt{Google Scholar} qui est souvent l'unique source des citations entrantes~\cite{noruzi2005google} puisqu'en science humaines les ouvrages ne sont pas systématiquement référencés par les bases fournissant des services (payants) comme le réseau de citation.\footnote{Par exemple, le journal Cybergeo n'est indexé dans le \emph{Web of Science} que depuis mai 2016, suite à des négociations ardues et non sans contrepartie.} Nous sommes conscients des biais possibles de l'utilisation de cette source unique (voir par exemple~\cite{bohannon2014scientific})\footnote{ou \texttt{http:\/\/iscpif.fr\/blog\/2016\/02\/the-strange-arithmetic-of-google-scholars}}, mais ces critiques sont plutôt dirigées vers les résultats de recherche plutôt que les comptes de citations. Nous récoltons ainsi les références \emph{citantes} à profondeur deux, c'est à dire les références citant le corpus initial et celles citant celles-ci. Le réseau obtenu contient $V=9462$ références correspondant à $E=12004$ liens de citation.
-% Concernant les langues, l'anglais représente 87\% du corpus, le français 6\%, l'espagnol 3\%, l'allemand 1\%, complété par des portions négligeables de langues anecdotiques. Le corpus n'est pas très international puisque le mandarin n'est par exemple pas présent (contrairement au thème de la croissance urbaine, étudié pour le développement thématique sur les liens entre économie et géographie développé en~\ref{app:sec:ecogeo}), ce qui pourrait s'expliquer par le relatif désintérêt des anglo-saxons sur le sujet.
-% PB lang detection titles (zh-cn not found)
+Le réseau de citations est reconstruit à partir de \texttt{Google Scholar} qui est souvent l'unique source des citations entrantes~\cite{noruzi2005google} puisqu'en science humaines les ouvrages ne sont pas systématiquement référencés par les bases fournissant des services (payants) comme le réseau de citation.\footnote{Par exemple, le journal Cybergeo n'est indexé dans le \emph{Web of Science} que depuis mai 2016, suite à des négociations ardues et non sans contrepartie.} Nous sommes conscients des biais possibles de l'utilisation de cette source unique (voir par exemple~\cite{bohannon2014scientific})\footnote{ou \texttt{http:\/\/iscpif.fr\/blog\/2016\/02\/the-strange-arithmetic-of-google-scholars}}, mais ces critiques sont plutôt dirigées vers les résultats de recherche plutôt que les comptes de citations. Nous récoltons ainsi les références \emph{citantes} à profondeur deux, c'est à dire les références citant le corpus initial et celles citant celles-ci. Le réseau obtenu contient $V=9462$ références correspondant à $E=12004$ liens de citation. Concernant les langues, l'anglais représente 87\% du corpus, le français 6\%, l'espagnol 3\%, l'allemand 1\%, complété par des langues comme le mandarin pouvant être indéfinies (la détection de celui-ci étant peu fiable). Le corpus n'est pas très international (contrairement par exemple au thème de la croissance urbaine, étudié pour le développement thématique sur les liens entre économie et géographie développé en~\ref{app:sec:ecogeo}).
 }
 
 \paragraph{Text Data}{Données textuelles}
@@ -236,21 +234,13 @@ Pour mener l'analyse sémantique, une description suffisamment conséquente est 
 
 \paragraph{Citation Network Properties}{Réseau de citations}
 
-% Mean in-degree (that can be interpreted as a stationary integrated impact factor) on references where it is defined has a value of $\bar{d}=$ , whereas for \cite{cybergeo} we have $\bar{d}=3.18$. This difference suggests a variety for status of references, which is confirmed by the hierarchical organisation showed in Fig.~\ref{fig:ranksize} with the three superposed regimes. Other topological properties reveal typical patterns: for example, the existence of high-order cliques implies certain citation practices which compatibility with the cumulative nature of knowledge may be questionable~\cite{pumain2005cumulativite}. 
 
-% \textbf{Réseau de citations.} A partir d'un ensemble de références, on peut remonter par citation inverse, c'est à dire en récupérant les références citant celles-ci, puis celles les citant, etc. jusqu'à un niveau fixé. Nous montrons ici un réseau à la profondeur 2, construit à partir de domaines scientifiques a priori très disjoints, mais s'intéressant toujours à une approche quantitative des relations entre réseaux et territoires. Les références initiales sont : \cite{offner1996reseaux}, \cite{bretagnolle:tel-00459720}, \cite{offner1993effets} (géographie) ; \cite{wegener2004land} (LUTI) ; \cite{levinson2007co}, \cite{xie2009modeling} (économie) ; \cite{barthelemy2009co} (physique). Le graphe a un degré moyen de 4.76 et une densité de 0.0013. Il est important de noter la connexité. Nous procédons également à une détection de communautés (algorithme de Louvain), qui trouve des sous-ensembles très structurés dans le graphe (modularité de 0.649).}
-
-
-Des statistiques basiques pour le réseau de citation donnent déjà des informations intéressantes. Le réseau a un degré moyen de $\bar{d}=2.53$ et une densité de $\gamma=0.0013$. Le degré entrant moyen (qui peut être interprété comme un facteur d'impact stationnaire) est de 1.26, ce qui est relativement élevé pour des sciences humaines. Il est important de noter sa connexité faible, ce qui signifie que les domaines initiaux ne sont pas en isolation totale : les références initiales sont partagées à un degré minimal par les différents domaines. 
-
-Nous procédons à une détection de communautés par l'algorithme de Louvain, sur le réseau non-dirigé correspondant. On obtient 13 communautés, de modularité dirigée 0.66. 
+Des statistiques basiques pour le réseau de citation donnent déjà des informations intéressantes. Le réseau a un degré moyen de $\bar{d}=2.53$ et une densité de $\gamma=0.0013$. Le degré entrant moyen (qui peut être interprété comme un facteur d'impact stationnaire) est de 1.26, ce qui est relativement élevé pour des sciences humaines. Il est important de noter sa connexité faible, ce qui signifie que les domaines initiaux ne sont pas en isolation totale : les références initiales sont partagées à un degré minimal par les différents domaines. Nous procédons à une détection de communautés par l'algorithme de Louvain, sur le réseau non-dirigé correspondant. On obtient 13 communautés, de modularité dirigée 0.66. 
 
 %%%%%%%%%%%%%%%%%
 \begin{figure}[!ht]
-\centering
-\hspace{-2cm}
-\includegraphics[width=1.2\textwidth]{Figures/QuantEpistemo/rawcore}
-\caption[Citation Network][Réseau de citations]{\textbf{Citation Network}}{\textbf{Réseau de citations.}}
+\includegraphics[width=\linewidth]{Figures/QuantEpistemo/rawcore}
+\caption[Citation Network][Réseau de citations]{\textbf{Citation Network}}{\textbf{Réseau de citations.} Nous visualisons les références ayant au moins deux liens, par un algorithme de force-atlas. Les couleurs donnent les communautés décrites dans le texte.}
 \label{fig:quantepistemo:citnw}
 \end{figure}
 %%%%%%%%%%%%%%%%%
@@ -263,40 +253,15 @@ Nous procédons à une détection de communautés par l'algorithme de Louvain, s
 \paragraph{Semantic Communities}{Communautés Sémantiques}
 
 
-L'extraction des mots-clés est faite suivant une heuristique inspirée de~\cite{chavalarias2013phylomemetic}. La description complète de la méthode et de son implémentation est donnée en Appendice~\ref{app:sec:cybergeo}.
+L'extraction des mots-clés est faite suivant une heuristique inspirée de~\cite{chavalarias2013phylomemetic}. La description complète de la méthode et de son implémentation est donnée en Appendice~\ref{app:sec:cybergeo}. Elle se base sur les relations au second ordre entre les entités sémantiques, qui sont des \emph{n-grams}, c'est à dire des mots-clés multiples pouvant avoir une longueur jusqu'à 3. Celles-ci sont estimées via la matrice de co-occurrence, dont les propriétés statistiques fournissent une mesure de déviation à des co-occurrences uniformes, qui est utilisée pour juger la pertinence des mots-clés. Sélectionnant un nombre fixe de mots-clés pertinents, nous pouvons ensuite construire un réseau pondéré par les co-occurrences.
+
+
+\bpar{
+The topology of raw networks does not allow the extraction of clear communities, in particular because of the presence of hubs that correspond to frequent terms common to many fields (e.g. \texttt{model}, \texttt{space}). We assume these highest degree terms do not carry specific information on particular classes and can be thus filtered given a maximal degree threshold $k_{max}$. Similarly, edge with small weight must not carry significant information and are filtered according to a minimal edge weight threshold $w_{min}$. Keywords are preliminary filtered by a document frequency window $\left[ f_{min},f_{max} \right]$ which is slightly different from network filtering and complementary. A sensitivity analysis of resulting network topology to these parameters is presented in Fig.~\ref{fig:sensitivity}. We choose parameter values that maximize modularity under the constraint of a community number and size distribution of same magnitude as technological classes. This multi-objective optimization does not have a unique solution as objectives are somehow contradictory, and a compromise point must be chosen.
+}
 
 
 
-Keeping the $K_W$ most relevant keywords yield the co-occurrence matrix that can be directly interpreted as a weighted adjacency matrix. 
-
-
-%%%%%%%%%%%%%%%%%%
-%\paragraph{Sensitivity Analysis}
-
-
-% sensitivity analysis to params/meta-params
-
-The topology of raw networks does not allow the extraction of clear communities, in particular because of the presence of hubs that correspond to frequent terms common to many fields (e.g. \texttt{model}, \texttt{space}). We assume these highest degree terms do not carry specific information on particular classes and can be thus filtered given a maximal degree threshold $k_{max}$. Similarly, edge with small weight must not carry significant information and are filtered according to a minimal edge weight threshold $w_{min}$. Keywords are preliminary filtered by a document frequency window $\left[ f_{min},f_{max} \right]$ which is slightly different from network filtering and complementary. A sensitivity analysis of resulting network topology to these parameters is presented in Fig.~\ref{fig:sensitivity}. We choose parameter values that maximize modularity under the constraint of a community number and size distribution of same magnitude as technological classes. This multi-objective optimization does not have a unique solution as objectives are somehow contradictory, and a compromise point must be chosen. We take 
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%
-%\begin{figure}
-%\centering
-%\includegraphics[width=\textwidth]{figures/sensitivity_facet_allindics}
-%\caption{Sensitivity analysis of network indicators to filtering parameters}
-%\label{fig:sensitivity}
-%\end{figure}
-%%%%%%%%%%%%%%%%%%
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%
-%\paragraph{Semantic Communities}
 
 We then retrieve communities in the semantic network (using standard Louvain algorithm, with the optimized filtering parameters). At the exception of a small proportion apparently resulting from noise (representing x/y, i.e. z\% of keywords) % TODO exact number 
 , communities correspond to well-defined scientific fields (and/or domains, approaches). An expert validation allow us to give names to these, a more complicated naming procedure would eventually be possible (as in~\cite{} for the case of patents 
