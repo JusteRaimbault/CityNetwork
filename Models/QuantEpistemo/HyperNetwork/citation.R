@@ -35,14 +35,14 @@ elabels = unique(c(edges$V1,edges$V2))
 empty=rep("",length(which(!elabels%in%nodes$id)))
 nodes=rbind(nodes,data.frame(title=empty,id=elabels[!elabels%in%nodes$id],year=empty))#,abstract=empty,authors=empty))
 
-raw <- graph_from_data_frame(edges,vertices = nodes[,c(2,1,3)])#3:7)])
+citation <- graph_from_data_frame(edges,vertices = nodes[,c(2,1,3)])#3:7)])
 
 #plot.igraph(raw,layout=layout_with_fr(raw),vertex.label=NA,vertex.size=1)
 
 #V(raw)$V1[components(raw)$membership==2]
 # length(components(raw)$csize)
 
-raw = induced_subgraph(raw,which(components(raw)$membership==1))
+citation = induced_subgraph(citation,which(components(raw)$membership==1))
 #V(raw)$primary = V(raw)$name%in%nodesprim$V2
 
 #primary = induced_subgraph(raw,which(V(raw)$primary==TRUE))
@@ -53,12 +53,12 @@ raw = induced_subgraph(raw,which(components(raw)$membership==1))
 #V(raw)$primtitle = ifelse(V(raw)$primary,paste0(V(primary)$authors,V(primary)$year),"")
 #V(raw)$reduced_primtitle = ifelse(V(raw)$primary,sapply(V(raw)$title,function(s){paste0(substr(s,1,25),'...')}),"")
 
-V(raw)$reduced_title = sapply(V(raw)$title,function(s){paste0(substr(s,1,30),"...")})
-V(raw)$reduced_title = ifelse(degree(raw)>50,V(raw)$reduced_title,rep("",vcount(raw)))
+V(citation)$reduced_title = sapply(V(citation)$title,function(s){paste0(substr(s,1,30),"...")})
+V(citation)$reduced_title = ifelse(degree(citation)>50,V(citation)$reduced_title,rep("",vcount(citation)))
 #V(raw)$reduced_title=rep("",vcount(raw))
 
 
-rawcore = induced_subgraph(raw,which(degree(raw)>1))
+citationcore = induced_subgraph(citation,which(degree(raw)>1))
 
 #V(rawcore)$title = rep("",vcount(rawcore))
 
@@ -66,27 +66,29 @@ rawcore = induced_subgraph(raw,which(degree(raw)>1))
 #write_graph(primary,file='EvolutiveUrbanTheory/data/primary.gml',format = 'gml')
 
 #write_graph(rawcore,file='EvolutiveUrbanTheory/data/primarycore.gml',format = 'gml')
-write_graph(rawcore,file='HyperNetwork/data/NetworkTerritories/rawcore.gml',format = 'gml')
+write_graph(citationcore,file='HyperNetwork/data/NetworkTerritories/rawcore.gml',format = 'gml')
 
-ecount(rawcore)/(vcount(rawcore)*(vcount(rawcore)-1))
+ecount(citationcore)/(vcount(citationcore)*(vcount(citationcore)-1))
 
 ##
 # analysis of raw
 
-mean(degree(raw))
-mean(degree(raw,mode = 'in'))
-mean(degree(rawcore,mode = 'in'))
+mean(degree(citation))
+mean(degree(citation,mode = 'in'))
+mean(degree(citationcore,mode = 'in'))
 
 
 ##
 #  analysis of rawcore
 
-A = as.matrix(as_adjacency_matrix(rawcore))
+A = as.matrix(as_adjacency_matrix(citationcore))
 M = A+t(A)
 undirected_rawcore = graph_from_adjacency_matrix(M,mode="undirected")
 
+# communities
 com = cluster_louvain(undirected_rawcore)
 
+# modularity
 directedmodularity<-function(membership,adjacency){
   m=sum(adjacency)
   kout=rowSums(adjacency);kin=colSums(adjacency)
@@ -113,13 +115,39 @@ for(i in 1:nreps){
 show(paste0(mean(mods)," +- ",sd(mods)))
 # -> 260 sds, ultra significant
 
+
+######
 # content of communities
-d=degree(rawcore,mode='in')
+#
+
+d=degree(citationcore,mode='in')
 for(c in unique(com$membership)){
-  show(paste0("Community ",c))
-  show(length(which(com$membership==c)))
-  show(V(rawcore)$title[com$membership==c&d>8])
+  show(paste0("Community ",c, " ; corpus prop ",length(which(com$membership==c))/vcount(undirected_rawcore)))
+  #show(paste0("Size ",length(which(com$membership==c))))
+  currentd=d[com$membership==c];dth=sort(currentd,decreasing = T)[5]
+  show(data.frame(titles=V(citationcore)$title[com$membership==c&d>dth],degree=d[com$membership==c&d>dth]))
+  #show(V(rawcore)$title[com$membership==c])
 }
+
+# -> OK deteministic communities ; no need to save. (multi-level this louvain, not random ?)
+
+# nom des communautés de citation
+citcomnames=list('7'='LUTI','10'='Geography','3'='Infra Planning','12'='Networks','11'='TOD','8'='Accessibility')
+
+#V(citationcore)$citclass = unlist(sapply(as.character(com$membership),function(n){ifelse(n%in%names(citcomnames),unlist(citcomnames[n]),'NA')}))
+V(citationcore)$citmemb = com$membership
+
+## these communities are on the core ; for semantic shall we extend ?
+#  -> compare with full communities
+
+A = as.matrix(as_adjacency_matrix(citation))
+M = A+t(A)
+undirected_citation = graph_from_adjacency_matrix(M,mode="undirected")
+
+# communities
+com = cluster_louvain(undirected_citation)
+
+# -> 50 coms, mod 0.83 - seems quite ≠
 
 
 
