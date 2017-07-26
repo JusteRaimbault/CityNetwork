@@ -6,6 +6,7 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo'))
 library(dplyr)
 library(igraph)
 
+source('functions.R')
 
 # raw network
 #edges <- read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit2_links.csv',sep=";",header=F,colClasses = c('character','character'))
@@ -88,19 +89,7 @@ undirected_rawcore = graph_from_adjacency_matrix(M,mode="undirected")
 # communities
 com = cluster_louvain(undirected_rawcore)
 
-# modularity
-directedmodularity<-function(membership,adjacency){
-  m=sum(adjacency)
-  kout=rowSums(adjacency);kin=colSums(adjacency)
-  res = 0;k=length(unique(membership))
-  for(c in unique(membership)){
-    #if(c%%100==0){show(c/k)}
-    inds=which(membership==c)
-    res = res + sum(adjacency[inds,inds]) - sum(kin[inds])*sum(kout[inds])/m 
-    gc()
-  }
-  return(res/m)
-}
+
 
 directedmodularity(com$membership,A)
 
@@ -140,12 +129,12 @@ V(citationcore)$citmemb = com$membership
 ## these communities are on the core ; for semantic shall we extend ?
 #  -> compare with full communities
 
-A = as.matrix(as_adjacency_matrix(citation))
-M = A+t(A)
-undirected_citation = graph_from_adjacency_matrix(M,mode="undirected")
+#A = as.matrix(as_adjacency_matrix(citation))
+#M = A+t(A)
+#undirected_citation = graph_from_adjacency_matrix(M,mode="undirected")
 
 # communities
-com = cluster_louvain(undirected_citation)
+#com = cluster_louvain(undirected_citation)
 
 # -> 50 coms, mod 0.83 - seems quite ≠
 
