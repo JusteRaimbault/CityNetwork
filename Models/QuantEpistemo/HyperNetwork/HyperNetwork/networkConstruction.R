@@ -139,17 +139,20 @@ constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,
   show('Getting edges...')
   edges <- dbGetQueryForKeys(mongo,nwcollection,paste0('{"weight":{$gt:',edge_th-1,'}}'),'{"edge":1,"weight":1}',skip=0,limit=1000000000)
   
-  e1=c();e2=c();weights=c()
-  for(i in 1:nrow(edges)){
-    if(i%%1000==0){show(paste0('edges : ',i/length(edges),'%'))}
-    w=edges$weight[i]
-    if(w>=edge_th){ # should be always verified
-       e = strsplit(edges$edge[i],";")[[1]]
-       if(e[1]!=e[2]){# avoid self loops, weight info is already contained in doc frequency of nodes
-         e1=append(e1,e[1]);e2=append(e2,e[2]);weights=append(weights,w)
-       }
-    }
-  }
+  #e1=c();e2=c();weights=c()
+  #for(i in 1:nrow(edges)){
+  #  if(i%%1000==0){show(paste0('edges : ',i/length(edges),'%'))}
+  #  w=edges$weight[i]
+  #  if(w>=edge_th){ # should be always verified
+  #     e = strsplit(edges$edge[i],";")[[1]]
+  #     if(e[1]!=e[2]){# avoid self loops, weight info is already contained in doc frequency of nodes
+  #       e1=append(e1,e[1]);e2=append(e2,e[2]);weights=append(weights,w)
+  #     }
+  #  }
+  #}
+  split=strsplit(edges$edge,';')
+  e1=sapply(split,function(l){l[1]});e2=sapply(split,function(l){l[2]})
+  weights=edges$weight
   
   res = list()
   res$g = graph_from_data_frame(data.frame(from=e1,to=e2,weight=weights),directed=FALSE,vertices = relevant)
