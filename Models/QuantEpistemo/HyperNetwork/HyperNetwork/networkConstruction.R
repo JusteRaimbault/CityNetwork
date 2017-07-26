@@ -162,7 +162,7 @@ constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,
   res$g = graph_from_data_frame(data.frame(from=e1,to=e2,weight=weights),directed=FALSE,vertices = relevant)
   res$keyword_dico=keyword_dico
   
-  show(g)
+  show(res$g)
   
   save(res,file=paste0(target,'.RData'))
   
