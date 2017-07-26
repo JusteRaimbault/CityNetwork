@@ -97,11 +97,11 @@ computeThemProbas<-function(gg,com,keyword_dico){
 #' @description Construct semantic coocurrence graph directly from nw table in mongo. Kw dico is reconstructed here (not that efficient in R)
 #' 
 constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,edge_th,target,mongo){
-  #relevantcollection='relevant_1000'
-  relevant <- dbGetQuery(mongo,relevantcollection,'{}')
+  #relevantcollection='relevant_10000'
+  relevant <- dbGetQuery(mongo,relevantcollection,'{}',skip=0,limit = 1000000)
   #kwcollection='keywords'
   # has to fix limit ? ok reasonable corpuses
-  dicoraw <- dbGetQueryForKeys(mongo,kwcollection,'{}','{"id":1,"keywords":1}',skip=0,limit=100000)
+  dicoraw <- dbGetQueryForKeys(mongo,kwcollection,'{}','{"id":1,"keywords":1}',skip=0,limit=1000000)
   # has to do some string splitting
   dico=sapply(dicoraw$keywords,function(s){strsplit(trimws(gsub("[",'',gsub("]",'',gsub('\"','',s),fixed=T),fixed=T)),' , ')})
   names(dico)=as.character(dicoraw$id)
@@ -153,6 +153,10 @@ constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,
   split=strsplit(edges$edge,';')
   e1=sapply(split,function(l){l[1]});e2=sapply(split,function(l){l[2]})
   weights=edges$weight
+  edgesv=unique(c(e1,e2))
+  missingvertices = edgesv[!(edgesv%in%relevant$keyword)]
+  show(paste0('missing vertices : ',length(missingvertices)))
+  if(length(missingvertices)>0){relevant=rbind(relevant,data.frame(keyword=missingvertices,cumtermhood=rep(0,length(missingvertices)),docfreq=rep(0,length(missingvertices)),tidf=rep(0,length(missingvertices))))}
   
   res = list()
   res$g = graph_from_data_frame(data.frame(from=e1,to=e2,weight=weights),directed=FALSE,vertices = relevant)
