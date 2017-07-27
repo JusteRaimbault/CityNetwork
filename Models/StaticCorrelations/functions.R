@@ -93,7 +93,7 @@ corrTest<-function(m){
   est=matrix(NA,ncol(m),ncol(m))
   mi=matrix(NA,ncol(m),ncol(m))
   ma=matrix(NA,ncol(m),ncol(m))
-  tryCatch(
+  tryCatch({
   for(i in 1:(ncol(m)-1)){
     for(j in (i+1):ncol(m)){
       if(length(which(is.na(m[,i])))<length(m[,i])-3&length(which(is.na(m[,j])))<length(m[,j])-3){
@@ -104,7 +104,7 @@ corrTest<-function(m){
     }
   }
   for(i in 1:ncol(m)){if(length(which(is.na(m[,i])))<length(m[,i])-3){est[i,i]=1.0;mi[i,i]=1.0;ma[i,i]=1.0}}
-  )
+  },error=function(e){show(e);show(tt)})
   return(list(estimate=est,conf.int.min=mi,conf.int.max=ma))
 }
 
