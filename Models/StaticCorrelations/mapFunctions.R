@@ -24,7 +24,7 @@ loadIndicatorData<-function(file){
 #y=function(x){log(x+0.01)};yinv = function(y){exp(y)-0.01}
 
 
-map<-function(indiccols,filename,width,height,mfrow,mar=c(2,2.5,1.5,2) + 0.1){
+map<-function(indiccols,filename,width,height,mfrow,mar=c(2,2.5,1.5,2) + 0.1,sdata=sdata){
   png(file=paste0(resdir,filename),width=width,height=height,units='cm',res=600)
   par(mfrow=mfrow ,mar = mar,
       oma = c(0,0,0,1) + 0.1)

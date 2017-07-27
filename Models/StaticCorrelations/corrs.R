@@ -125,17 +125,24 @@ ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rh
 corrmat = matrix(data = unlist(corrs),ncol=400,byrow=TRUE)
 rows=apply(corrmat,1,function(r){prod(as.numeric(!is.na(r)))>0})
 corrmat = corrmat[rows,]
+# names
+meltedcorrmat=melt(corrs[[1]][[87]]);colnames(corrmat)<-paste0(meltedcorrmat$Var1,'-',meltedcorrmat$Var2)
+# coordinates
+lon=c();lat=c();for(i in 1:length(xcors)){for(j in 1:length(ycors)){if(length(corrs[[i]][[j]])>0&length(which(is.na(corrs[[i]][[j]])))==0){lon=append(lon,xcors[i]);lat=append(lat,ycors[j])}}}
+corrmat=data.frame(lon=lon,lat=lat,corrmat)
+
+# do the pca
 pca=prcomp(corrmat)
 summary(pca)
 rhopca = data.frame(getCorrMeasure(xcors,ycors,corrs,function(rho){if(!is.matrix(rho)){return(NA)};r=matrix(c(rho),ncol=length(rho))%*%as.matrix(pca$rotation);return(r[1,1])}))
 colnames(rhopca)<-c("lon","lat","rho")
 
 ###
-dd=d[d$measure=="meanabs",]
-g=ggplot(dd)
+#dd=d[d$measure=="meanabs",]
+#g=ggplot(dd)
 #g=ggplot(rhopca)
-g+geom_raster(aes(x=lat,y=lon,fill=rho))+scale_fill_gradient2(low="green",mid="white",high="brown",midpoint = median(dd$rho,na.rm=T))+#scale_fill_gradient2(low="#998ec3",mid="#f7f7f7",high="#f1a340")+#,midpoint = median(rhopca$rho,na.rm = T))+#scale_fill_gradient(low="yellow",high="red",name="PC1")+
-  xlim(c(-11,32))+ylim(c(35.55,70))+facet_grid(type~delta)+ggtitle("Mean abs correlation")##+ggtitle("PCA (full matrix) ; delta = 4")#
+#g+geom_raster(aes(x=lat,y=lon,fill=rho))+scale_fill_gradient2(low="green",mid="white",high="brown",midpoint = median(dd$rho,na.rm=T))+#scale_fill_gradient2(low="#998ec3",mid="#f7f7f7",high="#f1a340")+#,midpoint = median(rhopca$rho,na.rm = T))+#scale_fill_gradient(low="yellow",high="red",name="PC1")+
+#  xlim(c(-11,32))+ylim(c(35.55,70))+facet_grid(type~delta)+ggtitle("Mean abs correlation")##+ggtitle("PCA (full matrix) ; delta = 4")#
 
 ###
 
@@ -143,7 +150,7 @@ g=ggplot(rhopca)
 g+geom_raster(aes(x=lat,y=lon,fill=rho))+scale_fill_gradient2(low="#998ec3",mid="#f7f7f7",high="#f1a340",midpoint = median(rhopca$rho,na.rm = T))+#scale_fill_gradient(low="yellow",high="red",name="PC1")+
   xlim(c(-11,32))+ylim(c(35.55,70))+ggtitle("PCA (full matrix) ; delta = 4")#
 
-resdir = paste0(Sys.getenv('CN_HOME'),'/Results/Morphology/Coupled/Maps/')
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/FR/')
 
 map <- function(data,col,coordcols,filename,main=""){
   png(file=paste0(resdir,filename),width=12,height=10,units='cm',res=600)
@@ -164,12 +171,14 @@ map <- function(data,col,coordcols,filename,main=""){
 
 countries = readOGR('gis','countries')
 country = countries[countries$CNTR_ID=="FR",]
-datapoints = SpatialPoints(data.frame(rhopca[,c("lon","lat")]),proj4string = countries@proj4string)
+#datapoints = SpatialPoints(data.frame(rhopca[,c("lon","lat")]),proj4string = countries@proj4string)
+datapoints = SpatialPoints(data.frame(corrmat[,c("lon","lat")]),proj4string = countries@proj4string)
 selectedpoints = gContains(country,datapoints,byid = TRUE)
 
 map(rhopca[selectedpoints,],3,c(1,2),'corr_PCA_rhoasize12.png')
 
-
+corrmeasure = 'meanBetweenness.slope'
+map(corrmat[selectedpoints,],corrmeasure,c('lon','lat'),paste0('corr_',corrmeasure,'_rhoasize',rhoasize,'.png'),main=corrmeasure)
 
 
 

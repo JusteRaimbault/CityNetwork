@@ -14,8 +14,8 @@ library(classInt)
 source('mapFunctions.R')
 
 # load data
-#res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe
-res = loadIndicatorData('res/chinacoupled_areasize100_offset50_factor0.1_temp.RData') # China
+res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe
+#res = loadIndicatorData('res/chinacoupled_areasize100_offset50_factor0.1_temp.RData') # China
 
 # load spatial mask to select area
 countries = readOGR('gis','countries')
@@ -51,12 +51,13 @@ map(3:10,'indics_morpho_all.png',40,22,c(3,3),mar=c(2.5,2.5,1.5,6)) # CN
 # all network
 #map(c(10:20,22),'indics_network_all.png',44,30,c(3,4),mar=c(2.5,2.5,1.5,6)) # FR
 #map(c(10:20,22),'indics_network_all.png',44,32,c(3,4),mar=c(2.5,2.5,1.5,6)) # UK
-map(c(10:20,22),'indics_network_all.png',44,32,c(3,4),mar=c(2.5,2.5,1.5,6)) # CN
+map(c(11:31),'indics_network_all.png',60,40,c(7,3),mar=c(2.5,2.5,1.5,6)) # CN
 
 
 # selected network
-map(c(10,15,19,20),'indics_network_selected.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
-map(c(10,13,19,20),'indics_network_selected_2.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
+#map(c(10,15,19,20),'indics_network_selected.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
+#map(c(10,13,19,20),'indics_network_selected_2.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
+map(c(11,26,29,23),'indics_network_selected.png',40,22,c(2,2),mar=c(2.5,2,1.5,7.5))
 
 
 #####

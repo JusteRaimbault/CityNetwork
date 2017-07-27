@@ -3,17 +3,20 @@
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 source('functions.R')
+source('mapFunctions.R')
 
 # load data
-raw=read.csv(file="res/res/europe_areasize100_offset50_factor0.5_20160824.csv",sep=";",header=TRUE)
-rows=apply(raw,1,function(r){prod(as.numeric(!is.na(r)))>0})
-res=raw[rows,]
+#raw=read.csv(file="res/res/europe_areasize100_offset50_factor0.5_20160824.csv",sep=";",header=TRUE)
+#rows=apply(raw,1,function(r){prod(as.numeric(!is.na(r)))>0})
+#res=raw[rows,]
+purpose='chinacoupled_areasize100_offset50_factor0.1_temp'
+res=loadIndicatorData('res/',purpose,'.RData')
 
-
-rhoasizes=4:83
+#rhoasizes=4:83
+rhoasizes=seq(from=4,to=20,by=4)
 
 library(doParallel)
-cl <- makeCluster(20,outfile='log')
+cl <- makeCluster(5,outfile='log')
 registerDoParallel(cl)
 
 parallcorrs <- foreach(rhoasize=rhoasizes) %dopar% {
@@ -61,11 +64,11 @@ parallcorrs <- foreach(rhoasize=rhoasizes) %dopar% {
   allcorrs=rbind(allcorrs,cbind(rhomorph_est_meanabs,rhomorph_inf_meanabs,rhomorph_sup_meanabs,rep(rhoasize,nrow(rhomorph_est_mean)),rep("morpho",nrow(rhomorph_est_mean)),rep("meanabs",nrow(rhomorph_est_mean))))
   allcorrs=rbind(allcorrs,cbind(rhonet_est_meanabs,rhonet_inf_meanabs,rhonet_sup_meanabs,rep(rhoasize,nrow(rhonet_est_mean)),rep("network",nrow(rhonet_est_mean)),rep("meanabs",nrow(rhonet_est_mean))))
   
-  return(allcorrs)
+  return(list(allcorrs=allcorrs,corrs=corrs))
   })
 }
 
-save(parallcorrs,file='res/res/20160826_parallcorrs_corrTest.RData')
+save(parallcorrs,file=paste0('res/res/20170727_parallcorrs_',purpose,'.RData'))
 
 # do some unlisting and shit
 
@@ -74,17 +77,17 @@ save(parallcorrs,file='res/res/20160826_parallcorrs_corrTest.RData')
 #allcorrs$rho=as.numeric(as.character(allcorrs$rho));allcorrs$lat=as.numeric(as.character(allcorrs$lat));allcorrs$lon=as.numeric(as.character(allcorrs$lon));allcorrs$delta=as.numeric(as.character(allcorrs$delta))
 #allcorrs$type=as.character(allcorrs$type)
 
-allcorrs=data.frame()
-for(j in 1:length(parallcorrs)){
-  show(j)
-  allcorrs=rbind(allcorrs,parallcorrs[[j]])
-}
+#allcorrs=data.frame()
+#for(j in 1:length(parallcorrs)){
+#  show(j)
+#  allcorrs=rbind(allcorrs,parallcorrs[[j]])
+#}
 
-colnames(allcorrs)=c("lat","lon","rho","rhomin","rhomax","delta","type")
-allcorrs$rho=as.numeric(as.character(allcorrs$rho));allcorrs$lat=as.numeric(as.character(allcorrs$lat));allcorrs$lon=as.numeric(as.character(allcorrs$lon));allcorrs$delta=as.numeric(as.character(allcorrs$delta))
-allcorrs$type=as.character(allcorrs$type)
+#colnames(allcorrs)=c("lat","lon","rho","rhomin","rhomax","delta","type")
+#allcorrs$rho=as.numeric(as.character(allcorrs$rho));allcorrs$lat=as.numeric(as.character(allcorrs$lat));allcorrs$lon=as.numeric(as.character(allcorrs$lon));allcorrs$delta=as.numeric(as.character(allcorrs$delta))
+#allcorrs$type=as.character(allcorrs$type)
 
-save(allcorrs,file='res/res/20160826_parallcorrs_corrTest_unlisted.RData')
+#save(allcorrs,file='res/res/20160826_parallcorrs_corrTest_unlisted.RData')
 
 
 

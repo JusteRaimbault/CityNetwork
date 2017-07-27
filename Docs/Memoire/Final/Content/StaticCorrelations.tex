@@ -167,7 +167,13 @@ Nous travaillons ici avec le réseau de rues, dont la structure est finement con
 }
 
 
-% data collected from http://download.geofabrik.de/europe.html
+\bpar{
+Although \cite{zheng2014assessing} underlined a quick acceleration of OpenStreetMap road data completeness and accuracy, its use for computation of network indicators may be questioned. \cite{zhang2015density} highlights four regimes of data quality, partitioning China into regions among which qualitative behavior of OSM data varies. We underline that the results will be more valid on the regions where the quality is the highest, i.e. with high density and high diversity. For density data, we use the gridded population data from~\cite{fu1km}.
+}{
+
+}
+
+
 
 \bpar{
 From the primary road segments, we compute the topological road network for all studied areas, at 100m granularity scale to be used consistently with the population grid. The OSM data is imported into \texttt{pgsql} using \texttt{osmosis}, is then aggregated at fixed granularity, and the resulting topological network is finally simplified with a split/merge algorithm.
@@ -175,24 +181,9 @@ From the primary road segments, we compute the topological road network for all 
 Pour les segments de rue primaires, nous calculons le réseau topologique pour l'ensemble des zones étudiées, à une granularité de 100m pour pouvoir être utilisé de manière cohérente avec les grilles de population. Les données OSM sont importées dans \texttt{pgsql} en utilisant \texttt{osmosis}~\cite{osmosis}, est ensuite agrégé à la granularité fixe, et le réseau topologique résultant est finalement simplifié avec un algorithme split/merge.
 }
 
-%
-%\begin{columns}
-%\begin{column}{width=0.7\textwidth}
-%
-%\end{column}
-%\begin{column}{width=0.3\textwidth}
-%\textit{.} % TODO summary stats here.
-%\end{column}
-%\end{columns}
 
-%\begin{columns}
-%\begin{column}{0.7\textwidth}
-    %\includegraphics[width=\textwidth,height=0.5\textheight]{figures/ex_nw}
-%\end{column}
-%\begin{column}{0.3\textwidth}
    \textit{$\simeq 44\cdot 10^6$ links in initial OSM db, $\simeq 61\cdot 10^6$ in first simplified layer, $\simeq 21\cdot 10^6$ in final database}
-%\end{column}
-%\end{columns}
+
 
 
 For a given dataset corresponding to a subset of the overall road network, it is necessary to simplify network structure by spatial aggregation as initial data presents very detailed features and thus a very large numbers of nodes ($\simeq 10^10$ for Europe dataset). \comment{(Florent) c'est un peu confus, tu devrais d'abord dire : ce que tu as, les pb que ça pose, comment les résoudre}
@@ -205,19 +196,17 @@ For a given dataset corresponding to a subset of the overall road network, it is
 
 
 \bpar{
+These indicators are used to capture a rough picture of the structure. Refined work at smaller scales (intra-urban road network) and with more elaborated measures that allow to differentiate more precisely local form, was recently done by Lagesse in~\cite{2015arXiv151201268L}.
+}{
+Nous introduisons des indicateurs pour avoir une idée large de la forme du réseau. Un travail plus élaboré à des échelles plus fines (réseau de rues intra-urbain) et avec des mesures plus raffinées permettant de discriminer localement des formes typiques, a été récemment mené par \noun{Lagesse} dans~\cite{2015arXiv151201268L}. Dans notre cas, nous utilisons une batterie d'indicateurs pour capturer le maximum de dimensions des propriétés des réseaux, plus ou moins liées à l'utilisation de ceux-ci
+}
+
+
+\bpar{
 Network macroscopic structure is summarized by the following set of indicators, after the simplifications and reductions done in the previous step. Assuming network given by $N=(V,E)$, nodes spatial positions $\vec{x}(V)$ and edges \emph{effective distances} $d(E)$ taking into account impedances and real distances (to include basically network hierarchy), we have indicators:
 }{
 Dans notre cas, nous résumons la structure macroscopique du réseau par un jeu fixé d'indicateurs, calculés sur les réseau topologiques obtenus par les étapes précédentes de simplification. Notant le réseau $N=(V,E)$, les noeuds ayant les positions spatiales $\vec{x}(V)$ et les liens des \emph{distances effectives} $d(E)$ qui prennent en compte les impédances et les distance réelle (pour inclure la hiérarchie primaire du réseau), nous avons les indicateurs :
 }
-
-
-\comment{(Florent) tb à présenter de la même manière, plus en même temps + justification pour la forme urbaine}
-
-
-\todo{recompute indicators with capacity and/or hierarchy when possible with speed limits, to check how they change, and also correlations.}
-
-\comment{(Florent) et entre les deux il y a donc les indicateurs d'accessibilité que tu as évacué trop vite je pense (d'autant qu'étant pile à l'interface forme urbaine/réseau - ils me semblent particulièrement indiqués vu ta problématique}
-
 
 
 
@@ -230,13 +219,7 @@ Dans notre cas, nous résumons la structure macroscopique du réseau par un jeu 
 \item mean network speed
 \end{itemize}
 
-L'accessibilité est bien considérée comme un indicateur de réseau, puisque son calcul implique d'attribuer des poids aux noeuds par un population correspondante, et revient ensuite à une centralité de proximité pondérée.
-
-\bpar{
-These indicators are used to capture a rough picture of the structure. Refined work at smaller scales (intra-urban road network) and with more elaborated measures that allow to differentiate more precisely local form, was recently done by Lagesse in~\cite{2015arXiv151201268L}.
-}{
-Ces indicateurs sont utilisés pour avoir une idée large de la forme du réseau. Un travail plus élaboré à des échelles plus fines (réseau de rues intra-urbain) et avec des mesures plus raffinées permettant de discriminer localement des formes typiques, a été récemment mené par \noun{Lagesse} dans~\cite{2015arXiv151201268L}.
-}
+L'accessibilité est bien considérée comme un indicateur de réseau, puisque son calcul implique d'attribuer des poids aux noeuds par un population correspondante, et revient ensuite à un temps de trajet moyen pondéré. Cet indicateur est intéressant car à l'interface entre forme urbaine et forme du réseau, puisque la distribution de population sur les noeuds est prise en compte. On verra que celle-ci est fortement corrélée au même non-pondéré ($\rho = 0.86$ pour l'ensemble de la Chine par exemple).
 
 
 
@@ -263,6 +246,14 @@ Les indicateurs de réseau ont été calculés sur les mêmes zones que les indi
 \subsection{Effective static correlations}{Correlations Statiques Effectives et Non-stationnarité}
 
 
+%%%%%%%%%%%%%%%%%%
+\subsubsection{Correlations}{Corrélations}
+
+% short overview of overall correlations and effective dimensions
+
+
+
+
 
 %%%%%%%%%%%%%%%%%%
 \subsubsection{Spatial Correlations}{Corrélations spatiales}
@@ -270,24 +261,14 @@ Les indicateurs de réseau ont été calculés sur les mêmes zones que les indi
 
 Pour les correlations : zones de correlation pas trop grandes, carrés de base indicateurs plus petits : Computation of urban form indicators~\cite{le2015forme} and network indicators on $l_0=10km$ side square
 
-
-%%%%%%%%%%%%%%%%%
-Results : Spatial Correlations
-
-\textit{Computation of spatial correlation on square areas of width $\delta\cdot l_0$ (with typically $\delta = 4, \ldots , 16$)}
+Computation of spatial correlation on square areas of width $\delta\cdot l_0$ (with typically $\delta = 4, \ldots , 16$)
 
 
+We clearly unveil the local spatial stationarity of processes.
+
+% some maps
 %\includegraphics[width=\textwidth,height=0.7\textheight]{figures/corr_PCA_delta4}
 
-$\rightarrow$ \textit{local spatial stationarity of processes}
-
-
-
-%%%%%%%%%%%%%%%%%
-%\sframe{Results : Stationarity scales}{
-% maps
-% 
-%}
 
 
 
@@ -302,31 +283,6 @@ $\rightarrow$ \textit{local spatial stationarity of processes}
 On observe une variation significative des correlations moyennes en fonction de $\delta$
 
 $\rightarrow$ Significant variation of mean correlation with $\delta$ (Left) and of normalized confidence interval (Right) given by $\left|\rho_+ - \rho_-\right|\cdot \delta$, as bounds theoretically vary as $\sqrt{N} \sim \sqrt{\delta^2}$ : implies multi-scalarity
-
-
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%
-\subsubsection{Application to China}{Application à la Chine}
-
-
-\bpar{
-Although \cite{zheng2014assessing} underlined a quick acceleration of OpenStreetMap road data completeness and accuracy, its use for computation of network indicators may be questioned. \cite{zhang2015density} highlights four regimes of data quality, partitioning China into regions among which qualitative behavior of OSM data varies. We choose in the following to work only on the regions where the quality is the highest, i.e. with high density and high diversity. % TODO precise which areas
-For density data, we use the gridded population data from~\cite{fu1km}. % TODO check also that
-}{
-
-}
-
-
-
-
-In \cite{10.1371/journal.pone.0107042} density grids for other countries across the world (ex. China) are provided\footnote{available at \url{http://www.worldpop.org.uk/}} soo we may repeat our analysis to other regions for comparison purposes. \comment{(Florent) comparer quoi ?}
-
-
 
 
 
@@ -402,6 +358,18 @@ $\rightarrow$ No direct results on time dynamics, but indirect : spatio-temporal
 
 
 
+
+
+
+
+%%%%%%%%%%%%%%%%%%
+\subsubsection{Développements possibles}{Possible developments}
+
+\bpar{
+In \cite{10.1371/journal.pone.0107042} density grids for other countries across the world are provided\footnote{available at \url{http://www.worldpop.org.uk/}}. The analysis may be repeated to other regions of the world, to compare the correlation regimes and test if urban system properties stay the same. We can expect different regimes for the United States compared to Europe for example, but the discrepancy needs still to be investigated~\cite{bretagnolle2010comparer}.
+}{
+Des grilles de densité de population existent pour l'ensemble des régions du monde, comme par exemple celles fournies par~\cite{10.1371/journal.pone.0107042}\footnote{disponibles à \url{http://www.worldpop.org.uk/}}. L'analyse peut être répétée pour d'autres régions, pour comparer les régimes de corrélations et tester si les propriétés des systèmes urbains restent les mêmes, en gardant à l'esprit les difficultés liées aux différences de qualité dans les données. On peut s'attendre à des régimes très différents pour les Etats-Unis en comparaison à l'Europe par exemple~\cite{bretagnolle2010comparer}, mais la différence se doit d'être étudiée quantitativement.
+}
 
 
 

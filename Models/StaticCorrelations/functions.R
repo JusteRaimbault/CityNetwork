@@ -36,6 +36,8 @@ crossCorrelations<-function(m,c1,c2,f=function(x,y){return(cor(x,y))}){
 
 
 #'
+#' @description compute correlation matrices, with a given function (use corrTest for estimates and confidence intervals)
+#'      on square windows centered on (xcors)x(ycors), of size xyrhoasize (must be in coordinates units)
 #'
 getCorrMatrices<-function(xcors,ycors,xyrhoasize,res,f=function(m){cor(m[,c(-1,-2)])}){
   corrs=list()
@@ -65,7 +67,7 @@ getCorrMatrices<-function(xcors,ycors,xyrhoasize,res,f=function(m){cor(m[,c(-1,-
 
 
 #'
-#'
+#' @description given list of correlations matrices corrs, computes a function of this matrix at coordinates (xcors)x(ycors)
 getCorrMeasure<-function(xcors,ycors,corrs,f){
   res = matrix(0,length(xcors)*length(ycors),3)
   k=1
@@ -83,8 +85,8 @@ getCorrMeasure<-function(xcors,ycors,corrs,f){
 
 
 #'
-#' compute correlation with confidence intervals
-#'   remove two first columns assumed as coordinates
+#' @description  compute correlation with confidence intervals
+#    removes two first columns assumed as coordinates
 corrTest<-function(m){
   if(is.na(m)){return(list(estimate=NA,conf.int.min=NA,conf.int.max=NA))}
   m = m[,c(-1,-2)]
