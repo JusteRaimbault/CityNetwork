@@ -40,8 +40,10 @@ getCybindexes<-function(them_probas,cybnames,cybergeo,keyword_dico){
 #'  @param freqmax ; maximal filtering frequency
 #'  @param edge_th ; edge weight threshold
 #'  
-extractSubGraphCommunities<-function(ggiant,kmin,kmax,freqmin,freqmax,edge_th){
-  dd = V(ggiant)$docfreq
+extractSubGraphCommunities<-function(g,kmin,kmax,freqmin,freqmax,edge_th){
+  clust = clusters(g);cmax = which(clust$csize==max(clust$csize))
+  ggiant = simplify(induced.subgraph(g,which(clust$membership==cmax)),edge.attr.comb = list(weight='mean'))
+  dd = V(ggiant)$docfrequency
   d = degree(ggiant)
   gg=induced_subgraph(ggiant,which(d>kmin&d<kmax&dd>freqmin&dd<freqmax))
   gg=subgraph.edges(gg,which(E(gg)$weight>edge_th))

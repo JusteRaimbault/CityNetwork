@@ -26,7 +26,7 @@ networkSensitivity <- function(db,filters,freqmaxvals,freqminvals,kmaxvals,ethva
   # Q : work on giant component ?
   # 
   clust = clusters(g);cmax = which(clust$csize==max(clust$csize))
-  ggiant = induced.subgraph(g,which(clust$membership==cmax))
+  ggiant = simplify(induced.subgraph(g,which(clust$membership==cmax)),edge.attr.comb = list(weight='mean'))
   
   kmin = 0
   
@@ -44,7 +44,7 @@ networkSensitivity <- function(db,filters,freqmaxvals,freqminvals,kmaxvals,ethva
       for(kmax in kmaxvals){
         for(edge_th in ethvals){
           show(paste0('kmax : ',kmax,' e_th : ',edge_th,' ; freqmin : ',freqmin,' ; freqmax : ',freqmax))
-          dd = V(ggiant)$docfreq
+          dd = V(ggiant)$docfrequency
           d = degree(ggiant)
           gg=induced_subgraph(ggiant,which(d>kmin&d<kmax&dd>freqmin&dd<freqmax))
           gg=subgraph.edges(gg,which(E(gg)$weight>edge_th))
@@ -66,6 +66,7 @@ networkSensitivity <- function(db,filters,freqmaxvals,freqminvals,kmaxvals,ethva
   }
   
   d = data.frame(degree_max=dmax,edge_th=eth,vertices=gsizes,components=csizes,modularity=modularities,communities=comnumber,density=gdensity,comunitiesbalance=cbalance,freqmin=freqsmin,freqmax=freqsmax)
+  names(d)[ncol(d)-2]="balance"
   
   save(d,file=outputfile)
   

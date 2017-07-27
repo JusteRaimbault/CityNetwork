@@ -21,8 +21,8 @@ computeThemProbablities <- function(db,filters,freqmaxvals,freqminvals,kmaxvals,
     g = filterGraph(g,filt)
   }
   
-  clust = clusters(g);cmax = which(clust$csize==max(clust$csize))
-  ggiant = induced.subgraph(g,which(clust$membership==cmax))
+  #clust = clusters(g);cmax = which(clust$csize==max(clust$csize))
+  #ggiant = induced.subgraph(g,which(clust$membership==cmax))
   
   kmin = 0
   
@@ -44,7 +44,7 @@ computeThemProbablities <- function(db,filters,freqmaxvals,freqminvals,kmaxvals,
   
   res <- foreach(i=1:nrow(params)) %dopar% {
     source('networkConstruction.R')
-    sub = extractSubGraphCommunities(ggiant,kmin,params[i,2],params[i,1],freqmax,params[i,3])
+    sub = extractSubGraphCommunities(g,kmin,params[i,2],params[i,1],freqmax,params[i,3])
     probas = computeThemProbas(sub$gg,sub$com,res$keyword_dico)
     save(sub,probas,file=paste0('probas/',db,'_kmin',kmin,'_kmax',params[i,2],'_freqmin',params[i,1],'_freqmax',freqmax,'_eth',params[i,3],'.RData'))
   }
