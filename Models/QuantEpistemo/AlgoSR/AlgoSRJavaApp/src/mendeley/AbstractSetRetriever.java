@@ -68,6 +68,8 @@ public class AbstractSetRetriever {
 					Reference detailed = MendeleyAPI.getReference(r.title.title,r.year,r.scholarID);
 					if(detailed!=null){
 						finalCorpus.references.add(detailed);
+						// export the current corpus
+						finalCorpus.csvExport(outFile,true);
 					}
 				}
 			}

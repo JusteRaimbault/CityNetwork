@@ -13,7 +13,7 @@ stdtheme= theme(axis.title = element_text(size = 22),
 
 source('functions.R')
 
-Ncities = 400
+Ncities = 50
 d = loadData(Ncities)
 cities = d$cities;dates=d$dates;distances=d$distances
 pops = cities[,4:ncol(cities)]
@@ -27,16 +27,20 @@ for(t in 2:ncol(delta_p)){boxplot(delta_p[,t],at=t,add=TRUE)}
 
 #par(mfrow=c(6,5))
 pops = as.matrix(cities[,4:ncol(cities)])
+rates=c()
 for(j in 2:ncol(pops)){
   show(dates[j])
   r = pops[,j]/pops[,j-1]
   delta_p = (pops[,j]-pops[,j-1])/pops[,j-1]
   delta_x = log(r)
-  print(cor.test(delta_x,pops[,j]))
+  rates=append(rates,mean(delta_p))
+  #print(cor.test(delta_x,pops[,j]))
   #show(paste0("lognormal ",dates[j],": ",logLik(fitdistr(g,densfun = "lognormal"))))
   #show(paste0("normal ",dates[j],": ",logLik(fitdistr(g,densfun = "normal"))))
   #hist(g,breaks=100,main=dates[j])
 }
+
+#plot(rates,type='l') # ok
 
 #  Rq : growth rates fit better lognormal than normal (except during wars)
 
