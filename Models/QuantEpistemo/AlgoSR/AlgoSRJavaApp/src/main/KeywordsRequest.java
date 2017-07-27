@@ -50,6 +50,8 @@ public class KeywordsRequest {
 			    reqs[i] = currentreq ;
 			}
 			
+			try{(new FileWriter(new File(outFile+"_achieved.txt"))).write(kwFile+'\n');}catch(Exception e){e.printStackTrace();}
+			
 			for(String req:reqs){
 				HashSet<Reference> currentrefs = ScholarAPI.scholarRequest(req, numref, "direct");
 				new DefaultCorpus(Reference.references.keySet()).csvExport(outFile,false);

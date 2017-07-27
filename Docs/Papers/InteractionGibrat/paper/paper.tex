@@ -114,43 +114,27 @@ We propose a simple model of urban growth for systems of cities, which investiga
 
 
 
-%%%%%%%%%%%%%%%%%%%
-%% Figures and Results
-%%
-% Fig 1 : Empirical TS correlations
-%
-% Fig 2 : Implementation : Interface ; Run1 vs Run2 (ex better fit) ; Path density of shortest path heuristics
-%
-% Fig 3 : a) error = f(gravityDecays) when calibration is effective
-%         b) <gravityDecay argmin> = f(period) = "evolution of interaction distance in time"
-%
-% Fig. 4 : Better fit with feedback
-%
-% Fig 5 : Pareto feedback 
-
-
-
-
-
-
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Introduction}
 
-%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Modeling Urban Growth}
+
+
 
 Understanding processes driving urban growth is more crucial than ever, as urban population recently crossed the symbolic proportion of half world population~\cite{}.% TODO cite ? 
  Future of world economies and sustainability of future societies seem to be deeply interlinked with the dynamics of urban systems.%cite
- A better knowledge of how cities differentiate, interact and grow is thus a relevant topic both theoretically and for application. Many disciplines have studied models of urban growth with different objectives and taking different aspects into account. Economics are still reluctant to include spatial interactions in their models~\cite{krugman1998space}, whereas geography fails to embrace a certain level of complexity. \com{what does it mean ?}
+ A better knowledge of how cities differentiate, interact and grow is thus a relevant topic both for policies and from a theoretical perspective. Many disciplines have studied models of urban growth with different objectives and taking different aspects into account. Economics are still reluctant to include spatial interactions in their models~\cite{krugman1998space}, whereas geography fails to embrace a certain level of complexity. \com{what does it mean ?}
   The example of this two disciplines shows how it is difficult to make bridges, as it needed exceptional minds to translate from one to the other (as P. Hall did for Von Thunen work~\cite{taylor2016polymath}) % note : also quote here economic geo/geo economic ?
 
-% broad review from different disciplines point of view
-% NOTE : justify scale here (eg not urban sprawl models)
+\cite{andersson2006complex}
 
-% \cite{rozenfeld2008laws} : systematic empirical study of Urban Growth / Verification of Gibrat's law.
+we do not consider urban sprawl models or cellular automata.
+
+\cite{rozenfeld2008laws} : systematic empirical study of Urban Growth / Verification of Gibrat's law. 
+
+In this paper we aim at exploring further the assumption, central to Pumain's Evolutive Urban Theory, that spatial interactions between cities are a significant drivers of their growth. More precisely, we consider both abstract interactions and flow interactions mediated through the physical networks, mainly transportation network. We extend existing models accordingly. Our contribution is twofold: (i) we show that very basic interaction models based on population only can be fitted to empirical data and that fitted parameter values are directly interpretable; and (ii) we construct an empirical AIC to demonstrate
+We reveal therethourgh
 
 
 
@@ -263,7 +247,7 @@ where $d_{kl,i}$ is distance to shortest path between $k,l$ computed with slope 
 \toprule
 Parameter & Notation & Process & Range\\
 \midrule
-Growth Rate & r_0 & Endogenous growth & $\left[ 0,1\right]$ \\\hrule
+Growth Rate & $r_0$ & Endogenous growth & $\left[ 0,1\right]$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -276,7 +260,7 @@ Growth Rate & r_0 & Endogenous growth & $\left[ 0,1\right]$ \\\hrule
 
 \paragraph{Population data}
 
-We work with the Pumain-INED historical database for French Cities~\cite{pumain1986fichier}, which give populations of \emph{Aires Urbaines} (INSEE definition) at time intervals of mostly 5 years, from 1830 to 1999. The latest version of the database integrates Urban Areas, allowing to follow them on long time-period, according to Bretagnole's long time cities ontology~\cite{bretagnolle:tel-00459720}, that constructs a definition of cities as evolving entities which boundaries are not fixed in time.
+We work with the Pumain-INED historical database for French Cities~\cite{pumain1986fichier}, which give populations of \emph{Aires Urbaines} (INSEE definition) at time intervals of 5 years, from 1831 to 1999 (31 observations in time). The latest version of the database integrates Urban Areas, allowing to follow them on long time-period, according to Bretagnole's long time cities ontology~\cite{bretagnolle:tel-00459720}, that constructs a definition of cities as evolving entities which boundaries are not fixed in time.
 
 
 
@@ -333,7 +317,7 @@ More precisely, we consider overlapping 50 years time-windows finishing respecti
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-\includegraphics[width=0.8\textwidth]{figures/empirical_tsCorrelations}
+\includegraphics[width=\textwidth]{figures/Fig1}
 \caption{\textbf{Time-series correlations as a function of distance.} Solid line correspond to smoothed correlations, computed between each normalized population time-series, on successive periods.}
 \label{fig:ts-correlations}
 \end{figure}
@@ -342,8 +326,15 @@ More precisely, we consider overlapping 50 years time-windows finishing respecti
 
 
 
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Implementation}
+\subsection*{Model Exploration}
+
+
+\paragraph{Implementation}
+
 
 Data preprocessing, result processing and models profiling are implemented in \texttt{R}. For performances reasons and an easier integration into the OpenMole software for model exploration described by~\cite{reuillon2013openmole}, a \texttt{scala} version was also developed. The typical question of trade-off between implementation performance and interoperability appeared quickly as an issue, as a blind exploration and calibration can difficultly provide useful thematic conclusions for that kind of model. Finding an improvement in model fit among one parameter dimension is significant if the geographical situation is visualized and the improvement is confirmed as reasonable and not an absurdity.
 
@@ -357,9 +348,8 @@ Data preprocessing, result processing and models profiling are implemented in \t
 %%%%%%%%%%%%%%%%%%%
 
 
+\paragraph{Behavior Patterns}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Model Exploration}
 
 
 
@@ -405,6 +395,7 @@ The optimization problem associated to model calibration does not present featur
 %%%%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
+\includegraphics[width=\textwidth]{figures/Fig4}
 \caption{\textbf{Calibrating the Gravity Model.} Pareto-front on successive periods, with effect of distance decay parameter.}
 \label{fig:calib-gravity}
 \end{figure}
@@ -414,7 +405,8 @@ The optimization problem associated to model calibration does not present featur
 %%%%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-\caption{\textbf{Interaction ranges.} Values of optimal interaction range parameter.}
+\includegraphics[width=\textwidth]{figures/Fig5}
+\caption{\textbf{Interaction ranges.} Values of optimal interaction range parameters.}
 \label{fig:gravitydecay}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%
@@ -433,7 +425,7 @@ The optimization problem associated to model calibration does not present featur
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{figures/allperiods_feedbackWeight}
+\includegraphics[width=\textwidth]{figures/Fig6}
 \caption{\textbf{Pareto fronts for bi-objective calibration.} Steady-state populations are obtained using Island Genetic Algorithm embedded in \texttt{OpenMole}, with parameters, and on independent time periods as detailed in text. We show  corresponding parameter values for $w_N$, for the gravity-only model (Top) and the full model (Bottom).}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -459,7 +451,8 @@ We focus in this last experiment on quantifying the ``performance'' of the model
 \cite{2017arXiv170609773B} : model extraction - very similar, with different purpose
 
 A large part of statistical models allow to compute tools for model comparison and selection, in particular to take into account possible overfitting due to additional degrees of freedom. The Akaike Information Criterion provides the gain in information between two models, and many extensions have been proposed since~\cite{}.% TODO cite AIC
-Note that cross-validation type of methods are not suitable to our case because of the small size of the dataset. We can formalize the proposed method based on the intuitive idea of approaching models of simulation by statistical models and using the corresponding AIC under certain validity conditions. Let $(X,Y)$ be the data and observations. Computational models are functions $(X,\alpha_k) \mapsto M_{\alpha_k}^{(k)}(X)$ mapping data values to a random variable. What is seen as data and parameters is somehow arbitrary but is separated in the formulation as corresponding dimensions will have different roles. We assume the model has been fitted to data in the sense that an heuristic has been used to approximate $\alpha^{\ast}_k = \argmin_{\alpha_k}\norm{M_{\alpha_k}^{(k)}(X) - Y}$. The gain of information between two computational models is not directly accessible and we propose an indirect way, through the fitting of statistical models. For all computational model, a large set of statistical models with similar degree of freedom are fitted. % TODO not clear here 
+Note that cross-validation type of methods are not suitable to our case because of the small size of the dataset. We can formalize the proposed method based on the intuitive idea of approaching models of simulation by statistical models and using the corresponding AIC under certain validity conditions. Let $(X,Y)$ be the data and observations. Computational models are functions $(X,\alpha_k) \mapsto M_{\alpha_k}^{(k)}(X)$ mapping data values to a random variable. What is seen as data and parameters is somehow arbitrary but is separated in the formulation as corresponding dimensions will have different roles. We assume the model has been fitted to data in the sense that an heuristic has been used to approximate $\alpha^{\ast}_k = \argmin_{\alpha_k}\norm{M_{\alpha_k}^{(k)}(X) - Y}$. The gain of information between two computational models is not directly accessible and we propose an indirect way, through the fitting of statistical models. For all computational model, a large set of statistical models with similar degree of freedom are fitted.
+
 Let $S_k$ be the statistical models fitting best $M^{(k)}_{\alpha^{\ast}_k}(X)$. We can compute
 
 \[
