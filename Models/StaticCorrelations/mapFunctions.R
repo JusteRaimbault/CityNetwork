@@ -15,7 +15,8 @@ loadIndicatorData<-function(file){
     nonares = fullres[which(sapply(fullres,function(l){length(which(is.na(l)))})<29)];rm(fullres);gc()
     resdf = data.frame(matrix(unlist(nonares),nrow=length(nonares),byrow = T))
     names(resdf)<-c('lonmin','latmin',names(nonares[[1]])[3:length(nonares[[1]])])
-    return(as.tbl(resdf))
+    return(resdf) 
+   #return(as.tbl(resdf))
   }
 }
 

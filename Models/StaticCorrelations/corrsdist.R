@@ -10,7 +10,7 @@ source('mapFunctions.R')
 #rows=apply(raw,1,function(r){prod(as.numeric(!is.na(r)))>0})
 #res=raw[rows,]
 purpose='chinacoupled_areasize100_offset50_factor0.1_temp'
-res=loadIndicatorData('res/',purpose,'.RData')
+res=loadIndicatorData(paste0('res/',purpose,'.RData'))
 
 #rhoasizes=4:83
 rhoasizes=seq(from=4,to=20,by=4)
