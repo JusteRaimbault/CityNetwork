@@ -11,65 +11,52 @@ library(reshape2)
 library(cartography)
 library(classInt)
 
-# load data
-raw=read.csv(file="res/res/europe_areasize100_offset50_factor0.5_20160824.csv",sep=";",header=TRUE)
-rows=apply(raw,1,function(r){prod(as.numeric(!is.na(r[c(1,2)])))>0})
-#rows=1:length(raw)
-res=as.tbl(raw[rows,])
+source('mapFunctions.R')
 
+# load data
+#res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe
+res = loadIndicatorData('res/chinacoupled_areasize100_offset50_factor0.1_temp.RData') # China
 
 # load spatial mask to select area
 countries = readOGR('gis','countries')
-country = countries[countries$CNTR_ID=="FR",]
+country = countries[countries$CNTR_ID=="CN",]
 
 datapoints = SpatialPoints(data.frame(res[,c("lonmin","latmin")]),proj4string = countries@proj4string)
 
 selectedpoints = gContains(country,datapoints,byid = TRUE)
 sdata = res[selectedpoints,]
+sdata=res
 
 # map indicators
-g=ggplot(sdata,aes(x=lonmin,y=latmin,fill=cut(moran,breaks=10)))
-g+geom_raster()+scale_fill_brewer(palette = "Spectral")+theme_bw()
+#g=ggplot(sdata,aes(x=lonmin,y=latmin,fill=cut(moran,breaks=10)))
+#g+geom_raster()+scale_fill_brewer(palette = "Spectral")+theme_bw()
 
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/CN/')
+dir.create(resdir)
 
-resdir = paste0(Sys.getenv('CN_HOME'),'/Results/Morphology/Coupled/Maps/')
-
-y=function(x){log(x+0.01)};yinv = function(y){exp(y)-0.01}
-map<-function(indiccols,filename,width,height,mfrow,mar=c(2,2.5,1.5,2) + 0.1){
-  png(file=paste0(resdir,filename),width=width,height=height,units='cm',res=600)
-  par(mfrow=mfrow ,mar = mar,
-      oma = c(0,0,0,1) + 0.1)
-  cols <- carto.pal(pal1 = "green.pal",n1 = 5, pal2 = "red.pal",n2 = 5)
-  for(indic in indiccols){
-    #x = y(unlist(sdata[,indic]))
-    x = unlist(sdata[,indic])
-    m=acast(data.frame(sdata[,c(1,2)],x),latmin~lonmin);r = raster(m[seq(from=nrow(m),to=1,by=-1),])
-    crs(r)<-"+proj=longlat +datum=WGS84";extent(r)<-c(min(sdata$lonmin),max(sdata$lonmin),min(sdata$latmin),max(sdata$latmin))
-    breaks=classIntervals(x,10)
-    #ticks = yinv(seq(round(minValue(r),digits=1),round(maxValue(r),digits=1), round((round(maxValue(r),digits=2) - round(minValue(r),digits=2))/5,digits=1)))
-    ticks = seq(round(minValue(r),digits=1),round(maxValue(r),digits=1), round((round(maxValue(r),digits=2) - round(minValue(r),digits=2))/5,digits=1))
-    plot(r,main=colnames(sdata)[indic],
-         col=cols,breaks=unique(breaks$brks),
-         legend.width = 1.5,
-         axis.args=list(at=ticks,labels=ticks,cex.axis=1.0)
-         )
-  }
-  dev.off()
-}
-map(c(22),'test3.png',12,10,c(1,1))
+map(c(8),'test3.png',20,12,c(1,1))
 
 # morpho
-map(c(3,4,5,6),'indics_morpho_discrquantiles.png',20,18,c(2,2))
+#map(c(3,4,5,6),'indics_morpho.png',20,18,c(2,2)) # FR
+#map(c(3,4,5,6),'indics_morpho.png',20,20,c(2,2)) # UK
+map(c(8,9,10,6),'indics_morpho.png',40,22,c(2,2)) # CN
 
 # all morpho
-map(c(3,4,5,6,7,8),'indics_morpho_all_discrquantiles.png',32,18,c(2,3),mar=c(2.5,2.5,1.5,6))
+#map(c(3,4,5,6,7,8),'indics_morpho_all_discrquantiles.png',32,18,c(2,3),mar=c(2.5,2.5,1.5,6)) # FR
+#map(c(3,4,5,6,7,8),'indics_morpho_all.png',32,20,c(2,3),mar=c(2.5,2.5,1.5,6)) # UK
+map(3:10,'indics_morpho_all.png',40,22,c(3,3),mar=c(2.5,2.5,1.5,6)) # CN
+
+
 
 # all network
-map(c(10:20,22),'indics_network_all_discrquantiles.png',44,30,c(3,4),mar=c(2.5,2.5,1.5,6))
+#map(c(10:20,22),'indics_network_all.png',44,30,c(3,4),mar=c(2.5,2.5,1.5,6)) # FR
+#map(c(10:20,22),'indics_network_all.png',44,32,c(3,4),mar=c(2.5,2.5,1.5,6)) # UK
+map(c(10:20,22),'indics_network_all.png',44,32,c(3,4),mar=c(2.5,2.5,1.5,6)) # CN
+
 
 # selected network
-map(c(10,15,19,20),'indics_network_selected_discrquantiles.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
-map(c(10,13,19,20),'indics_network_selected_2_discrquantiles.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
+map(c(10,15,19,20),'indics_network_selected.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
+map(c(10,13,19,20),'indics_network_selected_2.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
 
 
 #####
