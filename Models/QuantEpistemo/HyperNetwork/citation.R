@@ -6,7 +6,7 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo'))
 library(dplyr)
 library(igraph)
 
-source('functions.R')
+source('HyperNetwork/HyperNetwork/functions.R')
 
 # raw network
 #edges <- read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit2_links.csv',sep=";",header=F,colClasses = c('character','character'))
@@ -59,7 +59,7 @@ V(citation)$reduced_title = ifelse(degree(citation)>50,V(citation)$reduced_title
 #V(raw)$reduced_title=rep("",vcount(raw))
 
 
-citationcore = induced_subgraph(citation,which(degree(raw)>1))
+citationcore = induced_subgraph(citation,which(degree(citation)>1))
 
 #V(rawcore)$title = rep("",vcount(rawcore))
 
@@ -125,6 +125,8 @@ citcomnames=list('7'='LUTI','10'='Geography','3'='Infra Planning','12'='Networks
 
 #V(citationcore)$citclass = unlist(sapply(as.character(com$membership),function(n){ifelse(n%in%names(citcomnames),unlist(citcomnames[n]),'NA')}))
 V(citationcore)$citmemb = com$membership
+
+save(citation,citationcore,citcomnames,com,undirected_rawcore,file='HyperNetwork/HyperNetwork/processed/citation.RData')
 
 ## these communities are on the core ; for semantic shall we extend ?
 #  -> compare with full communities

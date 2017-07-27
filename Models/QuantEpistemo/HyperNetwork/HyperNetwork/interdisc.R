@@ -26,6 +26,7 @@ semnames <- c('Maritime Networks','Accessibility','Sustainable Transport','Socio
 # export network
 write_graph(gg,file=paste0(figdir,'subgraph.gml'),format = 'gml')
 
+# save(gg,coms,probas,semantic,keyword_dico,file='processed/semantic.RData')
 
 ####
 rownames(probas)<-names(keyword_dico)
