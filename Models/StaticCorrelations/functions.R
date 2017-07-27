@@ -104,7 +104,7 @@ corrTest<-function(m){
     }
   }
   for(i in 1:ncol(m)){if(length(which(is.na(m[,i])))<length(m[,i])-3){est[i,i]=1.0;mi[i,i]=1.0;ma[i,i]=1.0}}
-  })
+  },error=function(e){show(e);show(tt)})
   return(list(estimate=est,conf.int.min=mi,conf.int.max=ma))
 }
 
