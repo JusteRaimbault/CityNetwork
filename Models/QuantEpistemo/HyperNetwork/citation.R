@@ -127,6 +127,7 @@ citcomnames=list('7'='LUTI','10'='Geography','3'='Infra Planning','12'='Networks
 V(citationcore)$citmemb = com$membership
 
 save(citation,citationcore,citcomnames,com,undirected_rawcore,file='HyperNetwork/HyperNetwork/processed/citation.RData')
+# 
 
 ## these communities are on the core ; for semantic shall we extend ?
 #  -> compare with full communities

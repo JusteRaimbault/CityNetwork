@@ -2,6 +2,18 @@
 # corpus construction for modelography
 #  (following interdisc)
 
+library(igraph)
+library(dplyr)
+
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork'))
+
+
+load(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork/processed/citation.RData'))
+
+
+#######
+## KW corpus
+
 # cit nw is subcit
 
 # rq : sem compo of cit coms are rather balanced
@@ -22,3 +34,19 @@ for(k in unique(coms$membership)){
 kwedges = E(gg)[E(gg)$weight>quantile(E(gg)$weight,0.95)&head_of(gg,E(gg))$name%in%as.character(kws$name)&tail_of(gg,E(gg))$name%in%as.character(kws$name)]
 
 write.csv(c(unique(c(head_of(gg,kwedges)$name,tail_of(gg,kwedges)$name)),paste0(head_of(gg,kwedges)$name,' ',tail_of(gg,kwedges)$name)),file='modelography/kwsraw.csv')
+
+
+#########
+## citation core
+write.table(data.frame(V(citationcore)$title,V(citationcore)$name,V(citationcore)$year,V(citationcore)$citmemb),row.names = F,col.names = F,file='modelography/citationcore.csv',sep=',')
+
+
+
+
+########
+## consolidate
+
+
+
+
+
