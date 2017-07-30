@@ -106,7 +106,8 @@ constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,
   dicoraw <- dbGetQueryForKeys(mongo,kwcollection,'{}','{"id":1,"keywords":1}',skip=0,limit=1000000)
   # has to do some string splitting
   dico=sapply(dicoraw$keywords,function(s){strsplit(trimws(gsub("[",'',gsub("]",'',gsub('\"','',s),fixed=T),fixed=T)),' , ')})
-  names(dico)=as.character(dicoraw$id)
+  #names(dico)=as.character(dicoraw$id)
+  names(dico)=trimws(format(dicoraw$id,scientific=F))
   
   relevant = relevant[,c('keyword','cumtermhood','docfrequency','tidf')]
   #relevant = data.frame(keyword=sapply(relevant,function(d){d$keyword}),

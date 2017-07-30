@@ -35,10 +35,11 @@ colnames(probas)<-semnames
 # extract citation graph with probas
 
 subcit = induced_subgraph(citationcore,which(V(citationcore)$name%in%rownames(probas)[rowSums(probas)>0]))
-subprobas = probas[V(subcit)$name,]
+#subprobas = probas[V(subcit)$name,]
+subprobas = probas
 
 # interdisciplinarity
-interdisc = data.frame(interdisc = 1 - apply(subprobas^2,1,sum),citclass =  unlist(sapply(as.character(V(subcit)$citmemb),function(n){ifelse(n%in%names(citcomnames),unlist(citcomnames[n]),'NA')})))
+interdisc = data.frame(interdisc = 1 - apply(subprobas^2,1,sum),id=as.character(rownames(subprobas)))#,citclass =  unlist(sapply(as.character(V(subcit)$citmemb),function(n){ifelse(n%in%names(citcomnames),unlist(citcomnames[n]),'NA')})))
 
 g=ggplot(interdisc[interdisc$citclass!='NA',],aes(x=interdisc,colour=citclass))
 g+geom_density(alpha=0.3)+stdtheme+xlab('interdisciplinarity')+scale_color_discrete(name='Cit. Class')
