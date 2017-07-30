@@ -23,7 +23,8 @@ def run_kw_extraction(source,target) :
 
 def kw_extraction(data,target,text_type):
     if target!='mysql': # init the sqlite db
-        os.remove(target)
+        if os.path.isfile(target):
+            os.remove(target)
         utils.insert_sqlite("CREATE TABLE refdesc (id TEXT,language TEXT,abstract_keywords TEXT,abstract TEXT);",target)
     for ref in data:
         print(ref)

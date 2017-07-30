@@ -323,7 +323,7 @@ public class CybergeoImport {
 		System.out.println("WITH SCHID : "+count);
 		
 		// import stats id - match with title
-		String[][] stats = CSVReader.read(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/raw/prov_ids.csv", "\t");
+		String[][] stats = CSVReader.read(System.getenv("CS_HOME")+"/CyberGeo/cybergeo20/Data/raw/prov_ids.csv", "\t","");
 		for(int i=0;i<stats.length;i++){
 			Reference r = Reference.construct("", new Title(stats[i][1]), new Abstract(), "", "");
 			r.addAttribute("UID", stats[i][0]);

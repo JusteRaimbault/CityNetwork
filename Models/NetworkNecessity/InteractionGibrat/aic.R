@@ -27,17 +27,19 @@ resM1=networkFeedbackModel(real_populations,distances,dists,dates,
 )
 
 logmse1 = log(sum((resM1$df$populations-resM1$df$real_populations)^2))
+mse1 = sum((resM1$df$populations-resM1$df$real_populations)^2)
 mselog1 = sum((log(resM1$df$populations)-log(resM1$df$real_populations))^2)
 
 # iterative calib necessary here ?
 resM2=networkFeedbackModel(real_populations,distances,dists,dates,
                      growthRate = 0.01283191,
-                     potentialWeight=0.0001308851,gammaGravity = 3.809335,decayGravity = 8.434855e10,
-                     betaFeedback =0.6034981,feedbackDecay = 7.474787e10  ,
+                     potentialWeight=0.0001308851,gammaGravity = 3.809335,decayGravity = 8.434855e14,
+                     betaFeedback =0.6034981,feedbackDecay = 7.474787e14  ,
                      feedbackGamma = 1.148056
                      )
 
 logmse2 = log(sum((resM2$df$populations-resM2$df$real_populations)^2))
+mse2 = sum((resM2$df$populations-resM2$df$real_populations)^2)
 mselog2 = sum((log(resM2$df$populations)-log(resM2$df$real_populations))^2)
 
 show(paste0('(1) : ',logmse1,' ; ',mselog1))
@@ -85,8 +87,25 @@ polFit<-function(data,params){
 p1 = polFit(data.frame(X=X1,Y=Y1),4)
 p2 = polFit(data.frame(X=X2,Y=Y2),7)
 
+sum(summary(p1)$residuals^2)/mse1
+sum(summary(p2)$residuals^2)/mse2
 AIC(p1) - AIC(p2) 
 # = 19.65414
+BIC(p1) - BIC(p2) 
+
+
+###
+
+
+p1 = nls(as.formula("Y~a1+a2*log(X)+a3*X+a4*X^2"),data.frame(X=X1,Y=Y1),start=list(a1=0,a2=0,a3=0,a4=0))
+p2 = nls(as.formula("Y~a1+a2*log(X)+a3*X+a4*X^2+a5*X^3+a6*X^4+a7*X^5"),data.frame(X=X2,Y=Y2),start=list(a1=0,a2=0,a3=0,a4=0,a5=0,a6=0,a7=0))
+
+sum(summary(p1)$residuals^2)/mse1
+sum(summary(p2)$residuals^2)/mse2
+AIC(p1) - AIC(p2) 
+# = 19.65414
+BIC(p1) - BIC(p2) 
+
 
 p1r = polFit(data.frame(X=X1r,Y=Y1r),4)
 log(sum(summary(p1r)$residuals^2))
@@ -102,15 +121,21 @@ log(sum((est-Y1)^2)) # = sum(summary(p1)$residuals^2)
 # set the seed as GA ?
 fit<-function(alpha){tryCatch({-sum(summary(nls(as.formula(paste0("Y~a1+a2*X^",alpha[1],"+a3*X^",alpha[2],"+a4*X^",alpha[3])),data.frame(X=X1,Y=Y1),start=list(a1=0,a2=0,a3=0,a4=0)))$residuals^2)},error = function(e) return(-1e15))}
 optimnet = ga(type="real-valued",fitness = fit,min = c(0.0,0.0,0.0),max=c(10.0,10.0,10.0),maxiter = 1000,parallel=4)
-sol = optimnet@solution
-p1best = nls(as.formula(paste0("Y~a1+a2*X^",sol[1],"+a3*X^",sol[2],"+a4*X^",sol[3])),data.frame(X=X1,Y=Y1),start=list(a1=0,a2=0,a3=0,a4=0))
+sol1 = optimnet@solution
+p1best = nls(as.formula(paste0("Y~a1+a2*X^",sol1[1],"+a3*X^",sol1[2],"+a4*X^",sol1[3])),data.frame(X=X1,Y=Y1),start=list(a1=0,a2=0,a3=0,a4=0))
 
 fit<-function(alpha){tryCatch({-sum(summary(nls(as.formula(paste0("Y~a1+a2*X^",alpha[1],"+a3*X^",alpha[2],"+a4*X^",alpha[3],"+a5*X^",alpha[4],"+a6*X^",alpha[5],"+a7*X^",alpha[6])),data.frame(X=X2,Y=Y2),start=list(a1=0,a2=0,a3=0,a4=0,a5=0,a6=0,a7=0)))$residuals^2)},error = function(e) return(-1e15))}
 optimnet = ga(type="real-valued",fitness = fit,min = c(0.0,0.0,0.0,0.0,0.0,0.0),max=c(10.0,10.0,10.0,10.0,10.0,10.0),maxiter = 1000,parallel=4)
-sol = optimnet@solution
-p2best = nls(as.formula(paste0("Y~a1+a2*X^",sol[1],"+a3*X^",sol[2],"+a4*X^",sol[3],"+a5*X^",sol[4],"+a6*X^",sol[5],"+a7*X^",sol[6])),data.frame(X=X2,Y=Y2),start=list(a1=0,a2=0,a3=0,a4=0,a5=0,a6=0,a7=0))
+sol2 = optimnet@solution
+p2best = nls(as.formula(paste0("Y~a1+a2*X^",sol2[1],"+a3*X^",sol2[2],"+a4*X^",sol2[3],"+a5*X^",sol2[4],"+a6*X^",sol2[5],"+a7*X^",sol2[6])),data.frame(X=X2,Y=Y2),start=list(a1=0,a2=0,a3=0,a4=0,a5=0,a6=0,a7=0))
+
+sum(summary(p1best)$residuals^2)/mse1
+sum(summary(p2best)$residuals^2)/mse2
 
 AIC(p1best)-AIC(p2best)
+# 11.70287
+BIC(p1best)-BIC(p2best)
+# -4.236787
 
 # polynoms with larger degree ? -> ok included in power functions
 
