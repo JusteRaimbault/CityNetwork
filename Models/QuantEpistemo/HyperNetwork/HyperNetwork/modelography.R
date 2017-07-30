@@ -46,7 +46,14 @@ write.table(data.frame(V(citationcore)$title,V(citationcore)$name,V(citationcore
 ########
 ## consolidate
 
+corpus = read.csv(file='modelography/corpus_manual.csv',header=F,sep=';',colClasses = c('character','character','character'))
+citcore = read.csv(file='modelography/citationcore_manual.csv',header=F,sep=',',colClasses = c('character','character','character','character'))
 
+full = rbind(cbind(corpus,V4=rep(NA,nrow(corpus))),citcore)
+
+full = full[!duplicated(full$V2),]
+
+write.table(full,row.names = F,col.names = F,sep=";",file='modelography/full.csv')
 
 
 
