@@ -55,39 +55,46 @@ Nous proposons une méthodologie hybride couplant les deux méthodologies dével
 %    * what do we mean by model ? (! contradiction with epistemo fwk ? clarifier) modèle de simulation / numérique.
 %    * publishers ! : plus de springer, alors que que elsevier et tandf dans premiere section (corpus kws) -> biais request (et tous sur reasearch gate, like shady lit.)
 %
+% - final corpus : with Model = 145
 
 
 \begin{enumerate}
-\item Partant du corpus de citation isolé en~\ref{subsec:indirectbibliometrics}, nous isolons pour chacune des communautés un nombre fixé de mots-clés pertinents.
-\item Pour chaque mots-clé, nous effectuons automatiquement une requête au catalogue (scholar) en y ajoutant \texttt{model*}, d'un nombre fixé de références. L'ajout du terme est nécessaire pour obtenir des références pertinentes, après test sur des échantillons.
-\item Le corpus potentiel composé des références obtenues et du corpus initial est revu manuellement pour assurer une pertinence au regard de l'état de l'art de~\ref{sec:modelingsa}, fournissant le corpus desquels seront extraits les modèles.
+\item Partant du corpus de citation isolé en~\ref{subsec:indirectbibliometrics}, nous isolons un nombre de mots-clés pertinents, en sélectionnant les 5\% de liens ayant le plus fort poids, puis parmi les noeuds correspondants ceux ayant un degré supérieur au quantile à 0.8 de leur classe sémantique respective. Le premier filtrage permet de se concentrer sur le ``coeur'' des disciplines observées, et le second de ne pas biaiser par la taille sans perdre la structure globale, les classes étant relativement équilibrées. Un examen manuel permet de supprimer les mots-clés clairement non-pertinents (télédétection, tourisme, réseaux sociaux, \ldots), ce qui conduit à un corpus de $K=115$ mots-clés.
+\item Pour chaque mots-clé, nous effectuons automatiquement une requête au catalogue (scholar) en y ajoutant \texttt{model*}, d'un nombre fixé $n=20$ de références. L'ajout du terme est nécessaire pour obtenir des références pertinentes, après test sur des échantillons.
+\item Le corpus potentiel composé des références obtenues, ainsi que des références composant le réseaux de citation, est revu manuellement (passage en revue des titres) pour assurer une pertinence au regard de l'état de l'art de~\ref{sec:modelingsa}, fournissant le corpus préliminaire de taille $N_p = 297$.
+\item Ce corpus est alors inspecté pour les résumés et textes complets si nécessaire, les références étant classifiées et caractérisés selon des critères décrits ci-dessous. On obtient alors un corpus final de taille $N_f = 297$, sur lequel des analyses quantitatives sont possibles.
 \end{enumerate}
 
-remarque : sorte de random sampling le catalog scholar ?
+La méthode est résumée en Fig.~\ref{fig:modelography:systematicreview}, avec les valeurs des paramètres et la taille des corpus successifs. Cet exercice permet tout d'abord un certain nombre de points méthodologiques, dont la connaissance pourra être un atout pour mener des revues systématiques hybrides similaires :
+
+\begin{itemize}
+\item Les biais de catalogue semblent inévitables. Nous reposons sur l'hypothèse que l'utilisation de Scholar permet un échantillonnage uniforme au regard des erreurs ou biais de catalogage. Le développement futur d'outils ouverts de catalogage et de cartographie, permettant un effort contributif pour une connaissance plus précise de domaines étendus et de leurs interfaces, sera un enjeu crucial de la fiabilité de ce genre de méthodes (voir~\ref{app:sec:cybergeo}).
+\item La disponibilité des textes complets est particulièrement un problème pour une revue si large, vu la multiplicité des éditeurs. L'existence de moyens d'émancipation de la science ouverte comme Sci-hub permet d'effectivement accéder à l'ensemble des textes. En écho au débat sur le bras de fer récent avec les éditeurs concernant l'exclusivité de la fouille de textes complets, il parait de plus en plus évident qu'une science ouverte réflexive est totalement antagoniste au modèle actuel de l'édition. Nous espérons également une évolution rapide des pratiques sur ce point.
+\item Les revues, et en fait les éditeurs, semblent influencer différemment les référencements, augmentant potentiellement le biais de requête. La littérature grise ainsi que les pre-prints sont pris en compte différemment selon les champs.
+\item Le passage en revue manuel des grand corpus permet de pas louper des ``poids lourds'' qui auraient pu être omis en amont~\cite{lissacksubliminal}. La question 
+\end{itemize}
 
 note : this review different from manual, car seulement directement concerné, pas associés comme précurseurs (nw growth)
 
-sur le manual screening : permet de pas louper ``poids lourds'' dans revue manuelle (révisée à l'issue)
 
-prévalence HSR : politique ? voir selon stats caracs
+L'opération de construction permet déjà en elle-même de tirer des observations thématiques :
 
-un certain nombre de papiers discardés : pratique et applications d'autres modèles
-
-La méthode est résumée en Fig.~\ref{fig:modelography:systematicreview}, avec les valeurs des paramètres et la taille des corpus successifs. 
+\begin{itemize}
+\item modeling? meta-analyse/ review ? -> pondérer ?
+\item un certain nombre de papiers discardés : pratique et applications d'autres modèles
+\item domaines annexes non considérés
+\item what do we mean by model ? (! contradiction with epistemo fwk ? clarifier) modèle de simulation / numérique.
+\item prévalence HSR : politique ? voir selon stats caracs
+\end{itemize}
 
 
 %%%%%%%%%%%%%%%
 \begin{figure}
-%
-\caption{Systematic Review}{Revue Systématique}
+\includegraphics[width=\textwidth]{systematicreview}
+\caption[Systematic Review][Revue Systématique]{}{\textbf{Méthodologie de la revue systématique.}}
 \label{fig:modelography:systematicreview}
 \end{figure}
 %%%%%%%%%%%%%%%
-
-
-Description du corpus final. a-ton des surprises ? domaines inattendus ? quel balance en gros ?
-
-summary statistics on corpus : proportions quels domaines, etc. biaisé ? y réflechir. faire eventuellement plus de tod dans litérature selon ?
 
 
 
@@ -102,7 +109,6 @@ Nous passons à présent à une analyse mixte basée sur ce corpus, inspirée pa
 La première partie consiste en l'extraction des caractéristiques des modèles. Automatiser ce travail constituerait un projet de recherche en lui-même, comme nous développons en discussion ci-dessous, mais nous sommes convaincus de la pertinence d'affiner de telles techniques (voir~\ref{ch:opening}) dans le cadre d'un développement de disciplines intégrées. Le temps étant autant l'ennemi que l'allié de la recherche, nous nous concentrons ici sur une extraction manuelle qui se voudra plus fine qu'une tentative peu convaincante de fouille de données. Nous extrayons des modèles, ou des ``meta-modèles'' - c'est à dire de groupes de modèles dans le cas où les caractéristiques sont indissociables ou que ceux-ci sont déjà groupés dans un article de revue, les caractéristiques suivantes :
 
 \begin{itemize}
-\item modeling? meta-analyse/ review ? -> pondérer ?
 \item S'agit-il d'un modèle de co-évolution, ou quelle est la force du couplage entre les ontologies territoriales et celles du réseau ? Nous classerons pour cela en catégories suivant la représentation de la figure~\ref{fig:modelography:coevolution} : \texttt{\{territory ; network ; weak ; coevolution\}}.
 \item Echelle de temps maximale et minimale (journalier, annuel, décade(s), siècle(s)) ; Multi-echelles temporelles (booléen)
 \item Echelle d'espace maximale et minimale (local, ville, régional, système de ville) ; Multi-echelles spatiales (booléen)
@@ -138,6 +144,14 @@ Nous confondons échelle et portée pour ne pas rendre plus confus l'extraction.
 
 
 Un ``bon choix'' de caractéristiques pour classer les modèles est un peu le problème du choix des \emph{features} en apprentissage statistique : si on est en supervisé, c'est à dire qu'on veut obtenir une bonne prédiction de classe fixée a priori (ou une bonne modularité de la classification obtenue par rapport à la classification fixée), on pourra sélectionner les caractéristiques optimisant cette prédiction. On discriminera ainsi les modèles que l'on connait et que l'on juge différents. Si l'on veut extraire une structure endogène sans a priori (classification non supervisée), la question est différente. Nous procéderons pour cela en second temps à une technique de regression permettant d'éviter l'overfitting et faire de la selection de caractéristique (Forêts aléatoires).
+
+
+
+\paragraph{Corpus Characteristics}{Caractéristiques du corpus}
+
+Description du corpus final. a-ton des surprises ? domaines inattendus ? quel balance en gros ?
+
+summary statistics on corpus : proportions quels domaines, etc. biaisé ? y réflechir. faire eventuellement plus de tod dans litérature selon ?
 
 
 summary statistics ; correlations.
