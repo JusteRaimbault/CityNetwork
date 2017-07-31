@@ -68,6 +68,9 @@ table(full$MODEL)
 
 summary(lm(TEMPSCALE~DISCIPLINE+METHODO,data=full))
 
+# chisquare tests
+
+
 
 
 
