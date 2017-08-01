@@ -9,10 +9,14 @@ args <- commandArgs(trailingOnly = F)
 task = args[4]
 show(paste0('Running ',task,'...'))
 
-mongobase = 'nwterrit'
-kwLimit = 10000
-eth = 5
-eth_graph = 10
+#mongobase = 'nwterrit'
+mongobase='modelography'
+#kwLimit = 10000
+kwLimit=1000
+#eth = 5
+eth=0
+#eth_graph = 10
+eth_graph=5
 
 if(task=='--semantic-construction'){
   #mongo <- mongoDbConnect('nwterrit','127.0.0.1',27017)
