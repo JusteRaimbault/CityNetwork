@@ -19,6 +19,7 @@ eth=0
 eth_graph=5
 
 if(task=='--semantic-construction'){
+  #mongo <- mongoDbConnect('nwterrit','127.0.0.1',27017)
   #mongo <- mongoDbConnect('modelography','127.0.0.1',27017)
   options( java.parameters = "-Xmx4G" ) # to ensure large edge queries
   mongo <- mongoDbConnect(mongobase,'127.0.0.1',27017)

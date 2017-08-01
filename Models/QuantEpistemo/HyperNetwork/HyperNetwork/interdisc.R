@@ -13,15 +13,18 @@ for(k in unique(coms$membership)){
   show(paste0('Com ',k,', size : ',length(which(coms$membership==k)),' , weight docs : ',100*colSums(probas)[k]/sum(probas)))
    vertices=(coms$membership==k)
    currentnames=V(gg)$name[vertices];currentdegree=degree(gg)[vertices]
-   degth = sort(currentdegree,decreasing = T)[10]
+   degth = sort(currentdegree,decreasing = T)[min(20,length(currentdegree))]
    show(data.frame(name=currentnames[currentdegree>degth],degree=currentdegree[currentdegree>degth]))
 }
 
-semnames <- c('Maritime Networks','Accessibility','Sustainable Transport','Socio-economic','Policy',
-              'Remote Sensing','Measuring','Agent-based Modeling','French Geography','Climate Change',
-              'Environment','High Speed Rail','Transportation planning','Traffic','Health Geography',
-              'Spanish Geography','Freight and Logistics','Mobility Data Mining','Education','Networks'
-              )
+#semnames <- c('Maritime Networks','Accessibility','Sustainable Transport','Socio-economic','Policy',
+#              'Remote Sensing','Measuring','Agent-based Modeling','French Geography','Climate Change',
+#              'Environment','High Speed Rail','Transportation planning','Traffic','Health Geography',
+#              'Spanish Geography','Freight and Logistics','Mobility Data Mining','Education','Networks'
+#             )
+
+semnames <- c('brt','tod','hedonic','infra planning','hsr','complex networks','networks')
+
 
 # export network
 write_graph(gg,file=paste0(figdir,'subgraph.gml'),format = 'gml')

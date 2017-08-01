@@ -4,9 +4,11 @@
 
 library(igraph)
 library(dplyr)
+library(randomForest)
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/Modelography'))
 
+source('functions.R')
 
 load(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork/processed/citation.RData'))
 
@@ -56,21 +58,158 @@ full = full[!duplicated(full$V2),]
 write.table(full,row.names = F,col.names = F,sep=";",file='modelography/full.csv')
 
 
+#######
+## interdisc, sem domains
+
+full=as.tbl(read.csv(file='modelography/full_manual.csv',header=T,sep=';',colClasses = rep('character',16)))
+
+#abstract = as.tbl(read.csv('modelography/full_abstract.csv.csv',header=F,sep=';',colClasses = rep('character',5)))
+# c('15548407300627151288','11803165925574305142','17412736314612590072')
+# fucking bug with RMongo, bad type retrievment. depending on result size, parses or not, and parses into integers with imprecision..
+# do it dirty
+reducedids = full$ID;names(reducedids)<-substr(full$ID,1,10)
+names(keyword_dico)<-sapply(names(keyword_dico),function(s){reducedids[substring(s,1,10)]})
+
+# citations
+full$CITCOM = unlist(sapply(full$CITCOM,function(s){ifelse(is.na(s)|!s%in%names(citcomnames),NA,citcomnames[s])}))
+# semantic
+# -> source sensitivity, interdisc
+full$INTERDISC = interdisc[full$ID,'interdisc']
+full$SEMCOM = sapply(full$ID,function(s){ifelse(!s%in%rownames(probas),NA,ifelse(sum(probas[s,])==0,NA,semnames[which(probas[s,]==max(probas[s,]))]))})
+full$YEAR=as.numeric(full$YEAR)
+full$TEMPSCALE=as.numeric(full$TEMPSCALE)
+
+write.table(full,row.names = F,col.names = T,sep=";",file='modelography/full_consolidated.csv',na = 'NA')
+
 #####
 ## first stats
 
-full=as.tbl(read.csv(file='modelography/full_manual.csv',header=T,sep=';',colClasses = rep('character',16)))
-full$TEMPSCALE<-as.numeric(full$TEMPSCALE)
-full$DISCIPLINE<-as.factor(full$DISCIPLINE)
-full$METHODO<-as.factor(full$METHODO)
+#"TITLE";"ID";"YEAR";"CITCOM";"MODEL";"TYPE";"TEMPSCALE";"SPATSCALE";"METHODO";
+#"EQU";"THEME";"CASE";"DISCIPLINE";"PROCESSES";"OBSERVATION";"LINK";"INTERDISC";"SEMCOM"
+full=as.tbl(read.csv(file='modelography/full_consolidated.csv',header=T,sep=';',
+    colClasses = c('character','character','integer','factor','factor','factor','numeric','factor','character',
+                   'factor','character','character','factor','character','character','character','numeric','factor')))
 
-table(full$MODEL)
+# main method
+full$FMETHOD = sapply(strsplit(full$METHODO,split=','),function(s){s[1]})
+full$SPATSCALE = sapply(as.character(full$SPATSCALE),function(s){ifelse(nchar(s)==0,NA,ifelse(s=="metro",10,ifelse(s=="region",100,ifelse(s=='country',1000,ifelse(s=='continent',10000,1)))))})
+full$EQU<-as.character(full$EQU);full$EQU[nchar(full$EQU)==0]=NA;full$EQU<-as.factor(full$EQU)
+as.character(full$TYPE)
 
-summary(lm(TEMPSCALE~DISCIPLINE+METHODO,data=full))
+table(full$DISCIPLINE,full$MODEL)
+
+# clean data
+data = full[as.character(full$MODEL)=='yes',c("YEAR","CITCOM","TYPE","TEMPSCALE","SPATSCALE","FMETHOD","DISCIPLINE","INTERDISC","SEMCOM")]
+data$TYPE=as.factor(as.character(data$TYPE))
+# all observations
+datafull=data[!is.na(data$YEAR)&!is.na(data$CITCOM)&!is.na(data$TYPE)&!is.na(data$TEMPSCALE)&!is.na(data$SPATSCALE)&!is.na(data$FMETHOD)&!is.na(data$DISCIPLINE)&!is.na(data$INTERDISC)&!is.na(data$SEMCOM),]
+# -> very few full rows
+
+###
+
+## processes and case studies
+
+table(full$CASE[as.character(full$MODEL)=='yes'])/length(which(as.character(full$MODEL)=='yes'))*100
+
+# by discipline
+table(full$CASE[as.character(full$MODEL)=='yes'],full$DISCIPLINE[as.character(full$MODEL)=='yes'])
+
+table(full$PROCESSES[as.character(full$MODEL)=='yes'])/length(which(as.character(full$MODEL)=='yes'))*100
+
+
+
+## summary stats
+
+# disciplines
+table(data$DISCIPLINE)/nrow(data)*100
+# semantic
+table(data$SEMCOM)/nrow(data)*100
+# compo sem par discipline
+table(data$DISCIPLINE,data$SEMCOM)
+# interdisc par discipline
+data%>%group_by(DISCIPLINE)%>%summarise(INTERDISC=mean(INTERDISC,na.rm=T))
+
+# who does what
+table(data$TYPE,data$DISCIPLINE)
+table(data$TYPE,data$SEMCOM)
+table(data$TYPE,data$CITCOM)
+
+table(data$SPATSCALE,data$CITCOM)
+table(data$SPATSCALE,data$DISCIPLINE)
+table(data$SPATSCALE,data$SEMCOM)
+
+table(data$TEMPSCALE,data$CITCOM)
+table(data$TEMPSCALE,data$DISCIPLINE)
+table(data$TEMPSCALE,data$SEMCOM)
+
+# how ? -> scales, regressions.
+
+#table(data$TEMPSCALE,data$CITCOM)
+#table(data$FMETHOD,data$DISCIPLINE)
+
 
 # chisquare tests
 
+chisq.test(data$FMETHOD,data$DISCIPLINE,simulate.p.value = T,B=100000)
 
+chisq.test(data$SPATSCALE,data$DISCIPLINE,simulate.p.value = T,B=100000)
+
+cor.test(data$SPATSCALE,data$TEMPSCALE) # strange. too few observations.
+
+# Linear models
+
+# tempscale
+
+#tscalefull = lm(TEMPSCALE~YEAR+CITCOM+TYPE+SPATSCALE+DISCIPLINE+INTERDISC+SEMCOM+FMETHOD,data=data)
+#tscaleclass = lm(TEMPSCALE~CITCOM+DISCIPLINE+SEMCOM,data=data)
+#AIC(tscaleclass)-AIC(tscalefull)
+#summary(tscalefull)
+#summary(tscaleclass)
+
+models <- getLinearModels("TEMPSCALE",names(data)[-4],8)
+aics=c()
+for(model in models){aics=append(aics,AIC(lm(model,data)))}
+summary(lm(models[aics==min(aics)],data)) # -> tscalefull is the best.
+
+# spat scale
+
+models <- getLinearModels("SPATSCALE",names(data)[-5],8)
+aics=c()
+for(model in models){aics=append(aics,AIC(lm(model,data)))}
+summary(lm(models[aics==min(aics)],data))
+
+# interdisc
+models <- getLinearModels("INTERDISC",names(data)[-8],8)
+aics=c()
+for(model in models){aics=append(aics,AIC(lm(model,data)))}
+summary(lm(models[aics==min(aics)],data))
+
+# year
+models <- getLinearModels("YEAR",names(data)[-1],8)
+aics=c()
+for(model in models){aics=append(aics,AIC(lm(model,data)))}
+summary(lm(models[aics==min(aics)],data))
+
+
+
+########
+
+
+# Random forest
+
+# type of model
+rf<-randomForest(TYPE~SEMCOM+CITCOM+DISCIPLINE,
+                 data=data[!is.na(data$TYPE)&!is.na(data$SEMCOM)&!is.na(data$CITCOM)&!is.na(data$DISCIPLINE),],
+                 nodesize=1,ntree=100000
+)
+rf$importance/sum(rf$importance)
+
+
+rf<-randomForest(INTERDISC~SEMCOM+CITCOM+DISCIPLINE,
+                 data=full[!is.na(full$INTERDISC)&!is.na(full$SEMCOM)&!is.na(full$CITCOM)&!is.na(full$DISCIPLINE),],
+                 nodesize=1,ntree=100000
+                 )
+rf$importance/sum(rf$importance)
 
 
 
