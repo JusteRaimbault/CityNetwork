@@ -13,15 +13,18 @@ for(k in unique(coms$membership)){
   show(paste0('Com ',k,', size : ',length(which(coms$membership==k)),' , weight docs : ',100*colSums(probas)[k]/sum(probas)))
    vertices=(coms$membership==k)
    currentnames=V(gg)$name[vertices];currentdegree=degree(gg)[vertices]
-   degth = sort(currentdegree,decreasing = T)[10]
+   degth = sort(currentdegree,decreasing = T)[min(20,length(currentdegree))]
    show(data.frame(name=currentnames[currentdegree>degth],degree=currentdegree[currentdegree>degth]))
 }
 
-semnames <- c('Maritime Networks','Accessibility','Sustainable Transport','Socio-economic','Policy',
-              'Remote Sensing','Measuring','Agent-based Modeling','French Geography','Climate Change',
-              'Environment','High Speed Rail','Transportation planning','Traffic','Health Geography',
-              'Spanish Geography','Freight and Logistics','Mobility Data Mining','Education','Networks'
-              )
+#semnames <- c('Maritime Networks','Accessibility','Sustainable Transport','Socio-economic','Policy',
+#              'Remote Sensing','Measuring','Agent-based Modeling','French Geography','Climate Change',
+#              'Environment','High Speed Rail','Transportation planning','Traffic','Health Geography',
+#              'Spanish Geography','Freight and Logistics','Mobility Data Mining','Education','Networks'
+#             )
+
+semnames <- c('brt','tod','hedonic','infra planning','hsr','complex networks','networks')
+
 
 # export network
 write_graph(gg,file=paste0(figdir,'subgraph.gml'),format = 'gml')
@@ -35,10 +38,11 @@ colnames(probas)<-semnames
 # extract citation graph with probas
 
 subcit = induced_subgraph(citationcore,which(V(citationcore)$name%in%rownames(probas)[rowSums(probas)>0]))
-subprobas = probas[V(subcit)$name,]
+#subprobas = probas[V(subcit)$name,]
+subprobas = probas
 
 # interdisciplinarity
-interdisc = data.frame(interdisc = 1 - apply(subprobas^2,1,sum),citclass =  unlist(sapply(as.character(V(subcit)$citmemb),function(n){ifelse(n%in%names(citcomnames),unlist(citcomnames[n]),'NA')})))
+interdisc = data.frame(interdisc = 1 - apply(subprobas^2,1,sum),id=as.character(rownames(subprobas)))#,citclass =  unlist(sapply(as.character(V(subcit)$citmemb),function(n){ifelse(n%in%names(citcomnames),unlist(citcomnames[n]),'NA')})))
 
 g=ggplot(interdisc[interdisc$citclass!='NA',],aes(x=interdisc,colour=citclass))
 g+geom_density(alpha=0.3)+stdtheme+xlab('interdisciplinarity')+scale_color_discrete(name='Cit. Class')

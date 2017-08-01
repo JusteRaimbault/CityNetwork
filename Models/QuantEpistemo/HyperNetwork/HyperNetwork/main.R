@@ -20,6 +20,7 @@ eth_graph=5
 
 if(task=='--semantic-construction'){
   #mongo <- mongoDbConnect('nwterrit','127.0.0.1',27017)
+  #mongo <- mongoDbConnect('modelography','127.0.0.1',27017)
   options( java.parameters = "-Xmx4G" ) # to ensure large edge queries
   mongo <- mongoDbConnect(mongobase,'127.0.0.1',27017)
   ####
@@ -44,11 +45,11 @@ if(task=='--semantic-sensitivity'){
   freqmaxvals=c(10000)
   freqminvals=c(0,5)
   kmaxvals=seq(from=500,to=7000,by=500)
-  ethvals=c(seq(from=10,to=50,by=5),seq(from=60,to=100,by=10))
+  ethvals=c(seq(from=5,to=50,by=10))#,seq(from=60,to=100,by=10))
   dir.create('sensitivity')
   outputfile=paste0('sensitivity/',graphfile,'.RData')
 
-  networkSensitivity(db,filters,freqmaxvals,freqminvals,kmaxvals,ethvals,outputfile)
+  networkSensitivity(graphfile,filters,freqmaxvals,freqminvals,kmaxvals,ethvals,outputfile)
   
 }
 

@@ -17,7 +17,8 @@ load(paste0('processed/',graphfile,'.RData'))
 semantic=res$g;
 keyword_dico=res$keyword_dico
 
-figdir=paste0(Sys.getenv('CN_HOME'),'/Results/QuantEpistemo/HyperNetwork/NetworkTerritories/Semantic/network_kwLimit',kwLimit,'_eth',eth_graph,'/')
+#figdir=paste0(Sys.getenv('CN_HOME'),'/Results/QuantEpistemo/HyperNetwork/NetworkTerritories/Semantic/network_kwLimit',kwLimit,'_eth',eth_graph,'/')
+figdir=paste0(Sys.getenv('CN_HOME'),'/Results/QuantEpistemo/Modelography/semantic/network_kwLimit',kwLimit,'_eth',eth_graph,'/')
 dir.create(figdir)
 
 load(outputfile)
@@ -65,11 +66,14 @@ ggsave(file=paste0(figdir,'pareto-modularity-vertices.png'),width=15,height=10,u
 
 
 # freqmin == 0 always better
-d[d$freqmin==0&d$modularity>0.5&d$vertices>6000,]
+#d[d$freqmin==0&d$modularity>0.5&d$vertices>6000,]
+d[d$freqmin==0&d$modularity>0.4&d$vertices>600,]
 
-kminopt=0;kmaxopt=500;freqminopt=0;freqmaxopt=10000;ethopt=10
+#kminopt=0;kmaxopt=500;freqminopt=0;freqmaxopt=10000;ethopt=10
+kminopt=0;kmaxopt=500;freqminopt=0;freqmaxopt=10000;ethopt=15
 
-sub<-extractSubGraphCommunities(raw,kminopt,kmaxopt,freqminopt,freqmaxopt,ethopt)
+
+sub<-extractSubGraphCommunities(semantic,kminopt,kmaxopt,freqminopt,freqmaxopt,ethopt)
 coms=sub$com
 
 # no need to save
