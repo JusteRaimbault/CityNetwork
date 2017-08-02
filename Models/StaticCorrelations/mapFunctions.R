@@ -25,8 +25,10 @@ loadIndicatorData<-function(file){
 #y=function(x){log(x+0.01)};yinv = function(y){exp(y)-0.01}
 
 
-map<-function(indiccols,filename,width,height,mfrow,mar=c(2,2.5,1.5,2) + 0.1,sdata=sdata){
-  png(file=paste0(resdir,filename),width=width,height=height,units='cm',res=600)
+map<-function(indiccols,filename=NULL,width=0,height=0,mfrow=c(1,1),mar=c(2,2.5,1.5,2) + 0.1,sdata=sdata){
+  if(!is.null(filename)){
+    png(file=paste0(resdir,filename),width=width,height=height,units='cm',res=600)
+  }
   par(mfrow=mfrow ,mar = mar,
       oma = c(0,0,0,1) + 0.1)
   cols <- carto.pal(pal1 = "green.pal",n1 = 5, pal2 = "red.pal",n2 = 5)
@@ -37,13 +39,16 @@ map<-function(indiccols,filename,width,height,mfrow,mar=c(2,2.5,1.5,2) + 0.1,sda
     crs(r)<-"+proj=longlat +datum=WGS84";extent(r)<-c(min(sdata$lonmin),max(sdata$lonmin),min(sdata$latmin),max(sdata$latmin))
     breaks=classIntervals(x,10)
     #ticks = yinv(seq(round(minValue(r),digits=1),round(maxValue(r),digits=1), round((round(maxValue(r),digits=2) - round(minValue(r),digits=2))/5,digits=1)))
-    ticks = seq(round(minValue(r),digits=1),round(maxValue(r),digits=1), round((round(maxValue(r),digits=2) - round(minValue(r),digits=2))/5,digits=1))
+    #ticks = seq(round(minValue(r),digits=1),round(maxValue(r),digits=1), round((round(maxValue(r),digits=2) - round(minValue(r),digits=2))/5,digits=1))
     plot(r,main=colnames(sdata)[indic],
          col=cols,breaks=unique(breaks$brks),
          legend.width = 1.5,
-         axis.args=list(at=ticks,labels=ticks,cex.axis=1.0)
+         axis.args=list(#at=ticks,labels=ticks,
+                        cex.axis=1.0)
     )
   }
-  dev.off()
+  if(!is.null(filename)){
+    dev.off()
+  }
 }
 
