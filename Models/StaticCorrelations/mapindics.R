@@ -1,6 +1,5 @@
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
-source('functions.R')
 
 library(raster)
 library(ggplot2)
@@ -11,6 +10,7 @@ library(reshape2)
 library(cartography)
 library(classInt)
 
+source('functions.R')
 source('mapFunctions.R')
 
 # load data
@@ -24,8 +24,8 @@ country = countries[countries$CNTR_ID=="FR",]
 datapoints = SpatialPoints(data.frame(res[,c("lonmin","latmin")]),proj4string = countries@proj4string)
 
 selectedpoints = gContains(country,datapoints,byid = TRUE)
-#sdata = res[selectedpoints,]
-sdata=res
+sdata = res[selectedpoints,]
+#sdata=res
 
 # map indicators
 #g=ggplot(sdata,aes(x=lonmin,y=latmin,fill=cut(moran,breaks=10)))
@@ -137,10 +137,10 @@ sdata = sdata[apply(sdata,1,function(r){ifelse(length(which(is.na(r)))>0,F,T)}),
 #data = data[sapply(data$latmin,function(x){x%in%data$latmin[seq(from=1,to=length(unique(data$latmin)),by=2)]}),]
 #map(indiccols = c(3,4),sdata=sdata,mfrow=c(1,2))
 
-data=sdata[sample.int(nrow(sdata),size=15000,replace = F),]
-
-
 # sample for speed (and to have locally independant observation)
+
+data=sdata[sample.int(nrow(sdata),size=5000,replace = F),]
+#data=sdata
 
 points = SpatialPointsDataFrame(coords=data.frame(data[,c("lonmin","latmin")]),data.frame(data),match.ID=F,proj4string = countries@proj4string)
 #points = SpatialPointsDataFrame(coords=data.frame(sdata[,c("lonmin","latmin")]),data.frame(sdata[,c("moran","distance","entropy","slope")]),match.ID=F,proj4string = countries@proj4string)
@@ -159,12 +159,23 @@ map(indiccols = c(3,4),sdata=data.frame(data[,c("lonmin","latmin")],pca$var),mfr
 #
 bw <- bw.gwpca(points,vars=c("moran","slope","meanBetweenness","alphaCloseness"),k=2,adaptive = T)
 
+pca = gwpca(points,vars=c("moran","slope","meanBetweenness","alphaCloseness"),bw=bw,adaptive = T)
+
 # quite shitty..
 # try some regressions ?
 # -> gwr will reveal different scales depending on process !
 
+map(indiccols = c(3,4),sdata=data.frame(data[,c("lonmin","latmin")],pca$var),mfrow=c(1,2))
 
 
+###
+## Find endogenous scales with gwr
+#
+
+getLinearModels("meanBetweenness",c("moran","distance","entropy","slope"),4)
+
+bw = bw.gwr("meanBetweenness~slope+moran",data=points,approach = 'AIC')
+gwr = gwr.basic("meanBetweenness~slope+moran",data=points,bw=bw)
 
 
 
