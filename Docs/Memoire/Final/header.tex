@@ -422,6 +422,51 @@
 
 
 
+%%%%%%%%%%%%%%
+%% Appendix
+
+
+% From https://tex.stackexchange.com/questions/292309/separate-table-of-appendices-captions-not-displayed-in-new-list
+% -> to remove figures in appendix from list of figures
+
+% caption names
+%\newcaptionname{english}{\listoflotaentryname}{\listoflotentryname}
+%\newcaptionname{english}{\listoflofaentryname}{\listoflofentryname}
+%\newcaptionname{english}{\appendicesname}{Appendices}
+%\newcaptionname{english}{\appendixtablename}{Supplemental Tables}
+%\newcaptionname{english}{\appendixfigurename}{Supplemental Figures}
+
+%\usepackage{scrwfile}
+%\TOCclone[\protect\appendixtablename]{lot}{lota}
+%\removefromtoclist[TOCclone]{lota}
+%\addtotoclist[float]{lota}
+%\setuptoc{lota}{leveldown}
+%\unsettoc{lota}{totoc}
+%\addtocontents{lota}{\protect\value{tocdepth}=0}
+
+%\TOCclone[\protect\appendixfigurename]{lof}{lofa}
+%\removefromtoclist[TOCclone]{lofa}
+%\addtotoclist[float]{lofa}
+%\setuptoc{lofa}{leveldown}
+%\unsettoc{lofa}{totoc}
+%\addtocontents{lofa}{\protect\value{tocdepth}=0}
+
+\usepackage{xpatch}
+\xapptocmd{\appendix}{%
+  %\addchap{\appendicesname}
+  \setcounter{figure}{0}
+  \setcounter{table}{0}
+  %\pretocmd\thetable{S}{}{}
+  %\pretocmd\thefigure{S}{}{}
+  \addtocontents{lot}{\protect\value{tocdepth}=0}% note that this is cloned in lota
+  \addtocontents{lof}{\protect\value{tocdepth}=0}% note that this is cloned in lofa
+  %\addtocontents{lota}{\protect\value{tocdepth}=1}%
+  %\addtocontents{lofa}{\protect\value{tocdepth}=1}%
+}{}{}
+
+
+
+
 
 
 
