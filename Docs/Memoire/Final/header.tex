@@ -311,8 +311,21 @@
  \oldendtable}
         
         
-
+%
 \let\oldcaption\caption
+
+% DOES NOT WORK.
+%\RenewDocumentCommand\caption {o m}{
+%  \IfNoValueTF{#1}
+%          {\oldcaption[]{#2}}       % no TOC arg
+%          {\oldcaption[#1]{#2}}
+%}
+%\newcommand{\appcaption}[1]{
+%\oldcaption[]{#1}
+%    %\ifthenelse{\thelanguage=0}{\oldcaption[]{#1}}{}          
+%    %\ifthenelse{\thelanguage=1}{\oldcaption[]{#1}}{}
+%}
+
 
 \RenewDocumentCommand\caption {s o o m m}
    {\begin{minipage}{1.9cm}\end{minipage}
@@ -333,10 +346,13 @@
       {
         \IfNoValueTF{#2}
           {
+          %\captionsetup{font=small,width=\linewidth,list=no}
+          \setcounter{lofdepth}{0}
            \ifthenelse{\thelanguage=0}{\oldcaption{#4}}{}
            \ifthenelse{\thelanguage=1}{\oldcaption{#5}}{}
            }       % no TOC arg
           { 
+          \setcounter{lofdepth}{1}
            \ifthenelse{\thelanguage=0}{\oldcaption[#2]{#4}}{}
            \ifthenelse{\thelanguage=1}{\oldcaption[#3]{#5}}{}
            }
