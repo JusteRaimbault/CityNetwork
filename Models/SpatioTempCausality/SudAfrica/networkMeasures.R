@@ -38,7 +38,9 @@ normalizedBetweenness<-function(g,subsample=0,cutoff=0,ego.order=0){
   reg = lm(data=data.frame(x=log(1:length(which(is.finite(y)))),y=y[is.finite(y)]),formula = y~x)
   return(
     list(
+      #bw=bw,
       meanBetweenness = mean(bw),
+      stdBetweenness = sd(bw),
       alphaBetweenness = reg$coefficients[2]
     )
   )

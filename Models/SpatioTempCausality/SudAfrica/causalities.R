@@ -12,7 +12,7 @@ source("networkMeasures.R")
 source('functions.R')
 
 load('data/pops.RData')
-
+load('data/distmats.RData')
 
 ###########
 ## Lagged correlations
