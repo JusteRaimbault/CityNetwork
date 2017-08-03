@@ -42,7 +42,7 @@ for(networkIndic in networkIndics){
 
 
 library(doParallel)
-cl <- makeCluster(60,outfile='loggwr')
+cl <- makeCluster(20,outfile='loggwr')
 registerDoParallel(cl)
 
 resgwr <- foreach(i=1:length(models)) %dopar% {
@@ -55,7 +55,7 @@ resgwr <- foreach(i=1:length(models)) %dopar% {
   gw = gwr.basic(currentmodel,data=points,bw=bw,adaptive = T)
   d=spDists(points,longlat = T)
   meandist = mean(apply(d,1,function(r){mean(sort(r[r>0])[1:bw])}))
-  return(list(bw=bw,meandist=meandist,aic = gw$GW.diagnostic$AICc,model=model,indic=strsplit(model,split='~')[[1]][1]))
+  return(list(bw=bw,meandist=meandist,aic = gw$GW.diagnostic$AICc,model=currentmodel,indic=strsplit(currentmodel,split='~')[[1]][1]))
 }
 
 save(resgwr,file='res/gwr.RData')
