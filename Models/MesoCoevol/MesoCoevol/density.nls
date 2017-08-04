@@ -113,3 +113,27 @@ end
 ;  plots
 ;end
 
+
+
+to density:density-from-file [file]
+   let rows read-numeric-csv-as-row-list file ";"
+   ; file assumed consistent -> resize world here
+   let width length item 0 rows let height length rows
+   resize-world 0 (width - 1) 0 (height - 1) set-patch-size (50 * 13 / height)
+   let i min-pxcor let j min-pycor
+   foreach rows [
+      set j min-pycor
+      foreach ? [
+        ask (patch i j) [set patch-population ?]
+        set j j + 1
+      ]
+      set i i + 1
+   ]
+   
+   ;color-synth-pattern
+end
+
+
+
+
+

@@ -9,10 +9,8 @@ to network-biological:grow-network
   ; setup
   network-biological:setup
   
-  
-  
+  ; evolve
   network-biological:evolve
-  
   
   ; simplify
   network-biological:simplify-network
@@ -20,11 +18,11 @@ to network-biological:grow-network
   ; extract
   network-biological:to-real-network
   
-  ; kill
+  ; clean
   network-biological:clear-network
   
+  ; planarize and simplify
   planarize-network cities roads
-  
   simplify-network
   
 end
@@ -251,6 +249,8 @@ end
 
 
 
+;;
+; keep only the larger connex component
 to network-biological:keep-connex-component
   nw:set-context biological-network-nodes biological-network-links
   let clusters nw:weak-component-clusters let giant first sort-by [count ?1 > count ?2] clusters
@@ -258,6 +258,8 @@ to network-biological:keep-connex-component
 end
 
 
+;;
+; delete links with threshold smaller than network-biological-threshold
 to network-biological:kill-weak-links
   ask biological-network-links with [diameter < network-biological-threshold] [die]
   ask biological-network-nodes with [count my-links = 0] [die]

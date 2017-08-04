@@ -31,15 +31,17 @@ end
 to display:display-patches
   
   if display-variable = "population" [
+    ask patches [set pcolor white]
     set total-population sum [patch-population] of patches
     if total-population > 0 [ask patches [set patch-population-share patch-population / total-population]]
-    let ma max [patch-population-share] of patches let mi min [patch-population-share] of patches
-    ; density already normalized
-    ;let ma 1 let mi 0
-    ;ifelse ma > mi [ask patches [set pcolor scale-color red sp-density mi ma]]
-    ;[ask patches [set pcolor black]]
-    ifelse ma > mi [ask patches [set pcolor gradient:scale [[255 255 255][255 0 0]] patch-population-share mi ma]]
-    [ask patches [set pcolor white]]
+    if count patches with [patch-population > 1] > 0 [
+      let ma max [ln patch-population-share] of patches with [patch-population > 1] let mi min [ln patch-population-share] of patches with [patch-population > 1]
+      ; density already normalized
+      ;let ma 1 let mi 0
+      ;ifelse ma > mi [ask patches [set pcolor scale-color red sp-density mi ma]]
+      ;[ask patches [set pcolor black]]
+      if ma > mi [ask patches with [patch-population > 1] [set pcolor gradient:scale [[255 255 255][255 0 0]] (ln patch-population-share) mi ma]]
+    ]
   ]
   
   if display-variable = "patch-value" [
