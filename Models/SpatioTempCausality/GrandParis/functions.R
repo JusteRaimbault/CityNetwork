@@ -3,7 +3,7 @@
 ## functions
 
 library(cartography)
-
+library(classInt)
 
 
 #'
@@ -45,7 +45,9 @@ computeAccess<-function(accessorigdata,accessdestdata,matfun){
     yearlyaccessorig = accessorigdata[accessorigdata$year==year,]
     potorig = which(yearlyaccessorig$id%in%rownames(weightmat)&!is.na(yearlyaccessorig$var))
     potdest = which(accessdestdata$id%in%colnames(weightmat)&!is.na(accessdestdata$var))
-    Pi = yearlyaccessorig$var[potorig];Ej = matrix(accessdestdata$var[potdest],nrow=length(potdest))
+    Pi = yearlyaccessorig$var[potorig];
+    Ej = matrix(accessdestdata$var[potdest],nrow=length(potdest))
+    #show(Pi)
     access = Pi*(weightmat[,accessdestdata$id[potdest]]%*%Ej)[yearlyaccessorig$id[potorig],]
     allaccess=rbind(allaccess,data.frame(var = access,id=names(access),year=rep(year,length(access))))
     rm(weightmat);gc()
@@ -83,38 +85,47 @@ varyingNetwork<-function(m,decay,breakyear){
 
 
 
-map<-function(data,layer,variable,filename,title,legendtitle="",extent=NULL,withLayout=T,legendRnd=2){
+map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",extent=NULL,withLayout=T,legendRnd=2,width=15,height=10,nclass=10){
   
-  #png(file=paste0(resdir,'average_regular_march_map.png'),width=10,height=6,units='cm',res=600)
-  pdf(file=paste0(resdir,filename,'.pdf'),width=10,height=5.5)#paper='a4r')
+  graphicsext = strsplit(filename,split='.',fixed=T)[[1]][2]
+  if(graphicsext=='png'){png(file=filename,width=width,height=height,units='cm',res=1200)}
+  if(graphicsext=='pdf'){ pdf(file=filename,width=width,height=height)}
   
-  if(withLayout){par(mar = c(0.4,0.4,2,0.4))}else{par(mar = c(0.4,0.4,0.4,0.4))}
+  if(withLayout==T){par(mar = c(0.4,0.4,2,0.4))}else{par(mar = c(0.4,0.4,0.4,0.4))}
   
+  #plot.new()
   
   layoutLayer(title = ifelse(withLayout,title,""), sources = "",
               author = "", col = ifelse(withLayout,"grey","white"), coltitle = "black", theme = NULL,
               bg = NULL, scale=NULL , frame = withLayout, north = F, south = FALSE,extent=extent)
   
-  breaks=classIntervals(data[,variable],20)
+  breaks=classIntervals(data[,variable],nclass)
   
-  plot(states, border = NA, col = "white",add=T)
-  cols <- carto.pal(pal1 = "green.pal",n1 = 10, pal2 = "red.pal",n2 = 10)
-  choroLayer(spdf = layer,spdfid = "GEOID",
-             df = data,dfid = 'countyid',
+  plot(layer, border = NA, col = "white",add=T)
+  #cols <- carto.pal(pal1 = "green.pal",n1 = 10, pal2 = "red.pal",n2 = 10)
+  cols = rev(brewer.pal(nclass,'Spectral'))
+  choroLayer(spdf = layer,spdfid = spdfid,
+             df = data,dfid = dfid,
              var=variable,
-             col=cols,breaks=breaks$brks,
+             col=cols,colNA='lightgrey',breaks=breaks$brks,
              add=TRUE,lwd = 0.01,
              legend.pos = "n"
   )
-  legendChoro(pos = "left",title.txt = legendtitle,
+  legendChoro(pos =  "bottomleft",title.txt = legendtitle,
               title.cex = 0.8, values.cex = 0.6, breaks$brks, cols, cex = 0.7,
               values.rnd = legendRnd, nodata = TRUE, nodata.txt = "No data",
-              nodata.col = "white", frame = FALSE, symbol = "box"
+              nodata.col = 'lightgrey', frame = FALSE, symbol = "box"
   )
-  plot(states,border = "grey20", lwd=0.75, add=TRUE)
+  #plot(states,border = "grey20", lwd=0.75, add=TRUE)
+  
+  # additional transportation layer
+  
   
   dev.off()
   
 }
+
+
+
 
 

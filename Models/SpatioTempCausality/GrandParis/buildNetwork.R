@@ -10,7 +10,7 @@ source('network.R')
 # RER
 trgraph=addTransportationLayer('data/gis/gares.shp','data/gis/rer_lignes.shp',speed=0.001)
 # Transilien
-trgraph=addTransportationLayer('data/gis/empty.shp','data/gis/train_banlieue_lignes.shp',g = trgraph,speed=6e-04)
+trgraph=addTransportationLayer('data/gis/gares.shp','data/gis/train_banlieue_lignes.shp',g = trgraph,speed=6e-04)
 # Metro
 trgraph=addTransportationLayer('data/gis/metro_stations.shp','data/gis/metro_lignes.shp',g = trgraph,speed=0.002)
 # Tram
@@ -64,7 +64,7 @@ tr_grandparisexpress = induced_subgraph(tr_grandparisexpress,which(comps$members
 
 # save the different graphs
 
-save(tr_base,tr_arcexpressproche,tr_arcexpressloin,tr_reseaugrandparis,tr_grandparisexpress,file='data/networks.RData')
+save(tr_base,tr_arcexpressproche,tr_arcexpressloin,tr_reseaugrandparis,tr_grandparisexpress,file='data/networks2.RData')
 
 
 ## distance matrices
@@ -86,7 +86,7 @@ dmat_reseaugrandparis = getDistMat(tr_reseaugrandparis)
 dmat_grandparisexpress = getDistMat(tr_grandparisexpress)
 
 # save
-save(dmat_base,dmat_arcexpressproche,dmat_arcexpressloin,dmat_reseaugrandparis,dmat_grandparisexpress,file='data/dmats.RData')
+save(dmat_base,dmat_arcexpressproche,dmat_arcexpressloin,dmat_reseaugrandparis,dmat_grandparisexpress,file='data/dmats2.RData')
 
 
 
