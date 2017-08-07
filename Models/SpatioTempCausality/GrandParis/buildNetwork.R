@@ -16,6 +16,7 @@ trgraph=addTransportationLayer('data/gis/metro_stations.shp','data/gis/metro_lig
 # Tram
 trgraph=addTransportationLayer('data/gis/TCSP_arrets.shp','data/gis/TCSP_lignes.shp',g = trgraph,speed=0.003)
 
+#comps = components(trgraph);
 
 # arc express proche
 tr_arcexpressproche=addTransportationLayer('data/gis/arcexpress_proche_gares.shp','data/gis/arcexpress_proche.shp',g = trgraph,speed=0.001)
@@ -42,6 +43,11 @@ tr_reseaugrandparis = addAdministrativeLayer(tr_reseaugrandparis,"data/gis/irisi
 
 tr_grandparisexpress = addAdministrativeLayer(tr_grandparisexpress,"data/gis/communes.shp",connect_speed = 0.0012,attributes=list("CP"="INSEE_COMM"))
 tr_grandparisexpress = addAdministrativeLayer(tr_grandparisexpress,"data/gis/irisidf.shp",connect_speed = 0.0012,attributes=list("IRIS"="DCOMIRIS"))
+
+
+#as.character(iris$DCOMIRIS)[!as.character(iris$DCOMIRIS)%in%V(tr_grandparisexpress)$IRIS]
+#as.character(iris$DCOMIRIS)[!as.character(iris$DCOMIRIS)%in%V(tr_base)$IRIS]
+# few iris missing -> connectivity issue ?
 
 
 # filter on larger components

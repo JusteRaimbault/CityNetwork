@@ -48,7 +48,7 @@ computeAccess<-function(accessorigdata,accessdestdata,matfun){
     Pi = yearlyaccessorig$var[potorig];
     Ej = matrix(accessdestdata$var[potdest],nrow=length(potdest))
     #show(Pi)
-    access = Pi*(weightmat[,accessdestdata$id[potdest]]%*%Ej)[yearlyaccessorig$id[potorig],]
+    access = Pi*(weightmat[,accessdestdata$id[potdest]]%*%Ej)[yearlyaccessorig$id[potorig],]#/(sum(Pi)*sum(Ej)*sum(weightmat[yearlyaccessorig$id[potorig],accessdestdata$id[potdest]]))
     allaccess=rbind(allaccess,data.frame(var = access,id=names(access),year=rep(year,length(access))))
     rm(weightmat);gc()
   }
@@ -85,7 +85,7 @@ varyingNetwork<-function(m,decay,breakyear){
 
 
 
-map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",extent=NULL,withLayout=T,legendRnd=2,width=15,height=10,nclass=10){
+map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",extent=NULL,withLayout=T,legendRnd=2,width=15,height=10,nclass=10,palette='Spectral'){
   
   graphicsext = strsplit(filename,split='.',fixed=T)[[1]][2]
   if(graphicsext=='png'){png(file=filename,width=width,height=height,units='cm',res=1200)}
@@ -102,8 +102,11 @@ map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",exte
   breaks=classIntervals(data[,variable],nclass)
   
   plot(layer, border = NA, col = "white",add=T)
-  #cols <- carto.pal(pal1 = "green.pal",n1 = 10, pal2 = "red.pal",n2 = 10)
-  cols = rev(brewer.pal(nclass,'Spectral'))
+  
+  cols <- carto.pal(pal1 = "green.pal",n1 = floor(nclass/2), pal2 = "red.pal",n2 = floor(nclass/2))
+  if(palette=='Spectral'){cols = rev(brewer.pal(nclass,'Spectral'))}
+  
+  
   choroLayer(spdf = layer,spdfid = spdfid,
              df = data,dfid = dfid,
              var=variable,

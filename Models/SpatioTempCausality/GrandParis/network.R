@@ -71,7 +71,7 @@ addFootLinks<-function(g,walking_speed=1,snap=100){
 #'
 #' @name addTransportationLayer 
 #' @description Construct tarnsportation graph by adding layers successively
-addTransportationLayer<-function(stations_layer,link_layer,g=empty_graph(0)$fun(0),speed=1,snap=50){
+addTransportationLayer<-function(stations_layer,link_layer,g=empty_graph(0)$fun(0),speed=1,snap=500){
   show(paste0('Adding transportation network : stations = ',stations_layer,' ; links = ',link_layer))
   # construct vertex set
   spath = strsplit(strsplit(stations_layer,'.shp')[[1]][1],'/')[[1]]

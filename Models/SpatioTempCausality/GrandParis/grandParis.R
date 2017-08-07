@@ -58,10 +58,19 @@ access$var = (access$var - min(access$var))/(max(access$var)-min(access$var))
 toadd = as.character(iris$DCOMIRIS)[!as.character(iris$DCOMIRIS)%in%access$id]
 access = rbind(access,data.frame(id=toadd,var=rep(NA,length(toadd)),year=rep(year,length(toadd))))# add missing iris with NA
 map(data=access,layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
-    filename=paste0(resdir,'normaccess_',year,'_decay',decay,'.png'),title=paste0('Normalized Accessibility, Population to Employments, decay ',decay,', year 20',year),legendtitle = "Normalized\n Accessibility",extent=iris,
+    filename=paste0(resdir,'normaccess_gpe_',year,'_decay',decay,'.png'),title=paste0('Normalized Accessibility with GPE, Population to Employments, decay ',decay,', year 20',year),legendtitle = "Normalized\nAccessibility",extent=iris,
     width=15,height=12
     )
 
+
+# time accessibility
+time=computeAccess(data.frame(id=rownames(dmat_grandparisexpress),var=rep(1,nrow(dmat_grandparisexpress)),year=rep(year,nrow(dmat_grandparisexpress))),data.frame(id=colnames(dmat_grandparisexpress),var=rep(1/ncol(dmat_grandparisexpress),ncol(dmat_grandparisexpress))),dmat_grandparisexpress)
+map(data=time,layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
+    filename=paste0(resdir,'timeaccess_gpe.png'),title=paste0('Time Accessibility with GPE'),legendtitle = "Average\nTravel Time",extent=iris,
+    width=15,height=12
+)
+
+# time differential with/without GPE
 
 
 
