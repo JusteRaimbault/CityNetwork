@@ -12,9 +12,8 @@ library(RMongo)
 
 
 
-#'
 #' 
-#' get mask raster with good resolution
+#' @description get mask raster with good resolution
 #' 
 getRaster<-function(file,newresolution=0,reproject=F){
   provraster <- raster(file)
@@ -32,9 +31,9 @@ getRaster<-function(file,newresolution=0,reproject=F){
 
 
 
-##############'
 #'
-#' Get coordinates of cells
+#'
+#' @description Get coordinates of cells
 getCoords<-function(r,xmin,ymin,xmax,ymax,cells){
   rows = seq(from=rowFromY(r,ymax),to=rowFromY(r,ymin),by=cells)
   cols = seq(from=colFromX(r,xmin),to=colFromX(r,xmax),by=cells)
@@ -62,9 +61,7 @@ getCoordsOffset<-function(r,xmin,ymin,xmax,ymax,cells,offset){
 }
 
 #'
-#' aux function
-#' (used also in merge sequences)
-#' 
+#' @description aux function (used also in merge sequences)
 #' @requires |rows_min|=|rows_max| ; |cols_min|=|cols_max|
 coordsFromIndexes<-function(densraster,rows_min,rows_max,cols_min,cols_max){
   coords = matrix(0,length(rows_min)*length(cols_min),4)#data.frame()
@@ -86,9 +83,9 @@ coordsFromIndexes<-function(densraster,rows_min,rows_max,cols_min,cols_max){
   return(coords)
 }
 
-################'
 #'
-#' Get independent merging seqs from coordinates.
+#'
+#' @description Get independent merging seqs from coordinates.
 #' 
 getMergingSequences<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
   res = list()
@@ -118,12 +115,10 @@ getMergingSequences<-function(densraster,lonmin,latmin,lonmax,latmax,ncells){
 #apply(c2,2,diff)
 
 
-#' #####################
-#' Get road linestrings (SPatialLines) within given extent
-#'
+#' 
+#' @description Get road linestrings (SPatialLines) within given extent
 #' @param latmin,lonmin,latmax,lonmax bbox
 #' @param tags list of tag values (for key highway)
-#'
 #' @requires global variables : osmdb, dbport
 #' 
 linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags,osmdb=global.osmdb,dbuser=global.dbuser,dbport=global.dbport,dbhost=global.dbhost){
@@ -158,18 +153,20 @@ linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags,osmdb=global.osmdb,
   return(list(roads=roads,type=data$type,speed=data$speed))
 }
 
-#' Get graph edges from Lines list and reference raster
-#'
-#'   iterate on roads to create an "edgelist" of connexions between raster cells
-graphEdgesFromLines<-function(roads,baseraster){
-  l=roads$roads
-  type=roads$type
-  speed=roads$speed
+#' 
+#' @description Get graph edges from Lines list and reference raster
+#'     iterate on lines to create an "edgelist" of connexions between raster cells
+graphEdgesFromLines<-function(lines,baseraster){
+  l=lines$roads
+  type=lines$type
+  speed=lines$speed
   edgelist=list();edgespeed=c();edgetype=c()
   for(i in 1:length(l)){
     if(i%%1000==0){show(i)}
     coords = l[[i]]@Lines[[1]]@coords
-    # assume a connection at each vertex, ignores 'tunnel effect' -> ok at these scales
+    # assume a connection at each vertex, ignores 'tunnel effect'
+    #  -> ok at these scales for roads
+    # for train, careful with LGV
     conn = unique(cellFromXY(baseraster,coords))
     if(length(conn)>1){
       for(j in 1:(length(conn)-1)){
@@ -183,7 +180,7 @@ graphEdgesFromLines<-function(roads,baseraster){
 
 
 #'
-#'
+#' @description default global parameter values
 defaultDBParams<-function(dbsystem='',dbhost='',dbport=0,dbname=''){
   return(list(
     dbsystem=ifelse(nchar(dbsystem)>0,dbsystem,'mongo'),
@@ -194,7 +191,7 @@ defaultDBParams<-function(dbsystem='',dbhost='',dbport=0,dbname=''){
 }
 
 #'
-#' Retrieve graph from a simplified base (basic request)
+#' @description Retrieve graph from a simplified base (basic request)
 #' 
 graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbparams=defaultDBParams()){
     # pgsql params : dbname,dbport=global.dbport,dbuser=global.dbuser,dbhost=global.dbhost
@@ -228,9 +225,8 @@ graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbparams=defaultDBParam
 }
 
 
-############'
-#'  
-#'  Construct graph given edgelist
+#' 
+#' @description Construct graph given edgelist
 #'  
 graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
   if(is.null(edgelist$edgelist)){return(make_empty_graph())}
@@ -266,12 +262,13 @@ graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
 }
 
 
-####################
 #'
-#' Graph simplification algorithm
-#'
-#'  - the more spaghetti code EVER written - beuuargh
-#'
+#' @description Graph simplification algorithm
+#' @param g igraph object
+#' @param bounds coordinates of boundaries
+#' @param xr x resolution
+#' @param yr y resolution
+#' 
 simplifyGraph<-function(g,bounds,xr,yr){
   # select graph strictly within bounds
   #  -- before that : keep crossing links to be added --

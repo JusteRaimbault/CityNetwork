@@ -16,7 +16,10 @@ trgraph=addTransportationLayer('data/gis/metro_stations.shp','data/gis/metro_lig
 # Tram
 trgraph=addTransportationLayer('data/gis/TCSP_arrets.shp','data/gis/TCSP_lignes.shp',g = trgraph,speed=0.003)
 
-#comps = components(trgraph);
+# connexify
+comps = components(trgraph);
+
+
 
 # arc express proche
 tr_arcexpressproche=addTransportationLayer('data/gis/arcexpress_proche_gares.shp','data/gis/arcexpress_proche.shp',g = trgraph,speed=0.001)
