@@ -2,7 +2,7 @@
 library(rgdal)
 library(dplyr)
 
-rail <- readOGR(paste0(Sys.getenv('CN_HOME'),'/Data/Train/DONNEES'),'Donnees_completes_RESEAU_FERROVIAIRE')
+rail <- readOGR(paste0(Sys.getenv('CN_HOME'),'/Data/Train/data'),'troncon')
 
 par(mfrow=c(2,5))
 for(year in seq(from=1830,to=2010,by=20)){

@@ -156,13 +156,13 @@ linesWithinExtent<-function(lonmin,latmin,lonmax,latmax,tags,osmdb=global.osmdb,
 #' 
 #' @description Get graph edges from Lines list and reference raster
 #'     iterate on lines to create an "edgelist" of connexions between raster cells
-graphEdgesFromLines<-function(lines,baseraster){
+graphEdgesFromLines<-function(lines,baseraster,verbose=F){
   l=lines$roads
   type=lines$type
   speed=lines$speed
   edgelist=list();edgespeed=c();edgetype=c()
   for(i in 1:length(l)){
-    if(i%%1000==0){show(i)}
+    if(i%%1000==0&verbose==T){show(i)}
     coords = l[[i]]@Lines[[1]]@coords
     # assume a connection at each vertex, ignores 'tunnel effect'
     #  -> ok at these scales for roads
@@ -180,9 +180,12 @@ graphEdgesFromLines<-function(lines,baseraster){
 
 #'
 #' @description get edge list from a shp file given the simplification resolution
-graphEdgesFromShp<-function(layer,resolution){
-  #bbox(layer)
-  #r = raster(nrow = )
+graphFromSpdf<-function(spdf,resolution){
+  bounds = bbox(spdf);ext=extent(bounds[1,1],bounds[1,2],bounds[2,1],bounds[2,2])
+  r = raster(nrow = floor((ext[4]-ext[3])/resolution),ncol = floor((ext[2]-ext[1])/resolution),crs=crs(spdf),ext=ext,resolution=resolution)
+  lines = list(roads=spdf@lines,type=rep("NA",length(spdf)),speed=spdf$speed)
+  edgelist = graphEdgesFromLines(lines,r)
+  return(graphFromEdges(edgelist,r,from_query=T))
 }
 
 
@@ -276,7 +279,13 @@ graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
 #' @param xr x resolution
 #' @param yr y resolution
 #' 
-simplifyGraph<-function(g,bounds,xr,yr){
+simplifyGraph<-function(g,bounds=NULL,xr=0,yr=0,direct=T){
+  if(is.null(bounds)|direct==T){
+    # full graph simplification
+    xr = 10000;yr=10000;
+    bounds=c(min(V(g)$x),min(V(g)$y),max(V(g)$x),max(V(g)$y))
+  }
+  
   # select graph strictly within bounds
   #  -- before that : keep crossing links to be added --
   joint_vertices = V(g)$x>bounds[1]+xr&V(g)$x<bounds[3]-xr&V(g)$y>bounds[2]+yr&V(g)$y<bounds[4]-yr
@@ -335,6 +344,7 @@ simplifyGraph<-function(g,bounds,xr,yr){
     #
     edgestoadd=append(edgestoadd,c(o$name,d$name))
     edgelength=append(edgelength,sum(elengths))
+    # check speed combination, strange results for train network
     edgespeed=append(edgespeed,sum(elengths*as.numeric(espeeds))/sum(elengths))
     type="NA";nt=0;for(tt in unique(etypes)){if(length(which(etypes==tt))>nt){type=tt}}
     edgetype=append(edgetype,type)
@@ -344,10 +354,21 @@ simplifyGraph<-function(g,bounds,xr,yr){
   if(length(edgestoadd)==0){edgestoadd=c()}
   # do not delete vertices extremities of edges to add
   for(e in edgestoadd){vtodelete=difference(vtodelete,vtodelete[vtodelete$name==e])}
-  return(list(graph = delete_vertices(g,vtodelete),edgestoadd=edgestoadd,edgelength=edgelength,edgespeed=edgespeed,edgetype=edgetype))
+  if(direct==F){
+    return(list(graph = delete_vertices(g,vtodelete),edgestoadd=edgestoadd,edgelength=edgelength,edgespeed=edgespeed,edgetype=edgetype))
+  }else{
+    #show(edgespeed)
+    g=delete_vertices(g,vtodelete)
+    g=add_edges(g,edgestoadd,attr = list(speed=edgespeed))
+    g=simplify(g,edge.attr.comb = "min")
+    comps=components(g);cmax = which(comps$csize==max(comps$csize))
+    g = induced_subgraph(g,which(comps$membership==cmax))
+    return(g)
+  }
 }
 
-
+#'
+#' @description merge two graphs
 mergeGraphs<-function(l1,l2){
   if(length(l1)==0){return(l2)}
   g=l1$graph+l2$graph
