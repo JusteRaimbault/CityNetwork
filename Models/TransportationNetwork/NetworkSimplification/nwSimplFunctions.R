@@ -178,6 +178,13 @@ graphEdgesFromLines<-function(lines,baseraster){
   return(list(edgelist=edgelist,speed=edgespeed,type=edgetype))
 }
 
+#'
+#' @description get edge list from a shp file given the simplification resolution
+graphEdgesFromShp<-function(layer,resolution){
+  #bbox(layer)
+  #r = raster(nrow = )
+}
+
 
 #'
 #' @description default global parameter values

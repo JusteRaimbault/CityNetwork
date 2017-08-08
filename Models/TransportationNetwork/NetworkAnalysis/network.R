@@ -71,8 +71,8 @@ addFootLinks<-function(g,walking_speed=1,snap=100){
 #'
 #' @name addTransportationLayer 
 #' @description Construct tarnsportation graph by adding layers successively
-addTransportationLayer<-function(stations_layer,link_layer,g=empty_graph(0)$fun(0),speed=1,snap=50){
-  #show(paste0('Adding transportation network : stations = ',stations_layer,' ; links = ',link_layer))
+addTransportationLayer<-function(stations_layer,link_layer,g=empty_graph(0)$fun(0),speed=1,snap=100){
+  show(paste0('Adding transportation network : stations = ',stations_layer,' ; links = ',link_layer))
   # construct vertex set
   if(is.character(stations_layer)){
     spath = strsplit(strsplit(stations_layer,'.shp')[[1]][1],'/')[[1]]
@@ -89,12 +89,12 @@ addTransportationLayer<-function(stations_layer,link_layer,g=empty_graph(0)$fun(
       # create only if does not exist
       #show(min(statdist))
       if(statdist[statdist==min(statdist)]>snap){
-        vertexes=rbind(vertexes,c(id=currentvid,x=coords[i,1],y=coords[i,2],station=TRUE,ident=stations$IDENT[i],name=stations$Nom[i]))
+        vertexes=rbind(vertexes,c(id=currentvid,x=coords[i,1],y=coords[i,2],station=TRUE))
         currentvid=currentvid+1
       }
     }
   }else{
-    vertexes=rbind(vertexes,data.frame(id=(nrow(vertexes)+1):(nrow(vertexes)+length(stations)),x=stations@coords[,1],y=stations@coords[,2],station=rep(TRUE,length(stations)),ident=stations$IDENT,name=stations$Nom))
+    vertexes=rbind(vertexes,data.frame(id=(nrow(vertexes)+1):(nrow(vertexes)+length(stations)),x=stations@coords[,1],y=stations@coords[,2],station=rep(TRUE,length(stations))))
     vertexes$id=as.numeric(as.character(vertexes$id))
   }
   
