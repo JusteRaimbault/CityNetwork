@@ -9,7 +9,7 @@ library(igraph)
 library(rgdal)
 library(ggplot2)
 
-source('functions.R')
+source('../functions_gp.R')
 
 ##
 # transportation network
@@ -35,6 +35,10 @@ png(filename = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/GrandP
 plot(tr_grandparisexpress,vertex.size=0.3,vertex.label=NA,edge.color='grey',edge.width=0.2,rescale=T)
 dev.off()
 
+png(filename = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/GrandParis/networks/base.png'),width=30,height=30,units='cm',res=600)
+plot(tr_base,vertex.size=0.3,vertex.label=NA,edge.color='grey',edge.width=0.2,rescale=T)
+dev.off()
+
 # accessibility in 2012, without GPE, and ∆acc ; for different decays
 resdir = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/GrandParis/maps/')
 
@@ -48,7 +52,7 @@ plot(iris[which(!iris$DCOMIRIS%in%paste0(as.character(extcom$COM),'0000')),],col
 rows = which(paste0(as.character(extcom$COM),'0000')%in%iris$DCOMIRIS)
 pops=rbind(pops,data.frame(id=paste0(as.character(extcom$COM),'0000')[rows],var=extcom$NBUC11[rows],year=rep('11',length(rows))))
 
-source('functions.R')
+source('../functions.R')
 
 year='11'
 currentpop=pops[pops$year==year,]
@@ -70,7 +74,52 @@ map(data=time,layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
     width=15,height=12
 )
 
+# time accessibility without GPE
+time=computeAccess(data.frame(id=rownames(dmat_base),var=rep(1,nrow(dmat_base)),year=rep(year,nrow(dmat_base))),data.frame(id=colnames(dmat_base),var=rep(1/ncol(dmat_base),ncol(dmat_base))),dmat_base)
+map(data=time,layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
+    filename=paste0(resdir,'timeaccess.png'),title=paste0('Time Accessibility without GPE'),legendtitle = "Average\nTravel Time",extent=iris,
+    width=15,height=12
+)
+
+
 # time differential with/without GPE
+timediff=dmat_base-dmat_grandparisexpress
+summary(c(timediff))
+time=computeAccess(data.frame(id=rownames(dmat_base),var=rep(1,nrow(dmat_base)),year=rep(year,nrow(dmat_base))),data.frame(id=colnames(dmat_base),var=rep(1/ncol(dmat_base),ncol(dmat_base))),timediff)
+map(data=time,layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
+    filename=paste0(resdir,'timegain.png'),title=paste0('Time Accessibility Gain'),legendtitle = "Average\nTime Gain",extent=iris,
+    width=15,height=12,palette='div'
+)
+
+
+#####
+# on Metropole only
+depts=c("75","92","93","94")
+iris = iris[substring(as.character(iris$DCOMIRIS),1,2)%in%depts,]
+
+time=computeAccess(data.frame(id=rownames(dmat_grandparisexpress),var=rep(1,nrow(dmat_grandparisexpress)),year=rep(year,nrow(dmat_grandparisexpress))),data.frame(id=colnames(dmat_grandparisexpress),var=rep(1/ncol(dmat_grandparisexpress),ncol(dmat_grandparisexpress))),dmat_grandparisexpress)
+map(data=time[time$id%in%iris$DCOMIRIS,],layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
+    filename=paste0(resdir,'timeaccess_gpe_metropole.png'),title=paste0('Time Accessibility with GPE'),legendtitle = "Average\nTravel Time",extent=iris,
+    width=15,height=12
+)
+
+time=computeAccess(data.frame(id=rownames(dmat_grandparisexpress),var=rep(1,nrow(dmat_grandparisexpress)),year=rep(year,nrow(dmat_grandparisexpress))),data.frame(id=colnames(dmat_grandparisexpress),var=rep(1/ncol(dmat_grandparisexpress),ncol(dmat_grandparisexpress))),dmat_base)
+map(data=time[time$id%in%iris$DCOMIRIS,],layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
+    filename=paste0(resdir,'timeaccess_metropole.png'),title=paste0('Time Accessibility without GPE'),legendtitle = "Average\nTravel Time",extent=iris,
+    width=15,height=12
+)
+
+timediff=dmat_base-dmat_grandparisexpress;timediff[timediff<0]=0
+time=computeAccess(data.frame(id=rownames(dmat_base),var=rep(1,nrow(dmat_base)),year=rep(year,nrow(dmat_base))),data.frame(id=colnames(dmat_base),var=rep(1/ncol(dmat_base),ncol(dmat_base))),timediff)
+map(data=time[time$id%in%iris$DCOMIRIS,],layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
+    filename=paste0(resdir,'timegain_metropole.png'),title=paste0('Time Accessibility Gain'),legendtitle = "Average\nTime Gain",extent=iris,
+    width=15,height=12,palette='div',lwd=0.2,
+    additionalPointlayers=list(readOGR('data/gis','grandparisexpress_gares')),
+    additionalLinelayers=list(readOGR('data/gis','grandparisexpress'))
+)
+
+
+
 
 
 
@@ -93,9 +142,9 @@ for(yvar in yvars){
   for(mat in names(dmats)){
     for(decay in decays){
       show(decay)
-      corrs=rbind(corrs,getLaggedCorrs(pops,employment,exp(-dmats[[mat]]/decay),ydata))
-      corrs=rbind(corrs,getLaggedCorrs(incomes,employment,list(exp(-dmats[[mat]]/decay)),ydata))
-      corrs=rbind(corrs,getLaggedCorrs(ginis,employment,list(exp(-dmats[[mat]]/decay)),ydata))
+      corrs=rbind(corrs,getLaggedCorrsDeltas(pops,employment,exp(-dmats[[mat]]/decay),ydata))
+      corrs=rbind(corrs,getLaggedCorrsDeltas(incomes,employment,list(exp(-dmats[[mat]]/decay)),ydata))
+      corrs=rbind(corrs,getLaggedCorrsDeltas(ginis,employment,list(exp(-dmats[[mat]]/decay)),ydata))
       vars=append(vars,c(rep("pop",11),rep("income",11),rep("gini",11)));
       cdecays=append(cdecays,rep(decay,33));network=append(network,rep(mat,33));cyvars=append(cyvars,rep(yvar,33))
     }
@@ -119,7 +168,7 @@ ggsave(file=paste0(resdir,'laggedcorrs_access.pdf'),width=30,height=20,unit='cm'
 #
 
 # travel time only, with time-varying nw
-# TODO : Q : influence of estimation window ? (fixed length ?)
+# Q : influence of estimation window ? (fixed length ?) -> full length too short to have moving window here
 nwyears = unique(transactions$annee)
 # ones to have travel time only in accessibility
 irisyears = c();for(year in nwyears){irisyears=append(irisyears,rep(year,length(iris)))}
@@ -146,7 +195,7 @@ for(yvar in yvars){
     show(mat)
     for(decay in decays){
       show(decay)
-      corrs=rbind(corrs,getLaggedCorrs(irisunit,comunit,varyingNetwork(dmats[[mat]],decay,breakyears[[mat]]),ydata))
+      corrs=rbind(corrs,getLaggedCorrsDeltas(irisunit,comunit,varyingNetwork(dmats[[mat]],decay,breakyears[[mat]]),ydata))
       vars=append(vars,c(rep("traveltime",11)));cdecays=append(cdecays,rep(decay,11));network=append(network,rep(mat,11));cyvars=append(cyvars,rep(yvar,11))
     }
   }
