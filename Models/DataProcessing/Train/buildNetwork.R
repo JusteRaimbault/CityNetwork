@@ -43,9 +43,11 @@ for(year in years){
   currentnw@data[currentnw@data[,speedVar(year,currentnw)]==0,speedVar(year,currentnw)]=50
   currentnw$speed = 1/(currentnw@data[,speedVar(year,currentnw)]*1000/60) # speed in min.m^1
   gfull=graphFromSpdf(currentnw,resolution=resolution)
-  #png(filename = paste0(Sys.getenv('CN_HOME'),'/Models/DataProcessing/Train/networks/1999full.png'),width=30,height=30,units='cm',res=600)
+  #png(filename = paste0(Sys.getenv('CN_HOME'),'/Models/DataProcessing/Train/networks/',year,'full.png'),width=30,height=30,units='cm',res=600)
   #plot(gfull,vertex.size=0.1,vertex.label=NA,edge.color='black',edge.width=1/(E(gfull)$speed*1000),rescale=T)
   #dev.off()
+  
+  gfull = connexify(gfull,pace=0.0012)
   
   # add stations
   currentstations = stations[stations$ouverture<=year&stations$fermeture>year,]

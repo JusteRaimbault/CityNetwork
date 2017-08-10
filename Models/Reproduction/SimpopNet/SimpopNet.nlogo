@@ -1,5 +1,4 @@
-
-extensions [nw]
+extensions [nw table matrix]
 
 __includes[
    
@@ -11,11 +10,14 @@ __includes[
    "indicators.nls"
    "display.nls"
    
-   ;;;;
-   ; utils
-   ;;;;
-   "local_utils/Link.nls"
+   "experiments.nls"
    
+   ;;
+   ; utils
+   
+   "utils.nls"
+   
+   "utils/LinkLocal.nls"
    "utils/Network.nls"
    "utils/List.nls"
 ]
@@ -35,6 +37,11 @@ globals[
   ;min-time-network  
   system-pot-int    ;
   
+  gibrat-mean
+  gibrat-std
+  
+  ; cities populations
+  populations
   
   ;;;;;;;
   ;; crossing links variables
@@ -44,6 +51,29 @@ globals[
   y-cross           ;
   crossing-link1    ;
   crossing-link2    ;
+  
+  ;;
+  ; network
+  techno-break-years
+  network-speeds
+  network-colors
+  
+  
+  ;;
+  ; indicators
+  indicator-sample-cities
+  indicator-sampling-time-step
+  city-values-table
+  
+  euclidian-distance-matrix
+  distance-matrix
+  
+  nw-relative-speeds
+  pairs-total-weight
+  
+  final-time-step
+  initial-time-step
+   
 ]
 
 
@@ -56,6 +86,9 @@ cities-own [
   
   ; population of the city
   population            
+  
+  ;
+  index
   
   ;;
   ; potential interaction of the city with all the other-city of the system
@@ -104,122 +137,20 @@ cities-own [
 
 links-own [
   speed        ; 
-  weight       ; lenght / speed
-  list-speed   ;
+  weight       ; length / speed
+  
+  bw-centrality
 ]
 
 breed [crosses cross]
 
-crosses-own [ me? ]
+crosses-own [
+  me?
+]
 
-
-
- 
- 
-; to compute-min-time-network
-;   
-;   ask cities [set min-time-neighbor city-min-time-neighbor]
-;   set min-time-network min [min-time-neighbor] of cities
-;   print min-time-network
-;   
-; end
- 
 
   
- 
 
-
-;******************************************************
-; Actualisation of link parameters
-;******************************************************
-
-
-to actualisation-of-link
-    set speed current-speed
-    set weight (link-length / speed)
-    set color current-color 
-    set thickness 0.5
-end
-
-
-
-;******************************************************
-; Lottery mecanisms for the random selection of cities
-;******************************************************
-
-to-report city-1pick
-  ; The random election is made accroding to the population of the cities
-  let totpopI random-float sumlottery
-  let cityI nobody
-  ask cities
-  [if cityI = nobody
-    [ifelse (population ^ lottery-power) > totpopI
-      [set cityI self]
-      [set totpopI totpopI - (population ^ lottery-power)]
-    ]
-  ]
- report cityI 
-end
-
-
-
-;;
-; Preferential attachment growth mechanism ? (depending on interaction potential ?)
-to-report lottery-potentiel [#1pick]
-  ; The random election is made accroding to the interaction potentiel of each cities with the first city picked
-  calcul-potentiels #1pick
-  let pool-cities cities with [who != [who] of #1pick]
-  
-  let totpotentiel random-float sum [potentiel-interaction ^ lottery-power] of pool-cities
-  let city-picked nobody
-  ask pool-cities
-  [
-   if city-picked = nobody
-   [
-     ifelse (potentiel-interaction ^ lottery-power) > totpotentiel
-     [set city-picked self]
-     [set totpotentiel totpotentiel - (potentiel-interaction ^ lottery-power) ] 
-   ]
-  ]
-  report city-picked
-  
-end
-
-
-
-
-to update-lists-cities
-  ask cities
-  [
-   let pop  precision population 2
-
-   set list-population lput pop list-population  
-   set list-accessibility lput accessibility list-accessibility
-   set list-attraction lput attraction list-attraction
-   set list-mean-linksspeed lput (mean [speed] of my-links) list-mean-linksspeed
-  ]
-end
-
-
-
-to update-networks-info [#city]
-  let citiesPop reverse sort [population] of cities
-  let myRank (position ([population] of #city) citiesPop) + 1
-  
-  ifelse (ticks <= 70)[
-   ask #city [if (item 0 network1 = "") [ set network1 (list ticks myRank) ]]
-    ][
-    ifelse (ticks <= 150) [
-      ask #city [if (item 0 network2 = "") [ set network2 (list ticks myRank)]]
-      ][
-      ask #city [if (item 0 network3 = "") [ set network3 (list ticks myRank)]]
-      ]
-    ]
-end
-  
-;;;-------------------------------------------------------------------------------------------------------------------------
-
-  
 @#$#@#$#@
 GRAPHICS-WINDOW
 474
@@ -249,10 +180,10 @@ ticks
 30.0
 
 BUTTON
-10
-310
-73
-354
+82
+265
+137
+298
 NIL
 go
 T
@@ -266,12 +197,12 @@ NIL
 1
 
 BUTTON
-10
-263
-73
-308
-NIL
+15
+265
+81
+298
 setup
+setup:setup
 NIL
 1
 T
@@ -283,51 +214,25 @@ NIL
 1
 
 INPUTBOX
-193
-264
-260
-324
+234
+172
+301
+232
 myseed
 31
 1
 0
 Number
 
-INPUTBOX
-113
-417
-166
-477
-speed1
-5
-1
-0
-Number
-
 CHOOSER
-78
-263
+18
 183
-308
+123
+228
 city-growth-model
 city-growth-model
 "Gibrat" "coevolution"
 1
-
-SLIDER
-6
-417
-110
-450
-lottery-power
-lottery-power
-0
-10
-3
-0.1
-1
-NIL
-HORIZONTAL
 
 MONITOR
 955
@@ -357,28 +262,6 @@ false
 "" "set-histogram-num-bars 20\nset-plot-x-range 0 (max [population] of cities)\nset-plot-pen-interval ((max [population] of cities) / 20)"
 PENS
 "default" 1.0 1 -16777216 true "" "histogram ([population] of cities)"
-
-INPUTBOX
-166
-417
-217
-477
-speed2
-20
-1
-0
-Number
-
-INPUTBOX
-216
-417
-266
-477
-speed3
-75
-1
-0
-Number
 
 PLOT
 1132
@@ -439,10 +322,10 @@ PENS
 "default" 1.0 2 -16777216 true "" "clear-plot ask cities [plotxy log population 10 accessibility]"
 
 BUTTON
-193
-325
-260
-358
+306
+184
+373
+217
 my-seed!
 random-seed myseed
 NIL
@@ -456,10 +339,10 @@ NIL
 1
 
 MONITOR
-960
-395
-1085
-440
+1178
+342
+1303
+387
 % mean annual growth
 ((sum [population] of cities / 5490390 ) ^ (1 / (ticks - 1800)) - 1 ) * 100
 3
@@ -467,125 +350,85 @@ MONITOR
 11
 
 TEXTBOX
-12
-371
-269
-413
-----------------------------------------------------------------\nNETWORK GROWTH Parameters
+37
+326
+123
+344
+Network growth
 11
 0.0
 1
 
 TEXTBOX
-12
-494
-269
-536
-----------------------------------------------------------------\nGIBRAT Model Parameters
-11
-0.0
-1
-
-TEXTBOX
-7
-580
-274
-622
------------------------------------------------------------------\nCOEVOLUTION Model Parameters
+240
+325
+309
+343
+Coevolution
 11
 0.0
 1
 
 CHOOSER
-78
-310
+124
 183
-355
+229
+228
 Network-growth
 Network-growth
 "scenario" "coevolution"
 1
 
 SLIDER
-9
-540
-132
-573
-gibrat-mean
-gibrat-mean
-0
-0.02
-0.01
-0.001
-1
-NIL
-HORIZONTAL
-
-SLIDER
-131
-540
-254
-573
-gibrat-std
-gibrat-std
-0
-0.03
-0.01
-0.001
-1
-NIL
-HORIZONTAL
-
-SLIDER
-6
-455
-111
-488
-IS
-IS
+8
+384
+206
+417
+network-threshold
+network-threshold
 0
 20
-12
+9
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-131
-630
-255
-663
-beta
-beta
+217
+384
+355
+417
+gravity-gamma
+gravity-gamma
 0
 3
-1.1
+1.2
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-6
-630
-130
-663
-lambda
-lambda
+216
+349
+362
+382
+gravity-decay
+gravity-decay
 0
 0.015
-0.01
+0.011
 0.001
 1
 NIL
 HORIZONTAL
 
 PLOT
-1211
-203
-1411
-353
+1185
+186
+1385
+336
 nw time test
 NIL
 NIL
@@ -597,7 +440,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot time-network city 8 city 48"
+"default" 1.0 0 -16777216 true "" "plot network:time-network city 8 city 48"
 
 CHOOSER
 12
@@ -640,10 +483,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-131
-184
-164
+187
+62
+373
+95
 synthetic-max-pop
 synthetic-max-pop
 0
@@ -655,10 +498,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-9
-164
-183
-197
+187
+96
+373
+129
 synthetic-city-max-degree
 synthetic-city-max-degree
 0
@@ -670,10 +513,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-197
-183
-230
+187
+131
+372
+164
 synthetic-shortcut-number
 synthetic-shortcut-number
 0
@@ -685,15 +528,86 @@ NIL
 HORIZONTAL
 
 SLIDER
-186
-62
-368
-95
+10
+131
+183
+164
 synthetic-shortcut-radius
 synthetic-shortcut-radius
 0
 20
 7
+1
+1
+NIL
+HORIZONTAL
+
+OUTPUT
+953
+401
+1379
+613
+10
+
+BUTTON
+876
+504
+945
+537
+indics
+indicators:compute-indicators
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+8
+350
+206
+383
+network-gamma
+network-gamma
+0
+4
+3
+0.1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+139
+265
+260
+298
+NIL
+go-full-period
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+8
+418
+180
+451
+speed-gain
+speed-gain
+0
+100
+50
 1
 1
 NIL

@@ -51,6 +51,8 @@ __includes [
    ;; Utils
    ;;;;
    
+   "utils.nls"
+   
    "utils/Network.nls"
    "utils/AgentSet.nls"
    "utils/Statistics.nls"
@@ -326,7 +328,6 @@ biological-network-real-links-own [
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 4
@@ -505,7 +506,7 @@ BUTTON
 758
 738
 network
-reset-network\ngenerate-network eucl-nw-generation-method
+reset-network\nnetwork-euclidian:generate-network eucl-nw-generation-method
 NIL
 1
 T

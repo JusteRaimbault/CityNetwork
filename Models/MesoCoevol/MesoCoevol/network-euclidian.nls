@@ -8,13 +8,13 @@
 
 
 
-to generate-synthetic-euclidian-network
+to network-euclidian:generate-synthetic-euclidian-network
   
   ; external call to a city spatial distribution generation
   cities:generate-cities-from-scratch cities-generation-method
   
   ; generic generate network function
-  generate-network eucl-nw-generation-method
+  network-euclidian:generate-network eucl-nw-generation-method
   
 end
 
@@ -32,7 +32,7 @@ end
 ;  
 ;  @param generation-method : String
 ;
-to generate-network [generation-method]
+to network-euclidian:generate-network [generation-method]
   
   if generation-method = "random"[
     random-network
@@ -123,7 +123,7 @@ end
 ; Create local link according to gravity function
 to add-local-links-neigh-gravity
   ; connects deterministically biggest neigh-gravity-threshold-quantile quantile of interaction potential
-  let qv quantile (table-values cities-interaction-table) neigh-gravity-threshold-quantile
+  let qv quantile (utils:table-values cities-interaction-table) neigh-gravity-threshold-quantile
   show qv
   
   foreach table:keys cities-interaction-table [
@@ -137,15 +137,6 @@ to add-local-links-neigh-gravity
      ] 
   ]
 end
-
-to-report table-values [table]
-  let res []
-  foreach table:keys table [
-    set res lput table:get table ? res 
-  ]
-  report res
-end
-
 
 
 

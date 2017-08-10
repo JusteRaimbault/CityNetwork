@@ -3,6 +3,69 @@
 ;; link utilities
 
 
+
+
+;*******************************************
+; graph reconstruction when crossing
+;; -> utils ?
+;*******************************************
+
+to adapt-graph
+  link:find-crossings
+  if x-cross != false [ link:create-intersection]
+end
+
+
+;;
+; connexification
+to link:find-crossings 
+ ;; each pair of segments checks for intersections once
+  ask links [
+    ;; performing this check on the who numbers keeps us from checking every pair twice
+    ;; we only check links with similiar speed  !!! artificialize the tunnel effect !!!
+    ask links with [(self > myself) and ([speed] of self = [speed] of myself) and (not-neighbors self myself) and ([speed] of self != 1)][
+      let result intersection self myself
+      if not empty? result [
+         ;  print result
+         set x-cross (item 0 result)
+         set y-cross (item 1 result)  
+         set crossing-link1 (item 2 result)
+         set crossing-link2 (item 3 result)      
+      ]
+    ]
+  ]
+end
+
+
+to link:create-intersection
+ ; print "hatching"
+  create-crosses 1 [
+    set shape "x" set color (current-color + 2) set size 1
+    setxy x-cross y-cross
+    set me? true
+  ]
+  
+   ask crossing-link1 [ask both-ends [ create-links-with crosses with [me? = true]
+                                         [actualisation-of-link]]]
+   ask crossing-link2 [ask both-ends [ create-links-with crosses with [me? = true]
+                                       [actualisation-of-link]]]
+
+   ask crossing-link1 [die]
+   ask crossing-link2 [die]
+   ask crosses with [me? = true] [set me? false]
+   set crossing-link1 false
+   set crossing-link2 false
+   set x-cross false
+   set y-cross false
+   adapt-graph
+end
+
+
+
+
+
+
+
 to-report not-neighbors [l1 l2]
   ifelse [end1] of l1 != [end1] of l2
   and 

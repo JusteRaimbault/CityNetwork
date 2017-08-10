@@ -382,7 +382,8 @@ mergeGraphs<-function(l1,l2){
 
 
 #'
-#' Speed as numeric (in km.h-1)
+#' @description Speed as numeric for osm road network (in km.h-1, conversion from mph if needed)
+#' 
 normalizedSpeed <- function(s){
   if(!is.na(as.numeric(s))){return(as.numeric(s))}
   sr=gsub(x = s," ","")
@@ -390,7 +391,9 @@ normalizedSpeed <- function(s){
   else{return(0)}
 }
 
-#' insertion query
+#'
+#' @description postgis insertion query
+#' 
 insertEdgeQuery<-function(o,d,length,speed,type){
   
   #  index to not duplicate : UNIQUE INDEX on o,d,type
@@ -408,10 +411,10 @@ insertEdgeQuery<-function(o,d,length,speed,type){
 
 
 
-####################'
+
 #' 
-#' insertion into simplified database
-#'   "insert into links (id,origin,destination,geography) values ('1',10,50,ST_GeographyFromText('LINESTRING(-122.33 47.606, 0.0 51.5)'));"
+#' @description insertion into simplified database
+#'              "insert into links (id,origin,destination,geography) values ('1',10,50,ST_GeographyFromText('LINESTRING(-122.33 47.606, 0.0 51.5)'));"
 #'
 exportGraph<-function(sg,dbname,dbuser=global.dbuser,dbport=global.dbport,dbhost=global.dbhost){
   if(!is.null(sg)){
@@ -463,7 +466,6 @@ exportGraph<-function(sg,dbname,dbuser=global.dbuser,dbport=global.dbport,dbhost
 }
 
 
-#####################'
 #'
 #'
 constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=TRUE){
@@ -488,13 +490,11 @@ constructLocalGraph<-function(lonmin,latmin,lonmax,latmax,tags,xr,yr,simplify=TR
 
 
 
-########################'
 #'
-#' Given coordinates of two cells, retrieve, merges and exports final graph.
-#'
-#'  Process :
-#'   - retrieve nw segments from intermediate base, reconstruct common nw
-#'   - simplify graph [check if same function can be used]
+#' @description Given coordinates of two cells, retrieve, merges and exports final graph.
+#'              Process :
+#'                 - retrieve nw segments from intermediate base, reconstruct common nw
+#'                 - simplify graph [check if same function can be used]
 mergeLocalGraphs<-function(bbox,xr,yr,dbname){
   lonmin=min(bbox[1],bbox[5]);latmax=max(bbox[2],bbox[6]);lonmax=max(bbox[3],bbox[7]);latmin=min(bbox[4],bbox[8])
   edges = graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbparams = list(dbname=dbname,dbhost=global.dbhost,dbport=global.dbport,dbhost=global.dbhost,dbuser=global.dbuser))
@@ -503,6 +503,25 @@ mergeLocalGraphs<-function(bbox,xr,yr,dbname){
     res$sg = simplifyGraph(graphFromEdges(edges,densraster,from_query = FALSE),bounds=c(lonmin,latmin,lonmax,latmax),xr,yr)
   }
   return(res)
+}
+
+
+
+#'
+#' @description connexify a graph with fixed pace links, with shortest distance link
+#'              assumes vertices have x,y coordinates.
+#'              Algo : take first component, find smallest dist with all summits outside, iterate
+connexify<-function(g,pace=0.0012){
+  ncomps = length(sizes(components(g)))
+  while(ncomps > 1){
+    comps = components(g)
+    d=spDists(matrix(c(V(g)$x[comps$membership==1],V(g)$y[comps$membership==1]),nrow=length(which(comps$membership==1)),byrow = F),
+              matrix(c(V(g)$x[comps$membership!=1],V(g)$y[comps$membership!=1]),nrow=length(which(comps$membership!=1)),byrow = F)
+              )
+    minrow=which.min(apply(d,1,min));mincol=which.min(d[minrow,])
+    #g=add_edges(g,edges=c(t(matrix(c(V(g)$name[comps$membership==1],apply(d,1,function(r){V(g)$name[comps$membership!=1][which.min(r)]})),nrow = nrow(d),byrow = F))),attr=list(speed=rep()))
+  }
+  
 }
 
 

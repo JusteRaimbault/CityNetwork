@@ -21,3 +21,61 @@ to-report concatenate [lists]
   ]  
   report res
 end
+
+
+
+;;
+; Multiplies two lists element-wise
+; 
+; same length not necessarily required, will return shortest list size.
+to-report list-times-element-wise [l1 l2]
+  let res []
+  let i 0
+  let shortest [] let longest [] ifelse length l1 < length l2 [set shortest l1 set longest l2][set shortest l2 set longest l1]
+  foreach shortest [
+    set res lput (? * (item i longest)) res
+    set i i + 1 
+  ]
+  report res
+end
+
+
+
+
+to-report quantile [x q]
+  ifelse is-list? q [
+    let res [] let sortedx sort x
+    let indexes map [floor (? * (length x))] q
+    foreach indexes [set res lput (item ? sortedx) res]
+    report res
+  ][
+    report item (floor (q * (length x))) (sort x)
+  ]
+end
+
+
+;;sequence function
+;
+; @param from
+; @param to
+; @param by
+to-report seq [from t by]
+  let res [] let current-val from let n 0
+  ifelse by = 0 [set n t][set n (floor ((t - from)/ by) + 1)]
+  repeat n [
+     set res lput current-val res
+     set current-val current-val + by
+  ]
+  report res
+end
+
+
+
+;;
+; R-style repetition of a single element
+;
+; @param element
+; @times number of times repeted
+to-report rep [element times]
+  let res [] repeat times [set res lput element res] report res
+end
