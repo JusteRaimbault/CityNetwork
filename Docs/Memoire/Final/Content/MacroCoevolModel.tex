@@ -78,6 +78,14 @@ where $\gamma_s$ is a hierarchy parameter, $\phi_0$ a threshold parameter and $g
 
 
 
+\subsubsection{Implementation}{Implémentation}
+
+
+Implementation architecture : scala/oml extension wrapper ? simpler to do full-netlogo : comment on that (//simfamily etc)
+
+Interactions (Matrix-based) <-> Network
+
+
 
 
 
@@ -86,12 +94,22 @@ where $\gamma_s$ is a hierarchy parameter, $\phi_0$ a threshold parameter and $g
 %%%%%%%%%%%%%%%%%
 \subsection{Application to Synthetic Data}{Application à des Données Synthétiques}
 
-%%
-% Implementation architecture : scala/oml extension wrapper ? simpler to do full-netlogo : comment on that (//simfamily etc)
-%  Interactions (Matrix-based) <-> Network
+
 
 
 The model is tested and explored on synthetic city systems, generated following a simple heuristic to follow the rank-size law and Central Place Theory. The systematic exploration through intensive computation unveils different interaction regimes accross the parameter space. In some, the introduction of the network can drastically change the fate of some cities, whereas the top-distribution hierarchy is reinforced, what is consistent with empirical observations in the literature. Some regimes actually exhibit circular causalities between network and city growth, corresponding to the intricated co-evolution.
+
+
+
+\paragraph{Synthetic data}{Données Synthétiques}
+
+
+
+
+\paragraph{Results}{Résultats}
+
+
+
 
 
 
@@ -101,13 +119,25 @@ The model is tested and explored on synthetic city systems, generated following 
 
 
 
-The model is applied to the French Urban System on long time dynamical data (Pumain-INED database for populations spanning between 1831 and 1999, with the evolving railway network from 1850 to 2000, and a specifically-designed database of the highway networks containing its full genesis from 1950 to 2015), and to the Chinese Urban System after 2000 with the High Speed Rail (HSR) network, both realized and planned. Expected results concern both accurate city population growth reproduction, and network patterns, i.e. how does taking into account dynamical networks can introduce further exploratory power in such models, and reciprocally how can such coupled models produce realistic networks compared to more classical autonomous models of network growth. The role of medium-sized cities on the trajectories of the system can also be examined with the model. Finally, a comparison between the urban systems in different geographical and political contexts and at different scales should unveil implications of planning on the interactions between networks and cities, for example by comparing the rather bottom-up growth of the French railway network to the top-down state-planned French highway and Chinese HSR networks.
+The model is applied to the French Urban System on long time dynamical data (Pumain-INED database for populations spanning between 1831 and 1999, with the evolving railway network from 1850 to 2000.
+
+Expected results concern both accurate city population growth reproduction, and network patterns, i.e. how does taking into account dynamical networks can introduce further exploratory power in such models, and reciprocally how can such coupled models produce realistic networks compared to more classical autonomous models of network growth. The role of medium-sized cities on the trajectories of the system can also be examined with the model. Finally, a comparison between the urban systems in different geographical and political contexts and at different scales should unveil implications of planning on the interactions between networks and cities, for example by comparing the rather bottom-up growth of the French railway network to the top-down state-planned French highway and Chinese HSR networks.
 
 
 
 \subsubsection{Network Data}{Données de Réseau}
 
 Nous travaillons sur les données de réseau ferré construites par~\cite{thevenin2013mapping}. Le réseau ferré français est particulièrement intéressant en conjonction avec les données de population déjà présentées, puisque la période couverte est relativement similaire, et que ce moyen de transport a à toute période concrétisé l'implication d'acteurs publiques et privés importants, tout en exhibant différents régimes selon les époques, d'une gestion plutôt décentralisée à une centralisation très forte plus récemment, et différentes concrétisations technologiques avec par exemple l'émergence récente de la grande vitesse. Pour chaque date de la base de donnée de population, nous extrayons le graphe abstrait simplifié où toutes les gares et intersections de degré supérieur à deux sont reliés par les liens abstrait avec attributs de vitesse et distance traduisant la valeur réelle, à une granularité de 1km. Cela permet également de construire les matrice de distance-temps entre les villes considérées dans le modèle.
+
+
+
+\subsubsection{Stylized facts}{Faits stylisés}
+
+% correlation patterns in real data.
+
+
+
+
 
 
 
@@ -124,6 +154,13 @@ Questions concrètes à poser au modèle, expériences ciblées :
 \comment[JR]{attention, expliquer le choix des indicateurs de réseau, il faut qu'ils soient adaptés à l'échelle : cf Mimeur nombre d'intersection - relève un peu de la modélisation procédurale.}
 
 
+\paragraph{Indicators}{Indicateurs}
+
+On peut ajouter aux indicateurs classiques un indicateur de calibration pour la distance. L'aspect particulier de l'ajustement pour les populations, qui résidait dans la présence d'une loi de puissance pour les tailles de villes rendant négligeables les performances sur les villes moyennes et les petites villes dans le cas d'une erreur cumulées, et suggérait l'ajout de l'indicateur de l'erreur sur les logarithmes, n'est pas présent pour les distances qui suivent une distribution localisée. Nous utilisons ainsi simplement
+
+\[
+\varepsilon_D = \log \left[ \sum_t \sum_{i,j} \left(d_{ij}(t) - \tilde{d}_{ij}(t)\right)^2\right]
+\]
 
 
 
@@ -139,6 +176,12 @@ Questions concrètes à poser au modèle, expériences ciblées :
 \comment{\cite{mimeur:tel-01451164} la thèse de Mimeur est un pont intéressant entre géographie et approches éco de Levinson (modèle de croissance type slime mould ?). plus fait des stats spatiales pour lier croissance pop et accessibilité : checker si même résulats quand fera spatio-temp causalities sur réseau ferré et autoroutier et croissance pop. remarque : trucs bizzares, essaie d'expliquer pour petites villes, mais pas approprié, pb du choix de l'échelle, de ce qui est du bruit et du signal - semble tout mélanger : importance du preprocessing et traitement du signal (cf correlations des taux de croissance). Tester effets fixes régions/départements ? fait GWR finalement ?}
 
 
+
+
+\subsubsection{Possible Developments}{Développements possibles}
+
+
+Specifically-designed database of the highway networks containing its full genesis from 1950 to 2015).
 
 
 
