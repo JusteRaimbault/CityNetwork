@@ -180,12 +180,12 @@ graphEdgesFromLines<-function(lines,baseraster,verbose=F){
 
 #'
 #' @description get edge list from a shp file given the simplification resolution
-graphFromSpdf<-function(spdf,resolution){
+graphFromSpdf<-function(spdf,resolution,lonlat=F){
   bounds = bbox(spdf);ext=extent(bounds[1,1],bounds[1,2],bounds[2,1],bounds[2,2])
   r = raster(nrow = floor((ext[4]-ext[3])/resolution),ncol = floor((ext[2]-ext[1])/resolution),crs=crs(spdf),ext=ext,resolution=resolution)
   lines = list(roads=spdf@lines,type=rep("NA",length(spdf)),speed=spdf$speed)
   edgelist = graphEdgesFromLines(lines,r)
-  return(graphFromEdges(edgelist,r,from_query=T))
+  return(graphFromEdges(edgelist,r,from_query=T,lonlat=lonlat))
 }
 
 
@@ -238,7 +238,7 @@ graphEdgesFromBase<-function(lonmin,latmin,lonmax,latmax,dbparams=defaultDBParam
 #' 
 #' @description Construct graph given edgelist
 #'  
-graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
+graphFromEdges<-function(edgelist,densraster,from_query=TRUE,lonlat=T){
   if(is.null(edgelist$edgelist)){return(make_empty_graph())}
   if(from_query==TRUE){edgesmat=matrix(data=as.character(unlist(edgelist$edgelist)),ncol=2,byrow=TRUE);}
   else{edgesmat=edgelist$edgelist}
@@ -262,7 +262,7 @@ graphFromEdges<-function(edgelist,densraster,from_query=TRUE){
     for(k in 1:length(x1)){
 	#show(V(g)$name[bothends[k,1]]);show(V(g)$name[bothends[k,2]])      
 	#show(paste0(x1[k],x2[k],y1[k],y2[k]))
-      elengths=append(elengths,spDistsN1(pts = matrix(c(x1[k],y1[k]),nrow=1),pt = c(x2[k],y2[k]),longlat = TRUE))
+      elengths=append(elengths,spDistsN1(pts = matrix(c(x1[k],y1[k]),nrow=1),pt = c(x2[k],y2[k]),longlat = lonlat))
     }
     E(g)$length=elengths;
   }
@@ -512,16 +512,18 @@ mergeLocalGraphs<-function(bbox,xr,yr,dbname){
 #'              assumes vertices have x,y coordinates.
 #'              Algo : take first component, find smallest dist with all summits outside, iterate
 connexify<-function(g,pace=0.0012){
-  ncomps = length(sizes(components(g)))
+  comps = components(g)
+  ncomps = length(sizes(comps))
   while(ncomps > 1){
-    comps = components(g)
     d=spDists(matrix(c(V(g)$x[comps$membership==1],V(g)$y[comps$membership==1]),nrow=length(which(comps$membership==1)),byrow = F),
               matrix(c(V(g)$x[comps$membership!=1],V(g)$y[comps$membership!=1]),nrow=length(which(comps$membership!=1)),byrow = F)
               )
     minrow=which.min(apply(d,1,min));mincol=which.min(d[minrow,])
-    #g=add_edges(g,edges=c(t(matrix(c(V(g)$name[comps$membership==1],apply(d,1,function(r){V(g)$name[comps$membership!=1][which.min(r)]})),nrow = nrow(d),byrow = F))),attr=list(speed=rep()))
+    g=add_edges(g,edges=c(V(g)$name[comps$membership==1][minrow],V(g)$name[comps$membership!=1][mincol]),attr=list(speed=pace,length=d[minrow,mincol]))
+    comps = components(g)
+    ncomps = length(sizes(comps))
   }
-  
+  return(g)
 }
 
 
