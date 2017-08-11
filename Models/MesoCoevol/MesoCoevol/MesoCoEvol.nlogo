@@ -1,4 +1,4 @@
-extensions [table pathdir nw matrix context gradient morphology]
+extensions [table pathdir nw matrix context gradient morphology shell]
 
 ;;;;
 ;; Mesoscopic Co-evolution
@@ -51,6 +51,8 @@ __includes [
    ;; Utils
    ;;;;
    
+   "utils.nls"
+   
    "utils/Network.nls"
    "utils/AgentSet.nls"
    "utils/Statistics.nls"
@@ -76,6 +78,8 @@ globals [
   setup-center-density
   ;setup-center-number
   setup-outside-links-number
+  city-max-pop
+  #-cities
   
   ;; network generation parameters
   
@@ -179,7 +183,7 @@ globals [
   ;;
   ;  Multimodeling variables
   
-  setup-method
+  ;setup-method ; \in {"synthetic-settlement","empty","real"}
   
   ; network-generation-method
   ;   { "gravity-heuristic","biological","road-connexion" }
@@ -324,8 +328,6 @@ biological-network-real-links-own [
 
 
 
-
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 4
@@ -355,65 +357,20 @@ ticks
 30.0
 
 CHOOSER
-846
-14
-1011
-59
+1016
+35
+1188
+80
 eucl-nw-generation-method
 eucl-nw-generation-method
 "simple-connexification" "neighborhood-gravity" "shortcuts" "random" "none"
 2
 
 SLIDER
-673
-175
-845
-208
-city-max-pop
-city-max-pop
-0
-10000
-311.778651728036
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-674
-212
-846
-245
-#-cities
-#-cities
-0
-1000
-236
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-674
-247
-845
-280
-rank-size-exponent
-rank-size-exponent
-0
-2
-0.25
-0.05
-1
-NIL
-HORIZONTAL
-
-SLIDER
-873
-173
-1062
-206
+861
+478
+1063
+511
 random-network-density
 random-network-density
 0
@@ -425,10 +382,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-861
-319
-1033
-352
+684
+407
+856
+440
 gravity-radius
 gravity-radius
 0
@@ -440,40 +397,40 @@ NIL
 HORIZONTAL
 
 SLIDER
-672
-356
-844
-389
+682
+228
+854
+261
 population-growth-rate
 population-growth-rate
-500
+0
 3000
-1137
+0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-673
-391
-845
-424
+683
+263
+855
+296
 density-alpha-localization
 density-alpha-localization
 0
 4
-1.55
+0.64
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-673
-425
-845
-458
+683
+297
+855
+330
 density-diffusion-steps
 density-diffusion-steps
 0
@@ -485,10 +442,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-674
-462
-846
-495
+684
+334
+856
+367
 density-diffusion
 density-diffusion
 0
@@ -500,10 +457,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-1277
-16
-1369
-61
+1238
+33
+1330
+78
 cities pop
 sum populations
 17
@@ -511,10 +468,10 @@ sum populations
 11
 
 MONITOR
-1277
-66
-1370
-111
+1238
+83
+1331
+128
 patches-pop
 total-population
 17
@@ -522,10 +479,10 @@ total-population
 11
 
 SLIDER
-1067
-207
-1239
-240
+861
+552
+1062
+585
 basic-gravity-exponent
 basic-gravity-exponent
 0
@@ -537,19 +494,19 @@ NIL
 HORIZONTAL
 
 OUTPUT
-953
-512
-1302
-697
+966
+634
+1315
+819
 10
 
 BUTTON
-667
-562
-748
-595
+677
+705
+758
+738
 network
-reset-network\ngenerate-network eucl-nw-generation-method
+reset-network\nnetwork-euclidian:generate-network eucl-nw-generation-method
 NIL
 1
 T
@@ -561,10 +518,10 @@ NIL
 1
 
 SLIDER
-1068
-172
-1294
-205
+861
+514
+1063
+547
 neigh-gravity-threshold-quantile
 neigh-gravity-threshold-quantile
 0
@@ -576,20 +533,20 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-673
-296
-823
-328
+683
+168
+833
+200
 Density Generation
 11
 0.0
 1
 
 MONITOR
-1279
-114
-1336
-159
+1338
+33
+1395
+78
 cities
 count cities
 17
@@ -597,10 +554,10 @@ count cities
 11
 
 SLIDER
-862
-427
-1035
-460
+685
+515
+856
+548
 gravity-hierarchy-exponent
 gravity-hierarchy-exponent
 0
@@ -612,10 +569,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-749
-561
-824
-594
+759
+704
+834
+737
 nw indics
 compute-indicators
 NIL
@@ -629,10 +586,10 @@ NIL
 1
 
 SLIDER
-874
-209
-1037
-242
+1069
+407
+1232
+440
 shortcuts-threshold
 shortcuts-threshold
 0
@@ -644,10 +601,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-875
-245
-1037
-278
+1069
+443
+1231
+476
 shorcuts-max-number
 shorcuts-max-number
 0
@@ -659,10 +616,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-861
-389
-1033
-422
+684
+477
+856
+510
 hierarchy-role
 hierarchy-role
 0
@@ -674,10 +631,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-862
-355
-1034
-388
+685
+443
+857
+476
 gravity-inflexion
 gravity-inflexion
 0
@@ -689,10 +646,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-861
-464
-1033
-497
+684
+552
+856
+585
 #-max-new-links
 #-max-new-links
 0
@@ -703,21 +660,11 @@ SLIDER
 NIL
 HORIZONTAL
 
-TEXTBOX
-672
-154
-822
-172
-Zipf cities
-11
-0.0
-1
-
 SLIDER
-672
-322
-844
-355
+682
+194
+854
+227
 sp-max-pop
 sp-max-pop
 10000
@@ -729,20 +676,20 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-862
-297
-1012
-315
+685
+385
+835
+403
 Heuristic Network
 11
 0.0
 1
 
 INPUTBOX
-668
-87
-749
-147
+740
+102
+821
+162
 fixed-config-num
 setup/config_0.csv
 1
@@ -750,21 +697,21 @@ setup/config_0.csv
 String
 
 INPUTBOX
-752
-87
-809
-147
+675
+100
+732
+160
 seed
-0
+1
 1
 0
 Number
 
 BUTTON
-826
-562
-892
-595
+836
+705
+902
+738
 clear
 ca random-seed seed
 NIL
@@ -779,9 +726,9 @@ NIL
 
 SLIDER
 678
-40
+61
 826
-73
+94
 setup-center-number
 setup-center-number
 1
@@ -794,19 +741,19 @@ HORIZONTAL
 
 TEXTBOX
 678
-21
+10
 828
-39
+28
 Setup
 11
 0.0
 1
 
 BUTTON
-1281
-354
-1344
-387
+1161
+291
+1224
+324
 setup
 setup:setup
 NIL
@@ -820,10 +767,10 @@ NIL
 1
 
 BUTTON
-1281
-390
-1344
-423
+1161
+327
+1224
+360
 NIL
 go
 T
@@ -837,20 +784,20 @@ NIL
 1
 
 CHOOSER
-1045
-76
-1217
-121
+1016
+83
+1188
+128
 network-generation-method
 network-generation-method
 "gravity-heuristic" "biological" "road-connexion"
-0
+1
 
 SLIDER
-1039
-319
-1248
-352
+884
+196
+1093
+229
 linear-aggreg-population-coef
 linear-aggreg-population-coef
 0
@@ -862,10 +809,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1039
-353
-1248
-386
+884
+230
+1093
+263
 linear-aggreg-distance-to-road-coef
 linear-aggreg-distance-to-road-coef
 0
@@ -877,10 +824,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1039
-387
-1248
-420
+884
+264
+1093
+297
 linear-aggreg-closeness-centrality-coef
 linear-aggreg-closeness-centrality-coef
 0
@@ -892,10 +839,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1039
-421
-1248
-454
+884
+298
+1093
+331
 linear-aggreg-bw-centrality-coef
 linear-aggreg-bw-centrality-coef
 0
@@ -907,10 +854,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1039
-455
-1248
-488
+884
+332
+1093
+365
 linear-aggreg-accessibility-coef
 linear-aggreg-accessibility-coef
 0
@@ -922,20 +869,20 @@ NIL
 HORIZONTAL
 
 CHOOSER
-675
-509
-821
-554
+685
+652
+831
+697
 display-variable
 display-variable
 "population" "patch-value" "new-city-proba"
 0
 
 BUTTON
-824
-521
-920
-554
+834
+664
+930
+697
 update display
 display:update-display
 NIL
@@ -949,20 +896,20 @@ NIL
 1
 
 TEXTBOX
-1042
-297
-1192
-315
+887
+174
+1037
+192
 Linear aggreg coefs
 11
 0.0
 1
 
 BUTTON
-675
-642
-746
-675
+685
+785
+756
+818
 go bio
 network-biological:go
 T
@@ -976,25 +923,25 @@ NIL
 1
 
 SLIDER
-1044
-249
-1244
-282
+863
+407
+1063
+440
 network-biological-threshold
 network-biological-threshold
 0
 2
-0.5
+0.2
 0.1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-752
-642
-816
-675
+762
+785
+826
+818
 show bio
 network-biological:show-links
 NIL
@@ -1008,10 +955,10 @@ NIL
 1
 
 BUTTON
-814
-605
-892
-638
+824
+748
+902
+781
 connex
 network-biological:kill-weak-links\nnetwork-biological:keep-connex-component
 NIL
@@ -1025,10 +972,10 @@ NIL
 1
 
 BUTTON
-675
-606
-741
-639
+685
+749
+751
+782
 clear bio
 network-biological:clear-network
 NIL
@@ -1042,10 +989,10 @@ NIL
 1
 
 BUTTON
-743
-605
-811
-638
+753
+748
+821
+781
 setup bio
 network-biological:setup
 NIL
@@ -1059,10 +1006,10 @@ NIL
 1
 
 BUTTON
-819
-641
-884
-674
+829
+784
+894
+817
 simpl
 network-biological:simplify-network\n
 NIL
@@ -1076,10 +1023,10 @@ NIL
 1
 
 SLIDER
-1242
-249
-1416
-282
+863
+443
+1063
+476
 network-biological-steps
 network-biological-steps
 0
@@ -1089,6 +1036,56 @@ network-biological-steps
 1
 NIL
 HORIZONTAL
+
+TEXTBOX
+1017
+14
+1167
+32
+Method
+11
+0.0
+1
+
+SLIDER
+832
+62
+952
+95
+raster-row
+raster-row
+0
+100000
+4762
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+833
+98
+953
+131
+raster-col
+raster-col
+0
+100000
+36190
+1
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+722
+10
+828
+55
+setup-method
+setup-method
+"synthetic-settlement" "real" "empty"
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

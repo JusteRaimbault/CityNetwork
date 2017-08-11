@@ -61,6 +61,12 @@ globals [
   initial-distance-matrix
   feedback-distance-matrix
   
+  ; history of distance matrices
+  distance-matrices
+  
+  ; real distance matrices (real network)
+  real-distance-matrices
+  
   gravity-weights
   feedback-weights
   
@@ -156,7 +162,6 @@ paths-own [
   
   
 ]
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 294
@@ -337,7 +342,7 @@ BUTTON
 270
 527
 go full period
-if ticks > 0 [setup:reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
+if ticks > 0 [setup:reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log-population)\noutput-print (word \"log mse : \" log-mse-population)
 NIL
 1
 T
@@ -548,7 +553,7 @@ INPUTBOX
 1049
 247
 city-traj
-CAEN
+SAINT-NAZAIRE
 1
 0
 String
@@ -561,7 +566,7 @@ CHOOSER
 setup-type
 setup-type
 "synthetic" "gis"
-0
+1
 
 SLIDER
 1
@@ -617,7 +622,7 @@ final-time-step
 final-time-step
 0
 100
-30
+20
 1
 1
 NIL
@@ -642,25 +647,25 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 CHOOSER
-11
-235
-114
-280
+7
+224
+110
+269
 network-type
 network-type
 "virtual" "physical"
-1
+0
 
 SLIDER
 6
-290
+321
 225
-323
+354
 network-reinforcment-threshold
 network-reinforcment-threshold
 0
 5
-2.5
+4.5
 0.1
 1
 NIL
@@ -668,14 +673,14 @@ HORIZONTAL
 
 SLIDER
 6
-323
+354
 224
-356
+387
 network-reinforcment-exponent
 network-reinforcment-exponent
 0
 10
-1
+0.34
 0.01
 1
 NIL
@@ -691,25 +696,25 @@ NIL
 NIL
 0.0
 10.0
+100.0
 0.0
-10.0
 true
 false
 "" ""
 PENS
-"pen-2" 1.0 0 -2674135 true "" "plot first matrix:min matrix:map zero-infinite distance-matrix"
+"pen-2" 1.0 0 -2674135 true "" "plot first matrix:min matrix:map cities:zero-infinite distance-matrix"
 
 SLIDER
 7
-357
+388
 225
-390
+421
 network-reinforcment-gmax
 network-reinforcment-gmax
 0
-0.5
-0.05
 0.01
+3.0E-5
+1e-5
 1
 NIL
 HORIZONTAL
@@ -726,10 +731,10 @@ show-virtual-flows?
 -1000
 
 CHOOSER
-119
-235
-266
-280
+115
+225
+262
+270
 physical-network-heuristic
 physical-network-heuristic
 "slime-mould" "breakdown"
@@ -782,9 +787,9 @@ HORIZONTAL
 
 SLIDER
 9
-391
-236
-424
+422
+263
+455
 physical-network-reinforcment-threshold
 physical-network-reinforcment-threshold
 0
@@ -807,9 +812,9 @@ link-display-var
 
 SLIDER
 6
-426
+457
 264
-459
+490
 physical-network-reinforcment-quantile
 physical-network-reinforcment-quantile
 0
@@ -819,6 +824,17 @@ physical-network-reinforcment-quantile
 1
 NIL
 HORIZONTAL
+
+SWITCH
+7
+272
+131
+305
+fixed-dist?
+fixed-dist?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?

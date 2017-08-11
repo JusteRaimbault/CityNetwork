@@ -1,8 +1,7 @@
 
 # build the network
 
-source('network.R')
-
+source(paste0(Sys.getenv('CN_HOME'),'/Models/TransportationNetwork/NetworkAnalysis/network.R'))
 
 # construct network
 # speeds : RER 60km.h-1 -> 0.001 min.m-1 ; Transilien 100kmh ; Metro 30kmh ; Tram 20kmh
@@ -10,12 +9,23 @@ source('network.R')
 # RER
 trgraph=addTransportationLayer('data/gis/gares.shp','data/gis/rer_lignes.shp',speed=0.001)
 # Transilien
-trgraph=addTransportationLayer('data/gis/empty.shp','data/gis/train_banlieue_lignes.shp',g = trgraph,speed=6e-04)
+trgraph=addTransportationLayer('data/gis/gares.shp','data/gis/train_banlieue_lignes.shp',g = trgraph,speed=6e-04)
 # Metro
 trgraph=addTransportationLayer('data/gis/metro_stations.shp','data/gis/metro_lignes.shp',g = trgraph,speed=0.002)
 # Tram
 trgraph=addTransportationLayer('data/gis/TCSP_arrets.shp','data/gis/TCSP_lignes.shp',g = trgraph,speed=0.003)
 
+# connexify
+comps = components(trgraph);
+cmax=which(sizes(comps)==max(sizes(comps)))
+for(comp in unique(comps$membership)[-cmax]){if(sum(V(trgraph)$station[comps$membership==comp])>0){
+  d = spDists(x=matrix(c(V(trgraph)$x[comps$membership==cmax],V(trgraph)$y[comps$membership==cmax]),nrow=length(which(comps$membership==cmax)),byrow = F),matrix(c(V(trgraph)$x[comps$membership==comp],V(trgraph)$y[comps$membership==comp]),nrow=length(which(comps$membership==comp)),byrow = F))
+  minrow=which.min(apply(d,1,min));mincol=which.min(d[minrow,])
+  trgraph=add_edges(trgraph,c(V(trgraph)$name[comps$membership==cmax][minrow],V(trgraph)$name[comps$membership==comp][mincol]),attr=list(speed=0.0012,length=d[minrow,mincol]))
+}}
+# keep largest comp
+comps = components(trgraph);cmax = which(comps$csize==max(comps$csize))
+trgraph = induced_subgraph(trgraph,which(comps$membership==cmax))
 
 # arc express proche
 tr_arcexpressproche=addTransportationLayer('data/gis/arcexpress_proche_gares.shp','data/gis/arcexpress_proche.shp',g = trgraph,speed=0.001)
@@ -44,27 +54,27 @@ tr_grandparisexpress = addAdministrativeLayer(tr_grandparisexpress,"data/gis/com
 tr_grandparisexpress = addAdministrativeLayer(tr_grandparisexpress,"data/gis/irisidf.shp",connect_speed = 0.0012,attributes=list("IRIS"="DCOMIRIS"))
 
 
+#as.character(iris$DCOMIRIS)[!as.character(iris$DCOMIRIS)%in%V(tr_grandparisexpress)$IRIS]
+#as.character(iris$DCOMIRIS)[!as.character(iris$DCOMIRIS)%in%V(tr_base)$IRIS]
+# few iris missing -> connectivity issue ?
+
+
 # filter on larger components
-comps = components(tr_base);cmin = which(comps$csize==max(comps$csize))
-tr_base = induced_subgraph(tr_base,which(comps$membership==cmin))
-
-comps = components(tr_arcexpressproche);cmin = which(comps$csize==max(comps$csize))
-tr_arcexpressproche = induced_subgraph(tr_arcexpressproche,which(comps$membership==cmin))
-
-comps = components(tr_arcexpressloin);cmin = which(comps$csize==max(comps$csize))
-tr_arcexpressloin = induced_subgraph(tr_arcexpressloin,which(comps$membership==cmin))
-
-comps = components(tr_reseaugrandparis);cmin = which(comps$csize==max(comps$csize))
-tr_reseaugrandparis = induced_subgraph(tr_reseaugrandparis,which(comps$membership==cmin))
-
-comps = components(tr_grandparisexpress);cmin = which(comps$csize==max(comps$csize))
-tr_grandparisexpress = induced_subgraph(tr_grandparisexpress,which(comps$membership==cmin))
-
+#comps = components(tr_base);cmin = which(comps$csize==max(comps$csize))
+#tr_base = induced_subgraph(tr_base,which(comps$membership==cmin))
+#comps = components(tr_arcexpressproche);cmin = which(comps$csize==max(comps$csize))
+#tr_arcexpressproche = induced_subgraph(tr_arcexpressproche,which(comps$membership==cmin))
+#comps = components(tr_arcexpressloin);cmin = which(comps$csize==max(comps$csize))
+#tr_arcexpressloin = induced_subgraph(tr_arcexpressloin,which(comps$membership==cmin))
+#comps = components(tr_reseaugrandparis);cmin = which(comps$csize==max(comps$csize))
+#tr_reseaugrandparis = induced_subgraph(tr_reseaugrandparis,which(comps$membership==cmin))
+#comps = components(tr_grandparisexpress);cmin = which(comps$csize==max(comps$csize))
+#tr_grandparisexpress = induced_subgraph(tr_grandparisexpress,which(comps$membership==cmin))
 
 
 # save the different graphs
 
-save(tr_base,tr_arcexpressproche,tr_arcexpressloin,tr_reseaugrandparis,tr_grandparisexpress,file='data/networks.RData')
+save(tr_base,tr_arcexpressproche,tr_arcexpressloin,tr_reseaugrandparis,tr_grandparisexpress,file='data/networks2.RData')
 
 
 ## distance matrices
@@ -86,7 +96,7 @@ dmat_reseaugrandparis = getDistMat(tr_reseaugrandparis)
 dmat_grandparisexpress = getDistMat(tr_grandparisexpress)
 
 # save
-save(dmat_base,dmat_arcexpressproche,dmat_arcexpressloin,dmat_reseaugrandparis,dmat_grandparisexpress,file='data/dmats.RData')
+save(dmat_base,dmat_arcexpressproche,dmat_arcexpressloin,dmat_reseaugrandparis,dmat_grandparisexpress,file='data/dmats2.RData')
 
 
 

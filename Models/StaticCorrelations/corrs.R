@@ -132,7 +132,7 @@ lon=c();lat=c();for(i in 1:length(xcors)){for(j in 1:length(ycors)){if(length(co
 corrmat=data.frame(lon=lon,lat=lat,corrmat)
 
 # do the pca
-pca=prcomp(corrmat)
+pca=prcomp(corrmat[,c(-1,-2)])
 summary(pca)
 rhopca = data.frame(getCorrMeasure(xcors,ycors,corrs,function(rho){if(!is.matrix(rho)){return(NA)};r=matrix(c(rho),ncol=length(rho))%*%as.matrix(pca$rotation);return(r[1,1])}))
 colnames(rhopca)<-c("lon","lat","rho")

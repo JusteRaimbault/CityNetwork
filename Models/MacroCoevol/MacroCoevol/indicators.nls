@@ -321,17 +321,35 @@ end
 
 ;;
 ; log of total mean square error
-to-report log-mse
+to-report log-mse-population
   let mse (matrix:map [(?1 - ?2)^ 2] real-populations populations)
   report ln sum (map sum (matrix:to-row-list mse))
 end
 
 ;;
 ; mse on log of populations
-to-report mse-log
+to-report mse-log-population
   let mse (matrix:map [(ln ?1 - ln ?2)^ 2] real-populations populations)
   report sum (map sum (matrix:to-row-list mse)) 
 end
+
+
+;;
+; log of total mse on distances
+to-report log-mse-distance
+  let tot 0
+  foreach dates [
+     let mse (matrix:map [(?1 - ?2)^ 2] (table:get real-distances-matrices ?) (table:get distances-matrices ?))
+     set tot tot + sum (map sum (matrix:to-row-list mse))
+  ]
+  report ln tot
+end
+
+
+;; note : distances DO NOT follow a power law : no sense to do the mse-log
+
+
+
 
 
 

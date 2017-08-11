@@ -156,7 +156,7 @@ to cities:generate-cities-from-scratch [generation-method]
      
      ; then places 'abstract' nodes as cities depending on density distrib
      
-     density-to-cities
+     cities:density-to-cities
      
   ]
   
@@ -172,16 +172,16 @@ to cities:generate-cities-from-scratch [generation-method]
     set density-file fixed-config-num
     show density-file
     ;set density-file "../../../Results/Synthetic/Density/20151106_Grid/pop/config_166.csv"
-    density-from-file density-file
+    density:density-from-file density-file
     
     display:display-patches
     
-    density-to-cities
+    cities:density-to-cities
   ]
   
   if generation-method = "fixed-density" [
      reset-network-and-cities
-     density-to-cities
+     cities:density-to-cities
   ]
   
   
@@ -219,31 +219,13 @@ to set-population-distribution
   set populations []
   let i 1
   repeat #-cities [
-    set populations lput (city-max-pop / (i ^ rank-size-exponent)) populations
+    set populations lput (city-max-pop / (i ^ setup-rank-size-exp)) populations
     set i i + 1 
   ]
 end
 
 
 
-
-to density-from-file [file]
-   let rows read-numeric-csv-as-row-list file ";"
-   ; file assumed consistent -> resize world here
-   let width length item 0 rows let height length rows
-   resize-world 0 (width - 1) 0 (height - 1) set-patch-size (50 * 13 / height)
-   let i min-pxcor let j min-pycor
-   foreach rows [
-      set j min-pycor
-      foreach ? [
-        ask (patch i j) [set patch-population ?]
-        set j j + 1
-      ]
-      set i i + 1
-   ]
-   
-   ;color-synth-pattern
-end
 
 
 to-report density-file-from-dir [dir index]
@@ -262,7 +244,7 @@ end
 ;
 ;  NOTE : must be a bijection density <-> cities, which form is fixed by given mechanisms
 ;      -- !! has a strong influence on nw generation as nw generation algorithms depend on city system organization.
-to density-to-cities
+to cities:density-to-cities
   
   if density-to-cities-method = "random-aggreg" [
      

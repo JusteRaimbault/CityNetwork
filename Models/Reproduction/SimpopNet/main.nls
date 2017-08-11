@@ -5,34 +5,38 @@
 ;;;;
 
 
+
+to go-full-period
+  while [ticks <= final-time-step][go]
+  network:cache-nw-measures
+end
+
+
 to go
   
- if (ticks > 2000) 
-   [
-    show (
-      word "liens," (count links) 
-      ",new," (count links with [color != 5]) 
-      ",pc_new," precision ( ((count links with [color != 5]) / (count links) ) * 100)2)
-    
-    ;export-listes
-    stop
-   ]
-   
-   
-   
+ ;if (ticks > final-time-step) [
+ ;   show (
+ ;     word "liens," (count links) 
+ ;     ",new," (count links with [color != 5]) 
+ ;     ",pc_new," precision ( ((count links with [color != 5]) / (count links) ) * 100)2)
+ ;  
+ ;   ;export-listes
+ ;   stop
+ ;  ]
+  
  nw:set-context turtles links  ; For a new snapshot of the network at each step
   
- grow-cities                ; according to the present network
+ cities:grow-cities                ; according to the present network
 
- calculate-accessibility    ; according to the present network
+ cities:calculate-accessibility    ; according to the present network
  
  update-display
   
- grow-network               ; according to the present city-size distribution
+ network:grow-network               ; according to the present city-size distribution
  
  adapt-graph                ; Procedure that creates interscation (new nodes on the network) where to links of the same speed cross
  
- update-lists-cities
+ indicators:update-indicators
  
  tick 
     

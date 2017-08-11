@@ -17,7 +17,7 @@ to setup:setup
   
   ;;
   ; load data files
-  setup:setup-data
+  setup:setup-population-data
   
   ;;
   ; cities
@@ -28,7 +28,7 @@ to setup:setup
   setup:setup-network
   setup:setup-matrices
   
-  update-weights
+  cities:update-weights
   
   setup:setup-indicators
  
@@ -46,7 +46,7 @@ end
 ;  partial setup
 to setup:reset
   setup:setup-globals
-  setup:setup-data
+  setup:setup-population-data
   ;setup:setup-matrices
   setup:reset-populations
   setup:reset-links
@@ -121,18 +121,14 @@ end
 
 ;;
 ; load data from files
-to setup:setup-data
+to setup:setup-population-data
   
   if setup-type = "gis" [
     ;; population matrices
-    set real-populations read-numeric-csv-as-matrix (word "setup/pops/pop50_" period".csv") ","
+    set real-populations read-numeric-csv-as-matrix (word "setup/pops/pop50_" period ".csv") ","
     set populations matrix:make-constant length matrix:get-column real-populations 0 length matrix:get-row real-populations 0 0
     matrix:set-column populations 0 matrix:get-column real-populations 0
-  
-    ;; distances
-    set distance-matrix read-numeric-csv-as-matrix "setup/dist50.csv" ","
-    set feedback-distance-matrix read-numeric-csv-as-matrix "setup/fdists50.csv" ","
-  
+
     ;; dates
     set dates map [read-from-string ?] (read-file (word "setup/dates/dates_" period ".csv"))
   
@@ -213,8 +209,29 @@ end
 
 
 
-
+;;
+; 
 to setup:setup-matrices
+  
+  if setup-type = "gis" [
+    
+    ifelse fixed-dist? [
+      ;; distances
+      set distance-matrix read-numeric-csv-as-matrix "setup/dist50.csv" ","
+    ][
+      ; load yearly real distance matrices
+      set real-distance-matrices table:make
+      foreach dates [
+         table:put real-distance-matrices ? read-numeric-csv-as-matrix (word "setup/distances/" ? "_dmat_res1000_cities50.csv") ","
+      ]
+      
+      set distance-matrix matrix:copy table:get real-distance-matrices (first dates)
+      
+    ]
+    
+    ; in virtual mode, feedback does not change - no need in physical mode
+    set feedback-distance-matrix read-numeric-csv-as-matrix "setup/fdists50.csv" ","
+  ]
   
   if setup-type = "synthetic" [
     
@@ -233,9 +250,6 @@ to setup:setup-matrices
       update-distance-matrices 
     ]
     
-    
-    set initial-distance-matrix matrix:copy distance-matrix
-    
     ; feedback distance matrix
     let xcors [] let ycors [] let pops [] foreach sort-by [[index] of ?1 < [index] of ?2] cities [ask ? [set xcors lput xcor xcors set ycors lput ycor ycors set pops lput population pops]]
     let xi matrix:from-row-list (rep xcors n) let xj matrix:from-column-list (rep xcors n) let yi matrix:from-row-list (rep ycors n) let yj matrix:from-column-list (rep ycors n)
@@ -244,12 +258,12 @@ to setup:setup-matrices
     repeat n [
       let cityk one-of cities with [index = k]
       let xk matrix:make-constant n n [xcor] of cityk let yk matrix:make-constant n n [ycor] of cityk
-      let xik matrix:map zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xi matrix:- xk) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yk) (yi matrix:- yk))))
-      let xjk matrix:map zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xj matrix:- xk) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yk) (yj matrix:- yk))))
-      let sc1 (matrix:times-element-wise ((matrix:times-element-wise (xi matrix:- xj) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yj) (yi matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map zero-infinite distance-matrix) xik)))
-      let sc2 (matrix:times-element-wise ((matrix:times-element-wise (xj matrix:- xi) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yi) (yj matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map zero-infinite distance-matrix) xjk)))
-      let kfeedbackdistmat (matrix:map feedback-distance sc1 sc2 xik)
-      set feedback-dist-rows lput (flatten-dists-feedback kfeedbackdistmat) feedback-dist-rows
+      let xik matrix:map cities:zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xi matrix:- xk) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yk) (yi matrix:- yk))))
+      let xjk matrix:map cities:zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xj matrix:- xk) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yk) (yj matrix:- yk))))
+      let sc1 (matrix:times-element-wise ((matrix:times-element-wise (xi matrix:- xj) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yj) (yi matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map cities:zero-infinite distance-matrix) xik)))
+      let sc2 (matrix:times-element-wise ((matrix:times-element-wise (xj matrix:- xi) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yi) (yj matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map cities:zero-infinite distance-matrix) xjk)))
+      let kfeedbackdistmat (matrix:map cities:feedback-distance sc1 sc2 xik)
+      set feedback-dist-rows lput (cities:flatten-dists-feedback kfeedbackdistmat) feedback-dist-rows
       set k k + 1
     ]
     
@@ -264,6 +278,12 @@ to setup:setup-matrices
     matrix:set-column populations 0 pops
     
   ]
+  
+  set initial-distance-matrix matrix:copy distance-matrix
+  
+  ; setup history of distances
+  set distance-matrices table:make
+  table:put distance-matrices (first dates) initial-distance-matrix
   
 end
 
