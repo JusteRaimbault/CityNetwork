@@ -12,9 +12,10 @@ stations=readOGR(paste0(Sys.getenv('CN_HOME'),'/Data/Train/data'),'stations')
 stations$ouverture=as.numeric(as.character(stations$ouverture))
 stations$fermeture=as.numeric(as.character(stations$fermeture))
 
-years = c(1831,1836,1841,1846,1851,1856,1861,1866,1872,1881,
-          1886,1891,1896,1901,1906,1911,1921,1926,1931,1936,
-          1946,1954,1955,1962,1968,1975,1982,1990,1999)
+#years = c(1831,1836,1841,1846,1851,1856,1861,1866,1872,1881,
+#          1886,1891,1896,1901,1906,1911,1921,1926,1931,1936,
+#          1946,1954,1955,1962,1968,1975,1982,1990,1999)
+years = c(1876)
 
 resolution = 1000
 
