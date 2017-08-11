@@ -220,7 +220,12 @@ to setup:setup-matrices
       set distance-matrix read-numeric-csv-as-matrix "setup/dist50.csv" ","
     ][
       ; load yearly real distance matrices
+      set real-distance-matrices table:make
+      foreach dates [
+         table:put real-distance-matrices ? read-numeric-csv-as-matrix (word "setup/distances/" ? "_dmat_res1000_cities50.csv") ","
+      ]
       
+      set distance-matrix matrix:copy table:get real-distance-matrices (first dates)
       
     ]
     
@@ -275,6 +280,10 @@ to setup:setup-matrices
   ]
   
   set initial-distance-matrix matrix:copy distance-matrix
+  
+  ; setup history of distances
+  set distance-matrices table:make
+  table:put distance-matrices (first dates) initial-distance-matrix
   
 end
 

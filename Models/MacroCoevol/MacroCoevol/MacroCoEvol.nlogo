@@ -61,6 +61,12 @@ globals [
   initial-distance-matrix
   feedback-distance-matrix
   
+  ; history of distance matrices
+  distance-matrices
+  
+  ; real distance matrices (real network)
+  real-distance-matrices
+  
   gravity-weights
   feedback-weights
   
@@ -336,7 +342,7 @@ BUTTON
 270
 527
 go full period
-if ticks > 0 [setup:reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
+if ticks > 0 [setup:reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log-population)\noutput-print (word \"log mse : \" log-mse-population)
 NIL
 1
 T
