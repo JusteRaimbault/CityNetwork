@@ -26,8 +26,11 @@ def kw_extraction(data,target,text_type):
         if os.path.isfile(target):
             os.remove(target)
         utils.insert_sqlite("CREATE TABLE refdesc (id TEXT,language TEXT,abstract_keywords TEXT,abstract TEXT);",target)
+    i=0
+    n=len(data)
     for ref in data:
-        print(ref)
+        print(str(i)+"/"+str(n))
+        i=i+1
         if ref[1] is not None:
             raw_text = normalize_text(ref[1])
             language = get_language(raw_text)
@@ -96,7 +99,7 @@ def extract_keywords(raw_text,id,language):
             tt = TreeTagger()
         tagged_text =tt.tag(raw_text)
 
-    print(tagged_text)
+    #print(tagged_text)
 
     # detect language using stop words, adapt filtering/stemming technique in function
 
