@@ -23,10 +23,11 @@
 
 
 
-
-Cette première approche se place dans une logique d'extension directe du modèle d'interactions au sein d'un système de villes présenté en chapitre~\autoref{ch:evolutive}, c'est à dire à une échelle macroscopique et avec une ontologie typique au systèmes de villes. Toujours dans un choix de simplicité, dont la relaxation sera explorée pour le cas d'application à la Chine avec l'ajout de variables économiques, nous restons ici à une description uni-dimensionelle des villes par leur population. Concernant la croissance du réseau, nous proposons de se placer également à un niveau relativement agrégé et simplifié, en testant des heuristiques de croissance répondant à une demande, à différents niveaux d'abstraction. 
-
-The complexity of Urban Systems is closely linked to the co-evolutive character of their different components or agents (Pumain, 1997). In the case of cities and transportation networks, this co-evolution has been shown empirically (Bretagnolle, 2007) but remains poorly understood in terms of its dynamical processes. We introduce a model of spatial interactions between cities at the macro-scale, in the spirit of stochastic urban growth models inheriting from the Gibrat model (Favaro and Pumain, 2011). We include evolving transportation networks, in order to explore stylized hypothesis on the interactions and drivers of the growth of both network and cities. In a multi-modeling fashion, the model can take into account various processes such as between cities direct interactions, network-mediated interactions, feedback of network flows, and for the network demand-induced growth. 
+\bpar{
+In a multi-modeling fashion, the model can take into account various processes such as between cities direct interactions, network-mediated interactions, feedback of network flows, and for the network demand-induced growth.
+}{
+Cette première approche se place dans une logique d'extension directe du modèle d'interactions au sein d'un système de villes présenté en chapitre~\autoref{ch:evolutive}, c'est à dire à une échelle macroscopique et avec une ontologie typique au systèmes de villes. Toujours dans un choix de simplicité, dont la relaxation pourra être explorée pour le cas d'application à la Chine avec l'ajout de variables économiques, nous restons ici à une description unidimensionnelle des villes par leur population. Concernant la croissance du réseau, nous proposons de se placer également à un niveau relativement agrégé et simplifié, en testant des heuristiques de croissance répondant à une demande, à différents niveaux d'abstraction. Par une forme de multi-modélisation, le modèle peut prendre en compte divers processus comme les interactions directes entre les villes, les interactions intermédiaires par le réseau, la rétroaction des flux de réseau et une croissance induite par la demande pour le réseau.
+}
 
 
 
@@ -40,9 +41,8 @@ The complexity of Urban Systems is closely linked to the co-evolutive character 
 
 %%%%%%%%%%%%%%%%%
 \begin{figure}
-\centering
 \includegraphics[width=\linewidth]{Figures/MacroCoEvolModel/model}
-\caption[][Schématisation du modèle]{}{Représentation abstraite des processus du modèle.}
+\caption[][Schématisation du modèle]{}{Représentation abstraite des processus du modèle.\label{fig:macrocoevolmodel:model}}
 \end{figure}
 %%%%%%%%%%%%%%%%%
 
@@ -56,7 +56,7 @@ The complexity of Urban Systems is closely linked to the co-evolutive character 
 \paragraph{Network Growth}{Croissance du réseau}
 
 
-Network growth heuristics are tested at different abstraction levels that are the time-distance matrix between cities, and physical network growth trying to satisfy greedy time-gain optimization criteria. We use as a benchmark network the geographical shortest paths that have been shown in a previous work to already capture network effects (Raimbault, 2016).
+Network growth heuristics are tested at different abstraction levels that are the time-distance matrix between cities, and physical network growth trying to satisfy greedy time-gain optimization criteria.
 
 Given the flow $\phi$ in a link, its effective distance is updated following
 
@@ -81,10 +81,11 @@ where $\gamma_s$ is a hierarchy parameter, $\phi_0$ a threshold parameter and $g
 \subsubsection{Implementation}{Implémentation}
 
 
-Implementation architecture : scala/oml extension wrapper ? simpler to do full-netlogo : comment on that (//simfamily etc)
 
-Interactions (Matrix-based) <-> Network
-
+\bpar{
+}{
+Le couplage du modèle d'interaction à la prise en compte plus fine des processus de réseau rend plus difficile l'intégration complète dans un plugin OpenMole comme c'était le cas pour le modèle étudié en~\ref{sec:interactiongibrat}. L'utilisation d'un workflow comme médiateur pour le couplage est une solution intéressante mais réaliste uniquement dans le cas d'un couplage faible. L'un des défis que devra relever la bibliothèque de méta-modélisation en cours de développement autour d'OpenMole, serait la possibilité de coupler fortement (par exemple au sens de dynamiquement dans l'évolution de la simulation) des composantes hétérogènes de manière transparente. Nous optons pour ce modèle pour une implémentation complète en NetLogo pour une simplicité de couplage des composantes. Une attention particulière est portée à la dualité de la représentation du réseau, à la fois sous forme de matrice de distance et sous forme physique.
+}
 
 
 
@@ -95,10 +96,11 @@ Interactions (Matrix-based) <-> Network
 \subsection{Application to Synthetic Data}{Application à des Données Synthétiques}
 
 
-
-
-The model is tested and explored on synthetic city systems, generated following a simple heuristic to follow the rank-size law and Central Place Theory. The systematic exploration through intensive computation unveils different interaction regimes accross the parameter space. In some, the introduction of the network can drastically change the fate of some cities, whereas the top-distribution hierarchy is reinforced, what is consistent with empirical observations in the literature. Some regimes actually exhibit circular causalities between network and city growth, corresponding to the intricated co-evolution.
-
+\bpar{
+The model is first tested and explored on synthetic city systems, generated following a simple heuristic to follow the rank-size law and Central Place Theory. The systematic exploration through intensive computation unveils different interaction regimes across the parameter space. In some, the introduction of the network can drastically change the fate of some cities, whereas the top-distribution hierarchy is reinforced, what is consistent with empirical observations in the literature. Some regimes suggest circular causalities between network and city growth, corresponding to the co-evolution.
+}{
+Le modèle est d'abord testé et exploré sur des systèmes de villes synthétiques, générés selon une heuristique simple pour respecter la loi rang-taille et la théorie des places centrales. L'exploration systématique par le calcul intensif révèle différents régimes dans l'espace des paramètres. Dans certains cas, l'introduction du réseau peut changer la trajectoire de certaines villes de manière drastique, tandis que la hiérarchie au somment de la distribution renforcée, ce qui est consistent avec les observations empiriques de la littérature, comme la déviation systématique de la loi de Zipf observée par~\cite{rozenfeld2008laws}. Certains régimes suggèrent des causalités circulaires entre la croissance du réseau et celles des villes, ce qui correspond bien à une co-évolution.
+}
 
 
 \paragraph{Synthetic data}{Données Synthétiques}
@@ -107,6 +109,12 @@ The model is tested and explored on synthetic city systems, generated following 
 
 
 \paragraph{Results}{Résultats}
+
+
+Nous utilisons les indicateurs introduits en~\ref{sec:macrocoevolexplo} pour quantifier le comportement du modèle dans l'espace des paramètres.
+
+
+
 
 
 
@@ -121,7 +129,6 @@ The model is tested and explored on synthetic city systems, generated following 
 
 The model is applied to the French Urban System on long time dynamical data (Pumain-INED database for populations spanning between 1831 and 1999, with the evolving railway network from 1850 to 2000.
 
-Expected results concern both accurate city population growth reproduction, and network patterns, i.e. how does taking into account dynamical networks can introduce further exploratory power in such models, and reciprocally how can such coupled models produce realistic networks compared to more classical autonomous models of network growth. The role of medium-sized cities on the trajectories of the system can also be examined with the model. Finally, a comparison between the urban systems in different geographical and political contexts and at different scales should unveil implications of planning on the interactions between networks and cities, for example by comparing the rather bottom-up growth of the French railway network to the top-down state-planned French highway and Chinese HSR networks.
 
 
 
@@ -143,6 +150,11 @@ Nous travaillons sur les données de réseau ferré construites par~\cite{theven
 
 \subsubsection{Abstract model calibration}{Calibration du modèle abstrait}
 
+
+We use as a benchmark network the geographical shortest paths that have been shown in a previous work to already capture network effects (Raimbault, 2016).
+
+
+Expected results concern both accurate city population growth reproduction, and network patterns, i.e. how does taking into account dynamical networks can introduce further exploratory power in such models, and reciprocally how can such coupled models produce realistic networks compared to more classical autonomous models of network growth.
 
 Questions concrètes à poser au modèle, expériences ciblées : 
 
@@ -183,6 +195,8 @@ On peut ajouter aux indicateurs classiques un indicateur de calibration pour la 
 
 Specifically-designed database of the highway networks containing its full genesis from 1950 to 2015).
 
+
+The role of medium-sized cities on the trajectories of the system can also be examined with the model. Finally, a comparison between the urban systems in different geographical and political contexts and at different scales should unveil implications of planning on the interactions between networks and cities, for example by comparing the rather bottom-up growth of the French railway network to the top-down state-planned French highway and Chinese HSR networks.
 
 
 
