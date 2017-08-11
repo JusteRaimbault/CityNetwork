@@ -73,6 +73,8 @@ globals[
   
   final-time-step
   initial-time-step
+ 
+  headless?
    
 ]
 
@@ -150,7 +152,6 @@ crosses-own [
 
 
   
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 474

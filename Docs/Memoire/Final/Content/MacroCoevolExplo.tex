@@ -14,8 +14,9 @@
 %----------------------------------------------------------------------------------------
 
 
+Nous proposons d'introduire les modèles de co-évolution à l'échelle macroscopique en étudiant les résultats produits par des modèles existants, ce qui permettra également d'introduire les méthodes et indicateurs d'exploration, ainsi que d'appréhender les questionnements typiques liés à ce type de modèles.
 
- 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Context}{Contexte}
@@ -23,10 +24,14 @@
 Quelle différentiel de connaissances obtenues peut s'observer, de la description conceptuelle ou thématique d'un modèle, à sa formalisation mathématique, son implémentation, son exploration systématique, jusqu'à son exploration approfondie à l'aide de meta-heuristiques spécifiques ? Notre postulat, qui découle à la fois de notre positionnement (voir \autoref{ch:positioning} sur la simulation) et d'expériences dont les modèles déroulés précédemment font partie, est que celui-ci est important, mais surtout de nature \emph{qualitative}, c'est à dire que la nature même des connaissances subit des transitions abruptes lors de l'avancée de la démarche dans ce continuum. Le modèle SimpopNet introduit par~\cite{schmitt2014modelisation}, qui est à notre connaissance l'unique modèle de co-évolution dans une perspective de la théorie évolutive des villes, est un exemple d'une telle démarche préliminaire qui nécessite d'être creusée, par exemple par l'exploration systématique.
 
 
-\subsubsection{Model Description}{Description du Modèle}
+\paragraph{Model Description}{Description du Modèle}
 
-% echo à la formulation des parametres déja vus
+Nous reformulons brièvement le modèle, en écho à la formulation du modèle d'interaction en~\ref{sec:interactiongibrat}, un certain nombre de paramètres et de processus se recoupant. Les villes croissent suivant la spécification de l'équation~\ref{eq:interactiongibrat:model}, avec $r_0 = 0$, $w_G = \lambda^\beta \cdot N$ et $V_{ij} = \mu_j / d_{ij}^\beta$. Le potentiel d'interaction ne dépend pas de la population de la ville d'origine, et le choix d'une fonction puissance permet de combiner un paramètre de décroissance $\lambda$ à un paramètre de forme $\beta$. Le réseau croît à chaque pas de temps par rupture topologique : un couple de villes est choisi, la première selon les populations avec une hiérarchie $\gamma$ (c'est à dire avec une probabilité $\mu_i^\gamma / \sum_j \mu_j^\gamma$) et la seconde selon les potentiels d'interaction $\mu_i \mu_j / d_{ij}^\beta$ avec la même hiérarchie $\gamma$, puis un lien est crée si le réseau n'est pas assez efficace, i.e. $d_{ij}/d^{(N)}_{ij}> \theta$. Les liens crées à une date $t$ ont une vitesse $v(t)$, qui dépendra des technologies de transport courantes. La planarisation n'est effectuée que pour les liens de vitesse semblable. Pour comprendre le comportement stylisé du modèle, nous considérons une configuration simplifiée telle que $v(t > t_0) = v_0$ et $v(t_0) = 1$.
 
+
+\paragraph{Perspectives}{Perspectives}
+
+Certains choix de modélisation ne sont pas en cohérence directe avec l'application faite : par exemple, une telle précision dans la paramétrisation des dates et des vitesses suggère un modèle hybride, et devrait correspondre à une application sur une configuration spatiale réelle. Dans une configuration stylisée, ces paramètres n'ont de sens que si l'on connait le comportement des dynamiques simulées, et en particulier le rôle de la configuration spatiale, c'est à dire la séparation entre effets structurels et effets conjoncturels. D'autre part, l'utilisation du modèle d'interaction sans le terme de Gibrat endogène serait difficilement adaptable pour une application du modèle sur données réelles vu les valeurs obtenues dans les études précédentes des modèles d'interaction, mais est bien cohérent dans un modèle stylisé, afin de comprendre les processus d'interaction de manière isolée, comme nous le ferons plus loin (mais en gardant à l'esprit que cette connaissance ne reflète pas nécessairement le comportement couplé, l'interaction entre les processus pouvant faire émerger de nouveaux comportements). La formulation du potentiel en $(\lambda / d_{ij})^\beta$ implique que $\lambda$ capture à la fois le poids et la décroissance, mais permet moins de liberté que la spécification que nous avon utilisé précédemment, et ne permet pas une interpretation en terme de flux limite. L'introduction de l'effet tunnel dans le modèle, via les valeurs variables de $v(t)$ et le mécanisme de non-branchement, est exogène puisque spécifié dans les règles du modèle, contrairement au modèle d'interaction avec retroaction des flux, dans lequel les variations de $w_N$ et $d_N$ doivent capturer un effet tunnel endogène. L'introduction d'indicateurs spécifiques pour le mesurer serait une piste intéressante de développement, mais nous nous contentons de regarder par exemple la hiérarchie des centralités qui en est un bon proxy.
 
 
 
@@ -39,8 +44,7 @@ Un aspect important de la compréhension des processus de co-évolution impliqu�
 
 \paragraph{Synthetic configuration generation}{Génération de configuration synthétique}
 
-
-
+Une système de villes synthétique, respectant au premier ordre de manière visuelle les critères de l'état initial du modèle de base, est construit de la façon suivante (voir l'Appendice~\ref{app:sec:syntheticdata} pour la notion de données synthétiques, calibrées au premier et second ordre). Une nombre fixée de villes $N$ est réparti uniformément dans l'espace conditionnellement à une distance minimale entre chaque, et leur population est attribuée suivant une loi rang-taille dont les paramètres $P_{m}$ et $\alpha$ peuvent être ajusté (la distribution du modèle initial correspond à $\alpha\simeq 0.68$ avec $R^2=0.98$). Un squelette de réseau est créé par un algorithme de connexification, qui connecte les villes deux à deux par plus proche voisins, puis itérativement sélectionne un cluster aléatoirement et le connecte perpendiculairement au lien le plus proche hors du cluster. Le réseau est ensuite étoffé par la création de raccourcis locaux, par répétitions $n_s$ fois de la selection aléatoire d'une ville selon les populations, et sa connexion à un voisin dans un rayon $r_s$ sous conditions de degré maximal $d_s$. Le réseau final est ensuite planarisé. Cette procédure crée des réseau correspondant visuellement à l'initialisation du modèle, sachant qu'une instance du réseau ne permet pas de déterminer les distributions de paramètres topologiques sur lesquels une calibration plus fine pourrait être opérée.
 
 
 
@@ -74,6 +78,10 @@ Pour se concentrer sur la capacité du modèle à produire des trajectoires à l
 
 
 
+Nous introduisons de plus divers indicateurs de topologie du réseau, pour comprendre les formes finales produites par l'heuristique.
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Results}{Résultats}
@@ -95,6 +103,8 @@ Pour comprendre la manière le modèle capture un certain ``degré de co-évolut
 \paragraph{Patterns}{Motifs}
 
 % interesting patterns
+
+Capable de plus de bifurcations de population et d'inversion de hierarchie que le modèle de renforcement, car new links (varying topology) et random links. : leçon intéressante pour la dépendance au chemin. 
 
 
 

@@ -5,6 +5,52 @@
 
 
 ;;
+;
+to setup-experiment-real-calibration [calibperiod growthrate grav-weight grav-gamma grav-decay feed-weight feed-gamma feed-decay nw-type nw-threshold nw-exp nw-gmax]
+
+  ca
+
+  set headless? true
+
+  set period calibperiod
+  set growth-rate growthrate
+  set gravity-weight grav-weight
+  set gravity-gamma grav-gamma
+  set gravity-decay grav-decay
+  set feedback-weight feed-weight
+  set feedback-gamma feed-gamma
+  set feedback-decay feed-decay
+  
+  if nw-type = 0 [set network-type "real"] if nw-type = 1 [set network-type "virtual"]
+  
+  set network-reinforcment-threshold nw-threshold ; \in [0,10]
+  set network-reinforcment-exponent nw-exp ; \in [0,10]
+  set network-reinforcment-gmax nw-gmax ; \in [0,0.1]
+  
+  set setup-type "gis"
+  
+  setup:setup-headless
+  
+  setup:setup
+  
+end
+
+
+
+to test-experiment-calib
+  ca
+  setup-experiment-real-calibration "1962-1982" 0.002 0.0002 1.8 150 0.0 1.0 1.0 1 5 3 0.01
+  run-experiment
+  output-print (word "mse log : " mse-log-population)
+  output-print (word "log mse : " log-mse-population)
+  output-print (word "log mse dist : " log-mse-distance)
+end
+
+
+
+
+
+;;
 ; indicators :
 ; - summary of trajectories
 ;  population-hierarchies
@@ -52,6 +98,8 @@ to setup-experiment-virtual-network [synth-ranksize nw-threshold nw-gmax final-t
   
   ; multi-modeling params
   if nw-type = 0 [set network-type "virtual"] if nw-type = 1 [set network-type "physical"]
+  
+  set setup-type "synthetic"
   
   setup:setup-headless
   

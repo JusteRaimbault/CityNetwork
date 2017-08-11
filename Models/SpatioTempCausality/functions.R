@@ -95,13 +95,14 @@ computeAccess<-function(accessorigdata,accessdestdata=NULL,matfun,d0=1,mode="tim
 
 #'
 #' specific function sa
-deltaAccessibilities<-function(d0,mode="time"){
+deltaAccessibilities<-function(d0,distmats=NULL,years=NULL,mode="time"){
   ids=c();accs=c();cyears=c()
   # compute all accs
   for(year in years){
     pop = populations$pop[populations$year==year];names(pop)<-populations$id[populations$year==year]
     distmat = distmats[[as.character(year)]]
-    currentacc = computeAccess(pop,distmat,d0,mode=mode)
+    #show(dim(distmat))
+    currentacc = computeAccess(accessorigdata=pop,matfun=distmat,d0=d0,mode=mode)
     ids=append(ids,names(currentacc));accs=append(accs,currentacc);cyears=append(cyears,rep(year,length(currentacc)))
   }
   return(getDiffs(d = data.frame(id=ids,year=cyears,var=accs)))
@@ -198,6 +199,47 @@ map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",
   dev.off()
   
 }
+
+
+
+#'
+#' @description correlations between log returns as a function of distance
+getSpatialCorrs<-function(citydata,distmats,Tw=10){
+  
+  Ncities = nrow(citydata)
+  allyears = names(distmats)
+  t0 = seq(1,length(allyears)-Tw,by=floor(Tw/2))
+  
+  corrs=c();years=c();dists=c();corrsinf=c();corrssup=c()
+  for(t in 1:length(t0)){
+    current_dates = t0[t]:(t0[t]+Tw);pops = as.matrix(citydata[,paste0("P",allyears[current_dates])])
+    s = pops;for(j in 1:ncol(pops)){s[,j]=s[,j]/pops[,1]}
+    delta_x = log(s[,2:ncol(s)]) - log(s[,1:(ncol(s)-1)])
+    rho = matrix(0,Ncities,Ncities)
+    localcorrs=c();localdists=c();localcorrsinf=c();localcorrssup=c();
+    k=1
+    for(i in 1:(Ncities-1)){
+      show(i)
+      for(j in (i+1):Ncities){
+        r = cor.test(as.numeric(delta_x[i,]),as.numeric(delta_x[j,]),method="pearson")
+        rho[i,j]=r$estimate;rho[j,i]=r$estimate
+        localcorrs[k]=r$estimate;localcorrsinf[k]=r$conf.int[1];localcorrssup[k]=r$conf.int[2]
+        localdists[k]=distmats[[allyears[current_dates[1]]]][i,j] # take the average over the period ?
+        k=k+1
+      }
+    }
+    diag(rho)<-1
+    
+    corrs = append(corrs,localcorrs);dists=append(dists,localdists)
+    corrsinf=append(corrsinf,localcorrsinf);corrssup=append(corrssup,localcorrssup)
+    years=append(years,rep(paste0(allyears[current_dates[1]],"-",allyears[current_dates[length(current_dates)]]),Ncities*(Ncities-1)/2))
+  }
+  
+  return(data.frame(corrs=corrs,corrsinf=corrsinf,corrssup=corrssup,distance=dists,years=years))
+  
+}
+
+
 
 
 

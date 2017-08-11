@@ -58,7 +58,6 @@ globals [
   ;;
   ; distance matrices
   distance-matrix
-  initial-distance-matrix
   feedback-distance-matrix
   
   ; history of distance matrices
@@ -66,6 +65,7 @@ globals [
   
   ; real distance matrices (real network)
   real-distance-matrices
+  real-feedback-distance-matrices
   
   gravity-weights
   feedback-weights
@@ -83,6 +83,7 @@ globals [
   ;;
   ; network growth
   slime-mould-node-distance
+  slime-mould-reinforcment-function
   
   ; network measures
   shortest-paths
@@ -238,7 +239,7 @@ gravity-weight
 gravity-weight
 0
 2e-2
-0.002857
+0.002185
 1e-6
 1
 NIL
@@ -298,7 +299,7 @@ feedback-gamma
 feedback-gamma
 0
 5
-0.5
+5
 0.1
 1
 NIL
@@ -342,7 +343,7 @@ BUTTON
 270
 527
 go full period
-if ticks > 0 [setup:reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log-population)\noutput-print (word \"log mse : \" log-mse-population)
+if ticks > 0 [setup:reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log-population)\noutput-print (word \"log mse : \" log-mse-population)\noutput-print (word \"log mse dist : \" log-mse-distance)
 NIL
 1
 T
@@ -490,7 +491,7 @@ CHOOSER
 period
 period
 "1831-1851" "1841-1861" "1851-1872" "1881-1901" "1891-1911" "1921-1936" "1946-1968" "1962-1982" "1975-1999" "full"
-9
+5
 
 PLOT
 1003
@@ -553,7 +554,7 @@ INPUTBOX
 1049
 247
 city-traj
-SAINT-NAZAIRE
+DIJON
 1
 0
 String
@@ -647,13 +648,13 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 CHOOSER
-7
-224
-110
-269
+6
+223
+166
+268
 network-type
 network-type
-"virtual" "physical"
+"virtual" "physical" "real" "fixed"
 0
 
 SLIDER
@@ -665,7 +666,7 @@ network-reinforcment-threshold
 network-reinforcment-threshold
 0
 5
-4.5
+3.1
 0.1
 1
 NIL
@@ -680,7 +681,7 @@ network-reinforcment-exponent
 network-reinforcment-exponent
 0
 10
-0.34
+3.35
 0.01
 1
 NIL
@@ -713,7 +714,7 @@ network-reinforcment-gmax
 network-reinforcment-gmax
 0
 0.01
-3.0E-5
+0.00177
 1e-5
 1
 NIL
@@ -726,15 +727,15 @@ SWITCH
 742
 show-virtual-flows?
 show-virtual-flows?
-0
+1
 1
 -1000
 
 CHOOSER
-115
-225
-262
-270
+7
+269
+165
+314
 physical-network-heuristic
 physical-network-heuristic
 "slime-mould" "breakdown"
@@ -826,13 +827,24 @@ NIL
 HORIZONTAL
 
 SWITCH
-7
-272
-131
-305
+169
+224
+293
+257
 fixed-dist?
 fixed-dist?
-0
+1
+1
+-1000
+
+SWITCH
+168
+258
+295
+291
+geo-paths?
+geo-paths?
+1
 1
 -1000
 

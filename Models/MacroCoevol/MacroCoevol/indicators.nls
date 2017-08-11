@@ -80,7 +80,7 @@ end
 ;;
 ; report correlation between cities in each euclidian distance bin
 to-report distance-correlation [var1 var2]
-  let dist-deciles quantile (remove 0 (concatenate matrix:to-row-list initial-distance-matrix)) (seq 0.1 1.0 0.1)
+  let dist-deciles quantile (remove 0 (concatenate matrix:to-row-list (table:get distance-matrices (first dates)))) (seq 0.1 1.0 0.1)
   ; for each bin, set provisory sampling cities ? DOES not work as all couples will be sampled -> must construct the vector by hand
   let res [] let i 0
   foreach dist-deciles [
@@ -336,17 +336,15 @@ end
 
 ;;
 ; log of total mse on distances
+;  note : distances DO NOT follow a power law : no sense to do the mse-log
 to-report log-mse-distance
   let tot 0
   foreach dates [
-     let mse (matrix:map [(?1 - ?2)^ 2] (table:get real-distances-matrices ?) (table:get distances-matrices ?))
+     let mse (matrix:map [(?1 - ?2)^ 2] (table:get real-distance-matrices ?) (table:get distance-matrices ?))
      set tot tot + sum (map sum (matrix:to-row-list mse))
   ]
-  report ln tot
+  ifelse tot != 0 [report ln tot][report 0]
 end
-
-
-;; note : distances DO NOT follow a power law : no sense to do the mse-log
 
 
 

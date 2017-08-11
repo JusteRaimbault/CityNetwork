@@ -12,12 +12,11 @@ stations=readOGR(paste0(Sys.getenv('CN_HOME'),'/Data/Train/data'),'stations')
 stations$ouverture=as.numeric(as.character(stations$ouverture))
 stations$fermeture=as.numeric(as.character(stations$fermeture))
 
-#years = c(1831,1836,1841,1846,1851,1856,1861,1866,1872,1881,
-#          1886,1891,1896,1901,1906,1911,1921,1926,1931,1936,
-#          1946,1954,1955,1962,1968,1975,1982,1990,1999)
-years = c(1876)
+years = c(1831,1836,1841,1846,1851,1856,1861,1866,1872,1876,1881,
+          1886,1891,1896,1901,1906,1911,1921,1926,1931,1936,
+          1946,1954,1955,1962,1968,1975,1982,1990,1999)
 
-resolution = 10000
+resolution = 1000
 
 
 
@@ -78,4 +77,39 @@ for(year in years){
   #gsimpl = simplifyGraph(gfull)
   #plot(gsimpl,vertex.size=0.5,vertex.label=NA,vertex.color='black',edge.color='black',edge.width=1/(E(gfull)$speed*1000),rescale=T)
 }
+
+
+
+############
+###
+
+source(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/functions.R'))
+
+for(year in years){
+  show(year)
+  load(paste0('processed/',year,'_graph_res',resolution,'_cities',Ncities,'.RData'))
+  E(gcities)$weight=E(gcities)$length*E(gcities)$speed
+  feedbackDists = feedbackDistMat(gcities,coordinates(cities),slopeImpedance=F,citynames=citydata$cities$NCCU)
+  write.table(as.matrix(feedbackDists),col.names = F,row.names = F,file=paste0(Sys.getenv('CN_HOME'),'/Models/MacroCoevol/MacroCoevol/setup/fdistances/',year,'_fdists_res',resolution,'_cities',Ncities,'.csv'))
+}
+
+
+
+########
+## save dmats in a dedicated file
+
+resolution=1000
+
+distmats = list()
+for(year in years){
+  load(paste0('processed/',year,'_dmat_res',resolution,'_cities',Ncities,'.RData'))
+  distmats[[as.character(year)]]=distmat
+}
+
+save(distmats,file=paste0(Sys.getenv('CN_HOME'),'/Models/SpatioTempCausality/France/data/distmats.RData'))
+
+
+
+
+
 
