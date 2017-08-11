@@ -9,7 +9,7 @@ val res=Val[Double]
 
 val modelTask =
   ScalaTask("val res = input.x1 + input.x2") set (
-    input += (x1,x2),
+    inputs += (x1,x2),
     outputs += (x1,x2,res)
   )
 
@@ -19,11 +19,11 @@ val explo = ExplorationTask (
     x2 in Range(0.0,1.0)
   )
 )
-val purpose = 'TEST'
+val purpose = "TEST"
 
 
 val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
 
 val grid = EGIEnvironment("vo.complex-systems.eu")
 
-explo -< modelTask on grid by 10000 hook indics_hook
+explo -< (modelTask on grid by 10000 hook indics_hook)
