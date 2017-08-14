@@ -217,7 +217,7 @@ growth-rate
 growth-rate
 0
 0.05
-0.0021
+0.0010
 0.0001
 1
 NIL
@@ -239,7 +239,7 @@ gravity-weight
 gravity-weight
 0
 2e-2
-0.002185
+0.00687
 1e-6
 1
 NIL
@@ -254,7 +254,7 @@ gravity-gamma
 gravity-gamma
 0.5
 5
-0.65
+5.727
 0.01
 1
 NIL
@@ -269,7 +269,7 @@ gravity-decay
 gravity-decay
 1
 500
-63.9
+1
 0.1
 1
 NIL
@@ -299,7 +299,7 @@ feedback-gamma
 feedback-gamma
 0
 5
-5
+1
 0.1
 1
 NIL
@@ -314,7 +314,7 @@ feedback-decay
 feedback-decay
 0
 200
-78
+1
 0.1
 1
 NIL
@@ -491,7 +491,7 @@ CHOOSER
 period
 period
 "1831-1851" "1841-1861" "1851-1872" "1881-1901" "1891-1911" "1921-1936" "1946-1968" "1962-1982" "1975-1999" "full"
-5
+0
 
 PLOT
 1003
@@ -666,7 +666,7 @@ network-reinforcment-threshold
 network-reinforcment-threshold
 0
 5
-3.1
+6.397
 0.1
 1
 NIL
@@ -681,7 +681,7 @@ network-reinforcment-exponent
 network-reinforcment-exponent
 0
 10
-3.35
+1
 0.01
 1
 NIL
@@ -714,7 +714,7 @@ network-reinforcment-gmax
 network-reinforcment-gmax
 0
 0.01
-0.00177
+0.05939
 1e-5
 1
 NIL
@@ -765,7 +765,7 @@ synthetic-city-max-degree
 synthetic-city-max-degree
 0
 5
-4
+5
 1
 1
 NIL
@@ -780,7 +780,7 @@ synthetic-shortcut-radius
 synthetic-shortcut-radius
 0
 30
-20
+30
 1
 1
 NIL
@@ -795,7 +795,7 @@ physical-network-reinforcment-threshold
 physical-network-reinforcment-threshold
 0
 0.1
-3.456499387327971E-5
+0.1
 0.0005
 1
 NIL
@@ -820,7 +820,7 @@ physical-network-reinforcment-quantile
 physical-network-reinforcment-quantile
 0
 1
-0
+0.95
 0.1
 1
 NIL
