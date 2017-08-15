@@ -10,47 +10,49 @@
 ;
 ;  @ requires t \geq 1
 to cities:evolve-populations
-  
+
   ; current time
   let t ticks
   let delta_t item t dates - item (t - 1) dates
-  
+
   ; previous populations as list
   let prev-populations matrix:get-column populations (t - 1)
   let n length prev-populations
-  
+
   let diag-pops (matrix:make-diag prev-populations)
   let diag-pops-gravity matrix:map [ ? ^ gravity-gamma] (matrix:times-scalar diag-pops sum prev-populations) ; ? should be 1 / sum prev-populations -> ok the term simplifies when normalized by mean-pot-gravity
   let pots-gravity matrix:times diag-pops-gravity (matrix:times gravity-weights diag-pops-gravity)
+  show sum map sum matrix:to-row-list gravity-weights
   matrix:set-diag-scalar pots-gravity 0
   let mean-pot-gravity (matrix:sum pots-gravity) / (n * n)
+  if mean-pot-gravity = 0 [set mean-pot-gravity 1]
   set pots-gravity matrix:times-scalar pots-gravity (1 / mean-pot-gravity)
-  
+
   ; update gravity flows
   set gravity-flows matrix:copy pots-gravity
-  
+
   ; update feedback flows
   let diag-pops-feedback matrix:map [ ? ^ feedback-gamma] diag-pops
   let pots-feedback-flows matrix:times diag-pops-feedback (matrix:times (matrix:make-constant n n 1) diag-pops-feedback) matrix:set-diag-scalar pots-feedback-flows 0
   set feedback-flows matrix:copy pots-feedback-flows
-  
+
   ; feedbacks -> computation depends on heuristic
   ; lets compute the euclidian by default, quite costless
   let pots-feedback matrix:times feedback-weights (cities:flatten-pops-feedback (matrix:map [ ? ^ feedback-gamma] (matrix:times (matrix:times diag-pops (matrix:make-constant n n 1)) diag-pops)))
-  
+
   if network-type = "physical" [
     ; recompute pots-feedbacks on link flows : ! parameter gamma is different : specific var feedback-flow
-    
+
     ;  - cache nw measures (!! normalisation feedback-flows)
     network:cache-nw-measures
-    
+
     ;  - recompute pots-feedback based on links
     ; TODO
-     
+
   ]
-  
+
   let mean-pot-feedback (matrix:sum pots-feedback) / n
-  
+
   ;; current populations
   let gravity-growth (matrix:times-scalar (matrix:times pots-gravity (matrix:make-constant n 1 1)) (gravity-weight / n))
   let feedback-growth (matrix:times-scalar pots-feedback (2 * feedback-weight / (n * (n - 1) * mean-pot-feedback)))
@@ -59,14 +61,14 @@ to cities:evolve-populations
   ;show matrix:as-column-matrix prev-populations
   let current-populations matrix:plus (matrix:as-column-matrix prev-populations) r
   ;show current-populations
-  
+
   matrix:set-column populations t map [first ?] matrix:to-row-list current-populations
-  
-  
+
+
   ; update agent cities pop
   update-cities-populations
-  
-  
+
+
 end
 
 
@@ -78,7 +80,7 @@ to-report cities:flatten-pops-feedback [m]
   repeat n - 2 [
     let col matrix:submatrix m (i + 1) i n (i + 1)
     matrix:set-submatrix res ((i * (n - 1)) - (i * (i - 1) / 2)) 0 col
-    set i i + 1 
+    set i i + 1
   ]
   report res
 end
@@ -107,7 +109,7 @@ to cities:update-weights
   ;; weights
   set gravity-weights matrix:map [exp (- ? / gravity-decay)] distance-matrix
   set feedback-weights matrix:map [exp (- ? / feedback-decay)] feedback-distance-matrix
-  
+
 end
 
 
@@ -116,7 +118,7 @@ end
 
 to update-cities-populations
   ask cities [
-    set population matrix:get populations index ticks 
+    set population matrix:get populations index ticks
     ; update histories
     set population-history lput population population-history
     set expected-population-history lput matrix:get real-populations index ticks expected-population-history
@@ -154,7 +156,7 @@ end
 
 to set-coords-l93 [x y]
   ;setxy random-xcor random-ycor
-  
+
   ; conversion lambert93 -> world coordinates - LAMBERT II ?
   ;  100000 1100000 6125000 7120000
   let l93xmin 825 let l93xmax 10200 let l93ymin 16700 let l93ymax 27000
@@ -162,6 +164,3 @@ to set-coords-l93 [x y]
   let yy min-pycor + ((max-pycor - min-pycor) * (y - l93ymin) / (l93ymax - l93ymin))
   setxy xx yy
 end
-
-
-
