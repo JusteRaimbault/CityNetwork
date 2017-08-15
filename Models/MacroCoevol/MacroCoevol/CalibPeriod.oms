@@ -62,7 +62,7 @@ val currentperiod = "1831-1851"
 
 
 val datestr = (new SimpleDateFormat("yyyyMMdd")).format(new Date())
-val purpose = "calibperiod_nsga_abstractnw"
+val purpose = "calibperiod_nsga_abstractnw_2"
 val resdir = datestr+"_"+purpose
 
 val varSetting = ExplorationTask(
@@ -85,24 +85,24 @@ val evolution =
         mu = 200,
         genome =
           Seq(
-              growthRate in Range(0.0, 0.1)
-              ,gravityWeight in Range(0.00005,0.01)
+              growthRate in Range(0.0, 0.2)
+              ,gravityWeight in Range(0.00005,0.02)
               ,gravityGamma in Range(0.1,10.0)
-              ,gravityDecay in Range(1.0,1000.0)
+              ,gravityDecay in Range(1.0,2000.0)
               //,feedbackWeight in Range(0.00005,10.0)
               //,feedbackGamma in Range(0.0,100.0)
               //,feedbackDecay in Range(0.1,1000.0)
-              ,nwThreshold in Range(0.1,10.0)
-              ,nwExponent in Range(0.1,10.0)
-              ,nwGmax in Range(0.0,0.1)
+              ,nwThreshold in Range(0.1,20.0)
+              ,nwExponent in Range(0.1,15.0)
+              ,nwGmax in Range(0.0,0.2)
             ),
           objectives = Seq(logmsepop,logmsedist)
       ),
     evaluation = eval,
-    termination = 30
+    termination = 100
 )
 
-val island = IslandEvolution(evolution, parallelism = 100,termination=3000)
+val island = IslandEvolution(evolution, parallelism = 500,termination=50000)
 
 val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / currentperiod)
 
