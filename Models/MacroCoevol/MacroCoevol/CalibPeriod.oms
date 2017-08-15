@@ -39,8 +39,8 @@ NetLogo5Task.workspace(workDirectory,"HEADLESS_MacroCoEvol.nlogo",cmds) set(
 val modelCapsule = Capsule(model)
 
 
-val local = LocalEnvironment(2)
-//val grid = EGIEnvironment("vo.complex-systems.eu")
+//val local = LocalEnvironment(20)
+val grid = EGIEnvironment("vo.complex-systems.eu")
 
 
 
@@ -87,26 +87,26 @@ val evolution =
           Seq(
               growthRate in Range(0.0, 0.1)
               ,gravityWeight in Range(0.00005,0.01)
-              ,gravityGamma in Range(1.0,10.0)
-              ,gravityDecay in Range(0.0,1000.0)
+              ,gravityGamma in Range(0.1,10.0)
+              ,gravityDecay in Range(1.0,1000.0)
               //,feedbackWeight in Range(0.00005,10.0)
               //,feedbackGamma in Range(0.0,100.0)
-              //,feedbackDecay in Range(0.0,1000.0)
-              ,nwThreshold in Range(0.0,10.0)
-              ,nwExponent in Range(0.0,10.0)
+              //,feedbackDecay in Range(0.1,1000.0)
+              ,nwThreshold in Range(0.1,10.0)
+              ,nwExponent in Range(0.1,10.0)
               ,nwGmax in Range(0.0,0.1)
             ),
           objectives = Seq(logmsepop,logmsedist)
       ),
     evaluation = eval,
-    termination = 1000
+    termination = 30
 )
 
-val island = IslandEvolution(evolution, parallelism = 2,termination=4)//100)
+val island = IslandEvolution(evolution, parallelism = 100,termination=3000)
 
 val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / currentperiod)
 
-(island on local hook savePopulation)
+(island on grid hook savePopulation)
 
 
 
