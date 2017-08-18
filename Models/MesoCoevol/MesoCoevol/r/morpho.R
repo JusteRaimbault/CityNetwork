@@ -3,7 +3,7 @@
 
 library(raster)
 
-
+source(paste0(Sys.getenv('CN_HOME'),'/Models/TransportationNetwork/NetworkSimplification/nwSimplFunctions.R'))
 
 
 # aggregate by resFactor (resolution = resolution * resFactor)
@@ -39,14 +39,34 @@ getCoordinates<-function(file,r,c){
 }
 
 
-writeTempRaster<-function(){
+#'
+#' @description write a window of a raster as csv
+writeTempRaster<-function(size=500,factor=0.1){
+  size=100;factor=0.5
   rasterfile=paste0(Sys.getenv('CN_HOME'),'/Data/PopulationDensity/raw/popu01clcv5.tif')
   coords=read.csv('setup/coordstmp.csv')
   xcor=coords[1,1];ycor=coords[1,2]
   #conf=extractSubRaster(rasterfile,r = xcor ,c=ycor,size=250,factor = 0.2)
-  conf=extractSubRaster(rasterfile,r = xcor ,c=ycor,size=500,factor = 0.1)
+  conf=extractSubRaster(rasterfile,r = xcor ,c=ycor,size=size,factor = factor)
   write.table(conf,file='setup/conftmp.csv',row.names = F,col.names = F,sep=';')
 }
+
+
+
+#'
+#' @description write a configuration as density and network csv
+#'      fixed size 500, factor 0.1 (50x50 grids)
+#' @param lonmin,latmin 
+#' 
+extractCoupledConf<-function(lonmin,latmin,rasterfile=paste0(Sys.getenv('CN_HOME'),'/Data/PopulationDensity/raw/popu01clcv5.tif')){
+  #lonmax,latmax = 
+  densraster = raster(rasterfile)
+  g = graphFromEdges(graphEdgesFromBase(lonmin,latmin,lonmax,latmax,dbparams=defaultDBParams(dbname=global.nwdb)),densraster,from_query = FALSE)
+  
+}
+
+
+
 
 
 

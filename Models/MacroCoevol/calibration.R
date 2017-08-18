@@ -3,7 +3,7 @@ library(dplyr)
 library(ggplot2)
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Models/MacroCoEvol/MacroCoEvol/calibration'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/MacroCoEvol/MacroCoEvol/calibres'))
 
 periods = c("1831-1851")#,"1841-1861","1851-1872","1881-1901","1891-1911","1921-1936","1946-1968","1962-1982","1975-1999")
 

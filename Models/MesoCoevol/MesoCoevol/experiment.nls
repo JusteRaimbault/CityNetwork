@@ -10,7 +10,7 @@
 ;  Parameters : 
 ;    nw-heuristic \in {"gravity-heuristic","biological","road-connexion"}
 ;    seed
-to setup-experiment [nw-heuristic growth-rate density-alpha diffusion-steps diffusion la-pop-coef la-droad-coef la-closeness la-bw la-accessibility grav-radius grav-inflexion grav-hierarchy-role grav-exponent grav-new-links bio-threshold bio-steps nw-update-time total-time rseed]
+to setup-experiment [nw-heuristic growth-rate density-alpha diffusion-steps diffusion la-pop-coef la-droad-coef la-closeness la-bw la-accessibility grav-radius grav-inflexion grav-hierarchy-weight grav-exponent grav-new-links bio-threshold bio-steps nw-update-time total-time rseed]
   
   show (word "params : network-generation-method = " nw-heuristic " ; seed = " rseed)
   
@@ -21,6 +21,9 @@ to setup-experiment [nw-heuristic growth-rate density-alpha diffusion-steps diff
   ; setup vars
   
   if nw-heuristic = 0 [set network-generation-method "road-connexion"] if nw-heuristic = 1 [set network-generation-method "gravity-heuristic"] if nw-heuristic = 2 [set network-generation-method "biological"]
+  
+  set density-setup-method "synthetic"
+  
   
   set population-growth-rate growth-rate
   set density-alpha-localization density-alpha
@@ -35,7 +38,7 @@ to setup-experiment [nw-heuristic growth-rate density-alpha diffusion-steps diff
   
   set gravity-radius grav-radius
   set gravity-inflexion grav-inflexion
-  set hierarchy-role grav-hierarchy-role
+  set gravity-hierarchy-weight grav-hierarchy-weight
   set gravity-hierarchy-exponent grav-exponent
   set #-max-new-links grav-new-links
   
@@ -43,7 +46,7 @@ to setup-experiment [nw-heuristic growth-rate density-alpha diffusion-steps diff
   set network-biological-steps (floor bio-steps)
   
   set network-update-ticks (floor nw-update-time)
-  set total-time-steps (floor total-time)
+  set final-time-step (floor total-time)
   
   
   set seed rseed
@@ -60,9 +63,9 @@ end
 ;;
 ;
 to run-experiment
-  repeat total-time-steps [
-    go
-  ]
+  main:go-full-period
+  ;indicators:compute-indicators
+  network:cache-nw-measures
 end
 
 
@@ -74,8 +77,82 @@ end
 to test-experiment 
   setup-experiment 2 1000 2.0 2 0.1 0.5 0.5 0.0 0.0 0.0 1000.0 10.0 0.5 5.0 10 0.5 40 3 10 1
   run-experiment
-  show moran show entropy show slope show slope-rsquared show mean-distance
-  show nw-diameter show mean-path-length show mean-bw-centrality show mean-city-closeness-centrality show mean-relative-speed show total-nw-length
+  indicators:compute-indicators
+end
+
+
+
+;;;;;;
+;; Network only
+
+;;
+;
+to setup-experiment-network-growth [densityconf nw-heuristic new-links grav-radius grav-inflexion grav-hierarchy-weight grav-exponent brkdn-hierarchy brkdn-th cost-toff bio-threshold bio-steps nw-update-time rseed]
+  show (word "params : network-generation-method = " nw-heuristic " ; seed = " rseed)
+  
+  ca
+  
+  set headless? true
+
+  set density-from-raster? false
+  set density-file-id densityconf
+  set density-setup-method "real"
+
+  if floor nw-heuristic = 0 [set network-generation-method "random"]
+  if floor nw-heuristic = 1 [set network-generation-method "road-connexion"]
+  if floor nw-heuristic = 2 [set network-generation-method "deterministic-breakdown"]
+  if floor nw-heuristic = 3 [set network-generation-method "random-breakdown"]
+  if floor nw-heuristic = 4 [set network-generation-method "cost-driven"] 
+  if floor nw-heuristic = 5 [set network-generation-method "biological"]
+  
+  ; no density evolution
+  set population-growth-rate 0
+  set density-diffusion-steps 0
+  
+  ; network parameters
+  set #-max-new-links new-links
+  set network-update-ticks (floor nw-update-time)
+  
+  ; gravity
+  set gravity-radius grav-radius
+  set gravity-inflexion grav-inflexion
+  set gravity-hierarchy-weight grav-hierarchy-weight
+  set gravity-hierarchy-exponent grav-exponent
+ 
+  ; random breakdown
+  set random-breakdown-hierarchy brkdn-hierarchy
+  set random-breakdown-threshold brkdn-th
+ 
+  ; cost tradeoff
+  set cost-tradeoff cost-toff
+ 
+  ; biological
+  set network-biological-threshold bio-threshold
+  set network-biological-steps (floor bio-steps)
+  
+  
+  
+  ; fixed edge count
+  set final-time-step -1
+  
+  set seed rseed
+    
+  setup:setup-headless
+  
+  ; setup
+  setup:setup
+  
+  ;
+  ;set max-network-size sum [patch-population] of patches / 6 ; f(population)
+  set max-network-size 200
+  
+end
+
+
+to test-experiment-network-growth
+  setup-experiment-network-growth 10 3 10 300 20 0.5 1.3 1.3 0.7 1e-5 0.4 20 1 1
+  run-experiment
+  indicators:compute-indicators
 end
 
 
@@ -104,13 +181,13 @@ to setup-experiment-weak-coupling [cities-number g-radius g-inflexion h-role g-h
   ; config
   ;if is-string? config [set fixed-config-num read-from-string config]
   ;if is-number? config [set fixed-config-num config]
-  set fixed-config-num config
+  set density-file-id config
   
   ; network
   set #-cities round cities-number
   set gravity-radius g-radius
   set gravity-inflexion g-inflexion
-  set hierarchy-role h-role
+  set gravity-hierarchy-weight h-role
   set gravity-hierarchy-exponent g-hierarchy-exponent
   set #-max-new-links round max-new-links-number
   
@@ -118,7 +195,7 @@ to setup-experiment-weak-coupling [cities-number g-radius g-inflexion h-role g-h
   
   set experiment-id exp-id
   
-  show (word "setup params : #-cities = " #-cities " ; gravity-radius = " gravity-radius " ; gravity-inflexion = " gravity-inflexion " ; hierarchy-role = " hierarchy-role " ; gravity-hierarchy-exponent = " gravity-hierarchy-exponent " ; #-max-new-links = " #-max-new-links)
+  show (word "setup params : #-cities = " #-cities " ; gravity-radius = " gravity-radius " ; gravity-inflexion = " gravity-inflexion " ; hierarchy-role = " gravity-hierarchy-weight " ; gravity-hierarchy-exponent = " gravity-hierarchy-exponent " ; #-max-new-links = " #-max-new-links)
   
 end
 
@@ -130,9 +207,9 @@ to run-experiment-weak-coupling
   network-heuristic:full-heuristic-nw "from-density-file"
   network:cache-nw-measures
   
-  compute-indicators
+  indicators:compute-indicators
   
-  export-nw (word "nwres/nw" experiment-id)
+  indicators:export-nw (word "nwres/nw" experiment-id)
   
 end
 

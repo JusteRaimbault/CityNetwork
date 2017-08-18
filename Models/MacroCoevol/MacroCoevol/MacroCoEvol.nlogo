@@ -567,7 +567,7 @@ CHOOSER
 setup-type
 setup-type
 "synthetic" "gis"
-1
+0
 
 SLIDER
 1
@@ -655,7 +655,7 @@ CHOOSER
 network-type
 network-type
 "virtual" "physical" "real" "fixed"
-0
+1
 
 SLIDER
 6
@@ -714,7 +714,7 @@ network-reinforcment-gmax
 network-reinforcment-gmax
 0
 0.01
-0.05939
+0.00562
 1e-5
 1
 NIL

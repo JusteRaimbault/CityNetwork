@@ -5,8 +5,8 @@
 
 ;;
 ; Heuristic nw growth
-to network-heuristic:grow-network
-  network-heuristic:heuristic-nw-generation true
+to network-heuristic:grow-network [mode]
+  network-heuristic:heuristic-nw-generation true mode
 end
 
 
@@ -18,10 +18,10 @@ to network-heuristic:full-heuristic-nw [density-method]
   
   ; cities generation done by fastest method
   set density-to-cities-method "intersection-density"
-  show density-method
+  ;show density-method
   cities:generate-cities-from-scratch density-method
   
-  network-heuristic:heuristic-nw-generation false
+  network-heuristic:heuristic-nw-generation false "deterministic-breakdown"
   
 end
 
@@ -29,18 +29,19 @@ end
 ;;
 ; 
 ;  @param iterative? full network generation or iterative step
-to network-heuristic:heuristic-nw-generation [iterative?]
+;  @param mode heursitic : "deterministic-breakdown" , "random-breakdown"
+to network-heuristic:heuristic-nw-generation [iterative? mode]
   
-  ;debug "... gravity heuristic nw"
   
   if not iterative? [
     ; connexification
-    simple-connexification
+    network:simple-connexification
     ; compute nw distances
     ;  !! is not optionnal, new generated cities are not taken into account yet in the nw. ==> DONE IN MAIN NETWORK
     ;   TODO (could optimize more by computing only for new ones, as tree structure is the rule in the previous step)
     network:compute-nw-distances
   ]
+  
   
   
   
@@ -51,37 +52,103 @@ to network-heuristic:heuristic-nw-generation [iterative?]
   ; nw interaction
   cities:fill-cities-interaction-table "network"
   
-  ; gravity breakdown
-  ; first get possible new link, sorting on strongest euclidian potentials
-  let gvals [] foreach table:keys cities-interaction-table [if member? "euclidian" ? [let g table:get cities-interaction-table ? set gvals lput (list g (first ?) (item 1 ?)) gvals]]
-  let potential-breakdowns sublist (sort-by [first ?1 > first ?2] gvals) 0 (min (list (length gvals) (5 * #-max-new-links)))
-  ; then breakdown if difference with network potential smaller than threshold
+  if mode = "deterministic-breakdown" [
+  
+    ; gravity breakdown
+    ; first get possible new link, sorting on strongest euclidian potentials
+    let gvals [] foreach table:keys cities-interaction-table [if member? "euclidian" ? [let g table:get cities-interaction-table ? set gvals lput (list g (first ?) (item 1 ?)) gvals]]
+    let potential-breakdowns sublist (sort-by [first ?1 > first ?2] gvals) 0 (min (list (length gvals) (5 * #-max-new-links)))
+    ; then breakdown if difference with network potential smaller than threshold
 
-  let bpot []
-  foreach potential-breakdowns [ 
-     let vn table:get cities-interaction-table (list (item 1 ?) (item 2 ?) "network") let vr first ?
+    let bpot []
+    foreach potential-breakdowns [ 
+       let vn table:get cities-interaction-table (list (item 1 ?) (item 2 ?) "network") let vr first ?
      
-     set bpot lput (list (vn / vr) (item 1 ?) (item 2 ?)) bpot
+       set bpot lput (list (vn / vr) (item 1 ?) (item 2 ?)) bpot
      
+    ]
+  
+    ; sort on breakdown potentials
+    foreach sublist sort-by [first ?1 < first ?2] bpot 0 #-max-new-links [   
+       let c1 city (item 1 ?) let c2 city (item 2 ?)
+       ask c1 [
+         if not road-neighbor? c2 [create-road-with c2 [network:new-road]]
+       ]
+    ]
+  
   ]
   
-  ; sort on breakdown potentials
-  foreach sublist sort-by [first ?1 < first ?2] bpot 0 #-max-new-links [   
-     let c1 city (item 1 ?) let c2 city (item 2 ?)
-     ask c1 [
-       if not road-neighbor? c2 [create-road-with c2 [network:new-road]]
+  if mode = "random-breakdown" [
+    ; Simpopnet random breakdown heuristic
+    
+     repeat #-max-new-links [
+       ; note : the hierarchy param must not be too big, otherwise repetition would not be useful
+       ; do not recompute potentials at each step, ''parallel'' update
+       
+       ; random drawing
+       let stot sum [city-population ^ random-breakdown-hierarchy] of cities let s 0 let r random-float 1 let o one-of cities ask cities [set s s + ((city-population ^ random-breakdown-hierarchy) / stot) if s > r [set o self]]
+       let d one-of cities with [self != o]
+       ask o [
+         let vals [] let dests to-list other cities
+         foreach dests [ask ? [ifelse table:has-key? cities-interaction-table (list [who] of o who "euclidian") [set vals lput ((table:get cities-interaction-table (list [who] of o who "euclidian"))^ random-breakdown-hierarchy) vals][set vals lput 0 vals]]]
+         let i 0 let vtot sum vals let v 0 set r random-float 1
+         if vtot > 0 [foreach vals [set v v + (? / vtot) if v > vtot [set d item i dests] set i i + 1]]
+       ]
+       
+       if table:has-key? nw-relative-speeds (list [who] of o [who] of d) [
+         let detour 1 / (table:get nw-relative-speeds (list [who] of o [who] of d))
+         ;debug detour
+         if detour > random-breakdown-threshold [
+           ask o [
+             if not road-neighbor? d [create-road-with d [network:new-road]] 
+           ]
+         ]
+       ]
+       
      ]
-     
-     ; recompute nw distances and potentials
-     planarize-network cities roads
-     network:compute-nw-distances
-     cities:fill-cities-interaction-table "network"
-
   ]
+  
+  
+  if mode = "cost-driven" [
+    ; trade-off between cost and gravity potential
+    
+    repeat #-max-new-links [
+       ; find the pair with max gain
+       ; could use euclidian or network potential - however if high network potential, probably already connected - stick to euclidian (for now ?)
+       let pots [] let costs [] let pairs [] ask cities [
+         ask other cities with [not road-neighbor? myself] [
+           ifelse table:has-key? cities-interaction-table (list [who] of myself who "euclidian") [set pots lput (table:get cities-interaction-table (list [who] of myself who "euclidian")) pots][set pots lput 0 pots]
+           set costs lput (table:get nw-distances (list [who] of myself who) * table:get nw-relative-speeds (list [who] of myself who)) costs
+           set pairs lput (list myself self) pairs
+         ]
+       ]
+       
+       let mpot max pots let mcost max costs let maxpair []
+       let m min pots - cost-tradeoff * mcost let i 0
+       foreach pots [
+         let gain (? / mpot) -  (cost-tradeoff * (item i costs) / mcost)
+         if gain > m [set m gain set maxpair item i pairs]
+         set i i + 1
+       ]
+       
+       debug m
+       
+       ask first maxpair [
+          if not road-neighbor? last maxpair [create-road-with last maxpair [network:new-road]] 
+       ]
+       
+    ]
+  ] 
+  
   
   ; planarize nw
-  planarize-network cities roads
+  network-utils:planarize-network cities roads
   
-  simplify-network
+  ; recompute nw distances and potentials
+  ;planarize-network cities roads
+  network:compute-nw-distances
+  cities:fill-cities-interaction-table "network"
+
+  network-utils:simplify-network
   
 end

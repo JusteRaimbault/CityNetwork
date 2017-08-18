@@ -5,11 +5,12 @@
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/MesoCoevol/analysis'))
 
 library(dplyr)
+library(ggplot2)
 
 # real data
 raw=read.csv(file=paste0(Sys.getenv('CN_HOME'),"/Models/StaticCorrelations/res/res/europe_areasize100_offset50_factor0.5_20160824.csv"),sep=";",header=TRUE)
 rows=apply(raw,1,function(r){prod(as.numeric(!is.na(r)))>0})
-res=raw[rows,]
+res=as.tbl(raw[rows,])
 
 
 # simulation data
