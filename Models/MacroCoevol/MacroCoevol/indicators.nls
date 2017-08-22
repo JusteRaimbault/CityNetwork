@@ -4,6 +4,37 @@
 
 
 
+
+to indicators:compute-indicators
+  output-print (word "population-hierarchies = " population-hierarchies)
+  output-print (word "population-entropies = " population-entropies)
+  output-print (word "population-summaries = " population-summaries)
+  output-print (word "closeness-hierarchies = " closeness-hierarchies)
+  output-print (word "closeness-entropies = " closeness-entropies)
+  output-print (word "closeness-summaries = " closeness-summaries)
+  output-print (word "accessibility-hierarchies = " accessibility-hierarchies)
+  output-print (word "accessibility-entropies = " accessibility-entropies)
+  output-print (word "accessibility-summaries = " accessibility-summaries) 
+  output-print (word "lagged pop clos = " lagged-corrs "city-population" "city-closeness-centrality" 6 0) 
+  output-print (word "lagged pop acc = " lagged-corrs "city-population" "city-accessibility" 6 0) 
+  output-print (word "lagged clos acc = " lagged-corrs "city-closeness-centrality" "city-accessibility" 6 0)  
+  output-print (word "dist pop clos = " distance-correlation "city-population" "city-closeness-centrality")  
+  output-print (word "dist pop acc = " distance-correlation "city-population" "city-accessibility")  
+  output-print (word "dist clos acc = " distance-correlation "city-closeness-centrality" "city-accessibility")  
+  output-print (word "rank pop = " rank-correlation "city-population")  
+  output-print (word "rank clos = " rank-correlation "city-closeness-centrality")  
+  output-print (word "rank acc = " rank-correlation "city-accessibility")  
+  output-print (word "div pop = " trajectories-diversity "city-population")  
+  output-print (word "div clos = " trajectories-diversity "city-closeness-centrality")  
+  output-print (word "div acc = " trajectories-diversity "city-accessibility")
+  output-print (word "complexity pop = " trajectories-complexity "city-population")  
+  output-print (word "complexity clos = " trajectories-complexity "city-closeness-centrality")  
+  output-print (word "complexity acc = " trajectories-complexity "city-accessibility")  
+end
+
+
+
+
 to indicators:update-indicators
   let current-time ticks
   foreach indicator-sample-cities [
@@ -172,6 +203,7 @@ end
 ; hierarchy
 
 to-report rank-size-hierarchy [x]
+  if max x = 0 and min x = 0 [report [0 0]]
   let sol matrix:regress matrix:from-column-list (list (map [log ? 10] sort-by [?1 >= ?2] x) (map [log ? 10] seq 1 length x 1))
   report (list (last first sol) (first last sol))
 end
@@ -180,6 +212,7 @@ end
 ; entropy assuming that x > 0
 to-report entropy [x]
   let xtot sum x
+  if xtot = 0 [report 0]
   report (- 1 / (ln length x) * sum (map [? / xtot * ln (? / xtot)] x))
 end
 

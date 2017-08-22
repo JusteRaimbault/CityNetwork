@@ -122,28 +122,28 @@ val exploration =  ExplorationTask(
     (networkSpeed in (10.0 to 100.0 by 20.0))*/
   ) withIndex id ) x
   ((LHS (
-    2
+    1
     //,gravityDecay in Range(0.0,0.02)
     //,gravityGamma in Range(0.0,3.0)
     //,networkGamma in Range(0.0,4.0)
     //,networkThreshold in Range(0.0,20.0)
     //,networkSpeed in Range(0.0,100.0)
     ,synthRankSize in Range(0.5,1.5)
-    ,synthCities in Range(30.0,120.0)
+    ,synthCities in Range(30.0,80.0)
     ,synthShortcut in Range(3.0,15.0)
     ,synthMaxDegree in Range(2.0,10.0)
-    ,synthShortcutNum in Range(10.0,80.0)
+    ,synthShortcutNum in Range(10.0,40.0)
   )) withIndex confid)
   //x (synthRankSize is 0.8)
   //x (synthCities is 100.0)
   //x (synthShortcut is 8.0)
   //x (synthMaxDegree is 5.0)
   //x (synthShortcutNum is 50.0)
-  x (replication in (UniformDistribution[Int]() take 5))
+  x (replication in (UniformDistribution[Int]() take 10))
 )
 
-val purpose = "TEST"
-//val purpose = "GRIDLHS"
+//val purpose = "TEST"
+val purpose = "GRIDLHS"
 
 // output
 val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
@@ -151,11 +151,11 @@ val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new Simp
 )
 
 
-val local = LocalEnvironment(5)
-//val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+//val local = LocalEnvironment(5)
+val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
-exploration -< (model on local hook indics_hook)
-//exploration -< (model on grid by 100 hook indics_hook)
+//exploration -< (model on local hook indics_hook)
+exploration -< (model on grid by 25 hook indics_hook)
 
 
 
