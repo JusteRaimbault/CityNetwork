@@ -46,6 +46,7 @@ val diversityCloseness = Val[Double]
 val diversityAccessibility = Val[Double]
 val complexityCloseness = Val[Double]
 val complexityAccessibility = Val[Double]
+val complexityPop = Val[Double]
 
 // network indicators
 val nwDiameter = Val[Double]
@@ -88,6 +89,7 @@ NetLogo5Task.workspace(workDirectory,"HEADLESS_SimpopNet.nlogo",cmds) set(
     netLogoOutputs += ("trajectories-diversity \"city-population\"",diversityPop),
     netLogoOutputs += ("trajectories-diversity \"city-closeness-centrality\"",diversityCloseness),
     netLogoOutputs += ("trajectories-diversity \"city-accessibility\"",diversityAccessibility),
+    netLogoOutputs += ("trajectories-complexity \"city-population\"",complexityPop),
     netLogoOutputs += ("trajectories-complexity \"city-closeness-centrality\"",complexityCloseness),
     netLogoOutputs += ("trajectories-complexity \"city-accessibility\"",complexityAccessibility),
     netLogoOutputs += ("nw-diameter", nwDiameter),
@@ -118,7 +120,7 @@ val exploration =  ExplorationTask(
     (networkSpeed in (10.0 to 100.0 by 20.0))*/
   ) withIndex id ) x
   ((LHS (
-    1
+    2
     //,gravityDecay in Range(0.0,0.02)
     //,gravityGamma in Range(0.0,3.0)
     //,networkGamma in Range(0.0,4.0)
@@ -135,7 +137,7 @@ val exploration =  ExplorationTask(
   //x (synthShortcut is 8.0)
   //x (synthMaxDegree is 5.0)
   //x (synthShortcutNum is 50.0)
-  x (replication in (UniformDistribution[Int]() take 2))
+  x (replication in (UniformDistribution[Int]() take 5))
 )
 
 val purpose = "TEST"
@@ -147,7 +149,7 @@ val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new Simp
 )
 
 
-val local = LocalEnvironment(2)
+val local = LocalEnvironment(5)
 //val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
 exploration -< (model on local hook indics_hook)

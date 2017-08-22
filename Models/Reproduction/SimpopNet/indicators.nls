@@ -6,14 +6,37 @@
 
 
 to indicators:compute-indicators
-  output-print (word "Pop rank corr : " rank-correlation "city-population")
-  output-print (word "Centrality rank corr : " rank-correlation "city-closeness-centrality")
-  
-  ; network
-  output-print (word "Network diameter : " nw-diameter)
-  output-print (word "Network mean bw : " mean-bw-centrality)
-  output-print (word "Network bw hierarchy : " hierarchy-bw-centrality)
-  
+   
+  output-print (word "population-hierarchies = " population-hierarchies)
+  output-print (word "population-entropies = " population-entropies)
+  output-print (word "population-summaries = " population-summaries)
+  output-print (word "closeness-hierarchies = " closeness-hierarchies)
+  output-print (word "closeness-entropies = " closeness-entropies)
+  output-print (word "closeness-summaries = " closeness-summaries)
+  output-print (word "accessibility-hierarchies = " accessibility-hierarchies)
+  output-print (word "accessibility-entropies = " accessibility-entropies)
+  output-print (word "accessibility-summaries = " accessibility-summaries) 
+  output-print (word "lagged pop clos = " lagged-corrs "city-population" "city-closeness-centrality" 6 0) 
+  output-print (word "lagged pop acc = " lagged-corrs "city-population" "city-accessibility" 6 0) 
+  output-print (word "lagged clos acc = " lagged-corrs "city-closeness-centrality" "city-accessibility" 6 0)  
+  output-print (word "dist pop clos = " distance-correlation "city-population" "city-closeness-centrality")  
+  output-print (word "dist pop acc = " distance-correlation "city-population" "city-accessibility")  
+  output-print (word "dist clos acc = " distance-correlation "city-closeness-centrality" "city-accessibility")  
+  output-print (word "rank pop = " rank-correlation "city-population")  
+  output-print (word "rank clos = " rank-correlation "city-closeness-centrality")  
+  output-print (word "rank acc = " rank-correlation "city-accessibility")  
+  output-print (word "div pop = " trajectories-diversity "city-population")  
+  output-print (word "div clos = " trajectories-diversity "city-closeness-centrality")  
+  output-print (word "div acc = " trajectories-diversity "city-accessibility")
+  output-print (word "complexity pop = " trajectories-complexity "city-population")  
+  output-print (word "complexity clos = " trajectories-complexity "city-closeness-centrality")  
+  output-print (word "complexity acc = " trajectories-complexity "city-accessibility")  
+  output-print (word "nw-diameter = " nw-diameter)  
+  output-print (word "mean-path-length = " mean-path-length)  
+  output-print (word "mean-bw-centrality = " mean-bw-centrality)
+  output-print (word "hierarchy-bw-centrality = " hierarchy-bw-centrality) 
+  output-print (word "mean-relative-speed = " mean-relative-speed) 
+  output-print (word "total-nw-length = " total-nw-length)  
 end
 
 
@@ -29,12 +52,16 @@ to indicators:update-indicators
      ]
   ]
   
-  update-lists-cities
+  indicators:update-lists-cities
+  
+  ; update population matrix
+  cities:update-population-matrix
+  
   
 end
 
 
-to update-lists-cities
+to indicators:update-lists-cities
   ask cities
   [
    let pop precision population 2
@@ -169,7 +196,7 @@ to-report distance-correlation [var1 var2]
     if i != 0 [set prev-dec item (i - 1) dist-deciles] let current-dec ?
     let x [] let y []
     ask cities [ask (other cities) with [distance myself > prev-dec and distance myself <= current-dec] [
-       foreach seq 1 final-time-step 1 [let t ?
+       foreach seq 1 (final-time-step - 1) 1 [let t ?
          set x lput ((table:get city-values-table (list t var1 index)) - (table:get city-values-table (list (t - 1) var1 index))) x
          set y lput ((table:get city-values-table (list t var2 [index] of myself)) - (table:get city-values-table (list (t - 1) var2 [index] of myself))) y
        ]
@@ -188,12 +215,12 @@ end
 ;  rank correlation for a given variable
 
 to-report rank-correlation [var]
-  let xf [] let x0 [] foreach indicator-sample-cities [ask ? [set xf lput (table:get city-values-table (list final-time-step var index)) xf set x0 lput (table:get city-values-table (list initial-time-step var index)) x0]]
+  let xf [] let x0 [] foreach indicator-sample-cities [ask ? [set xf lput (table:get city-values-table (list (final-time-step - 1) var index)) xf set x0 lput (table:get city-values-table (list initial-time-step var index)) x0]]
   let sortedxf sort xf let sortedx0 sort x0
   let rf [] let r0 []
   foreach indicator-sample-cities [ask ? [
       ; dirty : must not have similar values : ok, no zeroes.
-      set rf lput (position (table:get city-values-table (list final-time-step var index)) sortedxf) rf
+      set rf lput (position (table:get city-values-table (list (final-time-step - 1) var index)) sortedxf) rf
       set r0 lput (position (table:get city-values-table (list initial-time-step var index)) sortedx0) r0
   ]]
   let m0 mean r0 set r0 map [? - m0] r0 let mf mean rf set rf map [? - mf] rf
@@ -212,7 +239,7 @@ to-report normalized-trajectories [var]
   let trajectories table:make
   ask cities [
     let traj []
-    foreach seq 0 final-time-step 1 [set traj lput (table:get city-values-table (list ? var index)) traj]
+    foreach seq 0 (final-time-step - 1) 1 [set traj lput (table:get city-values-table (list ? var index)) traj]
     let ma max traj let mi min traj ifelse (ma - mi) != 0 [table:put trajectories index (map [(? - mi) / (ma - mi)] traj)][table:put trajectories index rep 0 (length traj)]
   ]
   report trajectories
@@ -239,7 +266,7 @@ to-report trajectories-complexity [var]
   ask cities [
     let traj table:get trajectories index
     let prev-sign 0 if item 1 traj != item 0 traj [set prev-sign (item 1 traj - item 0 traj) / abs  (item 1 traj - item 0 traj)]
-    foreach seq 2 final-time-step 1 [ let t ?
+    foreach seq 2 (final-time-step - 1) 1 [ let t ?
       let current-sign 0 if item t traj != item (t - 1) traj [set current-sign (item t traj - item (t - 1) traj) / abs  (item t traj - item (t - 1) traj)]
       if prev-sign != current-sign [set res res + 1]
     ]
@@ -273,6 +300,7 @@ end
 ; hierarchy of pop at time t, suppose trajectories already realized
 to-report population-hierarchy [t]
   let pops matrix:get-column populations t
+  ;show sum pops
   report rank-size-hierarchy pops
 end
 
@@ -330,7 +358,7 @@ end
 
 to-report closeness-hierarchies
   let res []
-  foreach seq 0 final-time-step indicator-sampling-time-step [
+  foreach seq 0 (final-time-step - 1) indicator-sampling-time-step [
     set res lput closeness-hierarchy ? res
   ]
   report concatenate res
@@ -338,7 +366,7 @@ end
 
 to-report closeness-entropies
   let res []
-  foreach seq 0 final-time-step indicator-sampling-time-step [
+  foreach seq 0 (final-time-step - 1) indicator-sampling-time-step [
     set res lput closeness-entropy ? res
   ]
   report res
@@ -346,7 +374,7 @@ end
 
 to-report closeness-summaries
   let res []
-  foreach seq 0 final-time-step indicator-sampling-time-step [
+  foreach seq 0 (final-time-step - 1) indicator-sampling-time-step [
     set res lput closeness-summary ? res
   ]
   report concatenate res
@@ -370,7 +398,7 @@ end
 
 to-report accessibility-hierarchies
   let res []
-  foreach seq 0 final-time-step indicator-sampling-time-step [
+  foreach seq 0 (final-time-step - 1) indicator-sampling-time-step [
     set res lput accessibility-hierarchy ? res
   ]
   report concatenate res
@@ -378,7 +406,7 @@ end
 
 to-report accessibility-entropies
   let res []
-  foreach seq 0 final-time-step indicator-sampling-time-step [
+  foreach seq 0 (final-time-step - 1) indicator-sampling-time-step [
     set res lput accessibility-entropy ? res
   ]
   report res
@@ -386,7 +414,7 @@ end
 
 to-report accessibility-summaries
   let res []
-  foreach seq 0 final-time-step indicator-sampling-time-step [
+  foreach seq 0 (final-time-step - 1) indicator-sampling-time-step [
     set res lput accessibility-summary ? res
   ]
   report concatenate res
