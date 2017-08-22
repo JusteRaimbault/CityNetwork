@@ -10,7 +10,7 @@
 ;  Parameters : 
 ;    nw-heuristic \in {"gravity-heuristic","biological","road-connexion"}
 ;    seed
-to setup-experiment [nw-heuristic growth-rate density-alpha diffusion-steps diffusion la-pop-coef la-droad-coef la-closeness la-bw la-accessibility grav-radius grav-inflexion grav-hierarchy-weight grav-exponent grav-new-links bio-threshold bio-steps nw-update-time total-time rseed]
+to setup-experiment [growth-rate density-alpha diffusion-steps diffusion la-pop-coef la-droad-coef la-closeness la-bw la-accessibility nw-heuristic new-links grav-radius grav-inflexion grav-hierarchy-weight grav-exponent brkdn-hierarchy brkdn-th cost-toff bio-threshold bio-steps nw-update-time total-time rseed]
   
   show (word "params : network-generation-method = " nw-heuristic " ; seed = " rseed)
   
@@ -20,34 +20,51 @@ to setup-experiment [nw-heuristic growth-rate density-alpha diffusion-steps diff
   
   ; setup vars
   
-  if nw-heuristic = 0 [set network-generation-method "road-connexion"] if nw-heuristic = 1 [set network-generation-method "gravity-heuristic"] if nw-heuristic = 2 [set network-generation-method "biological"]
+  if floor nw-heuristic = 0 [set network-generation-method "random"]
+  if floor nw-heuristic = 1 [set network-generation-method "road-connexion"]
+  if floor nw-heuristic = 2 [set network-generation-method "deterministic-breakdown"]
+  if floor nw-heuristic = 3 [set network-generation-method "random-breakdown"]
+  if floor nw-heuristic = 4 [set network-generation-method "cost-driven"] 
+  if floor nw-heuristic = 5 [set network-generation-method "biological"]
   
   set density-setup-method "synthetic"
   
-  
+  ; density
   set population-growth-rate growth-rate
   set density-alpha-localization density-alpha
   set density-diffusion-steps (floor diffusion-steps + 1)
   set density-diffusion diffusion
   
+  ; utility
   set linear-aggreg-population-coef la-pop-coef
   set linear-aggreg-distance-to-road-coef la-droad-coef
   set linear-aggreg-closeness-centrality-coef la-closeness
   set linear-aggreg-bw-centrality-coef la-bw
   set linear-aggreg-accessibility-coef la-accessibility
   
+  set #-max-new-links new-links
+  
   set gravity-radius grav-radius
   set gravity-inflexion grav-inflexion
   set gravity-hierarchy-weight grav-hierarchy-weight
   set gravity-hierarchy-exponent grav-exponent
-  set #-max-new-links grav-new-links
   
+  ; random breakdown
+  set random-breakdown-hierarchy brkdn-hierarchy
+  set random-breakdown-threshold brkdn-th
+ 
+  ; cost tradeoff
+  set cost-tradeoff cost-toff
+ 
+  ; biological 
   set network-biological-threshold bio-threshold
   set network-biological-steps (floor bio-steps)
   
   set network-update-ticks (floor nw-update-time)
-  set final-time-step (floor total-time)
   
+  ; time stopping condition
+  set final-time-step (floor total-time)
+  set max-network-size 100000
   
   set seed rseed
   
@@ -75,7 +92,8 @@ end
 
 
 to test-experiment 
-  setup-experiment 2 1000 2.0 2 0.1 0.5 0.5 0.0 0.0 0.0 1000.0 10.0 0.5 5.0 10 0.5 40 3 10 1
+  ;setup-experiment [growth-rate density-alpha diffusion-steps diffusion la-pop-coef la-droad-coef la-closeness la-bw la-accessibility nw-heuristic new-links grav-radius grav-inflexion grav-hierarchy-weight grav-exponent brkdn-hierarchy brkdn-th cost-toff bio-threshold bio-steps nw-update-time total-time rseed]
+  setup-experiment 1000 2.0 2 0.1 0.5 0.5 0.0 0.0 0.0 2 10 1000.0 10.0 0.5 1.5 1.5 5.0 0.001 5.0 10 1 20 1
   run-experiment
   indicators:compute-indicators
 end

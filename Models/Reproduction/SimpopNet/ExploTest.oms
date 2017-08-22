@@ -1,19 +1,21 @@
 import java.text.SimpleDateFormat
 import java.util.Date
 
-// variables
-val synthRankSize = Val[Double]
-val nwThreshold = Val[Double]
-val nwGmax = Val[Double]
-val finalTime = Val[Int]
-val gravityWeight = Val[Double]
-val gravityGamma = Val[Double]
+//parameters
 val gravityDecay = Val[Double]
-val feedbackWeight = Val[Double]
-val feedbackGamma = Val[Double]
-val feedbackDecay = Val[Double]
+val gravityGamma = Val[Double]
+val networkGamma = Val[Double]
+val networkThreshold = Val[Double]
+val networkSpeed = Val[Double]
 
-// indicators
+// meta-parameters
+val synthRankSize = Val[Double]
+val synthCities = Val[Double]
+val synthShortcut = Val[Double]
+val synthMaxDegree = Val[Double]
+val synthShortcutNum = Val[Double]
+
+//indicators
 // distributions
 val populationHierarchies = Val[Array[Double]]
 val populationEntropies = Val[Array[Double]]
@@ -46,18 +48,27 @@ val complexityCloseness = Val[Double]
 val complexityAccessibility = Val[Double]
 val complexityPop = Val[Double]
 
+// network indicators
+val nwDiameter = Val[Double]
+val nwMeanPathLength = Val[Double]
+val nwMeanBwCentrality = Val[Double]
+val nwHierarchyBwCentrality = Val[Double]
+val nwRelativeSpeed = Val[Double]
+val nwLength = Val[Double]
+
+val finalTime = Val[Double]
+
 val id = Val[Int]
+val confid = Val[Int]
 val replication = Val[Int]
 
-// setup-experiment-virtual-network [synth-ranksize nw-threshold nw-gmax final-time grav-weight grav-gamma grav-decay
-//         feed-weight feed-gamma feed-decay nw-type seed]
+val cmds = Seq("setup-experiment ${gravityDecay} ${gravityGamma} ${networkGamma} ${networkThreshold} ${networkSpeed} ${synthRankSize} ${synthCities} ${synthShortcut} ${synthMaxDegree} ${synthShortcutNum} ${replication}","run-experiment")
 
-val cmds = Seq("setup-experiment-virtual-network ${synthRankSize} ${nwThreshold} ${nwGmax} ${finalTime} ${gravityWeight} ${gravityGamma} ${gravityDecay} ${feedbackWeight} ${feedbackGamma} ${feedbackDecay} 0 ${replication}","run-experiment")
 
 val model =
-NetLogo5Task.workspace(workDirectory,"HEADLESS_MacroCoEvol.nlogo",cmds) set(
-    inputs += (synthRankSize,nwThreshold,nwGmax,finalTime,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,replication,id),
-    outputs += (synthRankSize,nwThreshold,nwGmax,finalTime,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,replication,id),
+NetLogo5Task.workspace(workDirectory,"HEADLESS_SimpopNet.nlogo",cmds) set(
+    inputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id,confid),
+    outputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id,confid),
     netLogoOutputs += ("population-hierarchies", populationHierarchies),
     netLogoOutputs += ("population-entropies", populationEntropies),
     netLogoOutputs += ("population-summaries", populationSummaries),
@@ -79,54 +90,74 @@ NetLogo5Task.workspace(workDirectory,"HEADLESS_MacroCoEvol.nlogo",cmds) set(
     netLogoOutputs += ("trajectories-diversity \"city-population\"",diversityPop),
     netLogoOutputs += ("trajectories-diversity \"city-closeness-centrality\"",diversityCloseness),
     netLogoOutputs += ("trajectories-diversity \"city-accessibility\"",diversityAccessibility),
+    netLogoOutputs += ("trajectories-complexity \"city-population\"",complexityPop),
     netLogoOutputs += ("trajectories-complexity \"city-closeness-centrality\"",complexityCloseness),
     netLogoOutputs += ("trajectories-complexity \"city-accessibility\"",complexityAccessibility),
-    netLogoOutputs += ("trajectories-complexity \"city-population\"",complexityPop)
+    netLogoOutputs += ("nw-diameter", nwDiameter),
+    netLogoOutputs += ("mean-path-length", nwMeanPathLength),
+    netLogoOutputs += ("mean-bw-centrality", nwMeanBwCentrality),
+    netLogoOutputs += ("hierarchy-bw-centrality", nwHierarchyBwCentrality),
+    netLogoOutputs += ("mean-relative-speed", nwRelativeSpeed),
+    netLogoOutputs += ("total-nw-length", nwLength),
+    netLogoOutputs += ("ticks", finalTime)
 )
 
 
-
-// exploration task
-
-// (synthRankSize,nwThreshold,nwGmax,finalTime,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,replication,id)
+// exploration
+// gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed
+// synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum
+// replication,id
 
 val exploration =  ExplorationTask(
-  (((synthRankSize in (0.5 to 1.5 by 0.5)) x
-    (nwThreshold in (0.5 to 4.5 by 0.5)) x
-    (nwGmax in (0.0 to 0.05 by 0.05)) x
-    (gravityWeight in (0.00025 to 0.001 by 0.00025)) x
-    (gravityGamma in (0.5 to 1.5 by 0.5)) x
-    (gravityDecay in (10.0 to 210.0 by 50.0))
-  ) withIndex id )
-  /*((LHS (
+  ((
+  (gravityDecay in (0.02 to 0.02 by 0.005)) x
+  (gravityGamma in (1.5 to 1.5 by 0.5)) x
+  (networkGamma in (1.5 to 1.5 by 0.5)) x
+  (networkThreshold in (10.0 to 10.0 by 5.0)) x
+  (networkSpeed in (50.0 to 50.0 by 20.0))
+    /*(gravityDecay in (0.001 to 0.02 by 0.005)) x
+    (gravityGamma in (0.5 to 2.5 by 0.5)) x
+    (networkGamma in (0.5 to 3.0 by 0.5)) x
+    (networkThreshold in (1.0 to 20.0 by 5.0)) x
+    (networkSpeed in (10.0 to 100.0 by 20.0))*/
+  ) withIndex id ) x
+  ((LHS (
     1
+    //,gravityDecay in Range(0.0,0.02)
+    //,gravityGamma in Range(0.0,3.0)
+    //,networkGamma in Range(0.0,4.0)
+    //,networkThreshold in Range(0.0,20.0)
+    //,networkSpeed in Range(0.0,100.0)
     ,synthRankSize in Range(0.5,1.5)
-    ,nwThreshold in Range(0.0,5.0)
-    ,nwGmax in Range(0.0,0.05)
-    ,gravityWeight in Range(0.0,0.001)
-    ,gravityGamma in Range(0.0,2.0)
-    ,gravityDecay in Range(0.0,200.0)
-  )) withIndex id)*/
-    x (finalTime is 30)
-  //x (synthRankSize is 1.1)
-  //x (nwThreshold is 2.0)
-  //x (nwGmax is 0.05)
-  //x (gravityWeight is 0.0005)
-  //x (gravityGamma is 1.0)
-  //x (gravityDecay is 50.0)
-  x (feedbackWeight is 0.0)
-  x (feedbackGamma is 1.0)
-  x (feedbackDecay is 1.0)
-  x (replication in (UniformDistribution[Int]() take 50))
+    ,synthCities in Range(30.0,80.0)
+    ,synthShortcut in Range(3.0,15.0)
+    ,synthMaxDegree in Range(2.0,10.0)
+    ,synthShortcutNum in Range(10.0,40.0)
+  )) withIndex confid)
+  //x (synthRankSize is 0.8)
+  //x (synthCities is 100.0)
+  //x (synthShortcut is 8.0)
+  //x (synthMaxDegree is 5.0)
+  //x (synthShortcutNum is 50.0)
+  x (replication in (UniformDistribution[Int]() take 1))
 )
 
-val purpose = "GRID_VIRTUAL"
+val purpose = "TEST"
 
 // output
 val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
   arraysOnSingleRow := true
 )
 
-val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
-exploration -< (model on grid by 10 hook indics_hook)
+val local = LocalEnvironment(1)
+
+exploration -< (model on local hook indics_hook)
+
+
+
+
+
+
+
+//
