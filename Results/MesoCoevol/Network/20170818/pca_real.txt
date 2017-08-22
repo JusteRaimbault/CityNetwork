@@ -1,0 +1,39 @@
+
+
+
+raw=read.csv(file=paste0(Sys.getenv('CN_HOME'),"/Models/StaticCorrelations/res/res/europe_areasize100_offset50_factor0.5_20160824.csv"),sep=";",header=TRUE)
+rows=apply(raw,1,function(r){prod(as.numeric(!is.na(r)))>0})
+realres=as.tbl(raw[rows,])
+countries = readOGR(paste0(Sys.getenv('CN_HOME'),'/Models/MesoCoevol/analysis/gis'),'countries');country = countries[countries$CNTR_ID=="FR",];datapoints = SpatialPoints(data.frame(realres[,c("lonmin","latmin")]),proj4string = countries@proj4string)
+selectedpoints = gContains(country,datapoints,byid = TRUE)
+sdata = realres[selectedpoints,]
+rm(raw,realres);gc()
+
+sdata=sdata[apply(sdata,1,function(r){prod(as.numeric(!is.na(r)))>0}),]
+cdata=sdata[,c("meanBetweenness","meanPathLength","meanCloseness","networkPerf","diameter")]
+
+for(j in 1:ncol(cdata)){cdata[,j]<-(cdata[,j]-min(cdata[,j]))/(max(cdata[,j])-min(cdata[,j]))}
+
+# pca real data
+#  -> real data is much richer
+pcareal=prcomp(cdata)
+
+
+======
+
+Standard deviations:
+[1] 0.10839916 0.08206704 0.05093634 0.03375326 0.02601864
+
+Rotation:
+                        PC1        PC2          PC3         PC4         PC5
+meanBetweenness  0.32071179  0.9123552 -0.101287507  0.09905262 -0.21137945
+meanPathLength   0.67349835 -0.3016661 -0.670421641  0.04531017  0.06228457
+meanCloseness   -0.01926100  0.2063540 -0.009888761  0.19655887  0.95828695
+networkPerf     -0.05108717 -0.1222155  0.053354929  0.97433440 -0.17400925
+diameter         0.66374922 -0.1381554  0.733028737 -0.01314015  0.05335036
+Importance of components:
+                          PC1     PC2     PC3     PC4     PC5
+Standard deviation     0.1084 0.08207 0.05094 0.03375 0.02602
+Proportion of Variance 0.5132 0.29415 0.11332 0.04976 0.02957
+Cumulative Proportion  0.5132 0.80736 0.92067 0.97043 1.00000
+

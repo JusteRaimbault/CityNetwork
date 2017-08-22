@@ -38,6 +38,7 @@ datapoints = SpatialPoints(data.frame(res[,c("lonmin","latmin")]),proj4string = 
 
 selectedpoints = gContains(country,datapoints,byid = TRUE)
 sdata = res[selectedpoints,]
+rm(raw,res);gc()
 
 sdata=sdata[apply(sdata,1,function(r){prod(as.numeric(!is.na(r)))>0}),]
 cdata=sdata
@@ -55,7 +56,8 @@ cluster = km$cluster
 rows=c()
 for(kk in 1:k){rows = append(rows,sample(which(cluster==kk),size = 10,replace = F))}
 
-gridcaracs = sdata[rows,]
+#gridcaracs = sdata[cdata$pop<0.063&cdata$pop>0,][rows,]
+gridcaracs=sdata[rows,]
 
 rasterfile=paste0(Sys.getenv('CN_HOME'),'/Data/PopulationDensity/raw/density_wgs84.tif')
 densraster=raster(rasterfile)
@@ -77,6 +79,20 @@ write.table(data.frame(gridcaracs,rows=rows),sep=";",row.names = F,col.names = T
 # ecount = f(pop)
 summary(gridcaracs$ecount)
 summary(lm(data=gridcaracs,ecount~pop))
+
+
+# real morph caracs of cluster centers
+m = sdata[cdata$pop<0.063&cdata$pop>0,c("moran","distance","entropy","slope","rsquaredslope")]
+m$cluster=cluster
+centroids = m%>%group_by(cluster)%>%summarise(moran=mean(moran),distance=mean(distance),entropy=mean(entropy),slope=mean(slope),rsquaredslope=mean(rsquaredslope))
+# find real cluster by distance to centroids
+gridcaracs$cluster = apply(gridcaracs[,c("moran","distance","entropy","slope","rsquaredslope")],1,function(r){
+  which.min(rowSums((centroids[,2:6]-matrix(rep(r,5),nrow=5,byrow=T))^2))
+})
+
+write.table(gridcaracs,sep=";",row.names = F,col.names = T,file='../MesoCoevol/setup/fixeddensity/grids_clust.csv')
+
+
 
 
 
