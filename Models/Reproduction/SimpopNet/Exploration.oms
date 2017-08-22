@@ -57,6 +57,7 @@ val nwLength = Val[Double]
 
 
 val id = Val[Int]
+val confid = Val[Int]
 val replication = Val[Int]
 
 val cmds = Seq("setup-experiment ${gravityDecay} ${gravityGamma} ${networkGamma} ${networkThreshold} ${networkSpeed} ${synthRankSize} ${synthCities} ${synthShortcut} ${synthMaxDegree} ${synthShortcutNum} ${replication}","run-experiment")
@@ -64,8 +65,8 @@ val cmds = Seq("setup-experiment ${gravityDecay} ${gravityGamma} ${networkGamma}
 
 val model =
 NetLogo5Task.workspace(workDirectory,"HEADLESS_SimpopNet.nlogo",cmds) set(
-    inputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id),
-    outputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id),
+    inputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id,confid),
+    outputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id,confid),
     netLogoOutputs += ("population-hierarchies", populationHierarchies),
     netLogoOutputs += ("population-entropies", populationEntropies),
     netLogoOutputs += ("population-summaries", populationSummaries),
@@ -115,7 +116,7 @@ val exploration =  ExplorationTask(
     (networkGamma in (0.5 to 3.0 by 0.5)) x
     (networkThreshold in (1.0 to 20.0 by 5.0)) x
     (networkSpeed in (10.0 to 100.0 by 20.0))*/
-  ) withIndex id )
+  ) withIndex id ) x
   ((LHS (
     1
     //,gravityDecay in Range(0.0,0.02)
@@ -126,9 +127,9 @@ val exploration =  ExplorationTask(
     ,synthRankSize in Range(0.5,1.5)
     ,synthCities in Range(30.0,120.0)
     ,synthShortcut in Range(3.0,15.0)
-    ,synthMaxDegree in Range(2.0,10.0),
+    ,synthMaxDegree in Range(2.0,10.0)
     ,synthShortcutNum in Range(10.0,80.0)
-  )) withIndex id)
+  )) withIndex confid)
   //x (synthRankSize is 0.8)
   //x (synthCities is 100.0)
   //x (synthShortcut is 8.0)
@@ -137,8 +138,8 @@ val exploration =  ExplorationTask(
   x (replication in (UniformDistribution[Int]() take 2))
 )
 
-val purpose = "test"
-//val purpose = "grid"
+val purpose = "TEST"
+//val purpose = "GRIDLHS"
 
 // output
 val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
