@@ -19,7 +19,7 @@ val laBw = Val[Double]
 val laAccessibility = Val[Double]
 
 // network
-val nwHeuristic = Val[Int]
+val nwHeuristic = Val[Double]
 val maxNewLinksNumber = Val[Double]
 
 // gravity
@@ -77,7 +77,7 @@ val rhoBwAccessibility = Val[Array[Double]]
 // model
 // setup-experiment [growth-rate density-alpha diffusion-steps diffusion la-pop-coef la-droad-coef la-closeness la-bw la-accessibility nw-heuristic new-links grav-radius grav-inflexion grav-hierarchy-weight grav-exponent brkdn-hierarchy brkdn-th cost-toff bio-threshold bio-steps nw-update-time total-time rseed]
 val cmds = List("setup-experiment ${growthrate} ${alphalocalization} ${diffusionsteps} ${diffusion} ${laPopCoef} ${laDroadCoef} ${laCloseness} ${laBw} ${laAccessibility} ${nwHeuristic} ${maxNewLinksNumber} ${gravityRadius} ${gravityInflexion} ${gravityHierarchyWeight} ${gravityHierarchyExponent} ${breakdownHierarchy} ${breakdownThreshold} ${costTradeoff} ${bioThreshold} ${bioSteps} ${nwUpdateTime} ${totalTime} ${replication}","run-experiment")
-val model = NetLogo5Task(workDirectory / "model/HEADLESS_MesoCoEvol.nlogo", cmds,embedWorkspace = true) set (
+val model = NetLogo5Task(workDirectory / "HEADLESS_MesoCoEvol.nlogo", cmds,embedWorkspace = true) set (
     inputs += (growthrate,alphalocalization,diffusionsteps,diffusion,laPopCoef,laDroadCoef,laCloseness,laBw,laAccessibility,nwHeuristic,maxNewLinksNumber,gravityRadius,gravityInflexion,gravityHierarchyWeight,gravityHierarchyExponent,breakdownHierarchy,breakdownThreshold,costTradeoff,bioThreshold,bioSteps,nwUpdateTime,totalTime,replication,id),
     outputs += (growthrate,alphalocalization,diffusionsteps,diffusion,laPopCoef,laDroadCoef,laCloseness,laBw,laAccessibility,nwHeuristic,maxNewLinksNumber,gravityRadius,gravityInflexion,gravityHierarchyWeight,gravityHierarchyExponent,breakdownHierarchy,breakdownThreshold,costTradeoff,bioThreshold,bioSteps,nwUpdateTime,totalTime,replication,id),
     netLogoOutputs += ("indicators:morpho:moran", moran),
@@ -91,7 +91,7 @@ val model = NetLogo5Task(workDirectory / "model/HEADLESS_MesoCoEvol.nlogo", cmds
     netLogoOutputs += ("indicators:network:mean-city-closeness-centrality",meanClosenessCentrality),
     netLogoOutputs += ("indicators:network:mean-relative-speed",meanRelativeSpeed),
     netLogoOutputs += ("indicators:network:length",nwLength),
-    netLogoOutputs += ("indicators:network:size",nwSize)
+    netLogoOutputs += ("indicators:network:size",nwSize),
     netLogoOutputs += ("indicators:lagged-corrs \"patch-population\" \"patch-distance-to-road\" 5 0",rhoPopRoad),
     netLogoOutputs += ("indicators:lagged-corrs \"patch-population\" \"patch-closeness-centrality\" 5 0",rhoPopCloseness),
     netLogoOutputs += ("indicators:lagged-corrs \"patch-population\" \"patch-bw-centrality\" 5 0",rhoPopBw),
@@ -109,7 +109,7 @@ val model = NetLogo5Task(workDirectory / "model/HEADLESS_MesoCoEvol.nlogo", cmds
 
 // exploration
 val exploration = ExplorationTask (
-  (LHS (
+  (LHS(
     1,
     growthrate in Range(500.0,3000.0),
     alphalocalization in Range(0.1,4.0),
@@ -130,7 +130,7 @@ val exploration = ExplorationTask (
     breakdownThreshold in Range(1.0,5.0),
     costTradeoff in Range(0.0,0.05),
     bioThreshold in Range(0.4,0.6),
-    bioSteps in Range(40,100),
+    bioSteps in Range(40.0,100.0),
     nwUpdateTime in Range(1.0,3.99)
   ) withIndex id)
    //(nwHeuristic is 0)

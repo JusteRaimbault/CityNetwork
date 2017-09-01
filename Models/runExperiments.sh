@@ -7,7 +7,7 @@ rm logexplo
 cd $CN_HOME/Models/Reproduction/SimpopNet
 ./runExplo.sh $MODE > logexplo
 cd $BASEDIR
-ls -lh $CN_HOME/Models/Reproduction/SimpopNet/exploration > logexplo
+ls -lh $CN_HOME/Models/Reproduction/SimpopNet/exploration >> logexplo
 
 # macro virtual
 cd $CN_HOME/Models/MacroCoevol/MacroCoevol
@@ -20,7 +20,7 @@ then
   openmole --password-file omlpsswd --script ExploVirtual.oms > logexplo
 fi
 cd $BASEDIR
-ls -lh $CN_HOME/Models/MacroCoevol/MacroCoevol/exploration > logexplo
+ls -lh $CN_HOME/Models/MacroCoevol/MacroCoevol/exploration >> logexplo
 
 
 # meso synthetic
