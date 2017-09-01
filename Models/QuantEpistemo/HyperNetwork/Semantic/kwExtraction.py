@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os,nltk,time,locale,sys,utils,functools
-from treetagger import TreeTagger
+#from treetagger import TreeTagger
 from langdetect import detect
 
 
