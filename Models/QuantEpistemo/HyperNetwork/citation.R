@@ -129,7 +129,7 @@ for(c in unique(com$membership)){
 #citcomnames=list('7'='LUTI','10'='Geography','3'='Infra Planning','12'='Networks','11'='TOD','8'='Accessibility')
 citcomnames=list('22'='Urban Ecology','8'='Urban Sociology','16'='Housing Market','5'='Spatial Statistics',
                  '19'='Economic Geography','23'='Criminology','1'='Cellular Automata','10'='Urban Simulation',
-                 '9'='Development','2'='Ecology','20'='Mobility','6'='LUTI','4'='Networks','18'='Economy of Information',
+                 '9'='Development','2'='Ecology','20'='Mobility','6'='LUTI','4'='Networks','18'='Economy of Information'
                  )
 
 #V(citationcore)$citclass = unlist(sapply(as.character(com$membership),function(n){ifelse(n%in%names(citcomnames),unlist(citcomnames[n]),'NA')}))
