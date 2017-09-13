@@ -128,7 +128,7 @@ corrmat = corrmat[rows,]
 # names
 meltedcorrmat=melt(corrs[[1]][[87]]);colnames(corrmat)<-paste0(meltedcorrmat$Var1,'-',meltedcorrmat$Var2)
 # coordinates
-lon=c();lat=c();for(i in 1:length(xcors)){for(j in 1:length(ycors)){if(length(corrs[[i]][[j]])>0&length(which(is.na(corrs[[i]][[j]])))==0){lon=append(lon,xcors[i]);lat=append(lat,ycors[j])}}}
+lon=c();lat=c();for(i in 1:length(xcors)){for(j in 1:length(ycors)){if(!is.null(corrs[[i]][[j]])){if(length(corrs[[i]][[j]])>0&length(which(is.na(corrs[[i]][[j]])))==0){lon=append(lon,xcors[i]);lat=append(lat,ycors[j])}}}}
 corrmat=data.frame(lon=lon,lat=lat,corrmat)
 
 # do the pca

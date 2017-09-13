@@ -39,7 +39,7 @@ crossCorrelations<-function(m,c1,c2,f=function(x,y){return(cor(x,y))}){
 #' @description compute correlation matrices, with a given function (use corrTest for estimates and confidence intervals)
 #'      on square windows centered on (xcors)x(ycors), of size xyrhoasize (must be in coordinates units)
 #'
-getCorrMatrices<-function(xcors,ycors,xyrhoasize,res,f=function(m){cor(m[,c(-1,-2)])}){
+getCorrMatrices<-function(xcors,ycors,xyrhoasize,res,f=function(m){ifelse(is.na(m),matrix(NA,ncol(res)-2,ncol(res)-2),cor(m[,c(-1,-2)]))}){
   corrs=list()
   for(i in 1:length(xcors)){
     corrs[[i]]=list()
@@ -48,18 +48,20 @@ getCorrMatrices<-function(xcors,ycors,xyrhoasize,res,f=function(m){cor(m[,c(-1,-
       # compute correlation matrix ?
       x=xcors[i];y=ycors[j]
       rows = abs(res[,1]-x)<xyrhoasize/2&abs(res[,2]-y)<xyrhoasize/2
-      rho = f(NA)#matrix(NA,nrow(res),ncol(res)))
+      rho = f(NA)
+      #rho = matrix(NA,nrow(res)-2,ncol(res)-2)
       #show(length(which(rows)))
       #rho = list()#atrix(NA,(ncol(res)-2),(ncol(res)-2))
       #if(length(which(rows))>0){show(length(which(rows)))}
       if(length(which(rows))>10){# arbitrary threshold to have a minimal quantity of measures
         #show(res[rows,c(-1,-2)])
-        #rho = cor(res[rows,c(-1,-2)])
-        rho = f(res[rows,])
+        rho = cor(res[rows,c(-1,-2)])
+        #rho = f(res[rows,])
         #show(rho)
-        #corrs[[i]][[j]]=rho
+        #corrs[[as.character(i)]][[as.character(j)]]=rho
+        corrs[[i]][[j]]=rho
       }
-      corrs[[i]][[j]]=rho
+      #corrs[[i]][[j]]=rho
     }
   }
   return(corrs)
