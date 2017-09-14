@@ -39,32 +39,38 @@ crossCorrelations<-function(m,c1,c2,f=function(x,y){return(cor(x,y))}){
 #' @description compute correlation matrices, with a given function (use corrTest for estimates and confidence intervals)
 #'      on square windows centered on (xcors)x(ycors), of size xyrhoasize (must be in coordinates units)
 #'
-getCorrMatrices<-function(xcors,ycors,xyrhoasize,res,f=function(m){ifelse(is.na(m),matrix(NA,ncol(res)-2,ncol(res)-2),cor(m[,c(-1,-2)]))}){
+getCorrMatrices<-function(xcors,ycors,step,rhoasize,res,f=function(m){ifelse(is.na(m),matrix(NA,ncol(res)-2,ncol(res)-2),cor(m[,c(-1,-2)]))}){
+  xstep=diff(xcors)[1];ystep=diff(ycors)[1]
+  xrhoasize = xstep/step*rhoasize
+  yrhoasize = ystep/step*rhoasize
+  
+  allxcoords=list();allycoords=list()
+  
   corrs=list()
   for(i in 1:length(xcors)){
-    corrs[[i]]=list()
+    corrs[[i]]=list();allxcoords[[i]]=list();allycoords[[i]]=list()
     show(i)
     for(j in 1:length(ycors)){
       # compute correlation matrix ?
       x=xcors[i];y=ycors[j]
-      rows = abs(res[,1]-x)<xyrhoasize/2&abs(res[,2]-y)<xyrhoasize/2
+      rows = abs(res[,1]-x)<xrhoasize/2&abs(res[,2]-y)<yrhoasize/2
       rho = f(NA)
       #rho = matrix(NA,nrow(res)-2,ncol(res)-2)
-      #show(length(which(rows)))
       #rho = list()#atrix(NA,(ncol(res)-2),(ncol(res)-2))
-      #if(length(which(rows))>0){show(length(which(rows)))}
       if(length(which(rows))>10){# arbitrary threshold to have a minimal quantity of measures
-        #show(res[rows,c(-1,-2)])
         rho = cor(res[rows,c(-1,-2)])
         #rho = f(res[rows,])
-        #show(rho)
-        #corrs[[as.character(i)]][[as.character(j)]]=rho
         corrs[[i]][[j]]=rho
+        allxcoords[[i]][[j]]=x;allycoords[[i]][[j]]=y
       }
-      #corrs[[i]][[j]]=rho
     }
   }
-  return(corrs)
+  
+  res=list()
+  res$corrs = corrs
+  res$xcors = allxcoords;res$ycors = allycoords
+  
+  return(res)
 }
 
 
