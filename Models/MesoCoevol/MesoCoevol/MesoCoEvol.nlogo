@@ -10,49 +10,49 @@ extensions [table pathdir nw matrix context gradient morphology shell]
 
 
 __includes [
-  
+
   ;; setup
   "setup.nls"
-  
+
   ;; main coevol
   "main.nls"
-  
+
   ;; network growth
   "network.nls"
   ;; heuristics
-  "network-euclidian.nls"   ; diverse distance and gravity based heuristic 
+  "network-euclidian.nls"   ; diverse distance and gravity based heuristic
   "network-heuristic.nls"   ; gravity based empirical heuristic
   "network-biological.nls"  ; biological network growth
-  
-  
+
+
   ; cities distribution
   "cities.nls"
   ; density
   "density.nls"
-  
+
   "patches.nls"
-  
-  
-  
+
+
+
   ;; indicators
   "indicators.nls"
-   
-  
-  ;; tests 
+
+
+  ;; tests
    "test/test-includes.nls"
-   
+
    ;; display
    "display.nls"
-   
+
    ;; experiment
    "experiment.nls"
-  
+
    ;;;;
    ;; Utils
    ;;;;
-   
+
    "utils.nls"
-   
+
    "utils/Network.nls"
    "utils/AgentSet.nls"
    "utils/Statistics.nls"
@@ -64,13 +64,13 @@ __includes [
    "utils/SpatialKernels.nls"
    "utils/EuclidianDistance.nls"
    "utils/Logging.nls"
-   
-   
+
+
 ]
 
 
 globals [
-  
+
   ;;
   ; setup
   setup-rank-size-exp
@@ -80,16 +80,16 @@ globals [
   setup-outside-links-number
   city-max-pop
   #-cities
-  
+
   ;; network generation parameters
-  
+
   max-pop
-  
+
   ;; cities generation parameters
   populations
-  
+
   cities-interaction-table
-  
+
   ;; density generation params
   density-preffatt-total-time-steps
   ;sp-max-pop
@@ -97,15 +97,15 @@ globals [
   ;density-alpha-localization
   ;density-diffusion-steps
   ;density-diffusion
-  
+
   ; total population
   total-population
   cities-total-population
-  
+
   ;; from density file (for coupling with scala density generator)
   density-file
-  
-  
+
+
   ;; patch explicative variables globals
   patch-population-max
   patch-population-min
@@ -119,24 +119,24 @@ globals [
   patch-bw-centrality-min
   patch-accessibility-max
   patch-accessibility-min
-  
+
   ; linear aggreg coeficients
   ;linear-aggreg-population-coef
   ;linear-aggreg-distance-to-road-coef
   ;linear-aggreg-closeness-centrality-coef
   ;linear-aggreg-bw-centrality-coef
   ;linear-aggreg-accessibility-coef
-  
-  
+
+
   distance-to-roads-decay
-  
-  
+
+
   ;; network
-  
+
   ; network update
   network-update-time-mode ; "fixed-ticks" or "fixed-population"
   network-update-ticks
-  
+
   ; growth parameters
   network-max-new-cities-number
   network-cities-max-density
@@ -144,28 +144,28 @@ globals [
   network-distance-road-needed
   network-sigma-distance-road
   network-distance-road-min
-  
+
   ; indicator tables
   shortest-paths
   nw-relative-speeds
   nw-distances
-  
+
   pairs-total-weight
- 
-  
+
+
   ; network vars
   network-vars-decay
- 
+
   ; accessibility
   accessibility-decay
- 
- 
+
+
   ; biological network
   ; parameters
   network-biological-initial-diameter
   network-biological-input-flow
   ;network-biological-threshold
- 
+
   ; vars
   network-biological-o
   network-biological-d
@@ -174,56 +174,56 @@ globals [
   network-biological-diameter-max
   network-biological-total-diameter-variation
   bio-ticks
-  
-  
+
+
   ;; deprecated heuristics
   random-network-density
   basic-gravity-exponent
   neigh-gravity-threshold-quantile
   shortcuts-threshold
-  
+
   ;;
   ; indicators
-  
+
   indicator-sample-patches
   patch-values-table
-  
+
   ;;
   ;  Multimodeling variables
-  
+
   ;setup-method ; \in {"synthetic-settlement","empty","real"}
-  
+
   ; network-generation-method
   ;   { "gravity-heuristic","biological","road-connexion" }
   ;network-generation-method
   eucl-nw-generation-method
-  
+
   ; patch value function
   patch-value-function
-  
+
   ; heuristic network : city interaction method
   ;
   ;  --   multimodeling more easy with external architecture file precising modules and options ? would imply dependancies etc ; to be investigated further --
   cities-interaction-method ; \in {"gravity"}
- 
- 
+
+
   ;;
   ; experiments
   experiment-id
-  
-  
+
+
   ;;
   headless?
-  
+
   ;log-level
-  
-  
+
+
   ;;;;;
   ;; Weak coupling
-  
+
   cities-generation-method ;  \in {"zipf-christaller";"random";"prefAtt-diffusion-density";"from-density-file";"fixed-density"}
   density-to-cities-method ; \in {"hierarchical-aggreg" ; "random-aggreg" ; "intersection-density"}
-  
+
 ]
 
 
@@ -233,58 +233,58 @@ undirected-link-breed [roads road]
 
 
 patches-own [
- 
+
  ;; density generation
  patch-population-share
  patch-population
- 
- 
+
+
  ;; cities generation
  distance-weighted-total-pop
- 
+
  ; closest city, on which nw measures are based
  patch-closest-city
  patch-closest-city-distance
- 
+
  ; explicative variables (includes population)
  patch-distance-to-road
  patch-closeness-centrality
  patch-bw-centrality
  patch-accessibility
- 
+
  ; aggregated value (rbd style)
  patch-value
- 
+
 ]
 
 
 cities-own [
   ; population
   city-population
-  
+
   ; id
   id
-  
-  
+
+
   ;; network variables
   city-bw-centrality
   city-closeness-centrality
   city-accessibilities
   city-accessibility
-  
+
 ]
 
 
 roads-own [
-  
+
   capacity
-  
+
   ; length
   road-length
-  
-  
+
+
   bw-centrality
-  
+
 ]
 
 
@@ -303,10 +303,10 @@ undirected-link-breed [biological-network-real-links biological-network-real-lin
 biological-network-nodes-own [
   ;; pressure
   pressure
-  ;; total capacity            
-  total-capacity          
+  ;; total capacity
+  total-capacity
   ;; number
-  biological-network-node-number    
+  biological-network-node-number
 ]
 
 biological-network-poles-own [
@@ -318,15 +318,14 @@ biological-network-links-own [
   ;; diameter
   diameter
   ;; flow
-  flow            
+  flow
   ;; length
-  bio-link-length    
+  bio-link-length
 ]
 
 biological-network-real-links-own [
-  real-link-length 
+  real-link-length
 ]
-
 
 
 
@@ -383,7 +382,7 @@ population-growth-rate
 population-growth-rate
 0
 3000
-0
+1414
 1
 1
 NIL
@@ -398,7 +397,7 @@ density-alpha-localization
 density-alpha-localization
 0
 4
-0.64
+2.11
 0.01
 1
 NIL
@@ -413,7 +412,7 @@ density-diffusion-steps
 density-diffusion-steps
 0
 6
-0
+1
 1
 1
 NIL
@@ -572,7 +571,7 @@ SLIDER
 #-max-new-links
 0
 100
-24
+5
 1
 1
 NIL
@@ -720,7 +719,7 @@ linear-aggreg-population-coef
 linear-aggreg-population-coef
 0
 1
-1
+0
 0.1
 1
 NIL
@@ -750,7 +749,7 @@ linear-aggreg-closeness-centrality-coef
 linear-aggreg-closeness-centrality-coef
 0
 1
-1
+0
 0.1
 1
 NIL
@@ -765,7 +764,7 @@ linear-aggreg-bw-centrality-coef
 linear-aggreg-bw-centrality-coef
 0
 1
-1
+0
 0.1
 1
 NIL
@@ -780,7 +779,7 @@ linear-aggreg-accessibility-coef
 linear-aggreg-accessibility-coef
 0
 1
-1
+0
 0.1
 1
 NIL
@@ -849,7 +848,7 @@ network-biological-threshold
 network-biological-threshold
 0
 2
-0.2
+0.6
 0.1
 1
 NIL
@@ -949,7 +948,7 @@ network-biological-steps
 network-biological-steps
 0
 100
-50
+30
 1
 1
 NIL
@@ -993,7 +992,7 @@ CHOOSER
 density-setup-method
 density-setup-method
 "synthetic" "empty" "real"
-2
+0
 
 CHOOSER
 855
@@ -1084,7 +1083,7 @@ cost-tradeoff
 cost-tradeoff
 0
 0.1
-0.05
+0.017
 0.001
 1
 NIL
@@ -1114,7 +1113,7 @@ final-time-step
 final-time-step
 -1
 10
--1
+5
 1
 1
 NIL
@@ -1161,7 +1160,7 @@ density-from-raster?
 @#$#@#$#@
 ## WHAT IS IT?
 
-Co-evolution of Urban Form and Transportation Network 
+Co-evolution of Urban Form and Transportation Network
 
 ## HOW IT WORKS
 
@@ -1501,7 +1500,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.3.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
