@@ -19,7 +19,7 @@ res=res[res$meanCloseness<0.3,]
 
 
 # correlation data (computed in StaticCorrelations/corrs.R)
-rhoasize=8;step=4
+rhoasize=4;step=4
 load(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations/res/res/corrmat_asize',rhoasize,'_step',step,'.RData'))
 
 # simulation data
@@ -139,6 +139,7 @@ corrsnames = c("moran.entropy","moran.distance","moran.slope","moran.meanPathLen
               "slope.meanPathLength","slope.meanBetweenness","slope.meanCloseness",
               "meanPathLength.meanBetweenness","meanPathLength.meanCloseness","meanBetweenness.meanCloseness"
               )
+
 realcorrs = corrmat[,c("lon","lat",corrsnames)]
 
 # TODO : filter on significant correlation (in the sense of non zero)
@@ -218,15 +219,17 @@ for(heuristic in unique(floor(sim$nwHeuristic))){
 # null model : shuffle completely simulation rows : should yield null correlations.
 #nbootstraps=10
 #for(b in 1:nbootstraps){
-  currentsim=sres
-  currentsim$ids=sample.int(n = 700,size = nrow(currentsim),replace = T)
-  opt = closestRealPoint(currentsim)
+#  currentsim=sres
+#  currentsim$ids=sample.int(n = 700,size = nrow(currentsim),replace = T)
+#  opt = closestRealPoint(currentsim)
 #}
 #save(opt,file='res/corrnullmodel.RData')
 #
 
 g=ggplot(data.frame(distance=dists,heuristic=cheur),aes(x=distance,color=heuristic))
 g+geom_density()
+ggsave(paste0(resdir,'/corrs-distrib_rhoasize',rhoasize,'.png'),width=18,height = 15,units='cm')
+
 # -> should also filter on significativity ?
 
 
@@ -239,7 +242,75 @@ g+geom_density()
 
 source('causalityFuns.R')
 
-resdir=paste0(Sys.getenv('CN_HOME'),'/Results/MesoCoevol/Calib/20170910_lhs/causalities');dir.create(resdir)
+resdir=paste0(Sys.getenv('CN_HOME'),'/Results/MesoCoevol/Calib/20170910_lhs/causalities/');dir.create(resdir)
+
+# direct clustering
+
+sres = sim %>% group_by(replication,id) %>% summarise(
+  rhoBwAccessibility1=rhoBwAccessibility[1],rhoBwAccessibility2=rhoBwAccessibility[2],rhoBwAccessibility3=rhoBwAccessibility[3],rhoBwAccessibility4=rhoBwAccessibility[4],rhoBwAccessibility5=rhoBwAccessibility[5],rhoBwAccessibility6=rhoBwAccessibility[6],rhoBwAccessibility7=rhoBwAccessibility[7],rhoBwAccessibility8=rhoBwAccessibility[8],rhoBwAccessibility9=rhoBwAccessibility[9],rhoBwAccessibility10=rhoBwAccessibility[10],rhoBwAccessibility11=rhoBwAccessibility[11],
+  rhoClosenessAccessibility1=rhoClosenessAccessibility[1],rhoClosenessAccessibility2=rhoClosenessAccessibility[2],rhoClosenessAccessibility3=rhoClosenessAccessibility[3],rhoClosenessAccessibility4=rhoClosenessAccessibility[4],rhoClosenessAccessibility5=rhoClosenessAccessibility[5],rhoClosenessAccessibility6=rhoClosenessAccessibility[6],rhoClosenessAccessibility7=rhoClosenessAccessibility[7],rhoClosenessAccessibility8=rhoClosenessAccessibility[8],rhoClosenessAccessibility9=rhoClosenessAccessibility[9],rhoClosenessAccessibility10=rhoClosenessAccessibility[10],rhoClosenessAccessibility11=rhoClosenessAccessibility[11],
+  rhoClosenessBw1=rhoClosenessBw[1],rhoClosenessBw2=rhoClosenessBw[2],rhoClosenessBw3=rhoClosenessBw[3],rhoClosenessBw4=rhoClosenessBw[4],rhoClosenessBw5=rhoClosenessBw[5],rhoClosenessBw6=rhoClosenessBw[6],rhoClosenessBw7=rhoClosenessBw[7],rhoClosenessBw8=rhoClosenessBw[8],rhoClosenessBw9=rhoClosenessBw[9],rhoClosenessBw10=rhoClosenessBw[10],rhoClosenessBw11=rhoClosenessBw[11],
+  rhoPopAccessibility1=rhoPopAccessibility[1],rhoPopAccessibility2=rhoPopAccessibility[2],rhoPopAccessibility3=rhoPopAccessibility[3],rhoPopAccessibility4=rhoPopAccessibility[4],rhoPopAccessibility5=rhoPopAccessibility[5],rhoPopAccessibility6=rhoPopAccessibility[6],rhoPopAccessibility7=rhoPopAccessibility[7],rhoPopAccessibility8=rhoPopAccessibility[8],rhoPopAccessibility9=rhoPopAccessibility[9],rhoPopAccessibility10=rhoPopAccessibility[10],rhoPopAccessibility11=rhoPopAccessibility[11],
+  rhoPopBw1=rhoPopBw[1],rhoPopBw2=rhoPopBw[2],rhoPopBw3=rhoPopBw[3],rhoPopBw4=rhoPopBw[4],rhoPopBw5=rhoPopBw[5],rhoPopBw6=rhoPopBw[6],rhoPopBw7=rhoPopBw[7],rhoPopBw8=rhoPopBw[8],rhoPopBw9=rhoPopBw[9],rhoPopBw10=rhoPopBw[10],rhoPopBw11=rhoPopBw[11],
+  rhoPopCloseness1=rhoPopCloseness[1],rhoPopCloseness2=rhoPopCloseness[2],rhoPopCloseness3=rhoPopCloseness[3],rhoPopCloseness4=rhoPopCloseness[4],rhoPopCloseness5=rhoPopCloseness[5],rhoPopCloseness6=rhoPopCloseness[6],rhoPopCloseness7=rhoPopCloseness[7],rhoPopCloseness8=rhoPopCloseness[8],rhoPopCloseness9=rhoPopCloseness[9],rhoPopCloseness10=rhoPopCloseness[10],rhoPopCloseness11=rhoPopCloseness[11],
+  rhoPopRoad1=rhoPopRoad[1],rhoPopRoad2=rhoPopRoad[2],rhoPopRoad3=rhoPopRoad[3],rhoPopRoad4=rhoPopRoad[4],rhoPopRoad5=rhoPopRoad[5],rhoPopRoad6=rhoPopRoad[6],rhoPopRoad7=rhoPopRoad[7],rhoPopRoad8=rhoPopRoad[8],rhoPopRoad9=rhoPopRoad[9],rhoPopRoad10=rhoPopRoad[10],rhoPopRoad11=rhoPopRoad[11],
+  rhoRoadAccess1=rhoRoadAccess[1],rhoRoadAccess2=rhoRoadAccess[2],rhoRoadAccess3=rhoRoadAccess[3],rhoRoadAccess4=rhoRoadAccess[4],rhoRoadAccess5=rhoRoadAccess[5],rhoRoadAccess6=rhoRoadAccess[6],rhoRoadAccess7=rhoRoadAccess[7],rhoRoadAccess8=rhoRoadAccess[8],rhoRoadAccess9=rhoRoadAccess[9],rhoRoadAccess10=rhoRoadAccess[10],rhoRoadAccess11=rhoRoadAccess[11],
+  rhoRoadBw1=rhoRoadBw[1],rhoRoadBw2=rhoRoadBw[2],rhoRoadBw3=rhoRoadBw[3],rhoRoadBw4=rhoRoadBw[4],rhoRoadBw5=rhoRoadBw[5],rhoRoadBw6=rhoRoadBw[6],rhoRoadBw7=rhoRoadBw[7],rhoRoadBw8=rhoRoadBw[8],rhoRoadBw9=rhoRoadBw[9],rhoRoadBw10=rhoRoadBw[10],rhoRoadBw11=rhoRoadBw[11],
+  rhoRoadCloseness1=rhoRoadCloseness[1],rhoRoadCloseness2=rhoRoadCloseness[2],rhoRoadCloseness3=rhoRoadCloseness[3],rhoRoadCloseness4=rhoRoadCloseness[4],rhoRoadCloseness5=rhoRoadCloseness[5],rhoRoadCloseness6=rhoRoadCloseness[6],rhoRoadCloseness7=rhoRoadCloseness[7],rhoRoadCloseness8=rhoRoadCloseness[8],rhoRoadCloseness9=rhoRoadCloseness[9],rhoRoadCloseness10=rhoRoadCloseness[10],rhoRoadCloseness11=rhoRoadCloseness[11]
+)
+
+ccoef=c();ck=c();
+for(k in 3:10){
+  show(k)
+  km = kmeans(sres[,3:ncol(sres)],k,nstart=10)#,iter.max = 1000,nstart=100)
+  ccoef=append(ccoef,km$betweenss/km$totss);ck=append(ck,k)
+}
+
+g=ggplot(data.frame(ccoef,k=ck),aes(x=k,y=ccoef))
+g+geom_line()+geom_point()+ylab("Clustering coefficient")+stdtheme
+ggsave(paste0(resdir,'clustcoef.png'),width=15,height=10,units='cm')
+
+g=ggplot(data.frame(dccoef=diff(ccoef),k=ck[2:length(ck)]),aes(x=k,y=dccoef))
+g+geom_line()+geom_point()+ylab("Diff Clustering coefficient")+stdtheme
+ggsave(paste0(resdir,'diffclustcoef.png'),width=15,height=10,units='cm')
+
+# k=4 to simplify
+
+k=4
+km = kmeans(sres[,3:ncol(sres)],k,nstart=10)
+
+# plot center trajs
+centers=km$centers
+nvars=11
+rho=c();tau=c();var=c();cluster=c()
+for(i in 1:nrow(centers)){
+  for(j in 1:(ncol(centers)/nvars)){
+    rho=append(rho,centers[i,((j-1)*nvars+1):(j*nvars)])
+    tau=append(tau,-5:5);var=append(var,rep(substr(colnames(centers)[j*nvars],1,nchar(colnames(centers)[j*nvars])-2),nvars))
+    cluster=append(cluster,rep(i,nvars))
+  }
+}
+
+g=ggplot(data.frame(rho,tau,var,cluster),aes(x=tau,y=rho,colour=var,group=var))
+g+geom_line()+geom_point()+facet_wrap(~cluster)+stdtheme
+ggsave(paste0(resdir,'centertrajs.png'),width=25,height=15,units='cm')
+
+# cluster in param space
+sparams = sim %>% group_by(replication,id) %>% summarise(
+  laAccessibility=mean(laAccessibility),laBw=mean(laBw),laCloseness=mean(laCloseness),laDroadCoef=mean(laDroadCoef),laPopCoef=mean(laPopCoef),
+  nwHeuristic=mean(floor(nwHeuristic))
+)
+
+labs=seq(from=0.1,to=0.9,by=0.2)
+sparams$laAccessibility=cut(sparams$laAccessibility,5,labels = labs);sparams$laBw=cut(sparams$laBw,5,labels = labs);sparams$laCloseness=cut(sparams$laCloseness,5,labels = labs)
+sparams$laDroadCoef=cut(sparams$laDroadCoef,5,labels = labs);sparams$laPopCoef=cut(sparams$laPopCoef,5,labels = labs)
+
+g=ggplot(data.frame(sparams,cluster=as.character(km$cluster)),aes(x=laBw,y=laDroadCoef,fill=cluster))
+g+geom_raster()+facet_grid(laCloseness~laPopCoef)+stdtheme
+ggsave(paste0(resdir,'cluster-params.png'),width=25,height=20,units='cm')
+
+
+
 
 
 

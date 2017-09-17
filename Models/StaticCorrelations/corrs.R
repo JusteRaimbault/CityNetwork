@@ -124,7 +124,7 @@ for(j in 3:22){plot(dfToRaster(raw,col=j),main=colnames(raw)[j])}
 # pca analysis of corr matrices -> full matrix for now
 
 #istep=5;jstep=5;rhoasize=12
-rhoasize=8
+rhoasize=4
 step=4
 xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=step)]
 ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=step)]
@@ -138,7 +138,7 @@ corrmat = matrix(data = unlist(lcorrs$corrs),ncol=400,byrow=TRUE)
 rows=apply(corrmat,1,function(r){prod(as.numeric(!is.na(r)))>0})
 corrmat = corrmat[rows,]
 # names
-meltedcorrmat=melt(lcorrs$corrs[[1]][[which(sapply(lcorrs$corrs[[1]],length)>0)[1]]]);colnames(corrmat)<-paste0(meltedcorrmat$Var1,'-',meltedcorrmat$Var2)
+meltedcorrmat=melt(lcorrs$corrs[[2]][[which(sapply(lcorrs$corrs[[2]],length)>0)[1]]]);colnames(corrmat)<-paste0(meltedcorrmat$Var1,'-',meltedcorrmat$Var2)
 # coordinates
 #lon=c();lat=c();for(i in 1:length(xcors)){for(j in 1:length(ycors)){if(!is.null(corrs[[i]][[j]])){if(length(corrs[[i]][[j]])>0&length(which(is.na(corrs[[i]][[j]])))==0){lon=append(lon,xcors[i]);lat=append(lat,ycors[j])}}}}
 lon=unlist(lcorrs$xcors)[rows];lat=unlist(lcorrs$ycors)[rows]
