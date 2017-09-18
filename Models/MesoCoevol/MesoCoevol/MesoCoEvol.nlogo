@@ -397,7 +397,7 @@ density-alpha-localization
 density-alpha-localization
 0
 4
-2.11
+4
 0.01
 1
 NIL
@@ -427,7 +427,7 @@ density-diffusion
 density-diffusion
 0
 0.5
-0.1
+0.05
 0.01
 1
 NIL
@@ -734,7 +734,7 @@ linear-aggreg-distance-to-road-coef
 linear-aggreg-distance-to-road-coef
 0
 1
-1
+0
 0.1
 1
 NIL
@@ -779,7 +779,7 @@ linear-aggreg-accessibility-coef
 linear-aggreg-accessibility-coef
 0
 1
-0
+1
 0.1
 1
 NIL
