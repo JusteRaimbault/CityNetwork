@@ -1,0 +1,1363 @@
+% adapté de la RIG version française
+
+\documentclass[english]{./sageo}
+
+\confShortName{SAGEO'2017}
+\confLongName{SAGEO'2017 - Rouen, 6-9 novembre 2017}
+
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage[noend]{algorithmic}
+\usepackage[linesnumbered,ruled,vlined,boxed,commentsnumbered]{algorithm2e}
+
+%% user packages and macros
+
+\usepackage{ragged2e}
+
+
+
+
+
+\firstpagenumber{1}
+
+
+\title[Spatio-temporal Causalities]{Identifying causalities in spatio-temporal data}
+
+\author[1,2]{Juste}{Raimbault}
+
+
+% addresses are automatically numbered
+\address{UMR CNRS 8504 Géographie-cités}
+        {}
+\address{UMR-T 9403 IFSTTAR LVMT}
+        {juste.raimbault@polytechnique.edu}       
+
+
+\keywords{Spatio-temporal Causality ; Network-territories Interactions ; Urban Morphogenesis ; Greater Paris}
+
+\abstract{This paper contributes to the understanding of strongly coupled spatio-temporal processes by describing a generic method based on Granger causality. The method is validated by the robust identification of causality regimes and of their phase diagram for an urban morphogenesis model that couples network growth with density. The application to the real case study of Greater Paris transportation projects shows a link between territorial dynamics, more particularly of real estate and socio-economic, and the anticipated network growth. We finally discuss potential extensions to other temporal and spatial scales.}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+
+
+%%%%%%%%%%%%%%%
+\section{Introduction}
+%%%%%%%%%%%%%%%
+
+
+
+L'étude des processus spatio-temporels fortement couplés implique la prise en compte d'intrications entre ceux-ci généralement difficiles à isoler. Essence même des approches par la complexité, ces interactions qui sont à l'origine du comportement émergent d'un système font sens comme objet d'étude en lui-même, et une séparation des processus paraît alors contradictoire avec une vision intégrée du système. Dans le cas des systèmes territoriaux, l'exemple des interactions entre réseaux de transport et territoires est une excellente allégorie de ce phénomène : des méthodes isolant les ``effets structurants'' d'une infrastructure développées dans les années 70~\cite{bonnafous1974methodologies} se sont révélées par la suite de l'instrumentation politique et sans fondement empirique~\cite{offner1993effets}. Le débat est toujours d'actualité puisque la question se pose actuellement par exemple pour la construction de lignes à grande vitesse~\cite{crozethalshs01094554}. La réalité des processus territoriaux est en fait bien plus compliquée qu'une simple relation causale entre la mise en place d'une infrastructure et les retombées sur le développement local, mais correspond bien à une \emph{co-évolution} complexe~\cite{bretagnolletel00459720}. Sur le temps long et à grande échelle, certains effets de renforcement des dynamiques dans les systèmes de villes par l'insertion dans les réseaux, ont été mis en valeur par l'application de la Théorie Evolutive des Villes~\cite{espacegeo2014effets}, montrant que le démêlage est toutefois possible dans certains cas par une compréhension plus globale du système. A une autre échelle, toujours concernant les relations entre réseaux et territoires, on peut citer les liens entre pratiques de mobilité, étalement urbain et localisation des ressources dans un cadre métropolitain~\cite{cerqueira2017inegalites} qui s'avèrent tout autant complexes. Ce type de problématique est bien sûr présent dans d'autres domaines : en Economie Géographique, l'exemple des liens entre innovation, impacts locaux de la connaissance et aggregation des agents économiques est une illustration typique de processus économiques spatio-temporels présentant des causalités circulaires difficiles à démêler~\cite{audretsch1996r}. Des méthodes spécifiques sont introduites, comme l'utilisation d'instruments statistiques : \cite{aghion2015innovation} montre que l'origine géographique des membres du Bureau du Congrès américain attribuant les subventions locales est une bonne variable instrumentale pour lier caractère innovant et inégalités des plus haut salaires, ce qui permet de confirmer que la correlation significative entre les deux est en fait une causalité de l'innovation sur les inégalités.
+
+
+Le couplage fort spatio-temporel implique généralement l'introduction de la notion de causalité, à laquelle la géographie s'est toujours intéressée : \cite{loi1985etude} montre que les questions fondamentales que se pose la géographie théorique récente (isolation des objects, lien entre espace et structures causales, etc.) étaient déjà présentes dans la géographie classique de Vidal. \cite{claval1985causalite} critique d'ailleurs les nouveaux déterminismes ayant émergé, notamment celui proposé par certains tenants de l'analyse systémique : dans ses débuts, cette approche héritait de la cybernétique et donc d'une vision réductionniste impliquant un déterminisme même dans une formulation probabiliste. Claval note que des travaux contemporains à son écriture devraient permettre de capturer la complexité qui fait la particularité des décisions humaines : l'école de Prigogine et la Théorie des Catastrophes de Thom. Ce point de vue est remarquablement visionnaire, puisque comme le rappelle Pumain dans \cite{pumain2003approche}, le glissement de l'analyse des systèmes à l'auto-organisation puis à la complexité a été long et progressif, et ces travaux ont été fondamentaux pour le permettre. François Durand-Dastès résume cette situation plus récemment dans \cite{durand2003geographes}, en appuyant l'importance des bifurcations et de la dépendance au chemin lors des instants initiaux de la constitution du système qu'il désigne par \emph{systèmogenèse}. Ce type de dynamique complexe implique généralement une co-évolution des composantes du système, qu'on peut interpréter comme des causalités circulaires entre processus : la question de pouvoir les identifier est donc cruciale au regard de la notion de causalité pour la géographie complexe contemporaine.
+
+
+Les régimes sous lesquels des identifications de causalité sont cohérentes ne sont pas identifiés de manière évidente. Ceux-ci dépendront des définitions utilisées, de la même manière que les méthodes à disposition pour lesquelles nous pouvons donner quelques illustrations. \cite{liu2011discovering} propose la detection de relations spatio-temporelles entre perturbations des flots de trafic, introduisant une définition particulière de la causalité basée sur une correspondance de points extrêmes. Les algorithmes associés sont toutefois spécifiques et difficilement applicables à des types de systèmes différents. L'utilisation des correlations spatio-temporelles a été démontrée comme ayant dans certains cas un fort pouvoir prédictif pour les flots de traffic~\cite{min2011real}. Egalement dans le domaine des transports et de l'usage du sol, \cite{xie2009streetcars} applique une analyse par causalité de Granger, qu'on pourra interpréter comme une corrélation retardée, pour montrer dans un cas particulier que la croissance du réseau induit le développement urbain et est elle-même tirée par des externalités comme les habitudes de mobilité. Les neurosciences ont développé de nombreuses méthodes répondant à des problématiques similaires. \cite{luo2013spatio} définit une causalité de Granger généralisée prenant en compte la non-stationnarité et s'appliquant à des régions abstraites issues d'imagerie fonctionnelle. Ce genre de méthode est également développée en Vision par Ordinateur, comme l'illustre \cite{ke2007spatio} qui exploite les correlations spatio-temporelles de formes et de flux dans des successions d'images pour classifier et reconnaître des actions. Les applications peuvent être très concrètes comme la compression de fichier videos par extrapolation des vecteurs de mouvement~\cite{chalidabhongse1997fast}. Dans l'ensemble de ces cas, l'étude des correlations spatio-temporelles rejoint les notions faibles de causalité vues précédemment.
+
+
+
+Dans le cas particulier des relations entre réseaux et territoires, des études majoritairement en économétrie ont cherché à établir des relations de causalité entre variables liées a ces deux objets. Par exemple, \cite{levinson2008density} explique pour Londres les variables de population et de connectivité au réseau par ces mêmes variables décalées dans le temps, démontrant des effets causaux circulaires. \cite{doi10.1068/b39089} utilise des techniques similaires sur une region d'Italie avec des données historiques sur le temps long, mais modère les conclusions d'effets systématiques en rappelant l'importance des événements historiques sur les relations estimées. \cite{cuthbert2005empirical} procède à des estimations économétriques des influences réciproques, et conclut que dans le cas d'étude canadien à une échelle sous-régionale, le développement du réseau induit le développement de l'usage du sol mais pas l'inverse. L'échelle de temps et d'espace influencent ainsi significativement les résultats de telles analyses. \cite{koninghal-00962384} propose une estimation des relations entre existence d'une desserte de Train à Grande Vitesse et variables économiques sur les Unites Urbaines Françaises, et conclut à un effet propre de la desserte négatif, après contrôle du caractère endogène de la desserte par un modèle de sélection, et à un effet significatif des caractéristiques des unités urbaines. Cette étude reste limitée, ne prenant ni en compte un décalage temporel supérieur à une unité de temps, ni des relations spatiales entre entités. Enfin, toujours dans la meme logique mais sans prise en compte explicite de l'espace, \cite{MANCMANC1073} montre sur le temps long un lien de causalité entre stock d'infrastructure et croissance économique sur un panel mondial, mais que ces effets sont atténués localement par des sous ou sur-investissements.
+
+
+
+Cette contribution cherche à explorer la possibilité d'une méthode analogue pour des données spatio-temporelles présentant a priori des causalités circulaires complexes, et donc de tenter l'exercice d'équilibriste de concilier un certain niveau de simplicité et de caractère opérationnel à une prise en compte de la complexité. Nous introduisons ainsi une méthode d'analyse des correlations spatio-temporelles similaire à une causalité de Granger estimée dans le temps et l'espace, dont la robustesse est démontrée systématiquement par l'application à un modèle de simulation complexe de morphogenèse urbaine et par l'isolation de régimes de causalités distincts dans l'espace des phases du modèle. Notre contribution inclut également l'application à un cas d'étude empirique, ce qui la positionne à l'interface des domaines de la méthodologie, de la modélisation et de l'empirique dans le cadre épistémologique introduit par~\cite{2017arXiv170609244R}.
+
+
+La suite de cette article est organisée de la façon suivante : le cadre générique de la méthode proposée est décrit dans la section suivante. Nous l'appliquons ensuite à un jeu de données synthétiques afin de la valider partiellement et de tester ses potentialités, ce qui permet de l'appliquer ensuite au cas d'étude réel des réseaux de transport du Grand Paris. Nous discutons finalement la proximité avec d'autres méthodes existantes et des développements possibles.
+
+
+
+%%%%%%%%%%%%%%%
+\section{Méthode}
+%%%%%%%%%%%%%%%
+
+
+
+Nous formalisons ici de manière générique la méthode, basée sur une formulation faible  de la causalité de Granger, pour tenter d'identifier des relations causales dans des systèmes spatiaux. Soit $X_j(\vec{x},t)$ des processus aléatoires spatiaux unidimensionnels, se réalisant dans le temps et l'espace. On se donne un ensemble d'unités spatiales fondamentales $(u_i)$ qui peuvent être par exemple les cellules d'un raster ou un pavage quelconque de l'espace géographique. On suppose l'existence de fonctions $\Phi_{i,j}$ permettant de faire correspondre les réalisations de chaque composante aux unités spatiales, possiblement par une première agrégation locale, ou par un processus plus élaboré conduit par un réseau par exemple. Une réalisation d'un système est donnée par un ensemble de trajectoires pour chaque processus $x_{i,j,t}$, et on pourra noter un ensemble de réalisations $x^{(k)}_{i,j,t}$ (accessibles dans le cas d'un modèle de simulation par exemple, ou par hypothèse de comparabilité de sous-systèmes territoriaux dans des cas réels). On suppose disposer d'un estimateur de correlation $\hat{\rho}$ s'exerçant dans le temps, l'espace et les répétitions, i.e. $\hat{\rho}\left[X,Y\right] = \hat{\mathbb{E}}_{i,t,k}\left[XY\right] - \hat{\mathbb{E}}_{i,t,k}\left[X\right]\hat{\mathbb{E}}_{i,t,k}\left[Y\right]$. Il est important de noter ici l'hypothèse de stationnarité spatiale et temporelle, qui peut toutefois aisément se relâcher dans le cas d'une stationnarité locale. D'autre part, l'autocorrelation spatiale n'est pas explicitement incluse, mais est prise en compte soit par l'agrégation initiale si l'échelle caractéristique des unités est plus grande que celle des effets de voisinage, soit par un estimateur spatial adéquat (statistiques spatiales pondérées de type \emph{GWR}~\cite{brunsdon1998geographically} par exemple). Cela nous permet de définir la correlation retardée par
+
+\begin{equation}
+\rho_{\tau}\left[X_{j_1},X_{j_2}\right] = \hat{\rho}\left[x^{(k)}_{i,j_1,t - \tau},x^{(k)}_{i,j_2,t}\right]
+\end{equation}
+
+La corrélation retardée n'est pas directement symétrique, mais on a de manière évidente $\rho_{\tau}\left[X_{j_1},X_{j_2}\right] = \rho_{-\tau}\left[X_{j_2},X_{j_1}\right]$. On applique alors cette mesure de manière simple : si $\textrm{argmax}_{\tau} \rho_{\tau}\left[X_{j_1},X_{j_2}\right]$ ou $\textrm{argmin}_{\tau} \rho_{\tau}\left[X_{j_1},X_{j_2}\right]$ sont ``clairement définis'' (les deux pouvant l'être simultanément), leur signe donnera alors le sens de la causalité entre les composantes $j_1$ et $j_2$ et leur valeur absolue le retard de propagation. Les critères de significativité dépendront du cas d'application et de l'estimateur utilisé, mais peuvent par exemple inclure la significativité du test statistique (test de Fisher dans le cas d'un estimateur de Pearson), la position des bornes d'un intervalle de confiance à un niveau donné, ou même un seuil exogène $\theta$ sur $\left|\rho_{\tau}\right|$ pour forcer un certain degré de correlation. 
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%
+\section{Résultats}
+%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%
+\subsection{Données Synthétiques}
+
+
+
+%%%%%%%%%%%%%%%
+\begin{figure*}[h]
+\centering
+\includegraphics[width=3.9cm]{ex_60_wdens0_wroad1_wcenter1_seed272727}
+\includegraphics[width=3.9cm]{ex_60_wdens1_wroad1_wcenter0_seed272727}
+\includegraphics[width=3.9cm]{ex_60_wdens1_wroad1_wcenter1_seed272727}\\\vspace{0.2cm}
+\includegraphics[width=12cm]{laggedcorrs_facetextreme}
+\caption{\textbf{Correlations dans le modèle RDB} \textbf{(Première ligne)} Exemples de configurations finales variées, obtenues avec $(w_{d},w_{c},w_{r})$ valant respectivement $(0,1,1)$,$(1,0,1)$, et $(1,1,1)$. \textbf{(Deuxième ligne)} Corrélations retardées, pour chaque combinaison des paramètres, en fonction du retard $\tau$. Les différentes couleurs correspondent à chaque couple de variables : distance au centre (\texttt{ctr}), densité (\texttt{dens}) et distance au réseau (\texttt{rd}). Les points montrent l'étendue sur l'ensemble des répétitions du modèle (estimateurs sur $i$ et $t$).}
+\label{fig:exrdb}
+\end{figure*}
+%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%
+\begin{figure*}[h]
+\centering
+\includegraphics[width=3.9cm,height=3.2cm]{ccoef-knum_valuesFALSE_theta05-3.pdf}
+\includegraphics[width=3.9cm,height=3.2cm]{dccoef-knum_valuesFALSEtheta05-3.pdf}
+\includegraphics[width=3.9cm,height=3.2cm]{clusters-PCA-features_valuesFALSEtheta2_k6}\\
+\includegraphics[width=5.9cm,height=5cm]{clusters-paramfacet_valuesFALSEtheta2_k6}
+\includegraphics[width=5.9cm,height=5cm]{clusters-centertrajs-facetclust_valuesFALSEtheta2_k6}
+\caption{\textbf{Identification de régimes d'interactions} \textbf{(Haut Gauche)} Variance inter-cluster comme fonction du nombre de clusters. \textbf{(Haut Milieu)} Dérivée de la variance inter-cluster. \textbf{(Haut Droite)} \emph{Features} dans un plan principal (81\% de variance expliquée par les deux premières composantes) \textbf{(Bas Gauche)} Diagramme de phase des régimes dans l'espace $(w_{d},w_{c},w_{r})$, $w_r$ variant entre les différents sous-diagrammes de $(w_{d},w_{c}$. \textbf{(Bas Droite)} Trajectoires correspondantes des centroïdes.}
+\label{fig:clustering}
+\end{figure*}
+%%%%%%%%%%%%%%%
+
+
+
+Cette méthode doit dans un premier temps être testée et partiellement validée, ce que nous proposons de faire sur des données synthétiques, méthode qui permet une connaissance plus fine des comportements des modèles~\cite{raimbaulthalshs01514415}. En écho à l'exemple des relations entre réseaux de transport et territoires qui a permis d'introduire notre problématique précédemment, nous proposons de générer des configurations urbaines stylisées dans lesquelles réseau et densité s'influencent mutuellement, et pour lesquelles les causalités ne sont pas évidents \emph{a priori} étant donné les paramètres du modèle génératif. \cite{raimbault2014hybrid} décrit et explore un modèle simple de morphogenèse urbaine (modèle RBD) répondant parfaitement à ces contraintes. En effet, les variables explicatives de la croissance urbaine, les processus d'extension du réseau et le couplage entre densité urbaine et réseau sont relativement simples. Cependant, hormis dans des cas extrêmes (par exemple lorsque la distance au centre détermine la valeur foncière uniquement, le réseau dépendra de manière causale de la densité, ou lorsque la distance au réseau seule compte, la causalité sera inversée), les régimes mixtes n'exhibent pas de causalités évidentes : c'est donc un parfait cas pour tester si la méthode est capable d'en détecter. Nous utilisons une implémentation adaptée\footnote{disponible sur le dépôt ouvert du projet à\\\texttt{https://github.com/JusteRaimbault/CityNetwork/tree/master/Models/Simple/ModelCA}} du modèle initial, permettant de capturer les valeurs des variables étudiées pour chaque cellule de l'automate cellulaire et à chaque pas de temps et de calculer les correlations retardées, au sens donné précédemment, entre variables au sein du modèle. Nous explorons une grille de l'espace des paramètres du modèle RBD, faisant varier les paramètres de poids de la densité, de la distance au centre et de la distance au réseau\footnote{Le modèle fonctionne de la façon suivante : une valeur des cellules est déterminée par la moyenne pondérée de ces différentes variables explicatives, valeur qui détermine la croissance de nouveaux patches à l'instant suivant.}, que l'on note respectivement $(w_{d},w_{c},w_{r})$, dans $\left[0;1\right]$ avec un pas de 0.1. Les autres paramètres sont fixés à leur valeurs par défaut données par \cite{raimbault2014hybrid}. Pour chaque valeur des paramètres, nous procédons à $N=100$ répétitions ce qui est suffisant pour une bonne convergence des indicateurs. Les explorations sont effectuées via le logiciel OpenMole~\cite{reuillon2013openmole}, le grand nombre de simulations (1,330,000) nécessitant l'utilisation d'une grille de calcul. Nous calculons sur l'ensemble des patches les corrélations retardées par estimateur de Pearson non biaisé entre les variations des variables suivantes\footnote{Calculer les corrélations sur les variables directement n'a pas de sens puisque leur valeur n'en a pas en absolu.} : densité locale, distance au centre et distance au réseau. La Fig.~\ref{fig:exrdb} montre le comportement de $\rho_{\tau}$ pour chaque couple de variable (non dirigé, $\tau$ prenant des valeurs négatives et positives), pour les combinaisons des valeurs extrêmes des paramètres. On peut voir déjà différents régimes émerger : par exemple, $(1,0,1)$ conduit à une causalité de la densité sur la distance au centre avec un retard $\tau=1$, et une causalité négative de la densité sur la distance au réseau avec le même retard, tandis que distance au centre et au réseau sont corrélées de manière synchrone. Afin d'étudier ces comportements de manière systématique, nous proposons d'identifier des régimes de manière endogène, en procédant à un apprentissage non-supervisé. Nous appliquons une classification des \emph{k-means}, robuste à la stochasticité (5000 répétitions), avec les points caractéristiques (\emph{features}) suivants : pour chaque couple de variable, $\textrm{argmax}_{\tau} \rho_{\tau}$ et $\textrm{argmin}_{\tau} \rho_{\tau}$ si la valeur correspondante est telle que $\frac{\rho_{\tau}-\bar{\rho}_{\tau}}{\left|\bar{\rho}_{\tau}\right|} > \theta$ avec $\theta$ paramètre de seuil, 0 sinon. L'inclusion des \emph{features} supplémentaires des valeurs de $\rho_{\tau}$ n'influence pas significativement les résultats, celles-ci n'ont pas été prises en compte pour réduire la dimension. Le choix du nombre de clusters $k$ est en général épineux dans ce genre de problème~\cite{hamerly2003learning}, dans notre cas le système possède une structure agréable : les courbes de la proportion de variance inter-cluster et de sa dérivée en Fig.~\ref{fig:clustering}, en fonction de $k$ pour différentes valeurs de $\theta$, présentent une transition pour $\theta = 2$, ce qui donne pour cette courbe une rupture à $k=5$. Un examen visuel des clusters dans un plan principal confirme la bonne qualité de la classification pour ces valeurs. Une classe correspond alors à un \emph{régime de causalité}, dont nous pouvons représenter le diagramme de phase en fonction des paramètres du modèle, ainsi que les trajectoires des centres des clusters (calculées comme barycentre dans l'espace complet initial) en Fig.~\ref{fig:clustering}. Le comportement obtenu est particulièrement intéressant : les régions du diagramme correspondant aux régimes sont clairement délimitées et connexes. Par exemple, on observe l'émergence du régime 6 où la distance au réseau cause fortement la densité de manière négative, mais la distance au centre cause la distance au réseau, régime dont l'étendue maximale sur $(w_d,w_r)$ est pour une valeur intermédiaire $w_r=0.7$. Ainsi, pour maximiser l'impact du réseau sur la densité, il ne faut pas maximiser le poids correspondant, ce qui peut paraître contre-intuitif en premier abord. Cela illustre l'intérêt de la méthode dans le cas de relations circulaires difficiles à démêler a priori. Le régime 5, où la distance au réseau influence la densité de la même manière, mais la relation entre distance au centre et route est inversée, est tout aussi intéressant, et est prédominant dans les faibles $w_r$. Le régime 1, extrême, correspond à une situation isolée dans laquelle la distance au centre n'importe pas : cet aspect domine alors totalement les autres processus d'interaction entre densité et réseau. Cette application sur données synthétiques démontre ainsi d'une part la robustesse de la méthode vu la cohérence des régimes obtenus, et constitue aussi une qualification beaucoup plus précise des comportements du modèle que celle réalisée dans l'article initial. Dans ce cas précis, il peut s'agir d'un instrument de connaissance des relations entre réseaux et territoires en lui-même, permettant le test d'hypothèses ou la comparaison de processus dans le modèle stylisé.
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%
+\subsection{Cas d'étude}
+
+
+\subsubsection{Contexte}
+
+Nous proposons une application sur un cas d'étude réel, toujours lié aux relations entre réseaux de transport et territoires. La région métropolitaine de Paris est en train de connaître de grandes mutations, avec la mise en place d'une gouvernance métropolitaine et de nouvelles infrastructures de transport par exemple. La construction d'un réseau de métro en rocade permettant des liaisons de banlieue à banlieue est un besoin ancien, et a mené à plusieurs propositions sur lesquelles se sont opposés l'Etat et la Région au tournant des années 2010~\cite{desjardins2010bataille}. Le projet Arc Express~\cite{stif2007arc}, porté par la Région, axé sur une égalité des territoires, contrastait avec les propositions initiales de Réseau du Grand Paris visant à relier des ``clusters d'excellence'' en dépit d'un possible effet tunnel. La solution finalement adoptée (voir le dernier schéma directeur \cite{sdrif2013}) est un compromis et permet un rééquilibrage est-ouest de l'accessibilité~\cite{beaucire2013grand}. Nous proposons d'étudier les relations entre différentiel d'accessibilité pour chaque projet, et variables liées au foncier (transactions immobilières) et socio-économiques. En effet, les liens entre nouvelles lignes et évolution du foncier sont parfois remarquables~\cite{damm1980response}.
+
+
+
+
+%%%%%%%%%%%%%%%
+\begin{figure*}[h]
+\centering
+\includegraphics[width=12cm]{reseaux}
+\caption{\textbf{Projets de transport successifs de la métropole du Grand Paris.} Nous montrons les deux alternatives du projet Arc Express porté par la région, et le Grand Paris Express (GPE) porté par l'état. Le Réseau du Grand Paris, précurseur du GPE, n'est pas montré ici pour des raisons de visibilité à cause de sa proximité avec celui-ci.}
+\label{fig:projects}
+\end{figure*}
+%%%%%%%%%%%%%%%
+
+\subsubsection{Données}
+
+Les données des transactions immobilières sont fournies par la base BIENS (Chambre des Notaires d'Ile de France, base propriétaire). Le nombre de transactions utilisables après nettoyage est de 862360, se répartissant sur l'ensemble des IRIS, pour une plage temporelle couvrant des années 2003 à 2012 incluses. Les données par IRIS pour population et revenu (revenu médian et indice de Gini) proviennent de l'INSEE. Les données de réseau ont été vectorisées à partir des cartes des projets (voir Fig.~\ref{fig:projects} pour les projets). Les temps de trajets sont calculés par transport en commun uniquement, avec des valeurs standard pour les vitesses moyennes des différents modes (RER 60km.h\textsuperscript{-1}, Transilien 100km.h\textsuperscript{-1}, Metro 30km.h\textsuperscript{-1}, Tramway 20km.h\textsuperscript{-1}). La matrice des temps est calculée depuis l'ensemble des centroïdes des IRIS vers l'ensemble des centroïdes des communes. Ceux-ci sont reliés au réseau par des connecteurs à la gare la plus proche, de vitesse 50km.h\textsuperscript{-1} (trajet en voiture). Les analyses sont implémentées intégralement en langage R~\cite{rcoreteam} et l'ensemble des données, du code source et des résultats sont disponibles sur un dépôt git ouvert\footnote{A l'adresse\\\texttt{https://github.com/JusteRaimbault/CityNetwork/tree/master/Models/SpatioTempCausality/GrandParis}. Les données de la base BIENS ne sont fournies que de manière agrégée à l'IRIS et pour les variables de prix et de crédit, pour des raisons de fermeture contractuelle de la base brute.}.
+
+
+\subsubsection{Résultats}
+
+
+
+%%%%%%%%%%%%%%%
+\begin{figure*}[h]
+%\centering
+\hspace{-1cm}
+\includegraphics[width=14cm]{laggedcorrs_times_allvars}
+\caption{\textbf{Corrélations retardées empiriques.} Les graphiques donnent la valeur de la correlation entre le différentiel d'accessibilité en temps de trajet moyen $\Delta T$ pour chaque projet (en colonnes) et le différentiel des différentes variables socio-economiques et de transactions immobilières (en lignes), pour différentes valeurs du paramètre d'atténuation (\texttt{decay}). Les barres d'erreur donnent l'intervalle de confiance à 95\%.}
+\label{fig:empiricalres}
+\end{figure*}
+%%%%%%%%%%%%%%%
+
+
+Nous calculons pour chaque projet, le différentiel $\Delta T_i$ d'accessibilité en temps moyen de trajet à partir de chaque IRIS en comparaison à celui dans le réseau sans le projet, défini par $T_i = \sum_k \exp{-t_{ik}/t_0}$ avec $k$ communes, $t_{ik}$ temps de trajet, et $t_0$ paramètre d'atténuation. A chaque projet est associée une date\footnote{2006 pour Arc Express, 2008 pour le Réseau du Grand Paris, 2010 pour le Grand Paris Express}, correspondant environ à l'année d'annonce mature du projet, restant toutefois arbitraire car difficile d'une part à déterminer précisément, un projet n'émergeant pas d'un coup du jour au lendemain, et d'autre part pouvant correspondre à des réalités différentes d'apprentissage du projet par les différents agents économiques (nous faisons donc l'hypothèse réductrice mais nécessaire d'une diffusion sur la majorité des agents dans un temps inférieur à l'année). Nous étudions les corrélations décalées de cette variable avec les variations $\Delta Y_{ij}$ des variables socio-économiques suivantes : population, revenu médian, indice de Gini des revenus, prix moyen des transactions immobilières et montant moyen des crédits immobiliers. Un test de Fisher est effectué pour chaque estimation, et la valeur est fixée nulle si celui-ci n'est pas significatif ($p<0.05$ de manière classique). L'étude avec accessibilité généralisée au sens de Hansen a également été menée mais moins intéressante car, très peu sensible à la composante mobilité (réseau et atténuation) par rapport aux variables elle-mêmes, informe uniquement sur des relations entre celles-ci et n'est donc pas présentée ici. Nous présentons en Fig.~\ref{fig:empiricalres} les résultats pour l'ensemble des réseaux et variables. Il est remarquable tout d'abord de noter l'existence d'effets significatifs pour l'ensemble des variables. Des valeurs plus basses du paramètre $t_0$ donnent des corrélations plus fortes en valeur absolue, révélant une possible plus grande importance de l'accessibilité locale sur les dynamiques territoriales. Le comportement de la population montre un pic très détaché correspondant à 2008, laissant supposer un impact du plus vieux projet d'Arc Express sur la croissance de la population, l'effet des autres projets serait alors fallacieux de par leur proximité dans les grands tronçons : cela impliquerait que les zones où ils diffèrent fondamentalement comme le Plateau de Saclay ne soient que très peu sensibles au projet de transport, ce qui confirmerait l'aspect artificiel planifié du développement de ce territoire. Concernant les revenus, on observe un comportement similaire mais négatif, ce qui impliquerait un appauvrissement lié à l'augmentation de l'accessibilité, mais qui semble toutefois s'accompagner d'une baisse des inégalités. Enfin, comme attendu les prix immobiliers sont tirés par l'arrivée potentielle des nouveaux réseaux, effet qui disparait à deux ans pour le Grand Paris Express, suggérant une bulle immobilière passagère. Nous démontrons ainsi l'existence de liens de correlations retardées complexes qu'on nomme causalités en ce sens, entre dynamiques territoriales et dynamiques anticipées des réseaux. Une compréhension plus fine des processus à l'oeuvre est au delà de la portée de cet article, car supposerait des études de terrain qualitatives, des études de cas ciblées, etc. Cet exemple illustre cependant le caractère opérationnel de notre méthode sur un cas d'étude réel.
+ 
+
+
+
+
+%%%%%%%%%%%%%%%
+\section{Discussion}
+%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%
+\subsection{Diffusion spatio-temporelle}
+
+
+L'application de notre approche doit être menée précautionneusement concernant le choix des échelles, processus et objets d'étude. Typiquement, elle ne sera pas du tout adaptée à la quantification de processus spatio-temporels dont l'échelle temporelle de diffusion est de l'ordre de celle de la fenêtre d'estimation : l'hypothèse de stationnarité est basique. On peut proposer de procéder à des estimations par fenêtres glissantes, mais il faudrait ensuite élaborer une technique de correspondance spatiale pour traquer la propagation des phénomènes. Un exemple d'application concrète à l'impact thématique fort serait une caractérisation d'une composante fondamentale de la Théorie Evolutive des Villes, la diffusion hiérarchique de l'innovation entre les villes~\cite{pumain2010theorie}, en analysant les potentielles dynamiques spatio-temporelles des classifications de brevets comme celle introduite par~\cite{10.1371/journal.pone.0176310}. Il faut noter toutefois qu'il s'agit de questions méthodologiques relativement ouvertes, dont une des manifestations est le lien potentiel entre le caractère non-ergodique des systèmes urbains~\cite{pumain2012urban} et une caractérisation ondulatoire de ces processus.
+
+
+
+
+%%%%%%%%%%%%%%%
+\subsection{Regression Géographique Pondérée}
+
+
+Une autre direction de développement et d'applications potentielles se révèle en se tournant vers l'échelle plus locale, et d'explorer une hybridation avec les techniques de Regression Géographique Pondérée~\cite{brunsdon1998geographically}. La détermination par validation croisée ou Critère d'Akaike d'une portée spatiale optimale pour la performance de ce type de modèles, comme introduit par~\cite{2017arXiv170607467R}, pourrait être adaptée dans notre cas pour déterminer une échelle locale optimale sur laquelle les correlations retardées sont les plus significatives, ce qui permettrait de s'extraire du problème de la non-stationnarité prioritairement par l'aspect spatial.
+
+
+
+
+%%%%%%%%%%%%%%%
+\section{Conclusion}
+%%%%%%%%%%%%%%%
+
+Nous avons proposé une méthode générique de causalité de Granger sur des données territoriales spatio-temporelles, puis démontré sa potentialité et son caractère opérationnel sur données synthétiques et un cas réel. Nous postulons que l'appareillage méthodologique simple est un atout pour une certaine généralité, mais que l'application à ces cas complexes présentant des causalités circulaires démontre le fort potentiel de contribution à la compréhension des dynamiques de ce type de systèmes co-évolutifs.
+
+
+
+%%%%%%%%%%%%%%%
+\section*{Remerciements}
+
+Les résultats obtenus dans la section 3.1 de cet article ont été calculés sur l'organisation virtuelle \texttt{vo.complex-system.eu} de l'European Grid Infrastructure (\texttt{http://www.egi.eu}). Nous remercions l'\textit{European Grid Infrastructure} et ses \textit{National Grid Initiatives} (France-Grilles en particulier) pour fournir le support technique et l'infrastructure.
+
+
+
+%%%%%%%%%%%%%%%
+%% Biblio
+%%%%%%%%%%%%%%%
+
+
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{%
+Aghion%
+\ \protect\BOthers{.}}{%
+Aghion%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{2015}}%
+}]{%
+aghion2015innovation}%
+\APACinsertmetastar{%
+aghion2015innovation}%
+Aghion\ P.%
+, Akcigit\ U.%
+, Bergeaud\ A.%
+, Blundell\ R.%
+\BCBL{}\ \BBA{} H{\'e}mous\ D.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2015}{}{}.
+\newblock
+\APACrefbtitle{Innovation and top income inequality}{Innovation and top income
+  inequality}\ \APACbVolEdTR{}{\BTR{}}.
+\newblock
+\APACaddressInstitution{}{National Bureau of Economic Research}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Audretsch%
+\ \BBA{} Feldman%
+}{%
+Audretsch%
+\ \BBA{} Feldman%
+}{%
+{\protect\APACyear{1996}}%
+}]{%
+audretsch1996r}%
+\APACinsertmetastar{%
+audretsch1996r}%
+Audretsch\ D\BPBI B.%
+\BCBT{}\ \BBA{} Feldman\ M\BPBI P.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1996}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{R\&D spillovers and the geography of innovation and
+  production}{R\&d spillovers and the geography of innovation and
+  production}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{The American economic review}{86}{3}{630--640}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Beaucire%
+\ \BBA{} Drevelle%
+}{%
+Beaucire%
+\ \BBA{} Drevelle%
+}{%
+{\protect\APACyear{2013}}%
+}]{%
+beaucire2013grand}%
+\APACinsertmetastar{%
+beaucire2013grand}%
+Beaucire\ F.%
+\BCBT{}\ \BBA{} Drevelle\ M.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2013}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{{\guillemotleft}Grand Paris Express{\guillemotright}: un
+  projet au service de la r{\'e}duction des in{\'e}galit{\'e}s
+  d'accessibilit{\'e} entre l'Ouest et l'Est de la r{\'e}gion urbaine de
+  Paris?}{{\guillemotleft}grand paris express{\guillemotright}: un projet au
+  service de la r{\'e}duction des in{\'e}galit{\'e}s d'accessibilit{\'e} entre
+  l'ouest et l'est de la r{\'e}gion urbaine de paris?}\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Revue d'{\'E}conomie R{\'e}gionale \&
+  Urbaine}{}{3}{437--460}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Bergeaud%
+\ \protect\BOthers{.}}{%
+Bergeaud%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{2017}}%
+}]{%
+10.1371/journal.pone.0176310}%
+\APACinsertmetastar{%
+10.1371/journal.pone.0176310}%
+Bergeaud\ A.%
+, Potiron\ Y.%
+\BCBL{}\ \BBA{} Raimbault\ J.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{04}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Classifying patents based on their semantic
+  content}{Classifying patents based on their semantic content}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{PLOS ONE}{12}{4}{1-22}.
+\newblock
+ \begin{APACrefURL} \url{https://doi.org/10.1371/journal.pone.0176310}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Bonnafous%
+\ \BBA{} Plassard%
+}{%
+Bonnafous%
+\ \BBA{} Plassard%
+}{%
+{\protect\APACyear{1974}}%
+}]{%
+bonnafous1974methodologies}%
+\APACinsertmetastar{%
+bonnafous1974methodologies}%
+Bonnafous\ A.%
+\BCBT{}\ \BBA{} Plassard\ F.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1974}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Les m{\'e}thodologies usuelles de l'{\'e}tude des effets
+  structurants de l'offre de transport}{Les m{\'e}thodologies usuelles de
+  l'{\'e}tude des effets structurants de l'offre de transport}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Revue {\'e}conomique}{}{}{208--232}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Bretagnolle%
+}{%
+Bretagnolle%
+}{%
+{\protect\APACyear{2009}}%
+}]{%
+bretagnolletel00459720}%
+\APACinsertmetastar{%
+bretagnolletel00459720}%
+Bretagnolle\ A.%
+%
+\unskip\
+\newblock
+\APACrefYear{2009}.
+\newblock
+\APACrefbtitle{{Villes et r{\'e}seaux de transport : des interactions dans la
+  longue dur{\'e}e, France, Europe, {\'E}tats-Unis}}{{Villes et r{\'e}seaux de
+  transport : des interactions dans la longue dur{\'e}e, France, Europe,
+  {\'E}tats-Unis}}.
+\newblock
+Hdr, Universit{\'e} Panth{\'e}on-Sorbonne - Paris I.
+\newblock
+ \begin{APACrefURL} \url{http://tel.archives-ouvertes.fr/tel-00459720}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Brunsdon%
+\ \protect\BOthers{.}}{%
+Brunsdon%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{1998}}%
+}]{%
+brunsdon1998geographically}%
+\APACinsertmetastar{%
+brunsdon1998geographically}%
+Brunsdon\ C.%
+, Fotheringham\ S.%
+\BCBL{}\ \BBA{} Charlton\ M.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1998}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Geographically weighted regression}{Geographically
+  weighted regression}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Journal of the Royal Statistical Society: Series D (The
+  Statistician)}{47}{3}{431--443}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Canning%
+\ \BBA{} Pedroni%
+}{%
+Canning%
+\ \BBA{} Pedroni%
+}{%
+{\protect\APACyear{2008}}%
+}]{%
+MANCMANC1073}%
+\APACinsertmetastar{%
+MANCMANC1073}%
+Canning\ D.%
+\BCBT{}\ \BBA{} Pedroni\ P.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2008}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Infrastructure, long-run economic growth and causality
+  tests for cointegrated panels}{Infrastructure, long-run economic growth and
+  causality tests for cointegrated panels}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{The Manchester School}{76}{5}{504--527}.
+\newblock
+ \begin{APACrefURL} \url{http://dx.doi.org/10.1111/j.1467-9957.2008.01073.x}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Cerqueira%
+}{%
+Cerqueira%
+}{%
+{\protect\APACyear{2017}}%
+}]{%
+cerqueira2017inegalites}%
+\APACinsertmetastar{%
+cerqueira2017inegalites}%
+Cerqueira\ E\BPBI V.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Les in{\'e}galit{\'e}s d'acc{\`e}s aux ressources
+  urbaines dans les franges p{\'e}riph{\'e}riques de Belo Horizonte
+  (Br{\'e}sil): quelles {\'e}volutions?}{Les in{\'e}galit{\'e}s d'acc{\`e}s aux
+  ressources urbaines dans les franges p{\'e}riph{\'e}riques de belo horizonte
+  (br{\'e}sil): quelles {\'e}volutions?}\BBCQ{}
+\newblock
+\APACjournalVolNumPages{EchoG{\'e}o}{}{39}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Chalidabhongse%
+\ \BBA{} Kuo%
+}{%
+Chalidabhongse%
+\ \BBA{} Kuo%
+}{%
+{\protect\APACyear{1997}}%
+}]{%
+chalidabhongse1997fast}%
+\APACinsertmetastar{%
+chalidabhongse1997fast}%
+Chalidabhongse\ J.%
+\BCBT{}\ \BBA{} Kuo\ C\BPBI J.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1997}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Fast motion vector estimation using
+  multiresolution-spatio-temporal correlations}{Fast motion vector estimation
+  using multiresolution-spatio-temporal correlations}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Circuits and Systems for Video Technology, IEEE
+  Transactions on}{7}{3}{477--488}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Claval%
+}{%
+Claval%
+}{%
+{\protect\APACyear{1985}}%
+}]{%
+claval1985causalite}%
+\APACinsertmetastar{%
+claval1985causalite}%
+Claval\ P.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1985}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Causalit{\'e} et g{\'e}ographie}{Causalit{\'e} et
+  g{\'e}ographie}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Espace g{\'e}ographique}{14}{2}{109--115}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Crozet%
+\ \BBA{} Dumont%
+}{%
+Crozet%
+\ \BBA{} Dumont%
+}{%
+{\protect\APACyear{2011}}%
+}]{%
+crozethalshs01094554}%
+\APACinsertmetastar{%
+crozethalshs01094554}%
+Crozet\ Y.%
+\BCBT{}\ \BBA{} Dumont\ F.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2011}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{{Retour sur les effets {\'e}conomiques du TGV. Les effets
+  structurants sont un mythe (interview)}}{{Retour sur les effets
+  {\'e}conomiques du TGV. Les effets structurants sont un mythe
+  (interview)}}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{{Ville, Rail et Transports}}{}{525}{48-51}.
+\newblock
+ \begin{APACrefURL} \url{https://halshs.archives-ouvertes.fr/halshs-01094554}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Cuthbert%
+\ \protect\BOthers{.}}{%
+Cuthbert%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{2005}}%
+}]{%
+cuthbert2005empirical}%
+\APACinsertmetastar{%
+cuthbert2005empirical}%
+Cuthbert\ A\BPBI L.%
+, Anderson\ W\BPBI P.%
+\BCBL{}\ \BBA{} Hall\ F\BPBI L.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2005}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{An empirical analysis of the relationship between road
+  development and residential land development}{An empirical analysis of the
+  relationship between road development and residential land
+  development}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Canadian Journal of Regional Science}{28}{1}{49--76}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Damm%
+\ \protect\BOthers{.}}{%
+Damm%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{1980}}%
+}]{%
+damm1980response}%
+\APACinsertmetastar{%
+damm1980response}%
+Damm\ D.%
+, Lerman\ S\BPBI R.%
+, Lerner-Lam\ E.%
+\BCBL{}\ \BBA{} Young\ J.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1980}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Response of urban real estate values in anticipation of
+  the Washington Metro}{Response of urban real estate values in anticipation of
+  the washington metro}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Journal of Transport Economics and
+  Policy}{}{}{315--336}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Desjardins%
+}{%
+Desjardins%
+}{%
+{\protect\APACyear{2010}}%
+}]{%
+desjardins2010bataille}%
+\APACinsertmetastar{%
+desjardins2010bataille}%
+Desjardins\ X.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2010}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{la bataille du Grand Paris}{la bataille du grand
+  paris}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{L'Information g{\'e}ographique}{74}{4}{29--46}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Durand-Dastes%
+}{%
+Durand-Dastes%
+}{%
+{\protect\APACyear{2003}}%
+}]{%
+durand2003geographes}%
+\APACinsertmetastar{%
+durand2003geographes}%
+Durand-Dastes\ F.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2003}{}{}.
+\newblock
+\APACrefbtitle{Les g{\'e}ographes et la notion de causalit{\'e}.}{Les
+  g{\'e}ographes et la notion de causalit{\'e}.}
+\newblock
+\APACaddressPublisher{}{PUF}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+{Gargi Chaudhuri and Keith C Clarke}%
+}{%
+{Gargi Chaudhuri and Keith C Clarke}%
+}{%
+{\protect\APACyear{{2015}}}%
+}]{%
+doi10.1068/b39089}%
+\APACinsertmetastar{%
+doi10.1068/b39089}%
+{Gargi Chaudhuri and Keith C Clarke}.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{{2015}}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{{On the Spatiotemporal Dynamics of the Coupling between
+  Land Use and Road Networks: Does Political History Matter?}}{{On the
+  Spatiotemporal Dynamics of the Coupling between Land Use and Road Networks:
+  Does Political History Matter?}}\BBCQ{}
+\newblock
+\APACjournalVolNumPages{{Environment and Planning B: Planning and
+  Design}}{42}{1}{133-156}.
+\newblock
+ \begin{APACrefURL} \url{{http://dx.doi.org/10.1068/b39089}} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Hamerly%
+\ \protect\BOthers{.}}{%
+Hamerly%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{2003}}%
+}]{%
+hamerly2003learning}%
+\APACinsertmetastar{%
+hamerly2003learning}%
+Hamerly\ G.%
+, Elkan\ C.%
+\BCBL{}\ \BOthersPeriod{.}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2003}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Learning the k in k-means}{Learning the k in
+  k-means}.\BBCQ{}
+\newblock
+\BIn{} \APACrefbtitle{NIPS}{Nips}\ \unskip, \BVOL~3, \BPGS\ 281--288.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Ke%
+\ \protect\BOthers{.}}{%
+Ke%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{2007}}%
+}]{%
+ke2007spatio}%
+\APACinsertmetastar{%
+ke2007spatio}%
+Ke\ Y.%
+, Sukthankar\ R.%
+\BCBL{}\ \BBA{} Hebert\ M.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2007}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Spatio-temporal shape and flow correlation for action
+  recognition}{Spatio-temporal shape and flow correlation for action
+  recognition}.\BBCQ{}
+\newblock
+\BIn{} \APACrefbtitle{Computer Vision and Pattern Recognition, 2007. CVPR'07.
+  IEEE Conference on}{Computer vision and pattern recognition, 2007. cvpr'07.
+  ieee conference on}\ \unskip, \BPGS\ 1--8.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Koning%
+\ \protect\BOthers{.}}{%
+Koning%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{2013}}%
+}]{%
+koninghal-00962384}%
+\APACinsertmetastar{%
+koninghal-00962384}%
+Koning\ M.%
+, Blanquart\ C.%
+\BCBL{}\ \BBA{} Delaplace\ M.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2013}{{\APACmonth{07}}}{}.
+\newblock
+\BBOQ{}\APACrefatitle{{Dessertes ferroviaires {\`a} grande vitesse et dynamisme
+  {\'e}conomique local : Une analyse {\'e}conom{\'e}trique exploratoire sur les
+  unit{\'e}s urbaines fran{\c c}aises}}{{Dessertes ferroviaires {\`a} grande
+  vitesse et dynamisme {\'e}conomique local : Une analyse {\'e}conom{\'e}trique
+  exploratoire sur les unit{\'e}s urbaines fran{\c c}aises}}.\BBCQ{}
+\newblock
+\BIn{} \APACrefbtitle{{ASRDLF 2013, 50{\`e}me colloque de l'Association des
+  sciences r{\'e}gionales de langue fran{\c c}aise}}{{ASRDLF 2013, 50{\`e}me
+  colloque de l'Association des sciences r{\'e}gionales de langue fran{\c
+  c}aise}}\ \unskip, \BPG~32p.
+\newblock
+\APACaddressPublisher{Belgium}{}.
+\newblock
+ \begin{APACrefURL} \url{https://hal.archives-ouvertes.fr/hal-00962384}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+{L'Espace g{\'e}ographique}%
+}{%
+{L'Espace g{\'e}ographique}%
+}{%
+{\protect\APACyear{2014}}%
+}]{%
+espacegeo2014effets}%
+\APACinsertmetastar{%
+espacegeo2014effets}%
+{L'Espace g{\'e}ographique}.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2014}{}{}.
+\newblock
+\APACrefbtitle{Les effets structurants des infrastructures de transport,
+  L'Espace g{\'e}ographique 2014/1 (Tome 43), p. 51-67.}{Les effets
+  structurants des infrastructures de transport, l'espace g{\'e}ographique
+  2014/1 (tome 43), p. 51-67.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Levinson%
+}{%
+Levinson%
+}{%
+{\protect\APACyear{2008}}%
+}]{%
+levinson2008density}%
+\APACinsertmetastar{%
+levinson2008density}%
+Levinson\ D.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2008}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Density and dispersion: the co-development of land use
+  and rail in London}{Density and dispersion: the co-development of land use
+  and rail in london}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Journal of Economic Geography}{8}{1}{55--77}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Liu%
+\ \protect\BOthers{.}}{%
+Liu%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{2011}}%
+}]{%
+liu2011discovering}%
+\APACinsertmetastar{%
+liu2011discovering}%
+Liu\ W.%
+, Zheng\ Y.%
+, Chawla\ S.%
+, Yuan\ J.%
+\BCBL{}\ \BBA{} Xing\ X.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2011}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Discovering spatio-temporal causal interactions in
+  traffic data streams}{Discovering spatio-temporal causal interactions in
+  traffic data streams}.\BBCQ{}
+\newblock
+\BIn{} \APACrefbtitle{Proceedings of the 17th ACM SIGKDD international
+  conference on Knowledge discovery and data mining}{Proceedings of the 17th
+  acm sigkdd international conference on knowledge discovery and data mining}\
+  \unskip, \BPGS\ 1010--1018.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Loi%
+}{%
+Loi%
+}{%
+{\protect\APACyear{1985}}%
+}]{%
+loi1985etude}%
+\APACinsertmetastar{%
+loi1985etude}%
+Loi\ D.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1985}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Une {\'e}tude de la causalit{\'e} dans la g{\'e}ographie
+  classique fran{\c{c}}aise.[L'exemple des premi{\`e}res th{\`e}ses
+  r{\'e}gionales]}{Une {\'e}tude de la causalit{\'e} dans la g{\'e}ographie
+  classique fran{\c{c}}aise.[l'exemple des premi{\`e}res th{\`e}ses
+  r{\'e}gionales]}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Espace g{\'e}ographique}{14}{2}{121--125}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Luo%
+\ \protect\BOthers{.}}{%
+Luo%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{2013}}%
+}]{%
+luo2013spatio}%
+\APACinsertmetastar{%
+luo2013spatio}%
+Luo\ Q.%
+, Lu\ W.%
+, Cheng\ W.%
+, Valdes-Sosa\ P\BPBI A.%
+, Wen\ X.%
+, Ding\ M.%
+\BCBL{}\ \BOthersPeriod{.}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2013}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Spatio-temporal Granger causality: A new
+  framework}{Spatio-temporal granger causality: A new framework}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{NeuroImage}{79}{}{241--263}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Min%
+\ \BBA{} Wynter%
+}{%
+Min%
+\ \BBA{} Wynter%
+}{%
+{\protect\APACyear{2011}}%
+}]{%
+min2011real}%
+\APACinsertmetastar{%
+min2011real}%
+Min\ W.%
+\BCBT{}\ \BBA{} Wynter\ L.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2011}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Real-time road traffic prediction with spatio-temporal
+  correlations}{Real-time road traffic prediction with spatio-temporal
+  correlations}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Transportation Research Part C: Emerging
+  Technologies}{19}{4}{606--616}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Offner%
+}{%
+Offner%
+}{%
+{\protect\APACyear{1993}}%
+}]{%
+offner1993effets}%
+\APACinsertmetastar{%
+offner1993effets}%
+Offner\ J\BHBI M.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1993}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Les "effets structurants" du transport: mythe politique,
+  mystification scientifique}{Les "effets structurants" du transport: mythe
+  politique, mystification scientifique}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Espace g{\'e}ographique}{22}{3}{233--242}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Pumain%
+}{%
+Pumain%
+}{%
+{\protect\APACyear{2003}}%
+}]{%
+pumain2003approche}%
+\APACinsertmetastar{%
+pumain2003approche}%
+Pumain\ D.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2003}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Une approche de la complexit{\'e} en g{\'e}ographie}{Une
+  approche de la complexit{\'e} en g{\'e}ographie}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Geocarrefour}{78}{1}{25--31}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Pumain%
+}{%
+Pumain%
+}{%
+{\protect\APACyear{2010}}%
+}]{%
+pumain2010theorie}%
+\APACinsertmetastar{%
+pumain2010theorie}%
+Pumain\ D.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2010}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Une th{\'e}orie g{\'e}ographique des villes}{Une
+  th{\'e}orie g{\'e}ographique des villes}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Bulletin de la Soci{\'e}t{\'e} g{\'e}ographie de
+  Li{\`e}ge}{}{55}{5--15}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Pumain%
+}{%
+Pumain%
+}{%
+{\protect\APACyear{2012}}%
+}]{%
+pumain2012urban}%
+\APACinsertmetastar{%
+pumain2012urban}%
+Pumain\ D.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2012}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{Urban systems dynamics, urban growth and scaling laws:
+  The question of ergodicity}{Urban systems dynamics, urban growth and scaling
+  laws: The question of ergodicity}.\BBCQ{}
+\newblock
+\BIn{} \APACrefbtitle{Complexity Theories of Cities Have Come of
+  Age}{Complexity theories of cities have come of age}\ \unskip, \BPGS\
+  91--103.
+\newblock
+\APACaddressPublisher{}{Springer}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+{R Core Team}%
+}{%
+{R Core Team}%
+}{%
+{\protect\APACyear{2015}}%
+}]{%
+rcoreteam}%
+\APACinsertmetastar{%
+rcoreteam}%
+{R Core Team}.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2015}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{R: A Language and Environment for Statistical
+  Computing}{R: A language and environment for statistical computing}\BBCQ{}\
+  \bibcomputersoftwaremanual.
+\newblock
+\APACaddressPublisher{Vienna, Austria}{}.
+\newblock
+ \begin{APACrefURL} \url{http://www.R-project.org/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Raimbault%
+}{%
+Raimbault%
+}{%
+{\protect\APACyear{2016}}%
+}]{%
+raimbaulthalshs01514415}%
+\APACinsertmetastar{%
+raimbaulthalshs01514415}%
+Raimbault\ J.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{{\APACmonth{01}}}{}.
+\newblock
+\BBOQ{}\APACrefatitle{{G{\'e}n{\'e}ration de Donn{\'e}es Synth{\'e}tiques
+  Corr{\'e}l{\'e}es}}{{G{\'e}n{\'e}ration de Donn{\'e}es Synth{\'e}tiques
+  Corr{\'e}l{\'e}es}}.\BBCQ{}
+\newblock
+\BIn{} \APACrefbtitle{{Rochebrune 2016, Journ{\'e}es d'Etude sur les
+  Syst{\`e}mes Complexes Naturels et Artificiels}.}{{Rochebrune 2016,
+  Journ{\'e}es d'Etude sur les Syst{\`e}mes Complexes Naturels et
+  Artificiels}.}
+\newblock
+\APACaddressPublisher{M{\'e}g{\`e}ve, France}{}.
+\newblock
+ \begin{APACrefURL} \url{https://halshs.archives-ouvertes.fr/halshs-01514415}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+{Raimbault}%
+}{%
+{Raimbault}%
+}{%
+{\protect\APACyear{2017}}%
+}]{%
+2017arXiv170609244R}%
+\APACinsertmetastar{%
+2017arXiv170609244R}%
+{Raimbault}\ J.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{{\APACmonth{06}}}{}.
+\newblock
+\BBOQ{}\APACrefatitle{An Applied Knowledge Framework to Study Complex
+  Systems}{An applied knowledge framework to study complex systems}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{ArXiv e-prints}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Raimbault%
+\ \protect\BOthers{.}}{%
+Raimbault%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{2014}}%
+}]{%
+raimbault2014hybrid}%
+\APACinsertmetastar{%
+raimbault2014hybrid}%
+Raimbault\ J.%
+, Banos\ A.%
+\BCBL{}\ \BBA{} Doursat\ R.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2014}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{A hybrid network/grid model of urban morphogenesis and
+  optimization}{A hybrid network/grid model of urban morphogenesis and
+  optimization}.\BBCQ{}
+\newblock
+\BIn{} \APACrefbtitle{Proceedings of the 4th International Conference on
+  Complex Systems and Applications (ICCSA 2014), June 23-26, 2014,
+  Universit{\'e} de Normandie, Le Havre, France; M. A. Aziz-Alaoui, C.
+  Bertelle, X. Z. Liu, D. Olivier, eds.: pp. 51-60.}{Proceedings of the 4th
+  international conference on complex systems and applications (iccsa 2014),
+  june 23-26, 2014, universit{\'e} de normandie, le havre, france; m. a.
+  aziz-alaoui, c. bertelle, x. z. liu, d. olivier, eds.: pp. 51-60.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+{Raimbault}%
+\ \BBA{} {Bergeaud}%
+}{%
+{Raimbault}%
+\ \BBA{} {Bergeaud}%
+}{%
+{\protect\APACyear{2017}}%
+}]{%
+2017arXiv170607467R}%
+\APACinsertmetastar{%
+2017arXiv170607467R}%
+{Raimbault}\ J.%
+\BCBT{}\ \BBA{} {Bergeaud}\ A.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{{\APACmonth{06}}}{}.
+\newblock
+\BBOQ{}\APACrefatitle{The Cost of Transportation : Spatial Analysis of US Fuel
+  Prices}{The cost of transportation : Spatial analysis of us fuel
+  prices}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{ArXiv e-prints}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Reuillon%
+\ \protect\BOthers{.}}{%
+Reuillon%
+\ \protect\BOthers{.}}{%
+{\protect\APACyear{2013}}%
+}]{%
+reuillon2013openmole}%
+\APACinsertmetastar{%
+reuillon2013openmole}%
+Reuillon\ R.%
+, Leclaire\ M.%
+\BCBL{}\ \BBA{} Rey-Coyrehourcq\ S.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2013}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{OpenMOLE, a workflow engine specifically tailored for the
+  distributed exploration of simulation models}{Openmole, a workflow engine
+  specifically tailored for the distributed exploration of simulation
+  models}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Future Generation Computer Systems}{29}{8}{1981--1990}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+SDRIF%
+}{%
+SDRIF%
+}{%
+{\protect\APACyear{2013}}%
+}]{%
+sdrif2013}%
+\APACinsertmetastar{%
+sdrif2013}%
+SDRIF.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2013}{}{}.
+\newblock
+\APACrefbtitle{{\^I}le-de-France 2030. ORIENTATIONS R{\'E}GLEMENTAIRES ET CARTE
+  DE DESTINATION G{\'E}N{\'E}RALE DES DIFF{\'E}RENTES PARTIES DU
+  TERRITOIRE.}{{\^I}le-de-france 2030. orientations r{\'e}glementaires et carte
+  de destination g{\'e}n{\'e}rale des diff{\'e}rentes parties du territoire.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+STIF%
+}{%
+STIF%
+}{%
+{\protect\APACyear{2010}}%
+}]{%
+stif2007arc}%
+\APACinsertmetastar{%
+stif2007arc}%
+STIF.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2010}{}{}.
+\newblock
+\APACrefbtitle{ArcExpress, d{\'e}bat public sur le m{\'e}tro de rocade. Dossier
+  du Maitre d'Ouvrage.}{Arcexpress, d{\'e}bat public sur le m{\'e}tro de
+  rocade. dossier du maitre d'ouvrage.}
+\newblock
+\APAChowpublished{\\archived at
+  http://archive.wikiwix.com/cache/?url=http{\%}3A{\%}2F{\%}2Fwww.debatpublic-arcexpress.org{\%}2F{\_}script{\%}2Fntsp-document-file{\_}download.php{\%}3Fdocument{\_}id\\{\%}3D92{\%}26document{\_}file{\_}id{\%}3D106}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem[\protect\citeauthoryear{%
+Xie%
+\ \BBA{} Levinson%
+}{%
+Xie%
+\ \BBA{} Levinson%
+}{%
+{\protect\APACyear{2009}}%
+}]{%
+xie2009streetcars}%
+\APACinsertmetastar{%
+xie2009streetcars}%
+Xie\ F.%
+\BCBT{}\ \BBA{} Levinson\ D.%
+%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2009}{}{}.
+\newblock
+\BBOQ{}\APACrefatitle{How streetcars shaped suburbanization: a Granger
+  causality analysis of land use and transit in the Twin Cities}{How streetcars
+  shaped suburbanization: a granger causality analysis of land use and transit
+  in the twin cities}.\BBCQ{}
+\newblock
+\APACjournalVolNumPages{Journal of Economic Geography}{}{}{lbp031}.
+\PrintBackRefs{\CurrentBib}
+
+\end{thebibliography}
+
+
+
+
+
+%%%%%%%%%%%%%%%
+%% TEMPLATES
+%%%%%%%%%%%%%%%
+
+%
+%
+%
+%\section{Section 1}
+%
+%\subsection{Sous-section 1}
+%
+%\subsubsection{Sous-sous-section 1}
+%
+%\begin{figure*}[h]
+%   \centering  \includegraphics[width=8cm]{grenouille.jpg}
+%  \caption{\label{fig:1} Une grenouille bien verte.}
+%\end{figure*}
+%
+%\subsection{Sous-section 2}
+%
+%\section{Section 2}
+%
+%Listes :
+%\begin{itemize}
+%\item ligne 1 (cf. équation \ref{eq:form1})
+%\item ligne 2 (cf. équation \ref{eq:form2})
+%\end{itemize}
+%
+%Formules :
+%
+%\begin{equation}
+%	R = \frac{d_1}{d_2}
+%	\label{eq:form1}
+%\end{equation}
+%
+%\begin{equation}
+%	\sin(\alpha) = \frac{h}{l}
+%    \label{eq:form2}
+%\end{equation}
+%
+%\begin{table*}[h!]
+%\begin{center}
+%\caption{\label{tab:1} Exemple de tableau}
+% \scriptsize
+%      \begin{tabular}{|c|c|c|c|c|}
+%   \hline
+%   \multirow{2}*{ Clients} & \multicolumn{2}{| c |}{Départ }  & \multicolumn{2}{| c |}{ Arrivée}\\
+%   \cline{2-5}
+%      & Station  & Période de Temps & Station  & Période de Temps \\\hline
+%   client 1 (c1) & 3  & 2 & 1 & 4 \\\hline
+%   client 2 (c2)   &   2  & 2 & 3 & 3\\\hline
+%   client 3 (c3)   &   2 & 2 & 3 & 4  \\\hline
+%   client 4 (c4)   &   3 & 2 & 2 & 3  \\\hline
+%   client 5 (c5)   &   3 & 2 & 2 & 4  \\\hline
+%  client 6 (c6)   &   2  & 4 & 3 & 5\\\hline
+%   client 7 (c7)   &   3  & 3 & 2 & 6  \\\hline
+%   client 8 (c8)   &   1 & 5 & 3 & 6 \\\hline
+%   client 9 (c9) & 2  & 6 & 3 & 7 \\\hline
+%    client 10 (c10)  &   3 & 7 & 1 & 9 \\\hline
+%   client 11 (c11) & 1  & 6 & 2 & 7 \\\hline
+%%\hline
+%\end{tabular}
+%\end{center}
+%\end{table*}
+%
+%Exemple d'algorithme :
+%
+%\begin{algorithm}[h!]
+%\label {algo}
+% \KwData{
+% $G(V,A,C,R,U)$ \; \tcc{commentaire}}
+% \KwResult{
+% $Paths_{Cars}, \; Relocation,\; SatisfiedDemands, Paths_{Agents}  $
+% }
+% initialization\;
+% $Paths_{Agents} \gets \emptyset $ /* l'ensemble de chemins... */ \;
+% $j \gets 1$ \;
+% $costPath_j  \gets 0$ \;
+% \While { $ (j \le  nb_{Veh}) \wedge (costPath_j \leq 0)  $ }
+% {
+% $ path_j \gets Dijkstra(G(V,A, C,R)) $ \;
+%$ costPath_j \gets  Cost (path_j)$ \;
+%  \ForAll { $(v^{k}_{t'},v^{i}_{t}) \in path   $}
+%{
+% \ForAll {$ U_{r^{i}_{t'',t''+1}} $  }
+% {....
+% }
+%$ Paths_{Cars} \gets Paths_{Cars} \cup path_j $  \;
+% }
+%$j \gets j+1$ \;
+% }
+%$Paths_{Agents} \gets  routeAgents (Relocation ); $
+% \caption{un algorithme très glouton}
+%\end{algorithm}
+%
+
+
+
+
+
+
+
+
+
+\end{document}
