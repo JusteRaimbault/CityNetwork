@@ -10,18 +10,19 @@ task = args[4]
 show(paste0('Running ',task,'...'))
 
 #mongobase = 'nwterrit'
-mongobase='modelography'
+#mongobase='modelography'
+mongobase='urbangrowth'
 #kwLimit = 10000
-kwLimit=1000
+kwLimit=5000
 #eth = 5
-eth=0
+eth=10
 #eth_graph = 10
-eth_graph=5
+eth_graph=10
 
 if(task=='--semantic-construction'){
   #mongo <- mongoDbConnect('nwterrit','127.0.0.1',27017)
   #mongo <- mongoDbConnect('modelography','127.0.0.1',27017)
-  options( java.parameters = "-Xmx4G" ) # to ensure large edge queries
+  options( java.parameters = "-Xmx64G" ) # to ensure large edge queries
   mongo <- mongoDbConnect(mongobase,'127.0.0.1',27017)
   ####
   ## Construct the semantic nw
