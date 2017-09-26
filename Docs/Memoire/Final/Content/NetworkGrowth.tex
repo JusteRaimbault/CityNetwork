@@ -26,19 +26,57 @@ Nous proposons dans un premier temps de détailler la composante réseau pour l'
 \bpar{
 Considering Network Growth in itself, many heuristics are available to generate a network under some constraints. As already developed, from economic network growth approach to local optimization heuristics, geographical mechanisms or biological network growth, each has its advantages and particularities.
 }{
-Pour la croissance du réseau en tant que tel, de nombreuses heuristiques existent pour générer un réseaux sous certaines contraintes. Comme déjà développé précédemment, des modèles économiques de croissance de réseau au heuristiques d'optimisation locale, aux mécanismes géographiques ou à la croissance de réseau biologique, chacun a ses avantages et particularités propres. Nous avons déjà testé en~\ref{sec:correlatedsyntheticdata} une heuristique basée sur la rupture de potentiel d'interaction. Pour pouvoir comparer ``toutes choses égales par ailleurs'' les différentes heuristiques de génération de réseau, il est nécessaire des les explorer à densité fixée, même si le sens thématique des résultats ne peut avoir de valeur sur le temps long.
+Pour la croissance du réseau en tant que telle, de nombreuses heuristiques existent pour générer un réseaux sous certaines contraintes. Comme déjà développé précédemment, des modèles économiques de croissance de réseau au heuristiques d'optimisation locale, aux mécanismes géographiques ou à la croissance de réseau biologique, chacun a ses avantages et particularités propres. Nous avons déjà testé en~\ref{sec:correlatedsyntheticdata} une heuristique basée sur la rupture de potentiel d'interaction. Pour pouvoir comparer ``toutes choses égales par ailleurs'' les différentes heuristiques de génération de réseau, il est nécessaire des les explorer à densité fixée, même si le sens thématique des résultats ne peut avoir de valeur sur le temps long.
 }
 
 
 L'importance d'heuristiques pouvant capturer une structure topologique permettant un certain compromis entre performance, congestion et coût, est montrée par des analyses empiriques comme \cite{2012arXiv1202.1747W} pour les réseaux de métro, qui montre que les motifs d'évolution des corrélation entre degrés témoignent d'une évolution des réseaux vers une telle topologie.
 
 
+At fixed time steps :
+
+\begin{enumerate}
+	\item Add new nodes preferentially to new population and connect them
+	\item \justify Variable heuristic for new links, among: nothing, random, gravity-based deterministic breakdown, gravity-based random breakdown (from \cite{schmitt2014modelisation}), cost-benefits (from \cite{louf2013emergence}), biological network generation (based on \cite{tero2010rules})
+\end{enumerate}
+
+Adding a fixed number $n_N$ of new nodes : for patches such that $d_r < d_0$, probability to receive a node is
+
+% note : not a proba for the last ? no pb as soon as in 0,1, realized anyway.
+\[
+p = P/P_{max} \cdot (d_M - d)/d_M \cdot \exp\left(-((d_r - d_0)/\sigma_r)^2\right)
+\]
+
+Nodes connected the shortest way to existing network.
+
+General network generation parameters: growth time steps $t_N$, maximal additional links
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Baseline heuristics}{Heuristiques de référence}
+
+connection process ; random heuristic.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Euclidian heuristic}{Heuristique euclidienne}
 
-Nous appliquons la méthode développée en~\ref{sec:correlatedsyntheticdata}.
+Nous appliquons la méthode développée en~\ref{sec:correlatedsyntheticdata}. Il est intéressant de faire le rapprochement avec la rupture de potentielle aléatoire du modele SimpopNet.
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Random-breakdown}{Rupture de potentiel aléatoire}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Cost-benefits}{Coûts-bénéfices}
+
+
 
 
 
@@ -48,8 +86,27 @@ Nous appliquons la méthode développée en~\ref{sec:correlatedsyntheticdata}.
 \cite{raimbault2015labex} explore des applications des modèles de croissance de réseau biologique, notamment leur capacité à produire de manière émergente des solutions optimales au sens de Pareto pour des indicateur contradictoires, comme le coût et la robustesse. Un aperçu des potentialités est donné en Appendice~\ref{app:sec:biological}. Etant donné un réseau initial dont les liens ont des capacités uniformes, l'itération d'équilibres de pression successifs suivis d'une évolution des capacités, permet une convergence vers une distribution hiérarchique stable des capacités. Notre rationnelle est d'utiliser ce mécanisme pour à un instant donné déterminer un certain nombre de liens réalisés, en fonction d'une nouvelle configuration. Les avantages de l'heuristique que nous allons détailler sont notamment que (i) elle peut être utilisée de manière itérative pour traduire une évolution topologique séquentielle du réseau, en comparaison à la plupart des modèles d'investissement qui font évoluer uniquement les capacités dans le temps.
 
 
+Adding new links with biological heuristic:
+
+\begin{enumerate}
+	\item Create network of potential new links, with existing network and randomly sampled diagonal lattice
+	\item Iterate for $k$ increasing ($k\in \{ 1,2,4 \}$ in practice) :
+	\begin{itemize}
+		\item Using population distribution, iterate $k\cdot n_b$ times the slime mould model to compute new link capacities
+		\item Delete links with capacity under $\theta_d$
+		\item Keep the largest connected component
+	\end{itemize}
+	\item Planarize and simplify final network
+\end{enumerate}
 
 
+%%%%%%%%%%%%%%%%%
+\begin{figure}
+\frame{\includegraphics[width=0.48\linewidth]{Figures/NetworkGrowth/example-bio-process-1}}\hspace{0.2cm}
+\frame{\includegraphics[width=0.48\linewidth]{Figures/NetworkGrowth/example-bio-process-1-tick80}}
+\caption[Biological Network Example][Exemple du réseau biologique]{}{\label{fig:networkgrowth:bioexample}}
+\end{figure}
+%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%

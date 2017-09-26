@@ -29,20 +29,22 @@ raw=read.csv(file="res/res/europe_areasize100_offset50_factor0.5_20160824.csv",s
 rows=apply(raw,1,function(r){prod(as.numeric(!is.na(r)))>0})
 res=raw[rows,]
 
-# convert to raster ? not necessary if no use of focal (but better to plot !)
 
-# coords where to compute correlations
-#  -- steps must be here in number of measure square, not in pixels --
+#######################
+#######################
+
+
+
 
 allcorrs=data.frame()
 for(rhoasize in c(4,8,12)){
-istep=4;jstep=4;#rhoasize=12
-xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=istep)]
-ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=jstep)]
-xstep=diff(xcors)[1];ystep=diff(ycors)[2]
-xyrhoasize = xstep/istep*rhoasize
+#rhoasize=12
+step=4;
+xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=step)]
+ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=step)]
 
-corrs = getCorrMatrices(xcors,ycors,xyrhoasize,res)
+corrs = getCorrMatrices(xcors,ycors,step,rhoasize,res)
+#corrs = getCorrMatrices(xcors,ycors,xyrhoasize,res)
 #corrs = getCorrMatrices(xcors,ycors,xyrhoasize,res,function(m){crossCorrelations(m,3:9,10:22)})
 # rq : far more slower with handmade cross-corr : better use built-in cor function and aggregate by projecting only on cross-cors
 
@@ -112,24 +114,41 @@ plot(rpop,main="pop");plot(rmorph,main="morpho");plot(rnet,main="network");plot(
 #par(mfrow=c(4,5))
 for(j in 3:22){plot(dfToRaster(raw,col=j),main=colnames(raw)[j])}
 
+
+#######################
+#######################
+
+
+
 ##
 # pca analysis of corr matrices -> full matrix for now
 
-istep=5;jstep=5;rhoasize=12
-xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=istep)]
-ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=jstep)]
+#istep=5;jstep=5;rhoasize=12
+rhoasize=4
+step=4
+xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=step)]
+ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=step)]
+
+lcorrs = getCorrMatrices(xcors,ycors,step,rhoasize,res)
 
 #save(corrs,file='res/res/corrstemp.RData')
 #load('res/res/corrstemp.RData')
 
-corrmat = matrix(data = unlist(corrs),ncol=400,byrow=TRUE)
+corrmat = matrix(data = unlist(lcorrs$corrs),ncol=400,byrow=TRUE)
 rows=apply(corrmat,1,function(r){prod(as.numeric(!is.na(r)))>0})
 corrmat = corrmat[rows,]
 # names
-meltedcorrmat=melt(corrs[[1]][[87]]);colnames(corrmat)<-paste0(meltedcorrmat$Var1,'-',meltedcorrmat$Var2)
+meltedcorrmat=melt(lcorrs$corrs[[2]][[which(sapply(lcorrs$corrs[[2]],length)>0)[1]]]);colnames(corrmat)<-paste0(meltedcorrmat$Var1,'-',meltedcorrmat$Var2)
 # coordinates
-lon=c();lat=c();for(i in 1:length(xcors)){for(j in 1:length(ycors)){if(length(corrs[[i]][[j]])>0&length(which(is.na(corrs[[i]][[j]])))==0){lon=append(lon,xcors[i]);lat=append(lat,ycors[j])}}}
+#lon=c();lat=c();for(i in 1:length(xcors)){for(j in 1:length(ycors)){if(!is.null(corrs[[i]][[j]])){if(length(corrs[[i]][[j]])>0&length(which(is.na(corrs[[i]][[j]])))==0){lon=append(lon,xcors[i]);lat=append(lat,ycors[j])}}}}
+lon=unlist(lcorrs$xcors)[rows];lat=unlist(lcorrs$ycors)[rows]
 corrmat=data.frame(lon=lon,lat=lat,corrmat)
+
+#mean(cor(corrmat[,c(-1,-2)]),na.rm=T)
+# -> correlations are not correlated -> ?
+
+#save(corrmat,file=paste0('res/res/corrmat_asize',rhoasize,'_step',step,'.RData'))
+
 
 # do the pca
 pca=prcomp(corrmat[,c(-1,-2)])
