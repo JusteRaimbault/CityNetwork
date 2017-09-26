@@ -1,0 +1,31 @@
+
+
+ngrids = gridcaracs[,c("meanBetweenness","meanPathLength","meanCloseness")]
+for(j in 1:ncol(ngrids)){ngrids[,j]<-(ngrids[,j]-min(ngrids[,j]))/(max(ngrids[,j])-min(ngrids[,j]))}
+
+full=as.tbl(rbind(
+  data.frame(nres[,c("id","densityConf","meanBwCentrality","meanPathLength","meanClosenessCentrality","heuristic","morpho")]),
+  data.frame(id=rep(NA,nrow(ngrids)),densityConf=rep(NA,nrow(ngrids)),meanBwCentrality=ngrids$meanBetweenness,meanPathLength=ngrids$meanPathLength,meanClosenessCentrality=ngrids$meanCloseness,heuristic=rep(NA,nrow(ngrids)),morpho=rep(NA,nrow(ngrids)))
+))
+  
+
+pcafull = prcomp(full[,3:5])
+
+========
+
+
+Standard deviations:
+[1] 0.34438457 0.04711192 0.04217800
+
+Rotation:
+                                PC1        PC2        PC3
+meanBwCentrality        -0.74867461 -0.5837324  0.3142336
+meanPathLength          -0.65896108  0.6034322 -0.4490434
+meanClosenessCentrality  0.07250252 -0.5432551 -0.8364313
+Importance of components:
+                          PC1     PC2     PC3
+Standard deviation     0.3444 0.04711 0.04218
+Proportion of Variance 0.9674 0.01810 0.01451
+Cumulative Proportion  0.9674 0.98549 1.00000
+
+

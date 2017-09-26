@@ -6,13 +6,25 @@
 
 
 
+
+;;
+;  rq : hardcore computationally : shortest distance recomputed in each potential function for each other city !!!
+to-report network:time-network [#startpoint #destination]
+  report [ nw:weighted-distance-to #startpoint "weight"] of #destination
+end
+
+
+
+
+
 ;;
 ; speed of links depends on time period
 to-report current-speed
-  let speed-date 0
-  if ticks <= 2000  [set speed-date speed3]
-  if ticks <= 1960  [set speed-date speed2]
-  if ticks <= 1860  [set speed-date speed1]
+  let speed-date 0 let i 0
+  foreach techno-break-years [
+    if ticks <= ? [set speed-date item i network-speeds]
+    set i i + 1
+  ]
   report speed-date
 end
 
@@ -21,23 +33,18 @@ end
 ; link coloring according to period
 ;  (thematic periods)
 to-report current-color
-  let color-date 0
-  if ticks <= 2000  [set color-date red]
-  if ticks <= 1960  [set color-date yellow]
-  if ticks <= 1860  [set color-date blue]
+  let color-date 0 let i 0
+  foreach techno-break-years [
+    if ticks <= ? [set color-date item i network-colors]
+    set i i + 1
+  ]
   report color-date
 end
 
 
-
-
-
-  
-;******************************************************************************
-
 ;;
 ; Network growth
-to grow-network
+to network:grow-network
   if (Network-growth = "scenario")     [grow-net-scenario]
   if (Network-growth = "coevolution")  [grow-net-coevolution]
 end
@@ -45,14 +52,11 @@ end
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Network Growth Scenario ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
+;;
+; Network Growth Scenario
+; HARDCORE !
+; what sense does it make ? maybe if indics to compare network indicators ?
 to grow-net-scenario
-  
-  ; HARDCORE !
   
   if ticks = 1802 [ ask city 48 [ create-link-with city 58 [ actualisation-of-link ] ]]
   if ticks = 1805 [ ask link 58 38 [ actualisation-of-link ] ]
@@ -84,65 +88,166 @@ end
 
 
 
-;*******************************************
-; graph reconstruction when crossing
-;; -> utils ?
-;*******************************************
-
-to adapt-graph
-  find-crossing
-  if x-cross != false [ create-intersection]
-end
-
-
-to find-crossing
-  
- ;; each pair of segments checks for intersections once
-  ask links [
-    ;; performing this check on the who numbers keeps us from checking every pair twice
-    ;; we only check links with similiar speed
-    ask links with [(self > myself) and ([speed] of self = [speed] of myself) and (not-neighbors self myself) and ([speed] of self != 1)][
-      let result intersection self myself
-      if not empty? result [
-       ;  print result
-        set x-cross (item 0 result)
-        set y-cross (item 1 result)  
-        set crossing-link1 (item 2 result)
-        set crossing-link2 (item 3 result)      
-        ]
+;; 
+;  cache network indicators
+to network:cache-nw-measures
+  nw:set-context turtles links
+  ask links [set bw-centrality 0]
+  set nw-relative-speeds table:make set pairs-total-weight 0
+  let clist to-list cities let i 0 let j 1
+  repeat (length clist - 1) [
+    let c1 item i clist
+    set j i + 1
+    repeat (length clist - i - 1) [
+      let c2 item j clist let path [] let tpath [] ask c1 [set path nw:weighted-path-to c2 "weight"]
+      let l 0 foreach path [ask ? [set l l + weight set bw-centrality bw-centrality + 1]]
+      let deucl 0 ask c1 [set deucl distance c2]
+      table:put nw-relative-speeds (list [who] of c1 [who] of c2) (deucl / l)
+      set pairs-total-weight pairs-total-weight + [population] of c1 + [population] of c2
+      set j j + 1
     ]
-            ]
+    set i i + 1
+  ]
 end
 
 
-to create-intersection
- ; print "hatching"
-  create-crosses 1 [
-          set shape "x"
-          set color (current-color + 2)
-          set size 1
-          setxy (x-cross) (y-cross)
-          set me? true]
-  
-   ask crossing-link1   [ask both-ends [ create-links-with crosses with [me? = true]
-                                         [actualisation-of-link]]]
-   ask crossing-link2 [ask both-ends [ create-links-with crosses with [me? = true]
-                                       [actualisation-of-link]]]
 
-   ask crossing-link1 [die]
-   ask crossing-link2 [die]
-   ask crosses with [me? = true] [set me? false]
-   set crossing-link1 false
-   set crossing-link2 false
-   set x-cross false
-   set y-cross false
-   adapt-graph
+
+
+
+
+ 
+
+
+;******************************************************
+; Lottery mecanisms for the random selection of cities
+;******************************************************
+
+to-report city-1pick
+  ; The random election is made accroding to the population of the cities
+  let totpopI random-float sumlottery
+  let cityI nobody
+  ask cities
+  [if cityI = nobody
+    [ifelse (population ^ network-gamma) > totpopI
+      [set cityI self]
+      [set totpopI totpopI - (population ^ network-gamma)]
+    ]
+  ]
+ report cityI 
 end
+
 
 
 ;;
-;
-to local-shortcuts
+; Preferential attachment growth mechanism ? (depending on interaction potential ?)
+to-report lottery-potentiel [#1pick]
+  ; The random election is made accroding to the interaction potentiel of each cities with the first city picked
+  calcul-potentiels #1pick
+  let pool-cities cities with [who != [who] of #1pick]
+  
+  let totpotentiel random-float sum [potentiel-interaction ^ network-gamma] of pool-cities
+  let city-picked nobody
+  ask pool-cities
+  [
+   if city-picked = nobody
+   [
+     ifelse (potentiel-interaction ^ network-gamma) > totpotentiel
+     [set city-picked self]
+     [set totpotentiel totpotentiel - (potentiel-interaction ^ network-gamma) ] 
+   ]
+  ]
+  report city-picked
+  
+end
+
+
+
+;;
+;; Interctaion potential = (Pi*Pj)^beta-pop / (Tij)^beta-time
+;   -> network gravity
+to calcul-potentiels [#1pick]
+  ask cities with [who != [who] of #1pick] [
+    let pipj [population] of self * [population] of #1pick
+    let tij time-eucl #1pick self
+    set potentiel-interaction ( (pipj) / (tij ^ gravity-gamma))
+  ]
+end
+
+
+
+
+to-report time-eucl [#startpoint #destination]
+  let DistEucl False  
+  ask #startpoint [set DistEucl distance #destination]
+  set DistEucl (DistEucl * (1 / current-speed))
+  report DistEucl
+end
+
+
+to-report Efficacity-index [#startpoint #destination]
+  ; Calcul de l'indice de sinuosité
+  let IndS (network:time-network #startpoint #destination) / (time-eucl #startpoint #destination)
+  report IndS
+end
+
+
+
+
+
+to update-networks-info [#city]
+  let citiesPop reverse sort [population] of cities
+  let myRank (position ([population] of #city) citiesPop) + 1
+  
+  ifelse (ticks <= 70)[
+   ask #city [if (item 0 network1 = "") [ set network1 (list ticks myRank) ]]
+    ][
+    ifelse (ticks <= 150) [
+      ask #city [if (item 0 network2 = "") [ set network2 (list ticks myRank)]]
+      ][
+      ask #city [if (item 0 network3 = "") [ set network3 (list ticks myRank)]]
+      ]
+    ]
+end
+  
+  
+  
+ 
+ 
+; to compute-min-time-network
+;   
+;   ask cities [set min-time-neighbor city-min-time-neighbor]
+;   set min-time-network min [min-time-neighbor] of cities
+;   print min-time-network
+;   
+; end
+ 
+
+
+
+
+
+
+
+
+
+
+;;
+; Actualisation of link parameters
+to actualisation-of-link
+    set speed current-speed
+    set weight (link-length / speed)
+    set color current-color 
+    set thickness 0.5
+end
+
+
+
+
+
+;;
+; synthetic initial network
+to network:local-shortcuts
   
   repeat synthetic-shortcut-number [
     ; draw randomly one city prop to pop conditionnally to degree

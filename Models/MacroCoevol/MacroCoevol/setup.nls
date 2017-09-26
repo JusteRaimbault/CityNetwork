@@ -17,7 +17,7 @@ to setup:setup
   
   ;;
   ; load data files
-  setup:setup-data
+  setup:setup-population-data
   
   ;;
   ; cities
@@ -28,7 +28,7 @@ to setup:setup
   setup:setup-network
   setup:setup-matrices
   
-  update-weights
+  cities:update-weights
   
   setup:setup-indicators
  
@@ -46,7 +46,7 @@ end
 ;  partial setup
 to setup:reset
   setup:setup-globals
-  setup:setup-data
+  setup:setup-population-data
   ;setup:setup-matrices
   setup:reset-populations
   setup:reset-links
@@ -69,7 +69,7 @@ to setup:reset-links
 end
 
 to setup:reset-distances
-  set distance-matrix matrix:copy initial-distance-matrix
+  set distance-matrix matrix:copy table:get distance-matrices (first dates)
 end
 
 
@@ -79,6 +79,7 @@ to setup:setup-globals
   set indicator-sampling-time-step 5
   
   set slime-mould-node-distance 20
+  set slime-mould-reinforcment-function "full-growth"
   
 end
 
@@ -91,28 +92,29 @@ to setup:setup-world
   
   if setup-type = "gis" [
     
-    ; TODO : check fit dates - pb with cst growth rates and ≠ ∆t
-    
-    ;;
-    ; raster patch elevation (for visual only)
-    let elevation-raster gis:load-dataset "setup/mnt.asc"
-    ; world envelope : xmin 1000 xmax 11000 ymin 61250 ymax 71200
+    ; world envelope for France : xmin 1000 xmax 11000 ymin 61250 ymax 71200
     ;gis:set-world-envelope gis:envelope-of elevation-raster
     gis:set-world-envelope (list 100000 1100000 6125000 7120000)
-    gis:apply-raster elevation-raster elevation
-    ; deal with NaNs
-    ask patches with [not (elevation < 0 or elevation > 0)] [set elevation -1]
-  
-    ;;
-    ; setup geographical path network
-    ask patches with [elevation > 0] [sprout-nodes 1 [set hidden? true]]
-    ask nodes [
-      create-paths-with other nodes in-radius 1.5 with [not link-neighbor? myself] [
-        set hidden? true
-        let slope atan (abs ([elevation] of end1 - [elevation] of end2)) (link-length * 1000)
-        set impedance link-length * (1 + (slope / alpha0)^ n0)
+    
+    
+    if geo-paths? = true [
+      ;;
+      ; raster patch elevation (for visual only)
+      let elevation-raster gis:load-dataset "setup/mnt.asc"
+      gis:apply-raster elevation-raster elevation
+      ; deal with NaNs
+      ask patches with [not (elevation < 0 or elevation > 0)] [set elevation -1]
+      ;;
+      ; setup geographical path network
+      ask patches with [elevation > 0] [sprout-nodes 1 [set hidden? true]]
+      ask nodes [
+        create-paths-with other nodes in-radius 1.5 with [not link-neighbor? myself] [
+          set hidden? true
+          let slope atan (abs ([elevation] of end1 - [elevation] of end2)) (link-length * 1000)
+          set impedance link-length * (1 + (slope / alpha0)^ n0)
+        ]
       ]
-  ]
+    ]
   
   ]
   
@@ -121,18 +123,14 @@ end
 
 ;;
 ; load data from files
-to setup:setup-data
+to setup:setup-population-data
   
   if setup-type = "gis" [
     ;; population matrices
-    set real-populations read-numeric-csv-as-matrix (word "setup/pops/pop50_" period".csv") ","
+    set real-populations read-numeric-csv-as-matrix (word "setup/pops/pop50_" period ".csv") ","
     set populations matrix:make-constant length matrix:get-column real-populations 0 length matrix:get-row real-populations 0 0
     matrix:set-column populations 0 matrix:get-column real-populations 0
-  
-    ;; distances
-    set distance-matrix read-numeric-csv-as-matrix "setup/dist50.csv" ","
-    set feedback-distance-matrix read-numeric-csv-as-matrix "setup/fdists50.csv" ","
-  
+
     ;; dates
     set dates map [read-from-string ?] (read-file (word "setup/dates/dates_" period ".csv"))
   
@@ -208,13 +206,49 @@ to setup:setup-network
     ask paths with [path-length = 0] [die]
       
   ]
+ 
+ 
+  if setup-type = "gis" [
+    ; setup real network
+    
+    
+  ]
+  
   
 end
 
 
 
-
+;;
+; 
 to setup:setup-matrices
+  
+  if setup-type = "gis" [
+    
+    ifelse fixed-dist? [
+      ;; distances
+      set distance-matrix read-numeric-csv-as-matrix "setup/dist50.csv" ","
+      ; no need in physical mode (uses link flows)
+      set feedback-distance-matrix read-numeric-csv-as-matrix "setup/fdists50.csv" ","
+    ][
+      ; load yearly real distance matrices
+      set real-distance-matrices table:make
+      foreach dates [
+         table:put real-distance-matrices ? read-numeric-csv-as-matrix (word "setup/distances/" ? "_dmat_res1000_cities50.csv") " "
+      ]
+      
+      set real-feedback-distance-matrices table:make
+      foreach dates [
+         table:put real-feedback-distance-matrices ? read-numeric-csv-as-matrix (word "setup/fdistances/" ? "_fdists_res1000_cities50.csv") " "
+      ]
+      
+      set distance-matrix matrix:copy table:get real-distance-matrices (first dates)
+      set feedback-distance-matrix matrix:copy table:get real-feedback-distance-matrices (first dates)
+      
+    ]
+    
+    
+  ]
   
   if setup-type = "synthetic" [
     
@@ -230,11 +264,8 @@ to setup:setup-matrices
     
     if network-type = "physical" [
       set distance-matrix matrix:make-constant n n 0  set gravity-flows matrix:make-constant n n 0 set feedback-flows matrix:make-constant n n 0
-      update-distance-matrices 
+      network:update-distance-matrices 
     ]
-    
-    
-    set initial-distance-matrix matrix:copy distance-matrix
     
     ; feedback distance matrix
     let xcors [] let ycors [] let pops [] foreach sort-by [[index] of ?1 < [index] of ?2] cities [ask ? [set xcors lput xcor xcors set ycors lput ycor ycors set pops lput population pops]]
@@ -244,12 +275,12 @@ to setup:setup-matrices
     repeat n [
       let cityk one-of cities with [index = k]
       let xk matrix:make-constant n n [xcor] of cityk let yk matrix:make-constant n n [ycor] of cityk
-      let xik matrix:map zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xi matrix:- xk) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yk) (yi matrix:- yk))))
-      let xjk matrix:map zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xj matrix:- xk) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yk) (yj matrix:- yk))))
-      let sc1 (matrix:times-element-wise ((matrix:times-element-wise (xi matrix:- xj) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yj) (yi matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map zero-infinite distance-matrix) xik)))
-      let sc2 (matrix:times-element-wise ((matrix:times-element-wise (xj matrix:- xi) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yi) (yj matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map zero-infinite distance-matrix) xjk)))
-      let kfeedbackdistmat (matrix:map feedback-distance sc1 sc2 xik)
-      set feedback-dist-rows lput (flatten-dists-feedback kfeedbackdistmat) feedback-dist-rows
+      let xik matrix:map cities:zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xi matrix:- xk) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yk) (yi matrix:- yk))))
+      let xjk matrix:map cities:zero-infinite (matrix:map sqrt ((matrix:times-element-wise (xj matrix:- xk) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yk) (yj matrix:- yk))))
+      let sc1 (matrix:times-element-wise ((matrix:times-element-wise (xi matrix:- xj) (xi matrix:- xk)) matrix:+ (matrix:times-element-wise (yi matrix:- yj) (yi matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map cities:zero-infinite distance-matrix) xik)))
+      let sc2 (matrix:times-element-wise ((matrix:times-element-wise (xj matrix:- xi) (xj matrix:- xk)) matrix:+ (matrix:times-element-wise (yj matrix:- yi) (yj matrix:- yk))) (matrix:map [1 / ?] (matrix:times-element-wise (matrix:map cities:zero-infinite distance-matrix) xjk)))
+      let kfeedbackdistmat (matrix:map cities:feedback-distance sc1 sc2 xik)
+      set feedback-dist-rows lput (cities:flatten-dists-feedback kfeedbackdistmat) feedback-dist-rows
       set k k + 1
     ]
     
@@ -264,6 +295,10 @@ to setup:setup-matrices
     matrix:set-column populations 0 pops
     
   ]
+  
+  ; setup history of distances
+  set distance-matrices table:make
+  table:put distance-matrices (first dates) matrix:copy distance-matrix
   
 end
 
@@ -290,9 +325,9 @@ end
 to setup:setup-headless
   
   ; for now only synthetic in experiments
-  set setup-type "synthetic"
+  ;set setup-type "synthetic"
   
-  set physical-network-heuristic "slime-mold"
+  set physical-network-heuristic "slime-mould"
   
   set show-virtual-flows? false
   
@@ -303,9 +338,15 @@ to setup:setup-headless
   set network-reinforcment-exponent 1.0
   set growth-rate 0.001
   
+  set physical-network-reinforcment-threshold 0.1
+  set physical-network-reinforcment-quantile 0.95
+  
   set synthetic-shortcut-number 30
   set synthetic-city-max-degree 5
   set synthetic-shortcut-radius 30
+  
+  set geo-paths? false
+  set fixed-dist? false
   
 end
 

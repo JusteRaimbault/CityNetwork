@@ -21,7 +21,7 @@ to cities:add-cities
      if added-cities-num < network-max-new-cities-number [
        if random-float 1 < cities:patch-proba-new-city [
          if count cities-here = 0 [
-           sprout-cities 1 [ new-city ]
+           sprout-cities 1 [ city:new-city ]
            set added-cities-num added-cities-num + 1
          ]
        ]
@@ -35,7 +35,7 @@ end
 to-report cities:patch-proba-new-city
   let cities-density count (cities in-radius network-cities-density-radius)
   if patch-distance-to-road > exp ( - network-distance-road-min / distance-to-roads-decay) [report 0]
-  report patch-population-share / patch-population-share-max * (network-cities-max-density - cities-density) / network-cities-max-density * exp ( - ((patch-distance-to-road - network-distance-road-needed)/ 10)^ 2)
+  report (patch-population-share / patch-population-share-max) * ((network-cities-max-density - cities-density) / network-cities-max-density) * exp ( - ((patch-distance-to-road - network-distance-road-needed)/ network-sigma-distance-road)^ 2)
 end
 
 
@@ -104,7 +104,7 @@ end
 to-report cities:cities-interaction-force [city1 city2 mode]
   ;show (word cities-interaction-method " city1 city2 " mode)
   ;report runresult (word cities-interaction-method " city1 city2 mode")
-  report gravity city1 city2 mode
+  report network-euclidian:gravity city1 city2 mode "generalized"
 end
 
 
@@ -124,7 +124,7 @@ to cities:generate-cities-from-scratch [generation-method]
     set-population-distribution
     
      foreach populations [
-       create-cities 1 [set city-population ? setxy random-xcor random-ycor new-city] 
+       create-cities 1 [set city-population ? setxy random-xcor random-ycor city:new-city] 
      ]
   ]
   
@@ -136,7 +136,7 @@ to cities:generate-cities-from-scratch [generation-method]
      foreach populations [
        let current-city nobody
        create-cities 1 [
-         set city-population ? set current-city self new-city
+         set city-population ? set current-city self city:new-city
        ]
        update-patches-weighted-pop
        let p next-christaller-patch
@@ -150,13 +150,13 @@ to cities:generate-cities-from-scratch [generation-method]
      setup-synth-pattern
      ;set sp-max-pop sum populations
      ;set sp-max-pop sp-population
-     set total-time-steps floor (sp-max-pop / population-growth-rate)
+     set density-preffatt-total-time-steps floor (sp-max-pop / population-growth-rate)
      
      density:generate-synth-pattern
      
      ; then places 'abstract' nodes as cities depending on density distrib
      
-     density-to-cities
+     cities:density-to-cities
      
   ]
   
@@ -165,23 +165,23 @@ to cities:generate-cities-from-scratch [generation-method]
     ; read a configuration from a file
     ; -> resize world in function
     
-    if is-number? fixed-config-num [
-      set density-file density-file-from-dir "setup" fixed-config-num;"../../../Results/Synthetic/Density/20151106_Grid/pop"
+    if is-number? density-file-id [
+      set density-file density:density-file-from-dir "setup" density-file-id ;"../../../Results/Synthetic/Density/20151106_Grid/pop"
     ]
-    if is-string? fixed-config-num [set density-file fixed-config-num]
-    set density-file fixed-config-num
+    if is-string? density-file-id [set density-file density-file-id]
+    set density-file density-file-id
     show density-file
     ;set density-file "../../../Results/Synthetic/Density/20151106_Grid/pop/config_166.csv"
-    density-from-file density-file
+    density:density-from-file density-file
     
     display:display-patches
     
-    density-to-cities
+    cities:density-to-cities
   ]
   
   if generation-method = "fixed-density" [
      reset-network-and-cities
-     density-to-cities
+     cities:density-to-cities
   ]
   
   
@@ -219,7 +219,7 @@ to set-population-distribution
   set populations []
   let i 1
   repeat #-cities [
-    set populations lput (city-max-pop / (i ^ rank-size-exponent)) populations
+    set populations lput (city-max-pop / (i ^ setup-rank-size-exp)) populations
     set i i + 1 
   ]
 end
@@ -227,34 +227,6 @@ end
 
 
 
-to density-from-file [file]
-   let rows read-numeric-csv-as-row-list file ";"
-   ; file assumed consistent -> resize world here
-   let width length item 0 rows let height length rows
-   resize-world 0 (width - 1) 0 (height - 1) set-patch-size (50 * 13 / height)
-   let i min-pxcor let j min-pycor
-   foreach rows [
-      set j min-pycor
-      foreach ? [
-        ask (patch i j) [set patch-population ?]
-        set j j + 1
-      ]
-      set i i + 1
-   ]
-   
-   ;color-synth-pattern
-end
-
-
-to-report density-file-from-dir [dir index]
-  ifelse is-number? index [
-    ; random density file 
-    report (word dir "/" item (index - 1) pathdir:list dir)
-  ][
-    ; assumed index as filepath otherwise
-    report index
-  ]
-end
 
 
 ;;
@@ -262,7 +234,7 @@ end
 ;
 ;  NOTE : must be a bijection density <-> cities, which form is fixed by given mechanisms
 ;      -- !! has a strong influence on nw generation as nw generation algorithms depend on city system organization.
-to density-to-cities
+to cities:density-to-cities
   
   if density-to-cities-method = "random-aggreg" [
      
@@ -274,7 +246,7 @@ to density-to-cities
      ask patches [
        sprout-cities 1 [
           set city-population patch-population
-          new-city
+          city:new-city
        ]
      ]
      
@@ -282,7 +254,7 @@ to density-to-cities
      
      ;cluster-cities
       
-     randomly-cluster-cities
+     cities:randomly-cluster-cities
   ]
   
   if density-to-cities-method = "intersection-density" [
@@ -296,7 +268,7 @@ to density-to-cities
            ;set population 1
            ;set population mean [sp-occupants] of (patches in-radius gravity-radius)
            ;ask patches in-radius gravity-radius [set sp-occupants 0 set sp-density 0]
-           setxy (xcor - 0.5 + random-float 1) (ycor - 0.5 + random-float 1) new-city]
+           setxy (xcor - 0.5 + random-float 1) (ycor - 0.5 + random-float 1) city:new-city]
        ]
     ]
     
@@ -333,14 +305,14 @@ end
 
 ;;
 ; random heuristic to cluster cities
-to randomly-cluster-cities
+to cities:randomly-cluster-cities
   reset-ticks
   while [count cities > #-cities] [
     ; draw a city at random given its population
     let c1 random-city cities let c2 random-city ([other cities in-radius gravity-radius] of c1)
     if c2 != nobody [
       let p1 [city-population] of c1 let p2 [city-population] of c2 let t p1 / (p1 + p2)
-      let nc nobody create-cities 1 [set nc self set city-population (p1 + p2) setxy (([xcor] of c1)* t + (1 - t) * ([xcor] of c2)) (([ycor] of c1)* t + (1 - t) * ([ycor] of c2) ) new-city]
+      let nc nobody create-cities 1 [set nc self set city-population (p1 + p2) setxy (([xcor] of c1)* t + (1 - t) * ([xcor] of c2)) (([ycor] of c1)* t + (1 - t) * ([ycor] of c2) ) city:new-city]
       ;output-print (word c1 c2)
       ask c1 [die] ask c2 [die]
     ]
@@ -366,7 +338,7 @@ end
 ;;
 ; iterative deterministic clustering of cities.
 ;  too slow, in O(n2) -> use a random heuristic
-to cluster-cities
+to cities:cluster-cities
   table:remove cities-interaction-table "max-value" table:remove cities-interaction-table "max-key"
   ; cluster cities
      while [count cities > #-cities] [
@@ -378,7 +350,7 @@ to cluster-cities
        let p1 [city-population] of c1 let p2 [city-population] of c2
        let t p1 / (p1 + p2)
        ; create the new city
-       let nc nobody create-cities 1 [set nc self set city-population (p1 + p2) setxy (([xcor] of c1)* t + (1 - t) * ([xcor] of c2)) (([ycor] of c1)* t + (1 - t) * ([ycor] of c2) ) new-city]
+       let nc nobody create-cities 1 [set nc self set city-population (p1 + p2) setxy (([xcor] of c1)* t + (1 - t) * ([xcor] of c2)) (([ycor] of c1)* t + (1 - t) * ([ycor] of c2) ) city:new-city]
        ask city k1 [die] ask city k2 [die]
        ; update pop table
        cities:update-cities-interaction-table k1 k2 nc
@@ -448,7 +420,7 @@ to cities:update-cities-interaction-table [n1 n2 newcity]
 end
 
 
-to new-city
+to city:new-city
   ;set color green set shape "circle"
   ;set size max (list (3 * population / city-max-pop) 0.3)
 end

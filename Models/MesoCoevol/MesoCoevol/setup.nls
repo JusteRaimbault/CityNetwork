@@ -40,7 +40,9 @@ to setup:setup-globals
   
   ; setup method
   ;  choices : "synthetic-settlement" ; "empty"
-  set setup-method "synthetic-settlement"
+  ;set setup-method "synthetic-settlement"
+  set density-to-cities-method "intersection-density"
+  set eucl-nw-generation-method "simple-connexification" ; "neighborhood-gravity" "shortcuts" "random" "none"
   
   ; patch values
   set patch-value-function "linear-aggregation"
@@ -54,6 +56,8 @@ to setup:setup-globals
   set setup-center-density 20
   ;set setup-center-number 5 
   set setup-outside-links-number 6
+  set city-max-pop 300  
+  set #-cities 10 
   
   ;set total-time-steps 20
   
@@ -67,16 +71,21 @@ to setup:setup-globals
   set network-cities-max-density 10
   set network-cities-density-radius 5
   set network-distance-road-needed 4
+  set network-sigma-distance-road 10
   set network-distance-road-min 1
   
   ; heuristic-nw
   set cities-interaction-method "gravity"
+  set random-network-density 0.004
+  set neigh-gravity-threshold-quantile 0.998
+  set shortcuts-threshold 0.35
   
   ; biological network
   set network-biological-initial-diameter 2
   set network-biological-input-flow 10
   ;set network-biological-threshold 0.5
   
+  set basic-gravity-exponent 0.6
   
   ; accessibility
   set accessibility-decay 10
@@ -90,25 +99,20 @@ to setup:setup-globals
   let cseed seed if seed = 0 [set cseed (random 200000) - 100000]
   random-seed cseed
   
-  set log-level "debug"
   
 end
 
 
 to setup:setup-headless
   
+  set network-setup-method "synthetic"
+  
   set eucl-nw-generation-method "shortcuts"
   set setup-center-number 8 
-  set display-variable ""  
-  set city-max-pop 300  
-  set #-cities 200  
-  set rank-size-exponent 0.25  
-  set random-network-density 0.004
-  set neigh-gravity-threshold-quantile 0.998
-  set basic-gravity-exponent 0.6
-  set shortcuts-threshold 0.35
-  set shorcuts-max-number 6
+  set display-variable ""
   set sp-max-pop 30000
+  
+  set log-level "standard"
   
 end
 
@@ -117,15 +121,18 @@ end
 ;;
 ;  world size
 to setup:setup-world
+  ; do not change anything
   
 end
 
 
 
 
+;;
+; setup an initial population density
 to setup:setup-density
  
-  if setup-method = "synthetic-settlement" [
+  if density-setup-method = "synthetic" [
     let i 1
     repeat setup-center-number [
       let current-pop setup-max-pop / (i ^ setup-rank-size-exp) set i i + 1
@@ -135,9 +142,17 @@ to setup:setup-density
     ]
   ]
   
-  if setup-method = "empty" [
+  if density-setup-method = "empty" [
      ask patches [set patch-population-share 0 set patch-population 0] 
   ]
+  
+  if density-setup-method = "real" [
+     setup:setup-density-from-file
+     cities:density-to-cities
+  ]
+  
+  set total-population sum [patch-population] of patches
+  if total-population > 0 [ask patches [set patch-population-share patch-population / total-population]]
   
 end
 
@@ -147,19 +162,32 @@ end
 ;  nw setup method : TODO add from file, using network:import-network-from-file
 to setup:setup-network
  
+  ;if count cities > 0 [ ; NO thsi ontology does not make sense, should always have cities ? -- think for empty initial config --
+  ; ]
   
-  ; cities already assumed setup
-  simple-connexification
-  ; add cities on the edge to avoid bord effect on network topology
-  create-cities setup-outside-links-number [let x 0 let y 0 ifelse random 2 = 0 [ifelse random 2 = 0[set x min-pxcor - 0.5][set x max-pxcor + 0.499] set y random-ycor][ifelse random 2 = 0 [set y max-pycor + 0.499][set y min-pycor - 0.5] set x random-ycor] setxy x y]
-  simple-connexification
+  if network-setup-method = "synthetic" [
+  
+    ; cities already assumed setup
+    network:simple-connexification
+    ; add cities on the edge to avoid bord effect on network topology
+    create-cities setup-outside-links-number [let x 0 let y 0 ifelse random 2 = 0 [ifelse random 2 = 0[set x min-pxcor - 0.5][set x max-pxcor + 0.499] set y random-ycor][ifelse random 2 = 0 [set y max-pycor + 0.499][set y min-pycor - 0.5] set x random-ycor] setxy x y]
+    network:simple-connexification
+  
+  ]
+  
+  if network-setup-method = "real" [
+    
+  ]
+  
   
   ; compute initial nw measures
   network:update-network-measures
   
-  ;
+  ; update patches and population given new nodes
   cities:update-patches-closest-cities
   cities:update-cities-population
+  
+  
   
 end
 
@@ -179,13 +207,28 @@ end
 
 to setup:setup-density-from-file
   
-  ca
-  if is-number? fixed-config-num [
-    set density-file density-file-from-dir "setup" fixed-config-num;"../../../Results/Synthetic/Density/20151106_Grid/pop"
+  ;if is-number? fixed-config-num [
+  ;  set density-file density-file-from-dir "setup" fixed-config-num;"../../../Results/Synthetic/Density/20151106_Grid/pop"
+  ;]
+  ;if is-string? fixed-config-num [set density-file fixed-config-num]
+  ;
+
+  ifelse density-from-raster? [
+    print-in-file "setup/coordstmp.csv" (word "xcor,ycor\n" raster-row "," raster-col)
+    let res shell:exec "setup/setup.sh"
+    debug res
+    set density-file "setup/conftmp.csv"
+  ][
+    set density-file (word "setup/fixeddensity/" density-file-id)
   ]
-  if is-string? fixed-config-num [set density-file fixed-config-num]
-  density-from-file density-file
+
+
+  density:density-from-file density-file
 
   display:display-patches
 
 end
+
+
+
+

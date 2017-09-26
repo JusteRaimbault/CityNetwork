@@ -5,20 +5,6 @@
 
 
 ;;
-;
-to setup-exploration
-  ; set time steps
-  setup-synth-pattern
-  ; here fix max pop
-  set total-time-steps floor (sp-max-pop / population-growth-rate)
-end
-
-
-
-
-
-
-;;
 ; update density
 to density:update-density
   
@@ -77,7 +63,7 @@ end
 ; Generation of a synthetic pattern
 to density:generate-synth-pattern
   setup-synth-pattern
-  repeat total-time-steps [density:update-density]
+  repeat density-preffatt-total-time-steps [density:update-density]
 end
 
 
@@ -112,4 +98,43 @@ end
 ;  
 ;  plots
 ;end
+
+
+
+to density:density-from-file [file]
+   let rows read-numeric-csv-as-row-list file ";"
+   ; file assumed consistent -> resize world here
+   let width length item 0 rows let height length rows
+   resize-world 0 (width - 1) 0 (height - 1) set-patch-size (50 * 13 / height)
+   let i min-pxcor let j min-pycor
+   foreach rows [
+      set j min-pycor
+      foreach ? [
+        ask (patch i j) [set patch-population ?]
+        set j j + 1
+      ]
+      set i i + 1
+   ]
+   
+   ;color-synth-pattern
+end
+
+
+
+
+
+to-report density:density-file-from-dir [dir index]
+  ifelse is-number? index [
+    ; random density file 
+    report (word dir "/" item (index - 1) pathdir:list dir)
+  ][
+    ; assumed index as filepath otherwise
+    report index
+  ]
+end
+
+
+
+
+
 

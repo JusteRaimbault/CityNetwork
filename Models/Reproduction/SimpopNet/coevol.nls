@@ -5,57 +5,34 @@
 ;;;;
 
 
-
-;*********************************************
-;                                            *
-;           coevolution                      *
-;                                            *
-;*********************************************
-  
-
 to grow-coevolution
     
 ;  compute-min-time-network
-  compute-city-pot-int
-  compute-system-pot-int
-  compute-tempor-pop
+  cities:compute-city-pot-int
+
+  cities:compute-tempor-pop
   
-  
-; In order to procede to synchronous population comutation, we use a temporary population variable
-  ask cities
-  [ set population tmp-pop]
+  ask cities [set population tmp-pop]
     
 end
   
-  
 
-to compute-system-pot-int
-  set system-pot-int (sum [city-pot-int] of cities)
-end  
-  
-  
-to compute-city-pot-int
-   ask cities [set city-pot-int value-city-pot-int]
-end  
 
   
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Coevolution Network Growth ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
+;;
+; Coevolution Network Growth
 to grow-net-coevolution
 
  
    ; Update globals
- set sumpop sum [population] of cities
- set sumlottery sum [population ^ lottery-power] of cities
+   set sumpop sum [population] of cities
+   set sumlottery sum [population ^ network-gamma] of cities
   
-   ; Lottery random selection of a city (I) amongs all cities, according to their population
- let cityI city-1pick
-   ; Lottery random selection of another city (J) amongs all other cities, according to their interaction potentiel with city I
- let cityJ lottery-potentiel cityI
+   ; random selection of a city (I) amongs all cities, according to their population
+   let cityI city-1pick
+   ;random selection of another city (J) amongs all other cities, according to their interaction potentiel with city I
+   let cityJ lottery-potentiel cityI
     
  
  
@@ -76,20 +53,11 @@ to grow-net-coevolution
   [
     let efficacityIJ Efficacity-index cityI cityJ
     
-    ifelse ( 
-             efficacityIJ < (IS)  ; The existing network is allready efficient enought if  the (sinuosity index < threshold sinuosity index).
-             )
+    if efficacityIJ >= network-threshold  ; The existing network is allready efficient enought if  the (sinuosity index < threshold sinuosity index).
     [
-      ; nothing is done
-    ]
-   
-    ; if  the (sinuosity index > threshold sinuosity index), the network is not efficient enough : 
-    ; A link between the cities I and J is created and initialised according the the present paramters
-    [
-      ask cityI 
-      [ create-link-with cityJ 
-         [ actualisation-of-link ] 
-      ]
+      ; if  the (sinuosity index > threshold sinuosity index), the network is not efficient enough : 
+     ; A link between the cities I and J is created and initialised according the the present paramters
+      ask cityI [create-link-with cityJ  [ actualisation-of-link ]]
       update-networks-info cityI
       update-networks-info cityJ
     ]

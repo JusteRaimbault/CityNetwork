@@ -1,0 +1,147 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
+//parameters
+val gravityDecay = Val[Double]
+val gravityGamma = Val[Double]
+val networkGamma = Val[Double]
+val networkThreshold = Val[Double]
+val networkSpeed = Val[Double]
+
+// meta-parameters
+val synthRankSize = Val[Double]
+val synthCities = Val[Double]
+val synthShortcut = Val[Double]
+val synthMaxDegree = Val[Double]
+val synthShortcutNum = Val[Double]
+
+//indicators
+// distributions
+val populationHierarchies = Val[Array[Double]]
+val populationEntropies = Val[Array[Double]]
+val populationSummaries = Val[Array[Double]]
+val closenessHierarchies = Val[Array[Double]]
+val closenessEntropies = Val[Array[Double]]
+val closenessSummaries = Val[Array[Double]]
+val accessibilityHierarchies = Val[Array[Double]]
+val accessibilityEntropies = Val[Array[Double]]
+val accessibilitySummaries = Val[Array[Double]]
+
+// lagged corrs
+val rhoPopCloseness = Val[Array[Double]]
+val rhoPopAccessibility = Val[Array[Double]]
+val rhoClosenessAccessibility = Val[Array[Double]]
+
+// distance corrs
+val rhoDistPopCloseness = Val[Array[Double]]
+val rhoDistPopAccessibility = Val[Array[Double]]
+val rhoDistClosenessAccessibility = Val[Array[Double]]
+
+// trajectories
+val rankCorrPop = Val[Double]
+val rankCorrCloseness = Val[Double]
+val rankCorrAccessibility = Val[Double]
+val diversityPop = Val[Double]
+val diversityCloseness = Val[Double]
+val diversityAccessibility = Val[Double]
+val complexityCloseness = Val[Double]
+val complexityAccessibility = Val[Double]
+val complexityPop = Val[Double]
+
+// network indicators
+val nwDiameter = Val[Double]
+val nwMeanPathLength = Val[Double]
+val nwMeanBwCentrality = Val[Double]
+val nwHierarchyBwCentrality = Val[Double]
+val nwRelativeSpeed = Val[Double]
+val nwLength = Val[Double]
+
+val finalTime = Val[Double]
+
+val id = Val[Int]
+val confid = Val[Int]
+val replication = Val[Int]
+
+val cmds = Seq("setup-experiment ${gravityDecay} ${gravityGamma} ${networkGamma} ${networkThreshold} ${networkSpeed} ${synthRankSize} ${synthCities} ${synthShortcut} ${synthMaxDegree} ${synthShortcutNum} ${replication}","run-experiment")
+
+
+val model =
+NetLogo5Task.workspace(workDirectory,"HEADLESS_SimpopNet.nlogo",cmds) set(
+    inputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id,confid),
+    outputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id,confid),
+    netLogoOutputs += ("population-hierarchies", populationHierarchies),
+    netLogoOutputs += ("population-entropies", populationEntropies),
+    netLogoOutputs += ("population-summaries", populationSummaries),
+    netLogoOutputs += ("closeness-hierarchies", closenessHierarchies),
+    netLogoOutputs += ("closeness-entropies", closenessEntropies),
+    netLogoOutputs += ("closeness-summaries", closenessSummaries),
+    netLogoOutputs += ("accessibility-hierarchies", accessibilityHierarchies),
+    netLogoOutputs += ("accessibility-entropies", accessibilityEntropies),
+    netLogoOutputs += ("accessibility-summaries", accessibilitySummaries),
+    netLogoOutputs += ("lagged-corrs \"city-population\" \"city-closeness-centrality\" 6 0",rhoPopCloseness),
+    netLogoOutputs += ("lagged-corrs \"city-population\" \"city-accessibility\" 6 0",rhoPopAccessibility),
+    netLogoOutputs += ("lagged-corrs \"city-closeness-centrality\" \"city-accessibility\" 6 0",rhoClosenessAccessibility),
+    netLogoOutputs += ("distance-correlation \"city-population\" \"city-closeness-centrality\"",rhoDistPopCloseness),
+    netLogoOutputs += ("distance-correlation \"city-population\" \"city-accessibility\"",rhoDistPopAccessibility),
+    netLogoOutputs += ("distance-correlation \"city-closeness-centrality\" \"city-accessibility\"",rhoDistClosenessAccessibility),
+    netLogoOutputs += ("rank-correlation \"city-population\"",rankCorrPop),
+    netLogoOutputs += ("rank-correlation \"city-closeness-centrality\"",rankCorrCloseness),
+    netLogoOutputs += ("rank-correlation \"city-accessibility\"",rankCorrAccessibility),
+    netLogoOutputs += ("trajectories-diversity \"city-population\"",diversityPop),
+    netLogoOutputs += ("trajectories-diversity \"city-closeness-centrality\"",diversityCloseness),
+    netLogoOutputs += ("trajectories-diversity \"city-accessibility\"",diversityAccessibility),
+    netLogoOutputs += ("trajectories-complexity \"city-population\"",complexityPop),
+    netLogoOutputs += ("trajectories-complexity \"city-closeness-centrality\"",complexityCloseness),
+    netLogoOutputs += ("trajectories-complexity \"city-accessibility\"",complexityAccessibility),
+    netLogoOutputs += ("nw-diameter", nwDiameter),
+    netLogoOutputs += ("mean-path-length", nwMeanPathLength),
+    netLogoOutputs += ("mean-bw-centrality", nwMeanBwCentrality),
+    netLogoOutputs += ("hierarchy-bw-centrality", nwHierarchyBwCentrality),
+    netLogoOutputs += ("mean-relative-speed", nwRelativeSpeed),
+    netLogoOutputs += ("total-nw-length", nwLength),
+    netLogoOutputs += ("ticks", finalTime)
+)
+
+
+// exploration
+// gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed
+// synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum
+// replication,id
+
+val exploration =  ExplorationTask(
+  ((
+  (gravityDecay in (0.001 to 0.02 by 0.005)) x
+    (gravityGamma in (0.5 to 2.5 by 1.0)) x
+    (networkGamma in (0.5 to 2.5 by 1.0)) x
+    (networkThreshold in (1.0 to 21.0 by 10.0)) x
+    (networkSpeed in (10.0 to 110.0 by 50.0))
+  ) withIndex id ) x
+  ((LHS (
+    25
+    ,synthRankSize in Range(0.5,1.5)
+    ,synthCities in Range(30.0,80.0)
+    ,synthShortcut in Range(3.0,15.0)
+    ,synthMaxDegree in Range(2.0,10.0)
+    ,synthShortcutNum in Range(10.0,40.0)
+  )) withIndex confid)
+  x (replication in (UniformDistribution[Int]() take 10))
+)
+
+val purpose = "GRIDLHS"
+
+// output
+val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
+  arraysOnSingleRow := true
+)
+
+
+val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+
+exploration -< (model on grid by 50 hook indics_hook)
+
+
+
+
+
+
+//

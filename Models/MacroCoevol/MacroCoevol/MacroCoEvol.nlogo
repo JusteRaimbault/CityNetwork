@@ -58,8 +58,14 @@ globals [
   ;;
   ; distance matrices
   distance-matrix
-  initial-distance-matrix
   feedback-distance-matrix
+  
+  ; history of distance matrices
+  distance-matrices
+  
+  ; real distance matrices (real network)
+  real-distance-matrices
+  real-feedback-distance-matrices
   
   gravity-weights
   feedback-weights
@@ -77,6 +83,7 @@ globals [
   ;;
   ; network growth
   slime-mould-node-distance
+  slime-mould-reinforcment-function
   
   ; network measures
   shortest-paths
@@ -156,7 +163,6 @@ paths-own [
   
   
 ]
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 294
@@ -211,7 +217,7 @@ growth-rate
 growth-rate
 0
 0.05
-0.0021
+0.0010
 0.0001
 1
 NIL
@@ -233,7 +239,7 @@ gravity-weight
 gravity-weight
 0
 2e-2
-0.002857
+0.00687
 1e-6
 1
 NIL
@@ -248,7 +254,7 @@ gravity-gamma
 gravity-gamma
 0.5
 5
-0.65
+5.727
 0.01
 1
 NIL
@@ -263,7 +269,7 @@ gravity-decay
 gravity-decay
 1
 500
-63.9
+1
 0.1
 1
 NIL
@@ -293,7 +299,7 @@ feedback-gamma
 feedback-gamma
 0
 5
-0.5
+1
 0.1
 1
 NIL
@@ -308,7 +314,7 @@ feedback-decay
 feedback-decay
 0
 200
-78
+1
 0.1
 1
 NIL
@@ -337,7 +343,7 @@ BUTTON
 270
 527
 go full period
-if ticks > 0 [setup:reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log)\noutput-print (word \"log mse : \" log-mse)
+if ticks > 0 [setup:reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log-population)\noutput-print (word \"log mse : \" log-mse-population)\noutput-print (word \"log mse dist : \" log-mse-distance)
 NIL
 1
 T
@@ -485,7 +491,7 @@ CHOOSER
 period
 period
 "1831-1851" "1841-1861" "1851-1872" "1881-1901" "1891-1911" "1921-1936" "1946-1968" "1962-1982" "1975-1999" "full"
-9
+0
 
 PLOT
 1003
@@ -548,7 +554,7 @@ INPUTBOX
 1049
 247
 city-traj
-CAEN
+DIJON
 1
 0
 String
@@ -617,7 +623,7 @@ final-time-step
 final-time-step
 0
 100
-30
+20
 1
 1
 NIL
@@ -642,25 +648,25 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 CHOOSER
-11
-235
-114
-280
+6
+223
+166
+268
 network-type
 network-type
-"virtual" "physical"
+"virtual" "physical" "real" "fixed"
 1
 
 SLIDER
 6
-290
+321
 225
-323
+354
 network-reinforcment-threshold
 network-reinforcment-threshold
 0
 5
-2.5
+6.397
 0.1
 1
 NIL
@@ -668,9 +674,9 @@ HORIZONTAL
 
 SLIDER
 6
-323
+354
 224
-356
+387
 network-reinforcment-exponent
 network-reinforcment-exponent
 0
@@ -691,25 +697,25 @@ NIL
 NIL
 0.0
 10.0
+100.0
 0.0
-10.0
 true
 false
 "" ""
 PENS
-"pen-2" 1.0 0 -2674135 true "" "plot first matrix:min matrix:map zero-infinite distance-matrix"
+"pen-2" 1.0 0 -2674135 true "" "plot first matrix:min matrix:map cities:zero-infinite distance-matrix"
 
 SLIDER
 7
-357
+388
 225
-390
+421
 network-reinforcment-gmax
 network-reinforcment-gmax
 0
-0.5
-0.05
 0.01
+0.00562
+1e-5
 1
 NIL
 HORIZONTAL
@@ -721,15 +727,15 @@ SWITCH
 742
 show-virtual-flows?
 show-virtual-flows?
-0
+1
 1
 -1000
 
 CHOOSER
-119
-235
-266
-280
+7
+269
+165
+314
 physical-network-heuristic
 physical-network-heuristic
 "slime-mould" "breakdown"
@@ -759,7 +765,7 @@ synthetic-city-max-degree
 synthetic-city-max-degree
 0
 5
-4
+5
 1
 1
 NIL
@@ -774,7 +780,7 @@ synthetic-shortcut-radius
 synthetic-shortcut-radius
 0
 30
-20
+30
 1
 1
 NIL
@@ -782,14 +788,14 @@ HORIZONTAL
 
 SLIDER
 9
-391
-236
-424
+422
+263
+455
 physical-network-reinforcment-threshold
 physical-network-reinforcment-threshold
 0
 0.1
-3.456499387327971E-5
+0.1
 0.0005
 1
 NIL
@@ -807,18 +813,40 @@ link-display-var
 
 SLIDER
 6
-426
+457
 264
-459
+490
 physical-network-reinforcment-quantile
 physical-network-reinforcment-quantile
 0
 1
-0
+0.95
 0.1
 1
 NIL
 HORIZONTAL
+
+SWITCH
+169
+224
+293
+257
+fixed-dist?
+fixed-dist?
+1
+1
+-1000
+
+SWITCH
+168
+258
+295
+291
+geo-paths?
+geo-paths?
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?

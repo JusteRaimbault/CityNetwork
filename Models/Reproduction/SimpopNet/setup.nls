@@ -5,41 +5,63 @@
 
 
 
-;****************************************************************************************************************************
-
-to setup
+;;
+; setup
+to setup:setup
   
-  clear-all
+  if headless? != true [clear-all]
   
-  setup-globals
+  setup:setup-globals
   
-  setup-world
+  setup:setup-world
   
-  setup-cities
+  setup:setup-cities
   
-  setup-network
-    
-  update-display  
+  setup:setup-network
   
+  setup:setup-display
+   
   reset-ticks
-  tick-advance 1800
+  tick-advance initial-time-step
+   
+  setup:setup-indicators
    
 end
 
 
-;****************************************************************************************************************************
-
-
-
-to setup-globals
+;;
+; globals
+to setup:setup-globals
   set x-cross false
   set y-cross false
   set crossing-link1 false
-  set  crossing-link2 false
+  set crossing-link2 false
+  
+  set gibrat-mean 0.01
+  set gibrat-std 0.005
+  
+  set indicator-sampling-time-step 5
+  
+  ifelse setup-type = "stylized" [
+    set initial-time-step 1800
+    set final-time-step 2000
+  
+    set techno-break-years [2000 1960 1860]
+    set network-speeds [75 20 5]
+    set network-colors [red yellow blue]
+  ][
+    set initial-time-step 0
+    set final-time-step 100
+  
+    set techno-break-years [100]
+    set network-speeds (list speed-gain)
+    set network-colors [red]
+  ]
+  
 end
 
 
-to setup-world
+to setup:setup-world
   if setup-type = "stylized" [
     let init_network_filename (word "setup/initial-state.csv")
  
@@ -66,14 +88,14 @@ end
 
 
 
-to setup-network
+to setup:setup-network
     
   if setup-type = "synthetic" [
     ask cities [let c2 one-of ((other cities) with-min [distance myself]) if not link-neighbor? c2 [create-link-with c2]]
     connexify-network-link-projection
     
     ; optional procedure to create "local" shortcuts
-    local-shortcuts
+    network:local-shortcuts
     
     ; planarize
     planarize-network turtles links
@@ -82,13 +104,26 @@ to setup-network
   
   setup-link-vars
   
-  calculate-accessibility
-   
+  setup-distance-matrices
+  
+  cities:calculate-accessibility
+  
+end
+
+to setup-distance-matrices
+  ; euclidian distance
+  set euclidian-distance-matrix matrix:make-constant (count cities) (count cities) 0
+  ask cities [let i index ask other cities [let j index matrix:set euclidian-distance-matrix i j distance myself]]
+  
+  ; network distance
+  set distance-matrix matrix:make-constant (count cities) (count cities) 0
+  ; will be filled in accessibility computation
+  
 end
 
 
 
-to setup-cities
+to setup:setup-cities
   
   if setup-type = "synthetic" [
     create-cities synthetic-cities-number [
@@ -101,30 +136,85 @@ to setup-cities
   
   
   setup-cities-vars
-     
+  
+  setup-population-matrix   
+  
 end
 
 
 to setup-cities-vars
+  let ind 0
   ask cities [
-      set list-population []
-      set list-accessibility []
-      set list-attraction[]
-      set list-mean-linksspeed []
-      set network1 ["" ""]
-      set network2 ["" ""]
-      set network3 ["" ""]
+     set list-population []
+     set list-accessibility []
+     set list-attraction []
+     set list-mean-linksspeed []
+     set network1 ["" ""]
+     set network2 ["" ""]
+     set network3 ["" ""]
+     
+     set index ind
+     set ind ind + 1
   ]
 end
 
-to setup-link-vars 
-  ask links
-    [
-      set speed 1
-      set weight (link-length / speed)
-      set thickness 0.3
-     ] 
+
+to setup-population-matrix
+  set populations matrix:make-constant (count cities) (final-time-step - initial-time-step + 1) 0
+  ask cities [
+     matrix:set populations index 0 population
+  ]
 end
+
+
+
+to setup-link-vars 
+  ask links [
+    set speed 1
+    set weight (link-length / speed)
+    set thickness 0.3
+  ] 
+end
+
+
+
+to setup:setup-indicators
+  
+  set indicator-sample-cities to-list cities
+  
+  set city-values-table table:make
+  
+  indicators:update-indicators
+  
+end
+
+
+to setup:setup-display
+  update-display
+end
+
+
+to setup:setup-headless
+  
+  set setup-type "synthetic"
+  
+  set Network-growth "coevolution"
+  set city-growth-model "coevolution"
+  
+  ; only population stays fixed for random synthetic configurations
+  ;set synthetic-rank-size-exp 0.8
+  ;set synthetic-cities-number 100
+  ;set synthetic-shortcut-radius 7
+  set synthetic-max-pop 150000
+  ;set synthetic-city-max-degree 5
+  ;set synthetic-shortcut-number 50
+  
+end
+
+
+
+
+
 
 
 

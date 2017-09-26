@@ -2,6 +2,7 @@
 
 library(dplyr)
 library(sp)
+library(Matrix)
 
 # functions
 
@@ -24,6 +25,61 @@ loadData<-function(Ncities){
   
   return(list(cities=cities,dates=dates,distances=distances))
 }
+
+
+
+
+feedbackDistMat<-function(g,coords,slopeImpedance=T,citynames=NULL){
+  
+  dists = Matrix(10e8,nrow(coords),nrow(coords)*(nrow(coords)-1)/2)
+  
+  if(slopeImpedance==T){
+    citiesinds = unlist(apply(coords,1,function(x){which(abs(V(g)$x-x[1])<500&abs(V(g)$y-x[2])<500)}))
+    # must have ALL cities to be consistent -> remove Corsica.
+    
+    # impedance function of the slope
+    #  100m dev in 1km -> 5°. angle = atan(abs(E(g)$slope))/(E(g)$length*1000))
+    slopes = atan(abs(E(g)$slope)/(E(g)$length*1000))*360/(2*pi)
+    # alpha0 = 6 : ~10% ; alpha0=3 : ~5%
+    alpha0 = 4;n0 = 3
+    impedances = E(g)$length*(1 + (slopes/alpha0)^n0)
+  }else{
+    impedances=E(g)$weight
+    citiesinds = sapply(citynames,function(s){which(V(g)$name==s)})
+  }
+  
+  r=1
+  for(i in 1:(nrow(coords)-1)){
+    show(paste0('i : ',i))
+    o=citiesinds[i]
+    dests = citiesinds[(i+1):length(citiesinds)]
+    
+    p=shortest_paths(g,from=V(g)[o],to=V(g)[dests],output="vpath",weights = impedances)$vpath
+    dp = distances(g,v = citiesinds,to=V(g),weights = impedances)
+    #show(dim(dp))
+    #show(colnames(dp))
+    # find candidates third cities
+    for(j in 1:length(p)){
+      #show(paste0('dists : ',r/ncol(dists)))
+      #show(j)
+      third=apply(coords,1,function(r){sum(abs(r-coords[i,]))>1000&sum(abs(r-coords[i+j,]))>1000&sum((coords[i+j,]-coords[i,])*(r-coords[i,]))>0&sum((coords[i,]-coords[i+j,])*(r-coords[i+j,]))>0})
+      #show(which(third))
+      for(k in which(third)){
+        #show(paste0('  k : ',k,' - ',citiesinds[k]))
+        #pp=shortest_paths(g,from=V(g)[citiesinds[k]],to=p[[j]],output="vpath")$vpath
+        #dp = distances(g,v = citiesinds[k],to=p[[j]],weights = impedances)
+        # find min dist
+        dists[k,r]=min(dp[k,p[[j]]$name])
+      }
+      r=r+1
+    }
+  }
+  return(dists)
+}
+
+
+
+
 
 
 

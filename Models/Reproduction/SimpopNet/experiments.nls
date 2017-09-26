@@ -1,0 +1,46 @@
+
+;;
+; experiments
+
+
+to setup-experiment [gravitydecay gravitygamma networkgamma networkthreshold networkspeed synthranksize synthcities synthshortcut synthmaxdegree synthshortcutnum seed]
+  
+  show (word "Setting up : " gravitydecay " ; " gravitygamma " ; " networkgamma " ; " networkthreshold " ; " networkspeed)
+  
+  set headless? true
+  
+  set gravity-decay gravitydecay ; \in [0,0.015]
+  set gravity-gamma gravitygamma ; \in [0,3]
+  set network-gamma networkgamma ; \in [0,4]
+  set network-threshold networkthreshold ; \in [0,20]
+  set speed-gain networkspeed ; \in [1,100]
+  
+  set synthetic-rank-size-exp synthranksize ; \in [0.5,2.0]
+  set synthetic-cities-number synthcities ; \in [50,120]
+  set synthetic-shortcut-radius synthshortcut ; \in [5,30]
+  set synthetic-city-max-degree synthmaxdegree ; \in [2,8]
+  set synthetic-shortcut-number synthshortcutnum ; \in [10,100]
+  
+  random-seed seed
+  
+  setup:setup-headless
+  
+  setup:setup
+  
+end
+
+
+
+to run-experiment
+  go-full-period
+end
+
+
+to test-experiment
+  ca
+  ;setup-experiment 0.005 1.3 2.0 10 20 1.0 50.0 10.0 5.0 20.0 0
+  ;synthCities=68.9882013098997, synthMaxDegree=4.209893881691384, synthRankSize=0.6834445457590896, synthShortcut=10.574761660412008, synthShortcutNum=77.4527151913737
+  setup-experiment 0.005 1.3 2.0 10 20 0.68 68.98 10.57 4.20 77.45 0
+  run-experiment
+  indicators:compute-indicators
+end

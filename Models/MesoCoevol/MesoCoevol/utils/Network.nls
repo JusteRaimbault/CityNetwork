@@ -3,22 +3,12 @@
 ;; Generic NW functions
 ;;;;;;;;;;;;;;;;;;;;;;
 
-;extensions [nw context gradient]
-
-;__includes [
-; "../agent/AgentSet.nls" 
-; "../misc/List.nls"
-; "../agent/Link.nls"
-; "../agent/Agent.nls"
-;]
-
-
 
 ;;
 ; Planarize a network, by simply "flattening the bridges" == creating intersection for crossing links
 ;
 ;  Necessarily in O(#(edges-agentset)^2) as have to checkall intersections between links.
-to planarize-network [vertices-agentset edges-agentset]
+to network-utils:planarize-network [vertices-agentset edges-agentset]
   
   debug "planarize..."
   
@@ -26,12 +16,12 @@ to planarize-network [vertices-agentset edges-agentset]
   ;let links-breed agentset-uniform-singular-breed edges-agentset
   
   let edge-list to-list edges-agentset
-  let current-inter get-first-inter edge-list
+  let current-inter network-utils:get-first-inter edge-list
   while [length current-inter > 0][
       let l2 last current-inter let l1 item 1 current-inter
       let t11 [end1] of l1 let t12 [end2] of l1 let t21 [end1] of l2 let t22 [end2] of l2
       let new-inter nobody ;need to hatch
-      ask t11 [hatch 1 [set city-population 0 new-city set new-inter self setxy first first current-inter last first current-inter]]
+      ask t11 [hatch 1 [set city-population 0 city:new-city set new-inter self setxy first first current-inter last first current-inter]]
       ask new-inter [
         ;ask t11 [run (word "create-" links-breed "-with myself")]
         ;ask t12 [run (word "create-" links-breed "-with myself")]
@@ -46,7 +36,7 @@ to planarize-network [vertices-agentset edges-agentset]
       set edge-list concatenate (list edge-list (to-list [my-links] of new-inter))
       set edge-list remove l2 remove l1 edge-list
       ask l1 [die] ask l2 [die]
-      set current-inter get-first-inter edge-list
+      set current-inter network-utils:get-first-inter edge-list
   ]
   
   
@@ -93,7 +83,7 @@ to planarize-network [vertices-agentset edges-agentset]
 end
 
 
-to-report get-first-inter [link-list]
+to-report network-utils:get-first-inter [link-list]
   let n length link-list let i 0 let j 0
   repeat (n - 1)[
      set j i + 1
@@ -119,7 +109,7 @@ end
 ;
 ;  Note : resulting nw is not necessary planar ! -> planification primitive, better be separated for more flexibility<
 ;;;;;;;;;;;;
-to connexify-network [vertices-agentset edges-agentset]
+to network-utils:connexify-network [vertices-agentset edges-agentset]
   nw:set-context vertices-agentset edges-agentset
   let clusters nw:weak-component-clusters
   let #-new-links length clusters - 1
@@ -148,7 +138,7 @@ to connexify-network [vertices-agentset edges-agentset]
 end
 
 
-to connexify-network-link-projection
+to network-utils:connexify-network-link-projection
   nw:set-context cities roads
   let clusters nw:weak-component-clusters
   let #-new-links length clusters - 1
@@ -186,9 +176,9 @@ to connexify-network-link-projection
 end
 
 
-to simplify-network 
+to network-utils:simplify-network 
   
-  debug "simplify..."
+  ;debug "simplify..."
   
   let n count cities with [count cities-here > 1]
   while [n > 0] [

@@ -4,10 +4,20 @@
 
 
 
+;;
+;
+to main:go-full-period
+  let stop? false
+  while [stop? != true] [
+    main:go
+    set stop? main:stopping-condition
+  ]
+end
+
 
 ;;
 ;
-to go
+to main:go
   
   ;; update density at each time step
   density:update-density
@@ -26,7 +36,16 @@ to go
   
   tick
   
-  if ticks = total-time-steps [stop]
+end
+
+;;
+;
+to-report main:stopping-condition
+  ;if stopping-mode = "time" [
+  ;  report (ticks = total-time-steps)
+  ;]
+  
+  report (ticks = final-time-step) or (indicators:network:size >= max-network-size)
   
 end
 

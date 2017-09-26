@@ -9,6 +9,7 @@
 \section[Interaction model][Modèle d'interaction]{Dynamical extension of the interaction model}{Extension dynamique du modèle d'interaction}
 
 
+\label{sec:macrocoevol}
 
 
 
@@ -21,14 +22,13 @@
 %%%%%%%%%%%%%%%%%
 \subsubsection{Rationale}{Hypothèses et choix de modélisation}
 
-% abstract conf Guangzhou
-
-% The complexity of Urban Systems is closely linked to the co-evolutive character of their different components or agents (Pumain, 1997). In the case of cities and transportation networks, this co-evolution has been shown empirically (Bretagnolle, 2007) but remains poorly understood in terms of its dynamical processes. We introduce a model of spatial interactions between cities at the macro-scale, in the spirit of stochastic urban growth models inheriting from the Gibrat model (Favaro and Pumain, 2011). We include evolving transportation networks, in order to explore stylized hypothesis on the interactions and drivers of the growth of both network and cities. In a multi-modeling fashion, the model can take into account various processes such as between cities direct interactions, network-mediated interactions, feedback of network flows, and for the network demand-induced growth. The latter is tested at different abstraction levels that are the time-distance matrix between cities, and physical network growth trying to satisfy greedy time-gain optimization criteria. We use as a benchmark network the geographical shortest paths that have been shown in a previous work to already capture network effects (Raimbault, 2016). The model is tested and explored on synthetic city systems, generated following a simple heuristic to follow the rank-size law and Central Place Theory. The systematic exploration through intensive computation unveils different interaction regimes accross the parameter space. In some, the introduction of the network can drastically change the fate of some cities, whereas the top-distribution hierarchy is reinforced, what is consistent with empirical observations in the literature. Some regimes actually exhibit circular causalities between network and city growth, corresponding to the intricated co-evolution. The model will be applied to the French Urban System on long time dynamical data (Pumain-INED database for populations spanning between 1831 and 1999, with the evolving railway network from 1850 to 2000, and a specifically-designed database of the highway networks containing its full genesis from 1950 to 2015), and to the Chinese Urban System after 2000 with the High Speed Rail (HSR) network, both realized and planned. Expected results concern both accurate city population growth reproduction, and network patterns, i.e. how does taking into account dynamical networks can introduce further exploratory power in such models, and reciprocally how can such coupled models produce realistic networks compared to more classical autonomous models of network growth. The role of medium-sized cities on the trajectories of the system can also be examined with the model. Finally, a comparison between the urban systems in different geographical and political contexts and at different scales should unveil implications of planning on the interactions between networks and cities, for example by comparing the rather bottom-up growth of the French railway network to the top-down state-planned French highway and Chinese HSR networks.
 
 
-Cette première approche se place dans une logique d'extension directe du modèle d'interactions au sein d'un système de villes présenté en chapitre~\autoref{ch:evolutive}, c'est à dire à une échelle macroscopique et avec une ontologie typique au systèmes de villes. Toujours dans un choix de simplicité, dont la relaxation sera explorée pour le cas d'application à la Chine avec l'ajout de variables économiques, nous restons ici à une description uni-dimensionelle des villes par leur population. Concernant la croissance du réseau, nous proposons de se placer également à un niveau relativement agrégé et simplifié, en testant des heuristiques de croissance répondant à une demande, à différents niveaux d'abstraction. 
-
-
+\bpar{
+In a multi-modeling fashion, the model can take into account various processes such as between cities direct interactions, network-mediated interactions, feedback of network flows, and for the network demand-induced growth.
+}{
+Cette première approche se place dans une logique d'extension directe du modèle d'interactions au sein d'un système de villes présenté en chapitre~\autoref{ch:evolutive}, c'est à dire à une échelle macroscopique et avec une ontologie typique au systèmes de villes. Toujours dans un choix de simplicité, dont la relaxation pourra être explorée pour le cas d'application à la Chine avec l'ajout de variables économiques, nous restons ici à une description unidimensionnelle des villes par leur population. Concernant la croissance du réseau, nous proposons de se placer également à un niveau relativement agrégé et simplifié, en testant des heuristiques de croissance répondant à une demande, à différents niveaux d'abstraction. Par une forme de multi-modélisation, le modèle peut prendre en compte divers processus comme les interactions directes entre les villes, les interactions intermédiaires par le réseau, la rétroaction des flux de réseau et une croissance induite par la demande pour le réseau.
+}
 
 
 
@@ -42,9 +42,8 @@ Cette première approche se place dans une logique d'extension directe du modèl
 
 %%%%%%%%%%%%%%%%%
 \begin{figure}
-\centering
-\includegraphics[width=\textwidth]{Figures/MacroCoEvolModel/model}
-\caption[][Schématisation du modèle]{}{Représentation abstraite des processus du modèle.}
+\includegraphics[width=\linewidth]{Figures/MacroCoEvolModel/model}
+\caption[][Schématisation du modèle]{}{Représentation abstraite des processus du modèle.\label{fig:macrocoevolmodel:model}}
 \end{figure}
 %%%%%%%%%%%%%%%%%
 
@@ -55,37 +54,164 @@ Cette première approche se place dans une logique d'extension directe du modèl
 
 
 
+\paragraph{Network Growth}{Croissance du réseau}
+
+% choice of network heuristics : less precise than meso ; more based on distance patterns.
+
+
+Network growth heuristics are tested at different abstraction levels that are the time-distance matrix between cities, and physical network growth trying to satisfy greedy time-gain optimization criteria.
+
+Given the flow $\phi$ in a link, its effective distance is updated following
+
+\begin{enumerate}
+\item For the thresholded case
+\[
+d(t+1) = d(t)\cdot \left( 1 + g_{max} \cdot \left[\frac{1 - \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}{1 + \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}\right]\right)
+\]
+\item For the full growth case
+\[
+d(t+1) = d(t)\cdot \left(1 + g_{max} \cdot \left[\frac{\phi}{\max \phi}\right]^{\gamma_s}\right)
+\]
+\end{enumerate}
+
+where $\gamma_s$ is a hierarchy parameter, $\phi_0$ a threshold parameter and $g_{max}$ the maximal growth rate easily adjustable to realistic values by computing $(1+g_{max})^{t_f}$
+
+
+
+
+
+
+\subsubsection{Implementation}{Implémentation}
+
+
+
+\bpar{
+}{
+Le couplage du modèle d'interaction à la prise en compte plus fine des processus de réseau rend plus difficile l'intégration complète dans un plugin OpenMole comme c'était le cas pour le modèle étudié en~\ref{sec:interactiongibrat}. L'utilisation d'un workflow comme médiateur pour le couplage est une solution intéressante mais réaliste uniquement dans le cas d'un couplage faible. L'un des défis que devra relever la bibliothèque de méta-modélisation en cours de développement autour d'OpenMole, serait la possibilité de coupler fortement (par exemple au sens de dynamiquement dans l'évolution de la simulation) des composantes hétérogènes de manière transparente. Nous optons pour ce modèle pour une implémentation complète en NetLogo pour une simplicité de couplage des composantes. Une attention particulière est portée à la dualité de la représentation du réseau, à la fois sous forme de matrice de distance et sous forme physique.
+}
+
+
+
+
+
+
 %%%%%%%%%%%%%%%%%
 \subsection{Application to Synthetic Data}{Application à des Données Synthétiques}
 
-%%
-% Implementation architecture : scala/oml extension wrapper ? simpler to do full-netlogo : comment on that (//simfamily etc)
-%  Interactions (Matrix-based) <-> Network
+
+\bpar{
+The model is first tested and explored on synthetic city systems, generated following a simple heuristic to follow the rank-size law and Central Place Theory. The systematic exploration through intensive computation unveils different interaction regimes across the parameter space. In some, the introduction of the network can drastically change the fate of some cities, whereas the top-distribution hierarchy is reinforced, what is consistent with empirical observations in the literature. Some regimes suggest circular causalities between network and city growth, corresponding to the co-evolution.
+}{
+Le modèle est d'abord testé et exploré sur des systèmes de villes synthétiques, générés selon une heuristique simple pour respecter la loi rang-taille et la théorie des places centrales. L'exploration systématique par le calcul intensif révèle différents régimes dans l'espace des paramètres. Dans certains cas, l'introduction du réseau peut changer la trajectoire de certaines villes de manière drastique, tandis que la hiérarchie au somment de la distribution renforcée, ce qui est consistent avec les observations empiriques de la littérature, comme la déviation systématique de la loi de Zipf observée par~\cite{rozenfeld2008laws}. Certains régimes suggèrent des causalités circulaires entre la croissance du réseau et celles des villes, ce qui correspond bien à une co-évolution.
+}
+
+
+\paragraph{Synthetic data}{Données Synthétiques}
+
+
+
+
+\paragraph{Results}{Résultats}
+
+
+Nous utilisons les indicateurs introduits en~\ref{sec:macrocoevolexplo} pour quantifier le comportement du modèle dans l'espace des paramètres.
+
+
+
+
+
 
 
 
 
 
 %%%%%%%%%%%%%%%%%
-\subsection[Applications][Applications]{Applications to Case Studies}{Applications à des cas d'étude}
+\subsection[Application][Application]{Applications to Case Studies}{Applications au Système de Villes Français}
 
 
-\subsubsection{}{Système de Villes Français}
+\bpar{
+The model is applied to the French Urban System on long time dynamical data : Pumain-INED database for populations spanning between 1831 and 1999, with the evolving railway network from 1840 to 2000.
+}{
+Le modèle est appliqué au système de villes français sur des données dynamiques sur le temps long : la base Pumain-INED pour les populations, couvrant de 1831 à 1999, avec le réseau ferré dynamique de 1840 à 2000.
+}
 
-\paragraph{}{Données de Réseau}
-
-% description de la base Thévenin pour le train ; et de la base autoroutes ("data paper" en annexe -> penser à faire un vrai data paper avec Florent.)
 
 
-\todo{Questions concrètes à poser au modèle, expériences ciblées : (i) le modèle calibre-t-il mieux les populations (en prenant en compte les paramètres supplémentaires) ; (ii) le modèle produit-il des formes de réseau crédibles ? ; (iii) éventuellement si les correlations temporelles sont calculées sur les vrais données, le modèle peut-il être calibré au second ordre (sur les correlations/causalités) ?}
+\subsubsection{Network Data}{Données de Réseau}
 
+Nous travaillons sur les données de réseau ferré construites par~\cite{thevenin2013mapping}. Le réseau ferré français est particulièrement intéressant en conjonction avec les données de population déjà présentées, puisque la période couverte est relativement similaire, et que ce moyen de transport a à toute période concrétisé l'implication d'acteurs publiques et privés importants, tout en exhibant différents régimes selon les époques, d'une gestion plutôt décentralisée à une centralisation très forte plus récemment, et différentes concrétisations technologiques avec par exemple l'émergence récente de la grande vitesse. Pour chaque date de la base de donnée de population, nous extrayons le graphe abstrait simplifié où toutes les gares et intersections de degré supérieur à deux sont reliés par les liens abstrait avec attributs de vitesse et distance traduisant la valeur réelle, à une granularité de 1km. Cela permet également de construire les matrice de distance-temps entre les villes considérées dans le modèle.
+
+
+
+\subsubsection{Stylized facts}{Faits stylisés}
+
+% correlation patterns in real data.
+
+
+
+
+
+
+
+
+\subsubsection{Abstract model calibration}{Calibration du modèle abstrait}
+
+
+
+
+Expected results concern both accurate city population growth reproduction, and network patterns, i.e. how does taking into account dynamical networks can introduce further exploratory power in such models, and reciprocally how can such coupled models produce realistic networks compared to more classical autonomous models of network growth.
+
+Questions concrètes à poser au modèle, expériences ciblées : 
+
+\begin{enumerate}
+\item le modèle calibre-t-il mieux les populations (en prenant en compte les paramètres supplémentaires)
+\item motifs de calibration biobjectif réseau/populations pour le réseau abstrait
+\end{enumerate}
 
 \comment[JR]{attention, expliquer le choix des indicateurs de réseau, il faut qu'ils soient adaptés à l'échelle : cf Mimeur nombre d'intersection - relève un peu de la modélisation procédurale.}
+
+
+\paragraph{Indicators}{Indicateurs}
+
+On peut ajouter aux indicateurs classiques un indicateur de calibration pour la distance. L'aspect particulier de l'ajustement pour les populations, qui résidait dans la présence d'une loi de puissance pour les tailles de villes rendant négligeables les performances sur les villes moyennes et les petites villes dans le cas d'une erreur cumulées, et suggérait l'ajout de l'indicateur de l'erreur sur les logarithmes, n'est pas présent pour les distances qui suivent une distribution localisée. Nous utilisons ainsi simplement
+
+\[
+\varepsilon_D = \log \left[ \sum_t \sum_{i,j} \left(d_{ij}(t) - \tilde{d}_{ij}(t)\right)^2\right]
+\]
+
+
+\paragraph{Role of Real Network Distances}{Rôles des distances réelles de réseau}
+
+\bpar{
+We use as a benchmark network the geographical shortest paths that have been shown in a previous work to already capture network effects (see~\cite{raimbault2016models} and section~\ref{sec:interactiongibrat}).
+}{
+Nous utilisons comme réseau de benchmark les plus courts chemins géographiques qui ont été montrés déjà capturer des effets de réseaux dans un précédent travail (voir~\cite{raimbault2016models} et la section~\ref{sec:interactiongibrat}).
+}
+
+
+
+
+\subsubsection{Physical network}{Modèle avec réseau physique}
+
+
+\begin{enumerate}
+\item le modèle produit-il des formes de réseau crédibles dans le cas du réseau physique ?
+\item éventuellement si les correlations temporelles sont calculées sur les vrais données, le modèle peut-il être calibré au second ordre (sur les correlations/causalités) ?
+\end{enumerate}
+
 
 \comment{\cite{mimeur:tel-01451164} la thèse de Mimeur est un pont intéressant entre géographie et approches éco de Levinson (modèle de croissance type slime mould ?). plus fait des stats spatiales pour lier croissance pop et accessibilité : checker si même résulats quand fera spatio-temp causalities sur réseau ferré et autoroutier et croissance pop. remarque : trucs bizzares, essaie d'expliquer pour petites villes, mais pas approprié, pb du choix de l'échelle, de ce qui est du bruit et du signal - semble tout mélanger : importance du preprocessing et traitement du signal (cf correlations des taux de croissance). Tester effets fixes régions/départements ? fait GWR finalement ?}
 
 
 
+
+\subsubsection{Possible Developments}{Développements possibles}
+
+
+Specifically-designed database of the highway networks containing its full genesis from 1950 to 2015).
+
+
+The role of medium-sized cities on the trajectories of the system can also be examined with the model. Finally, a comparison between the urban systems in different geographical and political contexts and at different scales should unveil implications of planning on the interactions between networks and cities, for example by comparing the rather bottom-up growth of the French railway network to the top-down state-planned French highway and Chinese HSR networks.
 
 
 

@@ -3,17 +3,36 @@
 ;  Indicators
 
 
-to compute-indicators
+;;
+; compute and output indicators
+to indicators:compute-indicators
   network:cache-nw-measures
-  output-print (word "diameter : " nw-diameter)
-  output-print (word "path-length : " mean-path-length)
-  output-print (word "centrality : " mean-bw-centrality)
-  output-print (word "relative speed : " mean-relative-speed)
-  output-print (word "length : " total-nw-length)
+  output-print (word "moran = " indicators:morpho:moran)
+  output-print (word "entropy = " indicators:morpho:entropy)
+  output-print (word "slope = " indicators:morpho:slope)
+  output-print (word "slope-rsquared = " indicators:morpho:slope-rsquared)
+  output-print (word "mean-distance = " indicators:morpho:mean-distance)
+  output-print (word "diameter = " indicators:network:diameter)
+  output-print (word "path-length = " indicators:network:mean-path-length)
+  output-print (word "bw centrality = " indicators:network:mean-bw-centrality)
+  output-print (word "city closeness = " indicators:network:mean-city-closeness-centrality)
+  output-print (word "relative speed = " indicators:network:mean-relative-speed)
+  output-print (word "network length = " indicators:network:length)
+  output-print (word "rho pop-roads = " indicators:lagged-corrs "patch-population" "patch-distance-to-road" 5 0)
+  output-print (word "rho pop-clos = " indicators:lagged-corrs "patch-population" "patch-closeness-centrality" 5 0)
+  output-print (word "rho pop-bw = " indicators:lagged-corrs "patch-population" "patch-bw-centrality" 5 0)
+  output-print (word "rho pop-acc = " indicators:lagged-corrs "patch-population" "patch-accessibility" 5 0)
+  output-print (word "rho roads-clos = " indicators:lagged-corrs "patch-distance-to-road" "patch-closeness-centrality" 5 0)
+  output-print (word "rho roads-bw = " indicators:lagged-corrs "patch-distance-to-road" "patch-bw-centrality" 5 0)
+  output-print (word "rho roads-acc = " indicators:lagged-corrs "patch-distance-to-road" "patch-accessibility" 5 0)
+  output-print (word "rho clos-bw = " indicators:lagged-corrs "patch-closeness-centrality" "patch-bw-centrality" 5 0)
+  output-print (word "rho clos-acc = " indicators:lagged-corrs "patch-closeness-centrality" "patch-accessibility" 5 0)
+  output-print (word "rho bw-acc = " indicators:lagged-corrs "patch-bw-centrality" "patch-accessibility" 5 0)
 end
 
 
-
+;;
+; update tables
 to indicators:update-indicators
   let current-time ticks
   foreach indicator-sample-patches [
@@ -37,7 +56,7 @@ end
 ;;
 ; lagged correlation, between two vars, already
 ;  assumed var stored
-to-report lagged-correlation [var1 var2 tau t0]
+to-report indicators:lagged-correlation [var1 var2 tau t0]
   let current-time ticks
   let x [] let y [] let firstvar var1 let secvar var2
   if tau > 0 [set firstvar var2 set secvar var1]
@@ -56,16 +75,16 @@ end
 
 ;;
 ; set of lagged corrs for a given pair of vars
-to-report lagged-corrs [var1 var2 abstaumax t0]
+to-report indicators:lagged-corrs [var1 var2 abstaumax t0]
   ; get var values
   let res []
   let tau (- abstaumax)
   repeat abstaumax + 1 [
-    set res lput (lagged-correlation var2 var1 (abs tau) t0) res
+    set res lput (indicators:lagged-correlation var2 var1 (abs tau) t0) res
     set tau tau + 1
   ]
   repeat abstaumax [
-    set res lput (lagged-correlation var1 var2 tau t0) res
+    set res lput (indicators:lagged-correlation var1 var2 tau t0) res
     set tau tau + 1
   ]
   report res
@@ -77,7 +96,7 @@ end
 
 ;;
 ; correlation between two vars
-to-report correlation [var1 var2 time]
+to-report indicators:correlation [var1 var2 time]
   let x [] let y []
   foreach indicator-sample-patches [
     ask ? [
@@ -95,23 +114,23 @@ end
 ;;
 ; Morphological indicators
 
-to-report moran
+to-report indicators:morpho:moran
   report morphology:moran 0
 end
 
-to-report entropy
+to-report indicators:morpho:entropy
   report morphology:entropy 0
 end
 
-to-report slope
+to-report indicators:morpho:slope
   report first morphology:slope 0
 end
 
-to-report slope-rsquared
+to-report indicators:morpho:slope-rsquared
   report last morphology:slope 0
 end
 
-to-report mean-distance
+to-report indicators:morpho:mean-distance
   report morphology:distance 0
 end
 
@@ -123,56 +142,61 @@ end
 ;;
 ; nw diameter
 ;  Normalized by world diag
-to-report nw-diameter
+to-report indicators:network:diameter
   let diag sqrt (world-width ^ 2 + world-height ^ 2)
-  report max map [sum map [[road-length] of ?] ?] (table-values shortest-paths) / diag
+  report max map [sum map [[road-length] of ?] ?] (utils:table-values shortest-paths) / diag
 end
 
 
 ;;
 ; mean path length
 ;  Normalized by world diagonal
-to-report mean-path-length
+to-report indicators:network:mean-path-length
   let diag sqrt (world-width ^ 2 + world-height ^ 2)
-  report (mean map [sum map [[road-length] of ?] ?] (table-values shortest-paths)) / diag
+  report (mean map [sum map [[road-length] of ?] ?] (utils:table-values shortest-paths)) / diag
 end
 
 ;;
 ;  bw centrality, normalized by number of paths considered
-to-report mean-bw-centrality
+to-report indicators:network:mean-bw-centrality
   let n count cities
   report (mean [bw-centrality] of roads) * 2 / (n * (n - 1))
 end
 
 ;;
 ; nodes bw centrality
-to-report mean-city-bw-centrality
+to-report indicators:network:mean-city-bw-centrality
   let n count cities
   report (mean [city-bw-centrality] of cities) * 2 / (n * (n - 1))
 end
 
-to-report mean-city-closeness-centrality
+to-report indicators:network:mean-city-closeness-centrality
   let n count cities
   report (mean [city-closeness-centrality] of cities) / n
 end
 
 ;;
 ; mean relative speed, already normalized
-to-report mean-relative-speed
-  report mean table-values nw-relative-speeds
+to-report indicators:network:mean-relative-speed
+  report mean utils:table-values nw-relative-speeds
 end
 
 ;;
 ; nw length -> not normalized
-to-report total-nw-length
+to-report indicators:network:length
   report sum [road-length] of roads
+end
+
+;;
+; number of links
+to-report indicators:network:size
+  report count links
 end
 
 
 
 
-
-to export-nw [file-prefix]
+to indicators:export-nw [file-prefix]
   let cities-coords [(list xcor ycor who)] of cities
   let roads-ids [(list [who] of end1 [who] of end2)] of roads
   let cities-file (word file-prefix "_cities.csv")

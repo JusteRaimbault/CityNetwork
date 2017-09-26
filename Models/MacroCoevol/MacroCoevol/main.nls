@@ -5,139 +5,39 @@
 
 
 
-
+;;
+; go for the full period
 to go-full-period
   
   repeat (length matrix:get-row real-populations 0) - 1 [
     go
   ]
+
+  if setup-type != "synthetic" [
+    show (word "logmsepop = " log-mse-population)
+    show (word "mselogpop = " mse-log-population)
+    show (word "logmsedist = " log-mse-distance)
+  ]
   
 end
 
 
-
+;;
+; go one time step
 to go
   
   ; tick done at the beginning, as we start at t=1
   tick
   
   ; evolve populations
-  evolve-populations
+  cities:evolve-populations
   
   ; evolve network
-  evolve-network
+  network:evolve-network
   
   indicators:update-indicators
   
   ; display
   update-display
-  
-end
-
-
-
-
-
-;;
-;
-;  @ requires t \geq 1
-to evolve-populations
-  
-  ; current time
-  let t ticks
-  let delta_t item t dates - item (t - 1) dates
-  
-  ; previous populations as list
-  let prev-populations matrix:get-column populations (t - 1)
-  let n length prev-populations
-  
-  let diag-pops (matrix:make-diag prev-populations)
-  let diag-pops-gravity matrix:map [ ? ^ gravity-gamma] (matrix:times-scalar diag-pops sum prev-populations) ; ? should be 1 / sum prev-populations -> ok the term simplifies when normalized by mean-pot-gravity
-  let pots-gravity matrix:times diag-pops-gravity (matrix:times gravity-weights diag-pops-gravity)
-  matrix:set-diag-scalar pots-gravity 0
-  let mean-pot-gravity (matrix:sum pots-gravity) / (n * n)
-  set pots-gravity matrix:times-scalar pots-gravity (1 / mean-pot-gravity)
-  
-  ; update gravity flows
-  set gravity-flows matrix:copy pots-gravity
-  
-  ; update feedback flows
-  let diag-pops-feedback matrix:map [ ? ^ feedback-gamma] diag-pops
-  let pots-feedback-flows matrix:times diag-pops-feedback (matrix:times (matrix:make-constant n n 1) diag-pops-feedback) matrix:set-diag-scalar pots-feedback-flows 0
-  set feedback-flows matrix:copy pots-feedback-flows
-  
-  ; feedbacks -> computation depends on heuristic
-  ; lets compute the euclidian by default, quite costless
-  let pots-feedback matrix:times feedback-weights (flatten-pops-feedback (matrix:map [ ? ^ feedback-gamma] (matrix:times (matrix:times diag-pops (matrix:make-constant n n 1)) diag-pops)))
-  
-  if network-type = "physical" [
-    ; recompute pots-feedbacks on link flows : ! parameter gamma is different : specific var feedback-flow
-    
-    ;  - cache nw measures (!! normalisation feedback-flows)
-    network:cache-nw-measures
-    
-    ;  - recompute pots-feedback based on links
-    ; TODO
-     
-  ]
-  
-  let mean-pot-feedback (matrix:sum pots-feedback) / n
-  
-  ;; current populations
-  let gravity-growth (matrix:times-scalar (matrix:times pots-gravity (matrix:make-constant n 1 1)) (gravity-weight / n))
-  let feedback-growth (matrix:times-scalar pots-feedback (2 * feedback-weight / (n * (n - 1) * mean-pot-feedback)))
-  let r (matrix:times-scalar (matrix:times-element-wise (matrix:as-column-matrix prev-populations) (((matrix:make-constant n 1 growth-rate) matrix:+ gravity-growth) matrix:+ feedback-growth)) delta_t)
-  ;show matrix:max r show matrix:min r
-  ;show matrix:as-column-matrix prev-populations
-  let current-populations matrix:plus (matrix:as-column-matrix prev-populations) r
-  ;show current-populations
-  
-  matrix:set-column populations t map [first ?] matrix:to-row-list current-populations
-  
-  
-  ; update agent cities pop
-  update-cities-populations
-  
-  
-end
-
-
-
-to-report flatten-pops-feedback [m]
-  let n length matrix:get-row m 0
-  let res matrix:make-constant (n * (n - 1) / 2) 1 0
-  let i 0
-  repeat n - 2 [
-    let col matrix:submatrix m (i + 1) i n (i + 1)
-    matrix:set-submatrix res ((i * (n - 1)) - (i * (i - 1) / 2)) 0 col
-    set i i + 1 
-  ]
-  report res
-end
-
-to-report flatten-dists-feedback [m]
-  let res [] let i 1
-  foreach but-last matrix:to-row-list m [
-     set res (concatenate list res (sublist ? i (length ?)))
-     set i i + 1
-  ]
-  report res
-end
-
-
-to-report feedback-distance [v1 v2 v3]
-  if v1 = 0 and v2 = 0 [report 0]
-  ifelse v1 <= 0 or v2 <= 0 [report 1e6][if abs v1 >= 1 [show v1 set v1 v1 / abs v1] report v3 * asin v1]
-end
-
-to-report zero-infinite [x]
-  ifelse x = 0 [report 1e10][report x]
-end
-
-
-to update-weights
-  ;; weights
-  set gravity-weights matrix:map [exp (- ? / gravity-decay)] distance-matrix
-  set feedback-weights matrix:map [exp (- ? / feedback-decay)] feedback-distance-matrix
   
 end

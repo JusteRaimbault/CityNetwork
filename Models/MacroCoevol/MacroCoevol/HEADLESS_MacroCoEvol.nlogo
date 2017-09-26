@@ -60,6 +60,11 @@ globals [
   initial-distance-matrix
   feedback-distance-matrix
   
+  distance-matrices
+  
+  real-distance-matrices
+  real-feedback-distance-matrices
+  
   gravity-weights
   feedback-weights
   
@@ -108,7 +113,12 @@ globals [
   feedback-decay
   
   slime-mould-node-distance
+  slime-mould-reinforcment-function
   physical-network-heuristic
+  physical-network-reinforcment-threshold
+  physical-network-reinforcment-quantile
+  
+  link-display-var
  
   synthetic-shortcut-number
   synthetic-city-max-degree
@@ -118,6 +128,9 @@ globals [
   nw-relative-speeds
   nw-distances
   pairs-total-weight
+  
+  geo-paths?
+  fixed-dist?
    
 ]
 
@@ -177,8 +190,6 @@ paths-own [
   
    
 ]
-
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 294

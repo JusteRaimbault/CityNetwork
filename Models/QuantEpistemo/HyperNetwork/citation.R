@@ -10,11 +10,15 @@ source('HyperNetwork/HyperNetwork/functions.R')
 
 # raw network
 #edges <- read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit2_links.csv',sep=";",header=F,colClasses = c('character','character'))
-edges <- read.csv('HyperNetwork/data/NetworkTerritories/cit2_links.csv',sep=";",header=F,colClasses = c('character','character'))
+#edges <- read.csv('HyperNetwork/data/NetworkTerritories/cit2_links.csv',sep=";",header=F,colClasses = c('character','character'))
+edges <- read.csv('HyperNetwork/data/UrbanGrowth/urbangrowth_depth2_links.csv',sep=";",header=F,colClasses = c('character','character'))
+
 
 #nodesabstr <- as.tbl(read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit2-abstract.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c(rep('character',5))))
 #nodes <- as.tbl(read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit2.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character')))
-nodes <- as.tbl(read.csv('HyperNetwork/data/NetworkTerritories/cit2.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character')))
+#nodes <- as.tbl(read.csv('HyperNetwork/data/NetworkTerritories/cit2.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character')))
+nodes <- as.tbl(read.csv('HyperNetwork/data/UrbanGrowth/urbangrowth_depth2.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character')))
+
 
 #nodesprim <-read.csv('HyperNetwork/data/EvolutiveUrbanTheory/EvUrbTh-cit1-grepPumainSandersBretagnolle.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character'))
 # add initial primary
@@ -43,7 +47,7 @@ citation <- graph_from_data_frame(edges,vertices = nodes[,c(2,1,3)])#3:7)])
 #V(raw)$V1[components(raw)$membership==2]
 # length(components(raw)$csize)
 
-citation = induced_subgraph(citation,which(components(raw)$membership==1))
+citation = induced_subgraph(citation,which(components(citation)$membership==1))
 #V(raw)$primary = V(raw)$name%in%nodesprim$V2
 
 #primary = induced_subgraph(raw,which(V(raw)$primary==TRUE))
@@ -67,7 +71,7 @@ citationcore = induced_subgraph(citation,which(degree(citation)>1))
 #write_graph(primary,file='EvolutiveUrbanTheory/data/primary.gml',format = 'gml')
 
 #write_graph(rawcore,file='EvolutiveUrbanTheory/data/primarycore.gml',format = 'gml')
-write_graph(citationcore,file='HyperNetwork/data/NetworkTerritories/rawcore.gml',format = 'gml')
+write_graph(citationcore,file='HyperNetwork/data/UrbanGrowth/rawcore.gml',format = 'gml')
 
 ecount(citationcore)/(vcount(citationcore)*(vcount(citationcore)-1))
 
@@ -82,7 +86,8 @@ mean(degree(citationcore,mode = 'in'))
 ##
 #  analysis of rawcore
 
-A = as.matrix(as_adjacency_matrix(citationcore))
+#A = as.matrix(as_adjacency_matrix(citationcore,sparse = T))
+A=as_adjacency_matrix(citationcore,sparse = T)
 M = A+t(A)
 undirected_rawcore = graph_from_adjacency_matrix(M,mode="undirected")
 
@@ -113,15 +118,19 @@ d=degree(citationcore,mode='in')
 for(c in unique(com$membership)){
   show(paste0("Community ",c, " ; corpus prop ",length(which(com$membership==c))/vcount(undirected_rawcore)))
   #show(paste0("Size ",length(which(com$membership==c))))
-  currentd=d[com$membership==c];dth=sort(currentd,decreasing = T)[5]
+  currentd=d[com$membership==c];dth=sort(currentd,decreasing = T)[10]
   show(data.frame(titles=V(citationcore)$title[com$membership==c&d>dth],degree=d[com$membership==c&d>dth]))
   #show(V(rawcore)$title[com$membership==c])
 }
 
 # -> OK deteministic communities ; no need to save. (multi-level this louvain, not random ?)
 
-# nom des communautés de citation
-citcomnames=list('7'='LUTI','10'='Geography','3'='Infra Planning','12'='Networks','11'='TOD','8'='Accessibility')
+# nom des communaut??s de citation
+#citcomnames=list('7'='LUTI','10'='Geography','3'='Infra Planning','12'='Networks','11'='TOD','8'='Accessibility')
+citcomnames=list('22'='Urban Ecology','8'='Urban Sociology','16'='Housing Market','5'='Spatial Statistics',
+                 '19'='Economic Geography','23'='Criminology','1'='Cellular Automata','10'='Urban Simulation',
+                 '9'='Development','2'='Ecology','20'='Mobility','6'='LUTI','4'='Networks','18'='Economy of Information'
+                 )
 
 #V(citationcore)$citclass = unlist(sapply(as.character(com$membership),function(n){ifelse(n%in%names(citcomnames),unlist(citcomnames[n]),'NA')}))
 V(citationcore)$citmemb = com$membership
@@ -139,7 +148,7 @@ save(citation,citationcore,citcomnames,com,undirected_rawcore,file='HyperNetwork
 # communities
 #com = cluster_louvain(undirected_citation)
 
-# -> 50 coms, mod 0.83 - seems quite ≠
+# -> 50 coms, mod 0.83 - seems quite ???
 
 
 

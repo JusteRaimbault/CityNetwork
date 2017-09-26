@@ -1,4 +1,4 @@
-extensions [table pathdir nw matrix context gradient morphology]
+extensions [table pathdir nw matrix context gradient morphology shell]
 
 ;;;;
 ;; Mesoscopic Co-evolution
@@ -50,6 +50,8 @@ __includes [
    ;;;;
    ;; Utils
    ;;;;
+   
+   "utils.nls"
    
    "utils/Network.nls"
    "utils/AgentSet.nls"
@@ -237,10 +239,11 @@ globals [
   density-alpha-localization
   density-diffusion-steps
   density-diffusion
+  density-preffatt-total-time-steps
   
   gravity-radius
   gravity-inflexion
-  hierarchy-role
+  gravity-hierarchy-weight
   gravity-hierarchy-exponent
   #-max-new-links
   
@@ -252,6 +255,23 @@ globals [
   
   network-biological-threshold
   network-biological-steps
+  
+  random-breakdown-hierarchy
+  random-breakdown-threshold
+  
+  cost-tradeoff
+  
+  network-sigma-distance-road
+  network-setup-method
+  density-setup-method
+  density-from-raster?
+  density-file-id
+  
+  raster-row
+  raster-col
+  
+  final-time-step
+  max-network-size
   
 ]
 
@@ -358,9 +378,6 @@ biological-network-links-own [
 biological-network-real-links-own [
   real-link-length 
 ]
-
-
-
 
 
 

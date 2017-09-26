@@ -87,15 +87,25 @@
 
 \usepackage{bbm}
 
+\usepackage{mdframed}
+
+
+
 % chinese
 %\usepackage{ctex}
 %\setCJKmainfont[BoldFont=FandolSong-Bold.otf,ItalicFont=FandolKai-Regular.otf]{FandolSong-Regular.otf}
 %\setCJKsansfont[BoldFont=FandolHei-Bold.otf]{FandolHei-Regular.otf}
 %\setCJKmonofont{FandolFang-Regular.otf}
-
 %  --> needs XeLateX ? then needs to comment pdflatex options in class definition.
-
-\usepackage{mdframed}
+\usepackage{CJKutf8}
+%\begin{CJK*}{UTF8}{zhsong}
+%文章内容。
+%\clearpage\end{CJK*}
+\newcommand{\cn}[1]{
+  \begin{CJK*}{UTF8}{gbsn}
+  #1
+  \end{CJK*}
+}
 
 
 %%
@@ -311,8 +321,21 @@
  \oldendtable}
         
         
-
+%
 \let\oldcaption\caption
+
+% DOES NOT WORK.
+%\RenewDocumentCommand\caption {o m}{
+%  \IfNoValueTF{#1}
+%          {\oldcaption[]{#2}}       % no TOC arg
+%          {\oldcaption[#1]{#2}}
+%}
+%\newcommand{\appcaption}[1]{
+%\oldcaption[]{#1}
+%    %\ifthenelse{\thelanguage=0}{\oldcaption[]{#1}}{}          
+%    %\ifthenelse{\thelanguage=1}{\oldcaption[]{#1}}{}
+%}
+
 
 \RenewDocumentCommand\caption {s o o m m}
    {\begin{minipage}{1.9cm}\end{minipage}
@@ -333,10 +356,13 @@
       {
         \IfNoValueTF{#2}
           {
+          %\captionsetup{font=small,width=\linewidth,list=no}
+          \setcounter{lofdepth}{0}
            \ifthenelse{\thelanguage=0}{\oldcaption{#4}}{}
            \ifthenelse{\thelanguage=1}{\oldcaption{#5}}{}
            }       % no TOC arg
           { 
+          \setcounter{lofdepth}{1}
            \ifthenelse{\thelanguage=0}{\oldcaption[#2]{#4}}{}
            \ifthenelse{\thelanguage=1}{\oldcaption[#3]{#5}}{}
            }
@@ -451,18 +477,18 @@
 %\unsettoc{lofa}{totoc}
 %\addtocontents{lofa}{\protect\value{tocdepth}=0}
 
-\usepackage{xpatch}
-\xapptocmd{\appendix}{%
-  %\addchap{\appendicesname}
-  \setcounter{figure}{0}
-  \setcounter{table}{0}
-  %\pretocmd\thetable{S}{}{}
-  %\pretocmd\thefigure{S}{}{}
-  \addtocontents{lot}{\protect\value{tocdepth}=0}% note that this is cloned in lota
-  \addtocontents{lof}{\protect\value{tocdepth}=0}% note that this is cloned in lofa
-  %\addtocontents{lota}{\protect\value{tocdepth}=1}%
-  %\addtocontents{lofa}{\protect\value{tocdepth}=1}%
-}{}{}
+%\usepackage{xpatch}
+%\xapptocmd{\appendix}{%
+%  %\addchap{\appendicesname}
+%  \setcounter{figure}{0}
+%  \setcounter{table}{0}
+%  %\pretocmd\thetable{S}{}{}
+%  %\pretocmd\thefigure{S}{}{}
+%  \addtocontents{lot}{\protect\value{tocdepth}=0}% note that this is cloned in lota
+%  \addtocontents{lof}{\protect\value{tocdepth}=0}% note that this is cloned in lofa
+%  %\addtocontents{lota}{\protect\value{tocdepth}=1}%
+%  %\addtocontents{lofa}{\protect\value{tocdepth}=1}%
+%}{}{}
 
 
 

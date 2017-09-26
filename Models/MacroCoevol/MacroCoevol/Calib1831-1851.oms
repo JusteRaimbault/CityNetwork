@@ -1,0 +1,111 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
+logger.level("FINE")
+
+// Parameters
+val period = Val[String]
+val growthRate = Val[Double]
+val gravityWeight = Val[Double]
+val gravityGamma = Val[Double]
+val gravityDecay = Val[Double]
+val gravityAlpha = Val[Double]
+val feedbackWeight = Val[Double]
+val feedbackGamma = Val[Double]
+val feedbackDecay = Val[Double]
+val nwType = Val[Int]
+val nwThreshold = Val[Double]
+val nwExponent = Val[Double]
+val nwGmax = Val[Double]
+
+
+// Reporters
+val logmsepop=Val[Double]
+val mselogpop=Val[Double]
+val logmsedist=Val[Double]
+
+//setup-experiment-real-calibration calibperiod growthrate grav-weight grav-gamma grav-decay feed-weight feed-gamma feed-decay nw-type nw-threshold nw-exp nw-gmax
+val cmds = Seq("setup-experiment-real-calibration \"${period}\" ${growthRate} ${gravityWeight} ${gravityGamma} ${gravityDecay} ${feedbackWeight} ${feedbackGamma} ${feedbackDecay} ${nwType} ${nwThreshold} ${nwExponent} ${nwGmax}","run-experiment")
+
+// Model
+val model =
+NetLogo5Task.workspace(workDirectory,"HEADLESS_MacroCoEvol.nlogo",cmds) set(
+    inputs += (period,growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,nwType,nwThreshold,nwExponent,nwGmax),
+    outputs += (period,growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,nwType,nwThreshold,nwExponent,nwGmax),
+    netLogoOutputs += ("log-mse-population", logmsepop),
+    netLogoOutputs += ("mse-log-population", mselogpop),
+    netLogoOutputs += ("log-mse-distance", logmsedist)
+)
+val modelCapsule = Capsule(model)
+
+
+//val local = LocalEnvironment(20)
+val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+
+
+
+
+
+
+
+val currentperiod = "1831-1851"
+
+
+
+val datestr = (new SimpleDateFormat("yyyyMMdd")).format(new Date())
+val purpose = "calibperiod_nsga_abstractnw"
+val resdir = datestr+"_"+purpose
+
+val varSetting = ExplorationTask(
+  (period is currentperiod)
+  x (feedbackWeight is 0.0)
+  x (feedbackGamma is 1.0)
+  x (feedbackDecay is 1.0)
+  x (nwType is 1)
+) set(
+  inputs += (growthRate,gravityWeight,gravityGamma,gravityDecay/*,feedbackWeight,feedbackGamma,feedbackDecay*/,nwThreshold,nwExponent,nwGmax),
+  outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay/*,feedbackWeight,feedbackGamma,feedbackDecay*/,nwThreshold,nwExponent,nwGmax)
+)
+
+val eval = varSetting -< model
+
+val evolution =
+  SteadyStateEvolution(
+    algorithm =
+      NSGA2(
+        mu = 200,
+        genome =
+          Seq(
+              growthRate in Range(0.0, 0.2)
+              ,gravityWeight in Range(0.00005,0.03)
+              ,gravityGamma in Range(0.1,10.0)
+              ,gravityDecay in Range(1.0,1000.0)
+              //,feedbackWeight in Range(0.00005,10.0)
+              //,feedbackGamma in Range(0.0,100.0)
+              //,feedbackDecay in Range(0.1,1000.0)
+              ,nwThreshold in Range(0.1,20.0)
+              ,nwExponent in Range(0.1,10.0)
+              ,nwGmax in Range(0.0,0.2)
+            ),
+          objectives = Seq(logmsepop,logmsedist)
+      ),
+    evaluation = eval,
+    termination = 30
+)
+
+val island = IslandEvolution(evolution, parallelism = 100,termination=6000)
+
+val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / currentperiod)
+
+(island on grid hook savePopulation)
+
+
+
+
+
+
+
+
+
+
+//

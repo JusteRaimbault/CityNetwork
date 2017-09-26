@@ -40,9 +40,60 @@ to-report network:network-update-condition
   
   let res true
   
-  if network-update-time-mode = "fixed-ticks" [carefully [set res ticks > 0 and ticks mod network-update-ticks = 0][set res true]]
+  if network-update-time-mode = "fixed-ticks" [carefully [set res ticks mod network-update-ticks = 0][set res true]]
+  
   
   report res
+end
+
+
+
+
+;;
+;  Network growth
+;   -> multi-modeling at this stage
+;
+to network:grow-network
+  
+  network:simple-connexification
+  
+  network:update-network-measures
+  
+  ; rbd style nw growth
+  if network-generation-method = "road-connexion" [
+    ; with the connexion of new cities, nothing to do here, already mimics the rbd behavior
+    ; Q : deactivate this mechanism ? not necessarily relevant, as network must be connex
+  ]
+  
+  ; random
+  if network-generation-method = "random" [
+    network-euclidian:generate-network "random" 
+  ]
+  
+  ; gravity breakdown heuristic
+  if network-generation-method = "deterministic-breakdown" [
+    network-heuristic:grow-network "deterministic-breakdown"
+  ]
+  
+  ; simnet heuristic
+  if network-generation-method = "random-breakdown" [
+    network-heuristic:grow-network "random-breakdown"
+  ]
+  
+  ; cost driven
+  if network-generation-method = "cost-driven" [
+    network-heuristic:grow-network "cost-driven"
+  ]
+  
+  ; biological
+  if network-generation-method = "biological" [
+    network-biological:grow-network
+  ]
+  
+  
+  ; ensure connexity
+  network:simple-connexification
+  
 end
 
 
@@ -57,40 +108,6 @@ to network:update-network-measures
   network:update-cities-nw-vars
   
 end
-
-
-
-;;
-;  Network growth
-;   -> multi-modeling at this stage
-;
-to network:grow-network
-  
-  simple-connexification
-  
-  network:update-network-measures
-  
-  ; rbd style nw growth
-  if network-generation-method = "road-connexion" [
-    ; with the connexion of new cities, nothing to do here, already mimics the rbd behavior
-    ; Q : deactivate this mechanism ? not necessarily relevant, as network must be connex
-  ]
-  
-  ; gravity
-  if network-generation-method = "gravity-heuristic" [
-    network-heuristic:grow-network
-  ]
-  
-  ; biological
-  if network-generation-method = "biological" [
-    network-biological:grow-network
-  ]
-  
-  simple-connexification
-  
-end
-
-
 
 
 
@@ -123,7 +140,7 @@ to network:cache-nw-measures
       table:put nw-distances (list [who] of c1 [who] of c2) l table:put nw-distances (list [who] of c2 [who] of c1) l
       ; update relative speed table
       let deucl 0 ask c1 [set deucl distance c2]
-      table:put nw-relative-speeds (list [who] of c1 [who] of c2) (deucl / l)
+      table:put nw-relative-speeds (list [who] of c1 [who] of c2) (deucl / l) table:put nw-relative-speeds (list [who] of c2 [who] of c1) (deucl / l)
       
       set pairs-total-weight pairs-total-weight + [patch-population] of c1 + [patch-population] of c2
       set j j + 1
@@ -177,9 +194,29 @@ end
 
 
 
+to network:simple-connexification
+  ;if count cities > 0 [
+  ; we need to trick here the connexify network function, as its generic implementation fails with empty edgeset
+    ; -> connects the closest cities, what the algo should do in first step  - not exactly, depends on connex comps order (not deterministic ?)
+    
+    ; totally dirty : O(n^2)
+    ask one-of cities with-min [min map [distance ?] to-list (other cities)] [create-road-with one-of ((other cities) with-min [distance myself])]
+    
+    ;connexify-network cities roads
+    network-utils:connexify-network-link-projection
+  ;]
+end
 
 
-to network:import-nw-from-file [prefix]
+
+
+
+;;
+; import a network configuration from csv file
+;  format : file $PREFIX_cities.csv : xcor,ycor,id
+;           file $PREFIX_roads.csv : id1,id2
+;   (note : no capacity ?)
+to network:import-nw-from-csv [prefix]
   let cities-coords read-numeric-csv-as-row-list (word prefix "_cities.csv") ";"
   
   foreach cities-coords [create-cities 1 [setxy item 0 ? item 1 ? set id item 2 ?]]

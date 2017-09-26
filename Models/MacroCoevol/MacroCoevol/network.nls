@@ -3,51 +3,80 @@
 ; network evolution
 
 
-to evolve-network
+to network:evolve-network
   
-  if network-type = "virtual" [
-    ; virtual network : evolve only inpedance of distance matrix, corresponds thematically to speed of virtual network
-    ; simple growth equation :
-    ;   d_ij (t+1) = d_ij (t) * (1 + g_max * \frac{ (phi_ij/phi_0) ^ \gamma - 1 }{(phi_ij/phi_0) ^ \gamma + 1}
+  if network:network-update? = true [
+  
+    if network-type = "virtual" [
+      ; virtual network : evolve only inpedance of distance matrix, corresponds thematically to speed of virtual network
+      ; simple growth equation :
+      ;   d_ij (t+1) = d_ij (t) * (1 + g_max * \frac{ (phi_ij/phi_0) ^ \gamma - 1 }{(phi_ij/phi_0) ^ \gamma + 1}
     
-    ;set distance-matrix (matrix:times-element-wise distance-matrix (matrix:map [(network-reinforcment-threshold / (? + 1e-7)) ^ network-reinforcment-exponent] gravity-flows))
+      ;set distance-matrix (matrix:times-element-wise distance-matrix (matrix:map [(network-reinforcment-threshold / (? + 1e-7)) ^ network-reinforcment-exponent] gravity-flows)) 
+      set distance-matrix (matrix:times-element-wise distance-matrix (matrix:map [1 + (network-reinforcment-gmax * (1 - (? / network-reinforcment-threshold)^ network-reinforcment-exponent) / (1 + (? / network-reinforcment-threshold)^ network-reinforcment-exponent))] gravity-flows))
     
-    set distance-matrix (matrix:times-element-wise distance-matrix (matrix:map [1 + (network-reinforcment-gmax * (1 - (? / network-reinforcment-threshold)^ network-reinforcment-exponent) / (1 + (? / network-reinforcment-threshold)^ network-reinforcment-exponent))] gravity-flows))
-    
-  ]
+    ]
   
   
-  if network-type = "physical" [
-     ; physical network : embodies flows -> feedback computed differently
-     ; different possible heuristics for growth
+    if network-type = "physical" [
+       ; physical network : embodies flows -> feedback computed differently
+       ; different possible heuristics for growth
       
-     ; grow the network
-     grow-network
+       ; grow the network
+       grow-network
      
-     ; update distance matrices
-     update-distance-matrices
+       ; update distance matrices
+       network:update-distance-matrices
       
-  ]
+    ]
+    
+    if network-type = "real" [
+       ; real distances matrices (not coevolution, for benchmarking city growth model)
+       set distance-matrix matrix:copy (table:get real-distance-matrices (item ticks dates)) 
+       set feedback-distance-matrix matrix:copy (table:get real-feedback-distance-matrices (item ticks dates)) 
+    ]
   
+  
+    ; put distance matrix in history
+    table:put distance-matrices (item ticks dates) matrix:copy distance-matrix
+    
+    ; update interaction weights
+    cities:update-weights
+    
+  ]
   
 end
 
+;;
+; condition to update the network
+to-report network:network-update?
+  report true
+end
 
+
+;;
+; grow physical network
 to grow-network
   
   if physical-network-heuristic = "slime-mould" [
-    ; evolve speeds (i.e. impedances) following the slime mould
+    ; evolve speeds (i.e. impedances) following a slime mould heuristic
     ;  flows already computed in population (for feedbak if needed)
+    ; no new links in this heuristic
     
-    ;set physical-network-reinforcment-threshold quantile [flow] of links with [flow > 0] physical-network-reinforcment-quantile
+    if slime-mould-reinforcment-function = "thresholded" [
+      set physical-network-reinforcment-threshold quantile [flow] of links with [flow > 0] physical-network-reinforcment-quantile
     
-    ;ask paths [
-    ;  set effective-length effective-length * (1 + (network-reinforcment-gmax * (physical-network-reinforcment-threshold ^ network-reinforcment-exponent - flow ^ network-reinforcment-exponent) / (physical-network-reinforcment-threshold ^ network-reinforcment-exponent + flow ^ network-reinforcment-exponent)))
-    ;]
+      ask paths [
+        set effective-length effective-length * (1 + (network-reinforcment-gmax * (physical-network-reinforcment-threshold ^ network-reinforcment-exponent - flow ^ network-reinforcment-exponent) / (physical-network-reinforcment-threshold ^ network-reinforcment-exponent + flow ^ network-reinforcment-exponent)))
+      ]
+    ]
     
-    let mf max [flow] of paths
-    ask paths [
-      set effective-length effective-length * (1 - (network-reinforcment-gmax * ((flow / mf) ^ network-reinforcment-exponent) ))
+    if slime-mould-reinforcment-function = "full-growth" [
+    
+      let mf max [flow] of paths
+      ask paths [
+        set effective-length effective-length * (1 - (network-reinforcment-gmax * ((flow / mf) ^ network-reinforcment-exponent) ))
+      ]
     ]
     
   ]
@@ -59,7 +88,7 @@ to grow-network
 end
 
 
-to update-distance-matrices
+to network:update-distance-matrices
   ; recompute nw measures (needed twice)
   network:cache-nw-measures
   
