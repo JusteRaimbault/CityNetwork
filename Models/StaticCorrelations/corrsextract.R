@@ -29,7 +29,7 @@ for(i in 1:length(xcors)){
   show(i)
   for(j in 1:length(ycors)){
     currentest = corrs[[i]][[j]]$estimate
-    if(!is.null(dim(currenttest))){
+    if(!is.null(dim(currentest))){
       rownames(currentest)<-names(res)[c(-1,-2)];colnames(currentest)<-names(res)[c(-1,-2)]
       melted = melt(currentest);melted$names = paste0(as.character(melted[,1]),as.character(melted[,2]))
       row = data.frame(matrix(melted[,3],nrow=1,byrow=T));colnames(row)<-melted$names
