@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import time,sys
-import relevant,utils,stats,dbmanagement,kwExtraction
+import relevant,utils,stats,dbmanagement#,kwExtraction
 
 
 def run():

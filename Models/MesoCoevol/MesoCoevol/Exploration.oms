@@ -110,7 +110,7 @@ val model = NetLogo5Task(workDirectory / "HEADLESS_MesoCoEvol.nlogo", cmds,embed
 // exploration
 val exploration = ExplorationTask (
   (LHS(
-    1,
+    10000,
     growthrate in Range(500.0,3000.0),
     alphalocalization in Range(0.1,4.0),
     diffusionsteps in Range(1.0,4.0),
@@ -136,19 +136,19 @@ val exploration = ExplorationTask (
    //(nwHeuristic is 0)
    //x (nwUpdateTime is 3.0)
    x (totalTime is 10.0)
-   x (replication in (UniformDistribution[Int]() take 1))
-   //x (replication in (UniformDistribution[Int]() take 10))
+   //x (replication in (UniformDistribution[Int]() take 1))
+   x (replication in (UniformDistribution[Int]() take 10))
 )
 
-//val purpose = "LHS"
-val purpose = "TEST"
+val purpose = "LHS"
+//val purpose = "TEST"
 
 // output hook
 val indicshook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")).format(new Date()))+"_"+purpose+".csv")
 
 // env
-val local = LocalEnvironment(1)
-//val grid = EGIEnvironment("vo.complex-systems.eu")
+//val local = LocalEnvironment(1)
+val grid = EGIEnvironment("vo.complex-systems.eu")
 
-exploration -< (model on local hook indicshook)
-//exploration -< (model on grid by 200 hook indicshook)
+//exploration -< (model on local hook indicshook)
+exploration -< (model on grid by 20 hook indicshook)

@@ -109,6 +109,7 @@ constructSemanticNetwork<-function(relevantcollection,kwcollection,nwcollection,
   #names(dico)=as.character(dicoraw$id)
   names(dico)=trimws(format(dicoraw$id,scientific=F))
   
+
   relevant = relevant[,c('keyword','cumtermhood','docfrequency','tidf')]
   #relevant = data.frame(keyword=sapply(relevant,function(d){d$keyword}),
   #                      cumtermhood=sapply(relevant,function(d){d$cumtermhood}),
