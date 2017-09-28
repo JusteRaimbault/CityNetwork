@@ -14,7 +14,7 @@
 
 %--------------------------------------
 
-Nous proposons dans un premier temps de détailler la composante réseau pour l'échelle mesoscopique.
+Nous proposons dans un premier temps de détailler la composante réseau pour l'échelle mesoscopique. L'idée est de comprendre les propriétés intrinsèques des différentes heuristiques de croissance de réseau. Cet exercice est d'une part intéressant en lui-meme puisqu'il n'existe pas a notre connaissance de comparaison systématique de modèles de morphogenèse des réseaux spatiaux : si~\cite{xie2009modeling} propose par exemple une revue du point de vue de l'économie des réseaux, celle-ci ne prend pas en compte certaines disciplines d'une part (voir Chapitre~\ref{ch:modelinginteractions}), et ne compare pas les performances des modèles par des implémentations dediees comparables. 
 
 
 %--------------------------------------
@@ -30,14 +30,24 @@ Pour la croissance du réseau en tant que telle, de nombreuses heuristiques exis
 }
 
 
-L'importance d'heuristiques pouvant capturer une structure topologique permettant un certain compromis entre performance, congestion et coût, est montrée par des analyses empiriques comme \cite{2012arXiv1202.1747W} pour les réseaux de métro, qui montre que les motifs d'évolution des corrélation entre degrés témoignent d'une évolution des réseaux vers une telle topologie.
+L'importance d'heuristiques pouvant capturer une structure topologique permettant un certain compromis entre performance, congestion et coût, est montrée par des analyses empiriques comme \cite{2012arXiv1202.1747W} pour les réseaux de métro, qui montre que les motifs d'évolution des corrélations entre degrés témoignent d'une évolution des réseaux vers une telle topologie.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Network growth model core}{Base du modèle de croissance de réseau}
+
+
+Un processus commun aux différentes heuristiques constitue le coeur du modele de croissance de réseau, et fait le pont entre la distribution de densité de population et le réseau. Concrètement, il s'agit d'attribuer des nouveaux centres en fonction de cette densité, et nous faisons le choix de specifier ce processus de manière exogène a la croissance de réseau elle-même.
+
+% Rq : sur l'equifinalite et les processus equivalents, discussion a faire ici ? - en toute rigueur il faudrait aussi faire du multi-modeling sur cette etape intermediaire.
 
 
 At fixed time steps :
 
 \begin{enumerate}
 	\item Add new nodes preferentially to new population and connect them
-	\item \justify Variable heuristic for new links, among: nothing, random, gravity-based deterministic breakdown, gravity-based random breakdown (from \cite{schmitt2014modelisation}), cost-benefits (from \cite{louf2013emergence}), biological network generation (based on \cite{tero2010rules})
+	\item Variable heuristic for new links, among: nothing, random, gravity-based deterministic breakdown, gravity-based random breakdown (from \cite{schmitt2014modelisation}), cost-benefits (from \cite{louf2013emergence}), biological network generation (based on \cite{tero2010rules})
 \end{enumerate}
 
 Adding a fixed number $n_N$ of new nodes : for patches such that $d_r < d_0$, probability to receive a node is
@@ -55,7 +65,8 @@ General network generation parameters: growth time steps $t_N$, maximal addition
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Baseline heuristics}{Heuristiques de référence}
 
-connection process ; random heuristic.
+Nous implémentons deux heuristiques de references pour mieux situer celles explorées par la suite : celle composée uniquement de la base décrite précédemment, qui produit des réseaux arborescents uniquement ; et la generation de réseau aléatoire, qui consiste a créer un nombre fixe $n_L$ de nouveaux liens entre des sommets choisis aleatoirement, puis a planariser le reseau final.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -70,12 +81,14 @@ Nous appliquons la méthode développée en~\ref{sec:correlatedsyntheticdata}. I
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Random-breakdown}{Rupture de potentiel aléatoire}
 
+La rupture de potentielle aléatoire est celle utilisée par SimpopNet~\cite{schmitt2014modelisation}, qui reprend le modele introduit par~\cite{blumenfeld2010network}. A chaque pas de temps
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Cost-benefits}{Coûts-bénéfices}
 
+La notion de cout n'est pas présente de manière explicite
 
 
 
@@ -86,17 +99,17 @@ Nous appliquons la méthode développée en~\ref{sec:correlatedsyntheticdata}. I
 \cite{raimbault2015labex} explore des applications des modèles de croissance de réseau biologique, notamment leur capacité à produire de manière émergente des solutions optimales au sens de Pareto pour des indicateur contradictoires, comme le coût et la robustesse. Un aperçu des potentialités est donné en Appendice~\ref{app:sec:biological}. Etant donné un réseau initial dont les liens ont des capacités uniformes, l'itération d'équilibres de pression successifs suivis d'une évolution des capacités, permet une convergence vers une distribution hiérarchique stable des capacités. Notre rationnelle est d'utiliser ce mécanisme pour à un instant donné déterminer un certain nombre de liens réalisés, en fonction d'une nouvelle configuration. Les avantages de l'heuristique que nous allons détailler sont notamment que (i) elle peut être utilisée de manière itérative pour traduire une évolution topologique séquentielle du réseau, en comparaison à la plupart des modèles d'investissement qui font évoluer uniquement les capacités dans le temps.
 
 
-Adding new links with biological heuristic:
+L'application du modèle de slime-mould à la generation de réseau s'effectue de la façon suivante :
 
 \begin{enumerate}
-	\item Create network of potential new links, with existing network and randomly sampled diagonal lattice
-	\item Iterate for $k$ increasing ($k\in \{ 1,2,4 \}$ in practice) :
+	\item A partir du réseau existant auquel on ajoute un réseau en grille avec connexion diagonales, et dans lequel on supprime de manière aléatoire 20\% des liens pour simuler les perturbations liées a la topologie, on constitue le support initial dans lequel les flux du slime-mould seront simulés 
+	\item Iterate for $k$ increasing ($k\in \{ 1,2,4 \}$ en pratique) :
 	\begin{itemize}
 		\item Using population distribution, iterate $k\cdot n_b$ times the slime mould model to compute new link capacities
 		\item Delete links with capacity under $\theta_d$
 		\item Keep the largest connected component
 	\end{itemize}
-	\item Planarize and simplify final network
+	\item Le réseau final est planarisé et simplifié
 \end{enumerate}
 
 
@@ -122,6 +135,7 @@ Adding new links with biological heuristic:
 
 
 \subsubsection{Feasible space}{Topologies obtenues}
+
 
 
 
