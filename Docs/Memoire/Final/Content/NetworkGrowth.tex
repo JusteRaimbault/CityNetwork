@@ -38,26 +38,25 @@ L'importance d'heuristiques pouvant capturer une structure topologique permettan
 \subsubsection{Network growth model core}{Base du modèle de croissance de réseau}
 
 
-Un processus commun aux différentes heuristiques constitue le coeur du modele de croissance de réseau, et fait le pont entre la distribution de densité de population et le réseau. Concrètement, il s'agit d'attribuer des nouveaux centres en fonction de cette densité, et nous faisons le choix de specifier ce processus de manière exogène a la croissance de réseau elle-même.
-
-% Rq : sur l'equifinalite et les processus equivalents, discussion a faire ici ? - en toute rigueur il faudrait aussi faire du multi-modeling sur cette etape intermediaire.
+Un processus commun aux différentes heuristiques constitue le coeur du modele de croissance de réseau, et fait le pont entre la distribution de densité de population et le réseau. Concrètement, il s'agit d'attribuer des nouveaux centres en fonction de cette densité, et nous faisons le choix de specifier ce processus de manière exogène à la croissance de réseau elle-même\footnote{Cette étape intermédiaire se rapproche dans notre cas d'un esprit de modélisation procédurale, puisque la règle implémentée cherche a reproduire une forme sans besoin des processus reels. Cela pose la question de l'équifinalité et de l'existence potentielle de modèles equivalents pour ce sous-modele ou pour le modele complet capturant un processus reel correspondant a celle-ci. L'utilisation de multi-modélisation également sur cette étape pourrait être une solution mais les cadres permettant de s'extraire d'un nombre arbitraire de niveaux de stationnarité ou même permettant une autonomie du modèle sur ces choix n'existent pas encore.}.
 
 
-At fixed time steps :
+Au debut de chaque étape de croissance du réseau :
 
 \begin{enumerate}
 	\item Add new nodes preferentially to new population and connect them
 	\item Variable heuristic for new links, among: nothing, random, gravity-based deterministic breakdown, gravity-based random breakdown (from \cite{schmitt2014modelisation}), cost-benefits (from \cite{louf2013emergence}), biological network generation (based on \cite{tero2010rules})
 \end{enumerate}
 
-Adding a fixed number $n_N$ of new nodes : for patches such that $d_r < d_0$, probability to receive a node is
+Un nombre fixe $n_N$ de nouveaux noeuds est ajouté. Séquentiellement, pour les patches tels que $d^{(r)} < d_0$, la probabilité de recevoir un nouveau noeud est donnée par
 
-% note : not a proba for the last ? no pb as soon as in 0,1, realized anyway.
 \[
-p = P/P_{max} \cdot (d_M - d)/d_M \cdot \exp\left(-((d_r - d_0)/\sigma_r)^2\right)
+p_k = P_k/P_{max} \cdot (d_M - d_k)/d_M \cdot \exp\left(-((d^{(r)} - d_0)/\sigma_r)^2\right)
 \]
 
-Nodes connected the shortest way to existing network.
+% note : not a proba for the last ? no pb as soon as in 0,1, realized anyway.
+
+Les nouveaux noeuds sont alors connectés par un nouveau lien, suivant le plus court chemin vers le réseau (raccord perpendiculaire ou avec le sommet le plus proche).
 
 General network generation parameters: growth time steps $t_N$, maximal additional links
 
@@ -65,14 +64,15 @@ General network generation parameters: growth time steps $t_N$, maximal addition
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Baseline heuristics}{Heuristiques de référence}
 
-Nous implémentons deux heuristiques de references pour mieux situer celles explorées par la suite : celle composée uniquement de la base décrite précédemment, qui produit des réseaux arborescents uniquement ; et la generation de réseau aléatoire, qui consiste a créer un nombre fixe $n_L$ de nouveaux liens entre des sommets choisis aleatoirement, puis a planariser le reseau final.
+Nous implémentons deux heuristiques de references pour mieux situer celles explorées par la suite : celle composée uniquement de la base décrite précédemment, qui produit des réseaux arborescents uniquement ; et la generation de réseau aléatoire, qui consiste a créer un nombre fixe $n_L$ de nouveaux liens entre des sommets choisis aléatoirement, puis a planariser le réseau final.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Euclidian heuristic}{Heuristique euclidienne}
 
-Nous appliquons la méthode développée en~\ref{sec:correlatedsyntheticdata}. Il est intéressant de faire le rapprochement avec la rupture de potentielle aléatoire du modele SimpopNet.
+Nous appliquons la méthode développée en~\ref{sec:correlatedsyntheticdata}. Pour memoire, les paramètres sont 
+Il est intéressant de faire le rapprochement avec la rupture de potentielle aléatoire du modele SimpopNet, que nous implementerons également.
 
 
 
@@ -81,14 +81,10 @@ Nous appliquons la méthode développée en~\ref{sec:correlatedsyntheticdata}. I
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Random-breakdown}{Rupture de potentiel aléatoire}
 
-La rupture de potentielle aléatoire est celle utilisée par SimpopNet~\cite{schmitt2014modelisation}, qui reprend le modele introduit par~\cite{blumenfeld2010network}. A chaque pas de temps
+La rupture de potentielle aléatoire est celle utilisée par SimpopNet \cite{schmitt2014modelisation}, qui reprend le modele introduit par \cite{blumenfeld2010network}. A chaque pas de temps, deux villes sont tirées aléatoirement, la premiere selon une probabilité proportionnelle à $P_i^{\gamma_R}$ et la deuxième selon $V_{i_0j}^{\gamma_R}$ sachant que $i_0$ est la première ville tirée et $V_{ij}$ sont les potentiels gravitaires euclidiens. Si $d_N(i_0,j_0) / d(i_0,j_0) > \theta_R$, c'est à dire si le détour relatif par le réseau est supérieur à un paramètre de seuil, on crée un lien entre les deux villes\footnote{pour rester comparable aux autres heuristiques qui n'incluent pas de vitesse des liens, les nouveaux liens sont de vitesse 1 et non $v_0$ comme dans l'implémentation de~\ref{sec:macrocoevolexplo}}.
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Cost-benefits}{Coûts-bénéfices}
-
-La notion de cout n'est pas présente de manière explicite
 
 
 
@@ -96,18 +92,18 @@ La notion de cout n'est pas présente de manière explicite
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Biological heuristic}{Heuristique biologique}
 
-\cite{raimbault2015labex} explore des applications des modèles de croissance de réseau biologique, notamment leur capacité à produire de manière émergente des solutions optimales au sens de Pareto pour des indicateur contradictoires, comme le coût et la robustesse. Un aperçu des potentialités est donné en Appendice~\ref{app:sec:biological}. Etant donné un réseau initial dont les liens ont des capacités uniformes, l'itération d'équilibres de pression successifs suivis d'une évolution des capacités, permet une convergence vers une distribution hiérarchique stable des capacités. Notre rationnelle est d'utiliser ce mécanisme pour à un instant donné déterminer un certain nombre de liens réalisés, en fonction d'une nouvelle configuration. Les avantages de l'heuristique que nous allons détailler sont notamment que (i) elle peut être utilisée de manière itérative pour traduire une évolution topologique séquentielle du réseau, en comparaison à la plupart des modèles d'investissement qui font évoluer uniquement les capacités dans le temps.
+\cite{raimbault2015labex} explore des applications des modèles de croissance de réseau biologique, notamment leur capacité à produire de manière émergente des solutions optimales au sens de Pareto pour des indicateur contradictoires, comme le coût et la robustesse. Un aperçu des potentialités est donné en Appendice~\ref{app:sec:biological}. Etant donné un réseau initial dont les liens ont des capacités uniformes, l'itération d'équilibres de pression successifs suivis d'une évolution des capacités, permet une convergence vers une distribution hiérarchique stable des capacités. Notre rationnelle est d'utiliser ce mécanisme pour à un instant donné déterminer un certain nombre de liens réalisés, en fonction d'une nouvelle configuration. Les avantages de l'heuristique que nous allons détailler sont notamment que (i) elle peut être utilisée de manière itérative pour traduire une évolution topologique séquentielle du réseau, en comparaison à la plupart des modèles d'investissement qui font évoluer uniquement les capacités dans le temps ; et (ii) elle traduit des processus bottom-up d'organisation du réseau, et produit par ailleurs des réseaux optimaux au sens de Pareto pour le cout et la robustesse.
 
 
 L'application du modèle de slime-mould à la generation de réseau s'effectue de la façon suivante :
 
 \begin{enumerate}
 	\item A partir du réseau existant auquel on ajoute un réseau en grille avec connexion diagonales, et dans lequel on supprime de manière aléatoire 20\% des liens pour simuler les perturbations liées a la topologie, on constitue le support initial dans lequel les flux du slime-mould seront simulés 
-	\item Iterate for $k$ increasing ($k\in \{ 1,2,4 \}$ en pratique) :
+	\item On itere pour $k$ croissant ($k\in \{ 1,2,4 \}$ en pratique) :
 	\begin{itemize}
-		\item Using population distribution, iterate $k\cdot n_b$ times the slime mould model to compute new link capacities
-		\item Delete links with capacity under $\theta_d$
-		\item Keep the largest connected component
+		\item Etant donné la distribution de la population, on itere $k\cdot n_b$ fois le modèle de slime mould pour obtenir le réseau emergent par convergence des capacités
+		\item Les liens de capacité inférieure à $\theta_d$ sont supprimés
+		\item La plus grande composante connexe est conservée
 	\end{itemize}
 	\item Le réseau final est planarisé et simplifié
 \end{enumerate}
@@ -117,9 +113,19 @@ L'application du modèle de slime-mould à la generation de réseau s'effectue d
 \begin{figure}
 \frame{\includegraphics[width=0.48\linewidth]{Figures/NetworkGrowth/example-bio-process-1}}\hspace{0.2cm}
 \frame{\includegraphics[width=0.48\linewidth]{Figures/NetworkGrowth/example-bio-process-1-tick80}}
-\caption[Biological Network Example][Exemple du réseau biologique]{}{\label{fig:networkgrowth:bioexample}}
+\caption[Biological Network Example][Exemple du réseau biologique]{}{\textbf{Heuristique biologique pour la generation de réseau.} Cet exemple de visualisation illustre les étapes intermédiaires pour l'ajout de lien. \textit{(Gauche)} le réseau semi-aléatoire initial dans lequel le slime mould est lancé ; \textit{(Droite)} Même réseau après 80 itérations du slime mould, l'épaisseur des liens donnant la capacité.\label{fig:networkgrowth:bioexample}}
 \end{figure}
 %%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Cost-benefits}{Coûts-bénéfices}
+
+La notion de cout n'est pas présente de manière explicite dans l'ensemble des heuristiques de croissance presentees jusqu'ici - elle l'est de manière implicite dans les potentiels de gravité par le paramètre d'attenuation de la distance, ainsi que dans le slime-mould puisque celui-ci génère des réseau compromis entre robustesse et cout. Nous ajoutons donc une heuristique simple qui est centrée sur le cout des tronçons de réseau lors de leur extension. Il s'agit de celle étudiée par~\cite{louf2013emergence}, qui se base sur des arguments d'économie des transports. Suivant une logique d'analyse coûts-bénéfices par les acteurs du développement du réseau, les liens sont réalisés séquentiellement pour les couples de villes non-connectées ayant un coût minimal, avec un coût de la forme $d_{ij} - \lambda / d_{ij}^2$.
+
+
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -129,12 +135,12 @@ L'application du modèle de slime-mould à la generation de réseau s'effectue d
 \subsubsection{Experience plan}{Plan d'expérience}
 
 
-% à longueur de réseau fixée ? difficile car pas controlé directement.
-% test sur quelques config de densité typique ?
 
+La longueur de réseau finale n'est pas directement contrôlée par les paramètres, nous fixons un critère d'arrêt de croissance du réseau à nombre de lien fixe pour pouvoir comparer les réseaux finaux. La génération de réseau est faite à densité de population constante, sur configurations réelles classifiées morphologiquement en~\ref{sec:staticcorrelations}. 
 
 
 \subsubsection{Feasible space}{Topologies obtenues}
+
 
 
 

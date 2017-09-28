@@ -90,9 +90,21 @@ to network-heuristic:heuristic-nw-generation [iterative? mode]
        let d one-of cities with [self != o]
        ask o [
          let vals [] let dests to-list other cities
-         foreach dests [ask ? [ifelse table:has-key? cities-interaction-table (list [who] of o who "euclidian") [set vals lput ((table:get cities-interaction-table (list [who] of o who "euclidian"))^ random-breakdown-hierarchy) vals][set vals lput 0 vals]]]
+         foreach dests [
+           ask ? [
+             ifelse table:has-key? cities-interaction-table (list [who] of o who "euclidian") [
+               set vals lput ((table:get cities-interaction-table (list [who] of o who "euclidian"))^ random-breakdown-hierarchy) vals
+             ][
+               set vals lput 0 vals
+             ]
+           ]
+         ]
          let i 0 let vtot sum vals let v 0 set r random-float 1
-         if vtot > 0 [foreach vals [set v v + (? / vtot) if v > vtot [set d item i dests] set i i + 1]]
+         if vtot > 0 [
+           foreach vals [
+             set v v + (? / vtot) if v > vtot [set d item i dests] set i i + 1
+           ]
+         ]
        ]
        
        if table:has-key? nw-relative-speeds (list [who] of o [who] of d) [

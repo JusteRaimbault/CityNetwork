@@ -152,9 +152,8 @@ for(gravityWeight in unique(res$gravityWeight)){
     g=ggplot(distdata[distdata$synthRankSize==synthRankSize&distdata$nwGmax==nwGmax&distdata$gravityWeight==gravityWeight&distdata$nwThreshold==nwThreshold,],
              aes(x=dbin,y=rho,color=var,group=var)
     )
-    g+geom_point()+geom_smooth()+facet_grid(gravityGamma~gravityDecay)
+    g+geom_point()+geom_smooth()+facet_grid(gravityGamma~gravityDecay)+ggtitle(paste0("gravityWeight=",gravityWeight," ; nwThreshold=",nwThreshold))+stdtheme
     ggsave(paste0(resdir,'distcorrs/distcorrs_gravityWeight',gravityWeight,'_nwThreshold',nwThreshold,'.pdf'),width=30,height=20,units='cm')
-    
   }
 }
 
@@ -177,25 +176,33 @@ measures = c("complexity","diversity","rankCorr")
 
 for(var in vars){
   for(mes in measures){
-    if(!(var=="Pop"&mes=="complexity")){show(paste0(mes,var))
+    #if(!(var=="Pop"&mes=="complexity")){
+    show(paste0(mes,var))
       g=ggplot(res[res$synthRankSize==synthrankSize&res$nwGmax==nwGmax,],aes_string(x="gravityDecay",y=paste0(mes,var),color="gravityGamma",group="gravityGamma"))
-      g+geom_point()+geom_smooth()+facet_grid(gravityWeight~nwThreshold,scales="free")
+      g+geom_point()+geom_smooth()+facet_grid(gravityWeight~nwThreshold,scales="free")+ggtitle(paste0("synthrankSize=",synthrankSize," ; nwGmax=",nwGmax))#+stdtheme
       ggsave(paste0(resdir,'complexity/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',nwGmax,'.pdf'),width=30,height=20,units='cm')
-    }
+    #}
   }
 }
 
 }}
 
 
-synthrankSize = 1.5
-gravityWeight=0.00075
+#synthrankSize = 1.5
+#gravityWeight=0.00075
 
-g=ggplot(res[res$synthRankSize==synthrankSize&res$gravityWeight==gravityWeight,],aes_string(x="gravityDecay",y="diversityPop",color="gravityGamma",group="gravityGamma"))
-g+geom_point()+geom_smooth()+facet_grid(nwThreshold~nwGmax,scales="free")
+#g=ggplot(res[res$synthRankSize==synthrankSize&res$gravityWeight==gravityWeight,],aes_string(x="gravityDecay",y="diversityPop",color="gravityGamma",group="gravityGamma"))
+#g+geom_point()+geom_smooth()+facet_grid(nwThreshold~nwGmax,scales="free")
 #ggsave(paste0(resdir,'complexity/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',nwGmax,'.pdf'),width=30,height=20,units='cm')
 
 # -> difficult to see an effect
+
+
+
+
+
+
+
 
 
 
