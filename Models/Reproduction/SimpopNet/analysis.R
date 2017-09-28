@@ -94,8 +94,8 @@ sres = res%>%group_by(gravityDecay,gravityGamma,networkGamma,networkThreshold,ne
 dists = distancesToRef(simresults=sres,reference=sres[sres$confid==sres$confid[1],],parameters=params,indicators=vars,idcol='confid')
 
 for(var in vars){
-  sresrep = res %>% group_by(id) %>% summarise(ratio=sd(UQ(sym(var)))/abs(mean(UQ(sym(var)))))
-  sresmeta = res %>% group_by(synthCities,synthMaxDegree,synthRankSize,synthShortcut,synthShortcutNum) %>% summarise(ratio=sd(UQ(sym(var)))/abs(mean(UQ(sym(var)))))
+  sresrep = res %>% group_by(id) %>% summarise(ratio=abs(mean(UQ(sym(var))))/sd(UQ(sym(var))))
+  #sresmeta = res %>% group_by(synthCities,synthMaxDegree,synthRankSize,synthShortcut,synthShortcutNum) %>% summarise(ratio=sd(UQ(sym(var)))/abs(mean(UQ(sym(var)))))
   ratio = sd(unlist(res[,var]))/abs(mean(unlist(res[,var])))
   #show(summary(sres$ratio))
   show(paste0(var,", rep : ",mean(sresrep$ratio)/ratio))
