@@ -1,6 +1,8 @@
 import java.text.SimpleDateFormat
 import java.util.Date
 
+logger.level("FINE")
+
 //parameters
 val gravityDecay = Val[Double]
 val gravityGamma = Val[Double]
@@ -67,8 +69,8 @@ val cmds = Seq("setup-experiment ${gravityDecay} ${gravityGamma} ${networkGamma}
 
 val model =
 NetLogo5Task.workspace(workDirectory,"HEADLESS_SimpopNet.nlogo",cmds) set(
-    inputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id,confid),
-    outputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id,confid),
+    inputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id),//,confid),
+    outputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id),//,confid),
     netLogoOutputs += ("population-hierarchies", populationHierarchies),
     netLogoOutputs += ("population-entropies", populationEntropies),
     netLogoOutputs += ("population-summaries", populationSummaries),
@@ -114,20 +116,32 @@ val exploration =  ExplorationTask(
     (gravityGamma in (0.5 to 2.5 by 1.0)) x
     (networkGamma in (0.5 to 2.5 by 1.0)) x
     (networkThreshold in (1.0 to 21.0 by 10.0)) x
-    (networkSpeed in (10.0 to 110.0 by 50.0))
-  ) withIndex id ) x
-  ((LHS (
+    (networkSpeed in (10.0 to 110.0 by 50.0)) x
+    (synthRankSize in (0.5 to 1.5 by 1.0)) x
+    (synthCities in (40.0 to 80.0 by 40.0)) x
+    (synthShortcut in (5.0 to 10.0 by 5.0)) x
+    (synthMaxDegree is 5.0) x
+    (synthShortcutNum in (10.0 to 30.0 by 20.0))
+  ) withIndex id )
+  /*((LHS (
     25
     ,synthRankSize in Range(0.5,1.5)
     ,synthCities in Range(30.0,80.0)
     ,synthShortcut in Range(3.0,15.0)
     ,synthMaxDegree in Range(2.0,10.0)
     ,synthShortcutNum in Range(10.0,40.0)
-  )) withIndex confid)
+  )) withIndex confid)*/
   x (replication in (UniformDistribution[Int]() take 10))
 )
 
-val purpose = "GRIDLHS"
+//val purpose = "GRIDLHS"
+val purpose = "TEST"
+
+val test = EmptyTask() set (
+    inputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id),
+    outputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id)
+)
+
 
 // output
 val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
@@ -135,10 +149,11 @@ val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new Simp
 )
 
 
-val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+//val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+val local = LocalEnvironment(50)
 
-exploration -< (model on grid by 50 hook indics_hook)
-
+//exploration -< (model on grid by 20 hook indics_hook)
+exploration -< (test on local hook indics_hook)
 
 
 
