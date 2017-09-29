@@ -2,145 +2,147 @@
 extensions [gis matrix table gradient nw]
 
 __includes [
-  
+
    ;;;
    ; setup
    "setup.nls"
-   
+
    ;;;
    ; main
    "main.nls"
- 
+
    "cities.nls"
    "network.nls"
- 
+
    ;;;
    ; indicators
    "indicators.nls"
- 
+
    ;;;
    ; display
    "display.nls"
- 
+
    ;;;
    ; experiment
    "experiments.nls"
- 
+
    ;;;;;
    ;; utils
    ;;;;;
-   
+
    "utils/File.nls"
    "utils/String.nls"
    "utils/Matrix.nls"
    "utils/List.nls"
    "utils/Network.nls"
-    
-    
+
+
 ]
 
 
 
 globals [
-  
+
   ;;
   ; dates
   dates
-  
+
   ;;
   ; matrix of cities population in time
   populations
-  
+
   ;;
   ; corresponding real populations
   real-populations
-  
+
   ;;
   ; distance matrices
   distance-matrix
   feedback-distance-matrix
-  
+
   ; history of distance matrices
   distance-matrices
-  
+
   ; real distance matrices (real network)
   real-distance-matrices
   real-feedback-distance-matrices
-  
+
   gravity-weights
   feedback-weights
-  
+
   ; matrice of gravity flows
   gravity-flows
   feedback-flows
-  
+
   ;;
   ; shortest paths params
   alpha0
   n0
-  
-  
+
+
   ;;
   ; network growth
   slime-mould-node-distance
   slime-mould-reinforcment-function
-  
+
   ; network measures
   shortest-paths
   nw-relative-speeds
   nw-distances
   pairs-total-weight
-  
+
   ;
   ;total-time-steps
-  
+
   ; indicators
   indicator-sample-cities
   city-values-table
   indicator-sampling-time-step
-  
-  
+
+
   headless?
-  
+
+  failed?
+
 ]
 
 
 
 patches-own [
- 
+
   elevation
-  
+
 ]
 
 
 breed [cities city]
 
 cities-own [
-  
+
   ; name
   name
-  
+
   ; current population
   population
-  
+
   ; row index in pop matrix
   index
-  
+
   ; history of population
   population-history
   expected-population-history ; convenience variable
-  
+
   ; for comparing between runs : previous population history
   previous-population-history
-  
+
   current-mse
-  
+
   color-var
-   
+
   ; network variables
   city-bw-centrality
   city-flow
-   
+
 ]
 
 
@@ -149,19 +151,19 @@ breed [nodes node]
 undirected-link-breed [paths path]
 
 paths-own [
-  
-  impedance 
-  
+
+  impedance
+
   speed ; effective weight
   relative-speed ; speed per unit of distance
   effective-length
-  
+
   path-length
   bw-centrality
   flow
   feedback-flow
-  
-  
+
+
 ]
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -217,7 +219,7 @@ growth-rate
 growth-rate
 0
 0.05
-0.0010
+2.0E-4
 0.0001
 1
 NIL
@@ -239,7 +241,7 @@ gravity-weight
 gravity-weight
 0
 2e-2
-0.00687
+0.008908
 1e-6
 1
 NIL
@@ -254,7 +256,7 @@ gravity-gamma
 gravity-gamma
 0.5
 5
-5.727
+0.8
 0.01
 1
 NIL
@@ -269,7 +271,7 @@ gravity-decay
 gravity-decay
 1
 500
-1
+311.3
 0.1
 1
 NIL
@@ -343,7 +345,7 @@ BUTTON
 270
 527
 go full period
-if ticks > 0 [setup:reset]\ngo-full-period\noutput-print (word \"mse log : \" mse-log-population)\noutput-print (word \"log mse : \" log-mse-population)\noutput-print (word \"log mse dist : \" log-mse-distance)
+go-full-period
 NIL
 1
 T
@@ -491,7 +493,7 @@ CHOOSER
 period
 period
 "1831-1851" "1841-1861" "1851-1872" "1881-1901" "1891-1911" "1921-1936" "1946-1968" "1962-1982" "1975-1999" "full"
-0
+3
 
 PLOT
 1003
@@ -554,7 +556,7 @@ INPUTBOX
 1049
 247
 city-traj
-DIJON
+PARIS
 1
 0
 String
@@ -655,7 +657,7 @@ CHOOSER
 network-type
 network-type
 "virtual" "physical" "real" "fixed"
-1
+0
 
 SLIDER
 6
@@ -714,7 +716,7 @@ network-reinforcment-gmax
 network-reinforcment-gmax
 0
 0.01
-0.00562
+0.00645
 1e-5
 1
 NIL
@@ -727,7 +729,7 @@ SWITCH
 742
 show-virtual-flows?
 show-virtual-flows?
-1
+0
 1
 -1000
 
@@ -1191,7 +1193,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.3.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
