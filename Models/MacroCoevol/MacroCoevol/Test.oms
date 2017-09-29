@@ -1,0 +1,22 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
+val currentperiod = "1831-1851"
+val datestr = (new SimpleDateFormat("yyyyMMdd")).format(new Date())
+val purpose = "calibperiod_nsga_abstractnw_local"
+val resdir = datestr+"_"+purpose
+
+//println(workDirectory / "calibration" / resdir / currentperiod)
+
+val dir = workDirectory / "calibration" / resdir / currentperiod
+
+//EmptyTask() on LocalEnvironment()
+
+val s = Val[String]
+
+val t = ScalaTask("println(s)") set (inputs += s)
+
+val expl = ExplorationTask((s is dir))
+
+expl -< (t hook ToStringHook())
+

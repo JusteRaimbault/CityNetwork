@@ -131,6 +131,8 @@ globals [
   
   geo-paths?
   fixed-dist?
+
+  failed?
    
 ]
 
