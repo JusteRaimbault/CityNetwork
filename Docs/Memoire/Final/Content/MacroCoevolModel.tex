@@ -27,7 +27,7 @@
 \bpar{
 In a multi-modeling fashion, the model can take into account various processes such as between cities direct interactions, network-mediated interactions, feedback of network flows, and for the network demand-induced growth.
 }{
-Cette première approche se place dans une logique d'extension directe du modèle d'interactions au sein d'un système de villes présenté en chapitre~\autoref{ch:evolutive}, c'est à dire à une échelle macroscopique et avec une ontologie typique au systèmes de villes. Toujours dans un choix de simplicité, dont la relaxation pourra être explorée pour le cas d'application à la Chine avec l'ajout de variables économiques, nous restons ici à une description unidimensionnelle des villes par leur population. Concernant la croissance du réseau, nous proposons de se placer également à un niveau relativement agrégé et simplifié, en testant des heuristiques de croissance répondant à une demande, à différents niveaux d'abstraction. Par une forme de multi-modélisation, le modèle peut prendre en compte divers processus comme les interactions directes entre les villes, les interactions intermédiaires par le réseau, la rétroaction des flux de réseau et une croissance induite par la demande pour le réseau.
+Cette première approche se place dans une logique d'extension directe du modèle d'interactions au sein d'un système de villes présenté en chapitre~\ref{ch:evolutiveurban}, c'est à dire à une échelle macroscopique et avec une ontologie typique au systèmes de villes. Toujours dans un choix de simplicité, dont la relaxation pourra être explorée pour le cas d'application à la Chine avec l'ajout de variables économiques, nous restons ici à une description unidimensionnelle des villes par leur population. Concernant la croissance du réseau, nous proposons de se placer également à un niveau relativement agrégé et simplifié, en testant des heuristiques de croissance répondant à une demande, à différents niveaux d'abstraction. Par une forme de multi-modélisation, le modèle peut prendre en compte divers processus comme les interactions directes entre les villes, les interactions intermédiaires par le réseau, la rétroaction des flux de réseau et une croissance induite par la demande pour le réseau.
 }
 
 
@@ -63,16 +63,10 @@ Network growth heuristics are tested at different abstraction levels that are th
 
 Given the flow $\phi$ in a link, its effective distance is updated following
 
-\begin{enumerate}
-\item For the thresholded case
+For the thresholded case
 \[
 d(t+1) = d(t)\cdot \left( 1 + g_{max} \cdot \left[\frac{1 - \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}{1 + \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}\right]\right)
 \]
-\item For the full growth case
-\[
-d(t+1) = d(t)\cdot \left(1 + g_{max} \cdot \left[\frac{\phi}{\max \phi}\right]^{\gamma_s}\right)
-\]
-\end{enumerate}
 
 where $\gamma_s$ is a hierarchy parameter, $\phi_0$ a threshold parameter and $g_{max}$ the maximal growth rate easily adjustable to realistic values by computing $(1+g_{max})^{t_f}$
 
@@ -198,7 +192,7 @@ Questions concrètes à poser au modèle, expériences ciblées :
 
 \paragraph{Indicators}{Indicateurs}
 
-On peut ajouter aux indicateurs utilisés précédemment un indicateur de calibration pour la distance. L'aspect particulier de l'ajustement pour les populations, qui résidait dans la présence d'une loi de puissance pour les tailles de villes rendant négligeables les performances sur les villes moyennes et les petites villes dans le cas d'une erreur cumulées, et suggérait l'ajout de l'indicateur de l'erreur sur les logarithmes, n'est pas présent pour les distances qui suivent une distribution localisée. Nous utilisons ainsi simplement
+On peut ajouter aux indicateurs utilisés précédemment un indicateur de calibration pour la distance. L'aspect particulier de l'ajustement pour les populations, qui résidait dans la présence d'une loi de puissance pour les tailles de villes rendant négligeables les performances sur les villes moyennes et les petites villes dans le cas d'une erreur cumulées, et suggérait l'ajout de l'indicateur de l'erreur sur les logarithmes, n'est pas présent pour les distances qui suivent une distribution concentrée sur un ordre de grandeur unique. Nous utilisons ainsi simplement
 
 \[
 \varepsilon_D = \log \left[ \sum_t \sum_{i,j} \left(d_{ij}(t) - \tilde{d}_{ij}(t)\right)^2\right]
@@ -225,6 +219,7 @@ On peut ajouter aux indicateurs utilisés précédemment un indicateur de calibr
 \paragraph{Results}{Résultats}
 
 
+Nous procédons à une calibration non-stationnaire, sur les objectifs $(\varepsilon_P,\varepsilon_D)$, par fenêtre mobile sur les périodes deja utilisées en~\ref{sec:interactiongibrat}. Pour limiter la dimension à explorer, nous fixons $w_N = 0$ pour n'étudier les interactions qu'au premier ordre, sachant que les paramètres de réseau abstrait $(g_{max},\gamma_S,\varphi_0)$ sont pris en compte dans la calibration. La Fig.~\label{fig:macrocoevol:pareto} montre les fronts de Pareto obtenus, et la Fig.~\label{fig:macrocoevol:parameters} l'évolution dans le temps des valeurs des paramètres pour les solution optimales.
 
 
 %%%%%%%%%%%%%%%%%%%
@@ -235,6 +230,7 @@ On peut ajouter aux indicateurs utilisés précédemment un indicateur de calibr
 \end{figure}
 %%%%%%%%%%%%%%%%%%%
 
+
 %%%%%%%%%%%%%%%%%%%
 \begin{figure}
 	\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_gravityWeight_filt1}
@@ -243,7 +239,7 @@ On peut ajouter aux indicateurs utilisés précédemment un indicateur de calibr
 	\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_nwExponent_filt1}
 	\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_nwThreshold_filt1}
 	\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_nwGmax_filt1}
-	\caption[][]{\label{fig:macrocoevol:parameters}}{\textbf{Evolution temporelle des paramètres optimaux.}\label{fig:macrocoevol:parameters}
+	\caption[][]{\label{fig:macrocoevol:parameters}}{\textbf{Evolution temporelle des paramètres optimaux.}\label{fig:macrocoevol:parameters}}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%
 
@@ -259,6 +255,24 @@ On peut ajouter aux indicateurs utilisés précédemment un indicateur de calibr
 
 % exemple avec slime-mould
 
+La spécification avec réseau physique correspond en un sens à la combinaison de différentes échelles
+
+
+
+Dans le cas d'un auto-renforcement, une specification similaire à celle utilisée précédemment suppose une croissance pour l'ensemble des liens :
+
+\[
+d(t+1) = d(t)\cdot \left(1 + g_{max} \cdot \left[\frac{\phi}{\max \phi}\right]^{\gamma_s}\right)
+\]
+
+la specification par seuil ne permettant pas une bonne convergence dans le temps.
+
+%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+	\includegraphics[width=0.45\linewidth]{Figures/MacroCoEvol/example_slimemould_1_t0}
+	\includegraphics[width=0.45\linewidth]{Figures/MacroCoEvol/example_slimemould_1_tf}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%
@@ -289,15 +303,24 @@ La considération d'un seul mode de transport pour le système réel est bien s�
 
 \paragraph{Particular trajectories}{Trajectoires Particulières}
 
+
+\bpar{
 The role of medium-sized cities on the trajectories of the system can also be examined with the model.
+}{
+L'étude de trajectoires particulières au sein du système de villes peut permettre de répondre à des questions thématiques spécifiques : par exemple, l'influence des villes moyennes sur la trajectoire globale du système, ou les déterminants d'une plus ou moins bonne ``réussite'' pour ce type de profil.
+}
+
 
 
 
 \paragraph{Comparison of Urban Systems}{Comparaison de systèmes urbains}
 
 
+\bpar{
 Finally, a comparison between the urban systems in different geographical and political contexts and at different scales should unveil implications of planning on the interactions between networks and cities, for example by comparing the rather bottom-up growth of the French railway network to the top-down state-planned French highway and Chinese HSR networks.
-
+}{
+On s'attend finalement également à pouvoir par l'intermédiaire de ce modele comparer des systèmes urbains dans des contextes géographiques et politiques différents, ainsi qu'a différentes échelles. Cela devrait permettre de révéler les implications des actions de planification sur les interactions entre réseaux et territoires. Par exemple, le réseau ferre français a emerge de manière relativement auto-organisée (de par les multiples opérateurs), tandis que les autoroutes ont été fortement planifiées, a l'image du réseau ferré à grande vitesse Chinois, pour lequel un développement précis est envisagé.
+}
 
 
 
