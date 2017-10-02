@@ -90,14 +90,19 @@ val evolution =
           objectives = Seq(logmsepop,logmsedist)
       ),
     evaluation = eval,
-    termination = 200
+    parallelism = 50,
+    termination = 4 hours
+    //termination = 1000
 )
 
-val island = IslandEvolution(evolution, parallelism = 50,termination=150)
+//val island = IslandEvolution(evolution, parallelism = 50,termination=150)
+//val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / currentperiod)
+val savePopulation = SavePopulationHook(evolution, workDirectory / "calibration" / resdir / currentperiod)
 
-val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / currentperiod)
 
-(island on local hook savePopulation)
+(evolution on local hook savePopulation)
+
+//(island on local hook savePopulation)
 
 
 
