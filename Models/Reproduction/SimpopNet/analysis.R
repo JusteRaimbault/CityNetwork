@@ -7,8 +7,8 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Reproduction/SimpopNet'))
 
-res <- as.tbl(read.csv('exploration/20170926_144504_GRIDLHS.csv',stringsAsFactors = FALSE,header=F,skip = 1))
-resdir <- paste0(Sys.getenv('CN_HOME'),'/Results/Reproduction/SimpopNet/20170926_GRIDLHS/');dir.create(resdir)
+res <- as.tbl(read.csv('exploration/20171005_110203_GRIDLHS.csv',stringsAsFactors = FALSE,header=F,skip = 1))
+resdir <- paste0(Sys.getenv('CN_HOME'),'/Results/Reproduction/SimpopNet/20171005_GRIDLHS/');dir.create(resdir)
 
 finalTime = 100
 samplingStep = 5
@@ -93,24 +93,34 @@ sres = res%>%group_by(gravityDecay,gravityGamma,networkGamma,networkThreshold,ne
 
 dists = distancesToRef(simresults=sres,reference=sres[sres$confid==sres$confid[1],],parameters=params,indicators=vars,idcol='confid')
 
-for(var in vars){
-  show(var)
-  sresrep = res[res$populationSummaries_mean95<1e8,] %>% group_by(id) %>% summarise(ratio=abs(mean(UQ(sym(var))))/sd(UQ(sym(var))),count=n())
-  #sresmeta = res %>% group_by(synthCities,synthMaxDegree,synthRankSize,synthShortcut,synthShortcutNum) %>% summarise(ratio=sd(UQ(sym(var)))/abs(mean(UQ(sym(var)))))
-  #ratio = sd(unlist(res[,var]))/abs(mean(unlist(res[,var])))
-  show(min(sresrep$count))
-  show(summary(sresrep$ratio))
-  #show(paste0(var,", rep : ",mean(sresrep$ratio)/ratio))
-  #show(paste0(var,",phasediag : ",mean(sresmeta$ratio)/ratio))
-}
+# pretty print distances
+paste0(sapply(strsplit(names(dists),'-',fixed=T),function(l){l[1]}),collapse = " & ")
+#paste0(sapply(strsplit(names(dists),'-',fixed=T),function(l){l[2]}),collapse = " & ")
+paste0(sapply(strsplit(names(dists),'-',fixed=T),function(l){l[3]}),collapse = " & ")
+paste0(sapply(strsplit(names(dists),'-',fixed=T),function(l){l[4]}),collapse = " & ")
+paste0(sapply(strsplit(names(dists),'-',fixed=T),function(l){l[5]}),collapse = " & ")
+paste0(dists,collapse = ' & ')
+
+
+#for(var in vars){
+#  show(var)
+#  sresrep = res[res$populationSummaries_mean95<1e8,] %>% group_by(id) %>% summarise(ratio=abs(mean(UQ(sym(var))))/sd(UQ(sym(var))),count=n())
+#  #sresmeta = res %>% group_by(synthCities,synthMaxDegree,synthRankSize,synthShortcut,synthShortcutNum) %>% summarise(ratio=sd(UQ(sym(var)))/abs(mean(UQ(sym(var)))))
+#  #ratio = sd(unlist(res[,var]))/abs(mean(unlist(res[,var])))
+#  show(min(sresrep$count))
+#  show(summary(sresrep$ratio))
+#  #show(paste0(var,", rep : ",mean(sresrep$ratio)/ratio))
+#  #show(paste0(var,",phasediag : ",mean(sresmeta$ratio)/ratio))
+#}
 
 
 
 ##################
 ##################
 
-synthCities=80;synthRankSize=1.5;synthShortcut=10;synthShortcutNum=30;networkSpeed=110
+synthCities=80;synthRankSize=0.5;synthShortcut=10;synthShortcutNum=30;networkSpeed=60
 currentdata = res[res$networkThreshold>1&res$synthCities==synthCities&res$synthRankSize==synthRankSize&res$synthShortcut==synthShortcut&res$synthShortcutNum==synthShortcutNum&res$networkSpeed==networkSpeed,]
+#currentdata = res[res$synthCities==synthCities&res$synthRankSize==synthRankSize&res$synthShortcut==synthShortcut&res$synthShortcutNum==synthShortcutNum&res$networkSpeed==networkSpeed,]
 
 dir.create(paste0(resdir,'complexity'))
 
@@ -121,7 +131,8 @@ for(var in vars){
   for(mes in measures){
     show(paste0(mes,var))
     g=ggplot(currentdata,aes_string(x="gravityDecay",y=paste0(mes,var),color="gravityGamma",group="gravityGamma"))
-    g+geom_point()+geom_smooth()+facet_grid(networkGamma~networkThreshold,scales="free")#+ggtitle(paste0("synthrankSize=",synthrankSize," ; nwGmax=",nwGmax))#+stdtheme
+    g+geom_point()+stat_smooth(span=1)+
+      facet_grid(networkGamma~networkThreshold,scales="free")#+ggtitle(paste0("synthrankSize=",synthrankSize," ; nwGmax=",nwGmax))#+stdtheme
     ggsave(paste0(resdir,'complexity/',mes,var,'_synthRankSize',synthRankSize,'_networkSpeed',networkSpeed,'.pdf'),width=30,height=20,units='cm')
     #}
   }
@@ -189,7 +200,7 @@ for(networkGamma in unique(currentdata$networkGamma)){
       g=ggplot(lagdata[lagdata$networkGamma==networkGamma&lagdata$networkThreshold==networkThreshold&lagdata$networkSpeed==networkSpeed,],
              aes(x=tau,y=rho,color=var,group=var)
       )
-      g+geom_point(pch='.')+geom_smooth()+facet_grid(gravityGamma~gravityDecay)+ggtitle(paste0("networkGamma=",networkGamma," ; networkThreshold=",networkThreshold," ; networkSpeed=",networkSpeed))+stdtheme
+      g+geom_point(pch='.')+stat_smooth(span = 0.1)+facet_grid(gravityGamma~gravityDecay)+ggtitle(paste0("networkGamma=",networkGamma," ; networkThreshold=",networkThreshold," ; networkSpeed=",networkSpeed))+stdtheme
       ggsave(paste0(resdir,'laggedcorrs/laggedcorrs_networkGamma',networkGamma,'_networkThreshold',networkThreshold,'_networkSpeed',networkSpeed,'.pdf'),width=30,height=20,units='cm')
       }
     }
