@@ -121,19 +121,21 @@ October 20th 2017
 \begin{columns}
 \column{0.3\textwidth}
 \centering
-\includegraphics[width=\textwidth]{figures/intro_ants}\\\medskip
-\includegraphics[width=\textwidth]{figures/intro_erosion}
+\frame{\includegraphics[width=\textwidth]{figures/intro_ants}}\\\medskip
+\frame{\includegraphics[width=\textwidth]{figures/intro_erosion}}
 \column{0.3\textwidth}
 \centering
-\includegraphics[width=\textwidth]{figures/intro_gameoflife}\\\vspace{0.7cm}
-\includegraphics[width=\textwidth]{figures/intro_arbotron}
+\frame{\includegraphics[width=\textwidth]{figures/intro_gameoflife}}\\\vspace{0.7cm}
+\frame{\includegraphics[width=\textwidth]{figures/intro_arbotron}}
 \column{0.35\textwidth}
 \centering
 \frame{\includegraphics[width=\textwidth]{figures/intro_plane}}\\\medskip
 \frame{\includegraphics[width=\textwidth]{figures/intro_swarmchem}}
 \end{columns}
 
+% remark : do not put classical biological example to show how it has percolated to other fields
 
+\justify
 
 \footnotesize\textit{Sources (in order by column). Ants, Erosion, Game of Life: NetLogo Library ; Arbotron \cite{jun2005formation}; Industrial design \cite{Aage:2017aa}; Swarm chemistry \cite{sayama2007decentralized}}
 % sources : ants netlogo ; erosion netlogo ; arbotron 
@@ -159,6 +161,9 @@ Self-organization $\supsetneq$ Morphogenesis $\supsetneq$ Autopoiesis $\supsetne
 \item Emergence strength~\cite{bedau2002downward} diminishing with depth, whereas bifurcations increase~\cite{thom1974stabilite}
 \end{itemize}
 
+\textbf{Morphogenesis :} \textit{Emergence of the form and the function in a strongly coupled manner, producing an emergent architecture~\cite{doursat2012morphogenetic}}
+
+
 
 }
 
@@ -168,6 +173,14 @@ Self-organization $\supsetneq$ Morphogenesis $\supsetneq$ Autopoiesis $\supsetne
 
 % why modeling, exemple of rbd
 
+\textit{Which models for Urban Morphogenesis ?}
+
+\centering
+
+\includegraphics[height=0.7\textheight]{figures/intro_RBD_lattice}
+
+\footnotesize\textit{Source: \cite{raimbault2014hybrid}}
+
 }
 
 
@@ -175,11 +188,30 @@ Self-organization $\supsetneq$ Morphogenesis $\supsetneq$ Autopoiesis $\supsetne
 
 % model rationale and processes
 
+
+
 }
 
 \sframe{Model Formalization}{
 
-% model formalization
+% model formalization and indicators
+
+We formalize now the model and its parameters. The world is a square grid of width $N$, in which each cell is characterized by its population $(P_i(t))_{1\leq i\leq N^2}$. We consider the grid initially empty, i.e. $P_i(0)=0$, but the model can be easily generalized to any initial population distribution. The population distribution is updated in an iterative way.
+
+At each time step:
+
+\begin{enumerate}
+\item Total population is increased by a fixed number $N_G$ (growth rate). Each population unit is attributed independently to a cell following a preferential attachment of strength $\alpha$
+%\begin{equation}
+%\Pb{P_i(t+1)=P_i(t)+1|P(t+1)=P(t)+1}=\frac{(P_i(t)/P(t))^{\alpha}}{\sum(P_i(t)/P(t))^{\alpha}}
+%\end{equation}
+%The attribution being uniformly drawn if all population are equal to 0.
+\item A fraction $\beta$ of population is diffused $n_d$ times to cell neighborhood
+\end{enumerate}
+
+The model stops when total population reaches a fixed parameter $P_m$.
+
+%To avoid bord effects such as reflecting diffusion waves, border cells diffuse their due proportion outside of the world, implying that the total population at time $t$ is strictly smaller than $N_G\cdot t$.
 
 
 }
@@ -189,28 +221,54 @@ Self-organization $\supsetneq$ Morphogenesis $\supsetneq$ Autopoiesis $\supsetne
 
 % examples : fig 2 of paper
 
-\includegraphics[height=\textheight]{figures/density_Fig2}
+\centering
 
+\includegraphics[height=0.8\textheight]{figures/density_Fig2}
+
+\footnotesize\textit{Examples of generated territorial shapes}
 
 }
 
 
 \sframe{Model behavior}{
 
+\centering
+
+\includegraphics[width=0.9\textwidth]{figures/density_Fig3}
+
+\footnotesize\textit{Phase transitions and non-monotonous behavior of indicators unveiled by intensive exploration of the parameter space}
+
 }
 
-
-\sframe{Model classification : PDE}{
-
-}
 
 
 \sframe{Path-dependence and frozen accidents}{
+
+\centering
+
+\includegraphics[width=0.8\textwidth]{figures/density_Fig4}
+
+\footnotesize\textit{}
+
 
 }
 
 
 \sframe{Real Data}{
+
+\begin{columns}
+\column{0.6\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/density_indics_morpho_discrquantiles}
+\column{0.3\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/density_cluster_pca_k5_morpho}\\
+\includegraphics[width=\textwidth]{figures/density_cluster_map_k5_morpho}
+\end{columns}
+
+\justify
+
+\footnotesize\textit{Computation of morphological indicators on real data for Europe (shown here on France), morphological classification.}
 
 }
 
@@ -219,6 +277,8 @@ Self-organization $\supsetneq$ Morphogenesis $\supsetneq$ Autopoiesis $\supsetne
 \sframe{Model Calibration}{
 
 \includegraphics[width=\textwidth]{figures/density_synth}
+
+\footnotesize\textit{Brute force calibration}
 
 }
 
@@ -231,12 +291,25 @@ Self-organization $\supsetneq$ Morphogenesis $\supsetneq$ Autopoiesis $\supsetne
 }
 
 
-\sframe{Co-evolution of Transportation Networks and Territories}{
+\sframe{Interactions between Networks and Territories}{
 
 % qualitative slide
 % eventually layus on literature with the cit nw ? maybe too much
 % def. covevol : besoin coevol regimes, annexe
 % idem macrocoevol en annexe
+
+
+\textit{Complex co-evolutive processes between Territories and Transportation Networks}
+
+\medskip
+
+\centering
+
+\includegraphics[height=0.7\textheight]{figures/intro_fieldwork}
+
+\footnotesize
+
+\textit{Expanding HSR network in China and ambiguous effects (Source : fieldwork survey)}
 
 
 }
@@ -431,13 +504,58 @@ Calibration (model explored with OpenMole~\cite{reuillon2013openmole}, $\sim 10^
 
 
 
+%%%%%%%%%%%%%%%%%
+\section*{Morphogenesis}
+
+
 %
 %
+%\sframe{Morphogenesis concepts}{
 %
+%\begin{itemize}
+%\item \justify \textbf{Morphogenesis and Self-Organisation} : when does a system exhibit an architecture ? Insights from Morphogenetic Engineering
+%\cite{doursat2013review}. Architecture : the relation between the form and the function ?
+%\medskip
+%\end{itemize}
+%\begin{itemize}
+%\item \justify\textbf{Scales, Units and Boundaries} From local interactions to global information flow (Holland's \emph{signal and boundaries}~\cite{holland2012signals}: morphogenesis as the development of Complex Adaptive Systems ?)
+%\medskip
+%\end{itemize}
+%\begin{itemize}
+%\item \justify \textbf{Symmetry and Bifurcations} : on quantitative becoming qualitative. Ren{\'e} Thom's \emph{theory of catastrophes}~\cite{thom1974stabilite}
+%\medskip
+%\end{itemize}
+%\begin{itemize}
+%\item \justify \textbf{Life and Death} : link with autopoiesis and cognition\\
+%\cite{bourgine2004autopoiesis} ; co-evolution of subsystems as an alternative definition ? In psychology, attractors of the mind.
+%\end{itemize}
+%
+%
+%}
+%
+%
+
+
+
+
+%%%%%%%%%%%%%%%%%
+\section*{Density Morphogenesis}
+
+
+
+%\sframe{Model classification : PDE}{
+%
+%}
+
+
+
+%%%%%%%%%%%%%%%%%
+\section*{Co-evolution Morphogenesis}
+
+
+
 %
 %\sframe{Modeling Urban Morphogenesis}{
-%
-%% Urban settlements and transportation networks are widely admitted to be co-evolving in the thematic and empirical studies of territorial systems. However, modeling approaches of such dynamical interactions between networks and territories are less developed. We propose to study this issue at an intermediate scale, focusing on morphological and functional properties of the territorial system in a stylized way.
 %
 %\justify
 %
@@ -466,7 +584,7 @@ Calibration (model explored with OpenMole~\cite{reuillon2013openmole}, $\sim 10^
 %
 %
 %
-%
+
 
 %
 %
@@ -738,6 +856,20 @@ Calibration (model explored with OpenMole~\cite{reuillon2013openmole}, $\sim 10^
 %
 %
 %
+
+
+
+%%%%%%%%%%%%%%%%%
+%\section*{Network Necessity}
+
+
+
+
+%%%%%%%%%%%%%%%%%
+%\section*{Causality Regimes}
+
+
+
 
 
 
