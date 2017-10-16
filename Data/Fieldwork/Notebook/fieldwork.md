@@ -1,0 +1,66 @@
+
+## 29/10/2016
+
+Bus - parc - rando improvisée - JiaLeFu.
+Pratique de le nature beaucoup moins rependue qu'a HK
+// we du 7/11 : rando a HK. Congestion totale. Du ferry ; metro ok ; de la rando a la descente.
+
+## 16/01/2017
+
+Objectif : Guangzhou ? Pas credible car pont en construction - parti trop tard. Nouvel objectif Xiaolan par Zhongshan. Bus Zhuhai : villages isoles dans la campagne oppressante (vegetation). Pas sur si la ville est loin. Terminus bus Zhongshan : assez bien optimisé, impression que le bus attend. Deux changements seulement. Bus express : arret ajoute gare. Problem unfinished segments (autoroute qui devrait arriver a droite ?). Impossible de rejoindre la gare pourtant a 300m (traversee 4 voie) : des taxis moto improvises attendent specifiquement les gens qui descendent du bus : gare tres utilisee mais a priori insertion pas optimale ? Alentpurs de la gare : villages urbains type milieu de nulle part. Reseau taxis et moto taxi confirme l'impact "improvise" de la gare. Prendre le billet : 2h d'attente min, comme a Guangzhou le 11.prennent le billet en avance ? Ce train pourrait servir de rer (transposition a l'echelle ?) mais semble pas le meme esprit : effet tunnel, tandis que le rer irrigue les territoires avec une grsnularite assez fine. Peut etre la question de la MCR : bien des villes distinctes ! - reseaux tres independants, peu de determination intermediaire pour les infrastructures.
+
+
+
+## 11/12/2016
+
+
+De Pekin a Guangzhou a Shenzhen par Dongguan. Taxi a Pekin : congestion - ultra galere - aeroport pas loin mais completement isolé. Bus express marchent bien entre les villes ; aeroport (jamais teste wntre villes direct autre que bus de la fac
+
+Sur la congestion ? Assez aleatoire. Cf voyage en bus au port de ferry le 10/01 : 1h45 au lieu de 50min, meme heure a peu pres.
+
+Le 11/01 : xiaozhou urban village : industrie tpuristique bien rodee. Difficilement accessible sans taxi ; semboe etre monnaie courante. Bateaubus : utilise pour vrais deplacements (//l'echec du batobus a Paris : configuration tres differente) : plus grand, riviere plus large, endroits moins desservis ?
+
+Back sur Dongguan : paysage continu dusines pour migrants dans zone la moins bien desservie. Quelle mobilité de ces gens ? Citer MigrationDynaMics : tres mobiles sur le temps long, pas du tout quotidiennement ? Macao et HongKong sont vraiment des exceptions sur le daily commuting : carte speciale residents de Zhuhai (pas sur Shenzhen) pour HK et Macao - la main d'oeuvre moins chere ?
+
+Voyage a Macao debut novembre : peu question de transports sur une superficie si petite. Gongbei est un peu la gare de Macao. Enorme complexe souterrain : shopping etc - vont a HK aCeter plein de merdes, surement Macao aussi. Bus efficace. Un peu de verdure le parc ancien fort. Pas vu les casinos. Temple. Cantonais. Culture locale particuliere.
+
+Exemples d'interactions ? Developper le xiaolan, tres interessant. Coupler a des cartes d'evolution ? Peu credible..
+Trouver photos typiques quelques unes en annexe - certaines dans le main text ? Si vraiment utile..
+
+La situation de Tangjia : a peu pres egale distance de Gongbei et de Zhongshan sud. Polderisation. Role de l'université ? Collectif artistes - conservation du patrimoine - restaus bobos cafés etc. Surement differents degrés - mecs sinceres et dautres qui en profitent ? Hightech zone - conflits de gouvernance ? Tod a le beizhan ? Comparer environs a gare tangjia. Entite relativement indep : propre gare de bus, majorite de services sur place. L'attrait duneuf : le nouveau ktv de rencaigongyu semble faire venir gens en voiture - viennent de loin ?
+Le port qui fonctionne pour acheminer du petrole : local ou plus large pour Zhuhai ?
+
+Journee a Doumen : entite urbaine independante - nombreuses usines dans la zone : port au sud etc. Congestion quand traversé. Tours en construction partout.
+
+
+## 19/06/2017
+
+
+Ancienne colonie fr : pas grand chose a dire ; zone renovee : interessant pour les regimes de propriete : pour se debarasser de l'urban village, le go a du racheter les terres, l'urbain est public, seul le rural peut etre possede - par une assemblee d'habitants.
+
+Le 08/10/2016
+Premiere impression des transports. Congestion raisonnable, marce bie
+n
+Strategie ppur eviter le changement pas.bonne idee : tres grand espace entree stations. Carte fausse : differentes perceptions et appropriations de l'espace urbain. L'urban village - sorte de choc ?
+Deux mondes cohabitent - coevoluent ? Les etudiants a fond ultra serieux. Monde isole - liaison tunnel via le bus zhen fangbian.
+Retour au 19/06/2017 : cite universitaire...
+
+
+## 8/06/2017
+
+
+Seulement 4mois et beaucoup de changement : le tram semble marcher (faire une visite du tram et y refererp) - les mobikes sont partout : incroyable la vitesse a laquelle s'est developpe - semble bien marcher meme dans zone moins dense (ex autpur de la fac)
+Avait deja teste en octobre les velos jaunes - developpes au debut pour campus seulement - rempamdus a present. Pas de gps. Probleme de la confiance et du rapport au systeme de transport . Ou securite plus generalement. Dans tous les cas plis de respect pour institutions et ce qu'elles mettent a disposition. Les tours sont finies pour l'exterieur. Mais la liu dong est toujours fantome.
+Footing sur la baie (deux en un mois... vraie torture de courir en cette saison) : autres compounds commencent a ouvrir aussi. Mais services fermes, pas wncore les supermarches (pas sur car la nuit) : ville etalee (dense par les tours) - suppose la voiture.
+
+Fin de la visite giangzhou 19/06
+Cite universitaire : nombreux campus, type ville nouvelle. En grand et efficace. Tour en bus sous la pluie : peu dinteret ? Importance des investissements pour la normal university.
+Connaissait deja indirectement car le bus sy arretait - pas concerne par leffet tunnel - impression donnee par le ppnt de l'autorpute super haut. Science center demesure.
+
+// convention center zhuhai -> visite de terrain du 4/12/2016.
+Point de vue desSplanificateurs : super masterplan, plans sur la comete pour ponts. Vue municipalite correspond pas a province ? Survendu. Role prpgres technoques ? (Cf reseaux multitechnique). Smart and shit. Puis village renovation - patrimoine conservation ? (Cf notes). Maison de zhongshan ..: pas fou
+
+
+## 11/07/2017
+
+bus direct (faible bouchons, 2h10 quasiment tout de même). Gardien à l'entrée : balance les mobikes et autres, aucune pitié (car gênent la porte a priori ?). alarme des mobikes qui sonne.
