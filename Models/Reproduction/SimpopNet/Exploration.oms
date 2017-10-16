@@ -131,16 +131,16 @@ val exploration =  ExplorationTask(
     ,synthMaxDegree in Range(2.0,10.0)
     ,synthShortcutNum in Range(10.0,40.0)
   )) withIndex confid)*/
-  x (replication in (UniformDistribution[Int]() take 10))
+  x (replication in (UniformDistribution[Int]() take 50))
 )
 
-//val purpose = "GRIDLHS"
-val purpose = "TEST"
+val purpose = "GRIDLHS"
+//val purpose = "TEST"
 
-val test = EmptyTask() set (
+/*val test = EmptyTask() set (
     inputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id),
     outputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication,id)
-)
+)*/
 
 
 // output
@@ -149,11 +149,11 @@ val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new Simp
 )
 
 
-//val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
-val local = LocalEnvironment(50)
+val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+//val local = LocalEnvironment(50)
 
-//exploration -< (model on grid by 20 hook indics_hook)
-exploration -< (test on local hook indics_hook)
+exploration -< (model on grid by 20 hook indics_hook)
+//exploration -< (test on local hook indics_hook)
 
 
 
