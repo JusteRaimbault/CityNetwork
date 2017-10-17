@@ -29,7 +29,7 @@ sdata = sdata[apply(sdata,1,function(r){ifelse(length(which(is.na(r)))>0,F,T)}),
 
 morphoindics = c("moran","distance","entropy","slope")
 networkIndics = c("meanBetweenness","meanCloseness","networkPerf","vcount")
-nbootstrap = 20
+nbootstrap = 25
 #nbootstrap = 1
 models=c();
 for(morphoindic in morphoindics){
@@ -43,7 +43,7 @@ for(networkIndic in networkIndics){
 
 
 library(doParallel)
-cl <- makeCluster(20,outfile='loggwr')
+cl <- makeCluster(25,outfile='loggwr')
 registerDoParallel(cl)
 
 resgwr <- foreach(i=1:length(models)) %dopar% {
