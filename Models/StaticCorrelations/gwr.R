@@ -43,7 +43,7 @@ for(networkIndic in networkIndics){
 
 
 library(doParallel)
-cl <- makeCluster(20,outfile='loggwr')
+cl <- makeCluster(40,outfile='loggwr')
 registerDoParallel(cl)
 
 resgwr <- foreach(i=1:length(models)) %dopar% {
