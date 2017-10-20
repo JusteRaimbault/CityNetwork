@@ -24,6 +24,26 @@ mkdir $FIGDIR
 ###############
 ## Chapitre 4
 
+if [ "$TARGET" == "--1" ] || [ "$TARGET" == "--all" ]
+then
+
+  ###############
+  ## 1.2 : Case studies
+
+#fig:casestudies:gpe
+FIGNAME=1-2-1-fig-casestudies-gpe
+echo $FIGNAME
+convert Figures/CaseStudies/timeaccess_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY Figures/CaseStudies/timeaccess_metropole.jpg
+convert Figures/CaseStudies/timegain_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY Figures/CaseStudies/timegain_metropole.jpg
+montage Figures/CaseStudies/timeaccess_metropole.png Figures/CaseStudies/timegain_metropole.png -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+fi
+
+
+
+###############
+## Chapitre 4
+
 if [ "$TARGET" == "--4" ] || [ "$TARGET" == "--all" ]
 then
 
