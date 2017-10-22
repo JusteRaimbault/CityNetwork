@@ -60,7 +60,7 @@ resgwr <- foreach(i=1:length(models)) %dopar% {
   #data=sdata
   #points = SpatialPointsDataFrame(coords=data.frame(data[,c("lonmin","latmin")]),data.frame(data),match.ID=F,proj4string = countries@proj4string)
   bw = bw.gwr(currentmodel,data=points,dMat = dmat,approach = 'AIC',adaptive = T)
-  gw = gwr.basic(currentmodel,data=points,bw=bw,adaptive = T)
+  gw = gwr.basic(currentmodel,data=points,bw=bw,dMat = dmat,adaptive = T)
   d=spDists(points,longlat = T)
   meandist = mean(apply(d,1,function(r){mean(sort(r[r>0])[1:bw])}))
   return(list(bw=bw,meandist=meandist,aic = gw$GW.diagnostic$AICc,r2=gw$GW.diagnostic$gwR2.adj,model=currentmodel,indic=strsplit(currentmodel,split='~')[[1]][1]))
