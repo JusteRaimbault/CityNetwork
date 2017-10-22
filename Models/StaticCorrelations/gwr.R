@@ -49,7 +49,7 @@ dmat = gw.dist(dp.locat = coords,coords)
 
 
 library(doParallel)
-cl <- makeCluster(50,outfile='loggwr')
+cl <- makeCluster(30,outfile='loggwr')
 registerDoParallel(cl)
 
 resgwr <- foreach(i=1:length(models)) %dopar% {
@@ -63,6 +63,7 @@ resgwr <- foreach(i=1:length(models)) %dopar% {
   gw = gwr.basic(currentmodel,data=points,bw=bw,adaptive = T)
   d=spDists(points,longlat = T)
   meandist = mean(apply(d,1,function(r){mean(sort(r[r>0])[1:bw])}))
+  gc()
   return(list(bw=bw,meandist=meandist,aic = gw$GW.diagnostic$AICc,r2=gw$GW.diagnostic$gwR2.adj,model=currentmodel,indic=strsplit(currentmodel,split='~')[[1]][1]))
 }
 
