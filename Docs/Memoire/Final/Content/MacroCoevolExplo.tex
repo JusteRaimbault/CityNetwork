@@ -65,16 +65,17 @@ Pour se concentrer sur la capacité du modèle à produire des trajectoires à l
 \begin{itemize}
   \item Indicateurs basiques : hiérarchie (pente du rang-taille) $\alpha (t)$, entropie $\varepsilon (t)$, statistiques descriptives $\hat{\Eb{X}} (t), \hat{\sigma} (t)$, de la distribution de $X_i$ dans le temps
   \item Corrélation de rang entre l'instant initial et l'instant final, qui traduit la quantité de changement dans la hiérarchie lors de l'évolution du système : $\rho\left[X_i(t=0),X_i(t=t_f)\right]$
-  \item Diversity des trajectoires, qui capture la diversité de forme des séries temporelles, avec $\tilde{X}_i(t)\in \left[0;1\right]$ les trajectoires mises à l'échelle individuellement,
+  \item Diversité des trajectoires, qui capture la diversité de forme des séries temporelles, avec $\tilde{X}_i(t)\in \left[0;1\right]$ les trajectoires mises à l'échelle individuellement,
 \[
 \frac{2}{N\cdot(N-1)}\sum_{i<j} \left(\frac{1}{T}\int_{t} \left(\tilde{X}_i(t) - \tilde{X}_j(t)\right)^2 \right)^{\frac{1}{2}}
 \]
-\item Complexité moyenne des trajectoires, la ``complexité'' d'une trajectoire étant donnée simplement par son nombre de points d'inflexion
-\item Corrélations en fonction de la distance, pour comprendre la manière dont l'effet de la distance est traduit au niveau macroscopique : 
+\item Complexité moyenne des trajectoires, la ``complexité'' d'une trajectoire étant prise simplement dans notre cas par son nombre de points d'inflexion
+\item Corrélations en fonction de la distance, pour comprendre la manière dont l'effet de la distance est traduit au niveau macroscopique. Le profil de cette fonction, au regard des valeurs des paramètres de distance d'interaction inclus dans le modèle, traduira la tendance du modèle à faire émerger tel ou tel niveau d'interaction.
 \[
 \hat{\rho}_d\left[(X(\vec{x}_1,Y(\vec{x}_2))|||\vec{x}_1-\vec{x}_2||\sim d\right]
 \]
-\item Corrélations retardées entre les variations, pour identifier des motifs de causalité entre les variables $X$ et $Y$ : \[
+\item Corrélations retardées entre les variations, pour identifier des motifs de causalité entre les variables $X$ et $Y$. Les motifs $\hat{\rho}_{\tau}$ pour l'ensemble des variables sont à lire dans le sens des régimes potentiels, explorés en~\ref{sec:causalityregimes}.
+\item \[
 \hat{\rho}_{\tau}\left[\Delta X(t),\Delta Y(t-\tau)\right]
 \]
 \end{itemize}
@@ -94,14 +95,65 @@ Nous introduisons de plus divers indicateurs de topologie du réseau, pour compr
 
 \subsubsection{Experience plan}{Plan d'expérience}
 
-Etant donne une configuration spatiale initiale (c'est a dire une valeur des meta-parametres), nous établissons les diagrammes de phase par l'exploration d'une grille de l'espace des paramètres. Le nombre de paramètres étant restreint et les attentes étant d'obtenir un premier aperçu du comportement du modèle, nous ne faisons pas appel à des méthodes d'exploration plus élaborées. Les paramètres sont $(d_G,\gamma_G,\gamma_N,\theta_N,v_0)$ et les méta-paramètres $(N_S,\alpha_S,d_S,n_S)$. Nous explorons une grille de 16 configurations des meta-paramètres, 324 configurations et paramètres, et 10 réplications aléatoires, ce qui correspond à 51840 simulations.
+Etant donne une configuration spatiale initiale (c'est a dire une valeur des meta-parametres), nous établissons les diagrammes de phase par l'exploration d'une grille de l'espace des paramètres. Le nombre de paramètres étant restreint et les attentes étant d'obtenir un premier aperçu du comportement du modèle, nous ne faisons pas appel à des méthodes d'exploration plus élaborées. Les paramètres sont $(d_G,\gamma_G,\gamma_N,\theta_N,v_0)$ et les méta-paramètres $(N_S,\alpha_S,d_S,n_S)$. Nous explorons une grille de 16 configurations des meta-paramètres, 324 configurations et paramètres, et 30 réplications aléatoires, ce qui correspond à 155,520 simulations.
 
 
 
 \subsubsection{Convergence}{Convergence}
 
 
-Pour quantifier la variabilité d'un indicateur $X$ par rapport à la stochasticité, nous utilisons une mesure de type ratio de Sharpe, donnée par $v\left[X\right] = \hat{\Eb{X}}/\hat{\sigma\left[X\right]}$ avec les estimateurs basiques pour l'espérance et la deviation standard. On s'en sert egalement pour comparer la variabilité a la stochasticité a celle par rapport aux paramètres ou meta-paramètres, par exemple en calculant $v\left[X|\vec{\alpha}_1\right]/v\left[X|\vec{\alpha}_2\right]$ pour deux valeurs différentes des paramètres.
+Pour quantifier la variabilité d'un indicateur $X$ par rapport à la stochasticité, nous utilisons une mesure de type ratio de Sharpe, donnée par $v\left[X\right] = \hat{\Eb{X}}/\hat{\sigma\left[X\right]}$ avec les estimateurs basiques pour l'espérance et la deviation standard. Sur l'ensemble des exécutions, on obtient sur l'ensemble des indicateurs donnés précédemment, une médiane estimée sur l'ensemble des valeurs des paramètres, pour le ratio estimé au sein des réplications, qui prend une valeur minimale de $3.94$, pour la moyenne de l'accessibilité à l'instant final, ce qui témoigne d'une faible variabilité stochastique. On peut de plus utiliser cette valeur pour estimer le niveau de convergence : elle correspond à un intervalle de confiance à 95\% autour de la moyenne de taille relative $0.18$ (sous hypothèse de distribution normale de la moyenne), c'est à dire une bonne convergence.
+
+
+%On s'en sert egalement pour comparer la variabilité a la stochasticité a celle par rapport aux paramètres ou meta-paramètres, par exemple en calculant $v\left[X|\vec{\alpha}_1\right]/v\left[X|\vec{\alpha}_2\right]$ pour deux valeurs différentes des paramètres. \comment[JR]{pas besoin, on utilise la methode de spacematters, pour coherence. pas exactement pareil toutefois.}
+
+% values of summaries for Sharpe ratios
+%
+%[1] "accessibilityEntropies95"
+%    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+%   4.038   13.704   35.392   95.136   93.556 4064.812        9 
+%[1] "accessibilityHierarchies_alpha95"
+%   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+%  1.538   6.330   8.912   8.810  11.090  92.960       9 
+%[1] "accessibilitySummaries_mean95"
+%    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+%  0.5106   2.8426   3.9498   5.2793   6.0301 155.6903        9 
+%[1] "closenessEntropies95"
+%   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+%  11.25   39.70   85.78  106.72  154.51  677.88       9 
+%[1] "closenessHierarchies_alpha95"
+%   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+%  2.429   5.107   6.933   7.803   9.930  48.226       9 
+%[1] "closenessSummaries_mean95"
+%   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+%  1.391   3.488   5.753   6.018   7.901  39.855       9 
+%[1] "populationEntropies95"
+%    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+%       3       51      953   646296    17776 35961483        9 
+%[1] "populationHierarchies_alpha95"
+%   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+%      5      42     906  135579    3672 5328192       9 
+%[1] "populationSummaries_mean95"
+%    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+%       1       17      382   229768     6319 11448551        9 
+%[1] "complexityAccessibility"
+%   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+%     NA      NA      NA     NaN      NA      NA    2544 
+%[1] "complexityCloseness"
+%    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+%  0.7363   4.6781  14.1490  16.0315  24.4733 221.7233        9 
+%[1] "complexityPop"
+%   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+%     NA      NA      NA     NaN      NA      NA    2544 
+%[1] "diversityAccessibility"
+%    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+%  0.6063   2.8002   6.2182   6.3092   9.0482 171.3062        9 
+%[1] "diversityCloseness"
+%   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+% 0.8169  3.3100  7.3997  7.1288  9.5683 32.9526       9 
+%[1] "diversityPop"
+%   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+%  1.058   4.089   7.481   8.001  10.858 115.732       9 
 
 
 
@@ -137,11 +189,12 @@ La Fig.~\ref{fig:macrocoevolexplo:behavior} rend compte du comportement du modè
 
 %%%%%%%%%%%%%%%%
 \begin{figure}
-	\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2_5_networkSpeed110}
-	\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/rankCorrPop_synthRankSize0_5_networkSpeed10}\\
-	\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10}
-	\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10}
-	\caption[][Comportement du modèle]{}{\textbf{Comportement du modèle.} \textit{(Haut Gauche)} Trajectoires temporelles de l'entropie des centralités de proximité ; \textit{(Haut Droite)} Correlation de rang pour la population ; \textit{(bas Gauche)} Correlations en fonction de la distance, pour $\gamma_S = 2.5$ ; \textit{(Bas Droite)} Correlations retardées. Pour les interprétations, se référer au texte.\label{fig:macrocoevolexplo:behavior}}
+	%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2_5_networkSpeed110}
+	%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/rankCorrPop_synthRankSize0_5_networkSpeed10}\\
+	%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10}
+	%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10}
+	\includegraphics{Figures/Final/6-1-3-fig-macrocoevolexplo-behavior.jpg}
+	\caption[Model Behavior][Comportement du modèle]{}{\textbf{Comportement du modèle.} \textit{(Haut Gauche)} Trajectoires temporelles de l'entropie des centralités de proximité ; \textit{(Haut Droite)} Correlation de rang pour la population ; \textit{(bas Gauche)} Correlations en fonction de la distance, pour $\gamma_S = 2.5$ ; \textit{(Bas Droite)} Correlations retardées. Pour les interprétations, se référer au texte.\label{fig:macrocoevolexplo:behavior}}
 \end{figure}
 %%%%%%%%%%%%%%%%
 
