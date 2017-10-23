@@ -450,8 +450,10 @@ then
   # fig:mesocoevolmodel:causality
   FIGNAME=7-2-2-fig-mesocoevolmodel-causality
   echo $FIGNAME
-  montage Figures/MesoCoEvol/centertrajs.png Figures/MesoCoEvol/cluster-params.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$((WIDTH / 2))"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-
+  convert Figures/MesoCoEvol/centertrajs.png -resize "$((3 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/centertrajs.jpg
+  convert Figures/MesoCoEvol/cluster-params.png -resize "$((2 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/cluster-params.jpg
+  montage Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
+  rm Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg
 
 
 fi
@@ -522,6 +524,175 @@ then
   montage Figures/EnergyPrice/gwr_allbest_betaincome.png Figures/EnergyPrice/gwr_allbest_betapercapjobs.png Figures/EnergyPrice/gwr_allbest_wage.png Figures/EnergyPrice/gwr_allbest_LocalR2.png -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
   convert $FIGDIR/"$FIGNAME"_tmp.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm $FIGDIR/"$FIGNAME"_tmp.png
+
+
+
+
+
+
+fi
+
+
+
+
+###############
+## Appendix A
+
+if [ "$TARGET" == "--A" ] || [ "$TARGET" == "--all" ]
+then
+
+  #############
+  ## quantepistemo
+
+  # fig:app:quantepistemo:sensitivity
+  FIGNAME=A-quantepistemo-sensitivity
+  echo $FIGNAME
+  montage Figures/Quantepistemo/pareto-com-vertices.png Figures/Quantepistemo/pareto-modularity-vertices.png -resize "$((WIDTH / 2))"x -quality $JPGQUALITY -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME"_tmp.jpg
+  convert Figures/Quantepistemo/sensitivity_freqmin0_normalized.png -resize "$WIDTH"x -quality $JPGQUALITY Figures/Quantepistemo/sensitivity_freqmin0_normalized.jpg
+  montage $FIGDIR/"$FIGNAME"_tmp.jpg Figures/Quantepistemo/sensitivity_freqmin0_normalized.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.jpg Figures/Quantepistemo/sensitivity_freqmin0_normalized.jpg
+
+  # fig:app:quantepistemo:semanticnw
+  FIGNAME=A-quantepistemo-semanticnw
+  echo $FIGNAME
+  convert Figures/Quantepistemo/semantic.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+  #############
+  ## staticcorrelations
+
+  # fig:app:staticcorrelations:morphocn
+  FIGNAME=A-staticcorrelations-morphocn
+  echo $FIGNAME
+  convert Figures/StaticCorrelations/CN_indics_morpho.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:staticcorrelations:networkcn
+  FIGNAME=A-staticcorrelations-networkcn
+  echo $FIGNAME
+  convert Figures/StaticCorrelations/CN_indics_network_selected.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  #
+
+
+  #############
+  ## networkgrowth
+
+  # fig:app:networkgrowth:feasiblespace_bymorph
+  FIGNAME=A-networkgrowth-feasiblespace_bymorph
+  echo $FIGNAME
+  montage Figures/NetworkGrowth/feasible_space_pca_bymorph.png Figures/NetworkGrowth/feasible_space_withreal_pca_bymorph.png -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+fi
+
+
+
+###############
+## Appendix B
+
+if [ "$TARGET" == "--B" ] || [ "$TARGET" == "--all" ]
+then
+
+
+  ###############
+  ## Robustness Discrepancy
+
+  # fig:robustness:segreg
+  FIGNAME=B-robustness-segreg
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/RobustnessDiscrepancy/grandParis_income_moran.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:robustness:sensitivity
+  FIGNAME=B-robustness-sensitivity
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/RobustnessDiscrepancy/alldeps_rob_renormindics.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/RobustnessDiscrepancy/alldeps_rob_renormindics.jpg
+  convert -density $PDFRESOLUTION Figures/RobustnessDiscrepancy/alldeps_robsd_renormindics.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/RobustnessDiscrepancy/alldeps_robsd_renormindics.jpg
+  montage Figures/RobustnessDiscrepancy/alldeps_rob_renormindics.jpg Figures/RobustnessDiscrepancy/alldeps_robsd_renormindics.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
+  rm Figures/RobustnessDiscrepancy/alldeps_rob_renormindics.jpg Figures/RobustnessDiscrepancy/alldeps_robsd_renormindics.jpg
+
+
+
+fi
+
+
+###############
+## Appendix C
+
+if [ "$TARGET" == "--C" ] || [ "$TARGET" == "--all" ]
+then
+
+
+  ###############
+  ## Synthetic Data
+
+  # fig:syntheticdata:example_signal
+  FIGNAME=C-syntheticdata-example_signal
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/SyntheticData/ex_filtering.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:syntheticdata:effective_corrs
+  FIGNAME=C-syntheticdata-effective_corrs
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/SyntheticData/effectiveCorrs_withGoodTh_A4.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:syntheticdata:model_perf
+  FIGNAME=C-syntheticdata-model_perf
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/SyntheticData/pred_filt6.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/SyntheticData/pred_filt6.jpg
+  convert -density $PDFRESOLUTION Figures/SyntheticData/pred_filt9.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/SyntheticData/pred_filt9.jpg
+  convert -density $PDFRESOLUTION Figures/SyntheticData/pred_filt12.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/SyntheticData/pred_filt12.jpg
+  convert -density $PDFRESOLUTION Figures/SyntheticData/lagged_corrs.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/SyntheticData/lagged_corrs.jpg
+  montage Figures/SyntheticData/pred_filt6.jpg Figures/SyntheticData/pred_filt9.jpg Figures/SyntheticData/pred_filt12.jpg Figures/SyntheticData/lagged_corrs.jpg -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
+  rm Figures/SyntheticData/pred_filt6.jpg Figures/SyntheticData/pred_filt9.jpg Figures/SyntheticData/pred_filt12.jpg Figures/SyntheticData/lagged_corrs.jpg
+
+  ###############
+  ## Patents Mining
+
+  # fig:patentsmining:networksensitivity
+  FIGNAME=C-patentsmining-networksensitivity
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig1.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:rawnetwork
+  FIGNAME=C-patentsmining-rawnetwork
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig2.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:mean_K
+  FIGNAME=C-patentsmining-mean_K
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig3.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:class-sizes
+  FIGNAME=C-patentsmining-class-sizes
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig4.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:patent-level-orig
+  FIGNAME=C-patentsmining-patent-level-orig
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig5.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:orig-gene
+  FIGNAME=C-patentsmining-orig-gene
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig6.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:intra-classif-overlap
+  FIGNAME=C-patentsmining-intra-classif-overlap
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig7.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:inter-classif-overlap
+  FIGNAME=C-patentsmining-inter-classif-overlap
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig8.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:modularities
+  FIGNAME=C-patentsmining-modularities
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig9.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
 
 
 
