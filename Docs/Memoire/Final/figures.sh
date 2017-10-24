@@ -91,6 +91,36 @@ fi
 
 
 ###############
+## Chapitre 3
+
+if [ "$TARGET" == "--3" ] || [ "$TARGET" == "--all" ]
+then
+
+  ###############
+  ## 3.1 : Modeling
+
+  # fig:computation:sugarscape-distance
+  FIGNAME=3-1-3-fig-computation-sugarscape-distance
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/Computation/relativedistance_metaparams.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/Computation/relativedistance_metaparams.jpg
+  convert -density $PDFRESOLUTION Figures/Computation/relativedistance_morphspace.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/Computation/relativedistance_morphspace.jpg
+  montage Figures/Computation/relativedistance_metaparams.jpg Figures/Computation/relativedistance_morphspace.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/Computation/relativedistance_metaparams.jpg Figures/Computation/relativedistance_morphspace.jpg
+
+  # fig:computation:sugarscape-phasediagrams
+  FIGNAME=3-1-3-fig-computation-sugarscape-phasediagrams
+  echo $FIGNAME
+  convert Figures/Computation/phasediagram_id27_maxSugar110.png -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/Computation/phasediagram_id27_maxSugar110.jpg
+  convert Figures/Computation/phasediagram_id0_maxSugar110.png -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/Computation/phasediagram_id0_maxSugar110.jpg
+  montage Figures/Computation/phasediagram_id27_maxSugar110.jpg Figures/Computation/phasediagram_id0_maxSugar110.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/Computation/phasediagram_id27_maxSugar110.jpg Figures/Computation/phasediagram_id0_maxSugar110.jpg
+
+
+
+fi
+
+
+###############
 ## Chapitre 4
 
 if [ "$TARGET" == "--4" ] || [ "$TARGET" == "--all" ]
@@ -286,6 +316,381 @@ convert Figures/CorrelatedSyntheticData/configs/4_param71945_seed0.png -resize "
 montage Figures/CorrelatedSyntheticData/configs/1_param71861_seed0.jpg Figures/CorrelatedSyntheticData/configs/2_param71913_seed10.jpg Figures/CorrelatedSyntheticData/configs/3_param71918_seed0.jpg Figures/CorrelatedSyntheticData/configs/4_param71945_seed0.jpg -tile 2x2 -geometry +"$VERTICALPADDING"+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 rm Figures/CorrelatedSyntheticData/configs/1_param71861_seed0.jpg Figures/CorrelatedSyntheticData/configs/2_param71913_seed10.jpg Figures/CorrelatedSyntheticData/configs/3_param71918_seed0.jpg Figures/CorrelatedSyntheticData/configs/4_param71945_seed0.jpg
 
+
+
+
+
+
+
+
+
+fi
+
+
+
+
+###############
+## Chapitre 6
+
+if [ "$TARGET" == "--6" ] || [ "$TARGET" == "--all" ]
+then
+
+  ###############
+  ## 6.1 : Macro-coevol Exploration
+
+  # fig:macrocoevolexplo:behavior
+  FIGNAME=6-1-3-fig-macrocoevolexplo-behavior
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2_5_networkSpeed110.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2_5_networkSpeed110.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/rankCorrPop_synthRankSize0_5_networkSpeed10.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/rankCorrPop_synthRankSize0_5_networkSpeed10.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg
+  montage Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2_5_networkSpeed110.jpg Figures/MacroCoEvolExplo/rankCorrPop_synthRankSize0_5_networkSpeed10.jpg Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg -tile 2x2 -geometry +"$VERTICALPADDING"+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2_5_networkSpeed110.jpg Figures/MacroCoEvolExplo/rankCorrPop_synthRankSize0_5_networkSpeed10.jpg Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg
+
+  ###############
+  ## 6.2 : Macro-coevol
+
+  # fig:macrocoevol:model
+  # ok, very light pdf
+
+  # fig:macrocoevol:behavior
+  FIGNAME=6-2-2-fig-macrocoevol-behavior
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/closenessSummaries_mean_gravityWeight0_001.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/closenessSummaries_mean_gravityWeight0_001.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/populationEntropies_gravityWeight0_001.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/populationEntropies_gravityWeight0_001.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.jpg
+  montage Figures/MacroCoEvol/closenessSummaries_mean_gravityWeight0_001.jpg Figures/MacroCoEvol/populationEntropies_gravityWeight0_001.jpg Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05.jpg Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.jpg -tile 2x2 -geometry +"$VERTICALPADDING"+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/MacroCoEvol/closenessSummaries_mean_gravityWeight0_001.jpg Figures/MacroCoEvol/populationEntropies_gravityWeight0_001.jpg Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05.jpg Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.jpg
+
+  # fig:macrocoevol:correlations
+  FIGNAME=6-2-2-fig-macrocoevol-correlations
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.jpg
+  montage Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.jpg Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.jpg Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.jpg
+
+  # fig:macrocoevol:pareto
+  FIGNAME=6-2-3-fig-macrocoevol-pareto
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/pareto_gravityDecay.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/pareto_gravityDecay.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/pareto_nwThreshold.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/pareto_nwThreshold.jpg
+  montage Figures/MacroCoEvol/pareto_gravityDecay.jpg Figures/MacroCoEvol/pareto_nwThreshold.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/MacroCoEvol/pareto_gravityDecay.jpg Figures/MacroCoEvol/pareto_nwThreshold.jpg
+
+  # fig:macrocoevol:parameters
+  FIGNAME=6-2-3-fig-macrocoevol-parameters
+  echo $FIGNAME
+  montage Figures/MacroCoEvol/param_gravityWeight_filt1.png Figures/MacroCoEvol/param_gravityDecay_filt1.png Figures/MacroCoEvol/param_gravityGamma_filt1.png Figures/MacroCoEvol/param_nwExponent_filt1.png Figures/MacroCoEvol/param_nwThreshold_filt1.png Figures/MacroCoEvol/param_nwGmax_filt1.png -tile 3x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
+  convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.png
+
+  # fig:macrocoevolution:slimemould
+  FIGNAME=6-2-3-fig-macrocoevol-slimemould
+  echo $FIGNAME
+  convert Figures/MacroCoEvol/example_slimemould_1_t0.png -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/example_slimemould_1_t0.jpg
+  convert Figures/MacroCoEvol/example_slimemould_1_tf.png -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/example_slimemould_1_tf.jpg
+  montage Figures/MacroCoEvol/example_slimemould_1_t0.jpg Figures/MacroCoEvol/example_slimemould_1_tf.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
+  rm Figures/MacroCoEvol/example_slimemould_1_t0.jpg Figures/MacroCoEvol/example_slimemould_1_tf.jpg
+
+
+
+fi
+
+
+###############
+## Chapitre 7
+
+if [ "$TARGET" == "--7" ] || [ "$TARGET" == "--all" ]
+then
+
+  ###############
+  ## 7.1 : Network Heuristics
+
+  # fig:networkgrowth:bioexample
+  FIGNAME=7-1-1-fig-networkgrowth-bioexample
+  echo $FIGNAME
+  montage Figures/NetworkGrowth/example-bio-process-1.png Figures/NetworkGrowth/example-bio-process-1-tick80.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -border 2 -bordercolor Black $FIGDIR/"$FIGNAME"_tmp.png
+  convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.png
+
+  # fig:networkgrowth:examples
+  FIGNAME=7-1-2-fig-networkgrowth-examples
+  echo $FIGNAME
+  montage Figures/NetworkGrowth/example_nw-connection.png Figures/NetworkGrowth/example_nw-random.png Figures/NetworkGrowth/example_nw-rndbrkdwn.png Figures/NetworkGrowth/example_nw-gravity.png Figures/NetworkGrowth/example_nw-cost.png Figures/NetworkGrowth/example_nw-bio.png -tile 3x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -border 2 -bordercolor Black $FIGDIR/"$FIGNAME"_tmp.png
+  convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.png
+
+  # fig:networkgrowth:feasiblespace
+  FIGNAME=7-1-2-fig-networkgrowth-feasiblespace
+  echo $FIGNAME
+  convert Figures/NetworkGrowth/feasible_space_pca.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:networkgrowth:realdistance
+  FIGNAME=7-1-2-fig-networkgrowth-realdistance
+  echo $FIGNAME
+  montage Figures/NetworkGrowth/feasible_space_withreal_pca.png Figures/NetworkGrowth/distance_real.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$((WIDTH / 2))"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME"_tmp.jpg
+  convert Figures/NetworkGrowth/distance_real_bymorph.png -resize "$WIDTH"x -quality $JPGQUALITY Figures/NetworkGrowth/distance_real_bymorph.jpg
+  montage $FIGDIR/"$FIGNAME"_tmp.jpg Figures/NetworkGrowth/distance_real_bymorph.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.jpg Figures/NetworkGrowth/distance_real_bymorph.jpg
+
+  ###############
+  ## 7.2 : Meso Coevol
+
+  # fig:mesocoevolmodel:workflow
+  # ok light pdf
+
+  # fig:mesocoevolmodel:calibration
+  FIGNAME=7-2-2-fig-mesocoevolmodel-calibration
+  echo $FIGNAME
+  montage Figures/MesoCoEvol/pca_allobjs.png Figures/MesoCoEvol/corrs-distrib_rhoasize4.png Figures/MesoCoEvol/pca_morpho_byheuristic.png Figures/MesoCoEvol/pca_network_byheuristic.png -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$((WIDTH / 2))"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:mesocoevolmodel:causality
+  FIGNAME=7-2-2-fig-mesocoevolmodel-causality
+  echo $FIGNAME
+  convert Figures/MesoCoEvol/centertrajs.png -resize "$((3 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/centertrajs.jpg
+  convert Figures/MesoCoEvol/cluster-params.png -resize "$((2 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/cluster-params.jpg
+  montage Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
+  rm Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg
+
+
+fi
+
+
+
+###############
+## Chapitre 8
+
+if [ "$TARGET" == "--8" ] || [ "$TARGET" == "--all" ]
+then
+
+
+  ###############
+  ## 8.1 : Transportation Equilibrium
+
+  # fig:transportationequilibrium:fig-1
+  FIGNAME=8-1-2-fig-transportationequilibrium-fig-1
+  echo $FIGNAME
+  convert Figures/TransportationEquilibrium/gr1.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:transportationequilibrium:fig-2
+  FIGNAME=8-1-2-fig-transportationequilibrium-fig-2
+  echo $FIGNAME
+  montage Figures/TransportationEquilibrium/gr21.png Figures/TransportationEquilibrium/gr22.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME"_tmp.png
+  convert $FIGDIR/"$FIGNAME"_tmp.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.png
+
+  # fig:transportationequilibrium:fig-3
+  FIGNAME=8-1-2-fig-transportationequilibrium-fig-3
+  echo $FIGNAME
+  montage Figures/TransportationEquilibrium/gr31.png Figures/TransportationEquilibrium/gr32.png -tile 1x2 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
+  convert $FIGDIR/"$FIGNAME"_tmp.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.png
+
+  # fig:transportationequilibrium:fig-4
+  FIGNAME=8-1-2-fig-transportationequilibrium-fig-4
+  echo $FIGNAME
+  convert Figures/TransportationEquilibrium/gr4.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:transportationequilibrium:fig-5
+  FIGNAME=8-1-2-fig-transportationequilibrium-fig-5
+  echo $FIGNAME
+  convert Figures/TransportationEquilibrium/gr5.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+
+
+  ###############
+  ## 8.2 : Energy Price
+
+
+  # fig:energyprice:map_price
+  FIGNAME=8-2-2-fig-energyprice-map_price
+  echo $FIGNAME
+  convert Figures/EnergyPrice/average_regular_map.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:energyprice:moran
+  FIGNAME=8-2-2-fig-energyprice-moran
+  echo $FIGNAME
+  montage Figures/EnergyPrice/moran_days.png Figures/EnergyPrice/moran_decay_weeks.png -tile 2x1 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
+  convert $FIGDIR/"$FIGNAME"_tmp.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.png
+
+  # fig:energyprice:gwr
+  FIGNAME=8-2-2-fig-energyprice-gwr
+  echo $FIGNAME
+  montage Figures/EnergyPrice/gwr_allbest_betaincome.png Figures/EnergyPrice/gwr_allbest_betapercapjobs.png Figures/EnergyPrice/gwr_allbest_wage.png Figures/EnergyPrice/gwr_allbest_LocalR2.png -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
+  convert $FIGDIR/"$FIGNAME"_tmp.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.png
+
+
+
+
+
+
+fi
+
+
+
+
+###############
+## Appendix A
+
+if [ "$TARGET" == "--A" ] || [ "$TARGET" == "--all" ]
+then
+
+  #############
+  ## quantepistemo
+
+  # fig:app:quantepistemo:sensitivity
+  FIGNAME=A-quantepistemo-sensitivity
+  echo $FIGNAME
+  montage Figures/Quantepistemo/pareto-com-vertices.png Figures/Quantepistemo/pareto-modularity-vertices.png -resize "$((WIDTH / 2))"x -quality $JPGQUALITY -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME"_tmp.jpg
+  convert Figures/Quantepistemo/sensitivity_freqmin0_normalized.png -resize "$WIDTH"x -quality $JPGQUALITY Figures/Quantepistemo/sensitivity_freqmin0_normalized.jpg
+  montage $FIGDIR/"$FIGNAME"_tmp.jpg Figures/Quantepistemo/sensitivity_freqmin0_normalized.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.jpg Figures/Quantepistemo/sensitivity_freqmin0_normalized.jpg
+
+  # fig:app:quantepistemo:semanticnw
+  FIGNAME=A-quantepistemo-semanticnw
+  echo $FIGNAME
+  convert Figures/Quantepistemo/semantic.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+  #############
+  ## staticcorrelations
+
+  # fig:app:staticcorrelations:morphocn
+  FIGNAME=A-staticcorrelations-morphocn
+  echo $FIGNAME
+  convert Figures/StaticCorrelations/CN_indics_morpho.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:staticcorrelations:networkcn
+  FIGNAME=A-staticcorrelations-networkcn
+  echo $FIGNAME
+  convert Figures/StaticCorrelations/CN_indics_network_selected.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  #
+
+
+  #############
+  ## networkgrowth
+
+  # fig:app:networkgrowth:feasiblespace_bymorph
+  FIGNAME=A-networkgrowth-feasiblespace_bymorph
+  echo $FIGNAME
+  montage Figures/NetworkGrowth/feasible_space_pca_bymorph.png Figures/NetworkGrowth/feasible_space_withreal_pca_bymorph.png -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+fi
+
+
+
+###############
+## Appendix B
+
+if [ "$TARGET" == "--B" ] || [ "$TARGET" == "--all" ]
+then
+
+
+  ###############
+  ## Robustness Discrepancy
+
+  # fig:robustness:segreg
+  FIGNAME=B-robustness-segreg
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/RobustnessDiscrepancy/grandParis_income_moran.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:robustness:sensitivity
+  FIGNAME=B-robustness-sensitivity
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/RobustnessDiscrepancy/alldeps_rob_renormindics.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/RobustnessDiscrepancy/alldeps_rob_renormindics.jpg
+  convert -density $PDFRESOLUTION Figures/RobustnessDiscrepancy/alldeps_robsd_renormindics.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/RobustnessDiscrepancy/alldeps_robsd_renormindics.jpg
+  montage Figures/RobustnessDiscrepancy/alldeps_rob_renormindics.jpg Figures/RobustnessDiscrepancy/alldeps_robsd_renormindics.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
+  rm Figures/RobustnessDiscrepancy/alldeps_rob_renormindics.jpg Figures/RobustnessDiscrepancy/alldeps_robsd_renormindics.jpg
+
+
+
+fi
+
+
+###############
+## Appendix C
+
+if [ "$TARGET" == "--C" ] || [ "$TARGET" == "--all" ]
+then
+
+
+  ###############
+  ## Synthetic Data
+
+  # fig:syntheticdata:example_signal
+  FIGNAME=C-syntheticdata-example_signal
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/SyntheticData/ex_filtering.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:syntheticdata:effective_corrs
+  FIGNAME=C-syntheticdata-effective_corrs
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/SyntheticData/effectiveCorrs_withGoodTh_A4.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:syntheticdata:model_perf
+  FIGNAME=C-syntheticdata-model_perf
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/SyntheticData/pred_filt6.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/SyntheticData/pred_filt6.jpg
+  convert -density $PDFRESOLUTION Figures/SyntheticData/pred_filt9.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/SyntheticData/pred_filt9.jpg
+  convert -density $PDFRESOLUTION Figures/SyntheticData/pred_filt12.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/SyntheticData/pred_filt12.jpg
+  convert -density $PDFRESOLUTION Figures/SyntheticData/lagged_corrs.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/SyntheticData/lagged_corrs.jpg
+  montage Figures/SyntheticData/pred_filt6.jpg Figures/SyntheticData/pred_filt9.jpg Figures/SyntheticData/pred_filt12.jpg Figures/SyntheticData/lagged_corrs.jpg -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
+  rm Figures/SyntheticData/pred_filt6.jpg Figures/SyntheticData/pred_filt9.jpg Figures/SyntheticData/pred_filt12.jpg Figures/SyntheticData/lagged_corrs.jpg
+
+  ###############
+  ## Patents Mining
+
+  # fig:patentsmining:networksensitivity
+  FIGNAME=C-patentsmining-networksensitivity
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig1.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:rawnetwork
+  FIGNAME=C-patentsmining-rawnetwork
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig2.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:mean_K
+  FIGNAME=C-patentsmining-mean_K
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig3.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:class-sizes
+  FIGNAME=C-patentsmining-class-sizes
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig4.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:patent-level-orig
+  FIGNAME=C-patentsmining-patent-level-orig
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig5.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:orig-gene
+  FIGNAME=C-patentsmining-orig-gene
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig6.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:intra-classif-overlap
+  FIGNAME=C-patentsmining-intra-classif-overlap
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig7.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:inter-classif-overlap
+  FIGNAME=C-patentsmining-inter-classif-overlap
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig8.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:patentsmining:modularities
+  FIGNAME=C-patentsmining-modularities
+  echo $FIGNAME
+  convert Figures/PatentsMining/Fig9.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
 

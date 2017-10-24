@@ -73,7 +73,7 @@ sres = res %>% group_by(synthCities,synthMaxDegree,synthRankSize,synthShortcut,s
 
 # check counts
 sres=res%>%group_by(id)%>%summarise(count=n(),sdsynthCities=sd(synthCities))
-#sres=res%>%group_by(id,confid)%>%summarise(count=n())
+sres=res%>%group_by(id,confid)%>%summarise(count=n())
 sres=res%>%group_by(replication)%>%summarise(count=n())
 
 # variability across repets
@@ -102,16 +102,16 @@ paste0(sapply(strsplit(names(dists),'-',fixed=T),function(l){l[5]}),collapse = "
 paste0(dists,collapse = ' & ')
 
 
-#for(var in vars){
-#  show(var)
-#  sresrep = res[res$populationSummaries_mean95<1e8,] %>% group_by(id) %>% summarise(ratio=abs(mean(UQ(sym(var))))/sd(UQ(sym(var))),count=n())
+for(var in vars){
+  show(var)
+  sresrep = res[res$populationSummaries_mean95<1e8,] %>% group_by(id) %>% summarise(ratio=abs(mean(UQ(sym(var))))/sd(UQ(sym(var))),count=n())
 #  #sresmeta = res %>% group_by(synthCities,synthMaxDegree,synthRankSize,synthShortcut,synthShortcutNum) %>% summarise(ratio=sd(UQ(sym(var)))/abs(mean(UQ(sym(var)))))
 #  #ratio = sd(unlist(res[,var]))/abs(mean(unlist(res[,var])))
 #  show(min(sresrep$count))
-#  show(summary(sresrep$ratio))
+  show(summary(sresrep$ratio))
 #  #show(paste0(var,", rep : ",mean(sresrep$ratio)/ratio))
 #  #show(paste0(var,",phasediag : ",mean(sresmeta$ratio)/ratio))
-#}
+}
 
 
 
