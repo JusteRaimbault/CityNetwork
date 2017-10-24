@@ -37,9 +37,13 @@ populations = data.frame(id=ids,pop=pops,year=cyears)
 
 popdiff=getDiffs(populations,"pop")
 
+d0 = 100;mode='time';Tw=1
+x= popdiff;y= deltaAccessibilities(d0,distmats=distmats,years=years,mode=mode)
+getLaggedCorrs(x,y,Tw,taumax=0)
+
 res=data.frame()
 d0s = c(1,10,100,500,1000,2000,4000)
-for(mode in c('time','weighteddest','weightedboth')){
+for(mode in c('time')){#,'weighteddest','weightedboth')){
   show(mode)
   for(d0 in d0s){
     show(paste0('d0=',d0))
@@ -53,6 +57,7 @@ for(mode in c('time','weighteddest','weightedboth')){
   }
 }
 
+mode='time'
 for(Tw in 1:10){
   g=ggplot(res[res$Tw==Tw,],aes(x=tau,y=rho,ymin=rhomin,ymax=rhomax,color=d0,group=d0))
   g+geom_point()+geom_line()+geom_errorbar()+facet_grid(mode~span)+stdtheme
@@ -62,7 +67,7 @@ for(Tw in 1:10){
 
 sres = data.frame()
 for(d0 in d0s){
-  sres=rbind(sres,cbind(d0=rep(d0,7),as.tbl(res[res$d0>=d0,])%>%group_by(Tw)%>%summarise(signcorrs=length(which(rho!=0))/length(which(!is.na(rho))))))
+  sres=rbind(sres,cbind(d0=rep(d0,7),as.tbl(res[res$d0==d0,])%>%group_by(Tw)%>%summarise(signcorrs=length(which(rho!=0))/length(which(!is.na(rho))))))
 }
 
 g=ggplot(sres,aes(x=Tw,y=signcorrs,color=d0,group=d0))
