@@ -74,35 +74,45 @@ save(resgwr,file='res/gwr_allpoints.RData')
 # ###############
 # ## analysis
 # # 
-# load('res/gwr_full.RData')
-# 
-# d = as.tbl(data.frame(bw=sapply(resgwr,function(l){l$bw}),
-#                meandist=sapply(resgwr,function(l){l$meandist}),
-#                aic=sapply(resgwr,function(l){l$aic}),
-#                model=sapply(resgwr,function(l){l$model}),
-#                indic=sapply(resgwr,function(l){l$indic})
-#                ))
-# 
+load('res/gwr_allpoints.RData')
+
+d = as.tbl(data.frame(bw=sapply(resgwr,function(l){l$bw}),
+               meandist=sapply(resgwr,function(l){l$meandist}),
+               aic=sapply(resgwr,function(l){l$aic}),
+               R2=sapply(resgwr,function(l){l$r2}),
+               model=sapply(resgwr,function(l){l$model}),
+               indic=sapply(resgwr,function(l){l$indic})
+               ))
+
 # # distrib of aics across models for one indic
-# g=ggplot(d[d$indic=='slope',],aes(x=model,y=aic))
-# g+geom_boxplot()
-# 
-# sres = d%>%group_by(model,indic)%>%summarise(dist=mean(meandist),bw=mean(bw),distsd=sd(meandist),aicsd=sd(aic),aic=mean(aic))
+#g=ggplot(d[d$indic=='slope',],aes(x=model,y=aic))
+#g+geom_boxplot()
+# makes no sense without bootstrap
+
+ 
+#sres = d%>%group_by(model,indic)%>%summarise(dist=mean(meandist),bw=mean(bw),distsd=sd(meandist),aicsd=sd(aic),aic=mean(aic))
 # 
 # # tentative with min over all bootstraps - wrong but to see what happens
 # #bestmodels =d%>%group_by(indic)%>%summarise(bestmodel=model[which(aic==min(aic))],dist=meandist[which(aic==min(aic))],bw=bw[which(aic==min(aic))])
 # 
-# bestmodels = sres%>%group_by(indic)%>%summarise(bestmodel=model[which(aic-aicsd==min(aic-aicsd))],dist=dist[which(aic-aicsd==min(aic-aicsd))],bw=bw[which(aic-aicsd==min(aic-aicsd))])
+#bestmodels = sres%>%group_by(indic)%>%summarise(bestmodel=model[which(aic-aicsd==min(aic-aicsd))],dist=dist[which(aic-aicsd==min(aic-aicsd))],bw=bw[which(aic-aicsd==min(aic-aicsd))])
+bestmodels = d%>%group_by(indic)%>%summarise(bestmodel=model[which(aic==min(aic))],dist=meandist[which(aic==min(aic))],bw=bw[which(aic==min(aic))],R2=R2[which(aic==min(aic))])
+
 # 
 # # use akaike weights
-# for(indic in indics){
-# #dd = d[d$indic==indic,]
-# dd = sres[sres$indic==indic,]
-# dd$weight = exp(-(dd$aic-min(dd$aic))/2)/sum(exp(-(dd$aic-min(dd$aic))/2))
+for(indic in indics){
+dd = d[d$indic==indic,]
+#dd = sres[sres$indic==indic,]
+dd$weight = exp(-(dd$aic-min(dd$aic))/2)/sum(exp(-(dd$aic-min(dd$aic))/2))
 # #show(dd[dd$weight>quantile(dd$weight,0.8),])
-# show(dd[dd$weight>0.01,])
+show(dd[dd$weight>0.01,])
 # #show(max(dd$weight))
-# }
+}
+
+
+
+
+
 # 
 # # 
 # data=sdata

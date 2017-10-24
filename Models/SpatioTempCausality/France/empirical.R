@@ -72,12 +72,12 @@ for(d0 in d0s){
 }
 
 g=ggplot(sres,aes(x=Tw,y=signcorrs,color=d0,group=d0))
-g+geom_point()+geom_line()+stdtheme
-ggsave(paste0(resdir,'significantcorrs_Tw.pdf'),width=15,height=10,units='cm')
+g+geom_point()+geom_line()+stdtheme+ylab("% Significant Correlations")+xlab(expression(T[w]))
+ggsave(paste0(resdir,'significantcorrs_Tw.pdf'),width=15,height=12,units='cm')
 
 g=ggplot(sres,aes(x=d0,y=signcorrs,color=Tw,group=Tw))
-g+geom_point()+geom_line()+stdtheme
-ggsave(paste0(resdir,'significantcorrs_d0.pdf'),width=15,height=10,units='cm')
+g+geom_point()+geom_line()+stdtheme+ylab("% Significant Correlations")+xlab(expression(d[0]))+scale_x_log10()
+ggsave(paste0(resdir,'significantcorrs_d0.pdf'),width=15,height=12,units='cm')
 
 
 # -> correlations become less significant with distance -> spatial stationarity effect.
