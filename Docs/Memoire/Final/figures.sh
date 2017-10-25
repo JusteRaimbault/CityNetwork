@@ -547,6 +547,21 @@ fi
 
 
 ###############
+## Conclusion
+
+if [ "$TARGET" == "--CL" ] || [ "$TARGET" == "--all" ]
+then
+
+  # artwork
+  FIGNAME=CL-artwork
+  echo $FIGNAME
+  convert Figures/Art/Capture\ d’écran\ 2016-08-08\ à\ 11.46.55.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+fi
+
+
+###############
 ## Appendix A
 
 if [ "$TARGET" == "--A" ] || [ "$TARGET" == "--all" ]
