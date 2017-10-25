@@ -298,28 +298,46 @@ On observe une variation significative des correlations fonction de $\delta$, qu
 
 
 
-%%%%%%
-% -- ON HOLD --
 
 %%%%%%%%%%%%%%%%%%
-%\paragraph{Optimal Scales}{Echelles optimales}
+\paragraph{Optimal Scales}{Echelles optimales}
 
 
-%\bpar{
-%We also compute the optimal bandwidth for a GWR PCA~\cite{harris2011geographically}. We beware to sample data accordingly to avoid local colinearity :\cite{wheeler2007diagnostic} colinearity in GWR
-%}{
-%Nous validons la propriété de multi-scalarité par extraction d'échelles endogène présentes dans les données. Une Analyse en Composantes Principales Géographique Pondérée (GWRPCA)~\cite{harris2011geographically} suggère des poids et importances variables dans l'espace, ce qui est cohérent avec la non-stationnarité des structures de corrélation obtenue ci-dessus. Il n'y a a priori pas de raison pour que les échelles de variation des différents indicateurs soient strictement identiques. Nous proposons donc d'extraire les échelles typiques pour les relations croisées entre forme urbaine et forme de réseau, par la méthode suivante : nous considérons un échantillon typique d'indicateurs (quatre pour chaque aspect), et pour chaque nous formulons l'ensemble des modèles linéaires possibles en fonction des indicateurs opposés (réseau pour un indicateur morphologique, morphologique pour un indicateur de réseau), visant à capturer directement l'interaction sans contrôle sur le régime de forme ou de réseau. Ces modèles sont alors ajusté par une Régression Géographique Pondérée (GWR) à portée optimale déterminée par critère d'information corrigé. Pour chaque indicateur, on retient le modèle ayant la meilleure valeur du critère d'information. Nous ajustons les modèles sur les données de la France, avec un noyau \emph{bisquare} et un portée adaptable en nombre de voisins, en bootstrappant pour l'ajustage avec $b=10$ répétitions échantillonnant 3000 points à chaque fois. Les résultats sont présentés en Table~\ref{tab:staticcorrelations:gwr}. 
-%}
+\bpar{
+We also compute the optimal bandwidth for a GWR PCA~\cite{harris2011geographically}. We beware to sample data accordingly to avoid local colinearity :\cite{wheeler2007diagnostic} colinearity in GWR
+}{
+Nous explorons d'autre part la propriété de multi-scalarité par extraction d'échelles endogène présentes dans les données. Une Analyse en Composantes Principales Géographique Pondérée (GWRPCA)~\cite{harris2011geographically} suggère des poids et importances variables dans l'espace, ce qui est cohérent avec la non-stationnarité des structures de corrélation obtenue ci-dessus. Il n'y a a priori pas de raison pour que les échelles de variation des différents indicateurs soient strictement identiques. Nous proposons donc d'extraire les échelles typiques pour les relations croisées entre forme urbaine et forme de réseau, par la méthode suivante : nous considérons un échantillon typique d'indicateurs (quatre pour chaque aspect), et pour chaque indicateur nous formulons l'ensemble des modèles linéaires possibles en fonction des indicateurs opposés (réseau pour un indicateur morphologique, morphologique pour un indicateur de réseau), visant à capturer directement l'interaction sans contrôle sur le régime de forme ou de réseau. Ces modèles sont alors ajustés par une Régression Géographique Pondérée (GWR) à portée optimale déterminée par critère d'information corrigé. Pour chaque indicateur, on retient le modèle ayant la meilleure valeur du critère d'information. Nous ajustons les modèles sur les données de la France, avec un noyau \emph{bisquare} et une portée adaptable en nombre de voisins. Les résultats sont présentés en Table~\ref{tab:staticcorrelations:gwr}. 
+}
+
+%bestmodels
+%            indic             bestmodel      dist    bw        R2
+%           <fctr>                <fctr>     <dbl> <dbl>     <dbl>
+%1        distance  distance~networkPerf 11.609078    30 0.3145114
+%2         entropy   entropy~networkPerf  8.795393    16 0.7511295
+%3 meanBetweenness meanBetweenness~moran 12.294076    34 0.5776019
+%4   meanCloseness   meanCloseness~moran 13.883025    44 0.2565047
+%5           moran     moran~networkPerf  8.795393    16 0.4886164
+%6     networkPerf   networkPerf~entropy  8.595512    15 0.8640510
+%7           slope     slope~networkPerf  8.795393    16 0.6840567
+%8          vcount        vcount~entropy  8.595512    15 0.8825783
 
 
 %%%%%%%%%%%%%%%%%%
-%\begin{table}
-%\caption{}{Relation croisées \label{tab:staticcorrelations:gwr}}
-%\begin{tabular}{|l|l|l|l|}
-%\hline
-%Indicator & Model & Fit & Range\\ \hline
-%\end{tabular}
-%\end{table}
+\begin{table}
+\caption{}{\textbf{Relation croisées entre indicateurs de réseau et morphologiques.} Chaque relation est ajustée par une Regression Géographique Pondérée\label{tab:staticcorrelations:gwr}}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Indicateur & Modèle & Portée & Fit (R2) \\ \hline
+distance & distance $\sim$ networkPerf & 11.609078 & 0.3145114 \\
+entropy  & entropy $\sim$ networkPerf &  8.795393  &0.7511295 \\
+meanBetweenness & meanBetweenness $\sim$ moran & 12.294076 & 0.5776019 \\
+meanCloseness &  meanCloseness $\sim$ moran & 13.883025 & 0.2565047 \\
+moran & moran $\sim$ networkPerf &  8.795393 & 0.4886164 \\
+networkPerf & networkPerf $\sim$entropy & 8.595512  & 0.8640510 \\
+slope & slope $\sim$ networkPerf & 8.795393  & 0.6840567 \\
+vcount & vcount $\sim$ entropy & 8.595512  & 0.8825783 \\
+\end{tabular}
+\end{table}
 %%%%%%%%%%%%%%%%%%
 
 

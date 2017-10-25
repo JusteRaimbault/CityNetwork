@@ -372,6 +372,17 @@ then
   montage Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.jpg Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.jpg Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.jpg
 
+  # fig:macrocoevol:empirical
+  FIGNAME=6-2-3-fig-macrocoevol-empirical
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/significantcorrs_Tw.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/significantcorrs_Tw.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/significantcorrs_d0.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/significantcorrs_d0.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/laggedCorrs_time_Tw4.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/MacroCoEvol/laggedCorrs_time_Tw4.jpg
+  montage Figures/MacroCoEvol/significantcorrs_Tw.jpg Figures/MacroCoEvol/significantcorrs_d0.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME"_tmp.jpg
+  montage $FIGDIR/"$FIGNAME"_tmp.jpg Figures/MacroCoEvol/laggedCorrs_time_Tw4.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/MacroCoEvol/significantcorrs_Tw.jpg Figures/MacroCoEvol/significantcorrs_d0.jpg Figures/MacroCoEvol/laggedCorrs_time_Tw4.jpg $FIGDIR/"$FIGNAME"_tmp.jpg
+
+
   # fig:macrocoevol:pareto
   FIGNAME=6-2-3-fig-macrocoevol-pareto
   echo $FIGNAME

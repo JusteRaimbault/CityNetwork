@@ -121,7 +121,7 @@ val exploration = ExplorationTask (
     laCloseness in Range(0.0,1.0),
     laBw in Range(0.0,1.0),
     laAccessibility in Range(0.0,1.0),
-    nwHeuristic in Range(0.0,5.99),
+    //nwHeuristic in Range(0.0,5.99),
     maxNewLinksNumber in Range(4.0,20.0),
     gravityRadius in Range(1.0,5000.0),
     gravityInflexion in Range(0.1,10.0),
@@ -130,18 +130,18 @@ val exploration = ExplorationTask (
     breakdownHierarchy in Range(0.1,4.0),
     breakdownThreshold in Range(1.0,5.0),
     costTradeoff in Range(0.0,0.05),
-    bioThreshold in Range(0.4,0.6),
+    bioThreshold in Range(0.3,0.65),
     bioSteps in Range(40.0,100.0),
     nwUpdateTime in Range(1.0,3.99)
   ) withIndex id)
-   //(nwHeuristic is 0)
+   x (nwHeuristic is 5.5)
    //x (nwUpdateTime is 3.0)
-   x (totalTime is 10.0)
+   x (totalTime is 5.0)
    //x (replication in (UniformDistribution[Int]() take 1))
    x (replication in (UniformDistribution[Int]() take 10))
 )
 
-val purpose = "LHS"
+val purpose = "LHS_BIOLOGICAL"
 //val purpose = "TEST"
 
 // output hook
@@ -152,4 +152,4 @@ val indicshook = AppendToCSVFileHook(workDirectory / "exploration" / ((new Simpl
 val grid = EGIEnvironment("vo.complex-systems.eu")
 
 //exploration -< (model on local hook indicshook)
-exploration -< (model on grid by 20 hook indicshook)
+exploration -< (model on grid by 10 hook indicshook)

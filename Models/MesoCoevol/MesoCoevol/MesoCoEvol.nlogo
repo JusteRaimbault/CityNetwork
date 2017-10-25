@@ -328,7 +328,6 @@ biological-network-real-links-own [
 ]
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 4
@@ -707,7 +706,7 @@ CHOOSER
 network-generation-method
 network-generation-method
 "deterministic-breakdown" "random-breakdown" "biological" "cost-driven" "road-connexion" "random"
-3
+2
 
 SLIDER
 884
@@ -847,7 +846,7 @@ network-biological-threshold
 network-biological-threshold
 0
 2
-0.6
+0.3
 0.1
 1
 NIL
@@ -947,7 +946,7 @@ network-biological-steps
 network-biological-steps
 0
 100
-30
+82
 1
 1
 NIL
@@ -1082,7 +1081,7 @@ cost-tradeoff
 cost-tradeoff
 0
 0.1
-0.017
+0.076
 0.001
 1
 NIL
