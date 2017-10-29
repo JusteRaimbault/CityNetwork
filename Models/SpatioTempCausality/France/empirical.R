@@ -13,9 +13,11 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 resdir = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/France/')
 dir.create(resdir)
 
-load('data/distmats.RData')
+#Ncities = 50
+Ncities = 300
 
-Ncities = 50
+load(paste0('data/distmats_cities',Ncities,'.RData'))
+
 citydata = data.frame(loadData(Ncities)$cities)
 rownames(citydata)<-citydata$NCCU
 
@@ -37,9 +39,9 @@ populations = data.frame(id=ids,pop=pops,year=cyears)
 
 popdiff=getDiffs(populations,"pop")
 
-d0 = 100;mode='time';Tw=1
-x= popdiff;y= deltaAccessibilities(d0,distmats=distmats,years=years,mode=mode)
-getLaggedCorrs(x,y,Tw,taumax=0)
+#d0 = 100;mode='time';Tw=1
+#x= popdiff;y= deltaAccessibilities(d0,distmats=distmats,years=years,mode=mode)
+#getLaggedCorrs(x,y,Tw,taumax=0)
 
 res=data.frame()
 d0s = c(1,10,100,500,1000,2000,4000)
@@ -62,7 +64,7 @@ for(Tw in 1:10){
   g=ggplot(res[res$Tw==Tw&res$mode==mode,],aes(x=tau,y=rho,ymin=rhomin,ymax=rhomax,color=d0,group=d0))
   #g+geom_point()+geom_line()+geom_errorbar()+facet_grid(mode~span)+stdtheme
   g+geom_point()+geom_line()+geom_errorbar()+facet_wrap(~span,ncol = 7)+stdtheme
-  ggsave(paste0(resdir,'laggedCorrs_',mode,'_Tw',Tw,'.pdf'),width=30,height=20,units='cm')
+  ggsave(paste0(resdir,'laggedCorrs_',mode,'_Ncities',Ncities,'_Tw',Tw,'.pdf'),width=30,height=20,units='cm')
 }
 
 
@@ -73,11 +75,11 @@ for(d0 in d0s){
 
 g=ggplot(sres,aes(x=Tw,y=signcorrs,color=d0,group=d0))
 g+geom_point()+geom_line()+stdtheme+ylab("% Significant Correlations")+xlab(expression(T[w]))
-ggsave(paste0(resdir,'significantcorrs_Tw.pdf'),width=15,height=12,units='cm')
+ggsave(paste0(resdir,'significantcorrs_Ncities',Ncities,'_Tw.pdf'),width=15,height=12,units='cm')
 
 g=ggplot(sres,aes(x=d0,y=signcorrs,color=Tw,group=Tw))
 g+geom_point()+geom_line()+stdtheme+ylab("% Significant Correlations")+xlab(expression(d[0]))+scale_x_log10()
-ggsave(paste0(resdir,'significantcorrs_d0.pdf'),width=15,height=12,units='cm')
+ggsave(paste0(resdir,'significantcorrs_Ncities',Ncities,'_d0.pdf'),width=15,height=12,units='cm')
 
 
 # -> correlations become less significant with distance -> spatial stationarity effect.

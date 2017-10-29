@@ -58,7 +58,19 @@ Les principes généraux du modèle sont les suivants. Avec un taux de croissanc
 
 \paragraph{Formalization}{Formalisation}
 
-Patch utility given by $U_i = \sum_k w_k \cdot \tilde{x}_k$ with $\tilde{x}_k$ normalized local variables among population, betweenness and closeness centrality, distance to roads, accessibility ; aggregation done with probability $\left(U_i/\sum_k U_k\right)^\alpha$ ; diffusion among neighbors $n_d$ times with strength $\beta$.
+
+On suppose une grille carrée de population de côté $N$, définie par les populations $(P_i)$. Un réseau routier  
+
+
+L'utilité d'un patch est donnée par $U_i = \sum_k w_k \cdot \tilde{x}_k$, où les $\tilde{x}_k$ sont les variables explicatives locales normalisées, et $w_k$ un vecteur de poids, paramètres du modèle. Plus précisément, soit $x_k$ une variable explicative locale, que l'on prendra parmi la population, la centralité de chemin, la centralité de proximité, la distance aux routes et l'accessibilité. Alors on prend $\tilde{x}_k = x_k - \min_i x_k(i) / (\max_i x_k(i) - \min_i x_k(i))$. 
+
+L'évolution de la population suit alors des règles similaires au modèle de morphogenèse développé en~\ref{sec:densitygeneration}. Etant donné un taux de croissance exogène $N_G$, les individus sont ajoutés de manière indépendante suivant :
+\begin{enumerate}
+	\item Une agrégation faite suivant la probabilité $\left(U_i/\sum_k U_k\right)^\alpha$
+	\item Une diffusion aux voisins de force $\beta$, effectuée $n_d$ fois.
+\end{enumerate}
+
+La croissance du réseau suit exactement les règles décrites en~\ref{sec:networkgrowth}, sachant que celle-ci a lieu si le pas de temps est un multiple d'un paramètre $t_N$, qui permet d'intégrer un différentiel d'échelles temporelles entre la croissance de la population et celle du réseau.
 
 
 %%%%%%%%%%%%%%%%%%%
@@ -77,10 +89,14 @@ Le modèle est calibré au premier ordre, sur les indicateurs de forme urbaine e
 
 
 
+
+\bpar{
+We obtain a full coverage of real configurations with simulation results in a principal component plan for indicators, for which most of them a close correlation structure is found. Both network heuristics are necessary for the full coverage. The model is thus able to reproduce existing urban form and networks, but also their \emph{interaction} in the sense of correlations.
+}{
 La Fig.~\ref{fig:mesocoevolmodel:calibration} résume les résultats de la calibration.
 
+}
 
-We obtain a full coverage of real configurations with simulation results in a principal component plan for indicators, for which most of them a close correlation structure is found. Both network heuristics are necessary for the full coverage. The model is thus able to reproduce existing urban form and networks, but also their \emph{interaction} in the sense of correlations.
 
 
 % insister sur complemetarite des heuirstiques reseau. peu influence celle ci sur morpho urbaine : hypothese : echelles de temps ?
@@ -96,7 +112,7 @@ We obtain a full coverage of real configurations with simulation results in a pr
 	%\includegraphics[width=0.48\linewidth]{Figures/MesoCoEvol/corrs-distrib_rhoasize4.png}\\
 	%\includegraphics[width=0.48\linewidth]{Figures/MesoCoEvol/pca_morpho_byheuristic}
 	%\includegraphics[width=0.48\linewidth]{Figures/MesoCoEvol/pca_network_byheuristic}
-	\includegraphics[width=\textwidth]{Figures/Final/7-2-2-fig-mesocoevolmodel-calibration.jpg}
+	\includegraphics[width=\linewidth]{Figures/Final/7-2-2-fig-mesocoevolmodel-calibration.jpg}
 	\caption[Morphogenesis model calibration][Calibration du modèle de morphogenèse]{\label{fig:mesocoevolmodel:calibration}}{\textbf{Calibration du modèle de morphogenèse au premier et au second ordre.}\label{fig:mesocoevolmodel:calibration}}
 \end{figure}
 %%%%%%%%%%%%%%%
@@ -112,7 +128,7 @@ We obtain a full coverage of real configurations with simulation results in a pr
 \bpar{
 We furthermore study dynamical lagged correlations between normalized returns of population and network patch explicatives variables, exhibiting a large diversity of spatio-temporal causality regimes, where network can drive urban growth, the contrary, or more complex circular causalities, suggesting that the model effectively grasps the dynamical richness of interactions.
 }{
-Nous étudions d'autre part les correlations retardées dynamiques entre les retours normalisés de la population et des variables explicatives des patches, appliquant la méthode des régimes de causalité introduite en~\ref{sec:causalityregimes}. Le modèle exhibe des régimes de causalité divers. Plus précisément, la Fig.~\ref{fig:mesocoevolmodel:causality} résume les résultats obtenus. Le nombre de classe induisant une transition est plus faible que pour le modèle RDB, traduisant un plus faible degré de liberté, et nous fixons dans ce cas $k=4$. Les profils des centroïdes permettent de comprendre
+Nous étudions d'autre part les correlations retardées dynamiques entre les retours normalisés de la population et des variables explicatives des patches, appliquant la méthode des régimes de causalité introduite en~\ref{sec:causalityregimes}. Le modèle exhibe des régimes de causalité divers. Plus précisément, la Fig.~\ref{fig:mesocoevolmodel:causality} résume les résultats obtenus. Le nombre de classe induisant une transition est plus faible que pour le modèle RDB, traduisant un plus faible degré de liberté, et nous fixons dans ce cas $k=4$. Les profils des centroïdes permettent de comprendre la capacité du modèle à capturer plus ou moins une co-évolution.
 }
 
 % incluant des causalité circulaires, suggérant qu'il capture effectivement la richesse des interactions dynamiques
@@ -123,7 +139,7 @@ Nous étudions d'autre part les correlations retardées dynamiques entre les ret
 \begin{figure}
 	%\includegraphics[width=0.53\linewidth]{Figures/MesoCoEvol/centertrajs}
 	%\includegraphics[width=0.44\linewidth]{Figures/MesoCoEvol/cluster-params}
-	\includegraphics[width=\textwidth]{Figures/Final/7-2-2-fig-mesocoevolmodel-causality}
+	\includegraphics[width=\linewidth]{Figures/Final/7-2-2-fig-mesocoevolmodel-causality}
 	\caption[Causality regimes][Régimes de causalité]{}{\textbf{Régimes de causalité.}\label{fig:mesocoevolmodel:causality}}
 \end{figure}
 %%%%%%%%%%%%%%%
