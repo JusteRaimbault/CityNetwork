@@ -11,9 +11,9 @@ library(classInt)
 #' @param accessdestdata
 #' @param weightmat
 getLaggedCorrsDeltas <- function(accessorigdata,accessdestdata,weightmat,ydata,taumax=5){
-  # ∆ accessibilities
+  # ??? accessibilities
   deltaacc = getDiffs(computeAccess(accessorigdata,accessdestdata,weightmat))
-  # ∆ Y
+  # ??? Y
   deltay = getDiffs(ydata)
   
   res=data.frame()
@@ -143,7 +143,7 @@ varyingNetwork<-function(m,decay,breakyear){
 
 map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",
               extent=NULL,withLayout=T,legendRnd=2,width=15,height=10,nclass=10,
-              palette='Spectral',lwd=0.01,additionalLinelayers=NULL,additionalPointlayers=NULL){
+              palette='Spectral',lwd=0.01,additionalLinelayers=NULL,additionalPointlayers=NULL,withScale=NULL){
   
   graphicsext = strsplit(filename,split='.',fixed=T)[[1]][2]
   if(graphicsext=='png'){png(file=filename,width=width,height=height,units='cm',res=1200)}
@@ -155,47 +155,68 @@ map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",
   
   layoutLayer(title = ifelse(withLayout,title,""), sources = "",
               author = "", col = ifelse(withLayout,"grey","white"), coltitle = "black", theme = NULL,
-              bg = NULL, scale=NULL , frame = withLayout, north = F, south = FALSE,extent=extent)
-  
-  breaks=classIntervals(data[,variable],nclass)
+              bg = NULL, scale=withScale , frame = withLayout, north = F, south = FALSE,extent=extent)
   
   plot(layer, border = NA, col = "white",add=T)
   
-  cols <- carto.pal(pal1 = "green.pal",n1 = floor(nclass/2), pal2 = "red.pal",n2 = floor(nclass/2))
-  if(palette=='Spectral'){cols = rev(brewer.pal(nclass,'Spectral'))}
+ if(is.numeric(data[,variable])){
+    cols <- carto.pal(pal1 = "green.pal",n1 = floor(nclass/2), pal2 = "red.pal",n2 = floor(nclass/2))
+    if(palette=='Spectral'){cols = rev(brewer.pal(nclass,'Spectral'))}
   
+    breaks=classIntervals(data[,variable],nclass)
   
-  choroLayer(spdf = layer,spdfid = spdfid,
-             df = data,dfid = dfid,
-             var=variable,
-             col=cols,colNA='lightgrey',breaks=breaks$brks,
-             add=TRUE,lwd = lwd,
-             legend.pos = "n"
-  )
+    choroLayer(spdf = layer,spdfid = spdfid,
+               df = data,dfid = dfid,
+               var=variable,
+               col=cols,colNA='lightgrey',breaks=breaks$brks,
+               add=TRUE,lwd = lwd,
+               legend.pos = "n"
+      )
+ }
   
+  if(is.factor(data[,variable])){
+    typoLayer(spdf = layer,spdfid = spdfid,
+               df = data,dfid = dfid,
+               var=variable,
+               #col=cols,colNA='lightgrey',breaks=breaks$brks,
+               add=TRUE,lwd = lwd,
+              legend.pos = "topleft"
+    )
+  }
+    
   # additional layers
   if(!is.null(additionalLinelayers)){
     for(l in additionalLinelayers){
-      plot(l, col = "blue",add=T)
+      if(class(l[[1]])=="SpatialPolygonsDataFrame"){
+        plot(l[[1]], border = l[[2]],add=T)
+      }else{
+        plot(l[[1]], col = l[[2]],add=T)
+      }
     }
   }
   
   if(!is.null(additionalPointlayers)){
     for(l in additionalPointlayers){
-      plot(l, col = "blue",pch=20,size=1,add=T)
+      plot(l[[1]], col = l[[2]],pch=20,size=1,add=T)
     }
   }
   
-  legendChoro(pos =  "bottomleft",title.txt = legendtitle,
+  if(is.numeric(data[,variable])){
+    legendChoro(pos =  "bottomleft",title.txt = legendtitle,
               title.cex = 0.8, values.cex = 0.6, breaks$brks, cols, cex = 0.7,
               values.rnd = legendRnd, nodata = TRUE, nodata.txt = "No data",
               nodata.col = 'lightgrey', frame = FALSE, symbol = "box"
-  )
-  #plot(states,border = "grey20", lwd=0.75, add=TRUE)
-  
-  # additional transportation layer
-  
-  
+    )
+  } 
+  #if(is.factor(data[,variable])){
+  #  legendTypo(pos =  "bottomleft",title.txt = legendtitle,
+  #              title.cex = 0.8, values.cex = 0.6, breaks$brks, cols, cex = 0.7,
+  #              values.rnd = legendRnd, nodata = TRUE, nodata.txt = "No data",
+  #              nodata.col = 'lightgrey', frame = FALSE, symbol = "box"
+  #  )
+  #}
+    
+ 
   dev.off()
   
 }
