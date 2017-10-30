@@ -18,7 +18,7 @@ VERTICALPADDING=10
 
 ## Setup
 
-mkdir $FIGDIR
+mkdir -p $FIGDIR
 
 
 ###############
@@ -341,12 +341,12 @@ then
   # fig:macrocoevolexplo:behavior
   FIGNAME=6-1-3-fig-macrocoevolexplo-behavior
   echo $FIGNAME
-  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2_5_networkSpeed110.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2_5_networkSpeed110.jpg
-  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/rankCorrPop_synthRankSize0_5_networkSpeed10.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/rankCorrPop_synthRankSize0_5_networkSpeed10.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2.5_networkSpeed110_gravityDecay0.016_networkThreshold11.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2.5_networkSpeed110_gravityDecay0.016_networkThreshold11.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/rankCorrPop_networkSpeed110_networkThreshold11_networkGamma2.5.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/rankCorrPop_networkSpeed110_networkThreshold11_networkGamma2.5.jpg
   convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg
   convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg
-  montage Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2_5_networkSpeed110.jpg Figures/MacroCoEvolExplo/rankCorrPop_synthRankSize0_5_networkSpeed10.jpg Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg -tile 2x2 -geometry +"$VERTICALPADDING"+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2_5_networkSpeed110.jpg Figures/MacroCoEvolExplo/rankCorrPop_synthRankSize0_5_networkSpeed10.jpg Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg
+  montage Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2.5_networkSpeed110_gravityDecay0.016_networkThreshold11.jpg Figures/MacroCoEvolExplo/rankCorrPop_networkSpeed110_networkThreshold11_networkGamma2.5.jpg Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg -tile 2x2 -geometry +"$VERTICALPADDING"+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2.5_networkSpeed110_gravityDecay0.016_networkThreshold11.jpg Figures/MacroCoEvolExplo/rankCorrPop_networkSpeed110_networkThreshold11_networkGamma2.5.jpg Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.jpg
 
   ###############
   ## 6.2 : Macro-coevol

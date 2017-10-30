@@ -62,7 +62,7 @@ vars = c("accessibilityEntropies95","accessibilityHierarchies_alpha95","accessib
          "diversityAccessibility","diversityCloseness","diversityPop"
          )
 
-sres = res %>% group_by(synthCities,synthMaxDegree,synthRankSize,synthShortcut,synthShortcutNum) %>% summarise(count=n())
+sres = res %>% group_by(synthCities,synthMaxDegree,synthRankSize,synthShortcut,synthShortcutNum,id) %>% summarise(count=n())
 
 
 ########
@@ -118,9 +118,10 @@ for(var in vars){
 ##################
 ##################
 
-synthCities=80;synthRankSize=0.5;synthShortcut=10;synthShortcutNum=30;networkSpeed=60
-currentdata = res[res$networkThreshold>1&res$synthCities==synthCities&res$synthRankSize==synthRankSize&res$synthShortcut==synthShortcut&res$synthShortcutNum==synthShortcutNum&res$networkSpeed==networkSpeed,]
-#currentdata = res[res$synthCities==synthCities&res$synthRankSize==synthRankSize&res$synthShortcut==synthShortcut&res$synthShortcutNum==synthShortcutNum&res$networkSpeed==networkSpeed,]
+synthCities=80;synthRankSize=0.5;synthShortcut=10;synthShortcutNum=30;
+networkSpeed=60
+#currentdata = res[res$networkThreshold>1&res$synthCities==synthCities&res$synthRankSize==synthRankSize&res$synthShortcut==synthShortcut&res$synthShortcutNum==synthShortcutNum&res$networkSpeed==networkSpeed,]
+currentdata = res[res$synthCities==synthCities&res$synthRankSize==synthRankSize&res$synthShortcut==synthShortcut&res$synthShortcutNum==synthShortcutNum,]
 
 dir.create(paste0(resdir,'complexity'))
 
@@ -138,6 +139,13 @@ for(var in vars){
   }
 }
 
+# targeted
+dir.create(paste0(resdir,'targeted'))
+networkThreshold=11;networkSpeed=110;networkGamma=2.5
+var = 'rankCorrPop'
+g=ggplot(currentdata[currentdata$networkThreshold==networkThreshold&currentdata$networkSpeed==networkSpeed&currentdata$networkGamma==networkGamma,],aes_string(x="gravityDecay",y=var,color="gravityGamma",group="gravityGamma"))
+g+geom_point()+stat_smooth(span = 1)+stdtheme
+ggsave(paste0(resdir,'targeted/',var,'_networkSpeed',networkSpeed,'_networkThreshold',networkThreshold,'_networkGamma',networkGamma,'.pdf'),width=30,height=20,units='cm')
 
 
 ##################
@@ -172,6 +180,16 @@ for(networkGamma in unique(currentdata$networkGamma)){
     }
   }
 }
+
+# targeted fig.
+gravityDecay=0.016;networkThreshold=11;networkSpeed=110;networkGamma=2.5
+var='closenessEntropies'
+g=ggplot(timedata[timedata$networkGamma==networkGamma&timedata$networkSpeed==networkSpeed&timedata$gravityDecay==gravityDecay,],
+         aes_string(x="time",y=var,color="gravityGamma",group="gravityGamma")
+)
+g+geom_point(pch='.')+stat_smooth()+stdtheme
+ggsave(paste0(resdir,'targeted/',var,'_networkGamma',networkGamma,'_networkSpeed',networkSpeed,'_gravityDecay',gravityDecay,'_networkThreshold',networkThreshold,'.pdf'),width=30,height=20,units='cm')
+
 
 
 
