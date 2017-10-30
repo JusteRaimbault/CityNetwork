@@ -225,6 +225,15 @@ for(networkGamma in unique(currentdata$networkGamma)){
   }
 }
 
+# targeted
+gravityDecay=0.016;networkThreshold=21;networkSpeed=10;networkGamma=2.5
+g=ggplot(lagdata[lagdata$networkGamma==networkGamma&lagdata$networkThreshold==networkThreshold&lagdata$networkSpeed==networkSpeed&lagdata$gravityDecay==gravityDecay&lagdata$gravityGamma!=2.5,],
+         aes(x=tau,y=rho,color=var,group=var)
+)
+g+geom_point(pch='.')+stat_smooth(span = 0.1)+facet_wrap(~gravityGamma)+stdtheme+xlab(expression(tau))+ylab(expression(rho(tau)))
+ggsave(paste0(resdir,'targeted/laggedcorrs_networkGamma',networkGamma,'_networkSpeed',networkSpeed,'_gravityDecay',gravityDecay,'_networkThreshold',networkThreshold,'.pdf'),width=30,height=20,units='cm')
+
+
 
 ##############
 ##############
@@ -254,6 +263,16 @@ for(networkGamma in unique(currentdata$networkGamma)){
     }
   }
 }
+
+
+# targeted
+gravityDecay=0.016;networkThreshold=11;networkSpeed=110;networkGamma=2.5
+g=ggplot(distdata[distdata$networkGamma==networkGamma&distdata$networkThreshold==networkThreshold&distdata$networkSpeed==networkSpeed&distdata$gravityDecay==gravityDecay&distdata$gravityGamma!=1.5,],
+         aes(x=dbin,y=rho,color=var,group=var)
+)
+g+geom_point(pch='.')+stat_smooth(n=10)+facet_wrap(~gravityGamma)+stdtheme+xlab("Distance decile")+ylab(expression(rho(d)))
+ggsave(paste0(resdir,'targeted/distcorrs_networkGamma',networkGamma,'_networkSpeed',networkSpeed,'_gravityDecay',gravityDecay,'_networkThreshold',networkThreshold,'.pdf'),width=30,height=20,units='cm')
+
 
 
 
