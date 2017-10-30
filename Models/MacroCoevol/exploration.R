@@ -130,6 +130,34 @@ ggsave(paste0(resdir,'laggedcorrs/laggedcorrs_gravityWeight',gravityWeight,'_nwT
 }
 
 
+# stat test
+synthRankSize=1.5;nwGmax=0.05
+gravityWeight=5e-04;nwThreshold=4.5
+gravityGamma=1.5;gravityDecay=110
+g=ggplot(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay,],
+         aes(x=tau,y=rho,color=var,group=var)
+         )
+g+geom_point(pch='.')+geom_smooth()
+
+g=ggplot(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay,],
+         aes(x=rho,color=tau,group=tau)
+)
+g+geom_density()+facet_wrap(~var)
+
+# compare distributions -> two sample ks test
+var="PopAccessibility"
+cdata = lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&
+          lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay&
+          lagdata$var==var,]
+test=ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==2])
+sdata=cdata%>%group_by(tau)%>%summarise(rho=mean(rho))
+taumax = sdata$tau[sdata$rho==max(sdata$rho[sdata$tau>0])]
+taumin = sdata$tau[sdata$rho==max(sdata$rho[sdata$tau<0])]
+ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumax])
+ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumin])
+for(tau in c(-6:-1,1:6)){show(ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==tau])$p.value)}
+
+
 
 ##
 # rho = f(d)

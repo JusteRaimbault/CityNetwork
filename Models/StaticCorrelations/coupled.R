@@ -27,9 +27,10 @@ lonmin=extent(densraster)@xmin;lonmax=extent(densraster)@xmax
 areaname = 'europe'
 #areaname = 'china'
 #areaname = 'centre'
-areasize = 100
-factor=0.1
-offset = 50
+#areasize = 100
+areasize = 200
+factor=0.5
+offset = 100
 # estimated comp time : 1461240*0.02539683/20/60 ~ 30hours
 # (upper bound, without empty areas)
 
@@ -44,7 +45,7 @@ networkFunctions<-c(networkSummary,networkBetweenness,pathMeasures,louvainModula
 
 # create // cluster
 library(doParallel)
-cl <- makeCluster(50,outfile='log')
+cl <- makeCluster(25,outfile='log')
 #cl <- makeCluster(8,outfile='logtest')
 registerDoParallel(cl)
 
