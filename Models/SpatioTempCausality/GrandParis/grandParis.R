@@ -9,7 +9,7 @@ library(igraph)
 library(rgdal)
 library(ggplot2)
 
-source('../functions_gp.R')
+source('../functions.R')
 
 ##
 # transportation network
@@ -39,7 +39,7 @@ png(filename = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/GrandP
 plot(tr_base,vertex.size=0.3,vertex.label=NA,edge.color='grey',edge.width=0.2,rescale=T)
 dev.off()
 
-# accessibility in 2012, without GPE, and ∆acc ; for different decays
+# accessibility in 2012, without GPE, and Delta acc ; for different decays
 resdir = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/GrandParis/maps/')
 
 # tests
@@ -109,8 +109,11 @@ map(data=time[time$id%in%iris$DCOMIRIS,],layer=iris,spdfid="DCOMIRIS",dfid="id",
     width=15,height=12
 )
 
+time_withoutgpe = time
+
 timediff=dmat_base-dmat_grandparisexpress;timediff[timediff<0]=0
 time=computeAccess(data.frame(id=rownames(dmat_base),var=rep(1,nrow(dmat_base)),year=rep(year,nrow(dmat_base))),data.frame(id=colnames(dmat_base),var=rep(1/ncol(dmat_base),ncol(dmat_base))),timediff)
+
 map(data=time[time$id%in%iris$DCOMIRIS,],layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
     filename=paste0(resdir,'timegain_metropole.png'),title=paste0('Time Accessibility Gain'),legendtitle = "Average\nTime Gain",extent=iris,
     width=15,height=12,palette='div',lwd=0.2,
@@ -119,9 +122,25 @@ map(data=time[time$id%in%iris$DCOMIRIS,],layer=iris,spdfid="DCOMIRIS",dfid="id",
 )
 
 
+## classif / average
 
+source('../functions.R')
 
+classif = data.frame(
+  classification = paste0(
+  ifelse(time$var[time$id%in%iris$DCOMIRIS] - median(time$var[time$id%in%iris$DCOMIRIS])>0,'gain fort','gain faible'),rep('/',nrow(time)),
+  ifelse(time_withoutgpe$var[time_withoutgpe$id%in%iris$DCOMIRIS] - median(time_withoutgpe$var[time_withoutgpe$id%in%iris$DCOMIRIS])>0,'access. faible','access. forte')
+  ),
+  id=time$id
+)
 
+map(data=classif,layer=iris,spdfid="DCOMIRIS",dfid="id",variable="classification",
+    filename=paste0(resdir,'timeclassif_metropole.png'),title=paste0("Profils d'accessibilite temporelle"),legendtitle = "Profil",extent=iris,
+    width=15,height=12,palette='div',lwd=0.2,
+    additionalPointlayers=list(list(readOGR('data/gis','grandparisexpress_gares'),'blue')),
+    additionalLinelayers=list(list(communes[substr(as.character(communes$INSEE_COMM),1,2)%in%depts,],'black'),list(readOGR('data/gis','grandparisexpress'),'blue')),
+    withScale=0
+)
 
 #####
 #
@@ -163,7 +182,7 @@ ggsave(file=paste0(resdir,'laggedcorrs_access.pdf'),width=30,height=20,unit='cm'
 
 
 # Network modifications : 
-#  - all sames with ∆ baseline
+#  - all sames with ??? baseline
 #  - same with travel time only (to isolate network effect)
 #
 
