@@ -6,7 +6,7 @@
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 library(RMongo)
 
-source('nwSimplFunctions.R');source('network.R');source('morpho.R')
+source(paste0(Sys.getenv('CN_HOME'),'/Models/TransportationNetwork/NetworkSimplification/nwSimplFunctions.R'));source('network.R');source('morpho.R')
 
 densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/PopulationDensity/raw/density_wgs84.tif"),newresolution=0,reproject=F)
 #densraster <- getRaster(paste0(Sys.getenv("CN_HOME"),"/Data/China/PopulationGrid_China2010/PopulationGrid_China2010.tif"),newresolution=100,reproject=T)
@@ -62,7 +62,7 @@ res <- foreach(i=1:nrow(coords)) %dopar% {
   #mongo<-mongoDbConnect('china','127.0.0.1',29019)
   mongo<-mongoDbConnect('europe','127.0.0.1',29019)
   tryCatch({
-  source('morpho.R');source('nwSimplFunctions.R');source('network.R')
+  source('morpho.R');source(paste0(Sys.getenv('CN_HOME'),'/Models/TransportationNetwork/NetworkSimplification/nwSimplFunctions.R'));source('network.R')
   morphoFunctions<-c(summaryPopulation,rankSizeSlope,moranIndex,averageDistance,entropy)
   networkFunctions<-c(networkSummary,networkBetweenness,pathMeasures,louvainModularity)
   
