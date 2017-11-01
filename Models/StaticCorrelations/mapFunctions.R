@@ -1,6 +1,9 @@
 
 # mapping functions
 
+library(cartography)
+library(classInt)
+
 #'
 #'
 loadIndicatorData<-function(file){

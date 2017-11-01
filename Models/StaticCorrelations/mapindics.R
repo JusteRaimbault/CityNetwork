@@ -1,25 +1,20 @@
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 
-library(raster)
-library(ggplot2)
-library(dplyr)
-library(rgdal)
-library(rgeos)
-library(reshape2)
-library(cartography)
-library(classInt)
-
 source('functions.R')
 source('mapFunctions.R')
 
+
+areasize=200;offset=100;factor=0.5
+countrycode="FR"
 # load data
-res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe
+res = loadIndicatorData(paste0("res/europecoupled_areasize",areasize,"_offset",offset,"_factor",factor,"_temp.RData"))
+#res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe csv
 #res = loadIndicatorData('res/chinacoupled_areasize100_offset50_factor0.1_temp.RData') # China
 
 # load spatial mask to select area
 countries = readOGR('gis','countries')
-country = countries[countries$CNTR_ID=="FR",]
+country = countries[countries$CNTR_ID==countrycode,]
 
 datapoints = SpatialPoints(data.frame(res[,c("lonmin","latmin")]),proj4string = countries@proj4string)
 
@@ -31,27 +26,30 @@ sdata = res[selectedpoints,]
 #g=ggplot(sdata,aes(x=lonmin,y=latmin,fill=cut(moran,breaks=10)))
 #g+geom_raster()+scale_fill_brewer(palette = "Spectral")+theme_bw()
 
-resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/CN/')
+#resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/CN/')
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'/')
 dir.create(resdir)
 
-map(c(8),'test3.png',20,12,c(1,1))
+# TEST
+#map(c(8),'test3.png',20,12,c(1,1))
 
 # morpho
-#map(c(3,4,5,6),'indics_morpho.png',20,18,c(2,2)) # FR
+map(indiccols = c(8,9,10,6),filename='indics_morpho.png',width=20,height=18,mfrow=c(2,2),sdata=sdata) # FR
 #map(c(3,4,5,6),'indics_morpho.png',20,20,c(2,2)) # UK
-map(c(8,9,10,6),'indics_morpho.png',40,22,c(2,2)) # CN
+#map(c(8,9,10,6),'indics_morpho.png',40,22,c(2,2)) # CN
 
 # all morpho
-#map(c(3,4,5,6,7,8),'indics_morpho_all_discrquantiles.png',32,18,c(2,3),mar=c(2.5,2.5,1.5,6)) # FR
+#map(c(3,4,5,6,7,8),'indics_morpho_all_discrquantiles.png',32,18,c(2,3),mar=c(2.5,2.5,1.5,6),sdata=sdata) # FR 50km
+map(c(8,9,10,6,7,3),'indics_morpho_all_discrquantiles.png',32,18,c(2,3),mar=c(2.5,2.5,1.5,6),sdata=sdata) # FR
 #map(c(3,4,5,6,7,8),'indics_morpho_all.png',32,20,c(2,3),mar=c(2.5,2.5,1.5,6)) # UK
-map(3:10,'indics_morpho_all.png',40,22,c(3,3),mar=c(2.5,2.5,1.5,6)) # CN
+#map(3:10,'indics_morpho_all.png',40,22,c(3,3),mar=c(2.5,2.5,1.5,6)) # CN
 
 
 
 # all network
-#map(c(10:20,22),'indics_network_all.png',44,30,c(3,4),mar=c(2.5,2.5,1.5,6)) # FR
+map(c(11:31),'indics_network_all.png',44,30,c(4,5),mar=c(2.5,2.5,1.5,6),sdata=sdata) # FR
 #map(c(10:20,22),'indics_network_all.png',44,32,c(3,4),mar=c(2.5,2.5,1.5,6)) # UK
-map(c(11:31),'indics_network_all.png',60,40,c(7,3),mar=c(2.5,2.5,1.5,6)) # CN
+#map(c(11:31),'indics_network_all.png',60,40,c(7,3),mar=c(2.5,2.5,1.5,6)) # CN
 
 
 # selected network
