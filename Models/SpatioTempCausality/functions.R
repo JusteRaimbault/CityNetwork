@@ -4,6 +4,7 @@
 
 library(cartography)
 library(classInt)
+library(RColorBrewer)
 
 
 #'

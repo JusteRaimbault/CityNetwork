@@ -31,13 +31,13 @@ load('data/dmats2.RData')
 ####
 # Maps
 
-png(filename = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/GrandParis/networks/grandparisexpress.png'),width=30,height=30,units='cm',res=600)
-plot(tr_grandparisexpress,vertex.size=0.3,vertex.label=NA,edge.color='grey',edge.width=0.2,rescale=T)
-dev.off()
+#png(filename = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/GrandParis/networks/grandparisexpress.png'),width=30,height=30,units='cm',res=600)
+#plot(tr_grandparisexpress,vertex.size=0.3,vertex.label=NA,edge.color='grey',edge.width=0.2,rescale=T)
+#dev.off()
 
-png(filename = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/GrandParis/networks/base.png'),width=30,height=30,units='cm',res=600)
-plot(tr_base,vertex.size=0.3,vertex.label=NA,edge.color='grey',edge.width=0.2,rescale=T)
-dev.off()
+#png(filename = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/GrandParis/networks/base.png'),width=30,height=30,units='cm',res=600)
+#plot(tr_base,vertex.size=0.3,vertex.label=NA,edge.color='grey',edge.width=0.2,rescale=T)
+#dev.off()
 
 # accessibility in 2012, without GPE, and Delta acc ; for different decays
 resdir = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/GrandParis/maps/')
@@ -109,6 +109,17 @@ map(data=time[time$id%in%iris$DCOMIRIS,],layer=iris,spdfid="DCOMIRIS",dfid="id",
     width=15,height=12
 )
 
+year='11'
+currentpop=pops[pops$year==year,]
+decay = 60
+access = computeAccess(currentpop[currentpop$id%in%rownames(dmat_grandparisexpress),],employment[substr(employment$id,1,2)%in%depts,],exp(-dmat_base/decay))
+map(data=access[access$id%in%iris$DCOMIRIS,],layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
+    filename=paste0(resdir,'pe-access_metropole.png'),title=paste0('Accessibilité avec GPE'),legendtitle = "Access",extent=iris,
+    width=15,height=12
+)
+#dev.off()
+
+
 time_withoutgpe = time
 
 timediff=dmat_base-dmat_grandparisexpress;timediff[timediff<0]=0
@@ -119,6 +130,17 @@ map(data=time[time$id%in%iris$DCOMIRIS,],layer=iris,spdfid="DCOMIRIS",dfid="id",
     width=15,height=12,palette='div',lwd=0.2,
     additionalPointlayers=list(readOGR('data/gis','grandparisexpress_gares')),
     additionalLinelayers=list(readOGR('data/gis','grandparisexpress'))
+)
+
+access_withoutgpe = computeAccess(currentpop[currentpop$id%in%rownames(dmat_grandparisexpress),],employment[substr(employment$id,1,2)%in%depts,],exp(-dmat_base/decay))
+access_withgpe = computeAccess(currentpop[currentpop$id%in%rownames(dmat_grandparisexpress),],employment[substr(employment$id,1,2)%in%depts,],exp(-dmat_grandparisexpress/decay))
+accessdiff = access_withgpe;accessdiff$var = access_withgpe$var - access_withoutgpe$var
+map(data=accessdiff[accessdiff$id%in%iris$DCOMIRIS,],layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
+    filename=paste0(resdir,'accessdiff_metropole.png'),title=paste0('Accessibility Gain'),legendtitle = "Accessibility Gain",extent=iris,
+    width=15,height=12,palette='div',lwd=0.2,
+    additionalPointlayers=list(list(readOGR('data/gis','grandparisexpress_gares'),'blue')),
+    additionalLinelayers=list(list(communes[substr(as.character(communes$INSEE_COMM),1,2)%in%depts,],'black'),list(readOGR('data/gis','grandparisexpress'),'blue')),
+    withScale=0
 )
 
 
@@ -134,8 +156,17 @@ classif = data.frame(
   id=time$id
 )
 
-map(data=classif,layer=iris,spdfid="DCOMIRIS",dfid="id",variable="classification",
-    filename=paste0(resdir,'timeclassif_metropole.png'),title=paste0("Profils d'accessibilite temporelle"),legendtitle = "Profil",extent=iris,
+classifacc = data.frame(
+  classification = paste0(
+    ifelse(accessdiff$var[accessdiff$id%in%iris$DCOMIRIS] - median(accessdiff$var[accessdiff$id%in%iris$DCOMIRIS])>0,'gain fort','gain faible'),rep('/',nrow(accessdiff)),
+    ifelse(access_withoutgpe$var[access_withoutgpe$id%in%iris$DCOMIRIS] - median(access_withoutgpe$var[access_withoutgpe$id%in%iris$DCOMIRIS])>0,'access. faible','access. forte')
+  ),
+  id=accessdiff$id
+)
+rownames(classifacc)<-classifacc$id
+
+map(data=classifacc,layer=iris,spdfid="DCOMIRIS",dfid="id",variable="classification",
+    filename=paste0(resdir,'accessclassif_metropole.png'),title=paste0("Profils d'accessibilite temporelle"),legendtitle = "Profil",extent=iris,
     width=15,height=12,palette='div',lwd=0.2,
     additionalPointlayers=list(list(readOGR('data/gis','grandparisexpress_gares'),'blue')),
     additionalLinelayers=list(list(communes[substr(as.character(communes$INSEE_COMM),1,2)%in%depts,],'black'),list(readOGR('data/gis','grandparisexpress'),'blue')),
