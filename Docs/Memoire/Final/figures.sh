@@ -36,7 +36,7 @@ then
   #convert Figures/CaseStudies/timeaccess_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY Figures/CaseStudies/timeaccess_metropole.jpg
   #convert Figures/CaseStudies/timegain_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY Figures/CaseStudies/timegain_metropole.jpg
   #montage Figures/CaseStudies/timeaccess_metropole.png Figures/CaseStudies/timegain_metropole.png -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  convert Figures/CaseStudies/timeclassif_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  convert Figures/CaseStudies/accesspdiff_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # fig:casestudies:projects
   FIGNAME=1-2-1-fig-casestudies-projects
@@ -46,7 +46,7 @@ then
   # fig:casestudies:projects
   FIGNAME=1-2-1-fig-casestudies-empiricalres
   echo $FIGNAME
-  convert Figures/GrandParisRealEstate/laggedcorrs_times_allvars.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  convert Figures/GrandParisRealEstate/laggedcorrs_times_allvars_fr.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   ###############
   ## 1.3 : Qualitative

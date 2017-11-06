@@ -164,8 +164,9 @@ map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",
     cols <- carto.pal(pal1 = "green.pal",n1 = floor(nclass/2), pal2 = "red.pal",n2 = floor(nclass/2))
     if(palette=='Spectral'){cols = rev(brewer.pal(nclass,'Spectral'))}
   
+    #breaks=classIntervals(data[,variable],nclass,style = 'equal')
     breaks=classIntervals(data[,variable],nclass)
-  
+    
     choroLayer(spdf = layer,spdfid = spdfid,
                df = data,dfid = dfid,
                var=variable,
@@ -203,7 +204,7 @@ map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",
   }
   
   if(is.numeric(data[,variable])){
-    legendChoro(pos =  "bottomleft",title.txt = legendtitle,
+    legendChoro(pos =  "topleft",title.txt = legendtitle,
               title.cex = 0.8, values.cex = 0.6, breaks$brks, cols, cex = 0.7,
               values.rnd = legendRnd, nodata = TRUE, nodata.txt = "No data",
               nodata.col = 'lightgrey', frame = FALSE, symbol = "box"
