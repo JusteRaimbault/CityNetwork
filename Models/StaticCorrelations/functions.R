@@ -2,6 +2,9 @@
 library(raster)
 library(ggplot2)
 library(dplyr)
+library(rgdal)
+library(rgeos)
+library(reshape2)
 
 
 # various functions

@@ -75,6 +75,44 @@
 
 
 
+\usepackage{mdframed}
+
+%%%%%
+% forward/backward arrows
+
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+%
+\newlength{\arrowht}
+\setlength{\arrowht}{2.5ex}% <-- changed
+%\newcommand*\exdepthstrut{{\vrule height 0.75\arrowht depth -0.25\arrowht width 0pt}}% <-- changed
+\newcommand\tikzmark[1]{\tikz[remember picture, baseline=(#1.base)] \node[anchor=base,inner sep=0pt, outer sep=0pt] (#1) {#1};}
+%%% This code from http://tex.stackexchange.com/q/55068/2693
+\tikzset{
+    ncbar angle/.initial=90,
+    ncbar/.style={
+        to path=(\tikztostart)
+        -- ($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)
+        -- ($(\tikztotarget)!($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztostart)$)
+        -- (\tikztotarget)
+    },
+    ncbar/.default=0.5cm,
+}
+%%% Thanks to Paul Gessler and Percusse for code improvement here
+\newcommand{\arrow}[2]{
+\shorthandoff{:!}
+\begin{tikzpicture}[remember picture,overlay]
+\draw[->,shorten >=3pt,shorten <=3pt] (#1.base) to [ncbar=\arrowht] (#2.base);
+\end{tikzpicture}
+\shorthandon{:!}
+}
+
+
+
+
+
+
 %%%%%%%%%%%%%%%%%%%
 %%  Additional packages
 %%%%%%%%%%%%%%%%%%%
@@ -87,7 +125,6 @@
 
 \usepackage{bbm}
 
-\usepackage{mdframed}
 
 
 
