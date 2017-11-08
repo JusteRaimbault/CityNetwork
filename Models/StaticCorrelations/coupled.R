@@ -28,9 +28,9 @@ areaname = 'europe'
 #areaname = 'china'
 #areaname = 'centre'
 #areasize = 100
-areasize = 200
+areasize = 60
 factor=0.5
-offset = 100
+offset = 30
 # estimated comp time : 1461240*0.02539683/20/60 ~ 30hours
 # (upper bound, without empty areas)
 
