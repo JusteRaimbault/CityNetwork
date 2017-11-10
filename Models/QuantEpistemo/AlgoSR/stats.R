@@ -3,7 +3,7 @@
 #################
 
 
-setwd(paste0(Sys.getenv('CN_HOME'),"/Models/Biblio/AlgoSR"))
+setwd(paste0(Sys.getenv('CN_HOME'),"/Models/QuantEpistemo/AlgoSR"))
 
 #################
 ## Utils functions
@@ -45,7 +45,7 @@ executeAlgo <- function(query,resDir,numIteration,kwLimit,initkw="true"){
 #    Q : what max limit ? try to find convergence step as a function of kw num ?
 #
 
-# CV for ≠ kw limit
+# CV for ??? kw limit
 #queries <- c('transportation+network+urban+growth',
 #              'city+system+network',
 #              'land+use+transport+interaction',
@@ -88,7 +88,7 @@ save(res,file = 'res.rdata');
 ## Result vizualisation
 #
 # 
-load("/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR/res.rdata")
+load("res.rdata")
 # 
 library(ggplot2)
 library(grid)
