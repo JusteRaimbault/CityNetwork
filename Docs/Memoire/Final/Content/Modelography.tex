@@ -208,6 +208,52 @@ Pour répondre ensuite à la question du comment, on peut regarder les échelles
 Nous étudions l'influence de divers facteurs sur les caractéristiques des modèles par des régressions linéaires simples. Dans une démarche de multi-modélisation, nous testons l'ensemble des modèles possible pour expliquer la variable à partir des autres, et sélectionnons le meilleur en terme de Critère d'Information d'Akaike.\comment[AB]{expliquer rapidement et référencer en note de bas de page. ; Version simplifiée du tableau de résultats à placer ici ?} Les résultats complets des régressions sont donnés en Appendice~\ref{app:sec:modelography}. Les échelles temporelle et d'espace sont les mieux expliquées par les modèles prenant en compte l'ensemble des autres variables. Pour l'échelle de temps, les variables les plus significative sont le fait d'utiliser des méthodes de simulation et le fait d'être en physique, qui tous deux influent négativement. L'échelle spatiale et le fait d'être en planification influent positivement. Au contraire pour l'échelle d'espace, le fait d'être en planning influence négativement alors que le domaine sémantique du TOD est positif, ce qui veut dire que les journaux de planning privilégient des études localisées alors que des problématiques proches ont tendance à étendre l'aire d'étude. Le niveau d'interdisciplinarité est le mieux expliqué par une unique variable, l'année, qui l'influence de manière négative, ce qui confirme l'augmentation des spécialisations scientifiques dans le temps. 
 
 
+
+
+%%%%%%%%%%%%%%%%%
+\begin{table}[h!]
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+ &  Echelle de temps & Echelle d'espace & t value & Pr(>|t|)   \\\hline
+(Intercept)           &    1.382e+04 * & -1.440e+05 &  5.809 & 0.01015  \\
+YEAR                   &  -6.181e+00 * & 6.436e+01 & -5.572 & 0.01141 \\
+CITCOMInfra Planning   &   1.117e+02 * & -1.188e+03 ** &  4.999 & 0.01540 \\
+CITCOMLUTI             &   1.140e+02 * & -1.188e+03 **  & 5.827 & 0.01007 \\
+CITCOMNetworks         &   7.977e+01 * & -8.778e+02 ** &  3.556 & 0.03793  \\
+TYPEterritory          &  -2.234e+02 ** & 2.087e+03 * & -10.004 & 0.00213  \\
+SPATSCALE              &   9.248e-02 * &  &  5.119 & 0.01443  \\
+FMETHODsem             &  -1.130e+02 * &  &  -4.281 & 0.02341 \\
+FMETHODsim             &  -1.212e+03 ** &  & -6.180 & 0.00853\\
+FMETHODstat            &  -1.029e+03 * & & -5.228 & 0.01361 \\
+DISCIPLINEgeography    &  -2.285e+00 &  & -0.182 & 0.86692   \\
+DISCIPLINEphysics      &  -6.824e+01 ** &  & -6.140 & 0.00869 \\
+DISCIPLINEplanning     &   9.928e+02 * &  & 5.437 & 0.01222 \\
+DISCIPLINEtransportation & -2.360e+01 &  & -2.092 & 0.12750   \\
+INTERDISC             &   -1.635e+02 * &  & -4.353 & 0.02239  \\
+SEMCOMinfra planning  &   -1.171e+02 * &  & -4.353 & 0.02240 \\
+SEMCOMnetworks        &   -8.645e+01 * &  & -4.303 & 0.02309 * \\
+SEMCOMtod             &   -1.027e+03 * & & -5.393 & 0.01249 * \\\hline
+\end{tabular}
+\end{table}
+%%%%%%%%%%%%%%%%%
+
+TEMPSCALE              &   9.702e+00 & 1.895e+00 &  5.119 & 0.01443 *  \\
+FMETHODsem             &   1.210e+03 & 1.771e+02 &  6.834 & 0.00641 ** \\
+FMETHODsim             &   1.287e+04 & 4.487e+02 & 28.685 & 9.30e-05 *** \\
+FMETHODstat            &   1.110e+04 & 1.581e+02 & 70.218 & 6.37e-06 ***\\
+DISCIPLINEgeography    &   7.562e+01 & 1.214e+02 &  0.623 & 0.57749    \\
+DISCIPLINEphysics      &   6.551e+02 & 1.810e+02 &  3.620 & 0.03626 *  \\
+DISCIPLINEplanning     &  -1.067e+04 & 1.944e+02 & -54.871 & 1.33e-05 ***\\
+DISCIPLINEtransportation &  2.622e+02 & 9.951e+01 &  2.635 & 0.07799 .  \\
+INTERDISC              &   1.644e+03 & 4.269e+02  & 3.852 & 0.03090 *  \\
+SEMCOMinfra planning   &   1.233e+03 & 2.203e+02  & 5.597 & 0.01127 *  \\
+SEMCOMnetworks         &   9.091e+02 & 1.680e+02  & 5.411 & 0.01238 *  \\
+SEMCOMtod              &   1.105e+04 & 1.945e+02  & 56.805 & 1.20e-05 ***\\
+
+
+
+
+
 \paragraph{Random Forest Regressions}{Régressions par Forêts Aléatoires}
 
 Nous concluons cette étude par des régressions et classification par Forêts Aléatoires, qui sont une méthode très flexible permettant de dégager une structure d'un jeu de données~\cite{liaw2002classification}. Pour compléter les analyses précédentes, nous proposons de l'utiliser pour déterminer les importances relatives des variables pour différents aspects. Nous utilisons à chaque fois des forêts de taille 100000, une taille de noeud de 1 et un nombre de variable échantillonnée en $\sqrt{p}$ pour la classification et $p/3$ pour la régression lorsque $p$ est le nombre total de variables. Pour classifier le type de modèle, nous comparons les effets de la discipline, de la classe sémantique et de la classe de citation. Cette dernière est la plus importante avec une mesure relative de 45\%, tandis que la discipline compte pour 31\% et le sémantique pour 23\%. Ainsi, le cloisonnement disciplinaire se retrouve, tandis que le sémantique et donc en partie les ontologies, est le plus ouvert. Cela nous encourage dans notre démarche de sortir de ce cloisonnement. Lorsqu'on applique une regression de forêt sur l'interdisciplinarité, toujours avec ces trois variables, on constate qu'elles expliquent 7.6\% de la variance totale, ce qui est relativement faible, témoignant d'une disparité de sémantique sur l'ensemble du corpus indépendamment des différentes classifications. Dans ce cas, la variable la plus importante est la discipline (39\%) suivie par le sémantique (31\%) et la citation (29\%), ce qui confirme que le journal visé conditionne fortement le comportement de langage employé. Cela nous alerte sur le danger de perte de richesse sémantique lorsqu'on s'adresse à un public particulier. Ainsi, nous avons pu dégager certaines structures et régularités des modèles nous concernant, qui seront riches d'enseignements lors de la construction de nos modèles.

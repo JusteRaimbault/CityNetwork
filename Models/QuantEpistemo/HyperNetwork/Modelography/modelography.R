@@ -5,6 +5,10 @@
 library(igraph)
 library(dplyr)
 library(randomForest)
+library(MuMIn)
+library(ggplot2)
+
+source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/Modelography'))
 
@@ -166,29 +170,62 @@ cor.test(data$SPATSCALE,data$TEMPSCALE) # strange. too few observations.
 #summary(tscalefull)
 #summary(tscaleclass)
 
+evaluateModels<-function(models){
+  aics=c();aiccs=c();numrows=c();numvars=c();adj.r.squared=c()
+  for(model in models){
+    show(model);
+    solved = lm(model,data)
+    aics=append(aics,AIC(solved))
+    aiccs=append(aiccs,AICc(solved))
+    numrows=append(numrows,length(solved$residuals))
+    numvars=append(numvars,length(solved$coefficients)-1)
+    adj.r.squared=append(adj.r.squared,summary(solved)$adj.r.squared)
+  }
+  return(data.frame(aics,aiccs,numrows,numvars,adj.r.squared))
+}
+
+
 models <- getLinearModels("TEMPSCALE",names(data)[-4],8)
-aics=c()
-for(model in models){aics=append(aics,AIC(lm(model,data)))}
-summary(lm(models[aics==min(aics)],data)) # -> tscalefull is the best.
+comp <- evaluateModels(models)
+
+minrows = 40
+
+summary(lm(models[modelcomparison$aics[modelcomparison$numrows>80]==min(modelcomparison$aics[modelcomparison$numrows>80])],data)) # -> tscalefull is the best.
+summary(lm(models[comp$aiccs==min(comp$aiccs)],data)) 
+summary(lm(models[aics==min(aics)],data)) 
+summary(lm(models[comp$adj.r.squared[comp$numrows>minrows]==max(comp$adj.r.squared[comp$numrows>minrows])],data)) 
+
+g=ggplot(data.frame(numrows,numvars,aics),aes(x=numrows,y=aics,color=numvars))
+g+geom_point()+stdtheme#+scale_color_continuous(guide='legend')
+
+g=ggplot(data.frame(numrows,numvars,aiccs),aes(x=numrows,y=aiccs,color=numvars))
+g+geom_point()+stdtheme#+scale_color_continuous(guide='legend')
+
+
 
 # spat scale
 
+minrows = 40
+
 models <- getLinearModels("SPATSCALE",names(data)[-5],8)
-aics=c()
-for(model in models){aics=append(aics,AIC(lm(model,data)))}
-summary(lm(models[aics==min(aics)],data))
+comp <- evaluateModels(models)
+summary(lm(models[comp$aiccs==min(comp$aiccs)],data))
+summary(lm(models[comp$aiccs[comp$numrows>minrows]==min(comp$aiccs[comp$numrows>minrows])],data))
+
+g=ggplot(comp,aes(x=adj.r.squared,y=numrows))
+g+geom_point()
+
+summary(lm(models[comp$adj.r.squared>0.3&comp$adj.r.squared<0.7],data))
 
 # interdisc
 models <- getLinearModels("INTERDISC",names(data)[-8],8)
-aics=c()
-for(model in models){aics=append(aics,AIC(lm(model,data)))}
-summary(lm(models[aics==min(aics)],data))
+comp <- evaluateModels(models)
+summary(lm(models[comp$aiccs==min(comp$aiccs)],data))
 
 # year
 models <- getLinearModels("YEAR",names(data)[-1],8)
-aics=c()
-for(model in models){aics=append(aics,AIC(lm(model,data)))}
-summary(lm(models[aics==min(aics)],data))
+comp <- evaluateModels(models)
+summary(lm(models[comp$aiccs==min(comp$aiccs)],data))
 
 
 
