@@ -7,6 +7,7 @@ library(dplyr)
 library(randomForest)
 library(MuMIn)
 library(ggplot2)
+library(stargazer)
 
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
@@ -15,6 +16,8 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/Modelogra
 source('functions.R')
 
 load(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork/processed/citation.RData'))
+
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/QuantEpistemo/Modelography/')
 
 
 #######
@@ -171,7 +174,7 @@ cor.test(data$SPATSCALE,data$TEMPSCALE) # strange. too few observations.
 #summary(tscaleclass)
 
 evaluateModels<-function(models){
-  aics=c();aiccs=c();numrows=c();numvars=c();adj.r.squared=c()
+  aics=c();aiccs=c();numrows=c();numvars=c();adj.r.squared=c();rsquared=c()
   for(model in models){
     show(model);
     solved = lm(model,data)
@@ -180,52 +183,108 @@ evaluateModels<-function(models){
     numrows=append(numrows,length(solved$residuals))
     numvars=append(numvars,length(solved$coefficients)-1)
     adj.r.squared=append(adj.r.squared,summary(solved)$adj.r.squared)
+    rsquared=append(rsquared,summary(solved)$r.squared)
   }
-  return(data.frame(aics,aiccs,numrows,numvars,adj.r.squared))
+  return(data.frame(aics,aiccs,numrows,numvars,adj.r.squared,rsquared))
 }
 
+var = "TEMPSCALE"
 
-models <- getLinearModels("TEMPSCALE",names(data)[-4],8)
+models <- getLinearModels(var,names(data)[-4],8)
 comp <- evaluateModels(models)
 
-minrows = 40
+minrows = 50
 
 summary(lm(models[modelcomparison$aics[modelcomparison$numrows>80]==min(modelcomparison$aics[modelcomparison$numrows>80])],data)) # -> tscalefull is the best.
 summary(lm(models[comp$aiccs==min(comp$aiccs)],data)) 
 summary(lm(models[aics==min(aics)],data)) 
-summary(lm(models[comp$adj.r.squared[comp$numrows>minrows]==max(comp$adj.r.squared[comp$numrows>minrows])],data)) 
+model=models[which(comp$adj.r.squared==max(comp$adj.r.squared[comp$numrows>minrows]))]
+summary(lm(model,data))
 
-g=ggplot(data.frame(numrows,numvars,aics),aes(x=numrows,y=aics,color=numvars))
-g+geom_point()+stdtheme#+scale_color_continuous(guide='legend')
+#g=ggplot(data.frame(numrows,numvars,aics),aes(x=numrows,y=aics,color=numvars))
+#g+geom_point()+stdtheme#+scale_color_continuous(guide='legend')
 
-g=ggplot(data.frame(numrows,numvars,aiccs),aes(x=numrows,y=aiccs,color=numvars))
-g+geom_point()+stdtheme#+scale_color_continuous(guide='legend')
+#g=ggplot(comp,aes(x=adj.r.squared,y=aiccs,color=as.character(numrows)))
+#g+geom_point()
 
+#g=ggplot(comp[comp$numrows>minrows,],aes(x=aiccs,y=rsquared,color=as.character(numrows)))
+#g+geom_point()+stdtheme
 
+g=ggplot(comp[comp$numrows>minrows,],aes(x=aiccs,y=adj.r.squared,color=as.character(numrows)))
+g+geom_point()+stdtheme+xlab("AICc")+scale_color_discrete(name="N")+ylab("Adjusted R Squared")+ggtitle(var)
+ggsave(paste0(resdir,"lm_adjr2-aicc_",var,".pdf"),width=17,height=15,units = 'cm')
+
+#
+model=models[comp$adj.r.squared==max(comp$adj.r.squared[comp$numrows>minrows&comp$aiccs<700])]
+summary(lm(model,data))
+#stargazer(lm(model,data))
+tempscale = lm(model,data)
+
+model2=models[comp$adj.r.squared==max(comp$adj.r.squared[comp$numrows>minrows&comp$aiccs>700])]
+tempscale2 = lm(model2,data)
 
 # spat scale
 
-minrows = 40
-
-models <- getLinearModels("SPATSCALE",names(data)[-5],8)
+var="SPATSCALE"
+models <- getLinearModels(var,names(data)[-5],8)
 comp <- evaluateModels(models)
-summary(lm(models[comp$aiccs==min(comp$aiccs)],data))
-summary(lm(models[comp$aiccs[comp$numrows>minrows]==min(comp$aiccs[comp$numrows>minrows])],data))
+#summary(lm(models[comp$aiccs==min(comp$aiccs)],data))
+#summary(lm(models[comp$aiccs[comp$numrows>minrows]==min(comp$aiccs[comp$numrows>minrows])],data))
+g=ggplot(comp[comp$numrows>minrows,],aes(x=aiccs,y=adj.r.squared,color=as.character(numrows)))
+g+geom_point()+stdtheme+xlab("AICc")+scale_color_discrete(name="N")+ylab("Adjusted R Squared")+ggtitle(var)
+ggsave(paste0(resdir,"lm_adjr2-aicc_",var,".pdf"),width=17,height=15,units = 'cm')
 
-g=ggplot(comp,aes(x=adj.r.squared,y=numrows))
-g+geom_point()
-
-summary(lm(models[comp$adj.r.squared>0.3&comp$adj.r.squared<0.7],data))
+model=models[comp$adj.r.squared==max(comp$adj.r.squared[comp$numrows>minrows&comp$aiccs<2000&comp$aiccs>1500])]
+spatscale = lm(model,data)
+summary(spatscale)
 
 # interdisc
-models <- getLinearModels("INTERDISC",names(data)[-8],8)
+var="INTERDISC"
+models <- getLinearModels(var,names(data)[-8],8)
 comp <- evaluateModels(models)
-summary(lm(models[comp$aiccs==min(comp$aiccs)],data))
+g=ggplot(comp[comp$numrows>minrows,],aes(x=aiccs,y=adj.r.squared,color=as.character(numrows)))
+g+geom_point()+stdtheme+xlab("AICc")+scale_color_discrete(name="N")+ylab("Adjusted R Squared")+ggtitle(var)
+ggsave(paste0(resdir,"lm_adjr2-aicc_",var,".pdf"),width=17,height=15,units = 'cm')
+
+model=models[comp$adj.r.squared==max(comp$adj.r.squared[comp$numrows>minrows&comp$aiccs>-100])]
+interdisc = lm(model,data)
+
+model2=models[comp$adj.r.squared==max(comp$adj.r.squared[comp$numrows>minrows&abs(comp$aiccs)>100])]
+interdisc2 = lm(model2,data)
 
 # year
-models <- getLinearModels("YEAR",names(data)[-1],8)
+var="YEAR"
+models <- getLinearModels(var,names(data)[-1],8)
 comp <- evaluateModels(models)
-summary(lm(models[comp$aiccs==min(comp$aiccs)],data))
+g=ggplot(comp[comp$numrows>minrows,],aes(x=aiccs,y=adj.r.squared,color=as.character(numrows)))
+g+geom_point()+stdtheme+xlab("AICc")+scale_color_discrete(name="N")+ylab("Adjusted R Squared")+ggtitle(var)
+ggsave(paste0(resdir,"lm_adjr2-aicc_",var,".pdf"),width=17,height=15,units = 'cm')
+
+model=models[comp$adj.r.squared==max(comp$adj.r.squared[comp$numrows>minrows&comp$aiccs<600])]
+year = lm(model,data)
+
+#model2=models[comp$adj.r.squared==max(comp$adj.r.squared[comp$numrows>minrows&comp$aiccs>700&comp$aiccs<800])]
+#year2 = lm(model2,data)
+
+###
+stargazer(tempscale,tempscale2,spatscale,interdisc,interdisc2,year,no.space = T,#se = list(rep(NA,length(tempscale$coefficients)),rep(NA,length(tempscale2$coefficients)),rep(NA,length(spatscale$coefficients)),rep(NA,length(interdisc$coefficients)),rep(NA,length(interdisc2$coefficients)),rep(NA,length(year$coefficients))),
+          out = paste0(resdir,'lmregs_nosd.tex'),single.row = T,report="vc*")
+
+# individual variable reporting
+stargazer(tempscale,tempscale2,no.space = T,
+          out = paste0(resdir,'lmtempscale.tex'),single.row = T,ci=TRUE,report="vcsp*")
+
+stargazer(spatscale,no.space = T,
+          out = paste0(resdir,'lmspatscale.tex'),single.row = T,ci=TRUE,report="vcsp*")
+
+stargazer(interdisc,interdisc2,no.space = T,
+          out = paste0(resdir,'lminterdisc.tex'),single.row = T,ci=TRUE,report="vcsp*")
+
+stargazer(year,no.space = T,
+          out = paste0(resdir,'lmyear.tex'),single.row = T,ci=TRUE,report="vcsp*")
+
+
+
 
 
 

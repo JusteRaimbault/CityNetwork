@@ -584,6 +584,12 @@ then
   echo $FIGNAME
   convert Figures/Quantepistemo/semantic.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
+  # fig:app:quantepistemo:regressions
+  FIGNAME=A-quantepistemo-regressions
+  echo $FIGNAME
+  montage Figures/QuantEpistemo/lm_adjr2-aicc_INTERDISC.pdf Figures/QuantEpistemo/lm_adjr2-aicc_SPATSCALE.pdf Figures/QuantEpistemo/lm_adjr2-aicc_TEMPSCALE.pdf Figures/QuantEpistemo/lm_adjr2-aicc_YEAR.pdf -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.pdf
+  convert -density $PDFRESOLUTION $FIGDIR/"$FIGNAME"_tmp.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.pdf
 
   #############
   ## staticcorrelations
