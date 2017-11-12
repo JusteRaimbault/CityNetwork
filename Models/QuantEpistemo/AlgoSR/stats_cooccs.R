@@ -1,12 +1,12 @@
 
 # lexical statistics on results corpuses
 
-setwd('/Users/Juste/Documents/ComplexSystems/CityNetwork/Models/Biblio/AlgoSR')
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/AlgoSR'))
 
-d1 <- read.csv('junk/refs_city+system+network_16_keywords.csv',header=TRUE,sep='\t')
-d1[,1]
-d1[,6] # score : 6th column (normilzed by doc frequency)
-d1[,9]
+#d1 <- read.csv('junk/refs_city+system+network_16_keywords.csv',header=TRUE,sep='\t')
+#d1[,1]
+#d1[,6] # score : 6th column (normilzed by doc frequency)
+#d1[,9]
 
 # all files
 files <- c('city+system+network_16','land+use+transport+interaction_8',
@@ -53,6 +53,7 @@ for(i in 1:n){
   }
 }
 
+show(res)
 
 for(i in 1:n){
   show(sum(scores[,i]))
