@@ -5,7 +5,7 @@ source('functions.R')
 source('mapFunctions.R')
 
 
-areasize=60;offset=30;factor=0.5
+areasize=100;offset=50;factor=0.5
 countrycode="FR"
 # load data
 res = loadIndicatorData(paste0("res/europecoupled_areasize",areasize,"_offset",offset,"_factor",factor,"_temp.RData"))
@@ -30,22 +30,23 @@ sdata = res[selectedpoints,]
 resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'/')
 dir.create(resdir)
 
+figsuff = paste0('areasize',areasize,'_offset',offset,'_factor',factor)
+
 # morpho
-map(indiccols = c(8,9,10,6),filename='indics_morpho.png',width=20,height=18,mfrow=c(2,2),sdata=sdata,
+map(indiccols = c(8,9,10,6),filename=paste0('indics_morpho_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
     indicnames=c(expression("Indice de Moran (I)"),expression("Distance moyenne ("*bar(d)*")"),expression("Entropie ("*epsilon*")"),expression("Hierarchie ("*gamma*")"))) # FR
 #map(c(3,4,5,6),'indics_morpho.png',20,20,c(2,2)) # UK
 #map(c(8,9,10,6),'indics_morpho.png',40,22,c(2,2)) # CN
 
 # all morpho
-#map(c(3,4,5,6,7,8),'indics_morpho_all_discrquantiles.png',32,18,c(2,3),mar=c(2.5,2.5,1.5,6),sdata=sdata) # FR 50km
-map(c(8,9,10,6,7,3),'indics_morpho_all_discrquantiles.png',32,18,c(2,3),mar=c(2.5,2.5,1.5,6),sdata=sdata) # FR
+map(c(8,9,10,6,7,3),filename=paste0('indics_morpho_all_',figsuff,'.png'),32,18,c(2,3),mar=c(2.5,2.5,1.5,6),sdata=sdata) # FR
 #map(c(3,4,5,6,7,8),'indics_morpho_all.png',32,20,c(2,3),mar=c(2.5,2.5,1.5,6)) # UK
 #map(3:10,'indics_morpho_all.png',40,22,c(3,3),mar=c(2.5,2.5,1.5,6)) # CN
 
 
 
 # all network
-map(c(11:31),'indics_network_all.png',60,30,c(3,7),mar=c(2.5,2.5,1.5,6),sdata=sdata) # FR
+map(c(11:31),filename = paste0('indics_network_all_',figsuff,'.png'),60,30,c(3,7),mar=c(2.5,2.5,1.5,6),sdata=sdata) # FR
 #map(c(10:20,22),'indics_network_all.png',44,32,c(3,4),mar=c(2.5,2.5,1.5,6)) # UK
 #map(c(11:31),'indics_network_all.png',60,40,c(7,3),mar=c(2.5,2.5,1.5,6)) # CN
 
@@ -53,7 +54,7 @@ map(c(11:31),'indics_network_all.png',60,30,c(3,7),mar=c(2.5,2.5,1.5,6),sdata=sd
 # selected network
 #map(c(10,15,19,20),'indics_network_selected.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
 #map(c(10,13,19,20),'indics_network_selected_2.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
-map(c(21,26,19,11),'indics_network_selected.png',width=20,height=18,mfrow=c(2,2),sdata=sdata,
+map(c(21,26,19,11),filename=paste0('indics_network_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
     indicnames = c(expression("Betweenness moyenne ("*bar(bw)*")"),expression("Hierarchie de la proximite ("*alpha[cl]*")"),
                    expression("Clustering moyen ("*bar(c)*")"),expression("Nombre de noeuds (|V|)")
                    )
@@ -69,14 +70,21 @@ map(c(21,26,19,11),'indics_network_selected.png',width=20,height=18,mfrow=c(2,2)
 # clusterings
 
 indics = list(
-   morpho = c("moran","distance","entropy","slope","rsquaredslope"),
-   morphopop = c("moran","distance","entropy","slope","rsquaredslope","pop","max"),
-   network = c("meanBetweenness","alphaBetweenness","meanCloseness","alphaCloseness","meanLinkLength","networkPerf","meanPathLength","diameter" ,"components" ,"clustCoef" ,"vcount", "ecount","networkDensity"),
-   full = c("moran","distance","entropy","slope","rsquaredslope","meanBetweenness","alphaBetweenness","meanCloseness","alphaCloseness","meanLinkLength","networkPerf","meanPathLength","diameter" ,"components" ,"clustCoef" ,"vcount", "ecount","networkDensity"),
-   fullpop = c("moran","distance","entropy","slope","rsquaredslope","pop","max","meanBetweenness","alphaBetweenness","meanCloseness","alphaCloseness","meanLinkLength","networkPerf","meanPathLength","diameter" ,"components" ,"clustCoef" ,"vcount", "ecount","networkDensity")
+   morpho = c("moran","averageDistance","entropy","rankSizeAlpha"),#,"rankSizeRSquared"),
+   morphopop = c("moran","averageDistance","entropy","rankSizeAlpha","rankSizeRSquared","totalPop","maxPop"),
+   network = c("meanBetweenness","alphaBetweenness","meanCloseness","alphaCloseness","meanLinkLength",
+               "networkPerf","meanPathLength","diameter" ,"components" ,"clustCoef" ,"vcount", "ecount","networkDensity"),
+   full = c("moran","distance","entropy","slope","rsquaredslope","meanBetweenness","alphaBetweenness",
+            "meanCloseness","alphaCloseness","meanLinkLength","networkPerf","meanPathLength","diameter",
+            "components" ,"clustCoef" ,"vcount", "ecount","networkDensity"),
+   fullpop = c("moran","distance","entropy","slope","rsquaredslope","pop","max","meanBetweenness",
+               "alphaBetweenness","meanCloseness","alphaCloseness","meanLinkLength","networkPerf",
+               "meanPathLength","diameter" ,"components" ,"clustCoef" ,"vcount", "ecount","networkDensity")
 )
   
-cdata=sdata[apply(sdata,1,function(r){prod(as.numeric(!is.na(r)))>0}),]
+type = 'morpho'
+
+cdata=sdata[apply(sdata[,indics[[type]]],1,function(r){prod(as.numeric(!is.na(r)))>0}),]
 # normalize columns
 for(j in 3:ncol(cdata)){cdata[,j]<-(cdata[,j]-min(cdata[,j]))/(max(cdata[,j])-min(cdata[,j]))}
 
@@ -111,6 +119,7 @@ ggsave(paste0(resdir,'cluster_betweenvarincr.pdf'),width=15,height=10,units = 'c
 # plot clusters map and cluster in PC plan
 
 k=5
+# type = 'morpho'
 for(type in names(indics)){
   m=cdata[,indics[[type]]]
   km = kmeans(m,k,iter.max = 1000,nstart=100)
@@ -125,7 +134,7 @@ for(type in names(indics)){
   
   g=ggplot(data.frame(rotated,cluster),aes(x=PC1,y=PC2,color=cluster))
   g+geom_point(size=0.5)+ggtitle(paste0('Cumulated variance : ',round(summary(pca)$importance[3,2],digits = 2)))
-  ggsave(paste0(resdir,'cluster_pca_k',k,'_',type,'.pdf'),width=17,height=15,units='cm')
+  ggsave(paste0(resdir,'cluster_pca_k',k,'_',type,'.png'),width=17,height=15,units='cm')
   
 }
 
