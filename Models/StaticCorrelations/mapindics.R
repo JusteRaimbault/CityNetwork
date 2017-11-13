@@ -5,7 +5,7 @@ source('functions.R')
 source('mapFunctions.R')
 
 
-areasize=200;offset=100;factor=0.5
+areasize=60;offset=30;factor=0.5
 countrycode="FR"
 # load data
 res = loadIndicatorData(paste0("res/europecoupled_areasize",areasize,"_offset",offset,"_factor",factor,"_temp.RData"))
@@ -30,11 +30,9 @@ sdata = res[selectedpoints,]
 resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'/')
 dir.create(resdir)
 
-# TEST
-#map(c(8),'test3.png',20,12,c(1,1))
-
 # morpho
-map(indiccols = c(8,9,10,6),filename='indics_morpho.png',width=20,height=18,mfrow=c(2,2),sdata=sdata) # FR
+map(indiccols = c(8,9,10,6),filename='indics_morpho.png',width=20,height=18,mfrow=c(2,2),sdata=sdata,
+    indicnames=c(expression("Indice de Moran (I)"),expression("Distance moyenne ("*bar(d)*")"),expression("Entropie ("*epsilon*")"),expression("Hierarchie ("*gamma*")"))) # FR
 #map(c(3,4,5,6),'indics_morpho.png',20,20,c(2,2)) # UK
 #map(c(8,9,10,6),'indics_morpho.png',40,22,c(2,2)) # CN
 
@@ -47,7 +45,7 @@ map(c(8,9,10,6,7,3),'indics_morpho_all_discrquantiles.png',32,18,c(2,3),mar=c(2.
 
 
 # all network
-map(c(11:31),'indics_network_all.png',44,30,c(4,5),mar=c(2.5,2.5,1.5,6),sdata=sdata) # FR
+map(c(11:31),'indics_network_all.png',60,30,c(3,7),mar=c(2.5,2.5,1.5,6),sdata=sdata) # FR
 #map(c(10:20,22),'indics_network_all.png',44,32,c(3,4),mar=c(2.5,2.5,1.5,6)) # UK
 #map(c(11:31),'indics_network_all.png',60,40,c(7,3),mar=c(2.5,2.5,1.5,6)) # CN
 
@@ -55,7 +53,16 @@ map(c(11:31),'indics_network_all.png',44,30,c(4,5),mar=c(2.5,2.5,1.5,6),sdata=sd
 # selected network
 #map(c(10,15,19,20),'indics_network_selected.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
 #map(c(10,13,19,20),'indics_network_selected_2.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
-map(c(11,26,29,23),'indics_network_selected.png',40,22,c(2,2),mar=c(2.5,2,1.5,7.5))
+map(c(21,26,19,11),'indics_network_selected.png',width=20,height=18,mfrow=c(2,2),sdata=sdata,
+    indicnames = c(expression("Betweenness moyenne ("*bar(bw)*")"),expression("Hierarchie de la proximite ("*alpha[cl]*")"),
+                   expression("Clustering moyen ("*bar(c)*")"),expression("Nombre de noeuds (|V|)")
+                   )
+    )
+
+
+
+
+
 
 
 #####
