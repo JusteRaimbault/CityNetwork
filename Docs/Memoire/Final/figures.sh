@@ -604,7 +604,26 @@ then
   echo $FIGNAME
   convert Figures/StaticCorrelations/CN_indics_network_selected.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
-  #
+  # fig:app:staticcorrelations:sensitivity-maps-morpho
+  FIGNAME=A-staticcorrelations-sensitivity-maps-morpho
+  echo $FIGNAME
+  montage Figures/StaticCorrelations/indics_morpho_areasize60_offset30_factor0.5.png Figures/StaticCorrelations/indics_morpho_areasize200_offset100_factor0.5.png  -tile 1x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
+  convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.png
+
+  # fig:app:staticcorrelations:sensitivity-maps-network
+  FIGNAME=A-staticcorrelations-sensitivity-maps-network
+  echo $FIGNAME
+  montage Figures/StaticCorrelations/indics_network_areasize60_offset30_factor0.5.png Figures/StaticCorrelations/indics_network_areasize200_offset100_factor0.5.png  -tile 1x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
+  convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.png
+
+  # fig:app:staticcorrelations:sensitivity-corrs
+  FIGNAME=A-staticcorrelations-sensitivity-corrs
+  echo $FIGNAME
+  montage Figures/StaticCorrelations/sensit_morpho_low60_high100.png Figures/StaticCorrelations/sensit_network_low60_high100.png Figures/StaticCorrelations/sensit_morpho_low60_high200.png Figures/StaticCorrelations/sensit_network_low60_high200.png Figures/StaticCorrelations/sensit_morpho_low100_high200.png Figures/StaticCorrelations/sensit_network_low100_high200.png Figures/StaticCorrelations/sensit_morpho_crossed.png Figures/StaticCorrelations/sensit_network_crossed.png -tile 2x4 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
+  convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.png
 
 
   #############

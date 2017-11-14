@@ -59,31 +59,65 @@ dmat = spDists(datapoints[[higher]]@coords,datapoints[[lower]]@coords,longlat = 
 
 for(type in c('morpho','network')){
 
-corrs=c();cindics=c();d0s=c()
-corrmin=c();corrmax=c()
-for(d0 in seq(1,25,2)){
-  show(d0)
-  M = exp(-dmat/d0)
-  W = Diagonal(x=1/rowSums(M))%*%Matrix(M)
-  for(indic in indics[[type]]){
-    # use the weight matrix to compute smoothed field
-    # correlations make sense on intensive indices only
-   X = matrix(data=sdata[[lower]][,indic],nrow=ncol(W));X[is.na(X)]=0
-   Y = W%*%X
-   rho = cor.test(sdata[[higher]][,indic],Y[,1])
-   corrs=append(corrs,rho$estimate)
-   corrmin=append(corrmin,rho$conf.int[1]);corrmax=append(corrmax,rho$conf.int[2])
-   d0s=append(d0s,d0);cindics=append(cindics,indic)
+  corrs=c();cindics=c();d0s=c()
+  corrmin=c();corrmax=c()
+  for(d0 in seq(1,25,2)){
+    show(d0)
+    M = exp(-dmat/d0)
+    W = Diagonal(x=1/rowSums(M))%*%Matrix(M)
+    for(indic in indics[[type]]){
+      # use the weight matrix to compute smoothed field
+      # correlations make sense on intensive indices only
+     X = matrix(data=sdata[[lower]][,indic],nrow=ncol(W));X[is.na(X)]=0
+     Y = W%*%X
+     rho = cor.test(sdata[[higher]][,indic],Y[,1])
+     corrs=append(corrs,rho$estimate)
+     corrmin=append(corrmin,rho$conf.int[1]);corrmax=append(corrmax,rho$conf.int[2])
+     d0s=append(d0s,d0);cindics=append(cindics,indic)
+    }
+    rm(M,W);gc()
   }
-  rm(M,W);gc()
-}
-
-g=ggplot(data.frame(rho=corrs,rhomin=corrmin,rhomax=corrmax,d0=d0s,indic=cindics),aes(x=d0,y=rho,ymin=rhomin,ymax=rhomax,color=indic,group=indic))
-g+geom_point()+geom_line()+geom_errorbar(width=0.75)+xlab(expression(d[0]))+ylab(expression(rho*"["*X*"*"*W[d[0]]*","*X[ref]*"]"))+scale_colour_discrete(name="Indicateur")+stdtheme
-ggsave(filename = paste0(resdir,'sensit_',type,'_low',lower,'_high',higher,'.png'),width = 20,height=12,units='cm')
+  
+  g=ggplot(data.frame(rho=corrs,rhomin=corrmin,rhomax=corrmax,d0=d0s,indic=cindics),aes(x=d0,y=rho,ymin=rhomin,ymax=rhomax,color=indic,group=indic))
+  g+geom_point()+geom_line()+geom_errorbar(width=0.75)+xlab(expression(d[0]))+ylab(expression(rho*"["*X*"*"*W[d[0]]*","*X[ref]*"]"))+scale_colour_discrete(name="Indicateur")+stdtheme
+  ggsave(filename = paste0(resdir,'sensit_',type,'_low',lower,'_high',higher,'.png'),width = 20,height=12,units='cm')
 }
 
 #map(c(3),'moran_corresp.png',20,18,c(1,1),sdata=data.frame(lonmin=sdata1$lonmin,latmin=sdata1$latmin,moran=((sdata1$moran+Y[,1])/2)^10))
+
+
+######
+# \rho(60|200,100|200)
+
+
+dmat60 = spDists(datapoints[['200']]@coords,datapoints[['60']]@coords,longlat = T)
+dmat100 = spDists(datapoints[['200']]@coords,datapoints[['100']]@coords,longlat = T)
+
+for(type in c('morpho','network')){
+  corrs=c();cindics=c();d0s=c()
+  corrmin=c();corrmax=c()
+  for(d0 in seq(1,25,2)){
+    show(d0)
+    M60 = exp(-dmat60/d0);W60 = Diagonal(x=1/rowSums(M60))%*%Matrix(M60)
+    M100 = exp(-dmat100/d0);W100 = Diagonal(x=1/rowSums(M100))%*%Matrix(M100)
+    for(indic in indics[[type]]){
+      # use the weight matrix to compute smoothed field
+      # correlations make sense on intensive indices only
+      X60 = matrix(data=sdata[['60']][,indic],nrow=ncol(W60));X60[is.na(X60)]=0;Y60 = W60%*%X60
+      X100 = matrix(data=sdata[['100']][,indic],nrow=ncol(W100));X100[is.na(X100)]=0;Y100 = W100%*%X100
+      rho = cor.test(Y60[,1],Y100[,1])
+      corrs=append(corrs,rho$estimate)
+      corrmin=append(corrmin,rho$conf.int[1]);corrmax=append(corrmax,rho$conf.int[2])
+      d0s=append(d0s,d0);cindics=append(cindics,indic)
+    }
+    rm(M60,W60,M100,W100);gc()
+  }
+  
+  g=ggplot(data.frame(rho=corrs,rhomin=corrmin,rhomax=corrmax,d0=d0s,indic=cindics),aes(x=d0,y=rho,ymin=rhomin,ymax=rhomax,color=indic,group=indic))
+  g+geom_point()+geom_line()+geom_errorbar(width=0.75)+xlab(expression(d[0]))+ylab(expression(rho*"["*X*"*"*W[d[0]]*","*X[ref]*"]"))+scale_colour_discrete(name="Indicateur")+stdtheme
+  ggsave(filename = paste0(resdir,'sensit_',type,'_crossed.png'),width = 20,height=12,units='cm')
+  
+}
 
 
 

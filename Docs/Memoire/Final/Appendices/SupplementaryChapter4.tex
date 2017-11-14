@@ -252,18 +252,83 @@ Vous semble-t-il simple, dans le cas de dynamiques couplées au sein d'un résea
 
 
 
+\subsection{Sensitivity to resolution}{Sensibilité à la résolution}
+
+
+\bpar{}{
+Nous évaluons ici la sensibilité des divers indicateurs à la taille de la grille. Nous montrons en Fig.~\ref{fig:app:staticcorrelations:sensitivity-maps-morpho} les indicateurs morphologiques et en Fig.~\ref{fig:app:staticcorrelations:sensitivity-maps-morpho} certains indicateurs de réseau, cartographiés pour la France, pour des tailles différentes de grille. Les tailles données ici, en écho à celle de 50km utilisée dans les résultats principaux, sont dans des ordres de grandeur équivalents : nous testons des fenêtres de taille 30km et 60km. Les décalages sont à chaque fois de la moitié de la fenêtre (15km et 50km respectivement). Il est possible de voir ``à l'oeil'' que certains indicateurs sont peu sensibles, le changement d'échelle ressemblant à un lissage du champ le plus fin : par exemple dans le cas morphologique pour l'indice de Moran, l'entropie et la hiérarchie. La distance moyenne, en fait très bruitée à l'échelle la plus faible, est nécessairement sensible à l'agrégation, ce qui est consistant avec une sensibilité attendue au lissage. Les indicateurs de réseau sont relativement robustes à la taille de la fenêtre.
+}
+
+\bpar{}{
+Cette comparaison, d'une part est à prendre avec précaution de par la non-comparabilité directe des échelles pour les indicateurs, et d'autre part reste limitée. Nous proposons alors une méthode pour quantifier la variabilité des indicateurs à la taille de la fenêtre. Soit $X_D$ et $X_d$ deux champs spatiaux correspondant à deux échelles spatiales $D > d$ (qu'on prend comme des distances caractéristiques), qu'on suppose discrets en des points respectifs $\left(\vec{x}_i^{(D)}\right)_{1 \leq i \leq N_D}$ et $\left(\vec{x}_j^{(d)}\right)_{1 \leq i \leq N_d}$. L'idée est de comparer un lissage du champ le plus fin au champ le moins fin : si la corrélation entre ces deux valeurs est forte, il est possible de passer d'un champ à l'autre par agrégation et l'échelle de calcul n'influe ainsi pas autrement que sur la résolution finale. Soit $W_{ij} = \left( \exp{ - d_{ij} / d_0} \right)_{ij}$ une matrice de poids spatiaux calculée par les distances euclidiennes $d_{ij}$ entre les points $\vec{x}_i^{(D)}$ et $\vec{x}_j^{(d)}$. Alors avec $W'_{ij} = W_{ij} / \sum_j W_{ij}$, on peut calculer le lissage spatial de $X_d$ aux points $\vec{x}_i^{(D)}$, par le produit matriciel
+\[
+\tilde{X}_d (\vec{x}_i^{(D)}) = W' \ast \vec{x}_j^{(d)}
+\]
+
+La corrélation est alors donnée par $\rhob{\tilde{X}_d}{X_D}$ évaluée sur l'ensemble des points $\vec{x}_i^{(D)}$.
+}
+
+
+\bpar{}{
+La Fig.~\ref{fig:app:staticcorrelations:sensitivity-corrs} donne les variations de la corrélation pour l'ensemble des couples $(D,d)$
+}
+
+
+
+%% maps
+
+%%%%%%%%%%%%
+\begin{figure}
+	% Figures/StaticCorrelations/indics_morpho_areasize60_offset30_factor0.5.png
+	% Figures/StaticCorrelations/indics_morpho_areasize200_offset100_factor0.5.png	\includegraphics[width=\linewidth,height=0.95\textheight]{Figures/Final/A-staticcorrelations-sensitivity-maps-morpho.jpg}
+	\appcaption{\label{fig:app:staticcorrelations:sensitivity-maps-morpho}}{\textbf{Indicateurs morphologiques pour différentes tailles de grille.} Les 4 premières cartes montrent les indicateurs calculés avec une fenêtre de taille 30km, les 4 dernières avec une fenêtre de taille 100km.\label{fig:app:staticcorrelations:sensitivity-maps-morpho}}
+\end{figure}
+%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%
+\begin{figure}
+	% Figures/StaticCorrelations/indics_network_areasize60_offset30_factor0.5.png	% Figures/StaticCorrelations/indics_network_areasize200_offset100_factor0.5.png
+	\includegraphics[width=\linewidth,height=0.95\textheight]{Figures/Final/A-staticcorrelations-sensitivity-maps-network.jpg}
+	\appcaption{\label{fig:app:staticcorrelations:sensitivity-maps-network}}{\textbf{Echantillon des indicateurs de réseau pour différentes tailles de grille.} Les 4 premières cartes montrent les indicateurs calculés avec une fenêtre de taille 30km, les 4 dernières avec une fenêtre de taille 100km.\label{fig:app:staticcorrelations:sensitivity-maps-network}}
+\end{figure}
+%%%%%%%%%%%%
+
+
+%% smoothed correlation
+
+%%%%%%%%%%%%
+\begin{figure}	% Figures/StaticCorrelations/sensit_morpho_low60_high100.png
+	% Figures/StaticCorrelations/sensit_network_low60_high100.png	% Figures/StaticCorrelations/sensit_morpho_low60_high200.png
+	% Figures/StaticCorrelations/sensit_network_low60_high200.png	% Figures/StaticCorrelations/sensit_morpho_low100_high200.png
+	% Figures/StaticCorrelations/sensit_network_low100_high200.png	% Figures/StaticCorrelations/sensit_morpho_crossed.png
+	% Figures/StaticCorrelations/sensit_network_crossed.png
+	\includegraphics[width=\linewidth,height=0.9\textheight]{Figures/Final/A-staticcorrelations-sensitivity-corrs.jpg}
+	\appcaption{\label{fig:app:staticcorrelations:sensitivity-corrs}}{\textbf{Corrélations entre indicateurs à différentes échelles.} \label{fig:app:staticcorrelations:sensitivity-corrs}}
+\end{figure}
+%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
 
 
 
 \subsection{Spatial Correlations}{Corrélations Spatiales}
+
+La Fig.~\ref{fig:app:staticcorrelations:europe_correlations} donne la distribution spatiale pour l'ensemble de l'Europe, d'un échantillon de corrélations entre indicateurs : $\rhob{\alpha_{cl}}{I}$, $\rhob{\gamma}{\alpha}$, $\rhob{\bar{bw}}{\gamma}$.
 
 %%%%%%%%%%%%%%
 \begin{figure}
 \includegraphics[width=0.48\linewidth]{Figures/StaticCorrelations/EU_corr_alphaCloseness_moran_rhoasize12}
 \includegraphics[width=0.48\linewidth]{Figures/StaticCorrelations/EU_corr_slope_moran_rhoasize12}\\
 \includegraphics[width=0.48\linewidth]{Figures/StaticCorrelations/EU_corr_meanBetweenness_slope_rhoasize12}
-\appcaption{}{Correlations spatiales pour l'Europe.}
-\label{fig:app:staticcorrelations:europe_correlations}
+\appcaption{}{\textbf{Correlations spatiales pour l'Europe.}\label{fig:app:staticcorrelations:europe_correlations}}
 \end{figure}
 %%%%%%%%%%%%%%
 
@@ -284,6 +349,9 @@ Vous semble-t-il simple, dans le cas de dynamiques couplées au sein d'un résea
 %%%%%%%%%%%%%%
 
 
+
+
+%%%%%%%%%%%%%%
 \subsection{Multi-scale}{Multi-scalarité}
 
 
