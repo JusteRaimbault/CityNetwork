@@ -7,9 +7,9 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/SpatioTempCausality/SudAfrica'))
 
 resdir = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/SudAfrica/')
 
-source("network.R")
-source("networkMeasures.R")
-source('functions.R')
+#source("networkAnalysis.R")
+#source("networkMeasures.R")
+source('../functions.R')
 
 load('data/pops.RData')
 load('data/distmats.RData')
