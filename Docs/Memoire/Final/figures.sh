@@ -208,12 +208,7 @@ then
   # fig:causalityregimes:sudafcorrs
   FIGNAME=4-2-3-fig-causalityregimes-sudafcorrs
   echo $FIGNAME
-  convert -density $PDFRESOLUTION Figures/CausalityRegimes/meanabscorrs.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/CausalityRegimes/meanabscorrs.jpg
-  convert -density $PDFRESOLUTION Figures/CausalityRegimes/significantcorrs.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/CausalityRegimes/significantcorrs.jpg
-  convert -density $PDFRESOLUTION Figures/CausalityRegimes/laggedCorrs_Tw3.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/CausalityRegimes/laggedCorrs_Tw3.jpg
-  montage Figures/CausalityRegimes/meanabscorrs.jpg Figures/CausalityRegimes/significantcorrs.jpg -tile 2x1 -geometry +0+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME"_tmp.jpg
-  montage $FIGDIR/"$FIGNAME"_tmp.jpg Figures/CausalityRegimes/laggedCorrs_Tw3.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm $FIGDIR/"$FIGNAME"_tmp.jpg Figures/CausalityRegimes/meanabscorrs.jpg Figures/CausalityRegimes/significantcorrs.jpg Figures/CausalityRegimes/laggedCorrs_Tw3.jpg
+  convert Figures/CausalityRegimes/laggedCorrs_time_Tw3.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
 
@@ -624,6 +619,58 @@ then
   montage Figures/StaticCorrelations/sensit_morpho_low60_high100.png Figures/StaticCorrelations/sensit_network_low60_high100.png Figures/StaticCorrelations/sensit_morpho_low60_high200.png Figures/StaticCorrelations/sensit_network_low60_high200.png Figures/StaticCorrelations/sensit_morpho_low100_high200.png Figures/StaticCorrelations/sensit_network_low100_high200.png Figures/StaticCorrelations/sensit_morpho_crossed.png Figures/StaticCorrelations/sensit_network_crossed.png -tile 2x4 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
   convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm $FIGDIR/"$FIGNAME"_tmp.png
+
+
+  #############
+  ## spatio-temp causalities
+
+  # fig:app:causalityregimes:sudafcorrs
+  FIGNAME=A-causalityregimes-sudafcorrs
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/CausalityRegimes/meanabscorrs.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/CausalityRegimes/meanabscorrs.jpg
+  convert -density $PDFRESOLUTION Figures/CausalityRegimes/significantcorrs.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/CausalityRegimes/significantcorrs.jpg
+  convert -density $PDFRESOLUTION Figures/CausalityRegimes/laggedCorrs_Tw3.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/CausalityRegimes/laggedCorrs_Tw3.jpg
+  montage Figures/CausalityRegimes/meanabscorrs.jpg Figures/CausalityRegimes/significantcorrs.jpg -tile 2x1 -geometry +0+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME"_tmp.jpg
+  montage $FIGDIR/"$FIGNAME"_tmp.jpg Figures/CausalityRegimes/laggedCorrs_Tw3.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.jpg Figures/CausalityRegimes/meanabscorrs.jpg Figures/CausalityRegimes/significantcorrs.jpg Figures/CausalityRegimes/laggedCorrs_Tw3.jpg
+
+
+
+
+
+  ##############
+  ## Density
+
+  # fig:app:density:histograms
+  FIGNAME=A-density-histograms
+  echo $FIGNAME
+  montage Figures/Density/hist_moran.png Figures/Density/hist_slope.png -tile 1x2 -geometry +"$VERTICALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:density:moran
+  FIGNAME=A-density-moran
+  echo $FIGNAME
+  montage Figures/Density/moran_alpha.jpg Figures/Density/moran_beta.jpg -tile 1x2 -geometry +"$VERTICALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:density:slope
+  FIGNAME=A-density-slope
+  echo $FIGNAME
+  montage Figures/Density/slope_alpha.jpg Figures/Density/slope_beta.jpg -tile 1x2 -geometry +"$VERTICALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:density:distance
+  FIGNAME=A-density-distance
+  echo $FIGNAME
+  montage Figures/Density/distance_alpha.jpg Figures/Density/distance_beta.jpg -tile 1x2 -geometry +"$VERTICALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:density:entropy
+  FIGNAME=A-density-entropy
+  echo $FIGNAME
+  montage Figures/Density/entropy_alpha.jpg Figures/Density/entropy_beta.jpg -tile 1x2 -geometry +"$VERTICALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:density:densityscatter
+  FIGNAME=A-density-densityscatter
+  echo $FIGNAME
+  convert Figures/Density/scatter.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
 
 
   #############

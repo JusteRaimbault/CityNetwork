@@ -3,6 +3,8 @@ library(dplyr)
 library(igraph)
 library(ggplot2)
 
+source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
+
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/SpatioTempCausality/SudAfrica'))
 
 resdir = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/SudAfrica/')
@@ -14,6 +16,8 @@ source('../functions.R')
 load('data/pops.RData')
 load('data/distmats.RData')
 
+years = c(1911,1921,1936,1951,1960,1970,1980,1991)
+
 ###########
 ## Lagged correlations
 
@@ -24,19 +28,19 @@ load('data/distmats.RData')
 popdiff = getDiffs(populations,"pop")
 
 # test accessibility
-year=1991
-pop = populations$pop[populations$year==year];names(pop)<-populations$id[populations$year==year]
-distmat = distmats[[as.character(year)]]
-acc = computeAccess(pop,distmat,1000,mode="weightedboth")
+#year=1991
+#pop = populations$pop[populations$year==year];names(pop)<-populations$id[populations$year==year]
+#distmat = distmats[[as.character(year)]]
+#acc = computeAccess(pop,distmat,1000,mode="weightedboth")
 
 # -> quite quick, ok to recompute to have the deltas
 
 # test deltaacc
-deltaacc = deltaAccessibilities(1000)
+#deltaacc = deltaAccessibilities(1000)
 
-fulldata = data.frame(left_join(x =as.tbl(deltaacc) ,y=as.tbl(popdiff),by=c('id'='id','year'='year')))
+#fulldata = data.frame(left_join(x =as.tbl(deltaacc) ,y=as.tbl(popdiff),by=c('id'='id','year'='year')))
 
-cor.test(x=fulldata$var.x,y=fulldata$var.y)
+#cor.test(x=fulldata$var.x,y=fulldata$var.y)
 
 
 
@@ -48,7 +52,7 @@ for(mode in c('time','weighteddest','weightedboth')){
   for(d0 in d0s){
     show(paste0('d0=',d0))
     x= popdiff
-    y= deltaAccessibilities(d0,mode=mode)
+    y= deltaAccessibilities(d0,distmats=distmats,years = years,mode=mode)
     for(Tw in 1:7){
       show(paste0('Tw=',Tw))
       currentlaggedcorrs = getLaggedCorrs(x,y,Tw,taumax=3)
@@ -57,12 +61,30 @@ for(mode in c('time','weighteddest','weightedboth')){
   }
 }
 
+#save(res,file='laggedcorrs.RData')
+load('laggedcorrs.RData')
+
 for(Tw in 1:7){
  g=ggplot(res[res$Tw==Tw,],aes(x=tau,y=rho,ymin=rhomin,ymax=rhomax,color=d0,group=d0))
  g+geom_point()+geom_line()+geom_errorbar()+facet_grid(mode~span)
- ggsave(paste0(resdir,'laggedCorrs_Tw',Tw,'.pdf'),width=30,height=20,units='cm')
+ ggsave(paste0(resdir,'laggedCorrs_2_Tw',Tw,'.pdf'),width=30,height=20,units='cm')
 }
 
+
+# detailed figure
+Tw=3;mode='time'
+g=ggplot(res[res$Tw==Tw&res$mode==mode,],aes(x=tau,y=rho,ymin=rhomin,ymax=rhomax,color=d0,group=d0))
+g+geom_point()+geom_line()+geom_errorbar()+facet_wrap(~span)+
+  geom_vline(aes(xintercept=0),col='red',linetype=2)+geom_hline(aes(yintercept=0),col='red',linetype=2)+
+  xlab(expression(tau))+ylab(expression(rho[tau](Delta*P[i],Delta*T[i])))+scale_shape_manual(values = unique(res$d0), guide=guide_legend(nrow=5,ncol=2),name=expression(d[0]))+stdtheme+
+  theme(legend.position = c(0.85, 0.25),legend.text=element_text(size=20))
+ggsave(paste0(resdir,'laggedCorrs_time_Tw',Tw,'.png'),width=30,height=20,units='cm')
+
+
+
+
+#######
+# significant corrs and levels of correlation
 
 sres = data.frame()
 for(d0 in d0s){
