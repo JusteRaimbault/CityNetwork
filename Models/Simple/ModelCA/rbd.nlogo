@@ -368,7 +368,7 @@ density-coefficient
 density-coefficient
 0
 1
-1
+0
 0.1
 1
 NIL
@@ -383,7 +383,7 @@ distance-to-roads-coefficient
 distance-to-roads-coefficient
 0
 1
-1
+0
 0.1
 1
 NIL
