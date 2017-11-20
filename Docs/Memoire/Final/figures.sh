@@ -150,18 +150,16 @@ then
   # fig:staticcorrs:corrsdistrib
   FIGNAME=4-1-3-fig-staticcorrs-corrsdistrib
   echo $FIGNAME
-  convert -density $PDFRESOLUTION Figures/StaticCorrelations/corrs-distrib_varyingdelta_bytype.pdf -quality $JPGQUALITY Figures/StaticCorrelations/corrs-distrib_varyingdelta_bytype.jpg
-  convert -density $PDFRESOLUTION Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.pdf -quality $JPGQUALITY Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg
-  montage Figures/StaticCorrelations/corrs-distrib_varyingdelta_bytype.jpg Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg -resize "$WIDTH"x -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/fig-staticcorrs-corrsdistrib_tmp1.jpg
-  rm Figures/StaticCorrelations/corrs-distrib_varyingdelta_bytype.jpg;rm Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg
-  convert Figures/Final/fig-staticcorrs-corrsdistrib_tmp1.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/fig-staticcorrs-corrsdistrib_tmp2.jpg
-  convert -density $PDFRESOLUTION Figures/StaticCorrelations/normalized_CI_delta.pdf -quality $JPGQUALITY Figures/StaticCorrelations/normalized_CI_delta.jpg
-  convert Figures/StaticCorrelations/scatter_meanabs_colcross.png -quality $JPGQUALITY Figures/StaticCorrelations/scatter_meanabs_colcross.jpg
-  montage Figures/StaticCorrelations/normalized_CI_delta.jpg Figures/StaticCorrelations/scatter_meanabs_colcross.jpg -resize "$WIDTH"x -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/fig-staticcorrs-corrsdistrib_tmp3.jpg
-  rm Figures/StaticCorrelations/normalized_CI_delta.jpg;rm Figures/StaticCorrelations/scatter_meanabs_colcross.jpg
-  convert Figures/Final/fig-staticcorrs-corrsdistrib_tmp3.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/fig-staticcorrs-corrsdistrib_tmp4.jpg
-  montage Figures/Final/fig-staticcorrs-corrsdistrib_tmp2.jpg Figures/Final/fig-staticcorrs-corrsdistrib_tmp4.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm Figures/Final/fig-staticcorrs-corrsdistrib_tmp1.jpg;rm Figures/Final/fig-staticcorrs-corrsdistrib_tmp2.jpg;rm Figures/Final/fig-staticcorrs-corrsdistrib_tmp3.jpg;rm Figures/Final/fig-staticcorrs-corrsdistrib_tmp4.jpg
+  convert -density $PDFRESOLUTION Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg
+  convert -density $PDFRESOLUTION Figures/StaticCorrelations/normalized_CI_delta.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/StaticCorrelations/normalized_CI_delta.jpg
+  montage Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg Figures/StaticCorrelations/normalized_CI_delta.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg;rm Figures/StaticCorrelations/normalized_CI_delta.jpg
+  #convert Figures/Final/fig-staticcorrs-corrsdistrib_tmp1.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/fig-staticcorrs-corrsdistrib_tmp2.jpg
+  #montage Figures/StaticCorrelations/normalized_CI_delta.jpg Figures/StaticCorrelations/scatter_meanabs_colcross.jpg -resize "$WIDTH"x -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/fig-staticcorrs-corrsdistrib_tmp3.jpg
+  #convert Figures/Final/fig-staticcorrs-corrsdistrib_tmp3.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/fig-staticcorrs-corrsdistrib_tmp4.jpg
+  #rm Figures/Final/fig-staticcorrs-corrsdistrib_tmp1.jpg;rm Figures/Final/fig-staticcorrs-corrsdistrib_tmp2.jpg;rm Figures/Final/fig-staticcorrs-corrsdistrib_tmp3.jpg;rm Figures/Final/fig-staticcorrs-corrsdistrib_tmp4.jpg
+  # montage Figures/StaticCorrelations/corrs-distrib_varyingdelta_bytype.jpg Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg -resize "$WIDTH"x -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/fig-staticcorrs-corrsdistrib_tmp1.jpg
+
 
   ###############
   ## 4.2 : Spatio-temp causalities
@@ -344,10 +342,17 @@ then
   echo $FIGNAME
   convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2.5_networkSpeed110_gravityDecay0.016_networkThreshold11.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/fig1.jpg
   convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/rankCorrPop_networkSpeed110_networkThreshold11_networkGamma2.5.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/fig2.jpg
+  montage Figures/MacroCoEvolExplo/fig1.jpg Figures/MacroCoEvolExplo/fig2.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/MacroCoEvolExplo/fig1.jpg Figures/MacroCoEvolExplo/fig2.jpg
+
+  # fig:macrocoevolexplo:correlations
+  FIGNAME=6-1-3-fig-macrocoevolexplo-correlations
+  echo $FIGNAME
   convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/distcorrs_networkGamma2.5_networkSpeed110_gravityDecay0.016_networkThreshold11.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/fig3.jpg
   convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2.5_networkSpeed10_gravityDecay0.016_networkThreshold21.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/fig4.jpg
-  montage Figures/MacroCoEvolExplo/fig1.jpg Figures/MacroCoEvolExplo/fig2.jpg Figures/MacroCoEvolExplo/fig3.jpg Figures/MacroCoEvolExplo/fig4.jpg -tile 2x2 -geometry +"$VERTICALPADDING"+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm Figures/MacroCoEvolExplo/fig1.jpg Figures/MacroCoEvolExplo/fig2.jpg Figures/MacroCoEvolExplo/fig3.jpg Figures/MacroCoEvolExplo/fig4.jpg
+  montage Figures/MacroCoEvolExplo/fig3.jpg Figures/MacroCoEvolExplo/fig4.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/MacroCoEvolExplo/fig3.jpg Figures/MacroCoEvolExplo/fig4.jpg
+
 
   ###############
   ## 6.2 : Macro-coevol
@@ -604,6 +609,15 @@ then
   echo $FIGNAME
   convert Figures/StaticCorrelations/CN_indics_network_selected.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
+  # fig:app:staticcorrelations:corr-distribs
+  FIGNAME=A-staticcorrelations-corr-distribs
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/StaticCorrelations/corrs-distrib_varyingdelta_bytype.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/StaticCorrelations/corrs-distrib_varyingdelta_bytype.jpg
+  convert Figures/StaticCorrelations/scatter_meanabs_colcross.png -resize "$WIDTH"x -quality $JPGQUALITY Figures/StaticCorrelations/scatter_meanabs_colcross.jpg
+  montage Figures/StaticCorrelations/corrs-distrib_varyingdelta_bytype.jpg Figures/StaticCorrelations/scatter_meanabs_colcross.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/StaticCorrelations/corrs-distrib_varyingdelta_bytype.jpg;rm Figures/StaticCorrelations/scatter_meanabs_colcross.jpg
+
+
   # fig:app:staticcorrelations:sensitivity-maps-morpho
   FIGNAME=A-staticcorrelations-sensitivity-maps-morpho
   echo $FIGNAME
@@ -618,12 +632,14 @@ then
   convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm $FIGDIR/"$FIGNAME"_tmp.png
 
+
   # fig:app:staticcorrelations:sensitivity-corrs
   FIGNAME=A-staticcorrelations-sensitivity-corrs
   echo $FIGNAME
   montage Figures/StaticCorrelations/sensit_morpho_low60_high100.png Figures/StaticCorrelations/sensit_network_low60_high100.png Figures/StaticCorrelations/sensit_morpho_low60_high200.png Figures/StaticCorrelations/sensit_network_low60_high200.png Figures/StaticCorrelations/sensit_morpho_low100_high200.png Figures/StaticCorrelations/sensit_network_low100_high200.png Figures/StaticCorrelations/sensit_morpho_crossed.png Figures/StaticCorrelations/sensit_network_crossed.png -tile 2x4 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
   convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm $FIGDIR/"$FIGNAME"_tmp.png
+
 
 
   #############
