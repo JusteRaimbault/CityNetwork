@@ -77,22 +77,58 @@ for(var in vars){
   else{timedata[[var]]=melted[[var]]}
 }
 
-synthRankSize=1.5
+
 nwGmax=0.05
 #nwGmax=0.0
+# synthRankSize=1.5
 
 dir.create(paste0(resdir,'indics'))
 
+for(synthRankSize in unique(res$synthRankSize)){
 for(gravityWeight in unique(res$gravityWeight)){
   for(var in vars){
     g=ggplot(timedata[timedata$synthRankSize==synthRankSize&timedata$nwGmax==nwGmax&timedata$gravityWeight==gravityWeight,],
              aes_string(x="time",y=var,color="nwThreshold",group="nwThreshold")
              )
-    g+geom_point()+geom_smooth()+facet_grid(gravityGamma~gravityDecay)+ggtitle(paste0("gravityWeight=",gravityWeight))+stdtheme
+    g+geom_point()+geom_smooth()+facet_grid(gravityGamma~gravityDecay)+ggtitle(paste0("gravityWeight=",gravityWeight," ; synthRankSize=",synthRankSize))+stdtheme
     #ggsave(paste0(resdir,'indics/no-nw_',var,'_gravityWeight',gravityWeight,'.pdf'),width=30,height=20,units='cm')
-    ggsave(paste0(resdir,'indics/',var,'_gravityWeight',gravityWeight,'.pdf'),width=30,height=20,units='cm')
+    ggsave(paste0(resdir,'indics/',var,'synthRankSize',synthRankSize,'_gravityWeight',gravityWeight,'.pdf'),width=30,height=20,units='cm')
    } 
 }
+}
+
+#####
+# targeted plots
+
+dir.create(paste0(resdir,'targeted'))
+
+# closeness mean
+nwGmax=0.05;synthRankSize=1.0;gravityDecay=10;gravityWeight=0.001
+var="closenessSummaries_mean"
+g=ggplot(timedata[timedata$gravityGamma!=1.0&timedata$synthRankSize==synthRankSize&timedata$nwGmax==nwGmax&timedata$gravityWeight==gravityWeight&timedata$gravityDecay==gravityDecay,],
+         aes_string(x="time",y=var,color="nwThreshold",group="nwThreshold")
+)
+g+geom_point()+geom_smooth()+facet_wrap(~gravityGamma)+
+  ggtitle(bquote(w[G]*"="*.(gravityWeight)*" ; "*d[G]*"="*.(gravityDecay)*" ; "*alpha[S]*"="*.(synthRankSize)))+
+  xlab(expression(t))+ylab(expression(bar(c[i])(t)))+scale_color_continuous(name=expression(phi[0]))+
+  stdtheme
+ggsave(paste0(resdir,'targeted/',var,'_synthRankSize',synthRankSize,'_gravityWeight',gravityWeight,"_gravityDecay",gravityDecay,'.png'),width=20,height=14,units='cm')
+
+
+nwGmax=0.05;synthRankSize=1.0;gravityGamma=0.5;gravityWeight=0.001;gravityDecays=c(10,110)
+var="populationEntropies"
+g=ggplot(timedata[timedata$gravityDecay%in%gravityDecays&timedata$gravityGamma==gravityGamma&timedata$synthRankSize==synthRankSize&timedata$nwGmax==nwGmax&timedata$gravityWeight==gravityWeight,],
+         aes_string(x="time",y=var,color="nwThreshold",group="nwThreshold")
+)
+g+geom_point()+geom_smooth()+facet_wrap(~gravityDecays)+
+  ggtitle(bquote(w[G]*"="*.(gravityWeight)*" ; "*gamma[G]*"="*.(gravityGamma)*" ; "*alpha[S]*"="*.(synthRankSize)))+
+  xlab(expression(t))+ylab(expression(epsilon*"["*P[i]*"]"*(t)))+scale_color_continuous(name=expression(phi[0]))+
+  stdtheme
+ggsave(paste0(resdir,'targeted/',var,'_synthRankSize',synthRankSize,'_gravityWeight',gravityWeight,"_gravityGamma",gravityGamma,'.png'),width=20,height=14,units='cm')
+
+
+
+
 
 ##
 # lagged correlations

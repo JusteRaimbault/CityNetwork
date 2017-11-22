@@ -296,13 +296,10 @@ convert Figures/Density/Fig6.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/
 FIGNAME=5-3-2-fig-correlatedsyntheticdata-densnwcor
 echo $FIGNAME
 convert -density $PDFRESOLUTION Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.jpg
-convert -density $PDFRESOLUTION Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg
-montage Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.jpg Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg -tile 2x1 -geometry +0+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME"_tmp1.jpg
-convert Figures/CorrelatedSyntheticData/heatmaps.png -resize "$((WIDTH / 3))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/heatmaps.jpg
-convert Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.png -resize "$((2 * WIDTH / 3))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.jpg
-montage Figures/CorrelatedSyntheticData/heatmaps.jpg Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.jpg -tile 2x1 -geometry +0+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME"_tmp2.jpg
-montage $FIGDIR/"$FIGNAME"_tmp1.jpg $FIGDIR/"$FIGNAME"_tmp2.jpg -tile 1x2 -geometry +"$VERTICALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-rm $FIGDIR/"$FIGNAME"_tmp2.jpg $FIGDIR/"$FIGNAME"_tmp1.jpg Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.jpg Figures/CorrelatedSyntheticData/heatmaps.jpg Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.jpg
+convert Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.png -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.jpg
+montage Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.jpg Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.jpg -tile 2x1 -geometry +0+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+#montage $FIGDIR/"$FIGNAME"_tmp1.jpg $FIGDIR/"$FIGNAME"_tmp2.jpg -tile 1x2 -geometry +"$VERTICALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+rm Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.jpg Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.jpg
 
 
 # fig:correlatedsyntheticdata:exampl
@@ -706,6 +703,29 @@ then
   FIGNAME=A-density-densityscatter
   echo $FIGNAME
   convert Figures/Density/scatter.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:density:stationary
+  FIGNAME=A-density-stationary
+  echo $FIGNAME
+  convert Figures/Density/stationary.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:density:pmax
+  FIGNAME=A-density-pmax
+  echo $FIGNAME
+  montage Figures/Density/pmax_alpha.png Figures/Density/pmax_logbeta.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+  #############
+  ## Synthetic Data
+
+  #fig:app:correlatedsyntheticdata:correlations
+  FIGNAME=A-correlatedsyntheticdata-correlations
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.pdf -resize "$((2 * WIDTH / 3))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg
+  convert Figures/CorrelatedSyntheticData/heatmaps.png -resize "$((WIDTH / 3))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/heatmaps.jpg
+  montage Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg Figures/CorrelatedSyntheticData/heatmaps.jpg -tile 2x1 -geometry +0+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/CorrelatedSyntheticData/heatmaps.jpg Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg
+
 
 
 
