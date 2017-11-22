@@ -120,9 +120,9 @@ var="populationEntropies"
 g=ggplot(timedata[timedata$gravityDecay%in%gravityDecays&timedata$gravityGamma==gravityGamma&timedata$synthRankSize==synthRankSize&timedata$nwGmax==nwGmax&timedata$gravityWeight==gravityWeight,],
          aes_string(x="time",y=var,color="nwThreshold",group="nwThreshold")
 )
-g+geom_point()+geom_smooth()+facet_wrap(~gravityDecays)+
+g+geom_point()+geom_smooth()+facet_wrap(~gravityDecay)+
   ggtitle(bquote(w[G]*"="*.(gravityWeight)*" ; "*gamma[G]*"="*.(gravityGamma)*" ; "*alpha[S]*"="*.(synthRankSize)))+
-  xlab(expression(t))+ylab(expression(epsilon*"["*P[i]*"]"*(t)))+scale_color_continuous(name=expression(phi[0]))+
+  xlab(expression(t))+ylab(expression(epsilon*"["*mu[i]*"]"*(t)))+scale_color_continuous(name=expression(phi[0]))+
   stdtheme
 ggsave(paste0(resdir,'targeted/',var,'_synthRankSize',synthRankSize,'_gravityWeight',gravityWeight,"_gravityGamma",gravityGamma,'.png'),width=20,height=14,units='cm')
 
@@ -130,68 +130,56 @@ ggsave(paste0(resdir,'targeted/',var,'_synthRankSize',synthRankSize,'_gravityWei
 
 
 
+
+
 ##
-# lagged correlations
-# -> forgot pop-pop in correlations
+# complexity, diversity and rankcorrelations
+dir.create(paste0(resdir,'complexity'))
 
-# need to reshape
-
-lagdata=data.frame()
-for(couple in c("ClosenessAccessibility","PopAccessibility","PopCloseness")){
-#couple = "ClosenessAccessibility"
-melted = melt(res,id.vars=params,measure.vars = paste0("rho",couple,"_tau",lags),value.name="rho")
-melted$tau = as.numeric(substring(melted$variable,first=8+nchar(couple)))
-melted$var = rep(couple,nrow(melted))
-lagdata=rbind(lagdata,melted)
-}
-
-synthRankSize=1.5
-nwGmax=0.05
-
-dir.create(paste0(resdir,'laggedcorrs'))
-
-for(gravityWeight in unique(res$gravityWeight)){
-  for(nwThreshold in unique(res$nwThreshold)){  
-
-#gravityWeight=0.00075
-#nwThreshold=2.5
-
-g=ggplot(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold,],
-         aes(x=tau,y=rho,color=var,group=var)
-         )
-g+geom_point(pch='.')+geom_smooth()+facet_grid(gravityGamma~gravityDecay)+ggtitle(paste0("gravityWeight=",gravityWeight," ; nwThreshold=",nwThreshold))+stdtheme
-ggsave(paste0(resdir,'laggedcorrs/laggedcorrs_gravityWeight',gravityWeight,'_nwThreshold',nwThreshold,'.pdf'),width=30,height=20,units='cm')
-
+for(synthrankSize in unique(res$synthRankSize)){
+  for(nwGmax in unique(res$nwGmax)){
+    
+    vars = c("Accessibility","Closeness","Pop")
+    measures = c("complexity","diversity","rankCorr")
+    
+    for(var in vars){
+      for(mes in measures){
+        #if(!(var=="Pop"&mes=="complexity")){
+        show(paste0(mes,var))
+        g=ggplot(res[res$synthRankSize==synthrankSize&res$nwGmax==nwGmax,],aes_string(x="gravityDecay",y=paste0(mes,var),color="gravityGamma",group="gravityGamma"))
+        g+geom_point()+geom_smooth()+facet_grid(gravityWeight~nwThreshold,scales="free")+ggtitle(paste0("synthrankSize=",synthrankSize," ; nwGmax=",nwGmax))+
+          xlab(expression(d[G]))+ylab(expression(epsilon*"["*P[i]*"]"*(t)))+scale_color_continuous(name=expression(gamma[G]))+
+          stdtheme
+        ggsave(paste0(resdir,'complexity/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',nwGmax,'.pdf'),width=30,height=20,units='cm')
+        #}
+      }
+    }
   }
 }
 
 
-# stat test
-synthRankSize=1.5;nwGmax=0.05
-gravityWeight=5e-04;nwThreshold=4.5
-gravityGamma=1.5;gravityDecay=110
-g=ggplot(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay,],
-         aes(x=tau,y=rho,color=var,group=var)
-         )
-g+geom_point(pch='.')+geom_smooth()
+# targeted
 
-g=ggplot(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay,],
-         aes(x=rho,color=tau,group=tau)
-)
-g+geom_density()+facet_wrap(~var)
+synthrankSize = 1;nwGmax=0.05
+gravityWeight=0.001;networkThresholds = c(0.5,1.0,2.0)
+mes="complexity";var="Accessibility"
+g=ggplot(res[res$synthRankSize==synthrankSize&res$nwGmax==nwGmax&res$gravityWeight==gravityWeight&res$nwThreshold%in%networkThresholds,],aes_string(x="gravityDecay",y=paste0(mes,var),color="gravityGamma",group="gravityGamma"))
+g+geom_point()+geom_smooth()+facet_wrap(~nwThreshold,scales="free")+ggtitle(bquote(w[G]*"="*.(gravityWeight)*" ; "*alpha[S]*"="*.(synthRankSize)))+
+  xlab(expression(d[G]))+ylab(expression(C*"["*Z[i]*"]"))+scale_color_continuous(name=expression(gamma[G]))+
+  stdtheme
+ggsave(paste0(resdir,'targeted/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',parstr(nwGmax),'_gravityWeight',parstr(gravityWeight),'.png'),width=30,height=15,units='cm')
 
-# compare distributions -> two sample ks test
-var="PopAccessibility"
-cdata = lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&
-          lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay&
-          lagdata$var==var,]
-test=ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==2])
-sdata=cdata%>%group_by(tau)%>%summarise(rho=mean(rho))
-taumax = sdata$tau[sdata$rho==max(sdata$rho[sdata$tau>0])]
-taumin = sdata$tau[sdata$rho==max(sdata$rho[sdata$tau<0])]
-ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumax])
-ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumin])
-for(tau in c(-6:-1,1:6)){show(ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==tau])$p.value)}
+
+synthrankSize = 1;nwGmax=0.05
+gravityWeight=0.001;networkThresholds = c(0.5,1.0,2.0)
+mes="rankCorr";var="Accessibility"
+g=ggplot(res[res$synthRankSize==synthrankSize&res$nwGmax==nwGmax&res$gravityWeight==gravityWeight&res$nwThreshold%in%networkThresholds,],aes_string(x="gravityDecay",y=paste0(mes,var),color="gravityGamma",group="gravityGamma"))
+g+geom_point()+geom_smooth()+facet_wrap(~nwThreshold,scales="free")+ggtitle(bquote(w[G]*"="*.(gravityWeight)*" ; "*alpha[S]*"="*.(synthRankSize)))+
+  xlab(expression(d[G]))+ylab(expression(p*"["*Z[i]*"]"))+scale_color_continuous(name=expression(gamma[G]))+
+  stdtheme
+ggsave(paste0(resdir,'targeted/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',parstr(nwGmax),'_gravityWeight',parstr(gravityWeight),'.png'),width=30,height=15,units='cm')
+
+
 
 
 
@@ -226,40 +214,105 @@ for(gravityWeight in unique(res$gravityWeight)){
 
 
 
+
 ##
-# complexity, diversity and rankcorrelations
-dir.create(paste0(resdir,'complexity'))
+# lagged correlations
+# -> forgot pop-pop in correlations
 
-for(synthrankSize in unique(res$synthRankSize)){
-  for(nwGmax in unique(res$nwGmax)){
-#synthrankSize = 1.0
-#nwGmax = 0.0
+# need to reshape
 
-vars = c("Accessibility","Closeness","Pop")
-measures = c("complexity","diversity","rankCorr")
+lagdata=data.frame()
+for(couple in c("ClosenessAccessibility","PopAccessibility","PopCloseness")){
+  #couple = "ClosenessAccessibility"
+  melted = melt(res,id.vars=params,measure.vars = paste0("rho",couple,"_tau",lags),value.name="rho")
+  melted$tau = as.numeric(substring(melted$variable,first=8+nchar(couple)))
+  melted$var = rep(couple,nrow(melted))
+  lagdata=rbind(lagdata,melted)
+}
 
-for(var in vars){
-  for(mes in measures){
-    #if(!(var=="Pop"&mes=="complexity")){
-    show(paste0(mes,var))
-      g=ggplot(res[res$synthRankSize==synthrankSize&res$nwGmax==nwGmax,],aes_string(x="gravityDecay",y=paste0(mes,var),color="gravityGamma",group="gravityGamma"))
-      g+geom_point()+geom_smooth()+facet_grid(gravityWeight~nwThreshold,scales="free")+ggtitle(paste0("synthrankSize=",synthrankSize," ; nwGmax=",nwGmax))#+stdtheme
-      ggsave(paste0(resdir,'complexity/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',nwGmax,'.pdf'),width=30,height=20,units='cm')
-    #}
+synthRankSize=1.5
+nwGmax=0.05
+
+dir.create(paste0(resdir,'laggedcorrs'))
+
+for(gravityWeight in unique(res$gravityWeight)){
+  for(nwThreshold in unique(res$nwThreshold)){  
+    
+    #gravityWeight=0.00075
+    #nwThreshold=2.5
+    
+    g=ggplot(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold,],
+             aes(x=tau,y=rho,color=var,group=var)
+    )
+    g+geom_point(pch='.')+geom_smooth()+facet_grid(gravityGamma~gravityDecay)+ggtitle(paste0("gravityWeight=",gravityWeight," ; nwThreshold=",nwThreshold))+stdtheme
+    ggsave(paste0(resdir,'laggedcorrs/laggedcorrs_gravityWeight',gravityWeight,'_nwThreshold',nwThreshold,'.pdf'),width=30,height=20,units='cm')
+    
   }
 }
 
-}}
+
+# stat test
+synthRankSize=1.5;nwGmax=0.05
+gravityWeight=5e-04;nwThreshold=4.5
+gravityGamma=1.5;gravityDecay=110
+g=ggplot(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay,],
+         aes(x=tau,y=rho,color=var,group=var)
+)
+g+geom_point(pch='.')+geom_smooth()
+
+g=ggplot(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay,],
+         aes(x=rho,color=tau,group=tau)
+)
+g+geom_density()+facet_wrap(~var)
+
+# compare distributions -> two sample ks test
+#var="PopAccessibility";var="ClosenessAccessibility"
+#cdata = lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&
+#                  lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay&
+#                  lagdata$var==var,]
+#for(tau in c(-6:-1,1:6)){
+#  ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==tau])
+#  show(ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==tau])$p.value)
+#}
 
 
-#synthrankSize = 1.5
-#gravityWeight=0.00075
+signifs=data.frame();
+for(synthRankSize in unique(lagdata$synthRankSize)){
+  show(synthRankSize)
+  for(nwGmax in unique(lagdata$nwGmax)){
+    show(nwGmax)
+    for(gravityWeight in unique(lagdata$gravityWeight)){
+      show(gravityWeight)
+      for(nwThreshold in unique(lagdata$nwThreshold)){
+        for(gravityGamma in unique(lagdata$gravityGamma)){
+          for(gravityDecay in unique(lagdata$gravityDecay)){
+      k=1
+  for(var in c("PopAccessibility","ClosenessAccessibility","PopCloseness")){
+    cdata = lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&
+                  lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay&
+                  lagdata$var==var,]
+    #show(nrow(cdata))
+    #test=ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==2])
+    rho0 = mean(cdata$rho[cdata$tau==0])
+    sdata=cdata%>%group_by(tau)%>%summarise(rho=mean(rho)-rho0)
+    taumax = sdata$tau[abs(sdata$rho)==max(abs(sdata$rho[sdata$tau>0]))]
+    taumin = sdata$tau[abs(sdata$rho)==max(abs(sdata$rho[sdata$tau<0]))]
+    tplus = ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumax])
+    tminus = ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumin])
+    signifs=rbind(signifs,data.frame(synthRankSize=synthRankSize,nwGmax=nwGmax,gravityWeight=gravityWeight,nwThreshold=nwThreshold,gravityGamma=gravityGamma,gravityDecay=gravityDecay,
+                  varcouple = k,signif = ifelse(tplus$p.value<0.01,ifelse(sdata$rho[sdata$tau==taumax]>0,1,-1),0),
+                  val = sdata$rho[sdata$tau==taumax],tau=abs(taumax)
+                  ))
+    k=k+1
+    signifs=rbind(signifs,data.frame(synthRankSize=synthRankSize,nwGmax=nwGmax,gravityWeight=gravityWeight,nwThreshold=nwThreshold,gravityGamma=gravityGamma,gravityDecay=gravityDecay,
+                                     varcouple = k,signif = ifelse(tminus$p.value<0.01,ifelse(sdata$rho[sdata$tau==taumin]>0,1,-1),0),
+                                     val = sdata$rho[sdata$tau==taumin],tau=abs(taumin)
+                  ))
+    k=k+1
+  }
+}}}}}}
 
-#g=ggplot(res[res$synthRankSize==synthrankSize&res$gravityWeight==gravityWeight,],aes_string(x="gravityDecay",y="diversityPop",color="gravityGamma",group="gravityGamma"))
-#g+geom_point()+geom_smooth()+facet_grid(nwThreshold~nwGmax,scales="free")
-#ggsave(paste0(resdir,'complexity/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',nwGmax,'.pdf'),width=30,height=20,units='cm')
 
-# -> difficult to see an effect
 
 
 

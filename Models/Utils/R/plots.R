@@ -10,6 +10,11 @@ stdtheme= theme(axis.title = element_text(size = 22),
                 legend.text=element_text(size=15), legend.title=element_text(size=15))
 
 
+# convert parameter values into latex friendly string (for includegraphics)
+parstr<-function(val){
+  return(gsub(pattern = ".",replacement = "_",x = val,fixed = T))
+}
+
 
 
 # function to get single param points from raw result
