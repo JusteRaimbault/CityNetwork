@@ -1,88 +1,208 @@
 
 
 
-\section{Classifying Patents Based on their Semantic Content}{Classifying Patents Based on their Semantic Content}
+\section{Classifying Patents Based on their Semantic Content}{Classification sémantique des brevets}
 
 \label{app:sec:patentsmining}
 
 
+Les classifications par hyper-réseau obtenues au Chapitre~\ref{ch:modelinginteractions} ont été permises par diverses contributions techniques complémentaires. La construction du réseau sémantique, incluant l'extraction des mots-clés et la quantification de leur pertinence, puis son analyse, ont été initialement lancés dans le cadre de l'analyse de la revue \emph{Cybergeo} (voir~\ref{app:sec:cybergeo}). L'application à des corpus massifs et la méthode d'extraction de sous-réseau optimal par optimisation de Pareto ont été développé dans le cadre de l'application qui est présentée ici, au corpus de brevets déposés aux Etats-unis de 1976 à 2013.
+
+Cette annexe a ainsi un caractère essentiel du point de vue des méthodes et des outils (même si nous la classons dans les développements thématiques de par son caractère thématique autonome), mais également pour son contenu propre au vu des futurs développements possibles, comme nous avons suggéré pour une caractérisation quantitative de la diffusion de l'innovation dans le cadre d'une investigation empirique des hypothèses de la Théorie Evolutive des Villes.
 
 
+\stars
 
+
+\textit{Cette annexe résulte d'une collaboration avec \noun{Dr A. Bergeaud} (Paris School of Economics) et \noun{Dr Y. Potiron} (Keyo University), dans le cadre d'une convergence des problématiques respectives d'analyse sémantique de corpus massifs et de caractérisation endogène de l'innovation. Elle a été publiée comme~\cite{10.1371/journal.pone.0176310}. Elle est ici traduite et adaptée.}
+
+
+\stars
+
+
+\bpar{
 In this paper, we extend some usual techniques of classification resulting from a large-scale data-mining and network approach. This new technology, which in particular is designed to be suitable to big data, is used to construct an open consolidated database from raw data on 4 million patents taken from the US patent office from 1976 onward. To build the pattern network, not only do we look at each patent title, but we also examine their full abstract and extract the relevant keywords accordingly. We refer to this classification as \emph{semantic approach} in contrast with the more common \emph{technological approach} which consists in taking the topology when considering US Patent office technological classes. Moreover, we document that both approaches have highly different topological measures and strong statistical evidence that they feature a different model. This suggests that our method is a useful tool to extract endogenous information.    
-
+}{
+Ainsi, nous étendons ici les techniques de classification usuelles par une approche d'analyse de réseau et de fouille de données à grande échelle. Ces nouvelles techniques, qui sont conçues particulièrement pour être adaptées aux données massives, sont utilisées pour construire une base consolidée ouverte à partir de données brutes de 4 millions de brevets issus de l'US Patent Office (USPTO) depuis 1976. Pour construire le réseau, nous utilisons les titres, mais aussi les résumés complets desquels nous extrayons les mots-clés pertinents. Nous désignons cette classification comme \emph{approche sémantique}, en comparaison avec la plus classique \emph{approche technologique} qui consiste à considérer la topologie induite par les classes technologiques de l'USPTO. De plus, nous obtenons des mesures topologiques fortement différentes pour les deux approches. Cela suggère que cette méthode est un outil puissant pour extraire une information endogène.
+}
 
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Introduction}{Introduction}
+
+\bpar{
 Innovation and technological change have been described by many scholars as the main drivers of economic growth as in \cite{aghionhowitt1992} and \cite{romer1990}. \cite{RePEc:nbr:nberwo:3301} advertised the use of patents as an economic indicator and as a good proxy for innovation. Subsequently, the easier availability of comprehensive databases on patent details and the increasing number of studies allowing a more efficient use of these data (e.g.~\cite{Hall2001}) have opened the way to a very wide range of analysis. Most of the statistics derived from the patent databases relied on a few key features: the identity of the inventor, the type and identity of the rights owner, the citations made by the patent to prior art and the technological classes assigned by the patent office post patent's content review. Combining this information is particularly relevant when trying to capture the diffusion of knowledge and the interaction between technological fields as studied in \cite{Youn:2015fk}. With methods such as citation dynamics modeling discussed in~\cite{2013arXiv1310.8220N} or co-authorship networks analysis in~\cite{2014arXiv1402.7268S}, a large body of the literature such as~\cite{sorenson2006complexity} or~\cite{kay2014patent} has studied patents citation network to understand processes driving technological innovation, diffusion and the birth of technological clusters. Finally, \cite{bruck2016recognition} look at the dynamics of citations from different classes to show that the laser/ink-jet printer technology resulted from the recombination of two different existing technologies. 
+}{
+L'innovation et le changement technologique ont été présentés par de nombreux chercheurs comme des moteurs principaux de la croissance économique comme dans \cite{aghionhowitt1992} et \cite{romer1990}. \cite{RePEc:nbr:nberwo:3301} a proposé l'utilisation des brevets comme un indicateur économique et comme un bon proxy pour l'innovation. Par conséquent, la disponibilité accrue de bases de données plus complètes et détaillées des brevets et l'augmentation du nombre d'études qui ont permis une utilisation plus efficace de ces données (par exemple~\cite{Hall2001}) ont ouvert la voie à des analyses très variées. La majorité des statistiques issues des bases de données sur les brevets se basent sur un petit nombre de caractéristiques essentielles : l'identité de l'inventeur, le type et l'identité du possesseur des droits, les citations faites par le brevet à des travaux antérieurs et les classes technologiques attribuées par le bureau des brevets après une revue du contenu du brevet. La combinaison des ces informations est particulièrement pertinent pour tenter de capturer la diffusion des connaissances et les interactions entre champs technologiques comme étudié dans \cite{Youn:2015fk}. Par des méthodes comme la modélisation dynamique des citations, étudiée par~\cite{2013arXiv1310.8220N}, ou les analyses de réseaux de co-auteurs dans~\cite{2014arXiv1402.7268S}, une partie conséquente de la littérature comme~\cite{sorenson2006complexity} ou~\cite{kay2014patent} s'est intéressée aux réseaux de citations de brevets pour comprendre les processus à l'origine de l'innovation technologique, de la diffusion et de la naissance de clusters technologiques. Enfin, \cite{bruck2016recognition} étudie par exemple la dynamique des citations depuis différentes classes pour montrer que la technologique de l'imprimante laser jet d'encre est le résultat de la recombination de deux technologies existantes.
+}
 
+
+
+\bpar{
 Consequently, technological classification combined with other features of patents can be a valuable tool for researchers interested in studying technologies throughout history and to predict future innovations by looking at past knowledge and interaction across sectors and technologies. But it is also crucial for firms that face an ever changing demand structure and need to anticipate future technological trends and convergence (see, e.g., \cite{curran2011patent}) to adapt to the resulting increase in competition discussed in~\cite{Katz1996remarks} and to maintain market share. Curiously, and in spite of the large number of studies that analyze interactions across technologies~\cite{Furman2011shoulders}, little is known about the underlying ``innovation network'' (e.g. ~\cite{AAKnetwork2016}). 
+}{
+Par conséquent, la classification technologique combinée à d'autres caractéristiques des brevets peut être un outil efficace pour l'étude des technologies à travers l'histoire et pour prédire des innovations futures en se basant sur la connaissance passée et les interactions entre secteurs et technologies. Mais il est également crucial pour les entreprises qui font face à une structure toujours changeante de la demande et qui ont besoin d'anticiper les tendances technologiques futures et les convergences (voir par exemple \cite{curran2011patent}) pour s'adapter à la compétition accrue qui en ressort, discutée dans \cite{Katz1996remarks} et pour maintenir une part de marché. De manière surprenante, et malgré le grand nombre d'études qui analysent les interactions entre technologies~\cite{Furman2011shoulders}, la connaissance du ``réseau d'innovation''~\cite{AAKnetwork2016} sous-jacent est relativement faible.
+}
 
+
+\bpar{
 In this monograph, we propose an alternative classification based on semantic network analysis from patent abstracts and explore the new information emerging from it. In contrast with the regular technological classification which results from the choice of the patent reviewer, semantic classification is carried automatically based on the content of the patent abstract. Although patent officers are experts in their fields, the relevance of the existing classification is limited by the fact that it is based on the state of technology at the time the patent was granted and cannot anticipate the birth of new fields. To correct for this, the USPTO regularly make changes in its classification in order to adapt to technological change (for example, the ``nanotechnology'' class (977) was established in 2004 and retroactively to all relevant previously granted patents). In contrast we don't face this issue with the semantic approach. The semantic links can be clues of one technology taking inspiration from another and  good predictors of future technology convergence (e.g.~\cite{preschitschek2013} study semantic similarities from the whole text of 326 US-patents on \textit{phytosterols} and show that semantic analysis have a good predicting power of future technology convergence). One can for instance consider the case of the word \textit{optic}. Until more recently, this word was often associated with technologies such as photography or eye surgery, while it is now almost exclusively used in a context of semi-transistor design and electro-optic. This semantic shift did not happen by chance but contains information on the fact that modern electronic extensively uses technologies that were initially developed in optic. 
+}{
+Nous proposons ici une classification alternative basée sur l'analyse sémantique des résumés des brevets et explorons la nouvelle information qui em émerge. En opposition avec la classification technologique classique qui est produite par les choix du relecteur du brevet, la classification sémantique est opérée automatiquement en se basant sur le contenu du résumé du brevet. Bien que les \emph{patent officers} (experts chargés de la classification) soit experts dans leur champs, la pertinence de la classification existante est limitée par le fait qu'elle est basée sur l'état de la technologie au moment où le brevet est accordé, et ne peut pas anticiper la naissance de nouveau champs. Pour corriger cela, l'USPTO change régulièrement ses classifications afin de les adapter au changement technologique (par exemple, la classe ``nanotechnologie'' (977) a été établie en 2004 et de manière retroactive à tous les brevets antérieurs pour lesquels elle était pertinente). Au contraire, ce problème n'est pas présent dans l'approche sémantique. Les liens sémantiques peuvent être des indices d'une technologie s'inspirant d'une autre et de bons prédicteurs de futures convergences technologiques (par exemple~\cite{preschitschek2013} étudie des similarités sémantiques dans l'ensemble du texte de 326 brevets sur les \textit{phytosterols} et montre que l'analyse sémantique a un bon pouvoir prédictif d'une convergence technologique future). On peut par exemple considérer le cas du mot \textit{optic}. Jusqu'à récemment, ce mot était souvent associé aux technologies comme la photographie et la chirurgie de l'oeil, alors qu'il est maintenant presque exclusivement utilisé dans le contexte de la conception des semi-transistors et de l'optique électronique. Cette dérive sémantique ne s'est pas opérée par hasard mais contient de l'information sur le fait que l'électronique moderne utilise de manière intensive des technologies qui ont été initialement développées en optique.
+}
 
+
+\bpar{
 Previous research has already proposed to use semantic networks to study technological domains and detect novelty. ~\cite{yoon2004text} was one of the first to enhance this approach with the idea of visualizing keywords network illustrated on a small technological domain. The same approach can be used to help companies identifying the state of the art in their field and avoid patent infringement as in \cite{park2014semantic} and \cite{yoon2011detecting}. More closely related to our methodology,~\cite{gerken2012new} develop a method based on patent semantic analysis of patent to vindicate the view that this approach outperform others in the monitoring of technology and in the identification of novelty innovation. Semantic analysis has already proven its efficiency in various fields, such as in technology studies (e.g.~\cite{choi2014patent} and~\cite{fattori2003text}) and in political science (e.g.~\cite{2015arXiv151003797G}).
+}{
+Des travaux existants ont déjà proposé d'utiliser les réseaux sémantiques pour étudier les domaines technologiques et détecter la nouveauté. \cite{yoon2004text} était parmi les premiers à utiliser cette approche dans l'idée de visualiser les réseaux de mots-clés, illustrée sur un champ technologique restreint. La même approche peut être utilisée pour aider les entreprises à identifier l'état de l'art dans leur domaine et éviter les violations de brevets, comme dans \cite{park2014semantic} et \cite{yoon2011detecting}. Plus proche de notre méthodologie, \cite{gerken2012new} développe une méthode basée sur l'analyse sémantique des brevets pour appuyer l'idée que cette approche est plus performante pour suivre la technologie et pour l'identification de la nouveauté dans les innovations. L'analyse sémantique a déjà montré ses capacités dans des champs variés, comme l'étude des technologies (par exemple~\cite{choi2014patent} et~\cite{fattori2003text}) et en sciences politiques~\cite{2015arXiv151003797G}.
+}
 
-
+\bpar{
 Building on such previous research, we make several contributions by fulfilling some shortcomings of existing studies, such as for example the use of frequency-selected single keywords. First of all, we develop and implement a novel fully-automatized methodology to classify patents according to their semantic abstract content, which is to the best of our knowledge the first of its type. This includes the following refinements for which details can be found in Section \nameref{keywords}: (i) use of multi-stems as potential keywords; (ii) filtering of keywords based on a second-order (co-occurrences) relevance measure and on an external independent measure (technological dispersion); (iii) multi-objective optimization of semantic network modularity and size. The use of all this techniques in the context of semantic classification is new and essential from a practical perspective. 
+}{
+En se basant sur ces travaux, nous faisons diverses contributions en dépassant certaines limitations des études existantes, comme par exemple l'utilisation de mots-clés simples sélectionnés par leur fréquence. Tout d'abord, nous développons et implémentons une nouvelle méthodologie totalement automatisée pour classifier les brevets selon le contenu sémantique de leur résumés, qui est à notre connaissance la première de ce type. Elle inclut les raffinements suivants pour lesquels des détails peuvent être trouvés dans la section suivante : (i) utilisation de racines multiples comme mots-clés potentiels ; (ii) filtration des mots-clés selon une mesure de pertinence au second ordre (cooccurrences) et sur une mesure externe indépendante (dispersion technologique) ; (iii) optimisation multi-objectifs de la modularité et de la taille du réseau sémantique. L'utilisation de l'ensemble de ces techniques dans le contexte de la classification sémantique est nouveau et essentiel dans une perspective appliquée.
+}
 
+\bpar{
 Furthermore, most of the existing studies rely on a subsample of patent data, whereas we implement it on the full US Patent database from 1976 to 2013. This way, a general structure of technological innovation can be studied. We draw from this application promising qualitative stylized facts, such as a qualitative regime shift around the end of the 1990s, and a significant improvement of citation modularity for the semantic classification when comparing to the technological classification. These thematic conclusions validate our method as a useful tool to extract endogenous information, in a complementary way to the technological classification.
+}{
+De plus, la majorité des études existantes se basent sur un échantillon des données de brevet, alors que nous implémentons ici notre méthode sur l'ensemble de la base USPTO de 1976 à 2013. De cette manière, une structure générale de l'innovation technologique peut être étudiée. Nous tirons de cette application divers faits stylisés qualitatifs, comme un changement qualitatif de régime autour de la fin des années 1990, et une amélioration significative de la modularité de citation pour la classification sémantique en comparaison à la classification technologique. Ces conclusions thématiques valident notre méthode comme un outil utile pour extraire de l'information endogène, de manière complémentaire à la classification technologique.
+}
 
-Finally, the statistical model introduced in Section \nameref{statisticalmodel} seems to indicate that patents tend to cite more similar patents in the semantic network  when fitted to data. In particular, this propensity is shown to be significantly bigger than the corresponding propensity for technological classes, and this seems to be consistent over time. On the account of this information, we believe that patent officers could benefit very much from looking at the semantic network when considering potential citation candidates of a patent in review.
 
-The paper is organized as follows. Section \nameref{data} presents the patent data, the existing classification and provide details about the data collection process. Section \nameref{keywords} explains the construction of the semantic classes. Section \nameref{result} tests their relevance by providing exploratory results. Finally, section \nameref{discussion} discusses potential further developments and conclude. More details, including robustness checking, figures and technical derivations can be found in~\nameref{S2Text}, \nameref{S3Text} and \nameref{S4Text}.
+\bpar{
+%Finally, the statistical model introduced in Section \nameref{statisticalmodel} seems to indicate that patents tend to cite more similar patents in the semantic network  when fitted to data. In particular, this propensity is shown to be significantly bigger than the corresponding propensity for technological classes, and this seems to be consistent over time.
+On the account of this information, we believe that patent officers could benefit very much from looking at the semantic network when considering potential citation candidates of a patent in review.
+}{
+Grace à cette complémentarité, nous postulons que les \emph{patent officers} pourraient bénéficier significativement de la considération du réseau sémantique lors de la considération des citations potentielles pour un brevet en revue.
+}
 
+
+\bpar{
+The paper is organized as follows. Section \nameref{app:subsec:data} presents the patent data, the existing classification and provide details about the data collection process. Section \nameref{keywords} explains the construction of the semantic classes. Section \nameref{result} tests their relevance by providing exploratory results. Finally, section \nameref{discussion} discusses potential further developments and conclude. %More details, including robustness checking, figures and technical derivations can be found in~\nameref{S2Text}, \nameref{S3Text} and \nameref{S4Text}.
+}{
+Ce travail est organisé de la façon suivante : nous présentons d'abord les données, la classification existante, et donnons des détails sur la procédure de collection des données. Nous expliquons ensuite la procédure de construction des classes sémantiques. La pertinence de celles-ci est alors testée par des analyses exploratoires. Enfin, nous discutons des développements potentiels en conclusion.
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Background \label{data}}{Background}
+\subsection*{Background}{Contexte}
+ \label{app:subsec:data}
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-In our analysis, we will consider all utility patents granted in the United States Patent and Trademark Office (USPTO) from 1976 to 2013. A clearer definition of utility patent is given in~\nameref{S1Text}. Also, additional information on how to correctly exploit patent data can be found in \cite{Hall2001} and \cite{lerner2015use}.
+\bpar{
+In our analysis, we will consider all utility patents granted in the United States Patent and Trademark Office (USPTO) from 1976 to 2013. A clearer definition of utility patent is given in~\nameref{S1Text} of \cite{10.1371/journal.pone.0176310}.
+Also, additional information on how to correctly exploit patent data can be found in \cite{Hall2001} and \cite{lerner2015use}.
+}{
+Dans l'analyse, nous considérons l'ensemble des brevets accordés par l'USPTO de 1976 à 2013. Une définition plus précise d'un brevet d'utilité (\emph{utility patent}) est donnée en Annexe de \cite{10.1371/journal.pone.0176310}. De plus, des informations supplémentaires sur la manière d'exploiter correctement les données de brevet est donnée dans \cite{Hall2001} et \cite{lerner2015use}.
+}
 
 %%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{An existing classification: the USPC system}{An existing classification: the USPC system}
+\subsubsection*{An existing classification: the USPC system}{Une classification existante : le système USPC}
 
+\bpar{
 Each USPTO patent is associated with a non-empty set of technological classes and subclasses. There are currently around 440 classes and over 150,000 subclasses constituting the United State Patent Classification (USPC) system. While a technological class corresponds to the technological field covered by the patent, a subclass stands for a specific technology or method used in this invention. A patent can have multiple technological classes, on average in our data a patent has 1.8 different classes and 3.9 pairs of class/subclass. At this stage, two features of this system are worth mentioning: (i) classes and subclasses are not chosen by the inventors of the patent but by the examiner during the granting process based on the content of the patent; (ii) the classification has evolved in time and continues to change in order to adapt to new technologies by creating or editing classes. When a change occurs, the USPTO reviews all the previous patents so as to create a consistent classification.
+}{
+Chaque brevet USPTO est associé avec un ensemble non vide de classes et de sous-classes technologiques. Il existe actuellement autour de 440 classes et plus de 150000 sous-classes, qui constituent le système \emph{United States Patent Classification} (USPC). Alors qu'une classe technologique correspond au champ technologique couvert par le brevet, une sous-classe correspond à une technologie spécifique ou une méthode utilisée dans l'invention. Un brevet peut avoir de multiples classes technologiques : en moyenne dans nos données un brevet a 1.8 classes différentes et 3.9 paires de classe/sous-classe. A cette étape, deux caractéristiques de ce système valent la peine d'être mentionnées : (i) la classe et la sous-classe ne sont pas choisies par l'inventeur du brevet mais par l'examinateur pendant le processus de revue, en fonction du contenu du brevet ; (ii) la classification a évolué au cours du temps et continue à évoluer afin de s'adapter aux nouvelles technologies par la création ou l'édition de classes. Lorsqu'un changement a lieu, l'USPTO revoit l'ensemble des brevets précédents afin de créer une classification cohérente.
+}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{A bibliographical network between patents: citations \label{sub:citation}}{A bibliographical network between patents: citations}
+\subsubsection*{A bibliographical network between patents: citations}{Un réseau bibliographique entre brevets : les citations}
+\label{app:subsubsec:citation}
 
+\bpar{
 As with scientific publications, patents must give reference to all the previous patents which correspond to related prior art. They therefore indicate the past knowledge which relates to the patented invention. Yet, contrary to scientific citations, they also have an important legal role as they are used to delimit the scope of the property rights awarded by the patent. One can consult~\cite{oecdpatentmanual} for more details about this. Failing to refer to prior art can lead to the invalidation of the patent (e.g.~\cite{martin2015}). Another crucial difference is that the majority of the citations are actually chosen by the  examiners and not by the inventors themselves. 
 From the USPTO, we gather information of all citations made by each patent (backward citations) and all citations received by each patent as of the end of 2013 (forward citations). We can thus build a complete network of citations that we will use later on in the analysis.
+}{
+De la même manière que les publications scientifiques, les brevets doivent faire référence à l'ensemble des brevet précédent qui correspondent à une connaissance antérieure nécessaire. Les citations indiquent donc la connaissance passée en relation avec l'invention brevetée. Toutefois, au contraire des publications scientifiques, elles ont aussi un important rôle légal puisqu'elles sont utilisées pour délimiter la portée des droit propriétaires donnés par le brevet. On peut consulter~\cite{oecdpatentmanual} pour plus de détail sur cette procédure. Un manque de références aux brevets passés peut mener à une invalidation du brevet~\cite{martin2015}. Une autre différence cruciale est que la majorité des citations est en fait choisie par les examinateurs et non les inventeurs eux-mêmes. A partir de l'USPTO, nous rassemblons l'information de l'ensemble des citations faites par chaque brevet (citations données) et toutes les citations reçues par chaque brevet à la fin de 2013 (citation reçues). Nous pouvons ainsi construire un réseau complet de citations qui sera utilisé par la suite dans l'analyse.
+}
 
+\bpar{
 Turning to the structure of the lag between the citing and the cited patent in terms of application date, we see that the mean of this lag is 8.5 years and the median is 7 years. This distribution is highly skewed, the $95^{th}$ percentile is 21 years. We also report 164,000 citations with a negative time lag. This is due to the fact that some citations can be added during the examination process and some patents require more time to be granted than others.
+}{
+En se tournant vers la structure du délai entre les brevets citants et les brevets cités en termes de date de soumission, nous constatons que la moyenne de ce délai est de 8.5 ans et la médiane 7 ans. Cette distribution est fortement dissymétrique, le $95^{ème}$ centile étant 21 ans. Nous relevons également 164000 citations avec un délai négatif. Cela est du au fait que des citations peuvent être ajoutées pendant le processus de revue et que des brevets requièrent plus de temps que d'autres pour être accordés.
+}
 
+
+\bpar{
 In what follows, we choose to restrict attention to pairs of citations with a lag no larger than 5 years. We impose this restriction for two reasons. First, the number of citations received peaks 4-5 years after application. Second, the structure of the citation lag is necessarily biased by the truncation of our sample: the more recent patents mechanically receive less citations than the older ones. As we are restricting to citations received no later than 5 years after the application date, this effect will only affect patents with an application date after 2007.
+}{
+Dans la suite, nous choisissons de restreindre notre attention aux paires de citations avec un délai inférieur ou égal à 5 ans. Cette restriction est imposée pour deux raisons. D'abord, le nombre de citations reçues présente un pic 4-5 ans après l'application. Ensuite, la structure du délai de citation est nécessairement biaisée par la restriction de l'échantillon : les brevets les plus récents reçoivent mécaniquement moins de citations que les plus anciens. Comme nous nous restreignons aux citations reçues en moins de 5 ans après la date de soumission, cet effet n'affectera que les brevets avec une date de soumission postérieure à 2007.
+}
+
+
 
 %%%%%%%%%%%%%%%%%%
-\subsubsection*{Data collection and basic description}{Data collection and basic description}
+\subsubsection*{Data collection and basic description}{Collecte des données et description élémentaire}
+
+
+\bpar{
 Each patent contains an abstract and a core text which describe the invention. To see what a patent looks like in practice, one can refer to the USPTO patent full-text database \url{http://patft.uspto.gov/netahtml/PTO/index.html} or to Google patent which publishes USPTO patents in $pdf$ format at \url{https://patents.google.com}. Although including the full core texts would be natural and probably very useful in a systematic text-mining approach as done in~\cite{tseng2007text}, they are too long to be included and thus we consider only the abstracts for the analysis. Indeed, the semantic analysis counts more than 4 million patents, with corresponding abstracts with an average length of 120.8 words (and a standard deviation of $62.4$), a size that is already challenging in terms of computational burden and data size. In addition, abstracts are aimed at synthesizing purpose and content of patents and must therefore be a relevant object of study (see~\cite{Adams2010text}). The USPTO defines a guidance stating that an abstract should be ``a summary of the disclosure as contained in the description, the claims, and any drawings; the summary shall indicate the technical field to which the invention pertains and shall be drafted in a way which allows the clear understanding of the technical problem, the gist of the solution of that problem through the invention, and the principal use or uses of the invention'' (PCT Rule 8). 
+}{
+Chaque brevet contient un résumé et un texte qui décrit l'invention. Pour voir à quoi ressemble un brevet en pratique, on peut se référer à la base USPTO des textes complets \url{http://patft.uspto.gov/netahtml/PTO/index.html} ou à Google Patent qui publie les brevets USPTO au format $pdf$ à \url{https://patents.google.com}. Même si l'inclusion des textes complets serait naturelle et probablement très utile dans une approche d'analyse textuelle systématique comme faite dans~\cite{tseng2007text}, ceux-ci sont trop longs pour être inclus ici et nous ne considérons donc que les résumés pour l'analyse. En effet, l'analyse sémantique porte sur plus de 4 million de brevets, avec des résumés correspondants avec une longueur moyenne de $120.8$ mots (et une déviation standard de $62.4$), une taille qui est déjà un défi en termes de charge computationnelle et de taille des données. % note : give exemples / ref numbers ?
+De plus, les résumés visent à synthétiser le but et le contenu des brevets et doivent pour cela être un objet d'étude pertinent (voir~\cite{Adams2010text}). L'USPTO défini une ligne directrice qui précise que le résumé doit être ``un résumé de l'information comme contenue dans la description, les positions et les figures ; le résumé doit également indiquer le champ technique dans lequel l'invention se situe et doit être rédigé d'une manière permettant une compréhension claire du problème technique, le coeur de la solution au problème apporté par l'invention et le ou les usages principaux de l'invention'' (PCT Règle 8).
+}
 
+
+\bpar{
 We construct from raw data a unified database. Data is collected from USPTO patent redbook bulk downloads, that provides as raw data (specific \texttt{dat} or \texttt{xml} formats) full patent information, starting from 1976. Detailed procedure of data collection, parsing and consolidation are available in~\nameref{S2Text}. The latest dump of the database in \texttt{Mongodb} format is available at \url{http://dx.doi.org/10.7910/DVN/BW3ACK}. Collection and homogenization of the database into a directly usable database with basic information and abstracts was an important task as USPTO raw data formats are involved and change frequently.
+}{
+Nous construisons à partir des données brutes une base unifiée. Les données sont récupérées à partir de la page des téléchargement du \emph{redbook} des brevets de l'USPTO, qui fournit sous format brut (formats \texttt{dat} ou \texttt{xml} spécifiques) l'ensemble des informations des brevets, à partir de 1976. La procédure détaillée de collection des données, de parsing et de consolidation sont disponible en Annexe de~\cite{10.1371/journal.pone.0176310}. L'image la plus récente de la base est disponible au format \texttt{Mongodb} à \url{http://dx.doi.org/10.7910/DVN/BW3ACK}. La collection et l'homogénéisation des données en une base directement utilisable avec les informations de base et les résumés est une étape importante, puisque des formats USPTO bruts sont impliqués et changent fréquemment.
+}
 
+
+\bpar{
 We count 4,666,365 utility patents with an abstract granted from 1976 to 2013. A very small number of patents have a missing abstract, these are patents that have been withdrawn and we do not consider them in the analysis. The number of patents granted each year increases from around 70,000 in 1976 to about 278,000 in 2013. When distributed by the year of application, the picture is slightly different. The number of patents steadily increase from 1976 to 2000 and remains constant around 200,000 per year from 2000 to 2007. Restricting our sample to patent with application date ranging from 1976 to 2007, we are left with 3,949,615 patents. These patents cite 38,756,292 other patents with the empirical lag distribution that has been extensively analyzed in~\cite{Hall2001}. Conditioned on being cited at least once, a patent receives on average 13.5 citations within a five-year window. 270,877 patents receive no citation during the next five years following application, 10\% of patents receive only one citation and 1\% of them receive more than 100 citations. A within class citation is defined as a citation between two patents sharing at least one common technological class. Following this definition, 84\% of the citations are within class citations. 14\% of the citations are between two patents that share the exact same set of technological classes.
+}{
+Nous dénombrons 4,666,365 brevets d'utilité avec un résumé obtenus entre 1976 et 2013. Un très faible nombre de brevet ont un résumé manquant, ils correspondent aux brevets qui ont été annulés et nous ne les considérons pas dans l'analyse. Le nombre de brevets accordés chaque année de environ 70000 en 1976 à environ 278000 en 2013. Lorsqu'ils sont distribués par année d'application, le schéma est légèrement différent. Le nombre de brevets s'accroit à taux constant de 1976 à 2000 et reste constant à environ 200,000 par an de 2000 à 2007. En restreignant l'échantillon aux brevets dont la date de soumission est entre 1976 et 2007, il reste 3,949,615 brevets. Ces brevets en citent 38,756,292 autres avec le délai empirique qui a été étudié de manière détaillée par~\cite{Hall2001}. Conditionnellement à être cité au moins une fois, un brevet reçoit en moyenne 13.5 citations sur une fenêtre de 5 ans. 270,877 brevets ne reçoivent aucune citation pendant les 5 ans qui suivent la soumission, 10\% des brevets ne reçoivent qu'une seule citation et 1\% reçoit plus de 100 citations. Une citation interne à une classe est définie comme une citation entre deux brevets partageant au moins une classe technologique. Suivant cette définition, 84\% des citations sont internes aux classes. 14\% des citations sont entre des brevets qui partagent exactement le même ensemble de classes technologiques.
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Towards a Complementary Classification}{Towards a Complementary Classification}
+\subsubsection*{Towards a Complementary Classification}{Vers une classification complémentaire}
 
+
+\bpar{
 Potentialities of text-mining techniques as an alternative way to analyze and classify patents are documented in~\cite{tseng2007text}. The author's main argument, in support of an automatic classification tool for patent, is to reduce the considerable amount of human effort needed to classify all the applications. The work conducted in the field of natural language processing and/or text analysis has been developed in order to improve search performance in patent databases, build technology map or investigate the potential infringement risks prior to developing a new technology (see~\cite{abbas2014literature} for a review). Text-mining of patent documents is also widely used as a tool to build networks which carry additional information to the simplistic bibliographic connections model as argued in~\cite{yoon2004text}. As far as the authors know, the use of text-mining as a way to build a global classification of patents remains however largely unexplored. One notable exception can be found in~\cite{preschitschek2013} where semantic-based classification is shown to outperform the standard classification in predicting the convergence of technologies even in small samples. Semantic analysis reveals itself to be more flexible and more quickly adaptable to the apparition of new clusters of technologies. Indeed, as argued in~\cite{preschitschek2013}, before two distinct technologies start to clearly converge, one should expect similar words to be used in patents from both technologies.
+}{
+La potentialité des techniques de fouille textuelle comme un moyen alternatif pour analyser et classifier les brevets est documenté dans~\cite{tseng2007text}. L'argument principal de l'auteur, en support d'un outil de classification automatique pour les brevets, est la réduction de la quantité de travail humain considérable nécessaire pour classer toutes les soumissions. Le travail conduit dans le champ du traitement naturel du langage et/ou de l'analyse textuelle a été développé afin d'améliorer la performance des recherches dans les bases de brevets, construire des cartes des technologies ou investiguer de potentiels risque de violation de brevets avant le développement d'une nouvelle technologie (voir~\cite{abbas2014literature} pour une revue). La fouille de texte des documents de brevets est également largement utilisée comme outil pour construire des réseaux qui contiennent une information complémentaire au modèles simplistes de connection bibliographique comme argumenté dans~\cite{yoon2004text}. D'après les auteurs, l'utilisation de fouille de texte comme moyen de construction d'une classification globale des brevets reste cependant largement sous explorée. Une exception notable peut être trouvée dans~\cite{preschitschek2013} où une classification sémantique est montrée plus performante que la classification standard dans la prédiction de la convergence technologique même sur de petits échantillons. L'analyse sémantique se révèle plus flexible et plus rapidement adaptable à l'apparition de nouveaux clusters technologiques. En effet, comme décrit dans~\cite{preschitschek2013}, avant que deux technologies distinctes commencent à converger clairement, on peut s'attendre à ce que des termes similaires soient utilisés dans des brevets des deux technologies.
+}
 
+\bpar{
 Finally, a semantic classification where patents are gathered based on the fact that they share similar significant keywords has the advantage of including a network feature that cannot be found in the USPC case, namely that each patent is associated with a vector of probability to belong to each of the semantic classes (more details on this feature can be found in Section \ref{characteristics}). Using co-occurrence of keywords, it is then possible to construct a network of patents and to study the influence of some key topological features. As reviewed previously, the use of co-occurrences is the usual way to construct a semantic network. Other hybrid technique such as bipartite semantic/authors networks, do not have the nice feature of relying solely on endogenous semantic information contained in data.
+}{
+Enfin, une classification sémantique dans laquelle les brevets sont rassemblés en se basant sur le fait qu'ils partagent des mots-clés significatifs similaires a l'avantage d'inclure une caractéristique du réseau qui ne se retrouve pas dans le cas de l'USPC, c'est à dire que chaque brevet est associé à un vecteur de probabilités d'appartenir à chacune des classes sémantiques (plus de détails sur cette caractéristique sont donnés plus loin). En utilisant les co-occurrences des mots-clés, il est ensuite possible de construire un réseau de brevets et d'étudier l'influence de caractéristiques topologiques clés. Comme rappelé précédemment, l'utilisation des co-occurrences est la manière usuelle de construire un réseau sémantique. D'autres techniques hybrides comme les réseaux bipartites auteur/sémantique n'ont pas la caractéristique agréable de se baser uniquement sur l'information sémantique endogène contenue dans les données.
+}
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%
-\subsection*{Semantic Classification Construction \label{keywords}}{Semantic Classification Construction}
+\subsection*{Semantic Classification Construction}{Construction de la classification sémantique}
+\label{app:subsec:keywords}
 
+\bpar{
 In this section, we describe methods and empirical analysis leading to the construction of semantic network and the corresponding classification. 
+}{
+Dans cette section, nous décrivons la méthode et les analyses empiriques menant à la construction du réseau sémantique et la classification correspondante.
+}
+
 
 %%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Keywords extraction}{Keywords extraction}
-\label{keywordsextraction}
+\subsubsection*{Keywords extraction}{Extraction des mots-clés}
+\label{app:subsec:keywordsextraction}
 
+\bpar{
 Let $\mathcal{P}$ be the set of patents, we first assign to a patent $p\in \mathcal{P}$ a set of potentially significant keywords $K(p)$ from its text ${\mathcal{A}}(p)$ (that corresponds to the concatenation of its own title and abstract).
 $K(p)$ are extracted through a similar procedure as the one detailed in~\cite{chavalarias2013phylomemetic}: 
+}{
+Soit $\mathcal{P}$ l'ensemble des brevets. Nous assignons pour commencer à un brevet $p\in \mathcal{P}$ un ensemble de mots-clés potentiellement significatifs $K(p)$ à partir de son texte ${\mathcal{A}}(p)$ (qui correspond à la concaténation de son propre titre et de son résumé). Les éléments de $K(p)$ sont extraits selon une procédure similaire à celle détaillée dans~\cite{chavalarias2013phylomemetic} :
+}
+
+\bpar{
 \begin{enumerate}
 \item Text parsing and Tokenization: we transform raw texts into a set of words and sentences, reading it (parsing) and splitting it into elementary entities (words organized in sentences).
 
@@ -91,41 +211,74 @@ $K(p)$ are extracted through a similar procedure as the one detailed in~\cite{ch
 \item Stem extraction: families of words are generally derived from a unique root called stem (for example \texttt{compute}, \texttt{computer}, \texttt{computation} all yield the same stem \texttt{comput}) that we extract from tokens. At this point the abstract text is reduced to a set of stems and their grammatical functions.
 \item Multi-stems construction: these are the basic semantic units used in further analysis. They are constructed as groups of successive stems in a sentence which satisfies a simple grammatical function rule. The length of the group is between 1 and 3 and its elements are either nouns, attributive verbs or adjectives. We choose to extract the semantics from such nominal groups in view of the technical nature of texts, which is not likely to contain subtle nuances in combinations of verbs and nominal groups.
 \end{enumerate}
+}{
+\begin{enumerate}
+	\item Parsing du texte et mise en tokens : nous transformons les textes bruts en un ensemble de mots et phrases, qui sont lues (parsing) et séparés en entités élémentaires (mots organisés en phrases).
+	\item Attribution des tags \emph{part-of-speech} : attribution d'une fonction grammaticale à chacun des tokens définis précédemment.
+	\item Extraction des racines (stems) : les familles de mots sont généralement dérivées d'une unique racine appelée \emph{stem} (par exemple \texttt{compute}, \texttt{computer}, \texttt{computation} dérivent tous de la même racine \texttt{comput}) que nous extrayons des tokens. A ce point, le texte du résumé est réduit à un ensemble de \emph{stems} et leur fonctions grammaticales.
+	\item Construction des multi-stems : Ce seront les unités sémantiques de base utilisées dans les analyses par la suite. Ils sont construits comme groupes de stems successifs dans une phrase, qui satisfont une règle de fonction grammaticale simple. La longueur du groupe doit être entre 1 et 3 et ses éléments être soit des noms, soit des verbes attributifs, soit des adjectifs. Nous choisissons d'extraire la sémantique à partir de tels groupes nominaux à la vue de la nature technique des textes, qui ont peu de probabilité de contenir des nuances subtiles dans les combinaisons entre verbes et groupes nominaux. 
+\end{enumerate}
+}
 
+\bpar{
 Text processing operations are implemented in \texttt{python} in order to use built-in functions \texttt{nltk} library~\cite{nltk} for most of above operations. This library supports most of state-of-the-art natural language processing operations. Source code is openly available on the repository of the project at \url{https://github.com/JusteRaimbault/PatentsMining}.
+}{
+Les opérations d'analyse textuelle sont implémentées en \texttt{python} afin d'utiliser les fonctions intégrées à la bibliothèque \texttt{nltk}~\cite{nltk} pour la majorité des opérations ci-dessus. Cette bibliothèque supporte la plupart des opérations de traitement du langage naturel au niveau de l'état de l'art. Le code source est disponible de manière ouverte sur le dépôt du projet à \url{https://github.com/JusteRaimbault/PatentsMining}.
+}
+
 
 %%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Keywords relevance estimation}{Keywords relevance estimation}
-\label{keywords_est}
-\paragraph{Relevance definition}{Relevance definition}
+\subsubsection*{Keywords relevance estimation}{Estimation de la pertinence des mots-clés}
+\label{app:subsubsec:keywords_est}
+\paragraph{Relevance definition}{Estimation de la pertinence}
 
-Following the heuristic in~\cite{chavalarias2013phylomemetic}, we estimate relevance score in order to filter multi-stem. The choice of the total number of keywords to be extracted, which we shall denote $K_w$, is important, too small a value would yield similar network structures but including less information whereas very large values tend to include too many irrelevant keywords. We choose to set this parameter to $K_w = 100,000$. We first consider the filtration of $k\cdot K_w$ (with $k=4$) to keep a large set of potential keywords but still have a reasonable number of co-occurrences to be computed. This step has only very marginal effects on the nature of the final keywords but is necessary for computational purposes. The filtration is done on the \emph{unithood} $u_i$, defined for keyword $i$ as $u_i = f_i\cdot \log{(1 + l_i)}$ where $f_i$ is the multi-stem's number of apparitions over the whole corpus and $l_i$ its length in words. A second filtration of $K_w$ keywords is done on the \emph{termhood} $t_i$, where the formal definition can be found in (\ref{termhood}). It is computed as a chi-squared score on the distribution of the stem's co-occurrences and then compared to a uniform distribution within the whole corpus. Intuitively, uniformly distributed terms will be identified as plain language and they are thus not relevant for the classification. More precisely, we compute the co-occurrence matrix $(M_{ij})$, where $M_{ij}$ is defined as the number of patents where stems $i$ and $j$ appear together. The \emph{termhood} score $t_i$ is defined as
+\bpar{
+Following the heuristic in~\cite{chavalarias2013phylomemetic}, we estimate relevance score in order to filter multi-stem. The choice of the total number of keywords to be extracted, which we shall denote $K_w$, is important, too small a value would yield similar network structures but including less information whereas very large values tend to include too many irrelevant keywords. We choose to set this parameter to $K_w = 100,000$. We first consider the filtration of $k\cdot K_w$ (with $k=4$) to keep a large set of potential keywords but still have a reasonable number of co-occurrences to be computed. This step has only very marginal effects on the nature of the final keywords but is necessary for computational purposes. The filtration is done on the \emph{unithood} $u_i$, defined for keyword $i$ as $u_i = f_i\cdot \log{(1 + l_i)}$ where $f_i$ is the multi-stem's number of apparitions over the whole corpus and $l_i$ its length in words. A second filtration of $K_w$ keywords is done on the \emph{termhood} $t_i$, where the formal definition can be found in (\ref{app:eq:termhood}). It is computed as a chi-squared score on the distribution of the stem's co-occurrences and then compared to a uniform distribution within the whole corpus. Intuitively, uniformly distributed terms will be identified as plain language and they are thus not relevant for the classification. More precisely, we compute the co-occurrence matrix $(M_{ij})$, where $M_{ij}$ is defined as the number of patents where stems $i$ and $j$ appear together. The \emph{termhood} score $t_i$ is defined as
+}{
+Suivant l'heuristique de~\cite{chavalarias2013phylomemetic}, nous estimons un score de pertinence pour filtrer les multi-stems. Le choix du nombre total de mots-clés extraits, que nous notons $K_w$ est important, puisque des valeurs trop faibles donnent des structures de réseau similaires mais qui contiennent moins d'information, tandis que des très grandes valeurs tendent à inclure trop de mots-clés non pertinents. Nous choisissons de fixer ce paramètre à $K_w = 100,000$. Nous considérons pour commencer une filtration de $k\cdot K_w$ (avec $k=4$) mots, pour garder un grand nombre de mots-clés potentiels mais calculer un nombre raisonnable de co-occurrences. Cette étape n'a que des effets marginaux sur la nature des mots-clés finaux mais est nécessaire pour des raisons computationnelles. La filtration est faite sur la mesure \emph{unithood} $u_i$, définie pour le mot-clé $i$ par $u_i = f_i\cdot \log{(1 + l_i)}$ où $f_i$ est le nombre d'apparitions du multi-stem dans l'ensemble du corpus et $l_i$ sa longueur en nombre de mots. Une seconde filtration de $K_w$ mots-clés est faite sur la \emph{termhood} $t_i$, dont la définition formelle est donnée en Eq.~\ref{app:eq:termhood}. Elle est calculée comme un score du chi-deux sur la distribution des co-occurrences du stem et comparée à une distribution uniforme sur l'ensemble du corpus. Intuitivement, les termes distribués uniformément seront identifiés comme du langage courant, et ne sont donc par pertinents pour la classification. Plus précisément, nous calculons la matrice de co-occurrence $(M_{ij})$, où $M_{ij}$ est défini comme le nombre de brevets où les stems $i$ et $j$ apparaissent simultanément. Le score de \emph{termhood} $t_i$ est alors défini par
+}
+
 
 \begin{eqnarray}
-\label{termhood}
+\label{app:eq:termhood}
 t_i = \sum_{j\neq i}\frac{\left( M_{ij} - \sum_{k}M_{ik} \sum_{k} M_{jk}\right)^2}{\sum_{k}M_{ik} \sum_{k} M_{jk}}.
 \end{eqnarray}
 
-\paragraph{Moving window estimation}{Moving window estimation}
-The previous scores are estimated on a moving window with fixed time length following the idea that the present relevance is given by the most recent context and thus that the influence vanishes when going further into the past. Consequently, the co-occurrence matrix is chosen to be constructed at year $t$ restricting to patent which applied during the time window $\big[ t - T_0 ; t \big]$. Note that the causal property of the window is crucial as the future cannot play any role in the current state of keywords and patents. This way, we will obtain semantic classes which are exploitable on a $T_0$ time span. For example, this enables us to compute the modularity of classes in the citation network as in section \ref{citationmodularity}. In the following, we take $T_0 = 4$ (which corresponds to a five year window) consistently with the choice of maximum time lag for citations made in Section \ref{sub:citation}. Accordingly, the sensitivity analysis for $T_0=2$ can be found in Appendix~\nameref{S3Text}.
+
+\paragraph{Moving window estimation}{Estimation sur fenêtre glissante}
+
+\bpar{
+The previous scores are estimated on a moving window with fixed time length following the idea that the present relevance is given by the most recent context and thus that the influence vanishes when going further into the past. Consequently, the co-occurrence matrix is chosen to be constructed at year $t$ restricting to patent which applied during the time window $\big[ t - T_0 ; t \big]$. Note that the causal property of the window is crucial as the future cannot play any role in the current state of keywords and patents. This way, we will obtain semantic classes which are exploitable on a $T_0$ time span. For example, this enables us to compute the modularity of classes in the citation network as in section \ref{app:subsec:citationmodularity}. In the following, we take $T_0 = 4$ (which corresponds to a five year window) consistently with the choice of maximum time lag for citations made in Section \ref{sub:citation}. Accordingly, the sensitivity analysis for $T_0=2$ can be found in Appendix~\nameref{S3Text}.
+}{
+Les scores précédents sont estimés sur une fenêtre glissante de longueur temporelle fixe, suivant l'idée que la pertinence présente est donnée par le contexte le plus récent et que l'influence diminue lorsqu'on remonte dans le passé. Par conséquent, la matrice de co-occurrence est construite pour l'année $t$ en se restreignant aux brevets qui ont été soumis pendant la fenêtre temporelle $\big[ t - T_0 ; t \big]$. Notons que la propriété causale de la fenêtre est essentielle puisque le futur ne peut jouer aucun rôle dans l'état courant des mots-clés et des brevets. De cette manière, nous obtiendrons des classes sémantiques exploitables sur une durée $T_0$. Par exemple, cela nous permettra plus loin de calculer la modularité des classes dans le réseau de citations. Dans la suite, nous prenons $T_0 = 4$ (ce qui correspond à une fenêtre temporelle de 5 ans), en cohérence avec le choix du délai maximal pour les citations fait précédemment. Nous présentons l'analyse de sensibilité effectuée pour $T_0 = 2$ en Annexe de~\cite{10.1371/journal.pone.0176310}.
+}
+
+
 
 %%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Construction of the semantic network}{Construction of the semantic network}
-\label{construction}
+\subsubsection*{Construction of the semantic network}{Construction du réseau sémantique}
+\label{app:subsubsec:construction}
 
+\bpar{
 We keep the set of most relevant keywords $\mathcal{K}_W$ and obtain their co-occurrence matrix as defined in Section \ref{keywords_est}. This matrix can be directly interpreted as the weighted adjacency matrix of the semantic network. At this stage, the topology of raw networks does not allow the extraction of clear communities. This is partly due to the presence of hubs that correspond to frequent terms common to many fields (e.g. \texttt{method}, \texttt{apparat}) which are wrongly filtered as relevant. We therefore introduce an additional measure to correct the network topology: the concentration of keywords across technological classes, defined as: 
+}{
+Nous conservons l'ensemble des $\mathcal{K}_W$ mots-clés les plus pertinents et obtenons leur matrice de co-occurrence comme défini précédemment. Cette matrice peut directement être interprétée comme une matrice d'adjacence pondérée du réseau sémantique. A cette étape, la topologie du réseau brut ne permet pas l'extraction de communautés claires. Cela est partiellement dû à la présence de hubs qui correspondent à des termes fréquents communs à de nombreux champs (par exemple \texttt{method}, \texttt{apparat}) qui sont considérés pertinents mais sont des faux positifs. Nous introduisons donc une mesure supplémentaire pour corriger la topologie du réseau : la concentration des mots-clés au sein des classes technologiques, définie par
+}
 
 $$c_{tech}(s) = \displaystyle \sum_{j=1}^{N^{(tec)}} \frac{k_j(s)^2}{ \left(\sum_i k_i(s)\right)^2},$$  
 
-where $k_j(s)$ is the number of occurrences of the $s$th keyword in each of the $j$th technological class taken from one of the $N^{(tec)}$ USPC classes. The higher $c_{tech}$, the more specific to a technological class the node is. For example, the terms \texttt{semiconductor} is widely used in electronics and does not contain any significant information in this field. We use a threshold parameter, defined as $\theta_c$, and keep nodes with $c_{tech}(s) > \theta_c$. Likewise, edges with low weights correspond to rare co-occurrences and are considered to be noise. To account for this we define the threshold parameter for edges $\theta_w$, and we filter edges with a weight below $\theta_w$, following the rationale that two keywords are not linked ``by chance'' if they appear simultaneously a minimal number of time. To control for size effect, we normalize by taking $\theta_w = \theta_w^{(0)}\cdot N_P$ where $N_P$ is the number of patents in the corpus ($N_P = \left|\mathcal{P} \right|$). $\theta_w^{(0)}$ is thus a varying parameter interpreted as a noise threshold \emph{per patent}. Communities are then extracted using a standard modularity maximization procedure as described in~\cite{clauset2004finding} to which we add the two constraints captured by $\theta_w$ and $\theta_c$, namely that edges must have a weight greater than $\theta_w$ and nodes a concentration greater than $\theta_c$. At this stage, both parameters $\theta_c$ and $\theta_w^{(0)}$ are unconstrained and their choice is not straightforward. Indeed, many optimization objectives are possible, such as the modularity, network size or number of communities. We find that modularity is maximized at a roughly stable value of $\theta_w$ across different $\theta_c$ for each year, corresponding to a stable $\theta_w^{(0)}$ across years, which leads us to choose $\theta_w^{(0)} = 4.1\cdot 10^{-5}$. Then for the choice of $\theta_c$, different candidates points lie on a Pareto front for the bi-objective optimization on number of communities and network size. There is a priori no reason to choose any specific point among the different optimums. Consequently, we have tried the analysis with all the candidate values for $\theta_c$ and found that the results are the most reasonable when taking $\theta_c = 0.06$ (see Fig.~{\ref{fig:networksensitivity}}). We show in Fig.~\ref{fig:rawnetwork} an example of semantic network visualization.
+\bpar{
+where $k_j(s)$ is the number of occurrences of the $s$th keyword in each of the $j$th technological class taken from one of the $N^{(tec)}$ USPC classes. The higher $c_{tech}$, the more specific to a technological class the node is. For example, the terms \texttt{semiconductor} is widely used in electronics and does not contain any significant information in this field. We use a threshold parameter, defined as $\theta_c$, and keep nodes with $c_{tech}(s) > \theta_c$. Likewise, edges with low weights correspond to rare co-occurrences and are considered to be noise. To account for this we define the threshold parameter for edges $\theta_w$, and we filter edges with a weight below $\theta_w$, following the rationale that two keywords are not linked ``by chance'' if they appear simultaneously a minimal number of time. To control for size effect, we normalize by taking $\theta_w = \theta_w^{(0)}\cdot N_P$ where $N_P$ is the number of patents in the corpus ($N_P = \left|\mathcal{P} \right|$). $\theta_w^{(0)}$ is thus a varying parameter interpreted as a noise threshold \emph{per patent}. Communities are then extracted using a standard modularity maximization procedure as described in~\cite{clauset2004finding} to which we add the two constraints captured by $\theta_w$ and $\theta_c$, namely that edges must have a weight greater than $\theta_w$ and nodes a concentration greater than $\theta_c$. At this stage, both parameters $\theta_c$ and $\theta_w^{(0)}$ are unconstrained and their choice is not straightforward. Indeed, many optimization objectives are possible, such as the modularity, network size or number of communities. We find that modularity is maximized at a roughly stable value of $\theta_w$ across different $\theta_c$ for each year, corresponding to a stable $\theta_w^{(0)}$ across years, which leads us to choose $\theta_w^{(0)} = 4.1\cdot 10^{-5}$. Then for the choice of $\theta_c$, different candidates points lie on a Pareto front for the bi-objective optimization on number of communities and network size. There is a priori no reason to choose any specific point among the different optimums. Consequently, we have tried the analysis with all the candidate values for $\theta_c$ and found that the results are the most reasonable when taking $\theta_c = 0.06$ (see Fig.~{\ref{fig:app:patentsmining:networksensitivity}}). We show in Fig.~\ref{fig:app:patentsmining:rawnetwork} an example of semantic network visualization.
+}{
+où $k_j(s)$ est le nombre d'occurrences du mot-clé $s$ dans la classe technologique $j$ prise parmi les $N^{(tec)}$ classes USPC. Plus $c_{tech}$ est grand, plus le noeud est spécifique à une classe technologique. Par exemple, le terme \texttt{semiconductor} est largement utilisé en électronique et ne contient pas d'information significative au regard de ce champ. Nous utilisons un paramètre de seuil, défini comme $\theta_c$, et conservons les noeuds tels que $c_{tech}(s) > \theta_c$. De la même manière, les liens avec des poids faibles correspondent à des co-occurrences rares et sont considérées comme du bruit. Pour prendre cela en compte, nous définissons le paramètre $\theta_w$ pour les liens, et nous filtrons les liens qui ont un poids en dessous de $\theta_w$, suivant la logique que deux mots-clés ne sont pas connectés ``par chance'' s'ils apparaissent simultanément un nombre minimal de fois. Pour contrôler l'effet de taille, nous normalisons en prenant $\theta_w = \theta_w^{(0)}\cdot N_P$ où $N_P$ est le nombre de brevets dans le corpus ($N_P = \left|\mathcal{P} \right|$). $\theta_w^{(0)}$ est ainsi un paramètre variable qui peut s'interpréter comme un seuil de bruit \emph{par brevet}. Les communautés sont ensuite extraites par l'utilisation d'une procédure standard de maximisation de modularité comme décrite par~\cite{clauset2004finding}, à laquelle nous ajoutons les deux contraintes capturées par $\theta_w$ et $\theta_c$, c'est à dire que les liens doivent avoir un poids plus grand que $\theta_w$ et les noeuds une concentration plus grande que $\theta_c$. A cette étape, les deux paramètres $\theta_c$ et $\theta_w^{(0)}$ ne sont pas contraints et leur choix n'est pas direct. En effet, différents objectifs d'optimisation sont possibles, comme la modularité, la taille du réseau ou le nombre de communautés. Nous trouvons que la modularité est maximisée à une valeur relativement stable de $\theta_w$ pour les différentes valeurs de $\theta_c$ pour chaque année, ce qui correspond à une valeur stable de $\theta_w^{(0)}$ au cours des années, et ce qui amène le choix $\theta_w^{(0)} = 4.1\cdot 10^{-5}$. Ensuite, pour le choix de $\theta_c$, différents points candidats se trouvent sur un front de Pareto pour l'optimisation bi-objectif sur le nombre de communautés et la taille du réseau. Il n'y a a priori pas de raisons de choisir un point spécifique entre les différents optima. Par conséquent, nous avons testé l'analyse pour toutes les valeurs candidates pour $\theta_c$ et trouvé que les résultats sont les plus raisonnables avec $\theta_c = 0.06$ (voir Fig.~\ref{fig:app:patentsmining:networksensitivity}). Nous montrons en Fig.~\ref{fig:app:patentsmining:rawnetwork} un exemple de visualisation du réseau sémantique.
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
 %\includegraphics[width=\textwidth]{Figures/PatentsMining/Fig1}
 \includegraphics[width=\linewidth]{Figures/Final/C-patentsmining-networksensitivity}
-\appcaption{}{\textbf{Sensitivity analysis of network community structure to filtering parameters.} We consider a specific window 2000-2004 and the obtained plots are typical. \textit{(Left panel)} We plot the number of communities as a function of the edge threshold parameter $\theta_w$ for different values of the node threshold parameter $\theta_c$. The maximum is roughly stable across $\theta_c$ (dashed red line). \textit{(Right panel)} To choose $\theta_c$, we do a Pareto optimization on communities and network size: the compromise point (red overline) on the Pareto front (purple overline: possible choices after having fixed $\theta_w^{(0)}$; blue level gives modularity) corresponds to $\theta_c = 0.06$.}
-\label{fig:patentsmining:networksensitivity}
+\appcaption{\textbf{Sensitivity analysis of network community structure to filtering parameters.} We consider a specific window 2000-2004 and the obtained plots are typical. \textit{(Left panel)} We plot the number of communities as a function of the edge threshold parameter $\theta_w$ for different values of the node threshold parameter $\theta_c$. The maximum is roughly stable across $\theta_c$ (dashed red line). \textit{(Right panel)} To choose $\theta_c$, we do a Pareto optimization on communities and network size: the compromise point (red overline) on the Pareto front (purple overline: possible choices after having fixed $\theta_w^{(0)}$; blue level gives modularity) corresponds to $\theta_c = 0.06$.\label{fig:app:patentsmining:networksensitivity}}{\textbf{Analyse de sensibilité de la structure des communautés du réseau aux paramètres de filtrage.} Nous considérons une fenêtre spécifique 2000-2004. Les graphes obtenus sont typiques. \textit{(Gauche)} Le graphe donne le nombre de communautés en fonction du paramètre de seuil pour les liens $\theta_w$ pour différentes valeurs du paramètre de seuil des noeuds $\theta_c$. Le maximum est globalement stable pour les différents $\theta_c$ (ligne rouge pointillée). \textit{(Droite)} Pour choisir $\theta_c$, nous faisons une optimisation de Pareto sur les communautés et la taille du réseau : le point de compromis (surligné en rouge) sur le front de Pareto (surligné en violet : les choix possibles après avoir fixé $\theta_w^{(0)}$ ; le niveau de bleu donne la modularité) correspond à $\theta_c = 0.06$. \label{fig:app:patentsmining:networksensitivity}}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%
 
@@ -133,15 +286,15 @@ where $k_j(s)$ is the number of occurrences of the $s$th keyword in each of the 
 \begin{figure}
 %\includegraphics[width=\textwidth]{Figures/PatentsMining/Fig2}
 \includegraphics[width=\linewidth]{Figures/Final/C-patentsmining-rawnetwork}
-\appcaption{}{\textbf{An example of semantic network visualization.} We show the network obtained for the window 2000-2004, with parameters $\theta_c = 0.06$ and $\theta_w = \theta_w^{(0)}\cdot N_P = 4.5e^{-5} \cdot 9.1e^{5}$. The corresponding file in a vector format (\texttt{.svg}), that can be zoomed and explored, is available as~\nameref{S1File}.}
-\label{fig:patentsmining:rawnetwork}
+\appcaption{\textbf{An example of semantic network visualization.} We show the network obtained for the window 2000-2004, with parameters $\theta_c = 0.06$ and $\theta_w = \theta_w^{(0)}\cdot N_P = 4.5e^{-5} \cdot 9.1e^{5}$. The corresponding file in a vector format (\texttt{.svg}), that can be zoomed and explored, is available as~\nameref{S1File}.\label{fig:app:patentsmining:rawnetwork}}{\textbf{Un exemple de visualisation du réseau sémantique.} Nous montrons le réseau obtenu pour la fenêtre 2000-2004, avec les paramètres $\theta_c = 0.06$ et $\theta_w = \theta_w^{(0)}\cdot N_P = 4.5e^{-5} \cdot 9.1e^{5}$. Le fichier correspondant sous un format vectoriel (\texttt{.svg}), qui peut être zoomé et exploré, est disponible en Annexe de~\cite{10.1371/journal.pone.0176310}.\label{fig:app:patentsmining:rawnetwork}}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%
 
 
 
 \subsubsection*{Characteristics of Semantic Classes}{Characteristics of Semantic Classes}
-\label{characteristics}
+\label{app:subsubsec:characteristics}
+
 For each year $t$, we define as $N^{(sem)}_t$ the number of semantic classes which have been computed by clustering keywords from patents appeared during the period $\big[ t-T_0, t \big]$ (we recall that we have chosen $T_0=4$). Each semantic class $k =  1, \cdots, N^{(sem)}_t$ is characterized by a set of keywords $K(k,t)$ which is a subset of $\mathcal{K}_W$ selected as described in previous sections. The cardinal of $K(k, t)$ distribution across each semantic class $k$ is highly skewed with a few semantic classes containing over $1,000$ keywords, most of them with roughly the same number of keywords. In contrast, there are also many semantic classes with only two keywords. There are around 30 keywords by semantic class on average and the median is 2 for any $t$. Fig.~\ref{fig:mean_K} shows that the average number of keywords is relatively stable from 1976 to 1992 and then picks around 1996 prior to going down.
 
 
@@ -322,80 +475,84 @@ We document in Fig.~\ref{fig:modularities} both simple and multi-class modularit
 %%%%%%%%%%%%%%%%%%%%%%
 
 
+
+%%
+% not necessary
 %%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Statistical Model}{Statistical Model}
-\label{statisticalmodel}
-In this section, we develop a statistical model aimed at quantifying performance of both technological and semantic classification systems. In particular, we aim at corroborating findings obtained in Section \nameref{citationmodularity}. The mere difference between this approach and the citation modularity approach lies in the choice of the underlying model, and the according quantities of interest. In addition for the semantic approach, we want to see if when restricting to patents with higher probabilities to belong to a class, we obtain better results. To do that, we choose to look at within class citations proportion (for both technological and semantic approaches). We provide two obvious reasons why we choose this. First, the citations are commonly used as a proxy for performance as mentioned in Section \nameref{citationmodularity}. Second, this choice is ``statistically fair'' in the sense that both approaches have focused on various goals and not on maximizing directly the within class proportion. 
-Nonetheless, the within class proportion is too sensitive to the distribution of the shape of classes. For example, a dataset where patents for each class account for 10\% of the total number of patents will mechanically have a better within class proportion than if each class accounts for only 1\%. Consequently, an adequate statistical model, which treats datasets fairly regardless of their distribution in classes, is needed. This effort ressembles to the previous study of citation modularity, but is complementary since the model presented here can be understood as an elementary model of citation network growth. Furthermore, the parameters fitted here can have a direct interpretation as a citation probability.
+%\subsubsection*{Statistical Model}{Statistical Model}
+%\label{statisticalmodel}
+%In this section, we develop a statistical model aimed at quantifying performance of both technological and semantic classification systems. In particular, we aim at corroborating findings obtained in Section \nameref{citationmodularity}. The mere difference between this approach and the citation modularity approach lies in the choice of the underlying model, and the according quantities of interest. In addition for the semantic approach, we want to see if when restricting to patents with higher probabilities to belong to a class, we obtain better results. To do that, we choose to look at within class citations proportion (for both technological and semantic approaches). We provide two obvious reasons why we choose this. First, the citations are commonly used as a proxy for performance as mentioned in Section \nameref{citationmodularity}. Second, this choice is ``statistically fair'' in the sense that both approaches have focused on various goals and not on maximizing directly the within class proportion. 
+%Nonetheless, the within class proportion is too sensitive to the distribution of the shape of classes. For example, a dataset where patents for each class account for 10\% of the total number of patents will mechanically have a better within class proportion than if each class accounts for only 1\%. Consequently, an adequate statistical model, which treats datasets fairly regardless of their distribution in classes, is needed. This effort ressembles to the previous study of citation modularity, but is complementary since the model presented here can be understood as an elementary model of citation network growth. Furthermore, the parameters fitted here can have a direct interpretation as a citation probability.
 
-We need to introduce and recall some notations. We consider a specific window of observations $\big[t- T_0, t \big]$, and we define $Z$ the number of patents which appeared during that time window. We let $t_1, \cdots, t_Z$ their corresponding appearance date by chronological order, which for simplicity are assumed to be such that $t_1 < \cdots < t_Z$. For each patent $i=1, \cdots, Z$ we consider $C_i$ the number of distinctive couples \{cited patent, cited patent's class\} made by the $i$th patent (for instance if the $i$th patent has only made one citation and that the cited patent is associated with three classes, then $C_i = 3$). Let $z \in \{tec, sem\}$, we define $N_{i}^{(z)}$  the number of patents associated to at least one of the $i$th classes at time $t_{i-1}$. For $l = 1, \cdots, C_i$ we consider the variables $B_{l,i}$, which equal $1$ if the cited patent's class is also common to the $i$th patent. We assume that $B_{l,i}$ are independent of each other and conditioned on the past follow Bernoulli variables 
-$$B \Big( \min \Big\{ 1, \frac{N_{i}^{(z)}}{i-1} + \theta^{(z)} \Big\} \Big),$$ 
-where the parameter $0 \leq \theta^{(z)} \leq 1$ indicates the propensity for any patent to cite patents of its own technological or semantic class. When $\theta^{(z)} = 0$, the probability of citing patents from its own class is simply $N_{i}^{(z)}(i-1)^{-1}$, which corresponds to the observed proportion of patents which belong to at least one of the $i$th patent's classes. Thus this corresponds to the estimated probability of citing one patent if we assume that the probability of citing any patent $k=1, \cdots, i-1$ is uniformly distributed, which could be a reasonable assumption if classes were assigned randomly and independently from patent abstract contents. Conversely if $\theta^{(z)} = 1$, we are in the case of a model where there are 100\% of within class citations. A reasonable choice of $\theta^{(z)}$ lies between those two extreme values. Finally, we assume that the number of distinctive couples $C_i$ are a sequence of independent and identically distributed random variables following the discrete distribution $C$, and also independent from the other quantities.
+%We need to introduce and recall some notations. We consider a specific window of observations $\big[t- T_0, t \big]$, and we define $Z$ the number of patents which appeared during that time window. We let $t_1, \cdots, t_Z$ their corresponding appearance date by chronological order, which for simplicity are assumed to be such that $t_1 < \cdots < t_Z$. For each patent $i=1, \cdots, Z$ we consider $C_i$ the number of distinctive couples \{cited patent, cited patent's class\} made by the $i$th patent (for instance if the $i$th patent has only made one citation and that the cited patent is associated with three classes, then $C_i = 3$). Let $z \in \{tec, sem\}$, we define $N_{i}^{(z)}$  the number of patents associated to at least one of the $i$th classes at time $t_{i-1}$. For $l = 1, \cdots, C_i$ we consider the variables $B_{l,i}$, which equal $1$ if the cited patent's class is also common to the $i$th patent. We assume that $B_{l,i}$ are independent of each other and conditioned on the past follow Bernoulli variables 
+%$$B \Big( \min \Big\{ 1, \frac{N_{i}^{(z)}}{i-1} + \theta^{(z)} \Big\} \Big),$$ 
+%where the parameter $0 \leq \theta^{(z)} \leq 1$ indicates the propensity for any patent to cite patents of its own technological or semantic class. When $\theta^{(z)} = 0$, the probability of citing patents from its own class is simply $N_{i}^{(z)}(i-1)^{-1}$, which corresponds to the observed proportion of patents which belong to at least one of the $i$th patent's classes. Thus this corresponds to the estimated probability of citing one patent if we assume that the probability of citing any patent $k=1, \cdots, i-1$ is uniformly distributed, which could be a reasonable assumption if classes were assigned randomly and independently from patent abstract contents. Conversely if $\theta^{(z)} = 1$, we are in the case of a model where there are 100\% of within class citations. A reasonable choice of $\theta^{(z)}$ lies between those two extreme values. Finally, we assume that the number of distinctive couples $C_i$ are a sequence of independent and identically distributed random variables following the discrete distribution $C$, and also independent from the other quantities.
 
-We estimate $\theta^{(z)}$ via maximum likelihood, and obtain the corresponding maximum likelihood estimator (MLE) $\hat{\theta}^{(z)}$. The likelihood function, along with the standard deviation expression and details about the test, can be found in~\nameref{S4Text}. The fitted values, standard errors and p-values corresponding to the statistical test $\theta^{(sem)} = \theta^{(tec)}$ (with corresponding alternative hypothesis $\theta^{(sem)} > \theta^{(tec)}$) on non-overlapping blocks from the period 1980-2007 are reported on Table \ref{summary}. Note that the estimation included patents up until 2010 in the period 2006-2007 and not the patents from 1980 in the period 1980-1985 for homogeneity in size with other periods. This doesn't affect the significativity of the results. Semantic values are reported for four different chosen thresholds $p^{-}=.04, .06, .08, .1$. It means that we restricted to the couples ($i$th patent, $j$th class) such that $p_{ij} \geq p^{-}$. 
+%We estimate $\theta^{(z)}$ via maximum likelihood, and obtain the corresponding maximum likelihood estimator (MLE) $\hat{\theta}^{(z)}$. The likelihood function, along with the standard deviation expression and details about the test, can be found in~\nameref{S4Text}. The fitted values, standard errors and p-values corresponding to the statistical test $\theta^{(sem)} = \theta^{(tec)}$ (with corresponding alternative hypothesis $\theta^{(sem)} > \theta^{(tec)}$) on non-overlapping blocks from the period 1980-2007 are reported on Table \ref{summary}. Note that the estimation included patents up until 2010 in the period 2006-2007 and not the patents from 1980 in the period 1980-1985 for homogeneity in size with other periods. This doesn't affect the significativity of the results. Semantic values are reported for four different chosen thresholds $p^{-}=.04, .06, .08, .1$. It means that we restricted to the couples ($i$th patent, $j$th class) such that $p_{ij} \geq p^{-}$. 
 
-The choice of considering non-overlapping blocks (instead of overlapping blocks) is merely statistical. Ultimately, our interest is in the significance of the test over the whole period 1980-2007. Thus, we want to compute a global p-value. This can be done considering the local p-values (by local, we mean for instance computed on the period 2001-2005) assuming independence between them. This assumption is reasonable only if the blocks are non-overlapping. All of this can be found in~\nameref{S4Text}. Finally, note that from a statistical perspective, including overlapping blocks wouldn't yield more information.
+%The choice of considering non-overlapping blocks (instead of overlapping blocks) is merely statistical. Ultimately, our interest is in the significance of the test over the whole period 1980-2007. Thus, we want to compute a global p-value. This can be done considering the local p-values (by local, we mean for instance computed on the period 2001-2005) assuming independence between them. This assumption is reasonable only if the blocks are non-overlapping. All of this can be found in~\nameref{S4Text}. Finally, note that from a statistical perspective, including overlapping blocks wouldn't yield more information.
 
-The values reported in Table \ref{summary} are overwhelmingly against the null hypothesis. The global estimates of $\theta^{(sem)}$ are significantly bigger than the estimate of $\theta^{(tec)}$ for all the considered thresholds. Although the corresponding p-values (which are also very close to 0) are not reported, it is also quite clear that the bigger the threshold, the higher the corresponding $\theta^{(sem)}$ is estimated. This is consistently seen for any period, and significant for the global period. This seems to indicate that when restricting to the couples (patent, class) with high semantic probability, the propension to cite patents from its own class $\theta^{(sem)}$ is increasing. We believe that this might provide extra information to patent officers when making their choice of citations. Indeed, they could look first to patents which belong to the same semantic class, especially when patents have high probability semantic values.  
+%The values reported in Table \ref{summary} are overwhelmingly against the null hypothesis. The global estimates of $\theta^{(sem)}$ are significantly bigger than the estimate of $\theta^{(tec)}$ for all the considered thresholds. Although the corresponding p-values (which are also very close to 0) are not reported, it is also quite clear that the bigger the threshold, the higher the corresponding $\theta^{(sem)}$ is estimated. This is consistently seen for any period, and significant for the global period. This seems to indicate that when restricting to the couples (patent, class) with high semantic probability, the propension to cite patents from its own class $\theta^{(sem)}$ is increasing. We believe that this might provide extra information to patent officers when making their choice of citations. Indeed, they could look first to patents which belong to the same semantic class, especially when patents have high probability semantic values.  
 
-Note that the introduced model can be seen as a simple model of citations network growth conditional to a classification, which can be expressed as a stochastic block model (e.g. \cite{decelle2011asymptotic}, \cite{valles2016multilayer}). The parameters are estimated computing the corresponding MLE. In view of~\cite{2016arXiv160602319N}, this can be thought as equivalent to maximizing modularity measures.
-
-
+%Note that the introduced model can be seen as a simple model of citations network growth conditional to a classification, which can be expressed as a stochastic block model (e.g. \cite{decelle2011asymptotic}, \cite{valles2016multilayer}). The parameters are estimated computing the corresponding MLE. In view of~\cite{2016arXiv160602319N}, this can be thought as equivalent to maximizing modularity measures.
 
 
 
-\begin{table}[!ht]
-\centering
-\caption[][]{}{\label{summary} Estimated values of $\theta^{(tec)}$ and $\theta^{(sem)}$ and corresponding standard errors obtained from a Maximum Likelihood estimator as presented in section \nameref{statisticalmodel}.}
-\label{stdQMLE}
-\begin{tabular}{@{}rccccccccc@{}}
-\hline
-\multicolumn{1}{l}{Approach} & \multicolumn{1}{l}{Estimated Value} & \multicolumn{1}{l}{st. er.} & \multicolumn{1}{l}{p-value} \\ \hline
-\multicolumn{4}{l}{1980-1985 period} \\
-technological & .664 &.008&\\
-semantic $p^{-} = .04$ & .741 &.047 & .053\\
-semantic $p^{-} = .06$ & .799 &.081 & .049\\
-semantic $p^{-} = .08$ & .828 &.126 & .097\\
-semantic $p^{-} = .10$ & .834 &.166 & .153\\
-\multicolumn{4}{l}{1986-1990 period} \\
-technological & .634 &.007&\\
-semantic $p^{-} = .04$ & .703 &.022 & .001\\
-semantic $p^{-} = .06$ & .768 &.040 & .0004\\
-semantic $p^{-} = .08$ & .804 &.069 & .007\\
-semantic $p^{-} = .10$ & .832 &.114 & .041\\
-\multicolumn{4}{l}{1991-1995 period} \\
-technological & .619 &.006&\\
-semantic $p^{-} = .04$ & .655 &.009 & .0004\\
-semantic $p^{-} = .06$ & .713 &.017 & 9e-08\\
-semantic $p^{-} = .08$ & .731 &.025 & 7e-06\\
-semantic $p^{-} = .10$ & .750 &.037 & 9e-06\\
-\multicolumn{4}{l}{1996-2000 period} \\
-technological & .551 &.003&\\
-semantic $p^{-} = .04$ & .585 &.002 & $\approx 0$\\
-semantic $p^{-} = .06$ & .638 &.004 & $\approx 0$\\
-semantic $p^{-} = .08$ & .660 &.006 & $\approx 0$\\
-semantic $p^{-} = .10$ & .686 &.008 & $\approx 0$\\
-\multicolumn{4}{l}{2001-2005 period} \\
-technological & .567 &.003&\\
-semantic $p^{-} = .04$ & .621 &.004 & $\approx 0$\\
-semantic $p^{-} = .06$ & .676 &.007 & $\approx 0$\\
-semantic $p^{-} = .08$ & .701 &.010 & $\approx 0$\\
-semantic $p^{-} = .10$ & .710 &.013 & $\approx 0$\\
-\multicolumn{4}{l}{2006-2007 period} \\
-technological & .600 &.007&\\
-semantic $p^{-} = .04$ & .683 &.016 & 1e-06\\
-semantic $p^{-} = .06$ & .732 &.025 & 2e-07\\
-semantic $p^{-} = .08$ & .760 &.036 & 6e-06\\
-semantic $p^{-} = .10$ & .782 &.048 &9e-05\\
-\multicolumn{4}{l}{1980-2007 global period} \\
-technological & .606 &.002&\\
-semantic $p^{-} = .04$ & .665 &.009 & 8e-11\\
-semantic $p^{-} = .06$ & .721 &.017 & 9e-12\\
-semantic $p^{-} = .08$ & .747 &.025 & 9e-09\\
-semantic $p^{-} = .10$ & .782 &.035 & 3e-07\\
-\hline
-\end{tabular}
-\end{table}
+
+
+%\begin{table}[!ht]
+%\centering
+%\caption[][]{}{\label{summary} Estimated values of $\theta^{(tec)}$ and $\theta^{(sem)}$ and corresponding standard errors obtained from a Maximum Likelihood estimator as presented in section \nameref{statisticalmodel}.}
+%\label{stdQMLE}
+%\begin{tabular}{@{}rccccccccc@{}}
+%\hline
+%\multicolumn{1}{l}{Approach} & \multicolumn{1}{l}{Estimated Value} & \multicolumn{1}{l}{st. er.} & \multicolumn{1}{l}{p-value} \\ \hline
+%\multicolumn{4}{l}{1980-1985 period} \\
+%technological & .664 &.008&\\
+%semantic $p^{-} = .04$ & .741 &.047 & .053\\
+%semantic $p^{-} = .06$ & .799 &.081 & .049\\
+%semantic $p^{-} = .08$ & .828 &.126 & .097\\
+%semantic $p^{-} = .10$ & .834 &.166 & .153\\
+%\multicolumn{4}{l}{1986-1990 period} \\
+%technological & .634 &.007&\\
+%semantic $p^{-} = .04$ & .703 &.022 & .001\\
+%semantic $p^{-} = .06$ & .768 &.040 & .0004\\
+%semantic $p^{-} = .08$ & .804 &.069 & .007\\
+%semantic $p^{-} = .10$ & .832 &.114 & .041\\
+%\multicolumn{4}{l}{1991-1995 period} \\
+%technological & .619 &.006&\\
+%semantic $p^{-} = .04$ & .655 &.009 & .0004\\
+%semantic $p^{-} = .06$ & .713 &.017 & 9e-08\\
+%semantic $p^{-} = .08$ & .731 &.025 & 7e-06\\
+%semantic $p^{-} = .10$ & .750 &.037 & 9e-06\\
+%\multicolumn{4}{l}{1996-2000 period} \\
+%technological & .551 &.003&\\
+%semantic $p^{-} = .04$ & .585 &.002 & $\approx 0$\\
+%semantic $p^{-} = .06$ & .638 &.004 & $\approx 0$\\
+%semantic $p^{-} = .08$ & .660 &.006 & $\approx 0$\\
+%semantic $p^{-} = .10$ & .686 &.008 & $\approx 0$\\
+%\multicolumn{4}{l}{2001-2005 period} \\
+%technological & .567 &.003&\\
+%semantic $p^{-} = .04$ & .621 &.004 & $\approx 0$\\
+%semantic $p^{-} = .06$ & .676 &.007 & $\approx 0$\\
+%semantic $p^{-} = .08$ & .701 &.010 & $\approx 0$\\
+%semantic $p^{-} = .10$ & .710 &.013 & $\approx 0$\\
+%\multicolumn{4}{l}{2006-2007 period} \\
+%technological & .600 &.007&\\
+%semantic $p^{-} = .04$ & .683 &.016 & 1e-06\\
+%semantic $p^{-} = .06$ & .732 &.025 & 2e-07\\
+%semantic $p^{-} = .08$ & .760 &.036 & 6e-06\\
+%semantic $p^{-} = .10$ & .782 &.048 &9e-05\\
+%\multicolumn{4}{l}{1980-2007 global period} \\
+%technological & .606 &.002&\\
+%semantic $p^{-} = .04$ & .665 &.009 & 8e-11\\
+%semantic $p^{-} = .06$ & .721 &.017 & 9e-12\\
+%semantic $p^{-} = .08$ & .747 &.025 & 9e-09\\
+%semantic $p^{-} = .10$ & .782 &.035 & 3e-07\\
+%\hline
+%\end{tabular}
+%\end{table}
+%
 
 
 
