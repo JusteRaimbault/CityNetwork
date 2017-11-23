@@ -16,6 +16,7 @@ import mendeley.MendeleyAPI;
 import scholar.ScholarAPI;
 import sql.CybergeoImport;
 import sql.SQLConnection;
+import utils.BIBReader;
 import utils.CSVWriter;
 import utils.GEXFWriter;
 import utils.RISReader;
@@ -138,6 +139,12 @@ public class CitationNetwork {
 			   initial = new CSVFactory(refFile,-1,citedFolder).getCorpus();
 			}
 		}
+
+		if(refFile.endsWith(".bib")){
+			BIBReader.read(refFile);
+			initial = new DefaultCorpus(Reference.references.keySet());
+		}
+
 		
 		//load out file to get refs already retrieved in a previous run
 		Corpus existing = new DefaultCorpus();
