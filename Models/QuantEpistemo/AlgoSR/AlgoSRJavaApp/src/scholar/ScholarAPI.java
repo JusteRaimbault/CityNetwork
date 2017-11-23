@@ -343,7 +343,8 @@ public class ScholarAPI {
 		try{
 			//if(dom.getElementById("gs_res_bdy")==null){
 				//System.out.println(dom.html());
-				while(dom==null||dom.getElementById("gs_res_bdy")==null){
+				//while(dom==null||dom.getElementById("gs_res_bdy")==null){
+				while(dom==null||dom.getElementById("gs_bdy")==null){
 					// swith TOR port
 					Log.stdout("Current IP blocked by ggl fuckers ; switching currentTorThread.");
 				    
