@@ -75,6 +75,11 @@ then
   ###############
   ## 2.2 : Quant Epistemo
 
+  # fig:quantepistemo:citnw
+  FIGNAME=2-2-2-fig-quantepistemo-citnw
+  echo $FIGNAME
+  convert Figures/QuantEpistemo/rawcore_labs36.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
   # fig:quantepistemo:interdisc
   FIGNAME=2-2-2-fig-quantepistemo-interdisc
   echo $FIGNAME
