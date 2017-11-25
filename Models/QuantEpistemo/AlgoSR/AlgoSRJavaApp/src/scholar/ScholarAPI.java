@@ -277,7 +277,7 @@ public class ScholarAPI {
 	 * 
 	 * Alters refs in place.
 	 * 
-	 * @param refs
+	 * @param corpus
 	 */
 	public static void fillIdAndCitingRefs(Corpus corpus){
 		try{
@@ -328,9 +328,8 @@ public class ScholarAPI {
 	
 	/**
 	 * Switch TOR port to ensure scholar connection (google blocking).
-	 * 
-	 * @param d
-	 * @param r
+	 *
+	 * @param request
 	 * @return
 	 */
 	private static Document ensureConnection(String request) {
@@ -344,7 +343,8 @@ public class ScholarAPI {
 		try{
 			//if(dom.getElementById("gs_res_bdy")==null){
 				//System.out.println(dom.html());
-				while(dom==null||dom.getElementById("gs_res_bdy")==null){
+				//while(dom==null||dom.getElementById("gs_res_bdy")==null){
+				while(dom==null||dom.getElementById("gs_bdy")==null){
 					// swith TOR port
 					Log.stdout("Current IP blocked by ggl fuckers ; switching currentTorThread.");
 				    
@@ -371,7 +371,7 @@ public class ScholarAPI {
 	 * Local function parsing a scholar response.
 	 * 
 	 * @param refs
-	 * @param Document dom
+	 * @param dom
 	 * @param remResponses
 	 */
 	private static void addPage(HashSet<Reference> refs,Document dom,int remResponses){
@@ -391,7 +391,7 @@ public class ScholarAPI {
 	/**
 	 * Get cluster from an element
 	 * 
-	 * @param org.jsoup.nodes.Element e
+	 * @param e
 	 */
 	private static String getCluster(Element e){
 		String cluster = "";
@@ -440,8 +440,8 @@ public class ScholarAPI {
 	/**
 	 * Simple HTTP Get request to host, url.
 	 * 
-	 * @param String host
-	 * @param String url
+	 * @param host
+	 * @param url
 	 * @return org.jsoup.nodes.Document dom
 	 */
 	public static Document request(String host,String url){	

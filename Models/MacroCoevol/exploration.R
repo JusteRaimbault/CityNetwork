@@ -252,9 +252,9 @@ for(gravityWeight in unique(res$gravityWeight)){
 
 
 # stat test
-synthRankSize=1.5;nwGmax=0.05
-gravityWeight=5e-04;nwThreshold=4.5
-gravityGamma=1.5;gravityDecay=110
+synthRankSize=1;nwGmax=0.0
+gravityWeight=0.00025;nwThreshold=0.5
+gravityGamma=0.5;gravityDecay=160
 g=ggplot(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay,],
          aes(x=tau,y=rho,color=var,group=var)
 )
@@ -313,14 +313,37 @@ for(synthRankSize in unique(lagdata$synthRankSize)){
 }}}}}}
 
 
+#save(signifs,file=paste0(resdir,"signifs.RData"))
+load(paste0(resdir,"signifs.RData"))
 
+#signifs[signifs$synthRankSize==1&signifs$nwGmax==0.0&signifs$gravityWeight==0.00025&signifs$nwThreshold==0.5&signifs$gravityGamma==0.5&signifs$gravityDecay==160,]
+# no extrema without nw (expected)
 
+signs = signifs[signifs$nwGmax==0.05,]%>%group_by(synthRankSize,nwGmax,gravityWeight,nwThreshold,gravityGamma,gravityDecay)%>%summarise(
+  sign = paste0(signif[varcouple==1],signif[varcouple==2],signif[varcouple==3],signif[varcouple==4],signif[varcouple==5],signif[varcouple==6]),
+  #count=n(),
+  strength=sum(abs(signif)),
+  corrstrength = sum(abs(signif*val))
+)
 
+unique(signs$sign[signs$strength>4])
+signs$corrstrength[signs$strength>4]
+signs[signs$strength>4,]
 
+# plot these strongest regimes
 
+sdata=data.frame()
+for(r in which(signs$strength>4)){
+  synthRankSize=signs$synthRankSize[r];nwGmax=signs$nwGmax[r];gravityWeight=signs$gravityWeight[r];nwThreshold=signs$nwThreshold[r];gravityGamma=signs$gravityGamma[r];gravityDecay=signs$gravityDecay[r]
+  sdata=rbind(sdata,data.frame(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay,],
+                               id=paste0(synthRankSize,nwGmax,gravityWeight,nwThreshold,gravityGamma,gravityDecay),
+                               reg=signs$sign[r]
+                               )
+  )
+}
 
-
-
+g=ggplot(sdata,aes(x=tau,y=rho,colour=var,group=var))
+g+geom_point(pch='.')+geom_smooth()+facet_wrap(~reg,scales="free")
 
 
 

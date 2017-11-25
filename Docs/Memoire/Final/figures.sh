@@ -75,6 +75,11 @@ then
   ###############
   ## 2.2 : Quant Epistemo
 
+  # fig:quantepistemo:citnw
+  FIGNAME=2-2-2-fig-quantepistemo-citnw
+  echo $FIGNAME
+  convert Figures/QuantEpistemo/rawcore_labs36.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
   # fig:quantepistemo:interdisc
   FIGNAME=2-2-2-fig-quantepistemo-interdisc
   echo $FIGNAME
@@ -394,10 +399,8 @@ then
   # fig:macrocoevol:pareto
   FIGNAME=6-2-3-fig-macrocoevol-pareto
   echo $FIGNAME
-  convert -density $PDFRESOLUTION Figures/MacroCoEvol/pareto_gravityDecay.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/pareto_gravityDecay.jpg
-  convert -density $PDFRESOLUTION Figures/MacroCoEvol/pareto_nwThreshold.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/pareto_nwThreshold.jpg
-  montage Figures/MacroCoEvol/pareto_gravityDecay.jpg Figures/MacroCoEvol/pareto_nwThreshold.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm Figures/MacroCoEvol/pareto_gravityDecay.jpg Figures/MacroCoEvol/pareto_nwThreshold.jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/pareto_nwThreshold.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
 
   # fig:macrocoevol:parameters
   FIGNAME=6-2-3-fig-macrocoevol-parameters
@@ -722,7 +725,7 @@ then
 
 
   #############
-  ## Synthetic Data
+  ## B.5 Synthetic Data
 
   #fig:app:correlatedsyntheticdata:correlations
   FIGNAME=A-correlatedsyntheticdata-correlations
@@ -731,6 +734,8 @@ then
   convert Figures/CorrelatedSyntheticData/heatmaps.png -resize "$((WIDTH / 3))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/heatmaps.jpg
   montage Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg Figures/CorrelatedSyntheticData/heatmaps.jpg -tile 2x1 -geometry +0+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm Figures/CorrelatedSyntheticData/heatmaps.jpg Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg
+
+
 
   #############
   ## B.6 MacroCoEvol
@@ -741,7 +746,7 @@ then
   echo $FIGNAME
   convert -density $PDFRESOLUTION Figures/MacroCoEvol/closenessSummaries_meansynthRankSize1_gravityWeight0_001.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/closenessSummaries_mean_gravityWeight0_001.jpg
   convert -density $PDFRESOLUTION Figures/MacroCoEvol/populationEntropiessynthRankSize1_gravityWeight0_001.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/populationEntropies_gravityWeight0_001.jpg
-  montage Figures/MacroCoEvol/closenessSummaries_mean_gravityWeight0_001.jpg Figures/MacroCoEvol/populationEntropies_gravityWeight0_001.jpg -tile 2x1 -geometry +"$VERTICALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  montage Figures/MacroCoEvol/closenessSummaries_mean_gravityWeight0_001.jpg Figures/MacroCoEvol/populationEntropies_gravityWeight0_001.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm Figures/MacroCoEvol/closenessSummaries_mean_gravityWeight0_001.jpg Figures/MacroCoEvol/populationEntropies_gravityWeight0_001.jpg
 
 
@@ -754,6 +759,10 @@ then
   rm Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05.jpg Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.jpg
 
 
+  # fig:app:macrocoevol:pareto
+  FIGNAME=A-macrocoevol-pareto
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/pareto_gravityDecay.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
   #############
