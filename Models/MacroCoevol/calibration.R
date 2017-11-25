@@ -5,14 +5,21 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/MacroCoEvol/MacroCoEvol/calibres'))
 
-periods = c("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911","1921-1936","1946-1968","1962-1982","1975-1999")
+periods = c("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911","1921-1936","1946-1968")#,"1962-1982","1975-1999")
 
-resdir = '20170929_calibperiod_nsga_abstractnw_local/'
+#resdir = '20170929_calibperiod_nsga_abstractnw_local/'
+resdir = '20171122_calibperiod_island_abstractnw_grid/'
 
 params = c("growthRate","gravityGamma","gravityDecay","gravityWeight"#,"feedbackGamma","feedbackDecay","feedbackWeight")
             ,"nwThreshold","nwExponent","nwGmax")
 
+paramnames = list("growthRate"=expression(r[0]),"gravityGamma"=expression(gamma[G]),"gravityDecay"=expression(d[G]),
+                  "gravityWeight"=expression(w[G]),"nwThreshold"=expression(phi[0]),"nwExponent"=expression(gamma[N]),
+                  "nwGmax"=expression(g[max])
+                  )
+
 figdir = paste0(Sys.getenv('CN_HOME'),'/Results/MacroCoEvol/Calibration/',resdir,'/');dir.create(figdir)
+
 
 
 #plots=list()
@@ -28,7 +35,7 @@ for(param in params){
   }
   g=ggplot(data.frame(logmsepop=logmsepop,logmsedist=logmsedist,param=cparam,period=cperiods),aes_string(x="logmsepop",y="logmsedist",colour="param"))
   #plots[[param]]=g+geom_point()+scale_colour_gradient(low="blue",high="red",name=param)+facet_wrap(~period,scales = "free")+xlab("log MSE population")+ylab("log MSE distance")
-  g+geom_point()+scale_colour_gradient(low="blue",high="red",name=param)+facet_wrap(~period,scales = "free")+xlab("log MSE population")+ylab("log MSE distance")+stdtheme
+  g+geom_point()+scale_colour_gradient(low="blue",high="red",name=paramnames[[param]])+facet_wrap(~period,scales = "free")+xlab(expression(epsilon[G]))+ylab(expression(epsilon[D]))+stdtheme
   ggsave(paste0(figdir,"pareto_",param,".pdf"),width=30,height=20,units='cm')
 }
 #multiplot(plotlist = plots,cols=3)
@@ -56,7 +63,7 @@ for(param in params){
   }
   #hist(res$logmsepop,breaks=50);hist(res$logmsedist,breaks=50);
   g=ggplot(data.frame(decay=decays,sd=sdDecay,type=types,time=ctimes),aes(x=time,y=decay,colour=type,group=type))
-  g+geom_point()+geom_line()+geom_errorbar(aes(ymin=decay-sd,ymax=decay+sd))+ylab(param)+stdtheme
+  g+geom_point()+geom_line()+geom_errorbar(aes(ymin=decay-sd,ymax=decay+sd))+ylab(paramnames[[param]])+xlab(expression(t))+stdtheme
   ggsave(file=paste0(figdir,'param_',param,'_filt',as.numeric(filtered),'.png'),width=20,height=15,units='cm')
 }
 
