@@ -39,8 +39,8 @@ NetLogo5Task.workspace(workDirectory,"HEADLESS_MacroCoEvol.nlogo",cmds) set(
 val modelCapsule = Capsule(model)
 
 
-val local = LocalEnvironment(50)
-//val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+//val local = LocalEnvironment(50)
+val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
 
 
@@ -53,7 +53,7 @@ val currentperiod = "1962-1982"
 
 
 val datestr = (new SimpleDateFormat("yyyyMMdd")).format(new Date())
-val purpose = "calibperiod_nsga_abstractnw_local"
+val purpose = "calibperiod_island_abstractnw_grid"
 val resdir = datestr+"_"+purpose
 
 val varSetting = ExplorationTask(
@@ -90,19 +90,19 @@ val evolution =
           objectives = Seq(logmsepop,logmsedist)
       ),
     evaluation = eval,
-    parallelism = 50,
-    termination = 4 hours
+    //parallelism = 50,
+    termination = 1 hours
     //termination = 1000
 )
 
-//val island = IslandEvolution(evolution, parallelism = 50,termination=150)
-//val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / currentperiod)
-val savePopulation = SavePopulationHook(evolution, workDirectory / "calibration" / resdir / currentperiod)
+val island = IslandEvolution(evolution, parallelism = 400,termination=10 hours)
+val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir / currentperiod)
+//val savePopulation = SavePopulationHook(evolution, workDirectory / "calibration" / resdir / currentperiod)
 
 
-(evolution on local hook savePopulation)
+//(evolution on local hook savePopulation)
 
-//(island on local hook savePopulation)
+(island on grid hook savePopulation)
 
 
 
