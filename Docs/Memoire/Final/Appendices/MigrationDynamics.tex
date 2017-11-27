@@ -130,34 +130,82 @@ The model is designed to include targeted stylized facts and experiments, in par
 Le modèle est conçu pour inclure des faits stylisés précis et des expériences associées, en particulier le rôle de la structure socio-économique de la population de migrants. Plus précisément, un changement récent dans la structure socio-économique de la population migrante a été observée, incluant une augmentation du nombre de migrants aux salaires médians et une relativisation du rôle du \emph{Hukou} dans les dynamiques migratoires. Le coeur du modèle est pour cette raison centré sur l'exploration de l'impact d'une variation de la structure économique de la population des migrants sur les dynamiques du système, et l'influence des politiques migratoires gouvernementales.
 }
 
-
+\bpar{
  The region is represented in the model by $N$ patches, characterized by their population $P_i(t)$ and an economic structure $E_i^{(c)}(t)$ giving a potential number of jobs for socio-economic classes $c$. The associated effective number of workers is denoted by $W_i^{(c)}(t)$. For the sake of simplicity, we assume a discrete number of classes. At initial time, the variables are initialized either following a synthetic data generation process (see below), or from real geographical data (abstracted and simplified to fit our context). 
- 
- Urban Centers are characterized by aggregated population $\tilde{P}_k(t)$ and corresponding economic variables ($\tilde{E}_k^{c}(t)$). An agent is a household of migrants, with location for residence and job. Socio-economic structure of the population is captured by the distribution of wealth $g(w)$, which are then stratified into categories. At a given time, the utility difference between not moving and moving to cell $j$ from cell $i$, for a category $c$ is given by
+}{
+La région est représentée dans le modèle par $N$ patches, caractérisé par leur population $P_i(t)$ et une structure économique $E_i^{(c)}(t)$ qui représente un nombre potentiel d'emplois pour une classe socio-économique $c$. Le nombre effectif de travailleurs associés est noté $W_i^{(c)}(t)$. Dans un souci de simplicité, nous supposons un ensemble discret de classes. A l'instant initial, les variables sont initialisées soit selon un processus de génération de données synthétiques (voir ci-dessous), ou à partir de données géographiques réelles (abstraites et simplifiées pour répondre à notre contexte).
+}
+
+\bpar{ 
+Urban Centers are characterized by aggregated population $\tilde{P}_k(t)$ and corresponding economic variables $\tilde{E}_k^{c}(t)$. An agent is a household of migrants, with location for residence and job. Socio-economic structure of the population is captured by the distribution of wealth $g(w)$, which are then stratified into categories. At a given time, the utility difference between not moving and moving to cell $j$ from cell $i$, for a category $c$ is given by
+}{
+Les centres urbains sont caractérisés par une population agrégée $\tilde{P}_k(t)$ et les variables économiques correspondantes $\tilde{E}_k^{c}(t)$. Un agent est un foyer de migrants, avec une localisation résidentielle et pour le travail. La structure socio-économique de la population est capturée par la distribution de richesse $g(w)$, qui est ensuite stratifiée en catégories. A un instant donné, la différence d'utilité entre l'action de relocalisation de la cellule $j$ vers la cellule $i$ et rester sur place, pour une catégorie $c$, est donnée par
+}
+
 
 \[
 \Delta U_{i,j}^{(c)}(t) = \frac{Z_j^{(c)}- Z_i^{(c)}}{Z_0} + \gamma \cdot \frac{C_i^{(c)}- C_j^{(c)}}{C_0} - u_i^{(c)} - h_j^{(c)}
 \]
 
-where $Z_i^{(c)}$ is generalized accessibility given by $Z_i^{(c)} = P_i \cdot \sum_k \left[E_k^{(c)}-W_k^{(c)}\right]\cdot \exp{\left(\frac{-d_{ij}}{d_0}\right)}$, with $d_{ij}$ effective travel distance \footnote{as the model does not focus on the role of transportation, we take euclidian distance, and $d_0$ captures typical commuting distance in both public transportation or car. A more complex model could include an explicit transportation network and modal choice depending on socio-economic category.}
- and $d_0$ commuting characteristic distance ; the parameter $\gamma$ is the ratio giving the relative importance of life cost compared to accessibility in the migration decisions ; $C_i^{(c)}$ is the cost of life which is a function of cell and city variables, that will be taken as $C_i^{(c)} \propto P_i^{\alpha_0}\cdot  \tilde{P}_i^{\alpha_1}\cdot$ ; $u_i^{(c)}$ a baseline aversion to move and $h_j^{(c)}$ an exogenous variable corresponding to regulation policies; $Z_0$ and $C_0$ dimensioning parameters.
+\bpar{
+where $Z_i^{(c)}$ is generalized accessibility given by 
+}{
+avec $Z_i^{(c)}$ une mesure d'accessibilité généralisée définie comme
+}
+
+\[
+Z_i^{(c)} = P_i \cdot \sum_k \left[E_k^{(c)}-W_k^{(c)}\right]\cdot \exp{\left(\frac{-d_{ij}}{d_0}\right)}
+\]
+
+\bpar{
+with $d_{ij}$ effective travel distance\footnote{as the model does not focus on the role of transportation, we take euclidian distance, and $d_0$ captures typical commuting distance in both public transportation or car. A more complicated model could include an explicit transportation network and modal choice depending on socio-economic category.} and $d_0$ commuting characteristic distance ; the parameter $\gamma$ is the ratio giving the relative importance of life cost compared to accessibility in the migration decisions ; $C_i^{(c)}$ is the cost of life which is a function of cell and city variables, that will be taken as $C_i^{(c)} \propto P_i^{\alpha_0}\cdot  \tilde{P}_i^{\alpha_1}$ ; $u_i^{(c)}$ a baseline aversion to move and $h_j^{(c)}$ an exogenous variable corresponding to regulation policies; $Z_0$ and $C_0$ dimensioning parameters.
+}{
+avec $d_{ij}$ une distance effective de trajet\footnote{Comme le modèle ne se concentre pas sur le rôle des transports, nous prenons la distance euclidienne, et $d_0$ capture une distance typique de migration pendulaire à la fois par transport public et voiture. Un modèle plus compliqué pourrait inclure un réseau de transport explicite ainsi que des choix modaux dépendants des catégories socio-économiques.} et $d_0$ distance de migration pendulaire typique ; le paramètre $\gamma$ est un rapport donnant l'importance relative du coût de la vie en comparaison à l'accessibilité dans les décisions migratoires ; $C_i^{(c)}$ est le coût de la vie qui est une fonction à la fois de la cellule et des variables de la ville, que nous prenons comme $C_i^{(c)} \propto P_i^{\alpha_0}\cdot  \tilde{P}_i^{\alpha_1}$ ; $u_i^{(c)}$ est une aversion au mouvement de référence et $h_j^{(c)}$ une variable exogène correspondant aux politiques de régulation ; $Z_0$ et $C_0$ sont des paramètres de dimensionnement.
+}
  
- At each time step, the system evolves sequentially according to the following rules : (i) cities-level variables are updated and distributed across patches variables (in our experiments, we will assume short time scale and skip this step); (ii) new migrants enter the region and lean on social network to settle; (iii) migration occur within the region, randomly drawn from discrete choice probabilities obtained with the above utility difference between two patches; (iv) Migrants update their wealth and eventually economic category, according to an abstract ``quality of place'' that we associate to per-capita GDP which follows a scaling law of population.
+
+ 
+\bpar{
+At each time step, the system evolves sequentially according to the following rules : 
+\begin{enumerate}
+	\item cities-level variables are updated and distributed across patches variables (in our first experiments, we will assume short time scale and skip this step)
+	\item new migrants enter the region and lean on social network to settle
+	\item migration occur within the region, randomly drawn from discrete choice probabilities obtained with the above utility difference between two patches
+	\item Migrants update their wealth and eventually economic category, according to an abstract ``quality of place'' that we associate to per-capita GDP which follows a scaling law of population.
+\end{enumerate}
+}{
+A chaque pas de temps, le système évolue séquentiellement selon les règles suivantes :
+\begin{enumerate}
+	\item les variables au niveau de la ville sont mises à jour et distribuées aux variables de patch (dans les premières expériences, nous supposerons une courte échelle temporelle et sauterons cette étape) ;
+	\item de nouveaux migrants entrent dans la région et se fient à leur réseau social pour s'établir ;
+	\item les migrations ont lieu dans la région, tirées aléatoirement à partir des probabilités de choix discrets obtenues avec les différences d'utilités entre patches données ci-dessus ;
+	\item les migrants mettent à jour leur richesse et possiblement leur catégorie économique, selon une ``qualité du lieu'' abstraite que nous associons au GPD par tête qui suit une loi d'échelle de la population.
+\end{enumerate}
+}
 
 
 
-\paragraph{}{Results}
+%%%%%%%%%%%%%%%%%
+\subsection{Results}{Résultats}
 
-The model is implemented in NetLogo, the open source implementation being available with results at \texttt{https://www.github.com/JusteRaimbault/MigrationDynamics}. We explore the model on synthetic city systems first, to isolate results due to processes from results due to geographical configuration. With such a random model where many parameters cannot be given directly a real-world value, it is necessary to explore intensively the parameter space to obtain robust conclusions. Using the software OpenMole~\cite{reuillon2013openmole}, we proceed to 1,599,495 simulations of the model on computation grid, achieving 15 years of equivalent CPU in around 2 days. We validate the model internally by checking the statistical convergence of indicators. From the baseline experiments we learn that : (i) when migrants have a high propensity to move, the spatial repartition of jobs becomes suboptimal in intermediate regimes of stochasticity, corresponding to a regime where congestion dominates; % More precisely, we use a ``Random Utility'' specification for migrants' decisions, that includes a parameter $\beta$ that represents a ``level of randomness'' (or stochasticity) : when it goes to 0, migrations are totally random and without any sense, when it goes to infinity, migrants follow deterministically the best choice between staying and going to the best migration patch (depending on the sign of $\Delta U$). For intermediate values of $\beta$, we observe this congestion phenomenon.
+
+
+The model is implemented in NetLogo, the open source implementation being available with results at \texttt{https://www.github.com/JusteRaimbault/MigrationDynamics}. We explore the model on synthetic city systems first, to isolate results due to processes from results due to geographical configuration. With such a random model where many parameters cannot be given directly a real-world value, it is necessary to explore intensively the parameter space to obtain robust conclusions. Using the software OpenMole~\cite{reuillon2013openmole}, we proceed to 1,599,495 simulations of the model on computation grid, achieving 15 years of equivalent CPU in around 2 days. We validate the model internally by checking the statistical convergence of indicators.
+
+
+
+From the baseline experiments we learn that : (i) when migrants have a high propensity to move, the spatial repartition of jobs becomes suboptimal in intermediate regimes of stochasticity, corresponding to a regime where congestion dominates; % More precisely, we use a ``Random Utility'' specification for migrants' decisions, that includes a parameter $\beta$ that represents a ``level of randomness'' (or stochasticity) : when it goes to 0, migrations are totally random and without any sense, when it goes to infinity, migrants follow deterministically the best choice between staying and going to the best migration patch (depending on the sign of $\Delta U$). For intermediate values of $\beta$, we observe this congestion phenomenon.
  (ii) the congestion regime corresponds to a linear decrease of job distance with randomness, meaning that social determinism creates spatial inequalities; % It means that proximity to job is correlated with more congestion, but there is no direct causality between the two, both are outcome of model processes;
  (iii) changing the relative importance of accessibility does not affect much the aggregated dynamics: an increased gain in mobility produced by policies such as individual transportation subsidies will have no effect on migrations patterns. %Accessibility is a generic notion to capture patterns of accessibility to urban functions and amenities ; in our case we use generalized Hansen accessibility, which can be understood in a simplified way number of jobs available to the population within a spatial range.
 % (iv) configurations with an intermediate value of move aversion (in which real configurations fall) yield a negative feedback effect of time, witnessing a progressive saturation. In a ``U-shape'' manner, very mobile or very fixed configurations yield positive feedback of time. We then turn to specific experiments.
- Adding categorization does not change the qualitative behavior of the model. % It does not mean that categorization (based on professional qualifications, education, and economic situation) does not influence the migration behavior. In practice for example the points-based hukou system favoring “talents” – people with more qualifications, with stable job and economic situation etc. – can have a significant influence on migration behavior. It changes the migration behavior for individuals, but not the global qualitative picture of the previous stylized facts. %I have to think more on this and I totally agree on your second point : an interesting thing to try when testing the Hukou policies in the model is to check if we have the same phenomenon, and then to compare the effectiveness of policies at the individual level (impact on migrants trajectories) to the global level (behavior of the model).
- The lower category appears more vulnerable to spatial inequalities created by social determinism. Concerning the influence of economic parameters, namely income inequality and income growth, we find that : (i) larger income inequalities yield stronger spatial inequities in job accessibility; (ii) larger enrichments when migrating induces a suboptimal regime for the upper category. The application of the model on the real population and economic configuration of Pearl River Delta slightly changes conclusions: we witness for example the emergence of optimal behavior ranges for the commuting distance indicators. It means that incentives for migrations have to be specifically tuned depending on the region configuration. Other conclusions mainly hold and are therefore process-specific.
+
+Adding categorization does not change the qualitative behavior of the model. % It does not mean that categorization (based on professional qualifications, education, and economic situation) does not influence the migration behavior. In practice for example the points-based hukou system favoring “talents” – people with more qualifications, with stable job and economic situation etc. – can have a significant influence on migration behavior. It changes the migration behavior for individuals, but not the global qualitative picture of the previous stylized facts. %I have to think more on this and I totally agree on your second point : an interesting thing to try when testing the Hukou policies in the model is to check if we have the same phenomenon, and then to compare the effectiveness of policies at the individual level (impact on migrants trajectories) to the global level (behavior of the model).
+The lower category appears more vulnerable to spatial inequalities created by social determinism. Concerning the influence of economic parameters, namely income inequality and income growth, we find that : (i) larger income inequalities yield stronger spatial inequities in job accessibility; (ii) larger enrichments when migrating induces a suboptimal regime for the upper category. The application of the model on the real population and economic configuration of Pearl River Delta slightly changes conclusions: we witness for example the emergence of optimal behavior ranges for the commuting distance indicators. It means that incentives for migrations have to be specifically tuned depending on the region configuration. Other conclusions mainly hold and are therefore process-specific.
 
 
 
 \paragraph{}{Discussion}
+
 
 A last application we are currently developing is testing the impact of localized regulation policies, i.e. having the term $h_j^{(c)}$ varying across cities and across categories, what corresponds to policies effectively observed in practice. This various stylized facts listed above may furthermore inform more general policies, such as the impact of mobility or the existence of optimal regimes for intermediate values of randomness. Further work may consist in a calibration of the model on migration trajectories with appropriate datasets, but also in a feedback of simulation results on qualitative fieldwork, trying to compare to concrete real situations. Our modeling entreprise is aimed at being integrated, as the model is initially built with taking in consideration qualitative observations from fieldwork, and as its outputs shall in return inform qualitative research. We believe that such integrated modeling approaches will be important tools in the future of Urban China research, in particular because of the emergence of new urban regimes in Chinese cities that were never observed somewhere else before, making difficult the use of some of previous empirical knowledge on cities.
 
@@ -168,11 +216,9 @@ A last application we are currently developing is testing the impact of localize
 
 %%%%%%%%%%%%%%%
 \begin{figure}[h!]
-\includegraphics[width=0.72\textwidth]{Figures/MigrationDynamics/model}
-
-\includegraphics[width=0.22\textwidth]{Figures/MigrationDynamics/examples}
-\appcaption{}{(Left) Multi-scale schema of processes included in the model. (Right) Examples of regional population configuration, for a synthetic city system (top) and Pearl River Delta (bottom).}
-\label{fig:model}
+\includegraphics[width=0.72\linewidth]{Figures/MigrationDynamics/model}
+\includegraphics[width=0.22\linewidth]{Figures/MigrationDynamics/examples}
+\appcaption{}{(Left) Multi-scale schema of processes included in the model. (Right) Examples of regional population configuration, for a synthetic city system (top) and Pearl River Delta (bottom).\label{app:fig:migrationdynamics:model}}
 \end{figure}
 %%%%%%%%%%%%%%%
 
@@ -180,13 +226,9 @@ A last application we are currently developing is testing the impact of localize
 
 %%%%%%%%%%%%%%%
 \begin{figure}[h!]
-\centering
-\bigskip
-%\includegraphics[width=\textwidth]{figures/model}
-\includegraphics[width=0.49\textwidth,height=0.25\textheight]{Figures/MigrationDynamics/baseline_jobdist0.png}
-\includegraphics[width=0.49\textwidth,height=0.25\textheight]{Figures/MigrationDynamics/real_indicjobDistance0_smoothed.png}
-\appcaption{}{Comparison of average distance to jobs for the lowest economic category, as a function of the randomness parameter $\beta$, between synthetic city systems (two left plots) and real configuration (two right plots). The color gives the constant move aversion $u_i^{(c)}$ and plots are given for two values of cost-accessibility ratio $\gamma$. We witness the apparition of optimal values of $\beta$ in the real situation, probably caused by the geography.}
-\label{fig:model}
+\includegraphics[width=0.49\linewidth]{Figures/MigrationDynamics/baseline_jobdist0.png}
+\includegraphics[width=0.49\linewidth]{Figures/MigrationDynamics/real_indicjobDistance0_smoothed.png}
+\appcaption{}{Comparison of average distance to jobs for the lowest economic category, as a function of the randomness parameter $\beta$, between synthetic city systems (two left plots) and real configuration (two right plots). The color gives the constant move aversion $u_i^{(c)}$ and plots are given for two values of cost-accessibility ratio $\gamma$. We witness the apparition of optimal values of $\beta$ in the real situation, probably caused by the geography.\label{fig:model}}
 \end{figure}
 %%%%%%%%%%%%%%%
 
