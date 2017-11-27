@@ -116,10 +116,14 @@ public class ScholarAPI {
 			 HttpConnectionParams.setSoTimeout(params, 10000);
 			 
 			 HttpGet httpGet = new HttpGet("http://scholar.google.com/scholar?q=transfer+theorem");
+			 httpGet.setHeader("user-agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36");
 			 HttpResponse resp = client.execute(httpGet,context);
-			 
-			 try{Log.stdout("Accepted : "+Jsoup.parse(resp.getEntity().getContent(),"UTF-8","").getElementsByClass("gs_r").size());}catch(Exception e){e.printStackTrace();}
-			 
+
+			 Element el = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
+			 try{Log.stdout("Accepted : "+(el.getElementsByClass("gs_r").size()>0));}catch(Exception e){e.printStackTrace();}
+
+			 //System.out.println(el.html());
+
 			 //System.out.println("Connected to scholar, persistent through cookies. ");
 			 //for(int i=0;i<cookieStore.getCookies().size();i++){System.out.println(cookieStore.getCookies().get(0).toString());}
 				
@@ -306,7 +310,9 @@ public class ScholarAPI {
 						
 						if(rr!=null){
 							Log.stdout("ID : "+rr.scholarID);
-							r.scholarID=rr.scholarID;//no need as rr and r should be same pointer ?
+							//r.scholarID=rr.scholarID;//no need as rr and r should be same pointer ?
+							Reference.references.remove(r);
+							r=rr; //contradiction with hashconsing here : should delete the old one here
 							HashSet<Reference> citing = scholarRequest(r.scholarID,10000,"cites"); // TODO ; limit of max cit number ?
 							for(Reference c:citing){r.citing.add(c);}
 						}
@@ -334,9 +340,10 @@ public class ScholarAPI {
 	 */
 	private static Document ensureConnection(String request) {
 		Document dom = new Document("<html><head></head><body></body></html>");
+		Log.stdout("Request : "+request);
 		try{dom=request("scholar.google.com",request);}
 		catch(Exception e){e.printStackTrace();}
-		Log.stdout("Request : "+request);
+		//Log.stdout(dom.html());
 		try{Log.stdout(dom.getElementsByClass("gs_rt").first().text());}catch(Exception e){}
 		try{Log.stdout(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
 		
@@ -344,7 +351,7 @@ public class ScholarAPI {
 			//if(dom.getElementById("gs_res_bdy")==null){
 				//System.out.println(dom.html());
 				//while(dom==null||dom.getElementById("gs_res_bdy")==null){
-				while(dom==null||dom.getElementById("gs_bdy")==null){
+				while(dom==null||dom.getElementById("gs_res_ccl")==null){
 					// swith TOR port
 					Log.stdout("Current IP blocked by ggl fuckers ; switching currentTorThread.");
 				    
@@ -454,17 +461,25 @@ public class ScholarAPI {
 			String encodedURL = "http://"+host+"/"+url;
 			
 			Log.stdout("Request : "+encodedURL);
-			
-		    HttpResponse response = client.execute(new HttpGet(encodedURL));
+
+			HttpGet httpGet = new HttpGet(encodedURL);
+			httpGet.setHeader("user-agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36");
+			HttpResponse response = client.execute(httpGet);
 		    try {
 		    	//res= Jsoup.parse(response.getEntity().getContent(),"UTF-8","");
 		    	res= Jsoup.parse(EntityUtils.toString(response.getEntity(),"UTF-8"));
+				//try{Log.stdout("Results : "+(res.getElementsByClass("gs_r").size()>0));}catch(Exception e){}
 		    	EntityUtils.consume(response.getEntity());
 		    }catch(Exception e){e.printStackTrace();}
 		} catch(Exception e){e.printStackTrace();}
 		return res;
 	}
 
+
+
+	public static void main(String[] args){
+		init();
+	}
 
 	
 	

@@ -399,13 +399,14 @@ then
   # fig:macrocoevol:pareto
   FIGNAME=6-2-3-fig-macrocoevol-pareto
   echo $FIGNAME
-  convert -density $PDFRESOLUTION Figures/MacroCoEvol/pareto_nwThreshold.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/pareto_nwGmax_filtTRUE.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
   # fig:macrocoevol:parameters
   FIGNAME=6-2-3-fig-macrocoevol-parameters
   echo $FIGNAME
-  montage Figures/MacroCoEvol/param_gravityWeight_filt1.png Figures/MacroCoEvol/param_gravityDecay_filt1.png Figures/MacroCoEvol/param_gravityGamma_filt1.png Figures/MacroCoEvol/param_nwExponent_filt1.png Figures/MacroCoEvol/param_nwThreshold_filt1.png Figures/MacroCoEvol/param_nwGmax_filt1.png -tile 3x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
+  montage Figures/MacroCoEvol/param_growthRate_filt1.png Figures/MacroCoEvol/param_gravityWeight_filt1.png Figures/MacroCoEvol/param_gravityDecay_filt1.png Figures/MacroCoEvol/param_gravityGamma_filt1.png Figures/MacroCoEvol/param_nwThreshold_filt1.png Figures/MacroCoEvol/param_nwGmax_filt1.png -tile 3x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
+  # Figures/MacroCoEvol/param_nwExponent_filt1.png
   convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm $FIGDIR/"$FIGNAME"_tmp.png
 
@@ -762,7 +763,8 @@ then
   # fig:app:macrocoevol:pareto
   FIGNAME=A-macrocoevol-pareto
   echo $FIGNAME
-  convert -density $PDFRESOLUTION Figures/MacroCoEvol/pareto_gravityDecay.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/pareto_gravityDecay_filtTRUE.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  # pareto_nwThreshold_filtTRUE.pdf
 
 
   #############

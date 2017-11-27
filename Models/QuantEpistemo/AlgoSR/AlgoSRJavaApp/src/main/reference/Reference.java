@@ -228,7 +228,7 @@ public class Reference {
 	/**
 	 * Set keywords from an existing set.
 	 * 
-	 * @param a
+	 * @param k
 	 */
 	public void setKeywords(Collection<String> k){
 		// current set of authors assumed existing ; but creates it of called from ghost ref e.g.
@@ -304,7 +304,7 @@ public class Reference {
 	 * Override to string
 	 */
 	public String toString(){
-		return "Ref "+id+" - schID : "+scholarID+" - t : "+title+" - year : "+year+" - authors : "+getAuthorString()+" - keywords : "+getKeywordString();
+		return "Ref "+id+" - schID : "+scholarID+" - t : "+title+" - year : "+year+" - Cited by : "+citing.size()+" - authors : "+getAuthorString()+" - keywords : "+getKeywordString();
 	}
 	
 }

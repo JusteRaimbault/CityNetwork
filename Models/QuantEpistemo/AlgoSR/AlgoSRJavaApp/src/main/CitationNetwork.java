@@ -145,20 +145,25 @@ public class CitationNetwork {
 			initial = new DefaultCorpus(Reference.references.keySet());
 		}
 
-		
+		System.out.println("Number of References : "+Reference.references.keySet().size());
+
 		//load out file to get refs already retrieved in a previous run
 		Corpus existing = new DefaultCorpus();
 		if(new File(outFile).exists()){
 			existing = new CSVFactory(outFile).getCorpus();
 		}
-		
+
+		System.out.println("Already got : "+existing.references.size());
+
 		//System.out.println("Initial Refs : ");for(Reference r:Reference.references.keySet()){System.out.println(r.toString());}
 		
 		for(int d=1;d<=depth;d++){
 		  System.out.println("Getting Citation Network, depth "+d);
 		  buildCitationNetwork(outFile,existing);
 		}
-		
+
+		for(Reference r:Reference.references.keySet()){System.out.println(r.toString());}
+
 		/*
 		System.out.println("Getting Abstracts...");
 		MendeleyAPI.setupAPI();
@@ -206,7 +211,8 @@ public class CitationNetwork {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+
+		buildCitationNetworkFromRefFile("../../../Reflexivity/data/test.bib","../../../Reflexivity/data/testout",1,"");
 		
 		//TorPool.forceStopPID(1971, 2020);
 		

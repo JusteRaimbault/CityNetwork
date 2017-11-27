@@ -41,7 +41,7 @@ public class CitationNetworkRetriever {
 		        citedFolder = args[3];
 			}
 			// print usage
-			System.out.println("usage : java -jar citationNetwork.jar reffile outfile depth [cited]");
+			System.out.println("usage : java -jar citationNetwork.jar reffile outfile depth [cited] TEST");
 		}
 		
 		CitationNetwork.buildCitationNetworkFromRefFile(refFile,outFile,depth,citedFolder);

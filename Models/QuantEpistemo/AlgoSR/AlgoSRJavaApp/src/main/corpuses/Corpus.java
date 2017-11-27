@@ -96,7 +96,8 @@ public abstract class Corpus implements Iterable<Reference> {
 	/**
 	 * Export to csv
 	 * 
-	 * @param file
+	 * @param prefix
+	 * @param withAbstract
 	 */
 	public void csvExport(String prefix,boolean withAbstract){
 		LinkedList<String[]> datanodes = new LinkedList<String[]>();
