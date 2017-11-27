@@ -113,9 +113,9 @@ public class ScholarAPI {
 		    //System.out.println(cookieStore.getCookies().size());
 			
 			//set timeout
-			 HttpParams params = client.getParams();
-			 HttpConnectionParams.setConnectionTimeout(params, 10000);
-			 HttpConnectionParams.setSoTimeout(params, 10000);
+			HttpParams params = client.getParams();
+			HttpConnectionParams.setConnectionTimeout(params, 10000);
+			HttpConnectionParams.setSoTimeout(params, 10000);
 
 			SSLContext sslContext = null;
 			sslContext = SSLContext.getInstance("TLS")  ;
