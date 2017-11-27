@@ -39,6 +39,8 @@ import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -114,7 +116,14 @@ public class ScholarAPI {
 			 HttpParams params = client.getParams();
 			 HttpConnectionParams.setConnectionTimeout(params, 10000);
 			 HttpConnectionParams.setSoTimeout(params, 10000);
-			 
+
+			SSLContext sslContext = null;
+			sslContext = SSLContext.getInstance("TLS")  ;
+			sslContext.init(null,null,null);
+			SSLSocketFactory sf = new SSLSocketFactory(sslContext,SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+			Scheme sch = new Scheme("https", 443, sf);
+			client.getConnectionManager().getSchemeRegistry().register(sch);
+
 			 HttpGet httpGet = new HttpGet("http://scholar.google.com/scholar?q=transfer+theorem");
 			 httpGet.setHeader("user-agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36");
 			 HttpResponse resp = client.execute(httpGet,context);
