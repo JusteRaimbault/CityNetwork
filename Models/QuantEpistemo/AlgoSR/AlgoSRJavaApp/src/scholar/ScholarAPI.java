@@ -311,7 +311,7 @@ public class ScholarAPI {
 						if(rr!=null){
 							Log.stdout("ID : "+rr.scholarID);
 							//r.scholarID=rr.scholarID;//no need as rr and r should be same pointer ?
-							Reference.references.remove(r);
+							if(!rr.equals(r)){Reference.references.remove(r);}
 							r=rr; //contradiction with hashconsing here : should delete the old one here
 							HashSet<Reference> citing = scholarRequest(r.scholarID,10000,"cites"); // TODO ; limit of max cit number ?
 							for(Reference c:citing){r.citing.add(c);}
