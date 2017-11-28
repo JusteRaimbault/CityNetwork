@@ -169,6 +169,10 @@ then
   ###############
   ## 4.2 : Spatio-temp causalities
 
+  # fig:causalityregimes:arma
+  FIGNAME=4-2-2-fig-causalityregimes-arma
+  echo $FIGNAME
+  montage Figures/CausalityRegimes/coefsclust_nbootstrap10000_maxai0_1_lag2nclust9.png Figures/CausalityRegimes/centertrajs_nbootstrap10000_maxai0_1_lag2nclust9.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0  -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # frame:causalityregimes:rbd
   FIGNAME=4-2-2-frame-causalityregimes-rdb

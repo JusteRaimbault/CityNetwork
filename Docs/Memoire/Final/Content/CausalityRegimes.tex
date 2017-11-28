@@ -165,8 +165,35 @@ Est-il alors possible de répondre de manière équivoque à la question ``\text
 %%%%%%%%%%%%%%%
 \subsection{Synthetic data}{Données Synthétiques}
 
+\subsubsection{Auto-regressive time series}{Séries temporelles auto-régressives}
+
+Illustrons les motifs qui peuvent être attendus, notamment ceux stylisés donnés précédemment en Encadré~\ref{frame:causalityregimes:twovars}, sur des données synthétiques avec une structure simple. L'idée est de générer des séries temporelles sur lesquelles le retard et le niveau de corrélation sont contrôlés, les résultats théoriques connus.
 
 
+Soit $\mathbf{X}(t)$ un processus stochastique suivant l'équation d'auto-régression $\mathbf{X}(t) = \sum_{\tau > 0} \mathbf{A}(\tau) \cdot \mathbf{X}(t - \tau ) + \mathbf{\varepsilon}(t)$. Dans le cas où $\mathbf{A}(\tau) = 0$ pour $\tau \neq \tau_0$ et $\mathbf{A}(\tau_0) = \left( {\begin{array}{cc} 0 & a \\ a & 0 \\ \end{array}} \right)$, le calcul des corrélations théoriques est immédiat (voir Appendice~\ref{app:sec:causalityregimes}), et on obtient, en notant $\mathbf{X} = (X,Y)$,
+\[
+\rho\left[X(\tau),Y(t-\tau)\right] = \left(1 + \frac{1}{a^2}\cdot \frac{\sigma^2}{\Varb{Y(t-\tau)}}\right)^{-\frac{1}{2}}
+\]
+
+et la corrélation simultanée tend vers zéro dans le temps :
+
+\[
+\rho\left[X(t),Y(t)\right] = a^{2t} \cdot \rho_0
+\]
+
+
+%%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=0.48\linewidth]{Figures/CausalityRegimes/coefsclust_nbootstrap10000_maxai0_1_lag2nclust9.png}
+	%\includegraphics[width=0.48\linewidth]{Figures/CausalityRegimes/centertrajs_nbootstrap10000_maxai0_1_lag2nclust9.png}
+	\includegraphics[width=\linewidth]{Figures/Final/4-2-2-fig-causalityregimes-arma.jpg}
+	\caption{}{\textbf{Estimation des régimes de corrélation dans le cas de séries temporelles auto-régressives linéaires.}\label{fig:causalityregimes:arma}}
+\end{figure}
+%%%%%%%%%%%%%
+
+
+
+\subsubsection{Urban growth model}{Modèle de croissance urbaine}
 
 \bpar{
 This method must first be tested and partially validated, what we propose to do on synthetic data, what allows a more refined knowledge of the behavior of models~\cite{raimbaulthalshs01514415}. Echoing the example of relations between transportation networks and territories that introduced the research question before, we generate stylized urban configurations in which network and density mutually interact, and for which causalities are not obvious \emph{a priori} knowing the parameters of the generative model. \cite{raimbault2014hybrid} describes and explores a simple model of urban morphogenesis (the RBD model) that fits perfectly these constraints. Indeed, explicative variables of urban growth, processes of network extension and the coupling between urban density and the network are relatively simple. However, except for extreme cases (for example when distance to the center solely determines land value, the network will depend on density in a causal way; when only the distance to the network counts, the causality will be inverted), mixed regimes do not exhibit obvious causalities. It is for this reason an ideal case to test if the method is able to detect some.
@@ -192,6 +219,8 @@ A chaque pas de temps :
 %\includegraphics[width=0.32\linewidth]{Figures/CausalityRegimes/ex_60_wdens1_wroad1_wcenter1_seed272727}
 \includegraphics[width=\linewidth]{Figures/Final/4-2-2-frame-causalityregimes-rdb.jpg}
  Exemples de configurations finales variées, obtenues avec les paramètres de poids $(w_{d},w_{c},w_{r})$ valant respectivement $(0,1,1)$,$(1,0,1)$, et $(1,1,1)$.
+
+\medskip
 
 \framecaption{}{\textbf{Description du modèle RBD.}\label{frame:causalityregimes:rbd}}
 \end{mdframed}
