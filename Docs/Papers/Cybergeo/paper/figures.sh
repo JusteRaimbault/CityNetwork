@@ -41,4 +41,10 @@ convert -density $PDFRESOLUTION figuresraw/synththemcyb.pdf -resize "$WIDTH"x -q
 convert figuresraw/compo_proportion.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig9.jpg
 
 # Fig10
-convert figuresraw/originalities_citclass.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig10.jpg
+montage figuresraw/originalities_citclass.png figuresraw/citation_originalities_citclass.png -tile 1x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig10.jpg
+
+
+
+
+
+#
