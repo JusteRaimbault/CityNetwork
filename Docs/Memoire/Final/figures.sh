@@ -807,6 +807,62 @@ then
   rm Figures/RobustnessDiscrepancy/alldeps_rob_renormindics.jpg Figures/RobustnessDiscrepancy/alldeps_robsd_renormindics.jpg
 
 
+  ###############
+  ## Cybergeo
+
+
+
+  # fig:cybergeo:fig1
+  FIGNAME=B-cybergeo-fig1
+  echo $FIGNAME
+  cp Figures/Cybergeo/Fig1.pdf $FIGDIR/"$FIGNAME".pdf
+
+  # fig:cybergeo:fig2
+  FIGNAME=B-cybergeo-fig2
+  echo $FIGNAME
+  cp Figures/Cybergeo/Fig2.pdf $FIGDIR/"$FIGNAME".pdf
+
+  # fig:cybergeo:fig3
+  FIGNAME=B-cybergeo-fig3
+  echo $FIGNAME
+  convert Figures/Cybergeo/Fig3.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:cybergeo:fig4
+  FIGNAME=B-cybergeo-fig4
+  echo $FIGNAME
+  convert Figures/Cybergeo/Fig4.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:cybergeo:fig5
+  FIGNAME=B-cybergeo-fig5
+  echo $FIGNAME
+  convert Figures/Cybergeo/Fig5.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:cybergeo:fig6
+  FIGNAME=B-cybergeo-fig6
+  echo $FIGNAME
+  convert Figures/Cybergeo/Fig6.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:cybergeo:fig7
+  FIGNAME=B-cybergeo-fig7
+  echo $FIGNAME
+  convert Figures/Cybergeo/Fig7.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:cybergeo:fig8
+  FIGNAME=B-cybergeo-fig8
+  echo $FIGNAME
+  convert Figures/Cybergeo/Fig8.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:cybergeo:fig9
+  FIGNAME=B-cybergeo-fig9
+  echo $FIGNAME
+  convert Figures/Cybergeo/Fig9.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:cybergeo:fig10
+  FIGNAME=B-cybergeo-fig10
+  echo $FIGNAME
+  convert Figures/Cybergeo/Fig10.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
 
 fi
 
