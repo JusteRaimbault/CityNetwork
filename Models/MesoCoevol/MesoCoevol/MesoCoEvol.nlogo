@@ -326,14 +326,12 @@ biological-network-links-own [
 biological-network-real-links-own [
   real-link-length
 ]
-
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 4
 10
-664
-691
+1314
+1991
 -1
 -1
 13.0
@@ -347,9 +345,9 @@ GRAPHICS-WINDOW
 0
 1
 0
-49
+99
 0
-49
+149
 0
 0
 1
@@ -380,7 +378,7 @@ population-growth-rate
 population-growth-rate
 0
 3000
-1414
+3000
 1
 1
 NIL
@@ -395,7 +393,7 @@ density-alpha-localization
 density-alpha-localization
 0
 4
-4
+1.66
 0.01
 1
 NIL
@@ -569,7 +567,7 @@ SLIDER
 #-max-new-links
 0
 100
-5
+10
 1
 1
 NIL
@@ -584,7 +582,7 @@ sp-max-pop
 sp-max-pop
 10000
 100000
-27800
+50100
 100
 1
 NIL
@@ -647,8 +645,8 @@ SLIDER
 setup-center-number
 setup-center-number
 1
-20
-8
+40
+30
 1
 1
 NIL
@@ -706,7 +704,7 @@ CHOOSER
 network-generation-method
 network-generation-method
 "deterministic-breakdown" "random-breakdown" "biological" "cost-driven" "road-connexion" "random"
-2
+1
 
 SLIDER
 884
@@ -717,7 +715,7 @@ linear-aggreg-population-coef
 linear-aggreg-population-coef
 0
 1
-0
+0.5
 0.1
 1
 NIL
@@ -732,7 +730,7 @@ linear-aggreg-distance-to-road-coef
 linear-aggreg-distance-to-road-coef
 0
 1
-0
+0.5
 0.1
 1
 NIL
@@ -747,7 +745,7 @@ linear-aggreg-closeness-centrality-coef
 linear-aggreg-closeness-centrality-coef
 0
 1
-0
+0.5
 0.1
 1
 NIL
@@ -762,7 +760,7 @@ linear-aggreg-bw-centrality-coef
 linear-aggreg-bw-centrality-coef
 0
 1
-0
+0.5
 0.1
 1
 NIL
@@ -777,7 +775,7 @@ linear-aggreg-accessibility-coef
 linear-aggreg-accessibility-coef
 0
 1
-1
+0.5
 0.1
 1
 NIL
@@ -1081,7 +1079,7 @@ cost-tradeoff
 cost-tradeoff
 0
 0.1
-0.076
+0.05
 0.001
 1
 NIL
@@ -1095,8 +1093,8 @@ SLIDER
 max-network-size
 max-network-size
 0
-200
-150
+1000
+1000
 1
 1
 NIL
