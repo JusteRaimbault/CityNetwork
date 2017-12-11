@@ -75,6 +75,11 @@ write_graph(citationcore,file='HyperNetwork/data/UrbanGrowth/rawcore.gml',format
 
 ecount(citationcore)/(vcount(citationcore)*(vcount(citationcore)-1))
 
+# comparison values : from [Batagelj, 2003]
+vref = c(40,223,396,1059,1059,3084,3244,4470,6752,8843,8851)#,3774768)
+eref = c(60,657,1988,4922,4929,10416,31950,12731,54253,41609,25751)#,16522438)
+summary(eref / (vref*(vref-1)))
+
 ##
 # analysis of raw
 
@@ -136,7 +141,7 @@ citcomnames=list('22'='Urban Ecology','8'='Urban Sociology','16'='Housing Market
 V(citationcore)$citmemb = com$membership
 
 save(citation,citationcore,citcomnames,com,undirected_rawcore,file='HyperNetwork/HyperNetwork/processed/citation.RData')
-# 
+# load('HyperNetwork/HyperNetwork/processed/citation.RData')
 
 ## these communities are on the core ; for semantic shall we extend ?
 #  -> compare with full communities

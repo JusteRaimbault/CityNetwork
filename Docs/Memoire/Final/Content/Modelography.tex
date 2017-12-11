@@ -101,8 +101,6 @@ D'autre part, l'opération de construction du corpus permet déjà en elle-même
 %%%%%%%%%%%%%%%%%%%%
 \subsection{Modelography}{Modélographie}
 
-\comment[FL]{bien expliquer mais categories (?) dans figure 8 : curieux}
-
 Nous passons à présent à une analyse mixte basée sur ce corpus, inspirée par les résultats des sections précédentes précédents notamment pour la classification. Elle a pour but d'extraire et de décomposer précisément les ontologies, échelles et processus, puis d'étudier des liens possibles entre ces caractéristiques des modèles et le contexte dans lequel ils ont été introduits. Il s'agit ainsi de la meta-analyse en quelque sorte, que nous désignerons ici par modélographie. Pour ne pas froisser les puristes, il ne s'agit en effet pas d'une meta-analyse à proprement parler car nous ne combinons pas des analyses proches pour extrapoler des résultats potentiels d'échantillons plus grand. Notre démarche est proche de celle de \noun{Cottineau} dans~\cite{2016arXiv160606162C} qui rassemble les références ayant étudié quantitativement la loi de Zipf pour les villes, puis lie les caractéristiques des études aux méthodes utilisées et hypothèses formulées.
 
 
@@ -174,7 +172,8 @@ Il est intéressant pour notre question de répondre à la question ``qui fait q
 
 %%%%%%%%%%%%%
 \begin{table}
-\caption[Model type][Type de modèles]{\textbf{Model types.}\label{tab:modelography:what}}{\textbf{Types de modèles étudiés selon les différentes classifications.} Tables de contingence de la variable discrete donnant le type de modèle (réseau, territoire ou couplage fort), pour la classification a priori, la classification sémantique et la classification de citation.\comment[FL]{a etoffer}\label{tab:modelography:what}}
+\caption[Model type][Type de modèles]{\textbf{Model types.}\label{tab:modelography:what}}{\textbf{Types de modèles étudiés selon les différentes classifications.} Tables de contingence de la variable discrete donnant le type de modèle (réseau, territoire ou couplage fort), pour la classification a priori, la classification sémantique et la classification de citation.\label{tab:modelography:what}}
+%\comment[FL]{a etoffer}[ok avec etat de l'art ?]
 \begin{tabular}{|m{2cm}|m{2cm}m{2cm}m{2cm}m{2cm}m{2cm}|}
 \hline
 Discipline  &  economics & geography & physics & planning & transportation\\\hline
@@ -211,7 +210,7 @@ Pour répondre ensuite à la question du comment, on peut regarder les échelles
 
 Nous étudions à présent l'influence de divers facteurs sur les caractéristiques des modèles par des régressions linéaires simples. Dans une démarche de multi-modélisation, nous proposons de tester l'ensemble des modèles possible pour expliquer chacune des variables à partir des autres. Le nombre d'observations pour lesquelles toutes les variables sont renseignées est très faible, il s'agit de prendre en compte le nombre d'observations utilisées pour ajuster chaque modèle. D'autre part, les performances du modèle peuvent être caractérisées par des objectifs complémentaires. Suivant~\cite{igel2005multi}, nous appliquons une optimisation multi-objectif, pour maximiser simultanément la variance expliquée (R$^2$ ajusté dans notre cas) et l'information capturée (Critère d'information d'Akaike corrigé AICc\footnote{L'AIC est une mesure du gain d'information entre deux modèles, et permet d'éviter l'ajustement abusif par un nombre trop grand de paramètres. L'AICc est une version prenant en compte la taille de l'échantillon, la mesure variant significativement pour les petits échantillons.}). Celle-ci est effectuée conditionnellement au fait d'avoir le nombre d'observations $N>50$ (seuil fixé au regard de la distribution de $N$ sur l'ensemble des modèles). La procédure d'optimisation est détaillée en Appendice~\ref{app:sec:quantepistemo} pour chaque variable. L'échelle de temps et l'interdisciplinarité présentent des compromis difficiles à départager, et nous ajustons les deux candidats. Les autres variables présentent des solutions dominantes et nous n'ajustons qu'un seul modèle.
 
-\comment[JR]{clarifier modele / resultats - etoffer resultats}
+%\comment[JR]{clarifier modele / resultats - etoffer resultats}[-> surtout app]
 
 
 Les résultats complets des régressions sont donnés en Tab.~\ref{tab:quantepistemo:regressions}. Les échelles temporelle et d'espace, ainsi que l'année, sont les variables les mieux expliquées au sens de la variance. L'échelle de temps est influencée très significativement par le type de modèle : territoire qui diminue celle-ci, ou couplage fort qui l'augmente. Le fait d'être en physique influe également significativement, et élargit la portée temporelle des modèles. Au contraire, les approches d'ingénierie (souvent design optimal d'un réseau de transport) correspondent à une courte durée.
@@ -280,8 +279,6 @@ R$^{2}$ ajusté & 0.282 & 0.336 & 0.027 & 0.136 & 0.068 & 0.281 \\
 Nous concluons cette étude par des régressions et classification par Forêts Aléatoires, qui sont une méthode très flexible permettant de dégager une structure d'un jeu de données~\cite{liaw2002classification}. Pour compléter les analyses précédentes, nous proposons de l'utiliser pour déterminer les importances relatives des variables pour différents aspects. Nous utilisons à chaque fois des forêts de taille 100000, une taille de noeud de 1 et un nombre de variable échantillonnée en $\sqrt{p}$ pour la classification et $p/3$ pour la régression lorsque $p$ est le nombre total de variables. Pour classifier le type de modèle, nous comparons les effets de la discipline, de la classe sémantique et de la classe de citation. Cette dernière est la plus importante avec une mesure relative de 45\%, tandis que la discipline compte pour 31\% et le sémantique pour 23\%. Ainsi, le cloisonnement disciplinaire se retrouve, tandis que le sémantique et donc en partie les ontologies, est le plus ouvert. Cela nous encourage dans notre démarche de sortir de ce cloisonnement. Lorsqu'on applique une regression de forêt sur l'interdisciplinarité, toujours avec ces trois variables, on constate qu'elles expliquent 7.6\% de la variance totale, ce qui est relativement faible, témoignant d'une disparité de sémantique sur l'ensemble du corpus indépendamment des différentes classifications. Dans ce cas, la variable la plus importante est la discipline (39\%) suivie par le sémantique (31\%) et la citation (29\%), ce qui confirme que le journal visé conditionne fortement le comportement de langage employé. Cela nous alerte sur le danger de perte de richesse sémantique lorsqu'on s'adresse à un public particulier. Ainsi, nous avons pu dégager certaines structures et régularités des modèles nous concernant, qui seront riches d'enseignements lors de la construction de nos modèles.
 
 
-\comment[JR]{que tire-t-on de tout ça ?}
-
 
 %%%%%%%%%%%%%%%%%%%%
 \subsection{Discussion}{Discussion}
@@ -303,7 +300,7 @@ Un développement possible pourrait consister en la mise en place d'une approche
 Nous pouvons résumer les points principaux issus de cette méta-analyse qui joueront sur notre attitude et nos choix de modélisation. Tout d'abord, la présence interdisciplinaire des approches effectuant un couplage fort confirme notre besoin de faire des ponts et de coupler les approches, et confirme également rétrospectivement les conclusions de~\ref{sec:quantepistemo} sur les conséquences du cloisonnement des disciplines en terme de modèles formulés. Ensuite, l'importance du vocabulaire des réseaux dans une grande partie des modèles nous poussera à confirmer cet ancrage. La spécificité des approches TOD et d'accessibilité, assez proches des modèles LUTI, seront secondaires pour nous. La portée restreinte des travaux issus de la physique, confirmée par la majorité des critères étudiés, nous pousse à nous méfier de ces travaux et de l'absence de sens thématique aux modèles. La richesse des échelles temporelles et spatiale couvertes par les modèles géographiques et économiques nous confirme l'importance de varier celles-ci dans nos modèles, idéalement de parvenir à des modèles multi-échelles. Enfin, les importances relatives des variables de classification sur le type de modèle vont également dans le sens de ponts interdisciplinaires pour croiser les ontologies.
 
 
-
+%\comment[JR]{que tire-t-on de tout ça ?}
 
 
 
