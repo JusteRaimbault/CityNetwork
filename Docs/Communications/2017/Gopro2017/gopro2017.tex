@@ -52,7 +52,7 @@
 
 \begin{document}
 
-% Modélisation de la morphogenèse urbaine: vers une intégration des territoires et des réseaux
+% Mod�lisation de la morphogenèse urbaine: vers une intégration des territoires et des réseaux
 
 \title{Modeling Urban Morphogenesis: towards an integration of territories and networks}
 
@@ -67,6 +67,7 @@ $^{2}$UMR-T IFSTTAR 9403 LVMT
 
 
 \date{GoPro 2017\\\smallskip
+ENS Lyon\\\smallskip
 December 14th 2017
 }
 
@@ -135,29 +136,74 @@ $\rightarrow$ first use in 1871, large peak in usage between 1907-1909, increase
 
 
 
-
-
-\sframe{What is Morphogenesis ? Examples}{
-
-% illustrations : ants, geomorphology, neurons, self-assembly ; ARBOTRON ; paper nature aile avion
-% all from netlogo library ? would be nice illustration of generative nature
-
-
-% remark : do not put classical biological example to show how it has percolated to other fields
-
-\vspace{-0.3cm}
-
-\includegraphics[width=\textwidth,height=0.82\textheight]{figures/intro_examples}
+\sframe{Modeling Urban Morphogenesis}{
 
 \justify
 
-\vspace{-0.5cm}
+\cite{makse1998modeling} correlated growth; 
 
-\footnotesize\textit{Sources (in order by column). Ants, Erosion, Game of Life: NetLogo Library ; Arbotron \cite{jun2005formation}; Industrial design \cite{Aage:2017aa}; Swarm chemistry \cite{sayama2007decentralized}}
-% sources : ants netlogo ; erosion netlogo ; arbotron 
-%  inge : 
+\smallskip
+
+\cite{10.1371/journal.pone.0133780} multi-scale migration and percolation; 
+
+\smallskip
+
+\cite{bonin2012modele} qualitative differentiation of urban function; 
+
+\smallskip
+
+\cite{achibet2014model} procedural model at the micro-scale 
+
+\smallskip
+
+\cite{bonin2014modelisation} urban economics morphogenesis, only work to explicitly mention the morphogen.
 
 }
+
+
+
+\sframe{Cellular Automata : exemples}{
+
+\begin{figure}
+\subfloat[Microeconomic model of sprawl, \cite{DBM11}]{
+\includegraphics[trim=5cm 0cm 0cm 7cm,scale=0.23]{figures/rbd_dbmexample}}
+\subfloat[Land use simulations, \cite{van2012activity}]{
+\includegraphics[trim=0cm 0cm 0cm 7cm,scale=0.27]{figures/rbd_exampleWhite}}
+\end{figure}
+
+\smallskip
+
+\cite{DBM11} micro-economic model of sprawl
+
+\smallskip
+
+\cite{peeters2009space} 1D CA to show
+path-dependence of settlements patterns
+
+}
+
+
+%
+%\sframe{CA in Urban Planning}{
+%\begin{itemize}
+%\vfill{}
+%
+%\item \begin{justify}First introduction for reproduction of fractal urban form and land-use patterns in \cite{white1993cellular,batty1997cellular}.\end{justify}
+%\vfill{}
+%\item \begin{justify}Since then, numerous applications, e.g. coupling with GIS in quantitative
+%geography, calibration on real land-use configurations (review in
+%\cite{iltanen2012cellular}).\end{justify}
+%\vfill{}
+%\item \begin{justify}Examples: \cite{DBM11} micro-economic model of sprawl; \cite{peeters2009space} 1D CA to show
+%path-dependence of settlements patterns;
+%\cite{Wu96alinguistic} real-time rules for sustainable development.\end{justify}
+%\end{itemize}
+%}
+
+
+
+
+
 
 
 \sframe{Which models for Urban Morphogenesis ?}{
@@ -167,15 +213,19 @@ $\rightarrow$ first use in 1871, large peak in usage between 1907-1909, increase
 
 \justify
 
-\begin{columns}
-\column{0.4\textwidth}
-\centering
-\includegraphics[width=\textwidth]{figures/intro_RBD_lattice}\\
-\footnotesize\textit{Example: a basic hybrid model based on elementary processes for density and network \cite{raimbault2014hybrid}}
-\column{0.57\textwidth}
-\justify
-
+%\begin{columns}
+%\column{0.4\textwidth}
+%\centering
+%\includegraphics[width=\textwidth]{figures/intro_RBD_lattice}\\
+%\footnotesize\textit{Example: a basic hybrid model based on elementary processes for density and network \cite{raimbault2014hybrid}}
+%\column{0.57\textwidth}
+%\justify
 %\vspace{-1cm}
+
+
+The relation between the form and the function is a crucial feature in Urban Morphogenesis models.
+
+\medskip
 
 $\rightarrow$\textit{At the crossroad between Urban Simulation and Artificial Life, few models try to integrate and explain the link between Urban Form and Function}
 
@@ -183,13 +233,77 @@ $\rightarrow$\textit{At the crossroad between Urban Simulation and Artificial Li
 
 $\rightarrow$\textit{Importance of parcimonious, stylized models: modeling as a tool to understand processes}
 
-\end{columns}
 
 \bigskip
 
-\textbf{Research Objective : } Explore simple models to capture morphogenesis based on abstract representation of urban processes; test their ability to reproduce existing urban systems.
+\textbf{Research Objective : } Explore simple models to capture morphogenesis based on abstract representation of urban processes; test their ability to reproduce existing urban systems or to optimize new systems from scratch
 
 
+
+}
+
+
+%%%%%%%%%%%%%%%%%%%%
+%%%% Network Morphogenesis
+
+
+
+\sframe{Network morphogenesis model}{
+
+Model studied by~\cite{TeroAl10} : exploration and reinforcement by a slime mould searching for ressources
+
+\medskip
+
+Settings :
+\begin{itemize}
+	\item Initial homogeneous network of tubes $ij$ of length $L_{ij}$, variable diameter $D_{ij}$, carrying a flow $Q_{ij}$.
+	\item Nodes $i$ with a pressure $p_i$.
+	\item $N$ nodes are origin/destination points : randomly at each step one becomes source $p_{i_+}=I_0$ and one other sink $p_{i_-}=-I_0$
+\end{itemize}
+
+
+}
+
+\sframe{Network evolution}{
+
+At each iteration :
+\begin{enumerate}
+	\item Determination of flows with Kirchoff's law (electrostatic analogy) : Ohm's law $Q_{ij}=\frac{D_{ij}}{L_{ij}}\cdot(p_{i}-p_{j})$ and conservation of flows $\sum_{j\rightarrow i}Q_{ij} = 0 , \sum_{j\rightarrow i_\pm}Q_{i_{\pm}j} = \pm I_0$
+	\item Evolution of diameters ($\gamma$ reinforcement parameter) by
+	\[
+	\frac{dD_{ij}}{dt}=\frac{\left|Q_{ij}\right|^{\gamma}}{1+\left|Q_{ij}\right|^{\gamma}}-D_{ij}
+	\]
+\end{enumerate}
+
+
+}
+  
+\sframe{Network evolution}{
+
+$\rightarrow$ Extraction of the final network after convergence given a threshold parameter for diameters (bimodal final distributions)
+\medskip
+$\rightarrow$ Multi-scale model : diameters are constant during an iteration to obtain equilibrium flows
+%\textit{Implémentation en NetLogo ouverte~\cite{impl}}
+}
+
+
+
+
+\sframe{Indicators}{
+
+Behavior of the model evaluated with performance indicators for generated network $(V_f,E_f)$, that are contradictory objectives :
+          \bigskip
+          \begin{itemize}
+          \item Construction costs $c=\sum_{ij\in E_f}D_{ij}(t_f)$
+          \bigskip
+          \item \begin{justify}Average performance~\cite{banos2012towards}
+          \[
+          v=\frac{1}{|V_f|^2}\sum_{i,j\in V_f}\frac{d_{i\rightarrow j}}{||\vec{i}-\vec{j}||}
+          \]
+          \end{justify}
+          \bigskip
+          \item Robustness (\textit{Network Trip Robustness} index~\cite{sullivan2010identifying})
+          \end{itemize}
 
 }
 
@@ -198,80 +312,94 @@ $\rightarrow$\textit{Importance of parcimonious, stylized models: modeling as a 
 
 
 
+\sframe{Sensitivity analysis}{
 
-%%%%%%%%%%%%%%%%%%%%
-%%%% Network Morphogenesis
+\begin{columns}[t]
+        \begin{column}{.47\textwidth}
+                    
+          \includegraphics[width=0.5\columnwidth]{figures/slimemould_graphe_cout}
+          \includegraphics[width=0.5\columnwidth]{figures/slimemould_graphe_NTR}\\
+          \bigskip
+          \textit{Sensitivity of indicators to parameters $(N,I_0)$.}
+          
 
-%Modèle proposé dans~\cite{TeroAl10} : principe \emph{d'exploration puis renforcement} pour une moisissure à la recherche de ressources.
-%          
-%          \bigskip
-%          
-%          Etude de l'aspect renforcement : réseau initial homogène de tubes $ij$, longueur $L_{ij}$, diamètre variable $D_{ij}$, traversés par un flux de fluide $Q_{ij}$. Sommets $i$ à la pression $p_i$. Un nombre de noeuds $N$ sont à desservir, parmi eux aléatoirement à chaque étape l'un est source $p_{i_+}=I_0$ et l'autre puits $p_{i_-}=-I_0$
-%          
-%          
-%          \bigskip
-%          \textit{Itération du modèle :}
-%          \begin{enumerate}
-%          \item Détermination des flux par lois de Kirchoff (analogie électrostatique, résolution d'un système fermé) : loi d'Ohm
-%          \begin{equation}
-%Q_{ij}=\frac{D_{ij}}{L_{ij}}\cdot(p_{i}-p_{j})
-%\end{equation}
-%et conservation des flux
-%\begin{equation}
-%\sum_{j\rightarrow i}Q_{ij} = 0 , \sum_{j\rightarrow i_\pm}Q_{i_{\pm}j} = \pm I_0
-%\end{equation}
-%
-%
-%
-%\item Evolution du diamètres de tubes ($\gamma$ paramètre de renforcement)
-%\begin{equation}
-%\frac{dD_{ij}}{dt}=\frac{\left|Q_{ij}\right|^{\gamma}}{1+\left|Q_{ij}\right|^{\gamma}}-D_{ij}
-%\end{equation}
-%          \end{enumerate}
-%
-%\bigskip
-%
-%Extraction du réseau final après convergence selon un paramètre de seuil de diamètre (distributions finales généralement bimodales).
-%
-%\bigskip 
-%
-%\textit{Modèle multi-échelle :} Dynamique des diamètres supposées constantes pendant l'itération pour obtenir les flux. 
-%
-%\bigskip 
-%
-%\textit{Implémentation en NetLogo ouverte~\cite{impl}}
-%
+          \end{column}
+          \begin{column}{.47\textwidth}
+          
+           
+            \includegraphics[width=0.5\columnwidth]{figures/slimemould_networkDense}
+          \includegraphics[width=0.5\columnwidth]{figures/slimemould_networkLessDense}\\
+          \bigskip
+          \begin{justify}
+          \textit{Sensitivity of network topology to reinforcement coefficient $\gamma$. Left : $\gamma \sim 1$, robust network. Right : $\gamma >> 1$, arborescent network.}
+          \end{justify}
+          \end{column}
+          \end{columns}
+      
+}
 
 
 
 
 
-% Application : Desserte Optimale}
-%        \vspace{-1.5cm}
-%          \begin{columns}[t]
-%        \begin{column}{.95\textwidth}
-%        \begin{itemize}
-%          \item \begin{justify}Mission de prospective pour la mairie de Romainville : itinéraire d'une navette intra-urbaine avec points de desserte imposés.\end{justify}
-%          \bigskip
-%          \item \begin{justify} Problème type voyageur de commerce, mais multi-objectif (coût, vitesse, robustesse) : la génération de réseau \emph{bottom-up} par application du modèle sur un réseau initial construit par données géographiques réelles (réseau de rues) donne une solution proche du front de Pareto.\end{justify}
-%          \end{itemize}
-%          \vspace{2cm}
-%          
-%          {
-%          \centering
-%          \includegraphics[width=0.32\columnwidth]{figures/tick1}
-%          \includegraphics[width=0.32\columnwidth]{figures/tick10}
-%          \includegraphics[width=0.32\columnwidth]{figures/tick20}\\
-%          \includegraphics[width=0.32\columnwidth]{figures/tick50}
-%          \includegraphics[width=0.32\columnwidth]{figures/tick101}
-%          \includegraphics[width=0.32\columnwidth]{figures/reseauFinal}\\
-%          \bigskip
-%          \textit{Convergence progressive du réseau vers le réseau optimal desservant les points fixés (en rouge), en partant d'un réseau initial à diamètres égaux (réseau de rues).}\bigskip
-%          
-%          }
-%
-%
+\sframe{Application : Corridor Optimal}{
+          
+Abstract application : \textit{Given a distribution of nodes to serve (sinks), what is the optimal corridor for an infrastructure at a larger scale (train or metro) for which stations are sources, in the sense of the multi-objective optimality of the local self-organized network ?}
 
+\medskip
+          
+$\rightarrow$ Heuristic exploration of an arborescent set of potential infrastructures
+
+\begin{columns}[t]
+    \begin{column}{.48\textwidth}
+
+	\includegraphics[width=0.5\textwidth,height=7cm]{figures/slimemould_implantationtree}
+\textit{Heuristic tree to explore infrastructures.}
+	\end{column}
+    \begin{column}{.48\textwidth}
+          \includegraphics[width=\columnwidth,height=7cm]{figures/slimemould_ImplantationTreeview}
+          
+          \textit{Example of network generation for a given infrastructure.}
+    \end{column}
+          
+\end{columns}
+          
+          
+}
+          
+          
+          
+\sframe{Pareto Optimisation}{
+          
+\centering
+\includegraphics[width=0.33\columnwidth]{figures/slimemould_implantationcntr}
+\includegraphics[width=0.33\columnwidth]{figures/slimemould_implantationntrspeed}
+\includegraphics[width=0.33\columnwidth]{figures/slimemould_paretosimplantation}
+          
+\textit{Pareto optimisation : projection of explored configurations in indicator space to obtain the Pareto front ; configuration corresponding to three optimal points.}
+          
+}
+
+
+
+\sframe{Application : Optimal Network Design}{
+
+$\rightarrow$ Mission of prospective for Romainville city : itinary of an intra-urban shuttle with imposed stops.
+
+\medskip
+
+$\rightarrow$ NP-hard problem similar to a Travelling Salesman Problem, but multi-objective (cost, speed, robustness). The bottom-up network generation applied on the initial street network gives a compromise solution.
+
+\includegraphics[width=0.32\columnwidth]{figures/slimemould_tick1}
+\includegraphics[width=0.32\columnwidth]{figures/slimemould_tick10}
+\includegraphics[width=0.32\columnwidth]{figures/slimemould_tick20}\\
+\includegraphics[width=0.32\columnwidth]{figures/slimemould_tick50}
+\includegraphics[width=0.32\columnwidth]{figures/slimemould_tick101}
+\includegraphics[width=0.32\columnwidth]{figures/slimemould_reseauFinal}\\
+
+\textit{Progressive convergence of the network towards an optimal network connecting the fixed points (in red), starting from the initial street network.}
+
+}
 
 
 
@@ -469,6 +597,394 @@ $\rightarrow$ Networks convey functional notions of centralities and accessibili
 
 
 
+
+
+
+
+
+
+%%%%%%%%%%%%%%%
+%%%% RBD model
+
+\sframe{A basic hybrid model}{
+
+
+\begin{itemize}
+
+\item \begin{justify}What is the influence of proximity on urban form? Proposition of modeling transportation
+network coupled with a Cellular Automaton in \cite{moreno2007conception,MBB09}.\end{justify}
+
+\item \begin{justify}We generalize and extend this model: from morphological to functional
+properties of the urban environment. We couple a Cellular Automaton with an evolving network.\\
+\textbf{Research question:} \textit{Is it possible to reproduce patterns of urban form with a model of urban development taking into account both transportation network and city scape, including form and function ?}\end{justify}
+
+\item \begin{justify}Our objective is to apply the model to a real case, by proposing a method for
+the optimization of planning on all possible functional configurations.
+\end{justify}
+
+\end{itemize}
+
+
+
+}
+
+
+
+\sframe{Model description : settings and agents}{
+\vfill{}
+
+\begin{itemize}
+\item Fixed agents: cells in a square lattice $(L_{i,j})_{1\leq i,j\leq N}$
+, occupied or not (function \textrm{$\ensuremath{\delta(i,j,t)\in\{0,1\}}$)}
+\end{itemize}
+\vfill{}
+
+\begin{itemize}
+\item Evolving euclidian network $G(t)=(V(t),E(t))$,
+including fixed city centers $C_{0}\subset V(0)$ for each an activity
+$a\in\{1,\ldots,a_{max}\}$ is defined (functional properties of the
+urban scape).
+\end{itemize}
+\vfill{}
+
+\begin{itemize}
+\item Heterogeneous explicative variables $(d_{k})_{1\leq k\leq K}$ defined
+on cells, with associated weights $(\alpha_{k})_{1\leq k\leq K}$
+(main parameters of the model), that are:
+
+\begin{itemize}
+\item $d_{1}$ the density around the cell (in a fixed radius $r$)
+\item $d_{2}$ the distance to the nearest road
+\item $d_{3}$ the distance to the nearest town center through the network
+\item \textrm{$d_{4}(i,j,t)=\left(\frac{1}{a_{\max}}\sum_{a=1}^{a_{\max}}d_{3}(i,j,t;a)^{p_{4}}\right)^{1/p_{4}}$
+}: integrated accessibility of activities
+\end{itemize}
+\end{itemize}
+\vfill{}
+}
+
+
+
+\sframe{Model workflow}{
+
+\includegraphics[scale=0.30]{figures/rbd_flowchart.png}
+
+}
+
+
+
+
+\sframe{Evolution rules}{
+
+At each time step:\vfill{}
+
+\begin{itemize}
+\item Sprawling of occupied urban structure. The best $N$ cells according
+to the value $v(i,j,t)=\frac{1}{\sum_{k}\alpha_{k}}\sum_{k=1}^{K}\alpha_{k}\;\frac{d_{k,\max}(t)-d_{k}(i,j,t)}{d_{k,\max}(t)-d_{k,\min}(t)}$
+are built.\vfill{}
+
+\item Adaptation of the network: when a new cell is built, if $d_{2}>\theta_{2}$, the cell is connected to the network by a new perpendicular
+road.\vfill{}
+
+\end{itemize}
+}
+
+
+\sframe{Evaluation functions}{
+
+\textit{\Large Objective Morphological indicators}{\Large \par}
+\begin{itemize}
+\item Integrated local density $ $$D(t)=\left(\frac{1}{\sum_{i,j}\delta(i,j,t)}\!\!\sum_{{\scriptstyle {i,j=1\atop {\scriptstyle \delta(i,j,t)\neq0}}}}^{N}\!\! d_{1}(i,j,t)^{p_{D}}\right)^{1/p_{D}}$
+\item Moran index (``polycentric'' character of a distribution of populated
+cells, \cite{tsai2005quantifying,lenechet:hal-00696445}): world decomposed
+in a grid of size $M$ ($1\ll M\ll N$ ), $(P_{i})_{1\leq i\leq M}$
+are populations in each part of the grid, then
+\[
+I(t)=\frac{M^{2}}{\sum_{\mu\neq\nu}1/d_{\mu\nu}}\frac{\sum_{\mu\neq\nu}(P_{\mu}-\overline{P})(P_{\nu}-\overline{P})/d_{\mu\nu}}{\sum_{\mu=1}^{M^{2}}(P_{\mu}-\overline{P})^{2}}
+\]
+
+\end{itemize}
+
+}
+
+
+
+\sframe{Evaluation functions}{
+
+\textit{\Large Performance indicators}{\Large \par}
+\begin{itemize}
+\item Network speed (\cite{banos2012towards}) $S(t)=\left(\frac{1}{\sum_{i,j}\delta(i,j,t)}\!\!\sum_{{\scriptstyle {i,j=1\atop {\scriptstyle \delta(i,j,t)\neq0}}}}^{N}\!\!\left(\frac{d_{3}(i,j,t)}{e_{3}(i,j,t)}\right)^{p_{S}}\right)^{1/p_{S}}$
+with $e_{3}(i,j,t)$ euclidian distance to nearest center
+\item Normalized functional accessibility $A(t)=\left(\frac{1}{\sum_{i,j}\delta(i,j,t)}\!\!\sum_{{\scriptstyle {i,j=1\atop {\scriptstyle \delta(i,j,t)\neq0}}}}^{N}\!\!\left(\frac{d_{4}(i,j,t)}{d_{4,\max}(t)}\right)^{p_{A}}\right)^{1/p_{A}}$
+\item Socio-economic segregation potential: run on the generated configuration
+of an economic residential ABM dynamics (\cite{schelling1969models},
+\cite{benenson1998multi}), which is strongly sensitive to spatial structure
+according to \cite{banos2012network}, calculation of the final spatialized
+segregation index $E$.
+\end{itemize}
+
+}
+
+
+
+\sframe{Examples of generated shapes}{
+
+%%manually reset sub float counter (why does it not ?)
+\setcounter{subfigure}{0}
+
+\begin{figure}
+\hspace*{-1cm}
+\subfloat[``A city can be a tree'', \cite{alexander1964city}]{
+\includegraphics[scale=0.25]{figures/rbd_TreeLikeCity}}
+\subfloat[Intermediate shape]{
+\includegraphics[scale=0.19]{figures/rbd_LinkedCenters_eqCoefs_MoreCells}}
+\subfloat[One center, no density]{
+\includegraphics[scale=0.23]{figures/rbd_bigWorld-distances}}
+\end{figure}
+
+
+}
+
+
+\sframe{Typology of structures}{
+
+\begin{columns}[c]
+
+\column{5.5cm}
+
+\includegraphics[trim=0cm 0cm 2cm 0cm,width=0.8\textwidth]{figures/rbd_CorbuEtablissements}
+
+
+\column{3cm}
+\includegraphics[width=0.92\textwidth]{figures/rbd_corbuDensity}\\
+\vspace{0.3cm}
+\includegraphics[width=0.92\textwidth]{figures/rbd_corbuLinearCiudad}
+
+\column{3cm}
+\includegraphics[width=1\textwidth]{figures/rbd_corbuRadiant}
+
+
+\end{columns}
+
+
+\textit{Parallel between Le Corbusier's typology of ``human settlements''
+and some generated structures}
+
+}
+
+
+\sframe{Morphological classification}{
+
+\begin{columns}
+\column{7.5cm}
+\begin{figure}
+\includegraphics[trim=0cm 0cm 0cm 1.7cm,width=1\textwidth]{figures/rbd_morpho}
+\end{figure}
+
+\column{4cm}
+\textit{Projection in the morphological plane of indicators; classification
+of some structures.}
+
+\end{columns}
+
+}
+
+
+
+
+\sframe{Statistical analysis}{
+
+\begin{centercolumns}%{}
+
+
+\column{5cm}
+
+
+\begin{figure}
+\includegraphics[trim=1cm 1cm 3cm 2cm,width=1\textwidth]{figures/rbd_goodHists2}
+\end{figure}
+
+\column{6cm}
+
+
+\textit{Statistical distributions of outputs for different points in parameter
+space.}
+
+
+\begin{itemize}
+\item Statistical study of the behavior of the model: is the output sensitive
+to initial spatial configurations?
+
+\item Internal robustness of the model
+
+\item Number of repetitions needed : $\ensuremath{n=(2\sigma\!\cdot\!1.96/0.05)^{2}\simeq60}$
+repetitions for 95\% confidence interval of width 0.05
+\end{itemize}
+\end{centercolumns}
+
+}
+
+
+\sframe{Exploration of the parameter space}{
+\begin{columns}
+
+\column{6cm}
+
+
+\begin{figure}
+\includegraphics[trim=1cm 4cm 1cm 7cm,width=1.1\textwidth]{figures/rbd_3DWithArrowsLast}
+\end{figure}
+
+\column{5cm}
+
+\textit{Sample surface plots of the evaluation functions.}
+
+
+\begin{itemize}
+\item Finer exploration of the $(\alpha_{k})$ parameter space: 4D-grid
+of step 0.2, what gives 1295 points.
+
+\item Expected results regarding speed and density.
+
+\item Emergent behavior: local competition between agents does not lead
+to the most efficient structure.
+\end{itemize}
+\end{columns}
+
+}
+
+
+%\sframe{Why are these explorations useful?}{
+%\begin{itemize}
+%\item \begin{justify}Demonstration of the robustness of the model and of the possibility to compare runs on different initial configurations (involving calculations on stochastic repetitions), behavior of outputs alongmoves in the parameter space. According to Banos \cite{banos2013HDR}, one of the requirements of quantitative simulations. \end{justify}
+%\vfill{}
+%
+%\item  \begin{justify}Other necessary points that we explored: influence of update type, size of the grid for Moran index, behavior of the economic ABM. \end{justify}
+%\end{itemize}
+%}
+
+
+\sframe{Economic ABM}{
+
+\begin{figure}
+\includegraphics[width=0.8\textwidth]{figures/rbd_ConvergenceSegreg}
+
+\textit{Time series of segregation index during a run of the economic ABM
+for different configurations.}
+\end{figure}
+}
+
+
+
+
+\sframe{Practical application: method}{
+
+\begin{itemize}
+\item \begin{justify}Fixing the spatial initial structure and the parameters, optimize
+on the possible distribution of activities among centers. Choice of
+parameters is crucial.\end{justify}
+\vfill{}
+
+\item \begin{justify}Importation of real GIS data: centers correspond to centroids of zones
+in a district, initial network to main roads. Some centers have fixed
+activity (stations), other can be 2 different ones (residential or
+tertiary).\end{justify}
+\vfill{}
+
+\item \begin{justify}Exploration of all possible configurations (possible here, $2^{8}=256$
+configurations), Pareto-plot of economic performance and accessibility.\end{justify}
+\end{itemize}
+
+}
+
+
+
+\sframe{Practical application}{
+
+\begin{figure}
+\includegraphics[height=0.5\textwidth]{figures/rbd_RasterAtlantisLast}\hspace{0.5cm}\includegraphics[height=0.5\textwidth]{figures/rbd_ExampleActivitiesRealSituation}
+\end{figure}
+
+\textit{Practical application.} Optimizing the distribution of activities over
+urban centers.
+
+}
+
+
+\sframe{Application : Pareto optimization}{
+\begin{columns}%{}
+
+
+\column{7cm}
+
+
+\begin{figure}[t] \centering \includegraphics[trim=0mm 0mm 10mm 10mm, clip, width=\columnwidth]{figures/rbd_ParetoLastGoodRealPoint}   \end{figure}
+
+
+\column{5cm}
+
+
+\textit{Scatterplot of all configurations in the $(H,A)$ morphological
+plane.}
+
+
+Real situation in blue, Pareto front in red. Color gradient follows
+level of heterogeneity from low (black) to high (yellow). It suggests
+the performance of functional heterogeneity, often recommended by
+planners today.
+
+\end{columns}
+
+}
+
+
+%\sframe{Discussion}{
+%
+%\vfill{}
+%
+%\begin{itemize}
+%\item \begin{justify}Many questions are still open: do we have the good scale of application? (although it should be scale-free), did we isolate the dominant
+%processes? (cf \cite{2013arXiv1309.3961L})\end{justify}
+%\vfill{}
+%
+%\item \begin{justify}Local scope : is the system isolated? Economic processes are implicitly
+%taken into account.\end{justify}
+%\vfill{}
+%
+%\item \begin{justify}Towards a more operational model? Difficulty to calibrate conceptual
+%CA models on real data \cite{maria2003stochastic}\end{justify}
+%\vfill{}
+%
+%\item \begin{justify}Complex coupling with economic ABM \cite{varenne2013modeliser}?
+%Compromise between complexity level and model performance always difficult
+%to find.\end{justify}
+%\end{itemize}
+%}
+%
+%\begin{itemize}
+%\item \begin{justify}Interesting qualitative and quantitative results: reproduction of
+%Le Corbusier's typology; assessment of relative performance of urban
+%mixity \cite{mangin2004ville} .\end{justify}
+%\vfill{}
+%
+%\item \begin{justify}Can be seen as going in the sense of the emergence of a rigourous
+%``evidence-based urbanism'', or ``quantitative urbanism''\\(\cite{portugali2012complexity}).\end{justify}
+%\end{itemize}
+% quite naive three years ago...
+
+
+
+\sframe{Causality regimes between the network and the city}{
+
+\includegraphics[height=\textheight]{figures/rbd_4-2-2-fig-causalityregimes-exrdb.jpg}
+
+}
+
+
+
+
+
+
 \sframe{A Morphogenesis Model of co-evolution}{
 
 \justify
@@ -628,6 +1144,33 @@ $\rightarrow$ Link between \emph{co-evolution regime} and morphogenetic properti
 \includegraphics[width=0.4\textwidth,height=0.55\textheight]{figures/coevol_cluster-params}
 
 \footnotesize\textit{(Left) Lagged correlation profiles of cluster centers; (Right) Distribution of regimes across parameter space}
+
+}
+
+
+
+
+
+
+\sframe{What is Morphogenesis ? Examples}{
+
+% illustrations : ants, geomorphology, neurons, self-assembly ; ARBOTRON ; paper nature aile avion
+% all from netlogo library ? would be nice illustration of generative nature
+
+
+% remark : do not put classical biological example to show how it has percolated to other fields
+
+\vspace{-0.3cm}
+
+\includegraphics[width=\textwidth,height=0.82\textheight]{figures/intro_examples}
+
+\justify
+
+\vspace{-0.5cm}
+
+\footnotesize\textit{Sources (in order by column). Ants, Erosion, Game of Life: NetLogo Library ; Arbotron \cite{jun2005formation}; Industrial design \cite{Aage:2017aa}; Swarm chemistry \cite{sayama2007decentralized}}
+% sources : ants netlogo ; erosion netlogo ; arbotron 
+%  inge : 
 
 }
 
@@ -828,20 +1371,6 @@ Thom classified possible topologies for $K$ depending on the dimension of $W$.
 }
 
 
-
-\sframe{Modeling Urban Morphogenesis}{
-
-\justify
-
-\cite{makse1998modeling} correlated growth; 
-
-\cite{10.1371/journal.pone.0133780} multi-scale migration and percolation; 
-
-\cite{bonin2012modele} qualitative differentiation of urban function; 
-
-\cite{achibet2014model} procedural model at the micro-scale 
-
-}
 
 
 
@@ -1166,12 +1695,9 @@ Adding new links with biological heuristic:
 \begin{frame}[allowframebreaks]
 \frametitle{References}
 \bibliographystyle{apalike}
-\bibliography{/Users/juste/ComplexSystems/CityNetwork/Biblio/Bibtex/CityNetwork,biblio,biblio_morphogen}
+\bibliography{/Users/juste/ComplexSystems/CityNetwork/Biblio/Bibtex/CityNetwork,biblio,biblio_morphogen,ccupd,global,projetCSMS,dynamite}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
 
 
 
