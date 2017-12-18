@@ -589,7 +589,7 @@ gamma-cobb-douglas-a
 gamma-cobb-douglas-a
 0
 1
-0.9
+0.95
 0.01
 1
 NIL
@@ -604,7 +604,7 @@ beta-discrete-choices
 beta-discrete-choices
 0
 5
-1.25
+1.35
 0.05
 1
 NIL
@@ -930,8 +930,8 @@ road-length
 road-length
 0
 20
-2
-1
+0.5
+0.5
 1
 NIL
 HORIZONTAL
@@ -945,7 +945,7 @@ SLIDER
 #-explorations
 0
 1000
-5
+105
 1
 1
 NIL
@@ -960,7 +960,7 @@ lambda-accessibility
 lambda-accessibility
 0
 0.1
-0.005
+0.003
 0.001
 1
 NIL
@@ -991,8 +991,8 @@ SLIDER
 total-time-steps
 total-time-steps
 0
-50
-15
+10000
+10000
 1
 1
 NIL
@@ -1016,7 +1016,7 @@ CHOOSER
 game-type
 game-type
 "random" "simple-nash" "discrete-choices"
-1
+0
 
 TEXTBOX
 174
@@ -1158,7 +1158,7 @@ collaboration-cost
 collaboration-cost
 0
 0.001
-5.0E-4
+8.6E-4
 1e-6
 1
 NIL
@@ -1237,7 +1237,7 @@ NIL
 SLIDER
 6
 614
-119
+154
 647
 ext-employments-proportion-of-max
 ext-employments-proportion-of-max
@@ -1460,7 +1460,7 @@ SWITCH
 565
 evolve-network?
 evolve-network?
-0
+1
 1
 -1000
 
