@@ -16,80 +16,80 @@
 extensions[matrix table context nw gradient numanal gis morphology]
 
 __includes [
-  
+
   ; main
   "main.nls"
-  
+
   ; setup
   "setup.nls"
-  
+
   ;;;;;;;;;
   ;; main modules
   ;;;;;;;;;
-  
+
   ;; transportation
   "transportation.nls"
-  
+
   ;; luti
   "luti.nls"
-  
+
   ;; governance
   "governance.nls"
-  
+
   ;;;;;;;;
   ; agents
   ;;;;;;;;
-  
+
   ; mayors
   "mayor.nls"
-  
+
   ; patches
   "patches.nls"
-  
+
   ;;;;;;;;
   ; transportation network
   ;;;;;;;;
-  
+
   ; network
   "network.nls"
-  
+
   ;;;;;;;;;
   ; functions
   ;;;;;;;;;
-  
+
   ; functions to update distance matrices
   "distances.nls"
-  
+
   ; accessibilities
   "accessibilities.nls"
-  
+
   ;;;;;;;;;;
   ; display
   ;;;;;;;;;;
-  
+
   "display.nls"
-  
-  
+
+
   ;;;;;;;;;;
   ; indicators
   ;;;;;;;;;;
-  
+
   "indicators.nls"
-  
-  
+
+
   ;;;;;;;;;;
   ; Experiments
   ;;;;;;;;;;
-  
+
   "experiments.nls"
-  
-  
+
+
   ;;;;;;;;;;
   ;; utils
   ;;;;;;;;;;
-  
+
   ; Q : package utils subpackages or all utils to have a simpler use ?
-  
+
   "utils/math/SpatialKernels.nls"
   "utils/misc/List.nls"
   "utils/misc/Types.nls"
@@ -105,160 +105,162 @@ __includes [
   "utils/misc/String.nls"
   "utils/math/Statistics.nls"
   "utils/math/EuclidianDistanceUtilities.nls"
-  
+
   ;;;;;;;;;;;
   ;; Tests
   ;;;;;;;;;;;
-  
+
   "test/test-distances.nls"
   "test/test-experiments.nls"
-  
+
 ]
 
 
 
 
 globals[
-  
+
   ;;;;;;;;;;;;;
   ;; Setup params
   ;;;;;;;;;;;;;
-  
+
   ; initial number of territories
   ;#-initial-territories
-  
+
   ; spatial distribution params
   ;actives-spatial-dispersion
   ;employments-spatial-distribution
-  
+
   ;; global employments and actives list
   patches-employments
   patches-actives
-  
+
   ;; convergence variables
   diff-actives
   diff-employments
-  
+  rel-diff-actives
+  rel-diff-employments
+
   ; utility : cobb-douglas parameter
   ;gamma-cobb-douglas
-  
+
   ; relocation : discrete choice parameter
   ;beta-discrete-choices
-  
+
   ; governor of the region : particular mayor
   regional-authority
-  
-  
-  
+
+
+
   positions-file
   ext-file
   setup-type
-  
+
   external-facility
-  
+
   mayors-coordinates
   ext-position
-  
-  
+
+
   with-externalities?
-  
+
   ext-growth-factor
-  
+
   ;;;;;;;;;;;;;
   ;; Transportation
   ;;;;;;;;;;;;;
-  
+
   ;; transportation flows \phi_ij between patches
   flow-matrix
-  
+
   ;; congestion in patches
   ; list ordered by patch number
   patches-congestion
-  
+
   ;; maximal pace (inverse of speed) in the transportation network
   ;network-max-pace
-  
+
   lambda-flows
-  
-  
-  
+
+
+
   ;;;;;;;;;;;;;
   ;; governance
   ;;;;;;;;;;;;;
-  
+
   collaborations-wanted
   collaborations-realized
   collaborations-expected
-  
-  
-  
+
+
+
   ;;;;;;;;;;;;;
   ;; Cached distances matrices
   ;;
   ;;  updated through dynamic programming rules
   ;;;;;;;;;;;;;
-  
+
   ;; Matrix of euclidian distances between patches
   ; remains unchanged
   euclidian-distance-matrix
-  
+
   ;; network distance (without congestion)
   network-distance-matrix
-  
+
   ;; effective distance
   ;  - with congestion in network -
   effective-distance-matrix
-  
+
   nw-access-table
-  
+
   ;; cached shortest paths -> updated same time as distance
   ; stored as table (num_patch_1,num_patch_2) -> [path-as-list]
   ;
   ; in network
   network-shortest-paths
-  
+
   ;; list of nw patches
   nw-patches
-  
+
   ;; number of patches
   #-patches
-  
+
   ;; for patches in nw, table caching closest nw inters (i.e. [end1,end2] of my-link )
   closest-nw-inters
-  
+
   ;; network intersections
   nw-inters
-  
+
   ; overall
   ; stored as table (num_patch_1,num_patch_2) -> [[i,i1],[i1,i2],...,[in,j]] where couples are either (void-nw) or (nw-nw)
   ; then effective path is [ik->i_k+1] or [ik->_nw i_k+1]
   effective-shortest-paths
-  
+
   ;;
   ; maximal distance in the world
   dmax
-  
+
   network-clusters
   network-clusters-connectors
-  
-  
-  
+
+
+
   ;;;;;;;;;;;;;
   ;; Utils
   ;;;;;;;;;;;;;
-  
+
   ; log level : defined in chooser
   ;log-level
-  
-  
+
+
   ;;;;;;;;;;;;;
   ;; Tests
   ;;;;;;;;;;;;;
-  
+
   gridor
-  
-  
-  
+
+
+
   ;;;;;;;;;;;;;;;
   ;;;;;;;;;;;;;
   ;; HEADLESS
@@ -277,6 +279,7 @@ globals[
   patches-display ; no init in headless
   network-min-pace
   euclidian-min-pace
+  network-speed
   congestion-price
   game-type
   collaboration-cost
@@ -286,16 +289,16 @@ globals[
   infra-snapping-tolerance
   construction-cost
   beta-dc-game
-  
+
   initial-max-acc
-  
+
   total-time-steps
   headless?
   failed
-  
+
   to-construct
-  
-  
+
+
   gis-network-file
   gis-extent-file
   gis-centers-file
@@ -303,88 +306,88 @@ globals[
   gis-economic-areas-file
   gis-governed-patches-file
   gis-population-raster-file
-  
+
   world-size
-  
+
   seed
-  
+
   initial-nw?
-  
+
   mayors-populations
   mayors-employments
   mayors-names
-  
+
   target-network-file
-  
+
   setup-from-world-file?
-  
+
   link-distance-function
-  
+
   conf-file
   tracked-indicators
   history-indicators
   evolve-network?
   evolve-landuse?
-  
+
   shortest-paths
   nw-relative-speeds
   nw-distances
-  
+
 ]
 
 
 patches-own [
-  
+
    ; number of actives on the patch
   actives
-  
+
   ; number of jobs on the patch
   employments
-  
+
   ; number of the patch (used as index in distance matrices)
   number
-  
+
   ; pointer to governing mayor
   governing-mayor
-  
+
   ; actives and employment
   ; do not need mobile agents as deterministic evolution, considering at this time scale that random effect is averaged
   ;  on the contrary to transportation infrastructure evolution, that evolves at a greater scale.
   ;  -> patch variables and not agents
-  
- 
-  
-  
+
+
+
+
   ;;;;;
   ;; utilities and accessibilities
   ;;;;;
-  
+
   ; accessibility of jobs to actives
   a-to-e-accessibility
-  
+
   ; accessibility of actives to employments
   e-to-a-accessibility
-   
+
   prev-accessibility
-  current-accessibility 
-   
+  current-accessibility
+
   ; travel distances
   a-to-e-distance
   e-to-a-distance
-   
+
   ; utilities
   ; for actives
   a-utility
   ; for employments
   e-utility
-  
+
   ; form factor
   form-factor
-  
-  
-  sea? 
-  
-  
+
+
+  sea?
+
+
 ]
 
 
@@ -393,13 +396,13 @@ patches-own [
 breed[mayors mayor]
 
 mayors-own[
-  
+
   ; set of governed patches -> not needed ?
   ;governed-patches
-  
+
   ; wealth of the area
   wealth
-  
+
 ]
 
 
@@ -411,24 +414,24 @@ mayors-own[
 undirected-link-breed[transportation-links transportation-link]
 
 transportation-links-own [
-  
+
   transportation-link-length
-  
-  ; capacity of the link ; expressed as max trip per length unit 
+
+  ; capacity of the link ; expressed as max trip per length unit
   capacity
-  
+
   ; congestion : travels in the link
   congestion
-  
+
   ; speed in the link, deduced from capacity and congestion
   speed
-  
+
   age
-  
+
   status
-  
+
   bw-centrality
-  
+
 ]
 
 ;; nodes of the transportation network
@@ -896,7 +899,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.3.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

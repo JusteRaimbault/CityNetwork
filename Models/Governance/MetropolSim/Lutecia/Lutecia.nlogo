@@ -604,7 +604,7 @@ gamma-cobb-douglas-a
 gamma-cobb-douglas-a
 0
 1
-0.85
+0.64
 0.01
 1
 NIL
@@ -619,7 +619,7 @@ beta-discrete-choices
 beta-discrete-choices
 0
 5
-1.25
+1.15
 0.05
 1
 NIL
@@ -874,9 +874,9 @@ SLIDER
 lambda-accessibility
 lambda-accessibility
 0
-0.1
-0.001
-0.001
+0.01
+3.0E-4
+0.0001
 1
 NIL
 HORIZONTAL
@@ -1230,8 +1230,8 @@ PLOT
 1322
 154
 morphology
-NIL
-NIL
+moran
+slope
 0.0
 0.1
 0.0

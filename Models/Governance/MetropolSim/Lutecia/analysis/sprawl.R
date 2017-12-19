@@ -4,6 +4,7 @@ library(reshape2)
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Governance/'))
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Governance/MetropolSim/Lutecia/analysis/functions.R'))
+source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 resdir = '20170523_sprawl/'
 #resdir = '20170522_realnonw/'
@@ -55,7 +56,7 @@ for(t in 1:finalTime){
 
 for(var in morphoActivesVars){morphoActivesTS[,var]<-(morphoActivesTS[,var]-min(morphoActivesTS[,var]))/(max(morphoActivesTS[,var])-min(morphoActivesTS[,var]))}
 pca = prcomp(morphoActivesTS[,morphoActivesVars])
-write.table(pca$rotation,file=paste0(resdir,"pca-morphoActives.csv"),col.names = T,row.names = T)
+#write.table(pca$rotation,file=paste0(resdir,"pca-morphoActives.csv"),col.names = T,row.names = T)
 
 morphoActivesTS=cbind(as.tbl(morphoActivesTS),as.tbl(as.data.frame(as.matrix(morphoActivesTS[,morphoActivesVars])%*%pca$rotation)))
 
@@ -81,6 +82,19 @@ ggsave(paste0(resdir,'morphoActiveTrajs_gammaCDA',gammaCDA,'_gammaCDE',gammaCDE,
   }}
 
 
+# phase diagrams of final configuration
+
+subresdir = paste0(resdir,'phasediagrams/');dir.create(subresdir)
+
+for(euclpace in unique(sres$euclpace)){for(conffile in unique(sres$synthConfFile)){
+  confname = strsplit(strsplit(conffile,"/",fixed=T)[[1]][3],'.',fixed=T)[[1]][1]
+  g=ggplot(sres[sres$synthConfFile==conffile&sres$time==finalTime&sres$euclpace==euclpace,])
+  g+geom_raster(aes(x=gammaCDA,y=gammaCDE,fill=PC1))+facet_grid(betaDC~lambdaAcc)+scale_fill_continuous(limits = c(min(sres$PC1),max(sres$PC1)))+
+    xlab(expression(gamma[A]))+ylab(expression(gamma[E]))+stdtheme
+  ggsave(paste0(subresdir,'PC1_',confname,'_euclpace',euclpace,'.png'),width=30,height=25,units='cm')
+  #g+geom_line(aes(x=gammaCDA,y=PC1,colour=gammaCDE,group=gammaCDE))+facet_grid(betaDC~lambdaAcc,scales = "free")+
+  #    xlab(expression(gamma[A]))+ylab("PC1")+stdtheme
+}}
 
 
 
