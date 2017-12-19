@@ -41,14 +41,14 @@ to relocate
     let a-dc-norm-factor sum [exp (beta-discrete-choices * a-utility)] of patches
     let e-dc-norm-factor sum [exp (beta-discrete-choices * e-utility)] of patches
   
-    set diff-actives 0 set diff-employments 0
-    ; diff used as a conv check var, not necessary.
+    set diff-actives 0 set diff-employments 0 set rel-diff-actives 0 set rel-diff-employments 0
   
     ask patches [
       let prev-a actives let prev-e employments
       set actives actives-number * exp (beta-discrete-choices * a-utility) / a-dc-norm-factor
       set employments employments-number * exp (beta-discrete-choices * e-utility) / e-dc-norm-factor
       set diff-actives diff-actives + abs (prev-a - actives) set diff-employments diff-employments + abs (prev-e - employments)
+      set rel-diff-actives rel-diff-actives + ((abs (prev-a - actives)) / actives) set rel-diff-employments rel-diff-employments + ((abs (prev-e - employments))/ employments)
       ; update global lists
       set patches-employments replace-item number patches-employments employments
       set patches-actives replace-item number patches-actives actives
