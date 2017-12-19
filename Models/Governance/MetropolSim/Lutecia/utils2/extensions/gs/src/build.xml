@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--BuidFile for project-->
+
+<project name="gs" default="jar" basedir=".">
+  <description>buildfile</description>
+
+  <!-- set global properties for this build -->
+  <property name="src" location="src/gswrapper"/>
+  <property name="build" location="build"/>
+  <property name="jar.dir"  value="/Applications/NetLogo/NetLogo 5.1.0/extensions/gs"/>
+  <property name="jar.dir.2"  value="/Users/Juste/Documents/ComplexSystems/Softwares/NetLogo/utils/extensions/gs"/>
+  <property name="main" value = ""/>
+  <property name="bib" location="bib"/>
+
+
+  <path id="classpath">
+  	  <pathelement location="/Applications/NetLogo/NetLogo 5.1.0/NetLogo.jar"/>
+  	  <pathelement location="bib/gs-core-1.2.jar"/>
+	  <pathelement location="bib/gs-algo-1.2.jar"/>
+  </path>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}/classes"/>
+  </target>
+
+  <target name="compile" depends="init" description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}/classes" classpathref="classpath" target="1.6" source="1.6"/>
+  </target>
+
+  <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <!--<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="build/classes" manifest="src/gswrapper/manifest.txt">
+        </jar>-->
+  	
+  	<jar destfile="${jar.dir}/${ant.project.name}.jar" 
+  	        basedir="build/classes"
+  		  manifest="src/gswrapper/manifest.txt">
+  	         <fileset dir="build/classes" includes="**/*.class" />
+  			<zipgroupfileset dir="${bib}" includes="**/*.jar" />
+  	   </jar>
+  	<jar destfile="${jar.dir.2}/${ant.project.name}.jar" 
+  	  	        basedir="build/classes"
+  	  		manifest="src/gswrapper/manifest.txt">
+  	  	         <fileset dir="build/classes" includes="**/*.class" />
+  	  	         <zipgroupfileset dir="${bib}" includes="**/*.jar" />
+  	  	   </jar>
+  	
+  	
+    </target>
+
+</project>
