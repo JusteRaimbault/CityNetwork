@@ -151,37 +151,40 @@ to-report compare-infrastructures [old-nw-config choices decidor patchset]
     let potential-infra network:new-infra ?
     verbose (word " ; " potential-infra)
     if potential-infra != nobody [
-    update-network potential-infra
-    update-effective-matrices
-    ; recompute new accessibilities
-    compute-patches-accessibilities
-    let new-acc mean-accessibility patchset
-    let news (list mean-accessibility patches)
-    foreach sort-on [who] (mayors with [self != regional-authority]) [set news lput (mean-accessibility patches with [governing-mayor = ?]) news]
+      distances:update-network potential-infra
+      update-effective-matrices
+      ; recompute new accessibilities
+      compute-patches-accessibilities
+      let new-acc mean-accessibility patchset
+      let news (list mean-accessibility patches)
+      foreach sort-on [who] (mayors with [self != regional-authority]) [set news lput (mean-accessibility patches with [governing-mayor = ?]) news]
     
     
-    ; check if better delta-acc
+      ; check if better delta-acc
     
-    verbose (word "∆Z=" (new-acc - old-acc))
-    verbose (word "mean-travel-distance = " mean-travel-distance)
+      verbose (word "∆Z=" (new-acc - old-acc))
+      verbose (word "mean-travel-distance = " mean-travel-distance)
     
-    ;if (new-acc - old-acc) < 0 [user-message ""]
+      ;if (new-acc - old-acc) < 0 [user-message ""]
     
-    if (new-acc - old-acc) > delta-acc [
-      set best-choice ?
-      set delta-acc (new-acc - old-acc)
-      set deltas [] let i 0 foreach news [set deltas lput (? - item i olds) deltas set i i + 1]
-    ]
+      if (new-acc - old-acc) > delta-acc [
+        set best-choice ?
+        set delta-acc (new-acc - old-acc)
+        set deltas [] let i 0 foreach news [set deltas lput (? - item i olds) deltas set i i + 1]
+      ]
     
-    ; kill the potential infra, will be reconstructed if indeed the best
-    ask potential-infra [ask both-ends [die] die]
+      ; kill the potential infra, will be reconstructed if indeed the best
+      ; debug
+      ;ask potential-infra [ask both-ends [hatch-ghost-transportation-nodes 1] let n1 one-of [ghost-transportation-nodes-here] of end1 let n2 one-of [ghost-transportation-nodes-here] of end2 ask n1 [create-ghost-transportation-link-with n2]]
+      ask potential-infra [ask both-ends [die] die]
     
     ]
     
     
     
     ; color patch here
-    color-patches
+    display:color-patches
+    ;ask patches [set pcolor black] ask patches with [member? number nw-patches] [set pcolor green] 
     
   ]
   
@@ -319,6 +322,8 @@ to construct-infrastructure [infras old-config]
   recall-nw-config old-config
   update-effective-matrices
   
+  
+  
   foreach infras [
     
     let infra ?
@@ -331,7 +336,7 @@ to construct-infrastructure [infras old-config]
     
       ; update matrices
       if new-link != nobody [
-        update-network new-link
+        distances:update-network new-link
       ]
     
       update-effective-matrices

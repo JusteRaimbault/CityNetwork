@@ -92,7 +92,7 @@ end
 ; @param new-link new link (entirely)
 ;
 ; Dynamic programming paradigm
-to update-network [new-link]
+to distances:update-network [new-link]
   
   verbose "Updating network paths and distances"
   
@@ -126,7 +126,7 @@ to update-network [new-link]
   ;; III) Update NW Patches
   ;;;;;;;;;;;;;;;
  
-  update-nw-patches new-nw-patches
+  distances:update-nw-patches new-nw-patches
   
   ;;;;;;;;;;;;;;;
   ;; IV) Update network distances
@@ -155,7 +155,10 @@ to-report get-new-inters [new-link]
   debug (word "getting new inters for link " new-link)
   
   ; get footprint of the link, all patches of it are connected
-  let new-nw-patches [] ask new-link [foreach footprint[ask ? [set new-nw-patches lput number new-nw-patches]]]
+  ;ask patches [set pcolor black]
+  let new-nw-patches [] ask new-link [foreach link:footprint[ask ? [
+        ;set pcolor blue
+        set new-nw-patches lput number new-nw-patches]]]
   
   ; find intersections : as footprint is ordered, new intersections are orderered too -> get extremities
   let new-inters (list (first new-nw-patches) (last new-nw-patches))
@@ -202,7 +205,7 @@ end
 to update-inters-recompute [new-inters new-nw-patches]
   foreach new-inters [set nw-inters lput ? nw-inters]
   let footprints []
-  ask transportation-links [let f [] foreach footprint[ask ? [set f lput number f]] set footprints lput f footprints]
+  ask transportation-links [let f [] foreach link:footprint[ask ? [set f lput number f]] set footprints lput f footprints]
   set closest-nw-inters table:make
   foreach footprints [
     let current-fp ? let current-inters []
@@ -579,7 +582,7 @@ end
 
 ;;
 ; Update nw patches variables
-to update-nw-patches [new-nw-patches]
+to distances:update-nw-patches [new-nw-patches]
    foreach new-nw-patches [
     set nw-patches lput ? nw-patches 
   ]
@@ -718,7 +721,10 @@ to update-network-distance-matrix [everything]
     foreach nw-patches[
       let p2 ?
       let d matrix:get network-distance-matrix p1 p2
-      let i1 table:get closest-nw-inters p1 let i2 table:get closest-nw-inters p2
+      let i1 [] let i2 []
+      ;carefully [
+      set i1 table:get closest-nw-inters p1 set i2 table:get closest-nw-inters p2
+      ;][print error-message inspect one-of patches with [number = p1] inspect one-of patches with [number = p2]]
       ifelse i1 = i2 or rev i1 = i2 or member? p1 (map first i2) or member? p2 (map first i1) [
         ; patches are on same link
         set d (matrix:get euclidian-distance-matrix p1 p2) * network-min-pace * ((network-pace (item p1 patches-congestion) (max patches-congestion)) + (network-pace (item p2 patches-congestion) (max patches-congestion))) / 2

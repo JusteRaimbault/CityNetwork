@@ -12,19 +12,19 @@
 
 
 to update-display
-  color-patches
+  display:color-patches
   update-nw-display
 end
 
 
 to display-target-fit
   set patches-display "accessibility"
-  color-patches
+  display:color-patches
   ask ghost-transportation-links [set color blue set thickness 0.2 ask both-ends [set color blue]]
 end
 
 
-to color-patches
+to display:color-patches
   ; basic
   if patches-display = "governance"[
      ask patches [set pcolor [color] of governing-mayor]
@@ -34,7 +34,8 @@ to color-patches
   ]
   ; cor variables
   if member? patches-display ["actives" "employments" "a-utility" "e-utility" "a-to-e-accessibility" "e-to-a-accessibility"] [
-     color-gradient-patches patches-display "green" "linear"
+     ;color-gradient-patches patches-display "green" "linear"
+     run (word "set mi min [" patches-display "] of patches set ma max [" patches-display "] of patches let me (mi + ma)/ 2 ask patches [ ifelse "patches-display " < me [set pcolor gradient:scale [[0 0 0] [0 255 0]] " patches-display " mi ma][set pcolor gradient:scale [[0 255 0][255 0 0]] " patches-display " mi ma]]")
   ]
   ; distances
   if member? patches-display ["mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"] [
@@ -59,6 +60,10 @@ to color-patches
     ] 
   ]
   
+  if patches-display = "network" [
+    ask patches [set pcolor black] ask patches with [member? number nw-patches] [set pcolor pink] 
+  ]
+  
   ask patches with [sea? = true] [set pcolor blue]
   
   
@@ -72,7 +77,9 @@ end
 to update-nw-display
   ask transportation-links [
     set thickness 0.4
-    set color gradient:scale [[255 0 0] [255 255 0]] age 0 (ticks + 1) 
+    ;set color gradient:scale [[255 0 0] [255 255 0]] age 0 (ticks + 1) 
+    set color gradient:scale [[0 0 255] [255 0 255]] age 0 (ticks + 1)
+    ask both-ends [set color [color] of myself]
   ]
 end
 

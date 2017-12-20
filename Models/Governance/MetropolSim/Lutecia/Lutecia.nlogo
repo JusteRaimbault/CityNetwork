@@ -482,7 +482,7 @@ SLIDER
 #-initial-territories
 0
 5
-3
+2
 1
 1
 NIL
@@ -494,7 +494,7 @@ BUTTON
 468
 549
 setup
-setup:setup
+setup:setup\n;luti luti display:color-patches
 NIL
 1
 T
@@ -512,7 +512,7 @@ CHOOSER
 680
 patches-display
 patches-display
-"governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance"
+"governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance" "network"
 1
 
 TEXTBOX
@@ -543,9 +543,9 @@ SLIDER
 actives-spatial-dispersion
 actives-spatial-dispersion
 0
-100
-1
-1
+10
+0.5
+0.1
 1
 NIL
 HORIZONTAL
@@ -604,7 +604,7 @@ gamma-cobb-douglas-a
 gamma-cobb-douglas-a
 0
 1
-0.64
+0.75
 0.01
 1
 NIL
@@ -619,7 +619,7 @@ beta-discrete-choices
 beta-discrete-choices
 0
 5
-1.15
+2
 0.05
 1
 NIL
@@ -763,39 +763,6 @@ TEXTBOX
 0.0
 1
 
-MONITOR
-1305
-398
-1373
-443
-nw patches
-length nw-patches
-17
-1
-11
-
-MONITOR
-1314
-446
-1368
-491
-eff paths
-length table:keys network-shortest-paths
-17
-1
-11
-
-MONITOR
-1315
-494
-1366
-539
-inters
-length nw-inters
-17
-1
-11
-
 CHOOSER
 678
 523
@@ -815,7 +782,7 @@ network-speed
 network-speed
 1
 50
-5
+6
 1
 1
 NIL
@@ -875,7 +842,7 @@ lambda-accessibility
 lambda-accessibility
 0
 0.01
-3.0E-4
+0.01
 0.0001
 1
 NIL
@@ -907,7 +874,7 @@ total-time-steps
 total-time-steps
 0
 10000
-10000
+8433
 1
 1
 NIL
@@ -997,46 +964,12 @@ __________________
 1
 
 BUTTON
-1312
-547
-1393
-580
-test dist
-setup:setup\ntest-network-effect (patches with [pxcor = 0])\n;check-effective-distance 1180 684
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
 139
 639
 214
 672
 update
-compute-patches-variables\ncolor-patches
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1312
-582
-1385
-615
-nw effect
-test-network-effect patches
+compute-patches-variables\ndisplay:color-patches
 NIL
 1
 T
@@ -1115,7 +1048,7 @@ gamma-cobb-douglas-e
 gamma-cobb-douglas-e
 0
 1
-0.85
+0.1
 0.05
 1
 NIL
@@ -1170,7 +1103,7 @@ seed
 seed
 -100000
 100000
-2
+0
 1
 1
 NIL
@@ -1216,10 +1149,10 @@ setup-from-world-file?
 INPUTBOX
 209
 10
-267
+316
 70
 conf-file
-setup/conf/real.conf
+setup/conf/synth_cross.conf
 1
 0
 String
@@ -1249,7 +1182,7 @@ SWITCH
 608
 evolve-network?
 evolve-network?
-1
+0
 1
 -1000
 
@@ -1283,10 +1216,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean-effective-distance"
 
 INPUTBOX
-270
-9
-344
-69
+305
+10
+379
+70
 target-network-file
 setup/target/network0.shp
 1

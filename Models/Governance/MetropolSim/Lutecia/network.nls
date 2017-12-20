@@ -21,7 +21,7 @@ to-report network:new-infra [coords]
   ; check if link is valid
   let valid? false
   ask new-link [
-    foreach footprint [ask ? [set valid? (valid? or not member? number nw-patches)]]
+    foreach link:footprint [ask ? [set valid? (valid? or not member? number nw-patches)]]
   ]
   ifelse valid? [
     report new-link
@@ -178,7 +178,7 @@ end
 to-report network:network-age
   let res table:make
   ask transportation-links [
-    foreach footprint [
+    foreach link:footprint [
       ask ? [
         table:put res number ([age] of myself)
       ]
@@ -194,7 +194,7 @@ end
 to network:update-network-age [old-nw-age]
   ask transportation-links [
     let new-age 0 let ages rep 0 (ticks + 1); ages memorized in a list
-    foreach footprint [
+    foreach link:footprint [
       ask ? [
          ifelse table:has-key? old-nw-age number [
            let a table:get old-nw-age number

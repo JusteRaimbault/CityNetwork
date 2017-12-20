@@ -38,7 +38,7 @@ end
 ;;Get the "print" of a link
 ;;ie the patches he intersects
 ;; @reports list of patches intersecting link
-to-report footprint
+to-report link:footprint
   ;;difficult, because can intersect small pieces of patch
   ;;and therefore "jump" over one if makes regular jumps
   ;;why not make very small regarding patch-size
@@ -46,14 +46,19 @@ to-report footprint
   ;;ok, take compromise, function will not be "exact"
   let e2 end2 let res []
   ask end1 [
+    ;ask patch-here [set pcolor blue]
     let obj [patch-here] of e2
+    ;ask obj [set pcolor blue]
     hatch 1 [
       set heading towards e2
       let current-patch patch-here
-      while [current-patch != obj and can-move? 0.05][
+      ;while [current-patch != obj and can-move? 0.05][
+      let deltad -1 let prevd distance obj
+      while [deltad < 0 and can-move? 0.05][
         ;;can't be blocked at one side of the world
         ;;because would be on finish !
-        fd 0.05
+        fd 0.05 let d distance obj set deltad d - prevd set prevd d
+        ;set color (distance obj) stamp
         if patch-here != current-patch [set res lput current-patch res set current-patch patch-here]
       ]
       ; do not forget to add the last one !
