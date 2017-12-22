@@ -873,6 +873,45 @@ fi
 if [ "$TARGET" == "--C" ] || [ "$TARGET" == "--all" ]
 then
 
+  ###############
+  ## Cybergeo Networks
+  FIGNAME=C-cybergeonetworks-authoring-studied
+  echo $FIGNAME
+  montage Figures/CybergeoNetworks/authoring.png Figures/CybergeoNetworks/studied.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  FIGNAME=C-cybergeonetworks-who
+  echo $FIGNAME
+  convert Figures/CybergeoNetworks/whoStudiesWho.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  FIGNAME=C-cybergeonetworks-commintern
+  echo $FIGNAME
+  montage Figures/CybergeoNetworks/CommunitiesVertical.png Figures/CybergeoNetworks/Semantic.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  FIGNAME=C-cybergeonetworks-cluster_hadri
+  echo $FIGNAME
+  montage Figures/CybergeoNetworks/Map_4_studied_hadri_dend.png Figures/CybergeoNetworks/Leg_4_studied_hadri.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:cybergeonetworks:cluster_juste
+  FIGNAME=C-cybergeonetworks-cluster_juste
+  echo $FIGNAME
+  montage Figures/CybergeoNetworks/Map_5_studied_juste_dend.png Figures/CybergeoNetworks/Leg_5_studied_juste.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:cybergeonetworks:cluster_poc
+  FIGNAME=C-cybergeonetworks-cluster_poc
+  echo $FIGNAME
+  montage Figures/CybergeoNetworks/Map_4_studied_poc_dend.png Figures/CybergeoNetworks/Leg_4_studied_poc.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:cybergeonetworks:complementarity
+  FIGNAME=C-cybergeonetworks-complementarity
+  echo $FIGNAME
+  convert Figures/CybergeoNetworks/Sankey_methods_Compared.png  -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:cybergeonetworks:modularities
+  FIGNAME=C-cybergeonetworks-modularities
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/CybergeoNetworks/modularities.pdf  -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
 
   ###############
   ## Synthetic Data

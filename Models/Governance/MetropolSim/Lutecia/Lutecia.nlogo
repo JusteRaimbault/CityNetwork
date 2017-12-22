@@ -482,7 +482,7 @@ SLIDER
 #-initial-territories
 0
 5
-2
+3
 1
 1
 NIL
@@ -544,7 +544,7 @@ actives-spatial-dispersion
 actives-spatial-dispersion
 0
 10
-0.5
+1.5
 0.1
 1
 NIL
@@ -604,7 +604,7 @@ gamma-cobb-douglas-a
 gamma-cobb-douglas-a
 0
 1
-0.75
+0.8
 0.01
 1
 NIL
@@ -697,7 +697,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-1
+0
 0.05
 1
 NIL
@@ -734,20 +734,20 @@ TEXTBOX
 1
 
 TEXTBOX
-4
-363
-207
-390
+7
+392
+210
+419
 _________________
 20
 0.0
 1
 
 TEXTBOX
-5
-389
-155
-407
+8
+418
+158
+436
 Transportation
 11
 0.0
@@ -774,10 +774,10 @@ log-level
 1
 
 SLIDER
-5
-410
-169
-443
+8
+439
+172
+472
 network-speed
 network-speed
 1
@@ -789,10 +789,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-5
-444
-169
-477
+8
+473
+172
+506
 congestion-price
 congestion-price
 0
@@ -812,7 +812,7 @@ road-length
 road-length
 0
 20
-2
+0.5
 0.5
 1
 NIL
@@ -827,7 +827,7 @@ SLIDER
 #-explorations
 0
 1000
-23
+53
 1
 1
 NIL
@@ -874,7 +874,7 @@ total-time-steps
 total-time-steps
 0
 10000
-8433
+6642
 1
 1
 NIL
@@ -898,7 +898,7 @@ CHOOSER
 game-type
 game-type
 "random" "simple-nash" "discrete-choices"
-0
+2
 
 TEXTBOX
 183
@@ -939,10 +939,10 @@ PENS
 "default" 1.0 0 -12186836 true "" "plot mean-accessibility patches"
 
 SLIDER
-5
-479
-168
-512
+8
+508
+171
+541
 lambda-flows
 lambda-flows
 0
@@ -988,8 +988,8 @@ SLIDER
 collaboration-cost
 collaboration-cost
 0
-0.001
-8.6E-4
+0.005
+0.00109
 1e-6
 1
 NIL
@@ -1048,7 +1048,7 @@ gamma-cobb-douglas-e
 gamma-cobb-douglas-e
 0
 1
-0.1
+0.8
 0.05
 1
 NIL
@@ -1152,7 +1152,7 @@ INPUTBOX
 316
 70
 conf-file
-setup/conf/synth_cross.conf
+setup/conf/synth_nonw.conf
 1
 0
 String
@@ -1216,9 +1216,9 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean-effective-distance"
 
 INPUTBOX
-305
+317
 10
-379
+391
 70
 target-network-file
 setup/target/network0.shp
@@ -1245,6 +1245,21 @@ Interactive
 11
 0.0
 1
+
+SLIDER
+1
+370
+176
+403
+relocation-rate
+relocation-rate
+0
+1
+0.16
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

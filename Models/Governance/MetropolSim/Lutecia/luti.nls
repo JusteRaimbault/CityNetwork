@@ -45,8 +45,8 @@ to relocate
   
     ask patches [
       let prev-a actives let prev-e employments
-      set actives actives-number * exp (beta-discrete-choices * a-utility) / a-dc-norm-factor
-      set employments employments-number * exp (beta-discrete-choices * e-utility) / e-dc-norm-factor
+      set actives ((1 - relocation-rate)* actives) + (relocation-rate * actives-number * exp (beta-discrete-choices * a-utility) / a-dc-norm-factor)
+      set employments ((1 - relocation-rate)* employments) + (relocation-rate * employments-number * exp (beta-discrete-choices * e-utility) / e-dc-norm-factor)
       set diff-actives diff-actives + abs (prev-a - actives) set diff-employments diff-employments + abs (prev-e - employments)
       set rel-diff-actives rel-diff-actives + ((abs (prev-a - actives)) / actives) set rel-diff-employments rel-diff-employments + ((abs (prev-e - employments))/ employments)
       ; update global lists
