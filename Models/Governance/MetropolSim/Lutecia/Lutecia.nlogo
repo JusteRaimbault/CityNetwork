@@ -482,7 +482,7 @@ SLIDER
 #-initial-territories
 0
 5
-3
+5
 1
 1
 NIL
@@ -1003,7 +1003,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file" "gis-synthetic" "gis"
-0
+2
 
 BUTTON
 471
