@@ -985,10 +985,35 @@ then
   convert Figures/PatentsMining/Fig9.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
+  ################
+  ## Mediation Ecotox
+
+  # fig:app:mediationecotox:boardgame
+  FIGNAME=C-mediationecotox-boardgame
+  echo $FIGNAME
+  convert Figures/MediationEcotox/boardgame.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
+  ################
+  ## Migration dynamics
+
+  # fig:app:migrationdynamics:model
+  FIGNAME=C-migrationdynamics-model
+  echo $FIGNAME
+  montage Figures/MigrationDynamics/model.png Figures/MigrationDynamics/examples.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -border 2 -bordercolor Black $FIGDIR/"$FIGNAME"_tmp.png
+  convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.png
+
+  # fig:app:migrationdynamics:results
+  FIGNAME=C-migrationdynamics-results
+  echo $FIGNAME
+  montage -resize "$(( WIDTH / 3))"x Figures/MigrationDynamics/baseline_jobdist0.png -resize "$((2 * WIDTH / 3))"x Figures/MigrationDynamics/real_indicjobDistance0_smoothed.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
 
 
 
 
 fi
+
+
+
+osascript -e 'display notification "Finished figures for chapter '$TARGET'" with title "Figures generation"'
