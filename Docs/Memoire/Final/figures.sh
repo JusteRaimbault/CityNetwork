@@ -896,6 +896,16 @@ then
   echo $FIGNAME
   montage Figures/CybergeoNetworks/Map_5_studied_juste_dend.png Figures/CybergeoNetworks/Leg_5_studied_juste.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
+  # fig:app:cybergeonetworks:perplexity
+  FIGNAME=C-cybergeonetworks-perplexity
+  echo $FIGNAME
+  montage Figures/CybergeoNetworks/perplexity.png Figures/CybergeoNetworks/entropy.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:cybergeonetworks:topics-evolution
+  FIGNAME=C-cybergeonetworks-topics-evolution
+  echo $FIGNAME
+  convert Figures/CybergeoNetworks/evolution.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
   # fig:app:cybergeonetworks:cluster_poc
   FIGNAME=C-cybergeonetworks-cluster_poc
   echo $FIGNAME
@@ -904,7 +914,8 @@ then
   # fig:app:cybergeonetworks:complementarity
   FIGNAME=C-cybergeonetworks-complementarity
   echo $FIGNAME
-  convert Figures/CybergeoNetworks/Sankey_methods_Compared.png  -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  convert Figures/CybergeoNetworks/Sankey_methods_Compared.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  # -background White -alpha Background : png transparency
 
   # fig:app:cybergeonetworks:modularities
   FIGNAME=C-cybergeonetworks-modularities
