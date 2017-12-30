@@ -11,8 +11,13 @@ library(rgeos)
 #' 
 #' 
 addAdministrativeLayer<-function(g,admin_layer,connect_speed=1,attributes=list("CP"="INSEE_COMM")){
-  spath = strsplit(strsplit(admin_layer,'.shp')[[1]][1],'/')[[1]]
-  admin <- readOGR(paste(spath[1:(length(spath)-1)],collapse="/"),spath[length(spath)])
+  if(is.character(admin_layer)){
+    spath = strsplit(strsplit(admin_layer,'.shp')[[1]][1],'/')[[1]]
+    admin <- readOGR(paste(spath[1:(length(spath)-1)],collapse="/"),spath[length(spath)])
+  }else{
+    admin = admin_layer
+  }
+  
   centroids = gCentroid(admin,byid = TRUE)
   attrvals = list()
   for(attr in names(attributes)){attrvals[[attr]]=as.character(admin@data[,attributes[[attr]]])}
@@ -40,6 +45,7 @@ addPoints<-function(g,coords,v_attr_list,e_attr_list){
   currentg = add_vertices(graph = g,nv=nrow(coords),attr = attrs)
   etoadd = c();elengths=c()
   for(k in 1:nrow(coords)){
+    if(k%%1000==0){show(k)}
     stationscoords = data.frame(id=V(currentg)$name[V(currentg)$station==TRUE],x=V(currentg)$x[V(currentg)$station==TRUE],y=V(currentg)$y[V(currentg)$station==TRUE])
     stationscoords$id=as.character(stationscoords$id)
     dists = sqrt((stationscoords$x - coords[k,1])^2 + (stationscoords$y - coords[k,2])^2)
@@ -71,32 +77,40 @@ addFootLinks<-function(g,walking_speed=1,snap=100){
 #'
 #' @name addTransportationLayer 
 #' @description Construct tarnsportation graph by adding layers successively
-addTransportationLayer<-function(stations_layer,link_layer,g=empty_graph(0)$fun(0),speed=1,snap=100){
+addTransportationLayer<-function(stations_layer=NULL,link_layer,g=empty_graph(0)$fun(0),speed=1,snap=100){
   show(paste0('Adding transportation network : stations = ',stations_layer,' ; links = ',link_layer))
+  
   # construct vertex set
-  if(is.character(stations_layer)){
-    spath = strsplit(strsplit(stations_layer,'.shp')[[1]][1],'/')[[1]]
-    stations <- readOGR(paste(spath[1:(length(spath)-1)],collapse="/"),spath[length(spath)])
-  }else{stations <- stations_layer}
   vertexes = data.frame()
   if(length(V(g))>0){
     vertexes = data.frame(id=V(g)$name,x=V(g)$x,y=V(g)$y,station=V(g)$station)
     vertexes$id=as.numeric(as.character(vertexes$id))
-    currentvid = vertexes$id[nrow(vertexes)] + 1 #nrow(vertexes)+1
-    coords=stations@coords
-    for(i in 1:length(stations)){
-      statdist = apply(vertexes[,c("x","y")] - matrix(rep(coords[i,],nrow(vertexes)),ncol=2,byrow=TRUE),1,function(r){sqrt(r[1]^2+r[2]^2)})
-      # create only if does not exist
-      #show(min(statdist))
-      if(statdist[statdist==min(statdist)]>snap){
-        vertexes=rbind(vertexes,c(id=currentvid,x=coords[i,1],y=coords[i,2],station=TRUE))
-        currentvid=currentvid+1
-      }
-    }
-  }else{
-    vertexes=rbind(vertexes,data.frame(id=(nrow(vertexes)+1):(nrow(vertexes)+length(stations)),x=stations@coords[,1],y=stations@coords[,2],station=rep(TRUE,length(stations))))
-    vertexes$id=as.numeric(as.character(vertexes$id))
+    currentvid = vertexes$id[nrow(vertexes)] + 1 
   }
+  
+  if(!is.null(stations_layer)){
+    if(is.character(stations_layer)){
+      spath = strsplit(strsplit(stations_layer,'.shp')[[1]][1],'/')[[1]]
+      stations <- readOGR(paste(spath[1:(length(spath)-1)],collapse="/"),spath[length(spath)])
+    }else{stations <- stations_layer}
+    
+    if(length(V(g))>0){
+      coords=stations@coords
+      for(i in 1:length(stations)){
+        statdist = apply(vertexes[,c("x","y")] - matrix(rep(coords[i,],nrow(vertexes)),ncol=2,byrow=TRUE),1,function(r){sqrt(r[1]^2+r[2]^2)})
+        # create only if does not exist
+        #show(min(statdist))
+        if(statdist[statdist==min(statdist)]>snap){
+          vertexes=rbind(vertexes,c(id=currentvid,x=coords[i,1],y=coords[i,2],station=TRUE))
+          currentvid=currentvid+1
+        }
+      }
+    }else{
+      vertexes=rbind(vertexes,data.frame(id=(nrow(vertexes)+1):(nrow(vertexes)+length(stations)),x=stations@coords[,1],y=stations@coords[,2],station=rep(TRUE,length(stations))))
+      vertexes$id=as.numeric(as.character(vertexes$id))
+    }
+  }
+  
   
   # links
   if(is.character(link_layer)){
@@ -110,8 +124,8 @@ addTransportationLayer<-function(stations_layer,link_layer,g=empty_graph(0)$fun(
     edges = data.frame(from=tail_of(g,E(g))$name,to=head_of(g,E(g))$name,speed=E(g)$speed,length=E(g)$length)
   }
   
-  currentvid = as.numeric(as.character(vertexes$id))[nrow(vertexes)] + 1
-    
+  currentvid = ifelse(nrow(vertexes)>0,as.numeric(as.character(vertexes$id))[nrow(vertexes)] + 1,1)
+  
   edges$from=as.character(edges$from);edges$to=as.character(edges$to)
   
   for(l in 1:length(links)){
@@ -121,11 +135,9 @@ addTransportationLayer<-function(stations_layer,link_layer,g=empty_graph(0)$fun(
       vids = c()
       #mincoords=apply(stations@coords,1,function(r){l=links@lines[[l]]@Lines[[i]]@coords;return(min(apply(abs(l-matrix(data=rep(r,nrow(l)),ncol=2,byrow = TRUE)),1,function(r){sqrt(r[1]^2+r[2]^2)})))})
       for(k in 1:nrow(coords)){
-        #statdist=rowSums(abs(vertexes[,c("x","y")] - matrix(rep(coords[k,],nrow(vertexes)),ncol=2,byrow=TRUE)))
-        #diffs = as.matrix(vertexes[,c("x","y")] - matrix(rep(coords[k,],nrow(vertexes)),ncol=2,byrow=TRUE))
-        statdist = apply(vertexes[,c("x","y")] - matrix(rep(coords[k,],nrow(vertexes)),ncol=2,byrow=TRUE),1,function(r){sqrt(r[1]^2+r[2]^2)})
-        #statdist = sqrt(diffs[,1]*diffs[,1] + diffs[,2]*diffs[,2])
-        #show(nrow(statdist))
+        if(nrow(vertexes)>0){
+          statdist = apply(vertexes[,c("x","y")] - matrix(rep(coords[k,],nrow(vertexes)),ncol=2,byrow=TRUE),1,function(r){sqrt(r[1]^2+r[2]^2)})
+        }else{statdist=c(2*snap)}
         if(statdist[statdist==min(statdist)]<snap){
           vids=append(vids,vertexes$id[statdist==min(statdist)])
           #show(paste0('existing : ',vids))
@@ -134,8 +146,10 @@ addTransportationLayer<-function(stations_layer,link_layer,g=empty_graph(0)$fun(
           vids=append(vids,currentvid)
           #show(paste0('new : ',vids))
           vertexes=rbind(vertexes,c(id=currentvid,x=coords[k,1],y=coords[k,2],station=FALSE))
+          names(vertexes)<-c("id","x","y","station")
           currentvid=currentvid+1
         }
+        #show(vertexes)
       }
       # add edges
       for(k in 2:nrow(coords)){
@@ -148,7 +162,13 @@ addTransportationLayer<-function(stations_layer,link_layer,g=empty_graph(0)$fun(
   
   res = simplify(graph_from_data_frame(edges,directed=FALSE,vertices = vertexes),edge.attr.comb = list(speed="mean",length="sum"))
   
-  return(induced_subgraph(res,which(degree(res)>0)))
+  g = induced_subgraph(res,which(degree(res)>0))
+  
+  if(is.null(stations_layer)){
+     V(g)$station = rep(TRUE,vcount(g))
+  }
+  
+  return(g)
   
 }
 
@@ -167,6 +187,14 @@ addTransportationLayer<-function(stations_layer,link_layer,g=empty_graph(0)$fun(
 #mincoords=apply(stations@coords,1,function(r){l=links@lines[[1]]@Lines[[2]]@coords;return(min(rowSums(abs(l-matrix(data=rep(r,nrow(l)),ncol=2,byrow = TRUE)))))})
 #mincoords[mincoords<200]
 
+
+#getDistMat<-function(g,fromids,toids){
+#  fromnames=c();for(cp in iris$DCOMIRIS){fromids=append(fromids,which(V(g)$IRIS==cp));if(cp%in%V(g)$IRIS){fromnames=append(fromnames,cp)}}
+#  tonames=c();for(cp in communes$INSEE_COMM){toids=append(toids,which(V(g)$CP==cp));if(cp%in%V(g)$CP){tonames=append(tonames,cp)}}
+#  res = distances(graph = g,v = fromids,to = toids,weights = E(g)$speed*E(g)$length)
+#  rownames(res)<-fromnames;colnames(res)<-tonames
+#  return(res)
+#}
 
 
 

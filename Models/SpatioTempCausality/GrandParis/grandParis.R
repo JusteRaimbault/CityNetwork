@@ -115,7 +115,7 @@ currentpop=pops[pops$year==year,]
 decay = 60
 access = computeAccess(currentpop[currentpop$id%in%rownames(dmat_grandparisexpress),],employment[substr(employment$id,1,2)%in%depts,],exp(-dmat_base/decay))
 map(data=access[access$id%in%iris$DCOMIRIS,],layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
-    filename=paste0(resdir,'pe-access_metropole.png'),title=paste0('Accessibilité avec GPE'),legendtitle = "Access",extent=iris,
+    filename=paste0(resdir,'pe-access_metropole.png'),title=paste0('Accessibilit?? avec GPE'),legendtitle = "Access",extent=iris,
     width=15,height=12
 )
 #dev.off()
