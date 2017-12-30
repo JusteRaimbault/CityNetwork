@@ -36,7 +36,7 @@ The algorithm stops when corpus size becomes stable or a user-defined maximal nu
 Soit $A$ un alphabet (un ensemble arbitraire de symboles), $A^{\ast}$ les mots correspondants (chaînes de longueur finie sur l'alphabet). Les textes de longueur finie sur celui-ci sont donc $T = \cup_{k\in \mathbb{N}} {A^{\ast}}^k$. Ce qu'on nomme une référence est pour l'algorithme un enregistrement avec des champs textuels représentant le titre, le résumé et les mots-clés. L'ensemble de références à l'itération $n$ est ainsi noté $\mathcal{C}_n \subset T^3$ : il s'agit d'un sous-ensemble de triplets de textes. Nous supposons l'existence d'un ensemble de mots-clés $\mathcal{K}_n$, les mots-clés initiaux étant $\mathcal{K}_0$, spécifiés par l'utilisateur\footnote{On pourrait également partir d'un corpus $\mathcal{C}_0$, mais il s'agit plutôt de l'esprit de la méthodologie présentée dans la sous-section suivante. Nous nous en tiendrons ici pour cette exploration préliminaire en assumant le caractère arbitraire forcément biaisé de cette spécification. Le choix du corpus initial doit donc être fait en bonne connaissance des domaines existants, et fait nécessairement suite à la revue de littérature de~\ref{sec:modelingsa}.}. Une itération procède de la manière suivante :
 
 \begin{enumerate}
-\item Un corpus intermédiaire brut $\mathcal{R}_n$ est obtenu par une requête à un catalogue\footnote{La dépendance au catalogue devant sûrement introduire un biais que nous ne pouvons contrôler, une analyse de sensibilité ou le croisement de divers catalogues étant hors de propos pour cette analyse exploratoire.\comment[FL]{pas clair}}
+\item Un corpus intermédiaire brut $\mathcal{R}_n$ est obtenu par une requête à un catalogue\footnote{La dépendance au catalogue devant sûrement introduire un biais que nous ne pouvons contrôler, une analyse de sensibilité ou le croisement de divers catalogues étant hors de propos pour cette analyse exploratoire.}\comment[FL]{pas clair}
  auquel on fourni les mots-clés précédents $\mathcal{K}_{n-1}$.
 \item Le corpus total est actualisé par $\mathcal{C}_n = \mathcal{C}_{n-1} \cup \mathcal{R}_n$.
 \item Les nouveaux mot-clés $\mathcal{K}_n$ sont extraits du corpus par Traitement du Language Naturel (NLP), étant donné un paramètre fixé $N_k$ donnant le nombre de mot-clés extraits à cette étape.
@@ -64,9 +64,9 @@ De par l'hétérogénéité des opérations requises par l'algorithme (organisat
 \comment{(Florent) avec quels mots clés as tu validé empiriquement la convergence de l'algo?}
 
 \bpar{
-A formal proof of algorithm convergence is not possible as it will depend on the empirical unknown structure of request results and keywords extraction. We need thus to study empirically its behavior. Good convergence properties but various sensitivities to $N_k$ were found as presented in Fig.~\ref{fig:quantepistemo:sensitivity}. We also studied the internal lexical consistence of final corpuses as a function of keywords number. As expected, small number yields more consistent corpuses, but the variability when increasing stays reasonable.
+A formal proof of algorithm convergence is not possible as it will depend on the empirical unknown structure of request results and keywords extraction. We need thus to study empirically its behavior. Good convergence properties but various sensitivities to $N_k$ were found as presented in Fig.~\ref{fig:app:quantepistemo:sensitivity-algosr}. We also studied the internal lexical consistence of final corpuses as a function of keywords number. As expected, small number yields more consistent corpuses, but the variability when increasing stays reasonable.
 }{
-Une preuve formelle de convergence de l'algorithme n'est guère envisageable puisque qu'elle dépendra de la structure empirique inconnue des résultats de requête et d'extraction de mots-clés. Il est donc nécessaire d'étudier le comportement de l'algorithme de manière empirique. Comme présenté en figure~\ref{fig:quantepistemo:sensitivity}, l'algorithme a de bonnes propriétés de convergence mais diverse sensibilités à $N_k$. Nous étudions également la cohérence lexicale interne des corpus finaux et fonction du nombre de mots-clés. Comme attendu, des valeurs faibles produisent des corpus plus cohérents, mais la variabilité lorsque qu'elles augmentent reste raisonnable.
+Une preuve formelle de convergence de l'algorithme n'est guère envisageable puisque qu'elle dépendra de la structure empirique inconnue des résultats de requête et d'extraction de mots-clés. Il est donc nécessaire d'étudier le comportement de l'algorithme de manière empirique. Comme présenté en Fig.~\ref{fig:app:quantepistemo:sensitivity-algosr}, l'algorithme a de bonnes propriétés de convergence mais diverse sensibilités à $N_k$. Nous étudions également la cohérence lexicale interne des corpus finaux et fonction du nombre de mots-clés. Comme attendu, des valeurs faibles produisent des corpus plus cohérents, mais la variabilité lorsque qu'elles augmentent reste raisonnable.
 }
 
 
@@ -76,13 +76,15 @@ Nous prenons l'hypothèse la plus faible pour le paramètre $N_k=100$. En effet,
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
-\centering
-\includegraphics[width=\linewidth]{Figures/QuantEpistemo/explo}
-\includegraphics[width=\linewidth]{Figures/QuantEpistemo/lexicalConsistence_MeanSd}
-\appcaption{Convergence and sensitivity analysis. Left : Plots of number of references as a function of iteration, for various queries linked to our theme (see further), for various values of $N_k$ (from 2 to 30). We obtain a rapid convergence for most cases, around 10 iterations needed. Final number of references appears to be very sensitive to keyword number depending on queries, what seems logical since encountered landscape should strongly vary depending on terms. Right : Mean lexical consistence and standard error bars for various queries, as a function of keyword number. Lexical consistence is defined though co-occurrences of keywords by, with $N$ final number of keywords, $f$ final step, and $c(i)$ co-occurrences in references, $k = \frac{2}{N(N-1)}\cdot \sum_{i,j \in \mathcal{K}_f}{\left| c(i) - c(j) \right|}$. The stability confirms the consistence of final corpuses.}{\textbf{Convergence et analyse de sensibilité de l'algorithme de revue systématique.} \comment[FL]{illisible}}
-\label{fig:quantepistemo:sensitivity}
+%\includegraphics[width=\linewidth]{Figures/QuantEpistemo/explo}
+%\includegraphics[width=\linewidth]{Figures/QuantEpistemo/lexicalConsistence_MeanSd}
+\includegraphics[width=\linewidth]{Figures/Final/A-quantepistemo-sensitivity-algosr.jpg}
+\appcaption{Convergence and sensitivity analysis. Left : Plots of number of references as a function of iteration, for various queries linked to our theme (see further), for various values of $N_k$ (from 2 to 30). We obtain a rapid convergence for most cases, around 10 iterations needed. Final number of references appears to be very sensitive to keyword number depending on queries, what seems logical since encountered landscape should strongly vary depending on terms. Right : Mean lexical consistence and standard error bars for various queries, as a function of keyword number. Lexical consistence is defined though co-occurrences of keywords by, with $N$ final number of keywords, $f$ final step, and $c(i)$ co-occurrences in references, $k = \frac{2}{N(N-1)}\cdot \sum_{i,j \in \mathcal{K}_f}{\left| c(i) - c(j) \right|}$. The stability confirms the consistence of final corpuses.}{\textbf{Convergence et analyse de sensibilité de l'algorithme de revue systématique.}}
+\label{fig:app:quantepistemo:sensitivity-algosr}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\comment[FL]{illisible}
 
 
 

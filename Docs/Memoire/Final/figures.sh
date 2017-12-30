@@ -57,8 +57,9 @@ then
   montage Figures/Qualitative/tangjia.jpg Figures/Qualitative/zhuhai.jpg Figures/Qualitative/yangshuo.jpg Figures/Qualitative/chengdu.jpg -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # fig:qualitative:schema
-  #  schema is light, pdf ok
-
+  FIGNAME=1-3-1-fig-qualitative-schema
+  echo $FIGNAME
+  cp Figures/Qualitative/tod_fr.pdf $FIGDIR/"$FIGNAME".pdf
 
 
 
@@ -586,6 +587,14 @@ then
 
   #############
   ## quantepistemo
+
+  # fig:quantepistemo:sensitivity-algosr
+  FIGNAME=A-quantepistemo-sensitivity-algosr
+  echo $FIGNAME
+  convert Figures/QuantEpistemo/explo.png -resize "$WIDTH"x -quality $JPGQUALITY Figures/QuantEpistemo/explo.jpg
+  convert -density $PDFRESOLUTION Figures/QuantEpistemo/lexicalConsistence_MeanSd.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/QuantEpistemo/lexicalConsistence_MeanSd.jpg
+  montage Figures/QuantEpistemo/explo.jpg Figures/QuantEpistemo/lexicalConsistence_MeanSd.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
+  rm Figures/QuantEpistemo/explo.jpg Figures/QuantEpistemo/lexicalConsistence_MeanSd.jpg
 
   # fig:app:quantepistemo:sensitivity
   FIGNAME=A-quantepistemo-sensitivity
