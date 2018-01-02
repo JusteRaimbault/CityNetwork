@@ -13,10 +13,11 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/SpatioTempCausality/functions.R'))
 resdir = paste0(Sys.getenv('CN_HOME'),'/Results/CaseStudies/PRD/')
 
 trgraph=addTransportationLayer(link_layer = 'data/networkBaidu.shp',speed=6e-04,snap=10)
+trgraph=addTransportationLayer(stations_layer = 'data/empty.shp',link_layer = 'data/networkPlannedBaidu.shp',g = trgraph,speed=6e-04,snap=10)
+V(trgraph)$new = 1 - V(trgraph)$station 
+
 #plot(trgraph,vertex.size=rep(0,vcount(trgraph)),vertex.label=rep(NA,vcount(trgraph)))
 # summary(c(distances(trgraph,weights=E(trgraph)$speed*E(trgraph)$length)))
-
-trbridgeraw=addTransportationLayer(link_layer = 'data/networkPlannedBaidu.shp',g = trgraph,speed=6e-04,snap=10)
 
 # read the population raster
 pop = raster(x = 'data/pop2010_wgs84_georef.asc')
@@ -26,20 +27,18 @@ popdata =  data.frame(cbind(xyFromCell(pop,1:ncell(pop)),pop=getValuesBlock(pop,
 poppoints = SpatialPointsDataFrame(popdata[popdata$pop>0,c("x","y")],popdata[popdata$pop>0,])
 poppoints$id = as.character(1:length(poppoints))
 
-trbase = addAdministrativeLayer(trgraph,poppoints,connect_speed = 1e-3,attributes=list("pop"="pop","id"="id"))
-trbridge = addAdministrativeLayer(trbridgeraw,poppoints,connect_speed = 1e-3,attributes=list("pop"="pop","id"="id"))
+trbridge = addAdministrativeLayer(trgraph,poppoints,connect_speed = 1e-3,attributes=list("pop"="pop","id"="id"))
+trbridge = addAdministrativeLayer(trbridge,'data/hongkong.shp',connect_speed = 1e-3,attributes=list("pop"="POP"))
 
-#E(trbase)$speed[E(trbase)$speed==0.1]=1e-3
-#E(trbridge)$speed[E(trbridge)$speed==0.1]=1e-3
+#save(trgraph,trbase,trbridge,file='processed/graphs.RData')
+load('processed/graphs.RData')
 
 dmat_base = distances(graph = trbase,v = which(V(trbase)$station==0),to = which(V(trbase)$station==1),weights = E(trbase)$speed*E(trbase)$length)
 rownames(dmat_base)<-V(trbase)$id[V(trbase)$station==0]
+colnames(dmat_base)
 
 dmat_bridge = distances(graph = trbridge,v = which(V(trbridge)$station==0),to = which(V(trbridge)$station==1),weights = E(trbridge)$speed*E(trbridge)$length)
 rownames(dmat_bridge)<-V(trbridge)$id[V(trbridge)$station==0]
-
-#save(trgraph,trbase,trbridgeraw,trbridge,file='processed/graphs.RData')
-load('processed/graphs.RData')
 
 
 # compute node populations
@@ -79,12 +78,21 @@ sppol = SpatialPolygons(
 spdat=poppoints@data;rownames(spdat)<-sapply(sppol@polygons,function(p){p@ID})
 spdf=SpatialPolygonsDataFrame(sppol,data = spdat)
 
+
+accesstimediff$var[accesstimediff$var>0]=NA
+
 map(data=accesstimediff,layer=spdf,spdfid="id",dfid="id",variable="var",
-    filename=paste0(resdir,'accesstimediff_prd.png'),title=paste0("Gains d'accessibilite"),legendtitle = "Gain\nnormalise",extent=readOGR('data','networkBaidu'),
+    filename=paste0(resdir,'accesstimediff_prd.png'),title=paste0("Gains d'accessibilite"),
+    legendtitle = "Gain\nnormalise",extent=readOGR('data','networkBaidu'),
     nclass=8,
-    width=15,height=12,palette='div',lwd=0.01,
-    additionalLinelayers=list(list(readOGR('data','networkBaidu'),'blue',readOGR('data','networkPlannedBaidu'),'purple')),
-    withScale=0
+    width=15,height=15,palette='div',lwd=0.01,
+    additionalLinelayers=list(
+      list(readOGR('data','networkBaidu'),'blue'),
+      list(readOGR('data','networkPlannedBaidu'),'purple')#,
+      #list(readOGR('data','counties'),'black')
+    ),
+    withScale=0,
+    legendPosition = "bottomright"
 )
 
 

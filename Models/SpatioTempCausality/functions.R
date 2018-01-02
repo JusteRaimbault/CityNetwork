@@ -142,7 +142,7 @@ varyingNetwork<-function(m,decay,breakyear){
 
 
 
-map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",
+map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",legendPosition="topleft",
               extent=NULL,withLayout=T,legendRnd=2,width=15,height=10,nclass=10,
               palette='Spectral',lwd=0.01,additionalLinelayers=NULL,additionalPointlayers=NULL,withScale=NULL){
   
@@ -204,7 +204,7 @@ map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",
   }
   
   if(is.numeric(data[,variable])){
-    legendChoro(pos =  "topleft",title.txt = legendtitle,
+    legendChoro(pos =  legendPosition,title.txt = legendtitle,
               title.cex = 0.8, values.cex = 0.6, breaks$brks, cols, cex = 0.7,
               values.rnd = legendRnd, nodata = TRUE, nodata.txt = "No data",
               nodata.col = 'lightgrey', frame = FALSE, symbol = "box"
