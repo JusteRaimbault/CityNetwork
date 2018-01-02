@@ -43,10 +43,16 @@ then
   echo $FIGNAME
   convert -density $PDFRESOLUTION Figures/GrandParisRealEstate/reseaux.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
-  # fig:casestudies:projects
+  # fig:casestudies:empiricalres
   FIGNAME=1-2-1-fig-casestudies-empiricalres
   echo $FIGNAME
   convert Figures/GrandParisRealEstate/laggedcorrs_times_allvars_fr.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:casestudies:prd
+  FIGNAME=1-2-1-fig-casestudies-prd
+  echo $FIGNAME
+  montage Figures/CaseStudies/accessp_withbridge_prd.png Figures/CaseStudies/accesspdiff_prd.png -resize "$WIDTH"x -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
 
   ###############
   ## 1.3 : Qualitative

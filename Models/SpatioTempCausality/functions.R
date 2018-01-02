@@ -143,8 +143,10 @@ varyingNetwork<-function(m,decay,breakyear){
 
 
 map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",legendPosition="topleft",
-              extent=NULL,withLayout=T,legendRnd=2,width=15,height=10,nclass=10,
-              palette='Spectral',lwd=0.01,additionalLinelayers=NULL,additionalPointlayers=NULL,withScale=NULL){
+              extent=NULL,withLayout=T,legendRnd=2,width=15,height=10,nclass=10,breaks=NULL,
+              palette='Spectral',lwd=0.01,
+              additionalLinelayers=NULL,additionalPointlayers=NULL,additionalLabelLayers=NULL,
+              withScale=NULL){
   
   graphicsext = strsplit(filename,split='.',fixed=T)[[1]][2]
   if(graphicsext=='png'){png(file=filename,width=width,height=height,units='cm',res=1200)}
@@ -165,12 +167,13 @@ map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",lege
     if(palette=='Spectral'){cols = rev(brewer.pal(nclass,'Spectral'))}
   
     #breaks=classIntervals(data[,variable],nclass,style = 'equal')
-    breaks=classIntervals(data[,variable],nclass)
+    if(is.null(breaks)){breaks=classIntervals(data[,variable],nclass);breaks=breaks$brks}
+    show(breaks)
     
     choroLayer(spdf = layer,spdfid = spdfid,
                df = data,dfid = dfid,
                var=variable,
-               col=cols,colNA='lightgrey',breaks=breaks$brks,
+               col=cols,colNA='lightgrey',breaks=breaks,
                add=TRUE,lwd = lwd,
                legend.pos = "n"
       )
@@ -203,9 +206,15 @@ map<-function(data,layer,spdfid,dfid,variable,filename,title,legendtitle="",lege
     }
   }
   
+  if(!is.null(additionalLabelLayers)){
+    for(l in additionalLabelLayers){
+      labelLayer(l[[1]],col = l[[2]],txt=l[[3]])
+    }
+  }
+  
   if(is.numeric(data[,variable])){
     legendChoro(pos =  legendPosition,title.txt = legendtitle,
-              title.cex = 0.8, values.cex = 0.6, breaks$brks, cols, cex = 0.7,
+              title.cex = 0.8, values.cex = 0.6, breaks, cols, cex = 0.7,
               values.rnd = legendRnd, nodata = TRUE, nodata.txt = "No data",
               nodata.col = 'lightgrey', frame = FALSE, symbol = "box"
     )
