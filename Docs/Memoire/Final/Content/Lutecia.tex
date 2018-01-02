@@ -30,17 +30,273 @@ Cette section fait un pas supplémentaire vers des modèles plus complexes. Un m
 
 
 
+
 %%%%%%%%%%%%%%%%%%%%
 \subsection{Taking Governance into account in Network Production Processes : The Lutecia Model}{Le Modèle Lutecia}
 
 
+\subsubsection{Global model structure}{Structure globale du modèle}
 
 
-\comment{(Florent) on DC module : c'est à dire ? comparer quoi avec qui ?}
+\bpar{
+The model architecture couples in a complex way a module for land-use evolution with a module for transportation network growth. Submodules, detailed in the following, include in particular a governance module that rules processes of network evolution. The most important feature of the LUTECIA model is the inclusion of an endogenous infrastructure provision submodel, based on iterative increases in accessibility, within a Luti model.
+}{
+L'architecture du modèle couple de manière complexe un module pour l'évolution de l'usage du sol à un module de croissance de réseau de transport.
+}
 
-\comment{(Florent) Implémentation : développer les aspects méthodo ``techniques'' ce n'est pas sale, au contraire}
+
+%L'accessibilité, définie comme le potentiel d'accès des habitants à l'emploi, est la pierre angulaire de ce modèle, et repose sur l'hypothèse simplificatrice que à la fois les ménages et les entreprises cherchent à se localisation de façon à maximiser leur accessibilité, et que les acteurs décident de la construction de nouvelles infrastructures de transport sur le critère de la maximisation de l'accessibilité sur leur périmètre.
+
+%Concrètement, le modèle LUTECIA repose sur 5 modèles dont 3 seront détaillés vu le cas d'étude : la croissance du réseau du delta de la Rivière des Perles.
+
+\bpar{
+\begin{itemize}
+\item LU stands for Land Use module : il régit la relocalisation des actifs et des emplois dans les conditions courante d'accessibilité.
+\item T stands for Transport module : calcule les conditions de transport dans la région urbaine.
+\item EC stands for Evaluation of Cooperation module : évalue le ou les agents qui vont prendre la décision de construire une infrastructure nouvelle. 
+\item I stands for Infrastructure provision module : évalue la localisation de l'infrastructure de transport nouvelle, sur le critère de l'augmentation maximale de l'accessibilité
+\item A stands for Agglomeration economies module : évalue la productivité des entreprises, qui dépend de l'accessibilité aux emplois.
+\end{itemize}
+}{
+
+}
+
+%Details on multiple time scales ; corresponding stochasticity level of the model.
 
 
+\subsubsection{Model description}{Description du modèle}
+
+\paragraph{World of the model}{Description de l'environnement}
+
+
+\bpar{
+MCR are modeled with a two level spatial zoning: the world is composed by a lattice of patches, that are the basic units to quantify land use. We assume that each patch $k$ is characterized at time $t$ by its resident actives $A_k(t)$ and number of employments $E_k(t)$. At a higher level, the MCR is decomposed into administrative areas that correspond to the city governance levels, to which we attribute $M$ abstract agents called \emph{mayors}: $M_k$ gives thus the administrative area to which each patch belongs. %These will be the core of the EC and I modules by integrating transportation network growth decision processes.
+We assume furthermore the existence of a global governance agent that correspond to a regional authority at the level of the MCR.
+}{
+La MCR est modélisée avec un zonage spatial à deux niveaux. L'environnement du modèle est composé par une grille, dont les cellules sont les unités élémentaires pour quantifier l'usage du sol. Nous supposons que chaque cellule $k$ est caractérisée au temps $t$ par le nombre d'actif y résidant $A_k(t)$ et son nombre d'emplois $E_k(t)$. A un niveau supérieur, la MCR est décomposée en unités administratives qui correspondent au niveau de gouvernance des villes, auxquelles sont attribués $M$ agents abstraits appelés \emph{maires} : $M_k$ désigne ainsi la zone administrative à laquelle chaque cellule appartient. Nous supposons de plus l'existence d'un agent de gouvernance global qui correspond à une autorité typiquement régionale, au niveau de la MCR.
+}
+
+\bpar{
+On top of this patch-level land-use and governance setup, we introduce a transportation network $G = (V,E)$ localized in space by its nodes coordinates $(x_v,y_v)$, and characterized by a speed $v_G$ relative to movements in the euclidian space. Assuming that the network can be taken anywhere on each link, it unequivocally induces a geographical travel-time distance that we describe by the shortest path distance matrix between each patch $D = (d_{k,k'}(t))$. The accessibility of actives to employments is then defined for each patch as a Hansen accessibility with a decay of distance $\lambda$ capturing typical commuting range, by
+}{
+De manière complémentaire à cette configuration d'usage du sol et de gouvernance, nous introduisons un réseau de transport $G = (V,E)$ localisé dans l'espace par les coordonnées de ses noeuds $(x_v,y_v)$, et caractérisé par une vitesse $v_G$ relative aux déplacements dans l'espace euclidien. Sous l'hypothèse que le réseau peut être rejoint à tout endroit sur les liens, il induit de manière univoque une distance-temps géographique, que nous décrivons par la matrice des plus courts temps entre chaque cellule $D = (d_{k,k'}(t))$. L'accessibilité des actifs aux emplois est alors définie pour chaque cellule comme une accessibilité de Hansen, avec un paramètre de décroissance de la distance $\lambda$ qui capture la distance typique domicile-travail, par
+}
+
+
+\[
+X^{(A)}_k = A_k\cdot \sum_{k'} E_{k'} \exp{\left(-\lambda \cdot d_{k,k'}\right)}
+\]
+
+
+\bpar{
+The accessibility of employments to actives is defined in a similar manner. Dynamics are taken in a discrete way: $t \in \{t_0 = 0 , \ldots , t_f\}$, with time ticks corresponding to a time scale at which land use typically evolves, i.e. 5 to 10 years.
+}{
+L'accessibilité des emplois aux actifs est définie de manière similaire. La dynamique est considérée de façon discrete : $t \in \{t_0 = 0 , \ldots , t_f\}$, avec les pas de temps correspondant à une échelle à laquelle l'usage du sol évolue en moyenne, i.e. de 5 à 10 ans.
+}
+
+
+
+%%%%%%
+%%% - not useful
+
+%\subsubsection{NW  - JR Protocole de décision de construction infra : cas un seul acteur}{}
+
+%Given a single actor and an already budgeted infrastructure, we make an intermediate assumption of rationality of planning. More precisely, the actor seeks to optimize the accessibility gain for all its patches. 
+
+
+\paragraph{Land-use change}{Evolution de l'usage du sol}
+
+
+\bpar{
+For the Land-use module, we assume that residential/employments relocations are at equilibrium at the time scale of a tick, at which the evolution of transportation infrastructure is much slower~\citep{wegener2004land}. Actives and Employments relocate given some utilities that take into account both accessibility and the urban form. Indeed, one of the drivers of Urban Sprawl may be interpreted as a repulsion of residents by density. To aggregate both effects in a simple way, we take a Cobb-douglas function for utilities of actives and employments
+}{
+Pour le module d'usage du sol, les relocalisations d'une proportion fixe d'actifs et d'emplois sont supposés à l'équilibre à l'échelle d'un pas de temps. En comparaison, l'évolution de l'infrastructure de transport est largement plus lente~\cite{wegener2004land}. Les actifs et les emplois se relocalisent selon des utilités qui prennent en compte à la fois l'accessibilité et la forme urbaine. En effet, l'un des moteurs de l'étalement urbain peut être interprété comme une répulsion des résidents par la densité. Pour agréger les deux effets de façon simple, nous prenons une fonction de Cobb-Douglas pour l'utilité
+}
+
+\begin{equation}\label{eq:utility}
+U_k^{(A)} = {X_k^{(A)}}^{\gamma_A}\cdot {F_k^{(A)}}^{1-\gamma_A}
+\end{equation}
+%\[
+%U_j (E) = X_j(E)^{\gamma_E}\cdot {F_j(E)}^{1-\gamma_E} ; F_j(E) = 1
+%\]
+
+\bpar{
+what is equivalent to have a linear aggregation of the logarithm of explicative variables. Employments follow an analog expression with a dedicated weight parameter $\gamma_E$. Here the utility is simply influenced only by accessibility and by an indicator of local urban form called \emph{form factor}, given in the case of actives by $F_k^{(A)} = \frac{1}{A_k \cdot E_k}$, meaning that population is repulsed by density. The combination of the positive effect of accessibility to the negative effect of density produces a tension between contradictory objectives allowing a certain level of complexity already in the land-use sub-model alone. The form factor for jobs is taken as $F_k^{(E)}=1$ for the sake of simplicity and following the fact that jobs can aggregate far more than dwellings. 
+}{
+ce qui est équivalent à une agrégation linéaire du logarithme des variables explicatives. Les emplois suivent une expression analogue avec un paramètre de poids spécifique $\gamma_E$. L'utilité est influencée ici uniquement par l'accessibilité et par un indicateur de forme urbaine locale nommé \emph{facteur de forme}. Nous le définissons dans le cas des actifs par $F_k^{(A)} = \frac{1}{A_k \cdot E_k}$, ce qui signifie que la population est repoussée par la densité. La combinaison de l'effet positif de l'accessibilité à celui négatif de la densité produit une tension entre des objectifs contradictoires, permettant un certain niveau de complexité déjà dans le sous-modèle d'usage du sol seul. Le facteur de forme pour les emplois est pris comme $F_k^{(E)}=1$ pour simplifier et suivant la logique que les emplois peuvent s'agréger bien plus que les logements.
+}
+
+\bpar{
+Relocations are then done deterministically following a discrete choice model that yield expected values of relocated variables as
+}{
+Les relocalisation sont ensuite faites de manière déterministe suivant un modèle de choix discret, qui donne les valeurs des actifs à l'étape suivante comme
+}
+
+\begin{equation}\label{eq:discretechoicereloc}
+A_i(t+1) = \alpha \cdot \sum_i{A_i(t)}\cdot\frac{\exp{(\beta U_i(A))}}{\sum_i{\exp{(\beta U_i(A))}}}
+\end{equation}
+%\[
+%E_j(t+1) = \sum_j{E_j(t)}\cdot\frac{\exp{(\beta U_j(E))}}{\sum_j{\exp{(\beta U_j(E))}}}
+%\]
+
+\bpar{
+where $\beta$ is the Discrete Choice parameter that can be interpreted as a ``level of randomness''\footnote{When $\beta \rightarrow 0$, all destination patches have an equal probability from any origin patch, whereas $\beta \rightarrow \infty$ gives fully deterministic behavior towards the patch with the best utility.}. $\alpha$ is the fixed fraction of actives relocating. Employments follow again a similar expression.
+}{
+où $\beta$ est le paramètre de choix discrets qui peut être interprété comme un ``niveau d'aléatoire''\footnote{Quand $\beta \rightarrow 0$, toutes les cellules de destination ont une probabilité égale depuis l'ensemble des cellules d'origine, tandis que $\beta \rightarrow \infty$ donne un comportement totalement déterministe vers la cellule avec meilleure utilité.}. $\alpha$ est la fraction fixe d'actif se relocalisant. Les emplois suivent une expression similaire.
+}
+
+
+%\comment[JR]{citer ici les travaux de geo eco (Remy Lemoy comme tu proposais, du Fujita etc) qui resolvent ce type de modèle de manière plus ou moins analytique ?}[pas les memes modèles en fait]
+
+
+
+\subsubsection{Network evolution : governance process}{Evolution du réseau : processus de gouvernance}
+
+
+%As detailed in~\cite{lenechet2012}, a conceptual city system with local administrative boundaries and corresponding governing agents (mayors), and a global governor (state) is the foundation of the model. A land-use evolution (residences and employments localisations) and transportation (gravity flows) are the first step of an iteration. The transportation infrastructure (road network) is then evolved by constructing a new road. First level of decision (global or local) is chosen randomly according to a fixed probability, and in the case of a local decision, the richest mayor will build the new road. The road is then build optimizing the marginal accessibility for the area corresponding to the builder in charge (all world if global, commun if local).
+
+%As they are likely to communicate with each other, we assume that negotiations take place and that they consider eventually to build in common, in which case they merge after (rough simplifying but stylized assumption). Such negotiations may be interpreted as a game in the sense of Game Theory, which as already been widely applied for modeling in social and political sciences for questions dealing with cognitive interacting agents with individual interests~\cite{ordeshook1986game}. Such a framework as already been used in transportation investment studies, as e.g. in~\cite{Roumboutsos2008209} where choices of operators (public and privates) to integrate their system in a global consistent commuter system is explored through the notion of Nash equilibrium.
+
+
+\bpar{
+The governance part of the model has the following rationale :
+\begin{itemize}
+\item Three levels of governance are included, namely a central actor (the region, or regional government), local actors (municipalities) acting individually, and local actors cooperating what constitutes an intermediate level.
+\item Assuming a new infrastructure is to be built, the planning can be either from top-down decision (region) or from the bottom-up (local actors). We make the assumption that the processes behind the determination of the level of decision are far too complex (since they are generally political processes) to be taken into account in the model. This step is thus determined exogenously following an uniform law given a parameter.\footnote{quand même je suis pour rediscuter ce choix de modélisation, ce serait beaucoup plus puissant de se passer de cela.}
+\item If the decision is taken at the local level, negotiations between actors occur. We assume that
+\begin{itemize}
+\item One of the initiator of the new infrastructure can be any of the local actors, but richer cities will have more chance to built.
+\item Negotiations for possible collaboration are only done between neighbor cities, what is related to the short range of infrastructures considered. %\comment[JR]{develop the example of a regional masterplan that is for some part locally implemented, with consequent adaptations ?}. \comment[FL]{il devrait y avoir quelque chose sur ce processus de masterplan plus haut dans le papier ; de façon générale, introduire une section plus spécifique au cas Chinois}. 
+\item For this reason, and as $n$-players games have been shown to exhibit a chaotic behavior~\cite{2016arXiv161208111S} when $n$ increases, we consider negotiations between two actors only. The probability of cooperation that are endogenously determined can be furthermore directly interpreted.
+\end{itemize}
+\item For the sake of simplicity, the total stock of infrastructure built at one governance time step is constant, and decision times are also fixed\footnote{See the discussion for the implications of that hypothesis and possible relaxations. An endogenous infrastructure stock and decision times implies to model the answer of a single actor, and possibly in interaction with others, to transportation demand in time ; I think it is beyond the scope of our rationale.}.
+\end{itemize}
+}{
+Le sous-modèle pour la gouvernance suit la logique suivante :
+\begin{itemize}
+	\item Trois niveaux de gouvernance sont inclus, qui sont un acteur central (la région, ou le gouvernement régional), les acteurs locaux (municipalités) qui agissent seuls, et les acteurs locaux qui coopèrent, ce qui constitue un niveau abstrait intermédiaire.\comment{faire un schema ici}
+	\item Sous l'hypothèse qu'une nouvelle infrastructure doit être construite, la planification peut être soit par le haut (région) soit par le bas (acteurs locaux). Nous supposons que les processus derrière la détermination du niveau de décision sont bien trop complexes (puisqu'il incluent généralement des processus politiques) pour être pris en compte par le modèle. Cette étape est donc déterminée de manière exogène selon une loi uniforme à paramètre fixe\footnote{Une piste alternative pour endogénéiser ce processus est proposée dans les développements.}.
+	\item Si la décision est prise au niveau local, des négociations entre les acteurs ont lieu. Les concernant, nous supposons :
+	\begin{itemize}
+		\item L'initiateur de la nouvelle infrastructure peut être n'importe quel acteur local, mais les villes riches ont plus de chance de construire.
+		\item Les négociations pour des possibles collaborations n'ont lieur qu'entre acteurs voisins, ce qui est en cohérence avec des segments d'infrastructure de longueur moyenne.
+		\item Pour cette raison, et d'autant plus que les jeux à $n$ joueurs présentent des comportements chaotiques quand $n$ augmente~\cite{2016arXiv161208111S}, nous ne considérons des négociations qu'entre deux acteurs uniquement. De plus, la probabilité de coopération endogène peut alors être directement interprétée.
+	\end{itemize}
+	\item Pour rester simple, le stock total d'infrastructure construit à un pas de temps de gouvernance est constant, et les temps de décision sont également fixés\footnote{Voir également la discussion pour de possibles relaxations de ces hypothèses.}
+\end{itemize}
+}
+
+
+
+
+%This paper integrates a game-theory based framework as behavioral rules for governing agents in a hybrid model introduced in~\cite{le2010approche} and formalized then explored in~\citep{lenechet2012}. This model couples land-use dynamics with transportation infrastructure evolution and aims to endogeneise the development of transportation infrastructure taking into account different levels of decision. The framework proposed extends it by allowing cooperation between governing entities.
+
+%\comment[JR]{justify our simplistic choice of maximizing accessibility ; \cite{levinson2012forecasting} investigate far more precise rules of network growth but no interacting actors nor co-evolution, and more based on transportation constraints. In a similar vein, \cite{xie2009jurisdictional} compares centralized vs decentralized network growth, what is close to some questions we are tackling}
+
+%\cite{yusufzyanova2011forecasting} very similar structure with global and local.
+
+
+%The workflow for transportation network development is the following :
+
+%\begin{itemize}
+
+%\item At each time step, $N$ new road segments are built. Choice between local and global is still done through uniform drawing with probability $\xi$. In the case of local building, roads are attributed successively to mayors with probabilities $\xi_i$, what means that richer areas may get many roads. It stays consistent with the thematic assumption than each road correspond to the allocation of one public market which are done independently (with $N$ becoming greater, this assumption should be relaxed as attribution of subventions to local areas is of course not proportional to wealth, but we assume that it stays true with small $N$ values). 
+
+%\item Areas building a road without neighbors doing it follow the standard procedure\comment[FL]{qu'est ce que ca veut dire?}.  to develop the road network.
+
+%\item Neighbor areas building a road will enter negotiations. We assume in this first simple version of the model that only bilateral negotiations may occur. Therefore, in the case of clusters with more than two areas, pairing is done at random (uniform drawing) between neighbors until all areas are paired.
+
+%\item Possible strategies for players (negotiating areas, $i=1,2$) are : not collaborating ($NC$) and collaborating ($C$). Strategies are chosen simultaneously (non-cooperative game) as detailed after. For $(C,NC)$ and $(NC,C)$ couples, the collaborating agent loose its investment and cannot build a road whereas the other continues his business alone. For $(NC,NC)$ both act as alone, and for $(C,C)$ a common development is done. We denote $Z^{\ast}_i(S_1,S_2)$ the optimal infrastructure for area $i$ with $(S_1,S_2)\in \{(NC,C),(C,NC),(NC,NC)\}$ which are determined the standard way in each zone separately, and $Z^{\ast}_C$ the optimal common infrastructure computed with a 2 segments infrastructure on the union of both areas, which corresponds to the case where both strategies are $C$. Marginal accessibilities for area $i$ and infrastructure $Z$ is defined as $\Delta X_i(Z)=X^Z_i - X_i$. We introduce the costs of construction,  noted $I$ for a road segment, assumed spatially uniform. A 2 road segment will cost $2\cdot I - J$ ($J > 0$ cost gain of common technical means, assumed to be equally shared). 
+%The determination of probabilities defining mixed strategies is based on the notion of payoff matrix, that is the value of utility gains for each players and each possible strategy configuration. The payoff matrix of the game is the following, with $\kappa$ a normalization constant (``price of accessibility'') :
+
+%
+%\begin{table}
+%\begin{tabular}{ |c|c|c| } 
+%
+% \hline
+% 1 $|$ 2  & C & A \\ \hline
+% C & $U_i = \kappa \cdot \Delta X_i(Z^{\ast}_C) - I - \frac{J}{2}$
+%   & $\begin{cases}U_1 = \kappa \cdot \Delta X_1(Z^{\ast}_1)-I \\U_2 = \kappa \cdot \Delta X_2(Z^{\ast}_2)-I - \frac{J}{2}\end{cases}$ \\ \hline
+% A & $\begin{cases}U_1 = \kappa \cdot \Delta X_1(Z^{\ast}_1)-I - \frac{J}{2}\\U_2 = \kappa \cdot \Delta X_2(Z^{\ast}_2)-I\end{cases}$
+%   & $U_i = \kappa \cdot \Delta X_i(Z^{\ast}_i) - I$ \\
+% \hline
+%\end{tabular}
+%\end{table}
+%
+%
+%We can solve the mixed strategy Nash Equilibrium in all generality, by writing $U_i(S_1,S_2)$ the full payoff matrix. The assumption of equilibrium implies that conditional expectancies of each player are equal given their two choices, i.e. that $\Eb{U_i|S_i=C} = \Eb{U_i|S_i=NC}$. It yields
+%%By denoting $\Delta_{\left[j|S\right]} U_i = U_i(S,C) - U_i() $ 
+%
+%\[
+%p_{1-i} = - \frac{U_i(C,NC) - U_i(NC,NC)}{\left(U_i(C,C) - U_i(NC,C)\right) - \left(U_i(C,NC) - U_i(NC,NC)\right)}
+%\]
+%
+%
+%
+%
+%
+%
+%We obtain generally
+%
+%\[
+%p_i = \frac{J}{\Delta X_{\bar{i}}{Z^{\star}_{C}} - \Delta X_{\bar{i}}{Z^{\star}_{\bar{i}}}}
+%\]
+%
+%Note that we can directly interpret these expressions, as a player chances to cooperate will decrease with the potential gain of the other player, what is intuitive for a competitive game. It also forces feasibility conditions on $I$ and $\delta I$ to keep a probability, that are $I \leq \kappa\cdot \min(\Delta X_1(Z^{\ast}_1),\Delta X_2(Z^{\ast}_2))$ (binary positive cost-benefit conditions) and $I-\delta I > \kappa \cdot \max_i (\Delta X_i(Z^{\ast}_i)-\Delta X_i(Z^{\ast}_C))$. As soon as accessibility difference stay relatively small, both shall be compatible when $\delta I \ll I$, giving corresponding boundaries for $I$.
+%
+%\item Agents make choice of strategy following uniform drawings with probability computed above. Corresponding infrastructures are built, and in the case of choices $(C,C)$, towns merge in a single one with new corresponding variables (employment, actives, etc. ).
+%
+%
+%\end{itemize}
+%
+%
+%
+%\paragraph{An alternative discrete choice ``game''}{Choix discrets}
+%
+%Using the same payoff matrix with a random utility model allows to obtain also values for probabilities. We have
+%
+%\[
+%U_i(C) - U_i(NC) = p_{\bar{i}} \left( \Delta X_{i}{Z^{\star}_{C}} - \Delta X_{i}{Z^{\star}_{i}}\right) - J
+%\]
+%
+%and therefore $p_i$ verifies the equation that is solved numerically
+%
+%\[
+%p_i = \frac{1}{1 + \exp{\left(-\beta_{DC}\cdot \left(\frac{\Delta X_{i}{Z^{\star}_{C}} - \Delta X_{i}{Z^{\star}_{i}}}{1 + \exp{\left(- \beta_{DC}(p_i \cdot (\Delta X_{\bar{i}}{Z^{\star}_{C}} - \Delta X_{\bar{i}}{Z^{\star}_{\bar{i}}}) - J)\right)}} - J \right)\right)}}
+%\]
+%
+%This type of game is expected to behave differently and will be studied as a benchmark.
+%
+%
+%
+%\begin{table}
+%\caption{\textbf{Summary of model parameters with their default values.}}
+%\centering
+%\hspace{-1cm}
+%\begin{tabular}{|c|c|c|c|c|c|}
+%  \hline
+% Module & Parameter & Name & Process & Range & Default Value\\
+%  \hline
+%\multirow{4}{*}{Land-use}& $\lambda$ & Accessibility distance decay & Accessibility & $]0;1]$ & $0.001$ \\\cline{2-6}
+% & $\gamma_A$ & Actives Utility Cobb-Douglas exponent & Utility & $[0;1]$ & $0.85$ \\\cline{2-6}
+%  & $\beta$ & Discrete choice exponent & Utility & $[0;+\infty]$ & $1$ \\\cline{2-6}
+% & $\gamma_E$ & Employments Utility Cobb-Douglas exponent & Utility & $[0;1]$ & $0.85$ \\\hline
+%\multirow{2}{*}{Transportation} & $v_G$ & Network relative speed & Transport hierarchy & $[1;+\infty [$ & $5$ \\\cline{2-6}
+%& $\lambda$ & Accessibility distance decay & Commuting range & $[0;+\infty [$ & $5$ \\
+%  \hline
+%\multirow{3}{*}{Governance} & $I$ & Construction cost & \multirow{3}{*}{Network Planning} & $$ & $0.001$ \\\cline{2-3}\cline{5-6}
+% & $J$ & Collaboration cost &  & $$ & $0.001$ \\\cline{2-3}\cline{5-6}
+% & $l_r$ & Infrastructure length &  & $]0;\sqrt{2}\cdot K [$ & $2$ \\\hline
+%\end{tabular}
+% \end{table}
+%
+%
+%
+%\subsubsection{Model validation}{Validation du modèle}
+%
+%
+%
+%
 
 
 
@@ -49,6 +305,60 @@ Cette section fait un pas supplémentaire vers des modèles plus complexes. Un m
 \subsection{Application to Pearl River Delta}{Application au Delta de la Rivière des Perles}
 
 
+\bpar{
+It was suggested by \cite{liao2017ouverture} that a sort of multi-level governance recently emerged in China, in the context of economic activities. We try with our model to test the relevance of this paradigm regarding the urban structure of the MCR.
+}{
+Il a été suggéré par \cite{liao2017ouverture} qu'une forme de gouvernance multi-niveau a récemment émergé en Chine, dans le contexte des activités économiques. Nous tentons par notre modèle de tester la pertinence de ce paradigme au regard de la structure urbaine de la MCR.
+}
+
+
+
+\subsubsection{Calibration procedure}{Procédure de calibration}
+
+
+\bpar{
+To apply such a complex model to a semi-real situation, one must be extremely careful. It is important to choose the adequate processes and level of granularity to reproduce. In particular, our model is not aimed at producing particularly accurate land-use patterns, but uses their approximation as the basis of network growth, which qualitative evolution and the corresponding qualitative patterns in governance processes. We propose therefore to ``calibrate'' on the shape of a given infrastructure, in the sense of determining parameter configurations for which in probability the successive built pieces of infrastructure are the closest to pieces of the target infrastructure. 
+}{
+Lors de l'application d'un modèle si complexe à une situation semi-réelle, il faut rester vigilant. Il est important de choisir les processus adéquats ainsi que le niveau de granularité à reproduire. En particulier, notre modèle produit des motifs d'usage du sol relativement précis, mais utilise leur approximation comme base de la croissance du réseau, dont l'évolution qualitative permet d'informer sur les processus de gouvernance. Nous proposons pour cela de ``calibrer'' sur la forme d'une infrastructure donnée, au sens de déterminer des configurations de paramètres pour lesquelles en probabilité les morceaux successifs d'infrastructure sont les plus proches d'une infrastructure visée.
+}
+
+
+\bpar{
+To calibrate on the network produced by the simulation, it must be compared to a reference network. This is however a difficult problem, as different proximity measures with different significations can be used. Geometrical measures focuses on the spatial proximity of networks. For a network $(E,V)=((e_j),(v_i))$, a node-based distance is given by $\sum_{i \neq i'} d^2 \left(v_i,v_{i'}\right)$. A more accurate measure not biased by intermediate nodes is given by the cumulated area between each pair of edges $\sum_{j \neq j'} A \left(e_j,e_{j'}\right)$ (not a distance in the proper sense) where $A(e,e')$ is the area of the closed polygon formed by joining link extremities.
+}{
+Pour calibrer sur les réseaux produits par la simulation, il s'agit de comparer à un réseau de référence. C'est un problème difficile, puisque différentes mesures de proximité avec différentes signification peuvent être utilisées. Les mesures géométriques s'intéressent à la proximité spatiale des réseaux. Pour un réseau $(E,V)=((e_j),(v_i))$, une distance basée sur les noeuds est donnée par $\sum_{i \neq i'} d^2 \left(v_i,v_{i'}\right)$. Une mesure plus précise qui n'est pas biaisée par d'éventuels noeuds intermédiaires est donnée par l'aire cumulée entre chaque paire de liens $\sum_{j \neq j'} A \left(e_j,e_{j'}\right)$ (il ne s'agit pas d'une distance à proprement parler), où $A(e,e')$ est l'aire du polygone fermé constitué en reliant les sommets des liens.
+}
+
+\bpar{
+A complementary approach is to take a user-centered view and consider the proximity of shortest paths : for example with the Mean-square error between distance matrices on all patches, or the Earth Mover Distance. \comment[FL]{mieux hiérarchiser la structure de ce paragraphe, par exemple la métrique est à décrire plus tard ; sans doute plusieurs points à enlever} 
+
+}{
+Une approche complémentaires est de prendre une vue centrée sur l'utilisateur et de considérer la proximité des plus courts chemins : par exemple avec une distance euclidienne entre les matrices de distances sur l'ensemble des patches, ou la distance EMD.
+}
+
+
+%
+%
+%\subsubsection{Model setup}{Initialisation du modèle}
+%
+%We work on a simplified raster configuration for Pearl River Delta, and on stylized highway networks. We choose to consider road network only since, following \cite{hou2011transport}, it has been the main driver of changes in accessibility patterns compared to railway network which development is only recent. Furthermore, our model is simple and includes one transportation mode only, represented by the road network.\comment[FL]{lequel? pourquoi? ce n'est pas clair et pas justifié. en lien avec partie "Chine" à écrire qui créera dans l'esprit du lecteur le sens de ce choix}
+%
+%\comment{include and implement cost difference between bridge - standard freeway $\rightarrow$ additional parameter}
+%
+%
+%We show in Fig.~\ref{fig:ex-prd} an illustration of the stylized setup of the model and of its outcome with standard parameter values.
+%
+%%%%%%%%%%%%%%%%%%%%
+%%\begin{figure}
+%%\centering
+%%\includegraphics[width=0.49\textwidth]{figures/exrun_2_tick0}
+%%\includegraphics[width=0.49\textwidth]{figures/exrun_2_tick6}
+%%\caption{Example of run on the stylized Pearl River Delta (initial configuration and after 6 network iterations)}
+%%\label{fig:ex-prd}
+%%\end{figure}
+%%%%%%%%%%%%%%%%%%%%
+%
+%
 
 
 
