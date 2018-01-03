@@ -15,6 +15,8 @@ val collcost=Val[Double]
 val gammaCDA=Val[Double]
 val gammaCDE=Val[Double]
 val betaDC=Val[Double]
+val relocationRate=Val[Double]
+
 val evolveNetwork = Val[Int]
 val evolveLanduse = Val[Int]
 val targetNetwork = Val[Int]
@@ -77,15 +79,15 @@ val failed=Val[Double]
 val targetDistance = Val[Double]
 
 
-// regionalproba lambdaacc euclpace game coll-cost gammaCDA gammaCDE betaDC evolveNetwork target-network setuptype synthconffile finalTime rnd-seed
+// regionalproba lambdaacc nwspeed game coll-cost gammaCDA gammaCDE betaDC relocationRate evolveNetwork evolveLanduse target-network setuptype conffile stoptype finalValue rnd-seed
 val cmds = List(
-  "setup-experiment ${regionalproba} ${lambdaAcc} ${euclpace} ${game} ${collcost} ${gammaCDA} ${gammaCDE} ${betaDC} ${evolveNetwork} ${evolveLanduse} ${targetNetwork} ${setupType} \"${synthConfFile}\" \"${stopType}\" ${finalValue} ${replication}",
+  "setup-experiment ${regionalproba} ${lambdaAcc} ${euclpace} ${game} ${collcost} ${gammaCDA} ${gammaCDE} ${betaDC} ${relocationRate} ${evolveNetwork} ${evolveLanduse} ${targetNetwork} ${setupType} \"${synthConfFile}\" \"${stopType}\" ${finalValue} ${replication}",
   "run-experiment"
 )
 
 val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) set(
-  inputs += (regionalproba,lambdaAcc,euclpace,game,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
-  outputs += (regionalproba,lambdaAcc,euclpace,game,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
+  inputs += (regionalproba,lambdaAcc,euclpace,game,collcost,gammaCDA,gammaCDE,betaDC,relocationRate,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
+  outputs += (regionalproba,lambdaAcc,euclpace,game,collcost,gammaCDA,gammaCDE,betaDC,relocationRate,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
   netLogoOutputs += ("ts-indicator \"overall-mean-accessibility\"", accessibilityTS),
   netLogoOutputs += ("ts-indicator \"mean-travel-distance\"", traveldistanceTS),
   netLogoOutputs += ("ts-indicator \"stability\"",stabilityTS),
@@ -129,10 +131,10 @@ val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) 
 
 // exploration task
 
-//regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,targetNetwork,setupType,synthConfFile,finalTime
+//regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,relocationRate,evolveNetwork,targetNetwork,setupType,synthConfFile,finalTime
 
 val exploration =  ExplorationTask(
-  ((//(regionalproba in (0.0 to 0.0 by 1)) x
+  /*((//(regionalproba in (0.0 to 0.0 by 1)) x
     (lambdaAcc in (0.002 to 0.01 by 0.002)) x
     (euclpace in (2.0 to 6.0 by 2.0)) x
     //(game in (1 to 2 by 1)) x
@@ -141,46 +143,47 @@ val exploration =  ExplorationTask(
     (gammaCDE in (0.1 to 1.0 by 0.1))x
     (betaDC in (0.5 to 2.0 by 0.5))x
     (synthConfFile in Seq("setup/conf/synth_nonw.conf","setup/conf/synth_cross.conf","setup/conf/synth_spider.conf"))
-  ) withIndex id )
-  /*((LHS (
-    5000
+  ) withIndex id )*/
+  ((LHS (
+    600
     ,regionalproba in Range(0.0,1.0)
     //,lambdaAcc in Range(0.001,0.01)
     //,euclpace in Range(2.5,10.0)
     ,game in Range(1.0,2.999)
-    ,constrcost in Range(0.0,0.01)
-    ,collcost in Range(0.0,0.005)
+    ,collcost in Range(0.0,0.006)
     //,gammaCDA in Range(0.5,1.0),
     //,gammaCDE in Range(0.5,1.0),
     //,betaDC in Range(0.5,2.0)
-  )) withIndex id)*/
-  x (regionalproba is 1.0)
-  //x (lambdaAcc is 0.001)
-  //x (euclpace is 5.0)
-  x (game is 1)
-  x (constrcost is 0.001)
+  )) withIndex id)
+  //x (regionalproba is 1.0)
+  //x (regionalproba in (0.0 to 1.0 by 1.0))
+  x (lambdaAcc is 0.005)
+  x (euclpace is 6.0)
+  //x (game is 1)
   x (collcost is 0.0001)
-  //x (gammaCDA is 0.9)
-  //x (gammaCDE is 0.65)
-  //x (betaDC is 1.8)
-  //x (evolveNetwork is 1)
-  x (evolveNetwork is 0)
+  x (gammaCDA is 0.9)
+  x (gammaCDE is 0.65)
+  x (betaDC is 1.8)
+  x (relocationRate is 0.1)
+  x (evolveNetwork is 1)
+  //x (evolveNetwork is 0)
   x (evolveLanduse is 1)
   x (targetNetwork is 1)
   //x (setupType is 2)
   x (setupType is 1)
-  //x (synthConfFile is "setup/conf/real_nonw.conf")
+  x (synthConfFile is "setup/conf/real_nonw.conf")
   //x (stopType is "time")
   x (stopType is "infrastructure-stock")
-  x (finalValue is 50)
-  x (replication in (UniformDistribution[Int]() take 1))
+  x (finalValue is 30)
+  x (replication in (UniformDistribution[Int]() take 10))
 )
 
 
 //val purpose = "test_realnonw"
 //val purpose = "lhs"
 //val purpose = "grid_realnonw"
-val purpose = "grid_sprawl"
+//val purpose = "grid_sprawl"
+val purpose = "grid_synth"
 
 // output
 val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
