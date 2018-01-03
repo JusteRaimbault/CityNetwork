@@ -482,7 +482,7 @@ SLIDER
 #-initial-territories
 0
 5
-5
+2
 1
 1
 NIL
@@ -631,7 +631,7 @@ BUTTON
 584
 549
 go
-ifelse ticks < total-time-steps [\n  go\n][stop]
+go
 T
 1
 T
@@ -643,10 +643,10 @@ NIL
 0
 
 PLOT
-817
-10
-988
-154
+982
+157
+1153
+301
 convergence
 NIL
 NIL
@@ -697,7 +697,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-0
+1
 0.05
 1
 NIL
@@ -771,7 +771,7 @@ CHOOSER
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
-1
+2
 
 SLIDER
 8
@@ -812,7 +812,7 @@ road-length
 road-length
 0
 20
-0.5
+1
 0.5
 1
 NIL
@@ -849,10 +849,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-404
-681
-555
-714
+643
+636
+804
+669
 compute indicators
 compute-indicators
 NIL
@@ -866,10 +866,10 @@ NIL
 1
 
 SLIDER
-401
-555
-550
-588
+461
+556
+610
+589
 total-time-steps
 total-time-steps
 0
@@ -954,10 +954,10 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-400
-579
-587
-623
+407
+631
+594
+675
 __________________
 20
 0.0
@@ -989,7 +989,7 @@ collaboration-cost
 collaboration-cost
 0
 0.005
-0.00109
+0.005
 1e-6
 1
 NIL
@@ -1023,10 +1023,10 @@ NIL
 1
 
 BUTTON
-403
-647
-584
-680
+644
+602
+804
+635
 construct infrastructure
 if mouse-down? [\n  if length to-construct < 2[\n    set to-construct lput (list mouse-xcor mouse-ycor) to-construct\n  ]\n  if length to-construct = 2[\n    construct-infrastructure (list to-construct) save-nw-config\n    compute-patches-variables\n    update-display\n    set to-construct []\n    verbose (word \"mean-travel-distance : \" mean-travel-distance)\n    stop\n  ]\n  wait 0.2\n  \n]
 T
@@ -1147,10 +1147,10 @@ setup-from-world-file?
 -1000
 
 INPUTBOX
-209
-10
-316
-70
+208
+11
+349
+71
 conf-file
 setup/conf/synth_nonw.conf
 1
@@ -1198,10 +1198,10 @@ evolve-landuse?
 -1000
 
 PLOT
-816
-155
-987
-293
+1155
+154
+1326
+292
 mean-travel-distance
 NIL
 NIL
@@ -1216,10 +1216,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean-effective-distance"
 
 INPUTBOX
-317
-10
-391
-70
+297
+111
+371
+171
 target-network-file
 setup/target/network0.shp
 1
@@ -1237,10 +1237,10 @@ Run
 1
 
 TEXTBOX
-401
-623
-551
-641
+640
+578
+790
+596
 Interactive
 11
 0.0
@@ -1257,6 +1257,31 @@ relocation-rate
 1
 0.16
 0.01
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+366
+560
+458
+605
+stopping-type
+stopping-type
+"time" "infrastructure-stock"
+1
+
+SLIDER
+463
+592
+610
+625
+total-infrastructure-stock
+total-infrastructure-stock
+0
+100
+4
+1
 1
 NIL
 HORIZONTAL
