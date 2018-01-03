@@ -101,7 +101,7 @@ __includes [
   "utils/network/Network.nls"
   "utils/io/Timer.nls"
   "utils/io/Logger.nls"
-  "utils/io/FileUtilities.nls"
+  "utils/io/File.nls"
   "utils/misc/String.nls"
   "utils/math/Statistics.nls"
   "utils/math/EuclidianDistanceUtilities.nls"
@@ -289,6 +289,7 @@ globals[
   infra-snapping-tolerance
   construction-cost
   beta-dc-game
+  relocation-rate
 
   initial-max-acc
 
@@ -332,6 +333,9 @@ globals[
   shortest-paths
   nw-relative-speeds
   nw-distances
+
+  stopping-type
+  total-infrastructure-stock
 
 ]
 
@@ -510,10 +514,10 @@ NIL
 BUTTON
 32
 248
-171
+218
 281
 NIL
-display-target-fit
+display:display-target-fit
 NIL
 1
 T

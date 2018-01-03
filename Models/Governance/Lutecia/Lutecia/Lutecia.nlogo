@@ -110,7 +110,7 @@ __includes [
   "utils/network/Network.nls"
   "utils/io/Timer.nls"
   "utils/io/Logger.nls"
-  "utils/io/FileUtilities.nls"
+  "utils/io/File.nls"
   "utils/misc/String.nls"
 
   ;;;;;;;;;;;
@@ -120,7 +120,7 @@ __includes [
   "test/test.nls"
   "test/test-distances.nls"
   "test/test-transportation.nls"
-  "test/test-experiments.nls"
+  ;"test/test-experiments.nls"
 
 
 ]
@@ -204,6 +204,9 @@ globals[
   ;;;;;;;;;;;;;
   ;; Transportation
   ;;;;;;;;;;;;;
+
+  congestion-price
+  lambda-flows
 
   ;; transportation flows \phi_ij between patches
   flow-matrix
@@ -328,6 +331,8 @@ globals[
 
   tracked-indicators
   history-indicators
+
+  setup-from-world-file? ; only in experiments
 
 ]
 
@@ -631,7 +636,7 @@ BUTTON
 584
 549
 go
-go
+main:go
 T
 1
 T
@@ -643,10 +648,10 @@ NIL
 0
 
 PLOT
-982
-157
-1153
-301
+986
+155
+1151
+290
 convergence
 NIL
 NIL
@@ -697,7 +702,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-1
+0
 0.05
 1
 NIL
@@ -789,21 +794,6 @@ NIL
 HORIZONTAL
 
 SLIDER
-8
-473
-172
-506
-congestion-price
-congestion-price
-0
-10
-1
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
 195
 274
 344
@@ -812,7 +802,7 @@ road-length
 road-length
 0
 20
-1
+0.5
 0.5
 1
 NIL
@@ -881,10 +871,10 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-7
-527
-173
-563
+10
+465
+176
+501
 __________________
 20
 0.0
@@ -937,21 +927,6 @@ false
 "" ""
 PENS
 "default" 1.0 0 -12186836 true "" "plot mean-accessibility patches"
-
-SLIDER
-8
-508
-171
-541
-lambda-flows
-lambda-flows
-0
-1
-1
-0.005
-1
-NIL
-HORIZONTAL
 
 TEXTBOX
 407
@@ -1011,7 +986,7 @@ BUTTON
 526
 549
 go
-go
+main:go
 NIL
 1
 T
@@ -1028,7 +1003,7 @@ BUTTON
 804
 635
 construct infrastructure
-if mouse-down? [\n  if length to-construct < 2[\n    set to-construct lput (list mouse-xcor mouse-ycor) to-construct\n  ]\n  if length to-construct = 2[\n    construct-infrastructure (list to-construct) save-nw-config\n    compute-patches-variables\n    update-display\n    set to-construct []\n    verbose (word \"mean-travel-distance : \" mean-travel-distance)\n    stop\n  ]\n  wait 0.2\n  \n]
+if mouse-down? [\n  if length to-construct < 2[\n    set to-construct lput (list mouse-xcor mouse-ycor) to-construct\n  ]\n  if length to-construct = 2[\n    construct-infrastructure (list to-construct) save-nw-config\n    compute-patches-variables\n    display:update-display\n    set to-construct []\n    verbose (word \"mean-travel-distance : \" mean-travel-distance)\n    stop\n  ]\n  wait 0.2\n  \n]
 T
 1
 T
@@ -1066,24 +1041,9 @@ Display
 
 SLIDER
 194
-426
-344
-459
-construction-cost
-construction-cost
-0
-1e-2
-0.001
-1e-4
-1
-NIL
-HORIZONTAL
-
-SLIDER
-194
-462
+428
 343
-495
+461
 beta-dc-game
 beta-dc-game
 0
@@ -1132,17 +1092,6 @@ SWITCH
 initial-nw?
 initial-nw?
 0
-1
--1000
-
-SWITCH
-160
-184
-338
-217
-setup-from-world-file?
-setup-from-world-file?
-1
 1
 -1000
 
@@ -1280,7 +1229,7 @@ total-infrastructure-stock
 total-infrastructure-stock
 0
 100
-4
+50
 1
 1
 NIL

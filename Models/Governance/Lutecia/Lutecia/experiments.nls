@@ -1,18 +1,18 @@
 ;;;;;
 ;; procedures for oml experiment
 
-to setup-experiment [regionalproba lambdaacc nwspeed game constr-cost coll-cost gammaCDA gammaCDE betaDC evolveNetwork evolveLanduse target-network setuptype conffile finalTime rnd-seed]
+to setup-experiment [regionalproba lambdaacc nwspeed game coll-cost gammaCDA gammaCDE betaDC relocationRate evolveNetwork evolveLanduse target-network setuptype conffile stoptype finalValue rnd-seed]
   
   clear-all
   
-  show (word "Params : regionalproba = " regionalproba " ; lambdaacc = " lambdaacc " ; network-speed = "  nwspeed " ; game = " game " ; constr-cost = " constr-cost " ; coll-cost = " coll-cost
+  show (word "Params : regionalproba = " regionalproba " ; lambdaacc = " lambdaacc " ; network-speed = "  nwspeed " ; game = " game " ; coll-cost = " coll-cost
      " ; gammaCDA = " gammaCDA " ; gammaCDE = " gammaCDE " ; betaDC = " betaDC " ; evolveNetwork = " evolveNetwork
     )
   
   ; conf file
   ;if conf-file = 0 [set conf-file "setup/conf/synth_nonw.conf"] if conf-file = 1 [set conf-file "setup/conf/synth_cross.conf"] if conf-file = 2 [set conf-file "setup/conf/synth_spider.conf"]  
   set conf-file conffile
-  let conf read-conf-file conf-file
+  let conf file:read-conf-file conf-file
   set setup-from-world-file? false
   if table:has-key? conf "world-file" [set setup-from-world-file? true]
     
@@ -37,12 +37,14 @@ to setup-experiment [regionalproba lambdaacc nwspeed game constr-cost coll-cost 
   set lambda-accessibility lambdaacc 
   set network-speed nwspeed
   if floor game = 0 [set game-type "random"] if floor game = 1 [set game-type "simple-nash"] if floor game = 2 [set game-type "discrete-choices"]
-  set construction-cost constr-cost
   set collaboration-cost coll-cost
   
   set gamma-cobb-douglas-e gammaCDE ;0.9
   set gamma-cobb-douglas-a gammaCDA ;0.65
   set beta-discrete-choices betaDC ; 1.8
+  set relocation-rate relocationRate ;0.1
+  
+  
   ; dirty boolean conversion
   if evolveNetwork = 0 [set evolve-network? false] if evolveNetwork = 1 [set evolve-network? true]
   if evolveLanduse = 0 [set evolve-landuse? false] if evolveLanduse = 1 [set evolve-landuse? true]
@@ -60,9 +62,10 @@ to setup-experiment [regionalproba lambdaacc nwspeed game constr-cost coll-cost 
   if setuptype = 1 [set setup-type "gis-synthetic"]
   if setuptype = 2 [set setup-type "gis"]
   
-  
+  set stopping-type stoptype
 
-  set total-time-steps finalTime
+  if stopping-type = "time" [set total-time-steps finalValue]
+  if stopping-type = "infrastructure-stock" [set total-infrastructure-stock finalValue]
   
   if setup-from-world-file? = false [
     set world-size 15
@@ -77,7 +80,7 @@ to run-experiment
   
   carefully[
     repeat total-time-steps [
-      go
+      main:go
     ]
   ]
   [show error-message set failed 1]
@@ -90,7 +93,7 @@ end
 
 
 to export-real-world
-  setup-experiment 1.0 0.01 5 1 0.01 0.005 0.9 0.65 1.8 1 1 0 2 "setup/conf/real_fullsetup.conf" 10 0
+  setup-experiment 1.0 0.01 5 1 0.005 0.9 0.65 1.8 0.1 1 1 0 2 "setup/conf/real_fullsetup.conf" "time" 10 0
   
   show "setup ok, exporting world"
   

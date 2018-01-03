@@ -12,10 +12,10 @@
 to-report network:new-infra [coords]
   let e1 nobody let new-link nobody
   ifelse length first coords = 2 and length last coords = 2[
-  create-transportation-nodes 1 [new-transportation-node setxy first first coords last first coords set e1 self]
+  create-transportation-nodes 1 [network:new-transportation-node setxy first first coords last first coords set e1 self]
   create-transportation-nodes 1 [
-    new-transportation-node setxy first last coords last last coords
-    create-transportation-link-with e1 [new-transportation-link set new-link self]
+    network:new-transportation-node setxy first last coords last last coords
+    create-transportation-link-with e1 [network:new-transportation-link set new-link self]
   ]
   
   ; check if link is valid
@@ -140,7 +140,7 @@ to network:ghost-network-from-gis [file]
               set p1 ([list pxcor pycor] of patch first p1 last p1) set p2 ([list pxcor pycor] of patch first p2 last p2)
               if p1 != p2 [
                 create-ghost-transportation-nodes 1 [
-                  new-transportation-node setxy first p1 last p1
+                  network:new-transportation-node setxy first p1 last p1
                   hatch 1 [setxy first p2 last p2 create-ghost-transportation-link-with myself]
                 ]
               ]
@@ -156,12 +156,12 @@ end
 
 
 
-to new-transportation-node
+to network:new-transportation-node
   set shape "circle" set size 0.2 set color red
 end
 
 
-to new-transportation-link
+to network:new-transportation-link
   set color red set thickness 0.2
   
   ; define capacity ?
@@ -208,7 +208,7 @@ to network:update-network-age [old-nw-age]
     set age max-index ages
   ]
   
-  update-nw-display
+  display:update-nw-display
   
   
 end

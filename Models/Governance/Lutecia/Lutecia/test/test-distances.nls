@@ -30,21 +30,21 @@ end
 
 ;;
 ; test update of nw matrices
-to setup-test-nw-mat
+to test-distances:setup-test-nw-mat
   ca
-  setup-patches
+  setup:setup-patches
   setup:setup-transportation
-  setup-cached-distances
+  setup:setup-cached-distances
   set gridor true
 end
 
-to test-nw-mat-grid-nw
+to test-distances:test-nw-mat-grid-nw
   tic
   ask patches [set pcolor black]
   
   let new-link nobody
   create-transportation-nodes 1 [
-    new-transportation-node set hidden? true
+    network:new-transportation-node set hidden? true
     ;setxy random-xcor random-ycor 
     ;test a random grid
     ifelse gridor [ 
@@ -52,10 +52,10 @@ to test-nw-mat-grid-nw
     ][move-to one-of patches with [(pycor = min-pycor or pycor = max-pycor) and count transportation-nodes in-radius 1.5  = 0]]
     hatch 1 [
       ;setxy random-xcor random-ycor
-      new-transportation-node 
+      network:new-transportation-node 
       let x [xcor] of myself let y [ycor] of myself
       if x = max-pxcor [setxy min-pxcor y] if x = min-pxcor [setxy max-pxcor y] if y = min-pycor [setxy x max-pycor] if y = max-pycor [setxy x min-pycor]
-      create-transportation-link-with myself [new-transportation-link set new-link self set color green
+      create-transportation-link-with myself [network:new-transportation-link set new-link self set color green
         ;one-of [yellow blue red] set hidden? true
         ]
     ]
@@ -89,14 +89,14 @@ to test-nw-mat-random-nw
   
   let new-link nobody
   create-transportation-nodes 1 [
-    new-transportation-node set hidden? true
+    network:new-transportation-node set hidden? true
     setxy random-xcor random-ycor
     let o self
     ;test a random grid
     hatch 1 [
       move-to one-of patches with [distance o > 20]
-      new-transportation-node 
-      create-transportation-link-with myself [new-transportation-link set new-link self set color green
+      network:new-transportation-node 
+      create-transportation-link-with myself [network:new-transportation-link set new-link self set color green
         ;one-of [yellow blue red] set hidden? true
         ]
     ]

@@ -245,8 +245,13 @@ Le sous-modèle pour la gouvernance suit les hypothèses suivantes :
 %\item Possible strategies for players (negotiating areas, $i=1,2$) are : not collaborating ($NC$) and collaborating ($C$). Strategies are chosen simultaneously (non-cooperative game) as detailed after. For $(C,NC)$ and $(NC,C)$ couples, the collaborating agent loose its investment and cannot build a road whereas the other continues his business alone. For $(NC,NC)$ both act as alone, and for $(C,C)$ a common development is done.
 
 
+\bpar{
+We denote $Z^{\ast}_i(S_1,S_2)$ the optimal infrastructure for area $i$ with $(S_1,S_2)\in \{(NC,C),(C,NC),(NC,NC)\}$ which are determined the standard way in each zone separately, and $Z^{\ast}_C$ the optimal common infrastructure computed with a 2 segments infrastructure on the union of both areas, which corresponds to the case where both strategies are $C$. Marginal accessibilities for area $i$ and infrastructure $Z$ is defined as $\Delta X_i(Z)=X^Z_i - X_i$. We introduce the costs of construction,  noted $I$ for a road segment, assumed spatially uniform. A 2 road segment will cost $2\cdot I - J$ ($J > 0$ cost gain of common technical means, assumed to be equally shared).
+}{
+Nous notons $Z^{\ast}_i(S_1,S_2)$ l'infrastructure optimale 
+}
 
-We denote $Z^{\ast}_i(S_1,S_2)$ the optimal infrastructure for area $i$ with $(S_1,S_2)\in \{(NC,C),(C,NC),(NC,NC)\}$ which are determined the standard way in each zone separately, and $Z^{\ast}_C$ the optimal common infrastructure computed with a 2 segments infrastructure on the union of both areas, which corresponds to the case where both strategies are $C$. Marginal accessibilities for area $i$ and infrastructure $Z$ is defined as $\Delta X_i(Z)=X^Z_i - X_i$. We introduce the costs of construction,  noted $I$ for a road segment, assumed spatially uniform. A 2 road segment will cost $2\cdot I - J$ ($J > 0$ cost gain of common technical means, assumed to be equally shared). 
+ 
 %The determination of probabilities defining mixed strategies is based on the notion of payoff matrix, that is the value of utility gains for each players and each possible strategy configuration. The payoff matrix of the game is the following, with $\kappa$ a normalization constant (``price of accessibility'') :
 
 %
@@ -331,18 +336,17 @@ p_i = \frac{1}{1 + \exp{\left(-\beta_{DC}\cdot \left(\frac{\Delta X_{i}{Z^{\star
 \caption[Summary of LUTECIA model parameters][Résumé des paramètres du modèle LUTECIA]{\textbf{Summary of LUTECIA model parameters.} with their default values.\label{tab:lutecia:parameters}}{\textbf{Résumé des paramètres du modèle LUTECIA.} Nous donnons également les processus correspondant, les bornes typiques de variation et leur valeur par défaut.\label{tab:lutecia:parameters}}
 \begin{tabular}{|c|c|c|c|c|c|}
   \hline
- Sous-modèle & Paramètre & Nom & Processus & Bornes & Defaut\\
+ Module & Parameter & Name & Process & Range & Default Value\\
   \hline
 \multirow{5}{*}{Usage du sol}& $\lambda$ & Portée de l'accessibilité & Accessibilité & $]0;1]$ & $0.001$ \\\cline{2-6}
- & $\gamma_A$ & Exposant de Cobb-Douglas actifs & Utilité & $[0;1]$ & $0.85$ \\\cline{2-6}
-  & $\beta$ & Exposant de choix discrets & Relocalisation & $[0;+\infty]$ & $1$ \\\cline{2-6}
- & $\gamma_E$ & Exposant de Cobb-Douglas emplois & Utilité & $[0;1]$ & $0.85$ \\\cline{2-6}
- & $\alpha$ & Relocation rate & Relocation & $[0;1]$ & $0.05$ \\\hline
+ & $\gamma_A$ & Exposant de Cobb-Douglas actifs & \multirow{2}{*}{Utilité} & $[0;1]$ & $0.85$ \\\cline{2-3}\cline{5-6}
+ & $\gamma_E$ & Exposant de Cobb-Douglas emplois &  & $[0;1]$ & $0.85$ \\\cline{2-6}
+ & $\beta$ & Discrete choice exponent & \multirow{2}{*}{Relocation} & $[0;+\infty]$ & $1$ \\\cline{2-3}\cline{5-6}
+ & $\alpha$ & Relocation rate &  & $[0;1]$ & $0.05$ \\\hline
 \multirow{2}{*}{Transportation} & $v_G$ & Network relative speed & Transport hierarchy & $[1;+\infty [$ & $5$ \\\cline{2-6}
 & $\lambda$ & Accessibility distance decay & Commuting range & $[0;+\infty [$ & $5$ \\
   \hline
-\multirow{3}{*}{Governance} & $I$ & Construction cost & \multirow{3}{*}{Network Planning} & $$ & $0.001$ \\\cline{2-3}\cline{5-6}
- & $J$ & Collaboration cost &  & $$ & $0.001$ \\\cline{2-3}\cline{5-6}
+\multirow{2}{*}{Governance} & $J$ & Collaboration cost &  & $$ & $0.001$ \\\cline{2-3}\cline{5-6}
  & $l_r$ & Infrastructure length &  & $]0;\sqrt{2}\cdot K [$ & $2$ \\\hline
 \end{tabular}
 \end{table}
@@ -352,6 +356,21 @@ p_i = \frac{1}{1 + \exp{\left(-\beta_{DC}\cdot \left(\frac{\Delta X_{i}{Z^{\star
 
 
 
+%%%%%%%%%%%%%%
+\subsubsection{Model implementation}{Implémentation du modèle}
+
+Le modèle est implémenté en Netlogo, pour des raisons d'ergonomie vu son niveau de complexité, ainsi que les possibilités d'exploration interactives. Une attention particulière a été portée aux points suivants :
+\begin{itemize}
+	\item Les calculs des matrices de distance sont nécessaires pour chaque segment d'infrastructure potentiel, ce qui rend le module de gouvernance très couteux sur le plan computationnel. Nous utilisons donc un calcul des plus courts chemins basé sur la programmation dynamique, inspiré de~\cite{tretyakov2011fast}, mettant à jour directement la matrice des distances plutôt que de recalculer les plus courts chemins à chaque fois.
+\end{itemize}
+
+
+Plus de détails d'implémentation sont donnés en Annexe~\ref{app:sec:}
+
+
+
+
+%%%%%%%%%%%%%%
 \subsubsection{Model validation}{Validation du modèle}
 
 

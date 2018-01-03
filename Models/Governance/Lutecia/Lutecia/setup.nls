@@ -19,30 +19,30 @@ to setup:setup
   setup:setup-globals
   
   ; world
-  setup-world
+  setup:setup-world
   
   
   ; setup patches
-  setup-patches
+  setup:setup-patches
   
   ; setup initial governance
   setup:setup-territories
   
   ; setup initial configuration
-  setup-initial-distributions
+  setup:setup-initial-distributions
   
   if with-externalities? [
-    setup-externalities
+    setup:setup-externalities
   ]
   
   ; setup transportation
   setup:setup-transportation
   
   ; cached distances
-  setup-cached-distances
+  setup:setup-cached-distances
   
   ; setup initial network
-  setup-initial-network
+  setup:setup-initial-network
   
   
   ; initial accessibilities
@@ -52,7 +52,7 @@ to setup:setup
   setup:setup-indicators
   
   ; display
-  setup-display
+  setup:setup-display
   
   
   
@@ -64,20 +64,27 @@ end
 ;  setup global variables
 to setup:setup-globals
   
+  set infra-snapping-tolerance 1
+  
+  ;;;;;
+  ;; transportation
+  set network-min-pace 1
+  set euclidian-min-pace network-speed
+  set congestion-price 1
+  set lambda-flows 1 ; \in [0;1]
+  
+  ;;;;
+  ;; Externality
   set with-externalities? false
   set ext-employments-proportion-of-max 3
   set ext-growth-factor 1
   
-  set infra-snapping-tolerance 1
-  
-  set network-min-pace 1
-  set euclidian-min-pace network-speed
   
   set to-construct []
   set collaborations-wanted [] set collaborations-realized [] set collaborations-expected []
   
   ;
-  let conf read-conf-file conf-file
+  let conf file:read-conf-file conf-file
   set gis-network-file table:get conf "gis-network-file"
   set gis-extent-file table:get conf "gis-extent-file"
   set gis-centers-file table:get conf "gis-centers-file"
@@ -104,7 +111,7 @@ to setup:setup-globals
 end
 
 
-to setup-world
+to setup:setup-world
   reset-ticks
   
   ; random seed
@@ -121,7 +128,7 @@ end
 
 ;;
 ; setup patches
-to setup-patches
+to setup:setup-patches
   
   if setup-type = "gis-synthetic" [
     gis:set-world-envelope gis:envelope-of gis:load-dataset gis-extent-file 
@@ -166,14 +173,14 @@ to setup:setup-territories
   
   ; create mayors
   create-mayors #-initial-territories [
-    initial-position-mayor  
-    new-mayor
+    mayor:initial-position-mayor  
+    mayor:new-mayor
   ]
   
   ; create regional authority
   create-mayors 1 [set regional-authority self set hidden? true]
   
-  setup-governance-areas
+  setup:setup-governance-areas
   
   
 end
@@ -181,7 +188,7 @@ end
 
 ;;
 ;  setup governance areas
-to setup-governance-areas
+to setup:setup-governance-areas
  
   if setup-type = "random" or setup-type = "from-file" or setup-type = "gis-synthetic" [
     ask patches [set governing-mayor one-of ((mayors with [self != regional-authority]) with-min [distance myself]) set pcolor [color] of governing-mayor]
@@ -209,13 +216,13 @@ end
 
 ;;
 ;  Setup initial distributions of actives and employments (polycentric Bussiere model)
-to setup-initial-distributions
+to setup:setup-initial-distributions
   
   output-print "... Distributions"
   
-  setup-population-distribution
+  setup:setup-population-distribution
   
-  setup-employment-distribution
+  setup:setup-employment-distribution
   
   ; setup global lists
   set patches-employments rep 0 count patches
@@ -229,7 +236,7 @@ end
 
 ;;
 ; population distribution
-to setup-population-distribution
+to setup:setup-population-distribution
    
    if setup-type = "random" or setup-type = "from-file" or setup-type = "gis-synthetic" [
      let centers [patch-here] of mayors with [self != regional-authority]
@@ -251,7 +258,7 @@ end
 
 ;;
 ; employments distribution
-to setup-employment-distribution
+to setup:setup-employment-distribution
   
   if setup-type = "random" or setup-type = "from-file" or setup-type = "gis-synthetic" [
     let centers [patch-here] of mayors with [self != regional-authority]
@@ -279,9 +286,9 @@ end
 
 ;;
 ; Setup display
-to setup-display
+to setup:setup-display
   display:color-patches
-  draw-boundaries
+  display:draw-boundaries
 end
 
 
@@ -290,7 +297,7 @@ end
 ;;
 ;
 ;
-to setup-externalities
+to setup:setup-externalities
   let ext-patch nobody
   if setup-type = "random" [
     ; with 2 mayors : equidistance
@@ -328,7 +335,7 @@ end
 ; Initial network
 ;
 ;  Done AFTER nw distance caching ; updates
-to setup-initial-network
+to setup:setup-initial-network
   
   if initial-nw? != false [
   
@@ -381,7 +388,7 @@ end
 ;;
 ; Cached distances : initialize matrices
 ;
-to setup-cached-distances
+to setup:setup-cached-distances
   
   output-print "Caching distances"
   
@@ -407,7 +414,7 @@ to setup-cached-distances
   ]
   
   ; setup nw matrices, needed in particular if initial nw
-  setup-nw-matrices
+  setup:setup-nw-matrices
   
   ; use generic function
   update-effective-matrices
@@ -417,7 +424,7 @@ end
 
 ;;
 ; setup initial network matrices
-to setup-nw-matrices
+to setup:setup-nw-matrices
   tic output-print "...NW shortest distances"
   set #-patches count patches
   ifelse count transportation-nodes = 0 [
@@ -477,7 +484,7 @@ to setup:setup-mayor-characteristics
   set ext-position []
   
   if setup-type = "from-file"[
-    let lines read-file positions-file
+    let lines file:read-file positions-file
   
     foreach but-first but-first lines [
       let p []
@@ -486,7 +493,7 @@ to setup:setup-mayor-characteristics
     ]
   
     ; ext file : one only ?
-    foreach string:explode ";" first but-first but-first read-file ext-file [
+    foreach string:explode ";" first but-first but-first file:read-file ext-file [
        set ext-position lput read-from-string ? ext-position
     ]
   ]
@@ -578,7 +585,7 @@ to setup:setup-headless-vars
 
   ; transportation params
   ;set congestion-price 50
-  set congestion-price 1
+  ;set congestion-price 1
  
   
   ;set initial-nw? true

@@ -11,7 +11,6 @@ val regionalproba = Val[Double]
 val lambdaAcc = Val[Double]
 val euclpace = Val[Double]
 val game = Val[Double]
-val constrcost = Val[Double]
 val collcost=Val[Double]
 val gammaCDA=Val[Double]
 val gammaCDE=Val[Double]
@@ -21,6 +20,7 @@ val evolveLanduse = Val[Int]
 val targetNetwork = Val[Int]
 val setupType = Val[Int]
 val synthConfFile = Val[String]
+val stopType = Val[String]
 val finalTime = Val[Int]
 
 val id = Val[Int]
@@ -62,7 +62,9 @@ val relDiffEmploymentsTS = Val[Array[Double]]
 val nwLength = Val[Double]
 val nwRelativeSpeed = Val[Double]
 val nwCloseness = Val[Double]
+val nwAlphaCloseness = Val[Double]
 val nwBetweenness = Val[Double]
+val nwAlphaBetweenness = Val[Double]
 val nwPathLength = Val[Double]
 val nwDiameter = Val[Double]
 
@@ -75,15 +77,15 @@ val failed=Val[Double]
 val targetDistance = Val[Double]
 
 
-// regionalproba lambdaacc euclpace game constr-cost coll-cost gammaCDA gammaCDE betaDC evolveNetwork target-network setuptype synthconffile finalTime rnd-seed
+// regionalproba lambdaacc euclpace game coll-cost gammaCDA gammaCDE betaDC evolveNetwork target-network setuptype synthconffile finalTime rnd-seed
 val cmds = List(
-  "setup-experiment ${regionalproba} ${lambdaAcc} ${euclpace} ${game} ${constrcost} ${collcost} ${gammaCDA} ${gammaCDE} ${betaDC} ${evolveNetwork} ${evolveLanduse} ${targetNetwork} ${setupType} \"${synthConfFile}\" ${finalTime} ${replication}",
+  "setup-experiment ${regionalproba} ${lambdaAcc} ${euclpace} ${game} ${collcost} ${gammaCDA} ${gammaCDE} ${betaDC} ${evolveNetwork} ${evolveLanduse} ${targetNetwork} ${setupType} \"${synthConfFile}\" \"${stopType}\" ${finalValue} ${replication}",
   "run-experiment"
 )
 
 val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) set(
-  inputs += (regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,finalTime,replication,id),
-  outputs += (regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,finalTime,replication,id),
+  inputs += (regionalproba,lambdaAcc,euclpace,game,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
+  outputs += (regionalproba,lambdaAcc,euclpace,game,collcost,gammaCDA,gammaCDE,betaDC,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
   netLogoOutputs += ("ts-indicator \"overall-mean-accessibility\"", accessibilityTS),
   netLogoOutputs += ("ts-indicator \"mean-travel-distance\"", traveldistanceTS),
   netLogoOutputs += ("ts-indicator \"stability\"",stabilityTS),
@@ -109,7 +111,9 @@ val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) 
   netLogoOutputs += ("total-nw-length",nwLength),
   netLogoOutputs += ("mean-relative-speed",nwRelativeSpeed),
   netLogoOutputs += ("mean-closeness-centrality",nwCloseness),
+  netLogoOutputs += ("alpha-closeness-centrality",nwAlphaCloseness),
   netLogoOutputs += ("mean-bw-centrality",nwBetweenness),
+  netLogoOutputs += ("alpha-bw-centrality",nwAlphaBetweenness),
   netLogoOutputs += ("mean-path-length",nwPathLength),
   netLogoOutputs += ("nw-diameter",nwDiameter),
   netLogoOutputs += ("game-type", gametype),
@@ -132,7 +136,6 @@ val exploration =  ExplorationTask(
     (lambdaAcc in (0.002 to 0.01 by 0.002)) x
     (euclpace in (2.0 to 6.0 by 2.0)) x
     //(game in (1 to 2 by 1)) x
-    //(constrcost in (0.001 to 0.001 by 1)) x
     //(collcost in (0.00005 to 0.00013 by 0.00002))x
     (gammaCDA in (0.1 to 1.0 by 0.1))x
     (gammaCDE in (0.1 to 1.0 by 0.1))x
@@ -167,7 +170,9 @@ val exploration =  ExplorationTask(
   //x (setupType is 2)
   x (setupType is 1)
   //x (synthConfFile is "setup/conf/real_nonw.conf")
-  x (finalTime is 50)
+  //x (stopType is "time")
+  x (stopType is "infrastructure-stock")
+  x (finalValue is 50)
   x (replication in (UniformDistribution[Int]() take 1))
 )
 

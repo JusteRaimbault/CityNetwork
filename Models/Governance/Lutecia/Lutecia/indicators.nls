@@ -58,7 +58,18 @@ end
 
 
 ;;
-;
+; generic rank size hierarchy
+to-report rank-size-hierarchy [x]
+  if max x = 0 and min x = 0 [report [0 0]]
+  let sol matrix:regress matrix:from-column-list (list (map [log ? 10] sort-by [?1 >= ?2] x) (map [log ? 10] seq 1 length x 1))
+  report (list (last first sol) (first last sol))
+end
+
+
+
+
+;;
+; distance to target network
 to-report target-network-distance
   ; kill potential previous target network
   ;ask transportation-links with [status = "ghost"] [ask both-ends [die] die]
@@ -244,9 +255,24 @@ to-report mean-bw-centrality
   report (mean [bw-centrality] of transportation-links) * 2 / (n * (n - 1))
 end
 
+;;
+; hierarchy betwenness centrality
+to-report alpha-bw-centrality
+  report first rank-size-hierarchy ([bw-centrality] of transportation-links)
+end
+
+;;
+; average closeness centrality
 to-report mean-closeness-centrality
   let n count transportation-nodes if n = 0 [report 0]
   report (mean [transportation-node-closeness-centrality] of transportation-nodes) / n
+end
+
+
+;;
+; hierarchy closeness
+to-report alpha-closeness-centrality
+  report first rank-size-hierarchy ([transportation-node-closeness-centrality] of transportation-links)
 end
 
 
@@ -261,7 +287,7 @@ end
 ; nw length -> not normalized
 to-report total-nw-length
   if count transportation-nodes = 0 [report 0]
-  report sum [road-length] of transportation-links
+  report sum [link-length] of transportation-links
 end
 
 
@@ -312,31 +338,6 @@ to-report externality-decrepitude
   report externality-employments / (employments-max * ext-employments-proportion-of-max)
 end
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-;; DEPRECATED using morphology extension
 
-;; entropy of distribution of actives
-;to-report actives-entropy
-;  let actives-patches patches with [actives > 0]
-;  let atot sum [actives] of actives-patches
-;  report (- 1 / (ln count patches) * sum [actives / atot * ln (actives / atot)] of actives-patches)
-;end
-
-;; entropy of distribution of employments
-;to-report employments-entropy
-;  let employment-patches patches with [employments > 0]
-;  let etot sum [employments] of employment-patches
-;  report (- 1 / (ln count patches) * sum [employments / etot * ln (employments / etot)] of employment-patches)
-;end  
-  
-  
 
 

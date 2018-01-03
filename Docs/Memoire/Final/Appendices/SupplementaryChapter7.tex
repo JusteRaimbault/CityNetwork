@@ -43,13 +43,15 @@ Les espaces topologiques des réseaux générés en~\ref{sec:networkgrowth} peuv
 %%%%%%%%%%%%%%%%%%%%%%%
 \section{Transportation Network Governance modeling}{Modélisation de la gouvernance du système de transport}
 
+\label{app:sec:lutecia}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Semi-analytical study of the land-use model}{Etude semi-analytique du modèle d'usage du sol}
 
 \cite{leurent2014user}
 
-Nous étudions ici la question de la convergence dans le temps de la distribution des activités.
+Nous étudions ici la question de la convergence dans le temps de la distribution des activités, à infrastructure fixe.
 
 Considérons un cas très simple : en prenant $\lambda = 0$ on déspatialise le problème et en prenant $\gamma_A = 1$ on finit de découpler population et emplois. En posant $\beta' = \sum_j E_j \cdot \beta$ et $P_0 = \frac{\sum_i P_i}{\sum_i \exp \beta' P_i}$, l'existence d'un point fixe pour les populations se ramène à la résolution de
 \[
@@ -58,6 +60,52 @@ P_i = P_0 \cdot \frac{\exp\left(\beta' \cdot P_i\right)}{\sum \exp\left(\beta' \
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Transportation Sub-model}{Module de transport}
+
+Nous n'avons pas pris en compte les flux de transport dans notre implémentation du modèle, supposant que les infrastructures construites sont de capacités suffisantes pour ne pas être significativement sensibles à la congestion.
+
+
+Pour le calcul des flux entre cellules, l'opération est la suivante : les flux $\phi_{ij}$ sont calculés par résolution sur $p_i,q_j$ par une méthode de point fixe (algorithme de Furness), du système des flux gravitaires :
+
+
+\[
+\begin{cases}
+\phi_{ij} = p_i q_j A_i E_j \exp{\left(-\lambda_{tr} d_{ij}\right)}\\
+\sum_k \phi_{kj} = E_j ; \sum_k \phi_{ik} = A_i\\
+p_i = \frac{1}{\sum_k{q_k E_k \exp{(-\lambda_{tr}d_{ik})}}}\\
+q_j = \frac{1}{\sum_k{p_k A_k \exp{(-\lambda_{tr}d_{kj})}}} 
+\end{cases}
+\]
+
+Pour implémenter l'étape de distribution des flux dans le réseau, une fois les flux entre cellules connus, il faudrait par exemple déterminer les flux de l'Equilibre Utilisateur Statique avec un algorithme approprié.
+
+%Trajectories are then attributed by effective shortest path, and corresponding congestion $c$ is computed on the corresponding flows (we do not complicate with a User Equilibrium or more complicated traffic assignment procedure). The speed of network given by BPR function $v(c) = v_0 \left(1 - \frac{c}{\kappa}\right)^{\gamma_c}$. Congestion is not used in current studies (infinite capacity $\kappa$).
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Implementation details}{Détails d'implémentation}
+
+
+
+\bpar{
+Distance via network are updated in a dynamical programming fashion for efficiency purposes (because of the numerous network updates), the following way :
+\begin{enumerate}
+\item Euclidian distance matrix $d(i,j)$ computed analytically
+\item Network shortest paths between network intersections (rasterized network) updated in a dynamic way (addition of new paths and update/change of old paths if needed when a link is added), correspondance between network patches and closest intersection also updated dynamically ; $O(N_{inters}^3)$
+\item Weak component clusters and distance between clusters updated ; $O(N_{nw}^2)$
+\item Network distances between network patches updated, through the heuristic of only minimal connexions between clusters ; $O(N_{nw}^2)$
+\item Effective distances (taking paces/congestion into account) updated as minimum between euclidian time and \[\min_{C,C'}{d(i,C)+d_{nw}(p_C(i),p_C'(j))+d(C',j)}\], complexity in $O(N_{clusters}^2\cdot N^2)$ (Approximated with $\min_C$ only in the implementation, consistent within the interaction ranges $\sim$ 5 patches taken in the model). 
+\end{enumerate}
+}{
+La matrice des distances est mise à jour de manière dynamique pour des questions de rapidité d'execution (vu le nombre de mises à jour du réseau), de la façon suivante :
+\begin{enumerate}
+	\item La matrice de distance euclidienne $d(i,j)$ est calculée analytiquement
+\end{enumerate}
+}
 
 
 

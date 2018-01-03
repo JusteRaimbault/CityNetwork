@@ -1,6 +1,6 @@
 ;;read and write file utilities
 
-to-report read-file [filename]
+to-report file:read-file [filename]
   let res []
   file-open filename
   while [not file-at-end?][
@@ -12,15 +12,15 @@ end
 
 
 
-to print-in-file [filename output]
+to file:print-in-file [filename output]
   file-open filename
   file-print output
   file-close
 end
 
-to-report read-conf-file [filename]
+to-report file:read-conf-file [filename]
   let res table:make
-  let raw read-file filename
+  let raw file:read-file filename
   foreach raw [
     let entry string:explode ":" ?
     table:put res first entry last entry
@@ -37,12 +37,12 @@ end
 
 ;;override existing file or write it at the end?
 
-to export-plot-as-scilab [plotname filename var1name var2name]
+to file:export-plot-as-scilab [plotname filename var1name var2name]
   if file-exists? filename [file-delete filename]
   let tempfile word date-and-time ".temp"
-  print-in-file tempfile ""
-  print-in-file filename word "//Export plot as scilab data : " plotname
-  print-in-file filename word word word var1name "=[];" var2name "=[];"
+  file:print-in-file tempfile ""
+  file:print-in-file filename word "//Export plot as scilab data : " plotname
+  file:print-in-file filename word word word var1name "=[];" var2name "=[];"
 
   export-plot plotname tempfile
   
@@ -79,17 +79,17 @@ end
 ;; list csv export
 ;;;;;;
 
-to lists-csv-export [lists header separator filename]
+to file:lists-csv-export [lists header separator filename]
   ;;first get name of vars to write first line
   ;;rq: we suppose that export is done in same order !!!
   let first-line ""
   foreach header [set first-line word first-line ? if ? != last header [set first-line word first-line separator]]
-  print-in-file filename first-line
+  file:print-in-file filename first-line
   foreach lists [
     let line ""
     let lst last ?
     foreach ? [set line word line ? if ? != lst [set line word line separator]]
-    print-in-file filename line
+    file:print-in-file filename line
   ] 
 end
 
