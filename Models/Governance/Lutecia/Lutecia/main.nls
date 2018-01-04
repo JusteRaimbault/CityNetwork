@@ -7,7 +7,7 @@
 
 to main:go
   
-  if stopping-condition? [stop]
+  if main:stopping-condition? [stop]
   
   ;; transportation : flux and congestion in nw
   ;;
@@ -21,7 +21,7 @@ to main:go
   governance
   
   ;; indicators
-  update-indicators
+  indicators:update-indicators
   
   ;; display
   display:color-patches
@@ -32,7 +32,7 @@ end
 
 
 
-to-report stopping-condition?
+to-report main:stopping-condition?
    if stopping-type = "time" [let cond (ticks >= total-time-steps) if cond = true [output-print (word "Stopping : reached " total-time-steps " time steps" )] report cond]
    if stopping-type = "infrastructure-stock" [let cond ((sum [link-length] of transportation-links) > total-infrastructure-stock) if cond = true [output-print (word "Stopping : reached " total-infrastructure-stock " infra length built" )] report cond]
 end

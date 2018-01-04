@@ -12,6 +12,7 @@ val lambdaAcc = Val[Double]
 val euclpace = Val[Double]
 val game = Val[Double]
 val collcost=Val[Double]
+val roadLength = Val[Double]
 val gammaCDA=Val[Double]
 val gammaCDE=Val[Double]
 val betaDC=Val[Double]
@@ -79,15 +80,15 @@ val failed=Val[Double]
 val targetDistance = Val[Double]
 
 
-// regionalproba lambdaacc nwspeed game coll-cost gammaCDA gammaCDE betaDC relocationRate evolveNetwork evolveLanduse target-network setuptype conffile stoptype finalValue rnd-seed
+// regionalproba lambdaacc nwspeed game coll-cost roadLength gammaCDA gammaCDE betaDC relocationRate evolveNetwork evolveLanduse target-network setuptype conffile stoptype finalValue rnd-seed
 val cmds = List(
-  "setup-experiment ${regionalproba} ${lambdaAcc} ${euclpace} ${game} ${collcost} ${gammaCDA} ${gammaCDE} ${betaDC} ${relocationRate} ${evolveNetwork} ${evolveLanduse} ${targetNetwork} ${setupType} \"${synthConfFile}\" \"${stopType}\" ${finalValue} ${replication}",
+  "setup-experiment ${regionalproba} ${lambdaAcc} ${euclpace} ${game} ${collcost} ${roadLength} ${gammaCDA} ${gammaCDE} ${betaDC} ${relocationRate} ${evolveNetwork} ${evolveLanduse} ${targetNetwork} ${setupType} \"${synthConfFile}\" \"${stopType}\" ${finalValue} ${replication}",
   "run-experiment"
 )
 
 val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) set(
-  inputs += (regionalproba,lambdaAcc,euclpace,game,collcost,gammaCDA,gammaCDE,betaDC,relocationRate,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
-  outputs += (regionalproba,lambdaAcc,euclpace,game,collcost,gammaCDA,gammaCDE,betaDC,relocationRate,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
+  inputs += (regionalproba,lambdaAcc,euclpace,game,collcost,roadLength,gammaCDA,gammaCDE,betaDC,relocationRate,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
+  outputs += (regionalproba,lambdaAcc,euclpace,game,collcost,roadLength,gammaCDA,gammaCDE,betaDC,relocationRate,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
   netLogoOutputs += ("ts-indicator \"overall-mean-accessibility\"", accessibilityTS),
   netLogoOutputs += ("ts-indicator \"mean-travel-distance\"", traveldistanceTS),
   netLogoOutputs += ("ts-indicator \"stability\"",stabilityTS),
@@ -145,14 +146,15 @@ val exploration =  ExplorationTask(
     (synthConfFile in Seq("setup/conf/synth_nonw.conf","setup/conf/synth_cross.conf","setup/conf/synth_spider.conf"))
   ) withIndex id )*/
   ((LHS (
-    600
+    5
     ,regionalproba in Range(0.0,1.0)
     //,lambdaAcc in Range(0.001,0.01)
     //,euclpace in Range(2.5,10.0)
     ,game in Range(1.0,2.999)
     ,collcost in Range(0.0,0.006)
-    //,gammaCDA in Range(0.5,1.0),
-    //,gammaCDE in Range(0.5,1.0),
+    ,roadLength in Range(0.5,2.5)
+    //,gammaCDA in Range(0.5,1.0)
+    //,gammaCDE in Range(0.5,1.0)
     //,betaDC in Range(0.5,2.0)
   )) withIndex id)
   //x (regionalproba is 1.0)
@@ -175,7 +177,7 @@ val exploration =  ExplorationTask(
   //x (stopType is "time")
   x (stopType is "infrastructure-stock")
   x (finalValue is 30)
-  x (replication in (UniformDistribution[Int]() take 10))
+  x (replication in (UniformDistribution[Int]() take 1))
 )
 
 
@@ -183,7 +185,7 @@ val exploration =  ExplorationTask(
 //val purpose = "lhs"
 //val purpose = "grid_realnonw"
 //val purpose = "grid_sprawl"
-val purpose = "grid_synth"
+val purpose = "test_grid_synth"
 
 // output
 val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
@@ -192,8 +194,8 @@ val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new Simp
 
 
 
-//val local = LocalEnvironment(5)
-val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+val local = LocalEnvironment(5)
+//val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
-//exploration -< (model on local hook indics_hook)
-exploration -< (model on grid by 50 hook indics_hook)
+exploration -< (model on local hook indics_hook)
+//exploration -< (model on grid by 50 hook indics_hook)

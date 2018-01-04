@@ -9,7 +9,7 @@
 ;-> hierarchy case, population, evol hierarchy.  -- TODO --
 
 
-to update-indicators
+to indicators:update-indicators
   foreach tracked-indicators [
     let val run-result ?
     table:put history-indicators ? (lput val (table:get history-indicators ?))
@@ -17,7 +17,7 @@ to update-indicators
 end
 
 
-to compute-indicators
+to indicators:compute-indicators
   network:cache-nw-measures
   
   output-print (word "mean-accessibility : " mean-accessibility patches)
@@ -34,6 +34,8 @@ to compute-indicators
   output-print (word "mean-bw-centrality : " mean-bw-centrality)
   output-print (word "mean-path-length : " mean-path-length)
   output-print (word "nw-diameter : " nw-diameter)
+  output-print (word "alpha-bw-centrality : " alpha-bw-centrality)
+  output-print (word "alpha-closeness-centrality : " alpha-closeness-centrality)
 end
 
 to compute-network-indicators
@@ -60,6 +62,7 @@ end
 ;;
 ; generic rank size hierarchy
 to-report rank-size-hierarchy [x]
+  if length x = 0 [report [0 0]]
   if max x = 0 and min x = 0 [report [0 0]]
   let sol matrix:regress matrix:from-column-list (list (map [log ? 10] sort-by [?1 >= ?2] x) (map [log ? 10] seq 1 length x 1))
   report (list (last first sol) (first last sol))
@@ -272,7 +275,7 @@ end
 ;;
 ; hierarchy closeness
 to-report alpha-closeness-centrality
-  report first rank-size-hierarchy ([transportation-node-closeness-centrality] of transportation-links)
+  report first rank-size-hierarchy ([transportation-node-closeness-centrality] of transportation-nodes)
 end
 
 

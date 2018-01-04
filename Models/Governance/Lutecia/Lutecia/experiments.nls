@@ -1,7 +1,7 @@
 ;;;;;
 ;; procedures for oml experiment
 
-to setup-experiment [regionalproba lambdaacc nwspeed game coll-cost gammaCDA gammaCDE betaDC relocationRate evolveNetwork evolveLanduse target-network setuptype conffile stoptype finalValue rnd-seed]
+to setup-experiment [regionalproba lambdaacc nwspeed game coll-cost roadLength gammaCDA gammaCDE betaDC relocationRate evolveNetwork evolveLanduse target-network setuptype conffile stoptype finalValue rnd-seed]
   
   clear-all
   
@@ -40,6 +40,7 @@ to setup-experiment [regionalproba lambdaacc nwspeed game coll-cost gammaCDA gam
   set network-speed nwspeed
   if floor game = 0 [set game-type "random"] if floor game = 1 [set game-type "simple-nash"] if floor game = 2 [set game-type "discrete-choices"]
   set collaboration-cost coll-cost
+  set road-length roadLength
   
   set gamma-cobb-douglas-e gammaCDE ;0.9
   set gamma-cobb-douglas-a gammaCDA ;0.65
@@ -81,7 +82,7 @@ to run-experiment
   ;; run
   
   carefully[
-    repeat total-time-steps [
+    while [main:stopping-condition? = false] [
       main:go
     ]
   ]
@@ -95,7 +96,7 @@ end
 
 
 to export-real-world
-  setup-experiment 1.0 0.01 5 1 0.005 0.9 0.65 1.8 0.1 1 1 0 2 "setup/conf/real_fullsetup.conf" "time" 10 0
+  setup-experiment 1.0 0.01 5 1 0.005 2 0.9 0.65 1.8 0.1 1 1 0 2 "setup/conf/real_fullsetup.conf" "time" 10 0
   
   show "setup ok, exporting world"
   
