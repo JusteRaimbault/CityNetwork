@@ -407,6 +407,9 @@ mayors-own[
   ; wealth of the area
   wealth
 
+  mayor-population
+  mayor-employment
+
 ]
 
 
