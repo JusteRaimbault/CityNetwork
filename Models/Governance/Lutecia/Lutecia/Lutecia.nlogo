@@ -231,7 +231,7 @@ globals[
   collaborations-expected
 
   ;evolve-network?
-
+   initial-nw?
 
   ;;;;;;;;;;;;;
   ;; Cached distances matrices
@@ -407,6 +407,9 @@ mayors-own[
 
   ; wealth of the area
   wealth
+
+  mayor-population
+  mayor-employment
 
 ]
 
@@ -702,7 +705,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-0
+1
 0.05
 1
 NIL
@@ -816,8 +819,8 @@ SLIDER
 #-explorations
 #-explorations
 0
-1000
-53
+200
+20
 1
 1
 NIL
@@ -844,7 +847,7 @@ BUTTON
 804
 669
 compute indicators
-compute-indicators
+indicators:compute-indicators
 NIL
 1
 T
@@ -973,7 +976,7 @@ HORIZONTAL
 CHOOSER
 139
 69
-231
+243
 114
 setup-type
 setup-type
@@ -1003,7 +1006,7 @@ BUTTON
 804
 635
 construct infrastructure
-if mouse-down? [\n  if length to-construct < 2[\n    set to-construct lput (list mouse-xcor mouse-ycor) to-construct\n  ]\n  if length to-construct = 2[\n    construct-infrastructure (list to-construct) save-nw-config\n    compute-patches-variables\n    display:update-display\n    set to-construct []\n    verbose (word \"mean-travel-distance : \" mean-travel-distance)\n    stop\n  ]\n  wait 0.2\n  \n]
+governance:manual-infrastructure-construction
 T
 1
 T
@@ -1084,22 +1087,11 @@ world-size
 NIL
 HORIZONTAL
 
-SWITCH
-235
-75
-339
-108
-initial-nw?
-initial-nw?
-0
-1
--1000
-
 INPUTBOX
-208
-11
-349
-71
+204
+10
+365
+70
 conf-file
 setup/conf/synth_nonw.conf
 1

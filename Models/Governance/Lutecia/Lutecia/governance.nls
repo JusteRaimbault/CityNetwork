@@ -10,14 +10,14 @@
 ;  Contiguous actors with most wealth take decision ; or top-down regional planning.
 ;
 ;
-to governance
+to governance:governance
   
   if evolve-network? [
   
     output-print "governance"
   
     ; get agents making the decision
-    let decidors decision-makers
+    let decidors governance:decision-makers
   
     ; corresponding potential place for infrastructures
     ;let infra-choices potential-infrastructures decidors
@@ -25,7 +25,7 @@ to governance
     let old-config save-nw-config
     set old-config lput network:network-age old-config ; add nw age
     ; construct the best one
-    construct-infrastructure (best-infrastructure decidors old-config) old-config
+    governance:construct-infrastructure (governance:best-infrastructure decidors old-config) old-config
   
     ; recompute patch vars here - as indicators are called after the end of this stage.
     ;  Q : to gain perf, do it only at the end ? -- OK not so much time
@@ -40,7 +40,7 @@ end
 
 ;;
 ; Gets mayors taking the decision at this step - can be region ?
-to-report decision-makers
+to-report governance:decision-makers
   
   ifelse random-float 1 < regional-decision-proba or #-initial-territories = 1 [
      ; regional decision
@@ -82,7 +82,7 @@ end
 ;
 ;  FIND Heuristic in order to exploit reduced part of the space (already too long with very few patches if in O(n^2)
 ;  here no game, report indifferently common and alone infras ? or report with distinct feature ?
-to-report potential-infrastructures [decidors rlength patchset]
+to-report governance:potential-infrastructures [decidors rlength patchset]
   let res []
   ifelse decidors = regional-authority [
     repeat #-explorations [
@@ -108,17 +108,17 @@ end
 ;  Implement the game between the two players here -> evaluate all costs (have to be done anyway), then draw randomly issue of the game according to individual utilities 
 ;
 ;  @returns list of coordinates of extremities (better not to construct links here -> sure, as capacity congestion etc are not used at this step : only matrix needed.
-to-report best-infrastructure [decidors old-config]
+to-report governance:best-infrastructure [decidors old-config]
   
   ifelse decidors = regional-authority [
     ; no game, find the best among the choices
     let min-acc quantile ([a-to-e-accessibility + e-to-a-accessibility] of patches) 0.5
     let patchset (patches with [a-to-e-accessibility + e-to-a-accessibility > min-acc])
-    report (list first compare-infrastructures old-config (potential-infrastructures regional-authority (2 * road-length) patchset) regional-authority patchset)
+    report (list first governance:compare-infrastructures old-config (governance:potential-infrastructures regional-authority (2 * road-length) patchset) regional-authority patchset)
   ][
     ; generate potential infras here ?
     ; no, in the game, as different if random or nash game
-    report game-result decidors old-config
+    report governance:game-result decidors old-config
   ]
   
 end
@@ -130,7 +130,7 @@ end
 ;  -- NOTE -- for mean-acc ; shouldn't it be only on patches concerned by the decidor ?
 ;    --> OK
 ;
-to-report compare-infrastructures [old-nw-config choices decidor patchset]
+to-report governance:compare-infrastructures [old-nw-config choices decidor patchset]
   verbose (word "comparing " length choices " infras")
   
   recall-nw-config old-nw-config
@@ -148,7 +148,7 @@ to-report compare-infrastructures [old-nw-config choices decidor patchset]
   foreach choices [
     recall-nw-config old-nw-config
     verbose (word "Infra : " ? )
-    let potential-infra network:new-infra ?
+    let potential-infra network:new-infra ? false
     verbose (word " ; " potential-infra)
     if potential-infra != nobody [
       distances:update-network potential-infra
@@ -197,7 +197,7 @@ end
 
 ;;
 ; Implement the game between the two actors
-to-report game-result [decidors old-config]
+to-report governance:game-result [decidors old-config]
   
     if game-type = "random" [
       verbose "Random decidor choice..."
@@ -215,7 +215,7 @@ to-report game-result [decidors old-config]
       
       ;let best compare-infrastructures old-config (potential-infrastructures (list dec) road-length patchset) (list dec) patchset
       ; ! change domain where infras explored, adapt patchset on which access is evaluated
-      let best compare-infrastructures old-config (potential-infrastructures (list dec) road-length patchset) (list dec) (patches with [governing-mayor = dec])
+      let best governance:compare-infrastructures old-config (governance:potential-infrastructures (list dec) road-length patchset) (list dec) (patches with [governing-mayor = dec])
       
       report (list first best)
     ]
@@ -234,10 +234,10 @@ to-report game-result [decidors old-config]
      
       ;let best1 compare-infrastructures old-config (potential-infrastructures (list dec1) road-length patchset1) (list dec1) patchset1
       ;let best2 compare-infrastructures old-config (potential-infrastructures (list dec2) road-length patchset2) (list dec2) patchset2
-      let best1 compare-infrastructures old-config (potential-infrastructures (list dec1) road-length patchset) (list dec1) patchset1
-      let best2 compare-infrastructures old-config (potential-infrastructures (list dec2) road-length patchset) (list dec2) patchset2
+      let best1 governance:compare-infrastructures old-config (governance:potential-infrastructures (list dec1) road-length patchset) (list dec1) patchset1
+      let best2 governance:compare-infrastructures old-config (governance:potential-infrastructures (list dec2) road-length patchset) (list dec2) patchset2
       
-      let best12 compare-infrastructures old-config (potential-infrastructures regional-authority (2 * road-length) patchset) regional-authority patchset
+      let best12 governance:compare-infrastructures old-config (governance:potential-infrastructures regional-authority (2 * road-length) patchset) regional-authority patchset
       let sortdec sort-by [[who] of ?1 < [who] of ?2] (list dec1 dec2)
       let D11 item ((position dec1 sortdec) + 1) (item 1 best1) let D22 item ((position dec2 sortdec) + 1) (item 1 best2)
       let Dc1 item ((position dec1 sortdec) + 1) (item 1 best12) let Dc2 item ((position dec2 sortdec) + 1) (item 1 best12)
@@ -263,8 +263,8 @@ to-report game-result [decidors old-config]
         set p2 min (list max (list p2 0) 1)
       ][
         ; discrete-choices
-        set p1 (numanal:brent-root (task [to-rootize-dc-game ? collaboration-cost (Dc1 - D11) (Dc2 - D22) beta-dc-game]) 0 1 0.01)
-        set p2 (numanal:brent-root (task [to-rootize-dc-game ? collaboration-cost (Dc2 - D22) (Dc1 - D11) beta-dc-game]) 0 1 0.01)
+        set p1 (numanal:brent-root (task [governance:to-rootize-dc-game ? collaboration-cost (Dc1 - D11) (Dc2 - D22) beta-dc-game]) 0 1 0.01)
+        set p2 (numanal:brent-root (task [governance:to-rootize-dc-game ? collaboration-cost (Dc2 - D22) (Dc1 - D11) beta-dc-game]) 0 1 0.01)
       ]
       
       
@@ -296,7 +296,7 @@ end
 ;  @param mi [[Ui(C,C) Ui(A,C)][Ui(C,A) Ui(A,A)]]
 ;  @returns [p1 = |P(C1 = C) ; p2 = |P(C2 = C)]
 ;
-to-report generic-mixed-strategy-nash [m1 m2]
+to-report governance:generic-mixed-strategy-nash [m1 m2]
   let p1 (last last m1 - first last m1) / (first first m1 + last last m1 - first last m1 - last first m1)
   let p2 (last last m2 - last first m2) / (first first m2 + last last m2 - first last m2 - last first m2)
   report (list p1 p2)
@@ -304,7 +304,7 @@ end
 
 
 
-to-report to-rootize-dc-game [p1 J deltaC1 deltaC2 beta]
+to-report governance:to-rootize-dc-game [p1 J deltaC1 deltaC2 beta]
   ;let num exp (beta * ((exp (beta * (p1 * deltaC2 - J)) / (exp(beta * (p1 * deltaC2 - J)) + exp (beta * deltaI2))) * deltaC1 - J))
   ;report ((num / (num + exp (beta * deltaI1) )) - p1 )
   report (1 / (1 + exp (- beta * (((deltaC1)/(1 + exp (- beta * ((p1 * (deltaC2)) - J)))) - J)))) - p1
@@ -317,7 +317,7 @@ end
 ; Construct the given infrastructures (list of infras)
 ;
 ; Update matrices distances etc here !
-to construct-infrastructure [infras old-config]
+to governance:construct-infrastructure [infras old-config]
   
   recall-nw-config old-config
   update-effective-matrices
@@ -332,11 +332,11 @@ to construct-infrastructure [infras old-config]
       
       verbose (word "constructing : " infra)
       
-      let new-link network:new-infra infra
+      let constructed-link network:new-infra infra true
     
       ; update matrices
-      if new-link != nobody [
-        distances:update-network new-link
+      if constructed-link != nobody [
+        distances:update-network constructed-link
       ]
     
       update-effective-matrices
@@ -351,14 +351,34 @@ to construct-infrastructure [infras old-config]
   ;
   ;  !!! this architecture is difficult to apprehend from an external point of view (duality nw-patches/nw-links) !!! -> refactorize / precise ?
   ;
-  planarize-network transportation-nodes transportation-links
-  ;simplify-network
+  network-utils:planarize-network transportation-nodes transportation-links
+  ;network:simplify-network
   
   network:update-network-age (last old-config)
   
 end
 
 
+
+;;
+;
+to governance:manual-infrastructure-construction
+if mouse-down? [
+  if length to-construct < 2[
+    set to-construct lput (list mouse-xcor mouse-ycor) to-construct
+  ]
+  if length to-construct = 2[
+    governance:construct-infrastructure (list to-construct) save-nw-config
+    compute-patches-variables
+    display:update-display
+    set to-construct []
+    verbose (word "mean-travel-distance : " mean-travel-distance)
+    stop
+  ]
+  wait 0.2
+  
+]
+end
 
 
 

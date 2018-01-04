@@ -9,27 +9,32 @@
 
 
 ;; report the link corresponding to coordinates
-to-report network:new-infra [coords]
-  let e1 nobody let new-link nobody
-  ifelse length first coords = 2 and length last coords = 2[
-  create-transportation-nodes 1 [network:new-transportation-node setxy first first coords last first coords set e1 self]
-  create-transportation-nodes 1 [
-    network:new-transportation-node setxy first last coords last last coords
-    create-transportation-link-with e1 [network:new-transportation-link set new-link self]
-  ]
+to-report network:new-infra [coords construct?]
+  let e1 nobody let e2 nobody let new-link nobody
+  ifelse length first coords = 2 and length last coords = 2 [
+    let x1 first first coords let y1 last first coords let x2 first last coords let y2 last last coords
+    ifelse construct? = false [
+      create-transportation-nodes 1 [network:new-transportation-node setxy x1 y1 set e1 self]
+      create-transportation-nodes 1 [network:new-transportation-node setxy x2 y2 set e2 self]
+    ][
+      set e1 one-of transportation-nodes with [xcor = x1 and ycor = y1] if e1 = nobody [create-transportation-nodes 1 [network:new-transportation-node setxy x1 y1 set e1 self]]
+      set e2 one-of transportation-nodes with [xcor = x2 and ycor = y2] if e2 = nobody [create-transportation-nodes 1 [network:new-transportation-node setxy x2 y2 set e2 self]]
+    ]
   
-  ; check if link is valid
-  let valid? false
-  ask new-link [
-    foreach link:footprint [ask ? [set valid? (valid? or not member? number nw-patches)]]
-  ]
-  ifelse valid? [
-    report new-link
-  ][
-    verbose "¡¡ Unvalid infrastructure !!"
-    ask new-link [ask both-ends [die] die]
-    report nobody
-  ]
+    ask e2 [create-transportation-link-with e1 [network:new-transportation-link set new-link self]]
+  
+    ; check if link is valid
+    let valid? false
+    ask new-link [
+      foreach link:footprint [ask ? [set valid? (valid? or not member? number nw-patches)]]
+    ]
+    ifelse valid? [
+      report new-link
+    ][
+      verbose "¡¡ Unvalid infrastructure !!"
+      ask new-link [ask both-ends [die] die]
+      report nobody
+    ]
   ][report nobody]
 end
 
@@ -261,5 +266,32 @@ to network:cache-nw-measures
   
   
 end
+
+
+
+
+to network:simplify-network 
+  
+  let n count transportation-nodes with [count transportation-nodes-here > 1]
+  while [n > 0] [
+     let current-node one-of transportation-nodes with [count transportation-nodes-here > 1]
+     let to-connect [] let ages [] ask current-node [
+       ask other transportation-nodes-here [
+          ask my-transportation-links with [[patch-here] of other-end != [patch-here] of myself] [set to-connect lput other-end to-connect set ages lput age ages die] die
+       ]
+       let i 0 foreach to-connect [if not transportation-link-neighbor? ? [create-transportation-link-with ? [set age item i ages]] set i i + 1]
+     ]
+     set n count transportation-nodes with [count transportation-nodes-here > 1]
+  ]
+end
+
+
+
+
+
+
+
+
+
 
 

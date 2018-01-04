@@ -10,7 +10,7 @@
 ; Planarize a network, by simply "flattening the bridges" == creating intersection for crossing links
 ;
 ;  Necessarily in O(#(edges-agentset)^2) as have to checkall intersections between links.
-to planarize-network [vertices-agentset edges-agentset]
+to network-utils:planarize-network [vertices-agentset edges-agentset]
   
   ;; gore way ?
   let links-breed agentset-uniform-singular-breed edges-agentset
@@ -18,20 +18,52 @@ to planarize-network [vertices-agentset edges-agentset]
   let edge-list to-list edges-agentset
   let current-inter get-first-inter edge-list
   while [length current-inter > 0][
-      let l2 last current-inter let l1 item 1 current-inter
+      let x first first current-inter let y last first current-inter let coords list x y let l1 item 1 current-inter let l2 last current-inter 
       let t11 [end1] of l1 let t12 [end2] of l1 let t21 [end1] of l2 let t22 [end2] of l2
       let new-inter nobody ;need to hatch
-      ask t11 [hatch 1 [set new-inter self setxy first first current-inter last first current-inter]]
-      ask new-inter [
-        ask t11 [run (word "create-" links-breed "-with myself")]
-        ask t12 [run (word "create-" links-breed "-with myself")]
-        ask t21 [run (word "create-" links-breed "-with myself")]
-        ask t22 [run (word "create-" links-breed "-with myself")]
-      ]
-      ;remove and kill
-      set edge-list concatenate (list edge-list (to-list [my-links] of new-inter))
-      set edge-list remove l2 remove l1 edge-list
-      ask l1 [die] ask l2 [die]
+      
+;      ifelse compare t11 coords or compare t12 coords or compare t21 coords or compare t22 coords [
+;          ifelse compare t11 coords or compare t12 coords[
+;            ifelse compare t11 coords [
+;              ask t11 [ask t21 [run (word "create-" links-breed "-with myself")] ask t22 [run (word "create-" links-breed "-with myself")]]
+;              set edge-list remove l2 edge-list
+;              set edge-list concatenate (list edge-list (to-list [my-links] of t11))
+;              ask l2 [die]
+;            ][
+;              ask t12 [ask t21 [run (word "create-" links-breed "-with myself")] ask t22 [run (word "create-" links-breed "-with myself")]]
+;              set edge-list remove l2 edge-list
+;              set edge-list concatenate (list edge-list (to-list [my-links] of t12))
+;              ask l2 [die]
+;            ]
+;          ][
+;            ifelse compare t21 coords [
+;              ask t21 [ask t11 [run (word "create-" links-breed "-with myself")] ask t12 [run (word "create-" links-breed "-with myself")]]
+;              set edge-list remove l1 edge-list
+;              set edge-list concatenate (list edge-list (to-list [my-links] of t21))
+;              ask l1 [die]
+;            ][
+;              ask t22 [ask t11 [run (word "create-" links-breed "-with myself")] ask t12 [run (word "create-" links-breed "-with myself")]]
+;              set edge-list remove l1 edge-list
+;              set edge-list concatenate (list edge-list (to-list [my-links] of t22))
+;              ask l1 [die]
+;            ]
+;          ]
+;      ][
+
+        ask t11 [hatch 1 [set new-inter self setxy first first current-inter last first current-inter]]
+        ask new-inter [
+          ask t11 [run (word "create-" links-breed "-with myself")]
+          ask t12 [run (word "create-" links-breed "-with myself")]
+          ask t21 [run (word "create-" links-breed "-with myself")]
+          ask t22 [run (word "create-" links-breed "-with myself")]
+        ]
+        ;remove and kill
+        set edge-list concatenate (list edge-list (to-list [my-links] of new-inter))
+        set edge-list remove l2 remove l1 edge-list
+        ask l1 [die] ask l2 [die]
+        
+      ;]
+      
       set current-inter get-first-inter edge-list
   ]
   
@@ -78,13 +110,20 @@ to planarize-network [vertices-agentset edges-agentset]
   
 end
 
+;;
+;
+;to-report compare [agent coords]
+;  report (sqrt ( ([xcor] of agent - first coords) ^ 2 + ([ycor] of agent - last coords)^ 2) < 0.5)
+;end
 
 to-report get-first-inter [link-list]
   let n length link-list let i 0 let j 0
   repeat (n - 1)[
      set j i + 1
      repeat (n - i - 1) [
-       let inter strict-intersection-with-link item i link-list item j link-list
+       ;let inter strict-intersection-with-link item i link-list item j link-list
+       let inter intersection-with-link item i link-list item j link-list     
+       
        if length inter > 0 [report (list inter  item i link-list  item j link-list)]
        set j j + 1
      ]
@@ -134,7 +173,7 @@ end
 
 
 
-to simplify-network 
+to network-utils:simplify-network 
   
   let n count transportation-nodes with [count transportation-nodes-here > 1]
   while [n > 0] [
@@ -148,5 +187,12 @@ to simplify-network
      set n count transportation-nodes with [count transportation-nodes-here > 1]
   ]
 end
+
+
+
+
+
+
+
 
 

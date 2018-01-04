@@ -31,9 +31,8 @@ to setup:setup
   ; setup initial configuration
   setup:setup-initial-distributions
   
-  if with-externalities? [
-    setup:setup-externalities
-  ]
+  ; setup externalities
+  setup:setup-externalities
   
   ; setup transportation
   setup:setup-transportation
@@ -64,7 +63,11 @@ end
 ;  setup global variables
 to setup:setup-globals
   
+  
+  ;;;;;
+  ;; network
   set infra-snapping-tolerance 1
+  set initial-nw? true
   
   ;;;;;
   ;; transportation
@@ -164,7 +167,7 @@ end
 ; setup mayors and governed patches
 to setup:setup-territories
   
-  output-print "... Territories"
+ ; output-print "... Territories"
   
   ; for now hardcoded path to setup file (unload gui)
   set ext-file "setup/ext.csv"
@@ -241,7 +244,9 @@ to setup:setup-population-distribution
    if setup-type = "random" or setup-type = "from-file" or setup-type = "gis-synthetic" [
      let centers [patch-here] of mayors with [self != regional-authority]
      foreach centers [
-       apply-monocentric-kernel "poisson" actives-spatial-dispersion actives-max "actives" ?
+       let current-mayor one-of [mayors-here] of ? let current-pop 0
+       ifelse [mayor-population] of current-mayor = 0 [set current-pop actives-max][set current-pop [mayor-population] of current-mayor]
+       apply-monocentric-kernel "poisson" actives-spatial-dispersion current-pop "actives" ?
      ]
    ]
    
@@ -263,7 +268,9 @@ to setup:setup-employment-distribution
   if setup-type = "random" or setup-type = "from-file" or setup-type = "gis-synthetic" [
     let centers [patch-here] of mayors with [self != regional-authority]
     foreach centers [
-      apply-monocentric-kernel "poisson" employments-spatial-dispersion employments-max "employments" ?
+      let current-mayor one-of [mayors-here] of ? let current-emp 0
+      ifelse [mayor-employment] of current-mayor = 0 [set current-emp employments-max][set current-emp [mayor-employment] of current-mayor]
+      apply-monocentric-kernel "poisson" employments-spatial-dispersion current-emp "employments" ?
     ]
   ]
   
@@ -298,6 +305,8 @@ end
 ;
 ;
 to setup:setup-externalities
+  if with-externalities? [
+  
   let ext-patch nobody
   if setup-type = "random" [
     ; with 2 mayors : equidistance
@@ -326,6 +335,7 @@ to setup:setup-externalities
     ]
   ] 
   
+  ]
   
 end
 
@@ -370,7 +380,7 @@ to setup:setup-initial-network
         ]    
       ]
     
-      construct-infrastructure infra-list old-config
+      governance:construct-infrastructure infra-list old-config
      
     ]
   
@@ -524,6 +534,8 @@ to setup:setup-mayor-characteristics
     
     
   ]
+  
+  if setup-type = "random" [set mayors-populations rep 0 #-initial-territories set mayors-employments rep 0 #-initial-territories set mayors-names rep "" #-initial-territories]
   
   
   ; corresponding number pf territories
