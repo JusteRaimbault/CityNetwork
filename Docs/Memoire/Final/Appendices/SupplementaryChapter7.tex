@@ -104,8 +104,44 @@ Distance via network are updated in a dynamical programming fashion for efficien
 La matrice des distances est mise à jour de manière dynamique pour des questions de rapidité d'execution (vu le nombre de mises à jour du réseau), de la façon suivante :
 \begin{enumerate}
 	\item La matrice de distance euclidienne $d(i,j)$ est calculée analytiquement
+	\item Les plus courts chemins entre les intersections des liens (entre les cellules du réseau raster correspondant) sont mis à jour de manière dynamique (étape de complexité $O(N_{inters}^3)$) :
+	\begin{itemize}
+		\item Pour chaque nouvelle intersection, les plus courts chemins vers l'ensemble des autres intersections sont calculés par l'ancienne matrice et le nouveau lien.
+		\item Pour l'ensemble des anciens plus courts chemins, ils sont mis à jour si besoin après vérification des éventuels raccourcis par le nouveau lien.
+		\item La correspondance entre les cellules quelconques du réseau et les intersections est mise à jour.
+	\end{itemize}
+	\item Les composantes connexes et les distances entre celles-ci sont mises à jour (complexité en $O(N_{nw}^2)$)
+	\item Les distances par le réseau entre les cellules du réseau sont mises à jour, avec l'heuristique des connexions minimales uniquement (un lien unique le plus court entre chaque cluster) (complexité en $O(N_{nw}^2)$)
+	\item Les distances effectives entre l'ensemble des cellules (prenant la vitesse et la congestion en compte si celle-ci est implémentée) sont calculées comme le minimum entre la distance euclidienne et 
+	\[\min_{C,C'}{d(i,C)+d_{nw}(p_C(i),p_C'(j))+d(C',j)}\]
+	dont nous prenons une approximation avec $\min_C$ uniquement dans l'implémentation, ce qui est consistant avec les portées d'interaction relativement faibles considérées. La complexité est en $O(N_{clusters}^2\cdot N^2)$
 \end{enumerate}
 }
+
+
+
+
+%%%%%%%%%%%%%%%%%%
+\section{Synthetic setup}{Initialisation synthétique}
+
+\bpar{
+This section describes the setup in the case of synthetic configurations of MCR.
+}{
+Nous décrivons ici les détails de l'initialisation synthétique.
+}
+
+
+\bpar{
+Initial distribution of Actives and Employments is done around governance centers at positions $\vec{x}_i$ using exponential kernels by
+}{
+Les distributions initiales des actifs et des emplois dans la configuration synthétique sont pris autour des centres de gouvernance (maires) aux positions $\vec{x}_i$ avec des noyaux exponentiels par
+}
+
+\[
+A(\vec{x}) = A_{max} \cdot \exp{\left(\frac{\norm{\vec{x}-\vec{x}_i}}{r_A}\right)} ; 
+E(\vec{x}) = E_{max} \cdot \exp{\left(\frac{\norm{\vec{x}-\vec{x}_i}}{r_E}\right)}
+\]
+
 
 
 

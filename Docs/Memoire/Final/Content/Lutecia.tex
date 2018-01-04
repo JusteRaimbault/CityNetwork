@@ -246,33 +246,35 @@ Le sous-modèle pour la gouvernance suit les hypothèses suivantes :
 
 
 \bpar{
-We denote $Z^{\ast}_i(S_1,S_2)$ the optimal infrastructure for area $i$ with $(S_1,S_2)\in \{(NC,C),(C,NC),(NC,NC)\}$ which are determined the standard way in each zone separately, and $Z^{\ast}_C$ the optimal common infrastructure computed with a 2 segments infrastructure on the union of both areas, which corresponds to the case where both strategies are $C$. Marginal accessibilities for area $i$ and infrastructure $Z$ is defined as $\Delta X_i(Z)=X^Z_i - X_i$. We introduce the costs of construction,  noted $I$ for a road segment, assumed spatially uniform. A 2 road segment will cost $2\cdot I - J$ ($J > 0$ cost gain of common technical means, assumed to be equally shared).
+We denote $Z^{\ast}_i(S_1,S_2)$ the optimal infrastructure for area $i$ with $(S_1,S_2)\in \{(NC,C),(C,NC),(NC,NC)\}$ which are determined in each zone separately, and $Z^{\ast}_C$ the optimal common infrastructure computed with a 2 segments infrastructure on the union of both areas. It corresponds to the case where both strategies are $C$. Marginal accessibilities for area $i$ and infrastructure $Z$ is defined as $\Delta X_i(Z)=X^Z_i - X_i$. We introduce the costs of construction,  noted $I$ for a road segment, assumed spatially uniform. We furthermore introduce a cost of collaboration $J$ that corresponds to a shared cost for building a larger infrastructure.
 }{
-Nous notons $Z^{\ast}_i(S_1,S_2)$ l'infrastructure optimale 
+Nous notons $Z^{\ast}_i(S_1,S_2)$ l'infrastructure optimale pour la zone $i$ avec $(S_1,S_2)\in \{(NC,C),(C,NC),(NC,NC)\}$ qui sont déterminées de manière heuristique pour chaque zone séparément (voir détails d'implémentation), et $Z^{\ast}_C$ l'infrastructure optimale commune calculée sur l'union des deux zones avec une infrastructure composée de deux segments élémentaires. Cette dernière correspond au cas où les deux stratégies sont $C$. Les accessibilités marginales pour la zone $i$ et l'infrastructure $Z$ sont définies comme $\Delta X_i(Z)=X^Z_i - X_i$. Nous introduisons des coûts de construction, notés $I$ pour un segment de route, supposés uniformes dans l'espace. Nous introduisons de plus un coût de collaboration $J$ qui correspond à un coût partagé pour construire une infrastructure plus grande.
 }
 
- 
-%The determination of probabilities defining mixed strategies is based on the notion of payoff matrix, that is the value of utility gains for each players and each possible strategy configuration. The payoff matrix of the game is the following, with $\kappa$ a normalization constant (``price of accessibility'') :
+\bpar{
+The determination of probabilities defining mixed strategies is based on the notion of payoff matrix, that is the value of utility gains for each players and each possible decision configuration. The payoff matrix of the game is the following, with $\kappa$ a normalization constant (``price of accessibility'') :
+}{
+La détermination des probabilités donnant la composition des stratégies mixtes se base sur la matrice de gain, qui donne les gains d'utilité pour chaque joueur et chaque combinaison de décisions. La matrice de gain du jeu est la suivante, avec $\kappa$ une constante de normalisation (``prix de l'accessibilité'') :
+}
 
-%
-%\begin{table}
-%\begin{tabular}{ |c|c|c| } 
-%
-% \hline
-% 1 $|$ 2  & C & A \\ \hline
-% C & $U_i = \kappa \cdot \Delta X_i(Z^{\ast}_C) - I - \frac{J}{2}$
-%   & $\begin{cases}U_1 = \kappa \cdot \Delta X_1(Z^{\ast}_1)-I \\U_2 = \kappa \cdot \Delta X_2(Z^{\ast}_2)-I - \frac{J}{2}\end{cases}$ \\ \hline
-% A & $\begin{cases}U_1 = \kappa \cdot \Delta X_1(Z^{\ast}_1)-I - \frac{J}{2}\\U_2 = \kappa \cdot \Delta X_2(Z^{\ast}_2)-I\end{cases}$
-%   & $U_i = \kappa \cdot \Delta X_i(Z^{\ast}_i) - I$ \\
-% \hline
-%\end{tabular}
-%\end{table}
-%
-%
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ 1 $|$ 2  & C & A \\ \hline
+ C & $U_i = \kappa \cdot \Delta X_i(Z^{\ast}_C) - I - \frac{J}{2}$
+   & $\begin{cases}U_1 = \kappa \cdot \Delta X_1(Z^{\ast}_1)-I \\U_2 = \kappa \cdot \Delta X_2(Z^{\ast}_2)-I - \frac{J}{2}\end{cases}$ \\ \hline
+ A & $\begin{cases}U_1 = \kappa \cdot \Delta X_1(Z^{\ast}_1)-I - \frac{J}{2}\\U_2 = \kappa \cdot \Delta X_2(Z^{\ast}_2)-I\end{cases}$
+   & $U_i = \kappa \cdot \Delta X_i(Z^{\ast}_i) - I$ \\
+ \hline
+\end{tabular}
+\end{center}
+
+
+
+\paragraph{Nash equilibrium}{Equilibre de Nash}
 
 \bpar{
 We can solve the mixed strategy Nash Equilibrium for this coordination game in all generality. The assumption of equilibrium implies that conditional expectancies of each player are equal given their two choices, i.e. that $\Eb{U_i|S_i=C} = \Eb{U_i|S_i=NC}$. It yields, by writing $U_i(S_1,S_2)$ the full payoff matrix, the expression of the probabilities
-%%By denoting $\Delta_{\left[j|S\right]} U_i = U_i(S,C) - U_i() $ 
 }{
 L'équilibre de Nash à stratégie mixte pour ce jeu de coordination peut être obtenu en toute généralité. L'hypothèse d'équilibre implique que les espérances conditionnelles de chaque joueur sont égales étant donné leur deux choix, i.e. que $\Eb{U_i|S_i=C} = \Eb{U_i|S_i=NC}$. Cela donne, en écrivant $U_i(S_1,S_2)$ la matrice de gain complète, l'expression des probabilités
 }
@@ -293,15 +295,10 @@ p_i = \frac{J}{\Delta X_{\bar{i}}{Z^{\star}_{C}} - \Delta X_{\bar{i}}{Z^{\star}_
 
 
 %Note that we can directly interpret these expressions, as a player chances to cooperate will decrease with the potential gain of the other player, what is intuitive for a competitive game. It also forces feasibility conditions on $I$ and $\delta I$ to keep a probability, that are $I \leq \kappa\cdot \min(\Delta X_1(Z^{\ast}_1),\Delta X_2(Z^{\ast}_2))$ (binary positive cost-benefit conditions) and $I-\delta I > \kappa \cdot \max_i (\Delta X_i(Z^{\ast}_i)-\Delta X_i(Z^{\ast}_C))$. As soon as accessibility difference stay relatively small, both shall be compatible when $\delta I \ll I$, giving corresponding boundaries for $I$.
-%
-% Agents make choice of strategy following uniform drawings with probability computed above. Corresponding infrastructures are built, and in the case of choices $(C,C)$, towns merge in a single one with new corresponding variables (employment, actives, etc. ).
-%
-%
-%
-%
-%
-%\paragraph{An alternative discrete choice ``game''}{Choix discrets}
-%
+
+
+\paragraph{Discrete choice decisions}{Décisions par choix discrets}
+
 
 \bpar{
 Using the same payoff matrix with a random utility model allows to obtain also values for probabilities. We have
@@ -336,18 +333,16 @@ p_i = \frac{1}{1 + \exp{\left(-\beta_{DC}\cdot \left(\frac{\Delta X_{i}{Z^{\star
 \caption[Summary of LUTECIA model parameters][Résumé des paramètres du modèle LUTECIA]{\textbf{Summary of LUTECIA model parameters.} with their default values.\label{tab:lutecia:parameters}}{\textbf{Résumé des paramètres du modèle LUTECIA.} Nous donnons également les processus correspondant, les bornes typiques de variation et leur valeur par défaut.\label{tab:lutecia:parameters}}
 \begin{tabular}{|c|c|c|c|c|c|}
   \hline
- Module & Parameter & Name & Process & Range & Default Value\\
+ Sous-modèle & Paramètre & Nom & Processus & Domaine & Défaut\\
   \hline
 \multirow{5}{*}{Usage du sol}& $\lambda$ & Portée de l'accessibilité & Accessibilité & $]0;1]$ & $0.001$ \\\cline{2-6}
  & $\gamma_A$ & Exposant de Cobb-Douglas actifs & \multirow{2}{*}{Utilité} & $[0;1]$ & $0.85$ \\\cline{2-3}\cline{5-6}
  & $\gamma_E$ & Exposant de Cobb-Douglas emplois &  & $[0;1]$ & $0.85$ \\\cline{2-6}
- & $\beta$ & Discrete choice exponent & \multirow{2}{*}{Relocation} & $[0;+\infty]$ & $1$ \\\cline{2-3}\cline{5-6}
- & $\alpha$ & Relocation rate &  & $[0;1]$ & $0.05$ \\\hline
-\multirow{2}{*}{Transportation} & $v_G$ & Network relative speed & Transport hierarchy & $[1;+\infty [$ & $5$ \\\cline{2-6}
-& $\lambda$ & Accessibility distance decay & Commuting range & $[0;+\infty [$ & $5$ \\
-  \hline
-\multirow{2}{*}{Governance} & $J$ & Collaboration cost &  & $$ & $0.001$ \\\cline{2-3}\cline{5-6}
- & $l_r$ & Infrastructure length &  & $]0;\sqrt{2}\cdot K [$ & $2$ \\\hline
+ & $\beta$ & Exposant choix discrets & \multirow{2}{*}{Relocalisation} & $[0;+\infty]$ & $1$ \\\cline{2-3}\cline{5-6}
+ & $\alpha$ & Taux de relocalisation &  & $[0;1]$ & $0.05$ \\\hline
+Transports & $v_G$ & Vitesse du réseau & Hiérarchie du transport & $[1;+\infty [$ & $5$ \\\hline
+\multirow{2}{*}{Gouvernance} & $J$ & Coût de collaboration & \multirow{2}{*}{Planification} & $[0;0.005]$ & $0.001$ \\\cline{2-3}\cline{5-6}
+ & $l_r$ & Longueur de l'infrastructure &  & $]0;\sqrt{2}\cdot K [$ & $2$ \\\hline
 \end{tabular}
 \end{table}
 %%%%%%%%%%%%%%
@@ -359,13 +354,18 @@ p_i = \frac{1}{1 + \exp{\left(-\beta_{DC}\cdot \left(\frac{\Delta X_{i}{Z^{\star
 %%%%%%%%%%%%%%
 \subsubsection{Model implementation}{Implémentation du modèle}
 
+
+L'ensemble des paramètres du modèle est rappelé en Table~\ref{tab:lutecia:parameters}.
+
+
 Le modèle est implémenté en Netlogo, pour des raisons d'ergonomie vu son niveau de complexité, ainsi que les possibilités d'exploration interactives. Une attention particulière a été portée aux points suivants :
 \begin{itemize}
 	\item Les calculs des matrices de distance sont nécessaires pour chaque segment d'infrastructure potentiel, ce qui rend le module de gouvernance très couteux sur le plan computationnel. Nous utilisons donc un calcul des plus courts chemins basé sur la programmation dynamique, inspiré de~\cite{tretyakov2011fast}, mettant à jour directement la matrice des distances plutôt que de recalculer les plus courts chemins à chaque fois.
+	\item Le réseau est pour cette raison représenté de manière duale, sous forme vecteur et raster.
 \end{itemize}
 
 
-Plus de détails d'implémentation sont donnés en Annexe~\ref{app:sec:}
+Plus de détails d'implémentation sont donnés en Annexe~\ref{app:sec:lutecia}.
 
 
 
@@ -376,6 +376,17 @@ Plus de détails d'implémentation sont donnés en Annexe~\ref{app:sec:}
 
 Différentes expériences nous permettent de valider le modèle dans une certaine mesure. Nous adoptons une stratégie modulaire, c'est à dire par tests relativement indépendants des sous-modèles pour commencer.
 
+
+Nous travaillons sur des systèmes synthétiques. Les configurations de populations et d'emplois suivent des mélanges d'exponentielles. Nous donnons en Annexe~\ref{app:sec:lutecia} les détails des paramètres d'initialisation.
+
+
+\paragraph{Land-use}{Usage du sol}
+
+Les dynamiques d'usage du sol ont toujours un état stationnaire lorsque le réseau n'évolue pas. Nous démontrons l'existence de l'équilibre en~\ref{app:sec:lutecia}. Les expériences numériques montrent que le modèle converge assez rapidement. 
+
+
+
+\paragraph{Governance}{Gouvernance}
 
 
 
@@ -391,6 +402,37 @@ It was suggested by \cite{liao2017ouverture} that a sort of multi-level governan
 }{
 Il a été suggéré par \cite{liao2017ouverture} qu'une forme de gouvernance multi-niveau a récemment émergé en Chine, dans le contexte des activités économiques. Nous tentons par notre modèle de tester la pertinence de ce paradigme au regard de la structure urbaine de la MCR.
 }
+
+
+
+
+
+
+%
+%
+\subsubsection{Model setup}{Initialisation du modèle}
+
+\bpar{
+We work on a simplified raster configuration for population in Pearl River Delta, and on stylized highway networks. We choose to consider road network only since, following \cite{hou2011transport}, it has been the main driver of changes in accessibility patterns compared to railway network which development is only recent.
+}{
+Nous travaillons sur une configuration raster simplifiée (cellules de 5km) pour la population du Delta de la Rivière des Perles, ainsi que sur le réseau d'autoroute stylisé. Nous considérons le réseau routier uniquement puisque, selon \cite{hou2011transport}, il s'agit du moteur principal des changements dans les motifs d'accessibilité en comparaison au réseau ferré dont le développement accéléré est récent.
+}
+
+
+%
+%We show in Fig.~\ref{fig:ex-prd} an illustration of the stylized setup of the model and of its outcome with standard parameter values.
+
+
+%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/exrun_2_tick0}
+%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/exrun_2_tick6}
+\includegraphics[width=\linewidth]{Figures/Final/7-3-3-fig-lutecia-ex-prd.jpg}
+\caption[Application of Lutecia to PRD][Application de Lutecia au Delta de la Rivière des Perles]{\textbf{Example of run on the stylized Pearl River Delta.} (initial configuration and after 6 network iterations)\label{fig:lutecia:ex-prd}}{\textbf{Exemple d'application au Delta de la Rivière des Perles.} (\textit{Gauche}) Initialisation avec le raster de population 2010, agrégé à la résolution 5km, et le réseau autoroutier simplifié ; (\textit{Droite}) Etat après 6 pas de temps ($\alpha = 1$)\label{fig:lutecia:ex-prd}}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%
+
+
 
 
 
@@ -410,36 +452,35 @@ To calibrate on the network produced by the simulation, it must be compared to a
 Pour calibrer sur les réseaux produits par la simulation, il s'agit de comparer à un réseau de référence. C'est un problème difficile, puisque différentes mesures de proximité avec différentes signification peuvent être utilisées. Les mesures géométriques s'intéressent à la proximité spatiale des réseaux. Pour un réseau $(E,V)=((e_j),(v_i))$, une distance basée sur les noeuds est donnée par $\sum_{i \neq i'} d^2 \left(v_i,v_{i'}\right)$. Une mesure plus précise qui n'est pas biaisée par d'éventuels noeuds intermédiaires est donnée par l'aire cumulée entre chaque paire de liens $\sum_{j \neq j'} A \left(e_j,e_{j'}\right)$ (il ne s'agit pas d'une distance à proprement parler), où $A(e,e')$ est l'aire du polygone fermé constitué en reliant les sommets des liens.
 }
 
-\bpar{
-A complementary approach is to take a user-centered view and consider the proximity of shortest paths : for example with the Mean-square error between distance matrices on all patches, or the Earth Mover Distance. \comment[FL]{mieux hiérarchiser la structure de ce paragraphe, par exemple la métrique est à décrire plus tard ; sans doute plusieurs points à enlever} 
-
-}{
-Une approche complémentaires est de prendre une vue centrée sur l'utilisateur et de considérer la proximité des plus courts chemins : par exemple avec une distance euclidienne entre les matrices de distances sur l'ensemble des patches, ou la distance EMD.
-}
 
 
-%
-%
-%\subsubsection{Model setup}{Initialisation du modèle}
-%
-%We work on a simplified raster configuration for Pearl River Delta, and on stylized highway networks. We choose to consider road network only since, following \cite{hou2011transport}, it has been the main driver of changes in accessibility patterns compared to railway network which development is only recent. Furthermore, our model is simple and includes one transportation mode only, represented by the road network.\comment[FL]{lequel? pourquoi? ce n'est pas clair et pas justifié. en lien avec partie "Chine" à écrire qui créera dans l'esprit du lecteur le sens de ce choix}
-%
-%\comment{include and implement cost difference between bridge - standard freeway $\rightarrow$ additional parameter}
-%
-%
-%We show in Fig.~\ref{fig:ex-prd} an illustration of the stylized setup of the model and of its outcome with standard parameter values.
-%
-%%%%%%%%%%%%%%%%%%%%
-%%\begin{figure}
-%%\centering
-%%\includegraphics[width=0.49\textwidth]{figures/exrun_2_tick0}
-%%\includegraphics[width=0.49\textwidth]{figures/exrun_2_tick6}
-%%\caption{Example of run on the stylized Pearl River Delta (initial configuration and after 6 network iterations)}
-%%\label{fig:ex-prd}
-%%\end{figure}
-%%%%%%%%%%%%%%%%%%%%
-%
-%
+
+\subsubsection{Calibration}{Calibration}
+
+L'expérience que nous menons est à usage du sol fixé, le niveau de détail requis pour des données plus anciennes et plus récentes, voir des projections, pour la population et les emplois n'étant pas permis par les données à notre disposition.
+
+
+
+%%%%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/regional-distance_colorgametype.png}
+	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/collab-distance_colorregional.png}
+	\includegraphics[width=\linewidth]{Figures/Lutecia/7-3-3-fig-lutecia-ex-prd.jpg}
+	\caption[Calibration of the Lutecia model][Calibration du modèle Lutecia]{\textbf{Model calibration with fixed land use.}\label{fig:lutecia:calib}}{\textbf{Calibration du modèle à usage du sol fixé.}\label{fig:lutecia:calib}}
+\end{figure}
+%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -490,6 +490,25 @@ then
   rm Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg
 
 
+  ###############
+  ## 7.3 : Lutecia
+
+  # fig:lutecia:ex-prd
+  FIGNAME=7-3-3-fig-lutecia-ex-prd
+  echo $FIGNAME
+  montage Figures/Lutecia/exrun_2_tick0.png Figures/Lutecia/exrun_2_tick6.png -resize "$WIDTH"x -quality $JPGQUALITY -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
+
+
+  # fig:lutecia:calib
+  FIGNAME=7-3-3-fig-lutecia-calib
+  echo $FIGNAME
+  montage Figures/Lutecia/regional-distance_colorgametype.png Figures/Lutecia/collab-distance_colorregional.png -resize "$WIDTH"x -quality $JPGQUALITY -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
+
+
+
+
+
+
 fi
 
 
