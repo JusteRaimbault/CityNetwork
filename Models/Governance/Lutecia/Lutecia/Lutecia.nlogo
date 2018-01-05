@@ -120,7 +120,7 @@ __includes [
   "test/test.nls"
   "test/test-distances.nls"
   "test/test-transportation.nls"
-  ;"test/test-experiments.nls"
+  "test/test-experiments.nls"
 
 
 ]
@@ -229,6 +229,8 @@ globals[
   collaborations-wanted
   collaborations-realized
   collaborations-expected
+
+  beta-dc-game
 
   ;evolve-network?
    initial-nw?
@@ -490,7 +492,7 @@ SLIDER
 #-initial-territories
 0
 5
-2
+3
 1
 1
 NIL
@@ -521,7 +523,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance" "network"
-1
+5
 
 TEXTBOX
 11
@@ -552,7 +554,7 @@ actives-spatial-dispersion
 actives-spatial-dispersion
 0
 10
-1.5
+1
 0.1
 1
 NIL
@@ -612,7 +614,7 @@ gamma-cobb-douglas-a
 gamma-cobb-douglas-a
 0
 1
-0.8
+0.9
 0.01
 1
 NIL
@@ -627,7 +629,7 @@ beta-discrete-choices
 beta-discrete-choices
 0
 5
-2
+1.8
 0.05
 1
 NIL
@@ -790,7 +792,7 @@ network-speed
 network-speed
 1
 50
-6
+5
 1
 1
 NIL
@@ -805,7 +807,7 @@ road-length
 road-length
 0
 20
-0.5
+2
 0.5
 1
 NIL
@@ -820,7 +822,7 @@ SLIDER
 #-explorations
 0
 200
-20
+50
 1
 1
 NIL
@@ -835,7 +837,7 @@ lambda-accessibility
 lambda-accessibility
 0
 0.01
-0.01
+0.001
 0.0001
 1
 NIL
@@ -867,7 +869,7 @@ total-time-steps
 total-time-steps
 0
 10000
-6642
+10
 1
 1
 NIL
@@ -891,7 +893,7 @@ CHOOSER
 game-type
 game-type
 "random" "simple-nash" "discrete-choices"
-2
+0
 
 TEXTBOX
 183
@@ -967,7 +969,7 @@ collaboration-cost
 collaboration-cost
 0
 0.005
-0.005
+5.0E-4
 1e-6
 1
 NIL
@@ -981,7 +983,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file" "gis-synthetic" "gis"
-2
+3
 
 BUTTON
 471
@@ -1043,21 +1045,6 @@ Display
 1
 
 SLIDER
-194
-428
-343
-461
-beta-dc-game
-beta-dc-game
-0
-5000
-400
-10
-1
-NIL
-HORIZONTAL
-
-SLIDER
 6
 33
 98
@@ -1066,7 +1053,7 @@ seed
 seed
 -100000
 100000
-0
+15
 1
 1
 NIL
@@ -1093,7 +1080,7 @@ INPUTBOX
 365
 70
 conf-file
-setup/conf/synth_nonw.conf
+setup/conf/real_fullsetup.conf
 1
 0
 String
@@ -1196,7 +1183,7 @@ relocation-rate
 relocation-rate
 0
 1
-0.16
+0.1
 0.01
 1
 NIL
@@ -1210,7 +1197,7 @@ CHOOSER
 stopping-type
 stopping-type
 "time" "infrastructure-stock"
-1
+0
 
 SLIDER
 463

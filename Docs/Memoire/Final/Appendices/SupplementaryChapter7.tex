@@ -83,7 +83,25 @@ Pour implémenter l'étape de distribution des flux dans le réseau, une fois le
 %Trajectories are then attributed by effective shortest path, and corresponding congestion $c$ is computed on the corresponding flows (we do not complicate with a User Equilibrium or more complicated traffic assignment procedure). The speed of network given by BPR function $v(c) = v_0 \left(1 - \frac{c}{\kappa}\right)^{\gamma_c}$. Congestion is not used in current studies (infinite capacity $\kappa$).
 
 
+\subsection{Discrete choice coordination}{Coordination par choix discrets}
 
+
+Pour déterminer la probabilité de coopération dans le cas des choix discrets, il s'agit de résoudre $f(p_i) = 0$ avec
+\[
+f(x) = \frac{1}{1+\exp\left[-\beta_{DC}\frac{\Delta_i}{1 + \exp(-\beta_{DC}(x \Delta_{1-i} - J))} - J\right]} - x
+\]
+où nous avons noté $\Delta_i = \Delta X_{i}(Z^{\star}_{C}) - \Delta X_{\bar{i}}(Z^{\star}_{i})$.
+
+On a immédiatement $f(0) > 0 $ et $f(1) < 0$ et $f$ est continue, il existe donc toujours une solution $x\in [0,1]$ par le théorème des valeurs intermédiaires.
+
+Concernant l'unicité, il est possible de la montrer sous certaines conditions. Un calcul de $\frac{\partial f}{\partial x}$ donne 
+\[
+\frac{\partial f}{\partial x} = 2 (\cosh u(x) - 1) + \beta^2 \Delta_i \Delta_{1-i} \frac{\exp(-\beta_{DC}(x \Delta_{1-i} - J))}{(1 + \exp(-\beta_{DC}(x \Delta_{1-i} - J)))^2}
+\]
+
+où $u(x) = -\beta_{DC} (\frac{\Delta_i}{1 + \exp(-\beta_{DC}(x \Delta_{1-i} - J))} - J)$.
+
+Comme $\cosh u \geq 1$, on a $\frac{\partial f}{\partial x} > 0$ si $\Delta_i \Delta_{1-i} > 0$. La fonction est dans ce cas strictement croissante et on a une unique solution.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -91,38 +109,39 @@ Pour implémenter l'étape de distribution des flux dans le réseau, une fois le
 
 
 
-\bpar{
-Distance via network are updated in a dynamical programming fashion for efficiency purposes (because of the numerous network updates), the following way :
-\begin{enumerate}
-\item Euclidian distance matrix $d(i,j)$ computed analytically
-\item Network shortest paths between network intersections (rasterized network) updated in a dynamic way (addition of new paths and update/change of old paths if needed when a link is added), correspondance between network patches and closest intersection also updated dynamically ; $O(N_{inters}^3)$
-\item Weak component clusters and distance between clusters updated ; $O(N_{nw}^2)$
-\item Network distances between network patches updated, through the heuristic of only minimal connexions between clusters ; $O(N_{nw}^2)$
-\item Effective distances (taking paces/congestion into account) updated as minimum between euclidian time and \[\min_{C,C'}{d(i,C)+d_{nw}(p_C(i),p_C'(j))+d(C',j)}\], complexity in $O(N_{clusters}^2\cdot N^2)$ (Approximated with $\min_C$ only in the implementation, consistent within the interaction ranges $\sim$ 5 patches taken in the model). 
-\end{enumerate}
-}{
-La matrice des distances est mise à jour de manière dynamique pour des questions de rapidité d'execution (vu le nombre de mises à jour du réseau), de la façon suivante :
-\begin{enumerate}
-	\item La matrice de distance euclidienne $d(i,j)$ est calculée analytiquement
-	\item Les plus courts chemins entre les intersections des liens (entre les cellules du réseau raster correspondant) sont mis à jour de manière dynamique (étape de complexité $O(N_{inters}^3)$) :
-	\begin{itemize}
-		\item Pour chaque nouvelle intersection, les plus courts chemins vers l'ensemble des autres intersections sont calculés par l'ancienne matrice et le nouveau lien.
-		\item Pour l'ensemble des anciens plus courts chemins, ils sont mis à jour si besoin après vérification des éventuels raccourcis par le nouveau lien.
-		\item La correspondance entre les cellules quelconques du réseau et les intersections est mise à jour.
-	\end{itemize}
-	\item Les composantes connexes et les distances entre celles-ci sont mises à jour (complexité en $O(N_{nw}^2)$)
-	\item Les distances par le réseau entre les cellules du réseau sont mises à jour, avec l'heuristique des connexions minimales uniquement (un lien unique le plus court entre chaque cluster) (complexité en $O(N_{nw}^2)$)
-	\item Les distances effectives entre l'ensemble des cellules (prenant la vitesse et la congestion en compte si celle-ci est implémentée) sont calculées comme le minimum entre la distance euclidienne et 
-	\[\min_{C,C'}{d(i,C)+d_{nw}(p_C(i),p_C'(j))+d(C',j)}\]
-	dont nous prenons une approximation avec $\min_C$ uniquement dans l'implémentation, ce qui est consistant avec les portées d'interaction relativement faibles considérées. La complexité est en $O(N_{clusters}^2\cdot N^2)$
-\end{enumerate}
-}
-
-
+%\bpar{
+%Distance via network are updated in a dynamical programming fashion for efficiency purposes (because of the numerous network updates), the following way :
+%\begin{enumerate}
+%\item Euclidian distance matrix $d(i,j)$ computed analytically
+%\item Network shortest paths between network intersections (rasterized network) updated in a dynamic way (addition of new paths and update/change of old paths if needed when a link is added), correspondance between network patches and closest intersection also updated dynamically ; $O(N_{inters}^3)$
+%\item Weak component clusters and distance between clusters updated ; $O(N_{nw}^2)$
+%\item Network distances between network patches updated, through the heuristic of only minimal connexions between clusters ; $O(N_{nw}^2)$
+%\item Effective distances (taking paces/congestion into account) updated as minimum between euclidian time and \[\min_{C,C'}{d(i,C)+d_{nw}(p_C(i),p_C'(j))+d(C',j)}\], complexity in $O(N_{clusters}^2\cdot N^2)$ (Approximated with $\min_C$ only in the implementation, consistent within the interaction ranges $\sim$ 5 patches taken in the model). 
+%\end{enumerate}
+%}{
+%La matrice des distances est mise à jour de manière dynamique pour des questions de rapidité d'execution (vu le nombre de mises à jour du réseau), de la façon suivante :
+%\begin{enumerate}
+%	\item La matrice de distance euclidienne $d(i,j)$ est calculée analytiquement
+%	\item Les plus courts chemins entre les intersections des liens (entre les cellules du réseau raster correspondant) sont mis à jour de manière dynamique (étape de complexité $O(N_{inters}^3)$) :
+%	\begin{itemize}
+%		\item Pour chaque nouvelle intersection, les plus courts chemins vers l'ensemble des autres intersections sont calculés par l'ancienne matrice et le nouveau lien.
+%		\item Pour l'ensemble des anciens plus courts chemins, ils sont mis à jour si besoin après vérification des éventuels raccourcis par le nouveau lien.
+%		\item La correspondance entre les cellules quelconques du réseau et les intersections est mise à jour.
+%	\end{itemize}
+%	\item Les composantes connexes et les distances entre celles-ci sont mises à jour (complexité en $O(N_{nw}^2)$)
+%	\item Les distances par le réseau entre les cellules du réseau sont mises à jour, avec l'heuristique des connexions minimales uniquement (un lien unique le plus court entre chaque cluster) (complexité en $O(N_{nw}^2)$)
+%	\item Les distances effectives entre l'ensemble des cellules (prenant la vitesse et la congestion en compte si celle-ci est implémentée) sont calculées comme le minimum entre la distance euclidienne et 
+%	\[\min_{C,C'}{d(i,C)+d_{nw}(p_C(i),p_C'(j))+d(C',j)}\]
+%	dont nous prenons une approximation avec $\min_C$ uniquement dans l'implémentation, ce qui est consistant avec les portées d'interaction relativement faibles considérées. La complexité est en $O(N_{clusters}^2\cdot N^2)$.
+%	\end{enumerate}
+%}
 
 
 %%%%%%%%%%%%%%%%%%
-\section{Synthetic setup}{Initialisation synthétique}
+\subsection{Setup}{Initialisation}
+
+
+\subsubsection{Synthetic setup}{Initialisation synthétique}
 
 \bpar{
 This section describes the setup in the case of synthetic configurations of MCR.
@@ -144,10 +163,19 @@ E(\vec{x}) = E_{max} \cdot \exp{\left(\frac{\norm{\vec{x}-\vec{x}_i}}{r_E}\right
 
 
 
+\subsubsection{Setup on a real configuration}{Initialisation sur configuration réelle}
 
 
+%%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=\linewidth]{Figures/Lutecia/ex_real_filesetup.png}
+	%\includegraphics[width=\linewidth]{Figures/Lutecia/realnonw_nolu.png}
+	\includegraphics[width=\linewidth]{Figures/Final/A-lutecia-realsetup.jpg}
+	\appcaption{}{\label{fig:app:lutecia:realsetup}}
+\end{figure}
+%%%%%%%%%%%%%
 
-
+ 
 
 
 

@@ -3,14 +3,17 @@ library(ggplot2)
 library(reshape2)
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Governance/'))
-source(paste0(Sys.getenv('CN_HOME'),'/Models/Governance/MetropolSim/Lutecia/analysis/functions.R'))
+source(paste0(Sys.getenv('CN_HOME'),'/Models/Governance/Lutecia/Lutecia/analysis/functions.R'))
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
-resdir = '20171219_sprawl/'
+resdir = '20170528_real'
+#resdir = '20171219_sprawl/'
 #resdir = '20170522_realnonw/'
 #res <- as.tbl(read.csv(file = '20170523_sprawl/data/20170523_150406_grid_sprawl.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
 #res <- as.tbl(read.csv(file = '20170522_realnonw/data/20170522_174903_grid_realnonw_full.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
 res <- as.tbl(read.csv(file = '20171219_sprawl/data/20171219_164732_grid_sprawl.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
+
+
 
 
 finalTime = 50
@@ -26,6 +29,7 @@ names(res)<-namesTS(c("accessibilityTS","betaDC","centreActivesPropTS","centreEm
               "slopeRsquaredEmploymentsTS","stabilityTS","synthConfFile","targetDistance","targetNetwork",
               "traveldistanceTS","wantedcollab"
               ),finalTime)
+
 #
 # 19 TS variables + 29 others -> 219 ?
 # -> 229 : 13064 / 25000

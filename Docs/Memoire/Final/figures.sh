@@ -493,6 +493,12 @@ then
   ###############
   ## 7.3 : Lutecia
 
+  # fig:lutecia:governance
+  FIGNAME=7-3-3-fig-lutecia-governance
+  echo $FIGNAME
+  montage Figures/Lutecia/ex_setup.png Figures/Lutecia/ex_reg_infra50_explo200_seed1.png Figures/Lutecia/ex_maxcollabcost_infra45_explo200_seed3.png Figures/Lutecia/ex_mincollabcost_infra50_explo200_seed1.png -resize "$WIDTH"x -quality $JPGQUALITY -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
+
+
   # fig:lutecia:ex-prd
   FIGNAME=7-3-3-fig-lutecia-ex-prd
   echo $FIGNAME
@@ -502,7 +508,7 @@ then
   # fig:lutecia:calib
   FIGNAME=7-3-3-fig-lutecia-calib
   echo $FIGNAME
-  montage Figures/Lutecia/regional-distance_colorgametype.png Figures/Lutecia/collab-distance_colorregional.png -resize "$WIDTH"x -quality $JPGQUALITY -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
+  montage Figures/Lutecia/regional-distance_colorgametype.png Figures/Lutecia/collab-distance_colorregional.png Figures/Lutecia/distanceviolin_gametype.png Figures/Lutecia/distanceviolin_gametype_real.png -resize "$WIDTH"x -quality $JPGQUALITY -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
 
 
 
@@ -764,7 +770,7 @@ then
 
 
   #############
-  ## B.5 Synthetic Data
+  ## Synthetic Data
 
   #fig:app:correlatedsyntheticdata:correlations
   FIGNAME=A-correlatedsyntheticdata-correlations
@@ -777,7 +783,7 @@ then
 
 
   #############
-  ## B.6 MacroCoEvol
+  ## MacroCoEvol
 
 
   # fig:app:macrocoevol:behavior-time
@@ -812,6 +818,17 @@ then
   FIGNAME=A-networkgrowth-feasiblespace_bymorph
   echo $FIGNAME
   montage Figures/NetworkGrowth/feasible_space_pca_bymorph.png Figures/NetworkGrowth/feasible_space_withreal_pca_bymorph.png -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+  #############
+  ## Lutecia
+
+  # fig:app:lutecia:realsetup
+  FIGNAME=A-lutecia-realsetup
+  echo $FIGNAME
+  montage Figures/Lutecia/ex_real_filesetup.png Figures/Lutecia/realnonw_nolu.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
 
 fi
 

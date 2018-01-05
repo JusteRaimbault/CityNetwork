@@ -4,8 +4,25 @@ library(ggplot2)
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Governance/'))
 
-resdir = '20170508_lhs/'
-res <- as.tbl(read.csv(file = '20170508_lhs/data/20170508_190418_lhs.csv',sep=',',header=T))
+#resdir = '20170508_lhs/'
+resdir = '20170528_real/'
+#res <- as.tbl(read.csv(file = '20170508_lhs/data/20170508_190418_lhs.csv',sep=',',header=T))
+res <- as.tbl(read.csv(file = '20170528_real/data/20170528_grid_real_full.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
+
+
+finalTime = 10
+names(res)<-namesTS(c("accessibilityTS","betaDC","centreActivesPropTS","centreEmploymentsPropTS"
+                      ,"collcost","constrcost","entropyActivesTS","entropyEmploymentsTS",
+                      "euclpace","evolveLanduse","evolveNetwork","expcollab","failed","finalTime","game","gametype",
+                      "gammaCDA","gammaCDE","id","lambdaAcc","maxFlowTS","meanDistanceActivesTS",
+                      "meanDistanceCentreActivesTS","meanDistanceCentreEmploymentsTS","meanDistanceEmploymentsTS",
+                      "meanFlowTS","minFlowTS","moranActivesTS","moranEmploymentsTS","nwBetweenness",
+                      "nwCloseness","nwDiameter","nwLength","nwPathLength","nwRelativeSpeed","realcollab",
+                      "regionalproba","replication","setupType","slopeActivesTS","slopeEmploymentsTS","slopeRsquaredActivesTS",
+                      "slopeRsquaredEmploymentsTS","stabilityTS","synthConfFile","targetDistance","targetNetwork",
+                      "traveldistanceTS","wantedcollab"
+),finalTime)
+
 
 ####
 # TODO : 

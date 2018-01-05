@@ -86,18 +86,30 @@ L'accessibilité, que nous prendrons ici comme un potentiel d'accès des actifs 
 In practice, the LUTECIA model is generically based on 5 modules, of which only 3 will be studied in this paper given our application case to network growth in Pearl River Delta. The modules are the following :
 \begin{itemize}
 \item LU stands for Land Use module : it proceeds to the re-localization of actives and employments given current conditions of accessibility.
-\item T stands for Transport module : it computes the transportation conditions in the Urban Region.
+\item T stands for Transport module : it computes the transportation conditions such as flows and congestion in the Urban Region.
 \item EC stands for Evaluation of Cooperation module : it evaluates the agent or agents that will proceed to build a new infrastructure. 
 \item I stands for Infrastructure provision module : it finds the localization of the new transportation infrastructure, based on a criteria of accessibility maximization.
 \item A stands for Agglomeration economies module : it evaluates the productivity of firms, depending on the accessibility to employments.
 \end{itemize}
+We will study here the coupling between the LU-EC-I modules.
 }{
+Dans sa structure la plus générale, le modèle LUTECIA est composé de cinq sous-modèles, parmi lesquels nous n'en développerons que trois ici, vu notre cas d'application au Delta de la Rivière des Perles. Les sous-modèles sont les suivants :
 \begin{itemize}
-	\item 
+	\item LU correspond à l'usage du sol : il opère la relocalisation des actifs et des emplois étant donné les conditions courantes d'accessibilité.
+	\item T correspond à Transport : il évalue les conditions de transport (flux, congestion) dans la région urbaine.
+	\item EC correspond à l'évaluation de la coopération : il évalue le ou les agents qui procéderont à la construction d'une nouvelle infrastructure.
+	\item I correspond à provision d'infrastructure : il détermine la localisation de la nouvelle infrastructure de transport en fonction d'un critère de maximisation d'accessibilité.
+	\item A correspond aux agglomérations d'économie : il évalue la productivité des firmes, selon l'accessibilité aux emplois.
 \end{itemize}
+Nous étudierons par la suite le couplage entre les sous-modèles LU-EC-I.
 }
 
-%Details on multiple time scales ; corresponding stochasticity level of the model.
+
+\bpar{
+Different time scales are included in the model : a short scale, corresponding to daily mobility that yields flows in the transportation network and to firms productivity (modules T and A); an intermediate scale for residential and firms dynamics (module LU) ; and a long time scale for the evolution of the network (modules EC and I). Levels of stochasticity are considered accordingly : the smallest scales have deterministic dynamics whereas the longer exhibits randomness.
+}{
+Des échelles de temps imbriquées sont incluses dans le modèle : un échelle courte, correspondant à la mobilité quotidienne qui produit les flux dans le réseau de transport et aux productivités des entreprises (modules T et A) ; une échelle intermédiaire pour les dynamiques de localisation des actifs et emplois (module LU) ; et une longue échelle de temps pour l'évolution du réseau (modules EC et I). Les niveau de stochasticité sont pris en conséquence : les échelles les plus petites ont des dynamiques déterministes tandis que la plus longue présente un comportement aléatoire.
+}
 
 
 \subsubsection{Model description}{Description du modèle}
@@ -106,10 +118,9 @@ In practice, the LUTECIA model is generically based on 5 modules, of which only 
 
 
 \bpar{
-MCR are modeled with a two level spatial zoning: the world is composed by a lattice of patches, that are the basic units to quantify land use. We assume that each patch $k$ is characterized at time $t$ by its resident actives $A_k(t)$ and number of employments $E_k(t)$. At a higher level, the MCR is decomposed into administrative areas that correspond to the city governance levels, to which we attribute $M$ abstract agents called \emph{mayors}: $M_k$ gives thus the administrative area to which each patch belongs. %These will be the core of the EC and I modules by integrating transportation network growth decision processes.
-We assume furthermore the existence of a global governance agent that correspond to a regional authority at the level of the MCR.
+MCR are modeled with a two level spatial zoning: the world is composed by a lattice of patches, that are the basic units to quantify land use. We assume that each patch $k$ is characterized at time $t$ by its resident actives $A_k(t)$ and number of employments $E_k(t)$. At a higher level, the MCR is decomposed into administrative areas that correspond to the city governance levels, to which we attribute $M$ abstract agents called \emph{mayors}: $M_k$ gives thus the administrative area to which each patch belongs. We assume furthermore the existence of a global governance agent that correspond to a regional authority at the level of the MCR.
 }{
-La MCR est modélisée avec un zonage spatial à deux niveaux. L'environnement du modèle est composé par une grille, dont les cellules sont les unités élémentaires pour quantifier l'usage du sol. Nous supposons que chaque cellule $k$ est caractérisée au temps $t$ par le nombre d'actif y résidant $A_k(t)$ et son nombre d'emplois $E_k(t)$. A un niveau supérieur, la MCR est décomposée en unités administratives qui correspondent au niveau de gouvernance des villes, auxquelles sont attribués $M$ agents abstraits appelés \emph{maires} : $M_k$ désigne ainsi la zone administrative à laquelle chaque cellule appartient. Nous supposons de plus l'existence d'un agent de gouvernance global qui correspond à une autorité typiquement régionale, au niveau de la MCR.
+La Méga-région Urbaine est modélisée avec un zonage spatial à deux niveaux. L'environnement du modèle est composé par une grille, dont les cellules sont les unités élémentaires pour quantifier l'usage du sol. Nous supposons que chaque cellule $k$ est caractérisée au temps $t$ par le nombre d'actif y résidant $A_k(t)$ et son nombre d'emplois $E_k(t)$. A un niveau supérieur, la MCR est décomposée en unités administratives qui correspondent au niveau de gouvernance des villes, auxquelles sont attribués $M$ agents abstraits appelés \emph{maires} : $M_k$ désigne ainsi la zone administrative à laquelle chaque cellule appartient. Nous supposons de plus l'existence d'un agent de gouvernance global qui correspond à une autorité typiquement régionale, au niveau de la MCR.
 }
 
 \bpar{
@@ -146,7 +157,7 @@ L'accessibilité des emplois aux actifs est définie de manière similaire. La d
 \bpar{
 For the Land-use module, we assume that residential/employments relocations are at equilibrium at the time scale of a tick, at which the evolution of transportation infrastructure is much slower~\citep{wegener2004land}. Actives and Employments relocate given some utilities that take into account both accessibility and the urban form. Indeed, one of the drivers of Urban Sprawl may be interpreted as a repulsion of residents by density. To aggregate both effects in a simple way, we take a Cobb-douglas function for utilities of actives and employments
 }{
-Pour le module d'usage du sol, les relocalisations d'une proportion fixe d'actifs et d'emplois sont supposés à l'équilibre à l'échelle d'un pas de temps. En comparaison, l'évolution de l'infrastructure de transport est largement plus lente~\cite{wegener2004land}. Les actifs et les emplois se relocalisent selon des utilités qui prennent en compte à la fois l'accessibilité et la forme urbaine. En effet, l'un des moteurs de l'étalement urbain peut être interprété comme une répulsion des résidents par la densité. Pour agréger les deux effets de façon simple, nous prenons une fonction de Cobb-Douglas pour l'utilité
+Pour le module d'usage du sol, le modèle s'inspire du modèle de Lowry~\cite{lowry1964model}. Les relocalisations d'une proportion fixe d'actifs et d'emplois sont supposées à l'équilibre à l'échelle d'un pas de temps. En comparaison, l'évolution de l'infrastructure de transport est largement plus lente~\cite{wegener2004land}. Les actifs et les emplois se relocalisent selon des utilités qui prennent en compte à la fois l'accessibilité et la forme urbaine. En effet, l'un des moteurs de l'étalement urbain peut être interprété comme une répulsion des résidents par la densité. Pour agréger les deux effets de façon simple, nous prenons une fonction de Cobb-Douglas pour l'utilité
 }
 
 \begin{equation}\label{eq:utility}
@@ -225,24 +236,20 @@ Le sous-modèle pour la gouvernance suit les hypothèses suivantes :
 
 
 
-%This paper integrates a game-theory based framework as behavioral rules for governing agents in a hybrid model introduced in~\cite{le2010approche} and formalized then explored in~\citep{lenechet2012}. This model couples land-use dynamics with transportation infrastructure evolution and aims to endogeneise the development of transportation infrastructure taking into account different levels of decision. The framework proposed extends it by allowing cooperation between governing entities.
 
 %\comment[JR]{justify our simplistic choice of maximizing accessibility ; \cite{levinson2012forecasting} investigate far more precise rules of network growth but no interacting actors nor co-evolution, and more based on transportation constraints. In a similar vein, \cite{xie2009jurisdictional} compares centralized vs decentralized network growth, what is close to some questions we are tackling}
 
 %\cite{yusufzyanova2011forecasting} very similar structure with global and local.
 
 
-%The workflow for transportation network development is the following :
 
-%\begin{enumerate}
+The workflow for transportation network development is the following :
 
-%\item At each time step, $N$ new road segments are built. Choice between local and global is still done through uniform drawing with probability $\xi$. In the case of local building, roads are attributed successively to mayors with probabilities $\xi_i$, what means that richer areas may get many roads. It stays consistent with the thematic assumption than each road correspond to the allocation of one public market which are done independently (with $N$ becoming greater, this assumption should be relaxed as attribution of subventions to local areas is of course not proportional to wealth, but we assume that it stays true with small $N$ values). 
+\begin{enumerate}
+\item At each time step, $N$ new road segments are built. Choice between local and global is still done through uniform drawing with probability $\xi$. In the case of local building, roads are attributed successively to mayors with probabilities $\xi_i$, what means that richer areas may get many roads. It stays consistent with the thematic assumption than each road correspond to the allocation of one public market which are done independently (with $N$ becoming greater, this assumption should be relaxed as attribution of subventions to local areas is of course not proportional to wealth, but we assume that it stays true with small $N$ values). 
+\item Neighbor areas building a road will enter negotiations. We assume in this first simple version of the model that only bilateral negotiations may occur. Possible strategies for players (negotiating areas, $i=0,1$) are : not collaborating ($NC$) and collaborating ($C$). Strategies are chosen simultaneously (non-cooperative game) as detailed after. For $(C,NC)$ and $(NC,C)$ couples, the collaborating agent loose its investment and cannot build a road whereas the other continues his business alone. For $(NC,NC)$ both act as alone, and for $(C,C)$ a common development is done.
+\end{enumerate}
 
-%\item Areas building a road without neighbors doing it follow the standard procedure\comment[FL]{qu'est ce que ca veut dire?}.  to develop the road network.
-
-%\item Neighbor areas building a road will enter negotiations. We assume in this first simple version of the model that only bilateral negotiations may occur. Therefore, in the case of clusters with more than two areas, pairing is done at random (uniform drawing) between neighbors until all areas are paired.
-
-%\item Possible strategies for players (negotiating areas, $i=1,2$) are : not collaborating ($NC$) and collaborating ($C$). Strategies are chosen simultaneously (non-cooperative game) as detailed after. For $(C,NC)$ and $(NC,C)$ couples, the collaborating agent loose its investment and cannot build a road whereas the other continues his business alone. For $(NC,NC)$ both act as alone, and for $(C,C)$ a common development is done.
 
 
 \bpar{
@@ -260,23 +267,24 @@ La détermination des probabilités donnant la composition des stratégies mixte
 \begin{center}
 \begin{tabular}{ |c|c|c| } 
  \hline
- 1 $|$ 2  & C & A \\ \hline
+ 0 $|$ 1  & C & A \\ \hline
  C & $U_i = \kappa \cdot \Delta X_i(Z^{\ast}_C) - I - \frac{J}{2}$
-   & $\begin{cases}U_1 = \kappa \cdot \Delta X_1(Z^{\ast}_1)-I \\U_2 = \kappa \cdot \Delta X_2(Z^{\ast}_2)-I - \frac{J}{2}\end{cases}$ \\ \hline
- A & $\begin{cases}U_1 = \kappa \cdot \Delta X_1(Z^{\ast}_1)-I - \frac{J}{2}\\U_2 = \kappa \cdot \Delta X_2(Z^{\ast}_2)-I\end{cases}$
+   & $\begin{cases}U_0 = \kappa \cdot \Delta X_0(Z^{\ast}_0)-I \\U_1 = \kappa \cdot \Delta X_2(Z^{\ast}_1)-I - \frac{J}{2}\end{cases}$ \\ \hline
+ A & $\begin{cases}U_0 = \kappa \cdot \Delta X_1(Z^{\ast}_1)-I - \frac{J}{2}\\U_2 = \kappa \cdot \Delta X_2(Z^{\ast}_2)-I\end{cases}$
    & $U_i = \kappa \cdot \Delta X_i(Z^{\ast}_i) - I$ \\
  \hline
 \end{tabular}
 \end{center}
 
+Pour simplifier, nous supposerons les paramètres de coût redimensionnés à une accessibilité ce qui revient à avoir $\kappa = 1$
 
 
 \paragraph{Nash equilibrium}{Equilibre de Nash}
 
 \bpar{
-We can solve the mixed strategy Nash Equilibrium for this coordination game in all generality. The assumption of equilibrium implies that conditional expectancies of each player are equal given their two choices, i.e. that $\Eb{U_i|S_i=C} = \Eb{U_i|S_i=NC}$. It yields, by writing $U_i(S_1,S_2)$ the full payoff matrix, the expression of the probabilities
+We can solve the mixed strategy Nash Equilibrium for this coordination game in all generality. The assumption of equilibrium implies that conditional expectancies of each player are equal given their two choices, i.e. that $\Eb{U_i|S_i=C} = \Eb{U_i|S_i=NC}$. It yields, by writing $U_i(S_0,S_1)$ the full payoff matrix, the expression of the probabilities
 }{
-L'équilibre de Nash à stratégie mixte pour ce jeu de coordination peut être obtenu en toute généralité. L'hypothèse d'équilibre implique que les espérances conditionnelles de chaque joueur sont égales étant donné leur deux choix, i.e. que $\Eb{U_i|S_i=C} = \Eb{U_i|S_i=NC}$. Cela donne, en écrivant $U_i(S_1,S_2)$ la matrice de gain complète, l'expression des probabilités
+L'équilibre de Nash à stratégie mixte pour ce jeu de coordination peut être obtenu en toute généralité. L'hypothèse d'équilibre implique que les espérances conditionnelles de chaque joueur sont égales étant donné leur deux choix, i.e. que $\Eb{U_i|S_i=C} = \Eb{U_i|S_i=NC}$. Cela donne, en écrivant $U_i(S_0,S_1)$ la matrice de gain complète, l'expression des probabilités
 }
 
 \[
@@ -290,11 +298,24 @@ Ce qui donne avec les expressions des utilités données précédemment,
 }
 
 \[
-p_i = \frac{J}{\Delta X_{\bar{i}}{Z^{\star}_{C}} - \Delta X_{\bar{i}}{Z^{\star}_{\bar{i}}}}
+p_i = \frac{J}{\Delta X_{1 - i}{Z^{\star}_{C}} - \Delta X_{1 - i}{Z^{\star}_{1 - i}}}
 \]
 
 
-%Note that we can directly interpret these expressions, as a player chances to cooperate will decrease with the potential gain of the other player, what is intuitive for a competitive game. It also forces feasibility conditions on $I$ and $\delta I$ to keep a probability, that are $I \leq \kappa\cdot \min(\Delta X_1(Z^{\ast}_1),\Delta X_2(Z^{\ast}_2))$ (binary positive cost-benefit conditions) and $I-\delta I > \kappa \cdot \max_i (\Delta X_i(Z^{\ast}_i)-\Delta X_i(Z^{\ast}_C))$. As soon as accessibility difference stay relatively small, both shall be compatible when $\delta I \ll I$, giving corresponding boundaries for $I$.
+\bpar{
+This expression can be interpreted in the way that in this competitive game, the likelihood of a player to cooperate will decrease as the other player gain increases, and somehow counterintuitively, will increase as collaboration cost increases.
+}{
+Cette expression peut être interprétée de la façon suivante : dans ce jeu compétitif, la chance qu'un joueur coopère décroit quand le gain de l'autre joueur augmente, et d'une certaine manière contre-intuitif, s'accroit quand le coût de collaboration augmente.
+}
+
+\bpar{
+It also forces feasibility conditions on $J$ and accessibility gains to keep a probability : that are $ J \leq \Delta X_{1 - i}(Z^{\star}_{C}) - \Delta X_{1 - i}(Z^{\star}_{1 - i})$ (equivalent to a cost-benefit condition) and $\Delta X_{1 - i}(Z^{\star}_{C}) \leq \Delta X_{1 - i}(Z^{\star}_{1 - i})$.
+}{
+Cela impose également des conditions de faisabilité pour $J$ et les gains d'accessibilité pour conserver une probabilité : celles-ci sont $ J \leq \Delta X_{1 - i}(Z^{\star}_{C}) - \Delta X_{1 - i}(Z^{\star}_{1 - i})$ (équivalent à une condition coût-bénéfice) et $\Delta X_{1 - i}(Z^{\star}_{C}) \leq \Delta X_{1 - i}(Z^{\star}_{1 - i})$.
+}
+
+
+
 
 
 \paragraph{Discrete choice decisions}{Décisions par choix discrets}
@@ -307,25 +328,23 @@ Avec les mêmes fonctions d'utilité, un modèle d'utilité aléatoire pour un c
 }
 
 \[
-U_i(C) - U_i(NC) = p_{\bar{i}} \left( \Delta X_{i}{Z^{\star}_{C}} - \Delta X_{i}{Z^{\star}_{i}}\right) - J
+U_i(C) - U_i(NC) = p_{1 - i} \left( \Delta X_{i}{Z^{\star}_{C}} - \Delta X_{i}{Z^{\star}_{i}}\right) - J
 \]
 
 \bpar{
 and therefore $p_i$ verifies the equation that is solved numerically
 }{
-et donc $p_i$ vérifie l'équation qui est résolue numériquement
+et donc $p_i$ vérifie l'équation suivante
 }
 
-
 \[
-p_i = \frac{1}{1 + \exp{\left(-\beta_{DC}\cdot \left(\frac{\Delta X_{i}{Z^{\star}_{C}} - \Delta X_{i}{Z^{\star}_{i}}}{1 + \exp{\left(- \beta_{DC}(p_i \cdot (\Delta X_{\bar{i}}{Z^{\star}_{C}} - \Delta X_{\bar{i}}{Z^{\star}_{\bar{i}}}) - J)\right)}} - J \right)\right)}}
+p_i = \frac{1}{1 + \exp{\left(-\beta_{DC}\cdot \left(\frac{\Delta X_{i}{Z^{\star}_{C}} - \Delta X_{i}{Z^{\star}_{i}}}{1 + \exp{\left(- \beta_{DC}(p_i \cdot (\Delta X_{1 - i}(Z^{\star}_{C}) - \Delta X_{\bar{i}}(Z^{\star}_{1 - i})) - J)\right)}} - J \right)\right)}}
 \]
 
+Nous démontrons (voir Annexe~\ref{app:sec:lutecia}) qu'il existe toujours une solution $p_i \in [0,1]$, et nous la résolvons numériquement pour déterminer la probabilité dans le modèle.
 
 
-%
-%
-%
+
 
 
 %%%%%%%%%%%%%%
@@ -389,6 +408,18 @@ Les dynamiques d'usage du sol ont toujours un état stationnaire lorsque le rés
 \paragraph{Governance}{Gouvernance}
 
 
+%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/ex_setup.png}
+	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/ex_reg_infra50.png}
+	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/ex_maxcollabcost_infra50.png}
+	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/ex_mincollabcost_infra50.png}
+	\includegraphics[width=\linewidth]{Figures/Final/7-3-3-fig-lutecia-governance.jpg}
+	\caption[Network topologies obtained for different levels of governance][Formes de réseau obtenues pour différents niveaux de gouvernance]{\textbf{Network topologies obtained for different levels of governance.}\label{fig:lutecia:governance}}{\textbf{Formes de réseau obtenues pour différents niveaux de gouvernance.} Le modèle est initialisé sur une configuration synthétique symétrique à deux centres (\textit{Haut gauche}). Les paramètres pour l'évolution de l'usage du sol sont $\gamma_A = \gamma_E = 0.8 ; \beta = 2 ; \lambda = 0.001 ; \alpha = 0.16$, et pour l'évolution du réseau $l_r = 0.5$ et un jeu à choix discrets. L'évolution est stoppée à stock constant $S = 50$ et l'exploration heuristique faite pour $N_e = 200$. (\textit{Haut droite}) Niveau de décision régional ($\xi = 1$) ; (\textit{Bas gauche}) Niveau local ($\xi = 0$) et bas niveau de collaboration, obtenu avec un fort coût de coopération $J=0.005$ ; (\textit{Bas droite}) Niveau local et haut niveau de collaboration, avec $J=0$.\label{fig:lutecia:governance}}
+\end{figure}
+%%%%%%%%%%%%
+
+
 
 
 
@@ -465,8 +496,10 @@ L'expérience que nous menons est à usage du sol fixé, le niveau de détail re
 \begin{figure}
 	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/regional-distance_colorgametype.png}
 	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/collab-distance_colorregional.png}
-	\includegraphics[width=\linewidth]{Figures/Final/7-3-3-fig-lutecia-ex-prd.jpg}
-	\caption[Calibration of the Lutecia model][Calibration du modèle Lutecia]{\textbf{Model calibration with fixed land use.}\label{fig:lutecia:calib}}{\textbf{Calibration du modèle à usage du sol fixé.}\label{fig:lutecia:calib}}
+	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/distanceviolin_gametype.png}
+	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/distanceviolin_gametype_real.png}
+	\includegraphics[width=\linewidth]{Figures/Final/7-3-3-fig-lutecia-calib.jpg}
+	\caption[Calibration of the Lutecia model][Calibration du modèle Lutecia]{\textbf{Model calibration with fixed land use.}\label{fig:lutecia:calib}}{\textbf{Calibration du modèle à usage du sol fixé.} On prend $\alpha = 0$ pour ne faire évoluer que le réseau, et échantillonnons l'espace des paramètres du réseau \label{fig:lutecia:calib}}
 \end{figure}
 %%%%%%%%%%%%%%%
 
