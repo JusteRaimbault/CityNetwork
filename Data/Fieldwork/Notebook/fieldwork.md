@@ -4,6 +4,8 @@
 Bus - parc - rando improvisée - JiaLeFu.
 Pratique de le nature beaucoup moins rependue qu'a HK
 // we du 7/11 : rando a HK. Congestion totale. Du ferry ; metro ok ; de la rando a la descente.
+Macao le 6/11 : flux commuting frontiere.
+
 
 ## 16/01/2017
 

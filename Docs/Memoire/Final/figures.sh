@@ -766,7 +766,7 @@ then
   # fig:app:density:pmax
   FIGNAME=A-density-pmax
   echo $FIGNAME
-  montage Figures/Density/pmax_alpha.png Figures/Density/pmax_logbeta.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  montage Figures/Density/pmax_alpha.png Figures/Density/pmax_logbeta.png -tile 2x1 -geometry +0+"$HORIZONTALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
   #############
