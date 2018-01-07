@@ -616,6 +616,26 @@ fi
 if [ "$TARGET" == "--A" ] || [ "$TARGET" == "--all" ]
 then
 
+
+  #############
+  ## casestudies
+
+  # fig:app:casestudies:nanfang
+  FIGNAME=A-casestudies-nanfang
+  echo $FIGNAME
+  convert Figures/CaseStudies/nanfang.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:casestudies:prd
+  FIGNAME=A-casestudies-prd
+  echo $FIGNAME
+  convert Figures/CaseStudies/prd.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:casestudies:zhuhai
+  FIGNAME=A-casestudies-zhuhai
+  echo $FIGNAME
+  convert Figures/CaseStudies/zhuhai.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
   #############
   ## quantepistemo
 
