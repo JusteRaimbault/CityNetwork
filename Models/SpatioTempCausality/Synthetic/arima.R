@@ -114,7 +114,7 @@ for(b in 1:nbootstrap){
   #x=marima.sim(kvar=3,ar.model = ar,nsim=10000)
   ar=array(data = c(diag(2),rep(0,4),c(0,runif(1,-maxai,maxai),runif(1,-maxai,maxai),0)),dim = c(2,2,3))
   x=marima.sim(kvar=2,ar.model = ar,nsim=10000)
-  plotLaggedCorrs(x)
+  #plotLaggedCorrs(x)
   trajs=rbind(trajs,laggedCorrs(x,format = "coldf"))
   #eigs=rbind(eigs,eigen(ar[,,2])$values)
   eigs=rbind(eigs,c(ar[1,2,3],ar[2,1,3]))

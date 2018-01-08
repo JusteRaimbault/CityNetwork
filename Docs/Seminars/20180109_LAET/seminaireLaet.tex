@@ -1,5 +1,10 @@
 \documentclass[english,11pt]{beamer}
 
+\def \draft {1}
+
+
+
+
 \DeclareMathOperator{\Cov}{Cov}
 \DeclareMathOperator{\Var}{Var}
 \DeclareMathOperator{\E}{\mathbb{E}}
@@ -18,17 +23,29 @@
 
 
 
-
 \usepackage{mathptmx,amsmath,amssymb,graphicx,bibentry,bbm,babel,ragged2e}
 
 \makeatletter
 
+\usepackage{ifthen}
+
 \newcommand{\noun}[1]{\textsc{#1}}
 \newcommand{\jitem}[1]{\item \begin{justify} #1 \end{justify} \vfill{}}
-\newcommand{\sframe}[2]{\frame{\frametitle{#1} #2}}
+\newcommand{\sframe}[2]{\frame{\frametitle{#1} #2}
+\ifthenelse{\draft=1}{\frame{}}{}
+}
 
 \newenvironment{centercolumns}{\begin{columns}[c]}{\end{columns}}
 %\newenvironment{jitem}{\begin{justify}\begin{itemize}}{\end{itemize}\end{justify}}
+
+
+% -> in sframe
+%\newcommand{\eframe}{
+%    \ifthenelse{\draft=1}{\sframe{}{}}{}
+%}
+
+
+
 
 \usetheme{Warsaw}
 \setbeamertemplate{footline}[text line]{}
@@ -96,37 +113,20 @@ $^{2}$UMR-T IFSTTAR 9403 LVMT
 
 
 
-\sframe{Complexité spatio-temporelle}{
 
-% striking image
-
-% http://www.lnpn.fr/sites/lnpn.fr/files/lnpn_2015-11-02_carte_projet-prioritaire_projet-cible.pdf
-% : remarque : toutes les communes, concertations etc : ultra complexe !
-
-\centering
-
-%\includegraphics[width=0.6\textwidth,height=0.4\textheight]{figures/striking1}\\
-%\includegraphics[width=0.6\textwidth,height=0.4\textheight]{figures/striking2}
-
-%\footnotesize\textit{Source : \cite{arnaud2013grand}}
-
-}
-
-
-\sframe{Relations entre réseaux et territoires}{
+\sframe{Interactions entre réseaux et territoires}{
 
 % The study of strongly coupled spatio-temporal processes implies to understand tangled intrications generally highly difficult to isolate. These interactions are the essence of complexity approaches, and are indeed at the origin of the emergent behavior of the system. They make sense as an object of study in itself and a separation of processes appears then contradictory with an integrated view of the system. In the case of territorial systems, the example of interactions between transportation networks and territories is a perfect allegory of this phenomenon: methods developed in the seventies aimed at isolating the ``structuring effects'' of a transportation infrastructure~\cite{bonnafous1974methodologies} have later been unveiled as a political instrument and with a poor empirical support~\cite{offner1993effets}. The issue is still highly relevant today as it raises for example with the construction of new High Speed Rail lines in France~\cite{crozethalshs01094554}. The reality of territorial processus is in fact much more complicated than a simple causal relation between the introduction of a new infrastructure and spillovers on local development, but corresponds indeed to complex \emph{co-evolutive} processes~\cite{bretagnolletel00459720}. On long time scales and large spatial scales, some effects of dynamics reinforcement in system of cities by the insertion within networks have been shown by the application of the Evolutive Urban Theory~\cite{espacegeo2014effets}, showing that the disentangling is sometimes possible through a more global understanding of the system. At an other scale, still for relations between networks and territories, we can point at the relations between mobility practices, urban sprawl et ressource localisation in a metropolitan framework~\cite{cerqueira2017inegalites} that are as much complex. This kind of issue is naturally present in other fields: in Economic Geography, the example of links between innovation, local spillovers of knowledge and aggregation of economic agents is a typical illustration of spatio-temporal economic processes exhibiting circular causalities difficult to disentangle~\cite{audretsch1996r}. Specific methods are introduced, as the use of statistical instruments: \cite{aghion2015innovation} shows that the geographical origin of US Congress members that attribute local subsidies is a powerful instrumental variable to link innovation and income inequalities for higher incomes, what confirms that the significant correlation between the two is indeed a causality of innovation on inequalities.
 
 \centering
 
-% striking image
 
 \includegraphics[width=0.43\textwidth]{figures/1-3-1-fig-qualitative-hsr}\hspace{0.1cm}
 \includegraphics[width=0.55\textwidth]{figures/tod}
 
 \bigskip
 
-\textit{Un travail de terrain dans le Delta de la Rivière des Perles montre des manifestations locales de la co-évolution des réseaux de transport et des territoires. Source : Auteur.}
+\textit{Un travail de terrain dans le Delta de la Rivière des Perles montre des manifestations locales des interactions entre réseaux de transport et territoires}
 
 }
 
@@ -135,7 +135,7 @@ $^{2}$UMR-T IFSTTAR 9403 LVMT
 
 \justify
 
-\textit{From \cite{bonnafous1974methodologies} to \cite{offner1993effets} : do transportation infrastructures structure territories ?}
+\textit{De \cite{bonnafous1974methodologies} à \cite{offner1993effets} : quels effets de structure des infrastructures de transport sur les territoires ?}
 
 \bigskip
 \bigskip
@@ -181,7 +181,7 @@ $\rightarrow$ Vers une approche complexe de la causalité ? \cite{morin1976metho
 
 }
 
-\sframe{Exemple d'approches existantes de la causalité spatio-temporelle}{
+\sframe{Approches empiriques existantes}{
 
 \justify
 
@@ -289,6 +289,30 @@ $\rightarrow$ Datamining sur $\rho_\tau$ (possiblement paramétré comme $\rho_\
 
 }
 
+
+\sframe{Illustration pour 2 variables}{
+
+\centering
+
+\includegraphics[height=0.9\textheight]{figures/causality_twovars.pdf}
+
+}
+
+
+
+\sframe{Validation basique}{
+
+\includegraphics[width=\linewidth]{figures/4-2-2-fig-causalityregimes-arma.jpg}
+
+\medskip
+
+\textit{Données synthétiques : processus AR avec retard 2, termes croisés paramétrés par $(a_1,a_2) \in [-0.1,0.1]$ aléatoires.}
+
+}
+
+
+
+
 \sframe{Validation sur données synthétiques}{
 
 % present strategy and rbd model
@@ -307,30 +331,28 @@ $\rightarrow$ Datamining sur $\rho_\tau$ (possiblement paramétré comme $\rho_\
 
 % plus de details sur le rbd
 \begin{itemize}
-\item Fixed agents: cells in a square lattice $(L_{i,j})_{1\leq i,j\leq N}$
-, occupied or not (function \textrm{$\ensuremath{\delta(i,j,t)\in\{0,1\}}$)}
+\item Automate cellulaire: cellules d'une grille carrée $(L_{i,j})_{1\leq i,j\leq N}$
+, occupées ou non (fonction \textrm{$\ensuremath{\delta(i,j,t)\in\{0,1\}}$)}
 \end{itemize}
 \vfill{}
 
 \begin{itemize}
-\item Evolving euclidian network $G(t)=(V(t),E(t))$,
-including fixed city centers $C_{0}\subset V(0)$ for each an activity
-$a\in\{1,\ldots,a_{max}\}$ is defined (functional properties of the
-urban scape).
+\item Réseau vectoriel $G(t)=(V(t),E(t))$ qui évolue,
+incluant des centres urbains fixes $C_{0}\subset V(0)$ auxquels des activités
+$a\in\{1,\ldots,a_{max}\}$ sont attribuées (propriétés fonctionnelles de l'environnement urbain).
 \end{itemize}
 \vfill{}
 
 \begin{itemize}
-\item Heterogeneous explicative variables $(d_{k})_{1\leq k\leq K}$ defined
-on cells, with associated weights $(\alpha_{k})_{1\leq k\leq K}$
-(main parameters of the model), that are:
+\item Variables explicatives $(d_{k})_{1\leq k\leq K}$ définies sur les cellules, avec des poids associés $(\alpha_{k})_{1\leq k\leq K}$
+(paramètres principaux du modèle), qui sont:
 
 \begin{itemize}
-\item $d_{1}$ the density around the cell (in a fixed radius $r$)
-\item $d_{2}$ the distance to the nearest road
-\item $d_{3}$ the distance to the nearest town center through the network
+\item $d_{1}$ densité autour de la cellule (dans un rayon fixé $r$)
+\item $d_{2}$ distance à la route la plus proche
+\item $d_{3}$ distance au centre le plus proche par le réseau
 \item \textrm{$d_{4}(i,j,t)=\left(\frac{1}{a_{\max}}\sum_{a=1}^{a_{\max}}d_{3}(i,j,t;a)^{p_{4}}\right)^{1/p_{4}}$
-}: integrated accessibility of activities
+}: accessibilité intégrée aux activités
 \end{itemize}
 \end{itemize}
 \vfill{}
@@ -338,17 +360,16 @@ on cells, with associated weights $(\alpha_{k})_{1\leq k\leq K}$
 
 }
 
-\sframe{Evolution rules}{
+\sframe{Règles d'évolution}{
 
-At each time step:\vfill{}
+A chaque pas de temps :\vfill{}
 
 \begin{itemize}
-\item Sprawling of occupied urban structure. The best $N$ cells according
-to the value $v(i,j,t)=\frac{1}{\sum_{k}\alpha_{k}}\sum_{k=1}^{K}\alpha_{k}\;\frac{d_{k,\max}(t)-d_{k}(i,j,t)}{d_{k,\max}(t)-d_{k,\min}(t)}$
-are built.\vfill{}
+\item Etalement de la surface occupée : les meilleures $N$ cellules selon
+la valeur du potentiel $v(i,j,t)=\frac{1}{\sum_{k}\alpha_{k}}\sum_{k=1}^{K}\alpha_{k}\;\frac{d_{k,\max}(t)-d_{k}(i,j,t)}{d_{k,\max}(t)-d_{k,\min}(t)}$
+sont construites.\vfill{}
 
-\item Adaptation of the network: when a new cell is built, if $d_{2}>\theta_{2}$, the cell is connected to the network by a new perpendicular
-road.\vfill{}
+\item Adaptation du réseau : quand une nouvelle cellule est construite, si $d_{2}>\theta_{2}$, la cellule est connectée au réseau par une route directe.\vfill{}
 
 \end{itemize}
 }
@@ -359,27 +380,30 @@ road.\vfill{}
 
 \sframe{Profils de corrélations retardées}{
 
-\includegraphics[width=\textwidth]{figures/laggedcorrs_facetextreme}
+\includegraphics[width=\textwidth]{figures/regimes_1.png}
 
-\medskip
+%\textit{Values of $\rho_{\tau}$ for all couples of three explicative variables (density, distance to center, distance to roads), for 8 extreme parameter points}
 
-\vspace{-0.2cm}
+}
 
-\textit{Values of $\rho_{\tau}$ for all couples of three explicative variables (density, distance to center, distance to roads), for 8 extreme parameter points}
+
+\sframe{Profils de corrélations retardées}{
+
+\includegraphics[width=\textwidth]{figures/regimes_2.png}
 
 }
 
 
 \sframe{Régimes endogènes de causalité}{
 
-Intensive exploration of model parameter space (1000 parameters points x 100 repetitions) with OpenMole software \cite{reuillon2013openmole}
+Exploration intensive de l'espace des paramètres du modèle (1000 points de paramètres x 100 répétitions) avec le logiciel OpenMole \cite{reuillon2013openmole}
 
 \medskip
 
 \includegraphics[width=0.52\textwidth]{figures/dccoef-knum_valuesFALSEtheta05-3}
 \includegraphics[width=0.44\textwidth]{figures/clusters-PCA-features_valuesFALSEtheta2_k6}
 
-\footnotesize\textit{Classification non-supervisée (\textit{k-means} robustes) sur les caractéristiques $\tau_{min},\tau_{max}$ : (Gauche) Derivative of clustering coefficient for number of clusters $k$; (Right) PCA visualisation of classification for ``optimal'' $k$}
+\footnotesize\textit{Classification non-supervisée (\textit{k-means} robustes) sur les caractéristiques $\tau_{min},\tau_{max}$ : (Gauche) Dérivée du coefficient de clustering en fonction du nombre de clusters $k$; (Droite) Visualisation en plan principal pour $k=6$.}
 
 }
 
@@ -440,9 +464,69 @@ Intensive exploration of model parameter space (1000 parameters points x 100 rep
 
 \includegraphics[width=0.62\textwidth]{figures/1-2-1-fig-casestudies-empiricalres}
 
-\textit{Values of $\rho_{\tau}$ for the different projects (columns) and different variables (rows), with accessibility differentials}
+\textit{Valeurs de $\rho_{\tau}$ pour les différents projets (colonnes) et les différentes variables (lignes), avec les différentiels d'accessibilité}
 
 }
+
+
+
+\sframe{Application à l'Afrique du Sud}{
+
+\centering
+
+\includegraphics[width=0.5\textwidth]{figures/southafrica_meanabscorrs}
+\includegraphics[width=0.5\textwidth]{figures/southafrica_significantcorrs}
+
+\medskip
+
+\textit{Détermination de la fenêtre temporelle et de la portée spatiale de l'accessibilité}
+
+
+}
+
+
+\sframe{Application à l'Afrique du Sud}{
+
+
+\centering
+
+\includegraphics[width=0.82\textwidth]{figures/4-2-3-fig-causalityregimes-sudafcorrs.jpg}
+
+\medskip
+
+\textit{Inversion du sens de la causalité suggère un effet de ségrégation structurelle des politiques d'apartheid}
+
+
+
+}
+
+
+\sframe{Application à la France}{
+
+\centering
+
+\includegraphics[width=0.5\textwidth]{figures/significantcorrs_d0}
+\includegraphics[width=0.5\textwidth]{figures/significantcorrs_Tw}
+
+\medskip
+
+\textit{Fenêtre temporelle et portée spatiale optimales (réseau ferré et population sur la période 1830-1999)}
+
+}
+
+\sframe{Application à la France}{
+
+
+\centering
+
+\includegraphics[width=0.82\textwidth]{figures/laggedCorrs_time_Tw4}
+
+\textit{Profils de corrélation : pas de signal significatif}
+
+}
+
+
+
 
 
 
@@ -450,6 +534,92 @@ Intensive exploration of model parameter space (1000 parameters points x 100 rep
 %%%%%%%%%%%%%%%%%
 \section{Discussion}
 %%%%%%%%%%%%%%%%%
+
+
+%Nous discutons finalement ces résultats en les plaçant dans la perspective plus large de la co-évolution des réseaux de transport et des territoires, dont nous donnons une définition ainsi que des pistes de modélisation. L'ensemble de ce travail propose ainsi un regard original sur la question des effets structurants des infrastructures de transport.
+
+
+\sframe{Perspective : co-évolution}{
+
+% def de la coevol
+
+Proposition d'une définition de la co-évolution, basée sur une revue multi-disciplinaire :
+
+\begin{enumerate}
+	\item Existence de processus évolutifs : transformations des composantes du système territorial aux différentes échelles
+	\item Trois manifestations de la co-évolution à des niveaux emboités :
+	\begin{itemize}
+		\item Entités en relations causales circulaires
+		\item Population d'entités dans une région géographique, identifiable en pratique par les régimes de causalité
+		\item Niveau global du système, interdépendance forte
+	\end{itemize} 
+	\item Existence de sous-systèmes en relative isolation spatio-temporelle où s'opèrent différentes co-évolutions (lien avec le concept de morphogenèse
+\end{enumerate}
+
+
+
+
+}
+
+
+\sframe{Modélisation à l'échelle mesoscopique}{
+
+\includegraphics[width=\linewidth]{figures/7-1-2-fig-networkgrowth-examples.jpg}
+
+}
+
+
+
+\sframe{Régimes de causalité}{
+
+%\textit{Unsupervised learning on lagged correlations between local variables unveils a diversity of causality regimes in a model co-evolving urban form and network topology}
+
+%$\rightarrow$ Link between \emph{co-evolution regime} and morphogenetic properties of the urban system
+
+\textit{Multi-modélisation pour la croissance du réseau couplée au modèle RBD}
+
+\medskip
+
+\centering
+
+\includegraphics[width=\textwidth]{figures/7-2-2-fig-mesocoevolmodel-causality.jpg}
+
+\footnotesize\textit{(Gauche) Profils de corrélations retardées ; (Droite) Distribution des régimes dans l'espace des paramètres}
+
+}
+
+
+\sframe{Co-évolution à l'échelle macroscopique}{
+
+\centering
+
+\includegraphics[width=\textwidth]{figures/6-2-3-fig-macrocoevol-slimemould.jpg}
+
+\textit{Modèle d'interaction entre villes~\cite{pumain2017urban} couplé à un modèle d'auto-renforcement de réseau~\cite{tero2010rules}}
+
+}
+
+
+
+\sframe{Co-évolution macroscopique : motifs de corrélation}{
+
+\centering
+
+\includegraphics[width=\linewidth]{figures/macrocoevol_laggedcorrs_gravityWeight5e-04_nwThreshold4_5}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 % The application of our approach must be lead carefully regarding the choice of scales, processes and objects of study. Typically, it will be not adapted to the quantification of spatio-temporal processes for which the temporal scale of diffusion if of the same order than the estimation window, as our stationarity assumption here stays basic. We could propose to proceed to estimations on moving windows but it would then require the elaboration of a spatial correspondence technique to follow the propagation of phenomena. An example of concrete application that would have a strong thematic impact would be a characterization of a fundamental component of the Evolutive Urban Theory that is the hierarchical diffusion of innovation between cities~\cite{pumain2010theorie}. This would be done by analyzing potential spatio-temporal dynamics of patents classifications such as the one introduced by~\cite{10.1371/journal.pone.0176310}. We also underline that these are rather open methodological questions, for which a concretisation is the potential link between the non-ergodic properties of urban systems~\cite{pumain2012urban} and a wave-based characterization of these processes.
@@ -477,13 +647,13 @@ $\rightarrow$ Le concept opérationnel de \textit{Régime de causalité} introdu
 
 \bigskip
 
-\textbf{Developments}
+\textbf{Développements}
 
-$\rightarrow$ Characterisation of spatio-temporal diffusion : testing the spatial diffusion of innovation and the evolutive urban theory \cite{pumain2010theorie}
+$\rightarrow$ Caractérisation de la diffusion spatio-temporelle : test de l'hypothèse de la diffusion spatiale de l'innovation dans la Théorie Evolutive des Villes \cite{pumain2010theorie}
 
 \medskip
 
-$\rightarrow$ Optimal spatial scales for stationarity : link with GWR ? 
+$\rightarrow$ Echelles optimales pour la stationnarité : lien avec GWR
 
 \cite{brunsdon1998geographically}
 
@@ -502,15 +672,15 @@ $\rightarrow$ Optimal spatial scales for stationarity : link with GWR ?
 
 \justify
 
-$\rightarrow$ A method validated on synthetic data and showed operational on a real system
+$\rightarrow$ Une méthode validée sur données synthétiques et montrée opérationnelle sur des systèmes réels
 
 \medskip
 
-$\rightarrow$ At the interface of knowledge domains : theory, modeling, empirical, methodological
+$\rightarrow$ A l'interface des domaines de connaissance : théorie, modélisation, empirique, méthodologique
 
 \medskip
 
-$\rightarrow$ At the interface of disciplines : spatial analysis, statistics, datamining
+$\rightarrow$ A l'interface des disciplines : analyse spatiale, statistiques, datamining
 
 
 
@@ -518,9 +688,9 @@ $\rightarrow$ At the interface of disciplines : spatial analysis, statistics, da
 \bigskip
 \bigskip
 
-\footnotesize{ - Code, data and results available at\\ \texttt{https://github.com/JusteRaimbault/CityNetwork}\\
-- Paper on arXiv at \texttt{https://arxiv.org/abs/1709.08684}\\
-- Acknowledgments : We thank the \textit{European Grid Infrastructure} and its \textit{National Grid Initiatives} (\textit{France-Grilles} in particular) to give the technical support and the infrastructure.
+\footnotesize{ - Code, données et résultats disponibles à\\ \texttt{https://github.com/JusteRaimbault/CityNetwork}\\
+- Article sur arXiv à \texttt{https://arxiv.org/abs/1709.08684}\\
+- Remerciements : Nous remercions l'\textit{European Grid Infrastructure} et \textit{France-Grilles} en particulier pour le support technique et l'infrastructure.
 }
 
 }
@@ -610,90 +780,6 @@ Self-organization $\supsetneq$ Morphogenesis $\supsetneq$ Autopoiesis $\supsetne
 
 
 }
-
-
-
-\sframe{Causality Regimes in a model of co-evolution}{
-
-\textit{Unsupervised learning on lagged correlations between local variables unveils a diversity of causality regimes in a model co-evolving urban form and network topology}
-
-$\rightarrow$ Link between \emph{co-evolution regime} and morphogenetic properties of the urban system
-
-% comment Arnaud : le genre d’affirmation qu’il faut réussir à exprimer également du point de vue de l’objet étudié : qu’est-ce que ça veut dire pour la morphogénèse urbaine ?
-
-\medskip
-
-\centering
-
-\includegraphics[width=0.52\textwidth,height=0.55\textheight]{figures/coevol_centertrajs}
-\includegraphics[width=0.4\textwidth,height=0.55\textheight]{figures/coevol_cluster-params}
-
-\footnotesize\textit{(Left) Lagged correlation profiles of cluster centers; (Right) Distribution of regimes across parameter space}
-
-}
-
-
-
-
-\sframe{Application to South Africa : Stationarity scales}{
-
-\textit{Optimal estimation time window and spatial range for accessibility}
-
-
-\bigskip
-
-\centering
-
-\includegraphics[width=0.5\textwidth]{figures/southafrica_meanabscorrs}
-\includegraphics[width=0.5\textwidth]{figures/southafrica_significantcorrs}
-
-}
-
-
-\sframe{Application to South Africa : Causality Patterns}{
-
-\textit{Clear inversion of the sense of Granger causality suggests a structural segregation effect of the apartheid laws}
-
-\bigskip
-
-\centering
-
-\includegraphics[width=0.82\textwidth]{figures/southafrica_laggedCorrs_Tw3}
-
-}
-
-\sframe{Application to France : Stationarity scales}{
-
-\textit{Optimal estimation time window and spatial range for accessibility}
-
-
-\bigskip
-
-\centering
-
-\includegraphics[width=0.5\textwidth]{figures/significantcorrs_d0}
-\includegraphics[width=0.5\textwidth]{figures/significantcorrs_Tw}
-
-}
-
-\sframe{Application to France : No significant correlation}{
-
-
-\centering
-
-\includegraphics[width=0.82\textwidth]{figures/laggedCorrs_time_Tw4}
-
-}
-
-
-
-\sframe{Macroscopic co-evolution : Correlation Patterns}{
-
-\includegraphics[width=\linewidth]{figures/macrocoevol_laggedcorrs_gravityWeight5e-04_nwThreshold4_5}
-
-}
-
-
 
 
 
