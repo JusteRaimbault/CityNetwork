@@ -843,6 +843,26 @@ then
   #############
   ## Lutecia
 
+  # fig:app:lutecia:morphotrajs
+  FIGNAME=A-lutecia-morphotrajs
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/Lutecia/morphoActiveTrajsvaryinglambda_betaDC1_euclpace6.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/Lutecia/morphoActiveTrajsvaryinglambda_betaDC1_euclpace6.jpg
+  convert -density $PDFRESOLUTION Figures/Lutecia/morphoActiveTrajsvaryinglambda_betaDC2_euclpace6.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/Lutecia/morphoActiveTrajsvaryinglambda_betaDC2_euclpace6.jpg
+  montage Figures/Lutecia/morphoActiveTrajsvaryinglambda_betaDC1_euclpace6.jpg Figures/Lutecia/morphoActiveTrajsvaryinglambda_betaDC2_euclpace6.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm Figures/Lutecia/morphoActiveTrajsvaryinglambda_betaDC1_euclpace6.jpg Figures/Lutecia/morphoActiveTrajsvaryinglambda_betaDC2_euclpace6.jpg
+
+  # fig:app:lutecia:morphosens
+  FIGNAME=A-lutecia-morphosens
+  echo $FIGNAME
+  convert Figures/Lutecia/PC1_synth_nonw_euclpace6.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:lutecia:ludiff
+  FIGNAME=A-lutecia-ludiff
+  echo $FIGNAME
+  convert Figures/Lutecia/rdiffact_synth_nonw_euclpace6.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+
   # fig:app:lutecia:realsetup
   FIGNAME=A-lutecia-realsetup
   echo $FIGNAME
