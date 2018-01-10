@@ -28,6 +28,11 @@
 % suite des histoires : c'est quoi ma vie finalement ? quels souvenirs chers ? quelle identite ? psych necessaire ! catas - co ... ; a quelle periode, pourquoi, comment.
 
 
+\bigskip
+
+%\stars
+
+
 Un paradoxe intrinsèque à nombre de démarches de production de connaissance est un besoin de consistence intrinsèque et d'une portée satisfaisante d'explication des phénomènes concernés, qui s'oppose à une inévitable réduction des dimensions explorées mais également à la fragilité des ponts qu'elle tente de former vers d'autres corpus de connaissances. L'image prise ci-dessus suggère que le tâtonnement, c'est à dire une progression pas à pas sans précipitations, ainsi que la solidité des ancrages, sont des atouts solides pour affronter ce paradoxe.
 
 % POURQUOI ces thématiques : rajouter un paragraphe !
@@ -35,7 +40,7 @@ Un paradoxe intrinsèque à nombre de démarches de production de connaissance e
 Cette partie ouvre directement les pistes de réponse thématiques pour la modélisation de la co-évolution que nous avons évoqué en conclusion de la première partie, et pose ainsi ces ancrages forts. Elle pose toutefois des bases sans entrer dans le coeur du sujet par ce souci de robustesse par entrée progressive, et construit donc les \emph{briques élémentaires} de notre démarche. Deux chapitres traitent ainsi successivement les thématiques suivantes :
 \begin{enumerate}
 	\item Un premier chapitre s'intéresse à la Théorie Evolutive Urbaine est une entrée privilégiée sur les systèmes urbains d'un point de vue évolutif, et intègre en son coeur un point de vue multi-scalaire de ces systèmes. Il éclaire des propriétés fondamentale des systèmes territoriaux impliquées par la théorie évolutive, en introduisant une première analyse empirique de la variabilité spatiale des interactions entre forme urbaine et forme de réseau, puis en développant une méthodologie de caractérisation statistique de la co-évolution (au sens intermédiaire de la population). Il introduit ensuite un premier modèle d'interaction entre système de ville et flux du réseau de transport, avec réseau statique.
-	\item Un second chapitre explore le concept de morphogenèse
+	\item Un second chapitre explore le concept de morphogenèse, qui permet une entrée conceptuelle à la caractéristique de modularité nécessaire pour avoir co-évolution. Après avoir développé une définition interdisciplinaire de la morphogenèse, il introduit un modèle de morphogenèse urbaine basé sur des processus d'agrégation-diffusion pour la densité de population, et est ensuite couplé séquentiellement à un modèle de génération de réseau.
 \end{enumerate}
 
 
@@ -44,9 +49,7 @@ Cette partie ouvre directement les pistes de réponse thématiques pour la modé
 
 
 
-
-
-
+\stars
 
 
 
@@ -61,7 +64,7 @@ Cette partie ouvre directement les pistes de réponse thématiques pour la modé
 Afin de toucher l'audience la plus large possible, nous proposons de preciser dans cet intermède préliminaire les definitions de notions ou méthodes clés qui seront utilisées de manière par la suite, souvent hors d'un cadre mathématique. Ce choix permet de garder un cadre rigoureux sans rendre indigeste la lecture du manuscrit à une grande partie de son public légitime.
 
 
-Sauf indication, les specifications données ici feront reference lors de l'utilisation des termes correspondants.
+Sauf indication, les specifications données ici feront référence lors de l'utilisation des termes correspondants.
 
 
 
@@ -137,7 +140,12 @@ On désignera par \emph{Apprentissage supervisé} toute méthode d'estimation d'
 La question de l'overfitting est particulièrement importante lors de l'estimation de modèles, puisque un nombre trop important de paramètres pourra conduire a capturer le bruit de realisation comme structure. Lors de l'estimation de modèles statistiques, des critères d'information sont mobilisables pour quantifier le gain d'information produit par l'ajout d'un paramètre, et obtenir un compromis entre performance et parcimonie.
 
 
-Le \emph{Critère d'Information d'Akaike} (AIC) permet de quantifier le gain d'information permit par l'ajout de paramètres dans un modèle. Pour un modèle statistique qui dispose d'une Fonction de Vraisemblance (\emph{Likelihood})
+Le \emph{Critère d'Information d'Akaike} (AIC) permet de quantifier le gain d'information permis par l'ajout de paramètres dans un modèle. Pour un modèle statistique qui dispose d'une Fonction de Vraisemblance (\emph{Likelihood}), l'AIC est alors défini par $AIC = 2k - 2 \ln{\mathcal{L}}$ si $k$ est le nombre de paramètres du modèle et $\mathcal{L}$ la valeur maximale de la fonction de vraisemblance. \cite{akaike1998information} montre que cette expression correspond à une estimation du gain d'information de Kullback-Leiber. Une correction pour les petits échantillons de taille $n$ est donnée par $AICc = 2 (k + \frac{k^2 + k}{n-k -1} - 2 \ln{\mathcal{L}})$.
+
+Un critère similaire mais dérivé dans un cadre bayésien est le \emph{Critère d'Information Bayésien} (BIC)~\cite{burnham2003model}, qui conduit à une pénalisation plus forte du nombre de paramètres : $BIC = \ln n \cdot k - 2 \ln{\mathcal{L}}$.
+
+
+Ces critères sont appliqués pour la sélection de modèles en étudiant leur différences entre modèles (seules les différences ont un sens, ceux-ci étant définis à une constante près) : le ``meilleur'' modèle est celui ayant le critère le plus faible. Dans le cas de modèles de performance comparables, il peut être pertinent de combiner les modèles par les poids d'Akaike $w_i = \exp (- \Delta AIC / 2)$.
 
 
 
@@ -149,19 +157,23 @@ Le \emph{Critère d'Information d'Akaike} (AIC) permet de quantifier le gain d'i
 
 
 
-\paragraph{LHS Sampling}{Echantillonnage LHS}
+\paragraph{Experience plan by Sampling}{Plan d'expérience par échantillonnage}
 
 Le sort de la dimension (\emph{Dimensionality Curse}), qui correspond simplement au fait que la taille de l'espace des paramètres est exponentielle en le nombre de paramètre. Lorsque celle-ci grandit mais qu'on veut garder un aperçu du comportement d'un modèle sur des valeurs très variées des paramètres d'entrée, on peut alors échantillonner l'espace par un nombre donné de point.
+
+
+L'échantillonnage par Hypercube Latin (LHS) permet d'assurer que pour chaque dimension, l'ensemble de la plage des valeurs est couverte.
 
 
 % mais pas efficient si modele tres irregulier : evoquer algos genetiques, PSE.
 
  
 
-\paragraph{NSGA}{NSGA}
+\paragraph{Genetic algorithm calibration}{Calibration par algorithme génétique}
 
 % algo gen standard pour calibration.
 
+Nous utilisons l'algorithme standard implémenté dans OpenMole, décrit en détails par~\cite{pumain2017evaluation}. Il s'agit d'une extension stochastique de l'algorithme NSGA2 pour l'optimisation multi-objectif.
 
 
 
