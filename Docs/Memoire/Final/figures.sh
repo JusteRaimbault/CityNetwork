@@ -1095,6 +1095,15 @@ then
   echo $FIGNAME
   convert Figures/MediationEcotox/boardgame.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
+  # fig:app:mediationecotox:phasediags
+  FIGNAME=C-mediationecotox-phasediags
+  echo $FIGNAME
+  convert Figures/MediationEcotox/phasediags.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:mediationecotox:webpage
+  FIGNAME=C-mediationecotox-webpage
+  echo $FIGNAME
+  convert Figures/MediationEcotox/webpage.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   ################
   ## Migration dynamics
