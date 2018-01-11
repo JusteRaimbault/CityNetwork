@@ -16,7 +16,7 @@
 
 %--------------------------------------
 
-Nous proposons dans un premier temps de détailler la composante réseau pour l'échelle mesoscopique. L'idée est de comprendre les propriétés intrinsèques des différentes heuristiques de croissance de réseau. Cet exercice est d'une part intéressant en lui-meme puisqu'il n'existe pas a notre connaissance de comparaison systématique de modèles de morphogenèse des réseaux spatiaux : si~\cite{xie2009modeling} propose par exemple une revue du point de vue de l'économie des réseaux, celle-ci ne prend pas en compte certaines disciplines d'une part (voir Chapitre~\ref{ch:modelinginteractions}), et ne compare pas les performances des modèles par des implémentations dediées comparables. 
+Nous proposons dans un premier temps d'étudier en détails les processus de croissance de réseau pour l'échelle mesoscopique. L'idée est de comprendre les propriétés intrinsèques des différentes heuristiques de croissance de réseau. Cet exercice est d'une part intéressant en lui-meme puisqu'il n'existe pas a notre connaissance de comparaison systématique de modèles de morphogenèse des réseaux spatiaux : si~\cite{xie2009modeling} propose par exemple une revue du point de vue de l'économie des réseaux, celle-ci ne prend pas en compte certaines disciplines d'une part (voir Chapitre~\ref{ch:modelinginteractions}), et ne compare pas les performances des modèles par des implémentations dédiées comparables. 
 
 
 %--------------------------------------
@@ -28,13 +28,14 @@ Nous proposons dans un premier temps de détailler la composante réseau pour l'
 \bpar{
 Considering Network Growth in itself, many heuristics are available to generate a network under some constraints. As already developed, from economic network growth approach to local optimization heuristics, geographical mechanisms or biological network growth, each has its advantages and particularities.
 }{
-Pour la croissance du réseau en tant que telle, de nombreuses heuristiques existent pour générer un réseaux sous certaines contraintes. Comme déjà développé précédemment, des modèles économiques de croissance de réseau au heuristiques d'optimisation locale, aux mécanismes géographiques ou à la croissance de réseau biologique, chacun a ses avantages et particularités propres. Nous avons déjà testé en~\ref{sec:correlatedsyntheticdata} une heuristique basée sur la rupture de potentiel d'interaction. Pour pouvoir comparer ``toutes choses égales par ailleurs'' les différentes heuristiques de génération de réseau, il est nécessaire des les explorer à densité fixée, même si le sens thématique des résultats ne peut avoir de valeur ni sur le temps long, ni pour la co-évolution.
+Pour la croissance du réseau en tant que telle, de nombreuses heuristiques existent pour générer un réseaux sous certaines contraintes. Comme déjà développé précédemment notamment en~\ref{sec:modelingsa}, des modèles économiques de croissance de réseau au heuristiques d'optimisation locale, aux mécanismes géographiques ou à la croissance de réseau biologique, chacun a ses avantages et particularités propres. Nous avons déjà testé en~\ref{sec:correlatedsyntheticdata} une heuristique basée sur la rupture de potentiel d'interaction. Pour pouvoir comparer ``toutes choses égales par ailleurs'' les différentes heuristiques de génération de réseau, il est nécessaire des les explorer à densité fixée, même si le sens thématique des résultats ne peut avoir de valeur ni sur le temps long, ni pour la co-évolution.
 }
 
 
 L'importance d'heuristiques pouvant capturer une structure topologique permettant un certain compromis entre performance, congestion et coût, est montrée par des analyses empiriques comme \cite{2012arXiv1202.1747W} pour les réseaux de métro, qui montre que les motifs d'évolution des corrélations entre degrés témoignent d'une évolution des réseaux vers une telle topologie.
 
-% Nous précisons par la suite un certain nombre d'heuristiques aux origines variées, comparées dans des conditions similaires.
+
+Nous précisons par la suite le coeur du modèle de croissance de réseau ainsi qu'un certain nombre d'heuristiques aux origines variées, comparées dans des conditions similaires par leur intégration à une base commune.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -44,38 +45,34 @@ L'importance d'heuristiques pouvant capturer une structure topologique permettan
 Un processus commun aux différentes heuristiques constitue le coeur du modele de croissance de réseau, et fait le pont entre la distribution de densité de population et le réseau. Concrètement, il s'agit d'attribuer des nouveaux centres en fonction de cette densité, et nous faisons le choix de specifier ce processus de manière exogène à la croissance de réseau elle-même\footnote{Cette étape intermédiaire se rapproche dans notre cas d'un esprit de modélisation procédurale, puisque la règle implémentée cherche a reproduire une forme sans besoin des processus reels. Cela pose la question de l'équifinalité et de l'existence potentielle de modèles equivalents pour ce sous-modele ou pour le modele complet capturant un processus reel correspondant a celle-ci. L'utilisation de multi-modélisation également sur cette étape pourrait être une solution mais les cadres permettant de s'extraire d'un nombre arbitraire de niveaux de stationnarité ou même permettant une autonomie du modèle sur ces choix n'existent pas encore.}.
 
 
-Au debut de chaque étape de croissance du réseau :
+Reprenons le contexte utilisé en~\ref{sec:correlatedsyntheticdata}, c'est à dire une grille de cellules caractérisées par leur population $P_i$, sur laquelle un réseau composé de noeuds et de liens se développe.
+
+Une étape de croissance de réseau est réalisée à intervalles de temps $t_N$ (paramètre permettant d'ajuster les vitesses respectives d'évolution pour la population et pour le réseau). Elle correspond aux étapes suivantes :
 
 \begin{enumerate}
-	\item Add new nodes preferentially to new population and connect them
-	\item Variable heuristic for new links, among: nothing, random, gravity-based deterministic breakdown, gravity-based random breakdown (from \cite{schmitt2014modelisation}), cost-benefits (from \cite{louf2013emergence}), biological network generation (based on \cite{tero2010rules})
-\end{enumerate}
-
-Un nombre fixe $n_N$ de nouveaux noeuds est ajouté. Séquentiellement, pour les patches tels que $d^{(r)} < d_0$, la probabilité de recevoir un nouveau noeud est donnée par
-
+	\item Un nombre fixe $n_N$ de nouveaux noeuds est ajouté. Séquentiellement, pour les patches tels que $d^{(r)} < d_0$, la probabilité de recevoir un nouveau noeud est donnée par
 \[
 p_k = P_k/P_{max} \cdot (d_M - d_k)/d_M \cdot \exp\left(-((d^{(r)} - d_0)/\sigma_r)^2\right)
-\]
-
-% note : not a proba for the last ? no pb as soon as in 0,1, realized anyway.
-
+\]% note : not a proba for the last ? no pb as soon as in 0,1, realized anyway.
 Les nouveaux noeuds sont alors connectés par un nouveau lien, suivant le plus court chemin vers le réseau (raccord perpendiculaire ou avec le sommet le plus proche).
+	\item Des nouveaux liens sont ajoutés, jusqu'à atteindre un nombre maximal de liens ajoutés $l_{m}$, suivant une heuristique pouvant varier parmi :  aucune, aléatoire, rupture de potentiel déterministe, rupture de potentiel aléatoire \cite{schmitt2014modelisation}, coût-bénéfices \cite{louf2013emergence}, génération de réseau biologique (heuristique basée sur \cite{tero2010rules}).
+\end{enumerate}
 
-General network generation parameters: growth time steps $t_N$, maximal additional links
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Baseline heuristics}{Heuristiques de référence}
 
-Nous implémentons deux heuristiques de references pour mieux situer celles explorées par la suite : celle composée uniquement de la base décrite précédemment, qui produit des réseaux arborescents uniquement ; et la generation de réseau aléatoire, qui consiste a créer un nombre fixe $n_L$ de nouveaux liens entre des sommets choisis aléatoirement, puis a planariser le réseau final.
+Nous implémentons deux heuristiques de reference pour mieux situer celles explorées par la suite : celle composée uniquement de la base décrite précédemment, qui produit des réseaux arborescents ; et la generation de réseau aléatoire, qui consiste a créer un nombre fixe $n_L$ de nouveaux liens entre des sommets choisis aléatoirement (nombre en général plus faible que $l_m$ comme les réseaux aléatoires conduisent rapidement à un nombre d'intersections considérables), puis a planariser le réseau final.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Euclidian heuristic}{Heuristique euclidienne}
 
-Nous appliquons la méthode développée en~\ref{sec:correlatedsyntheticdata}. Pour memoire, les paramètres sont 
-Il est intéressant de faire le rapprochement avec la rupture de potentielle aléatoire du modele SimpopNet, que nous implementerons également.
+%Nous appliquons la méthode développée en~\ref{sec:correlatedsyntheticdata}. Pour memoire, les paramètres sont 
+%Il est intéressant de faire le rapprochement avec la rupture de potentielle aléatoire du modele SimpopNet, que nous implementerons également.
 
 
 Cette heuristique, dont la rationnelle repose sur des idées de rupture de potentiel gravitaire, correspond à la méthode développée en~\ref{sec:correlatedsyntheticdata}. Il s'agit d'une méthode proche de celle introduite par~\cite{schmitt2014modelisation}, sans l'aspect stochastique et pouvant passer à côté de phénomènes de dépendance au chemin, mais plus raffinée dans les mécanismes de potentiels gravitaires.
@@ -96,23 +93,24 @@ La rupture de potentielle aléatoire est celle utilisée par SimpopNet \cite{sch
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Biological heuristic}{Heuristique biologique}
 
-\cite{raimbault2015labex} explore des applications des modèles de croissance de réseau biologique, notamment leur capacité à produire de manière émergente des solutions optimales au sens de Pareto pour des indicateur contradictoires, comme le coût et la robustesse.
+\cite{raimbault2015labex} explore des applications des modèles de croissance de réseau biologique (notamment \emph{slime mould}), notamment leur capacité à produire de manière émergente des solutions optimales au sens de Pareto pour des indicateur contradictoires, comme le coût et la robustesse. Le modèle considéré est issu de~\cite{tero2010rules}.
 
 L'intérêt d'une telle heuristique est confirmé dans certains cas par la réalité des optimisations multi-objectif : \cite{padeiro:tel-00438092} (p.~72) illustre le prolongement du métro Parisien à Bobigny dans les années 1970, et la prise en compte des indicateurs de coût, de population desservie, de traffic attendu en heure de pointe, et de temps de trajet moyen.
 
-Un aperçu des potentialités est donné en Appendice~\ref{app:sec:biological}.
+Le modèle de \emph{slime mould} fonctionne de la façon suivante. Etant donné un réseau initial dont les liens ont des capacités uniformes, un flux est distribué dans le réseau d'une source à un puit. Un équilibre des pressions du fluide au noeuds du réseau peut être établi\footnote{Plus précisément, le problème est équivalent à un système d'équations électrostatiques}
+ l'itération d'équilibres de pression successifs suivis d'une évolution des capacités en fonction du flux traversant, permet une convergence vers une distribution hiérarchique stable des capacités.
 
-Etant donné un réseau initial dont les liens ont des capacités uniformes, l'itération d'équilibres de pression successifs suivis d'une évolution des capacités, permet une convergence vers une distribution hiérarchique stable des capacités. Notre rationnelle est d'utiliser ce mécanisme pour à un instant donné déterminer un certain nombre de liens réalisés, en fonction d'une nouvelle configuration. Les avantages de l'heuristique que nous allons détailler sont notamment que (i) elle peut être utilisée de manière itérative pour traduire une évolution topologique séquentielle du réseau, en comparaison de la plupart des modèles d'investissement qui font évoluer uniquement les capacités dans le temps ; et (ii) elle traduit des processus bottom-up d'organisation du réseau, et produit par ailleurs des réseaux optimaux au sens de Pareto pour le cout et la robustesse.
+Notre rationnelle est d'utiliser ce mécanisme pour à un instant donné déterminer un certain nombre de liens réalisés, en fonction d'une nouvelle configuration. Les avantages de l'heuristique que nous allons détailler sont notamment que (i) elle peut être utilisée de manière itérative pour traduire une évolution topologique séquentielle du réseau, en comparaison de la plupart des modèles d'investissement qui font évoluer uniquement les capacités dans le temps ; et (ii) elle traduit des processus bottom-up d'organisation du réseau, et produit par ailleurs des réseaux optimaux au sens de Pareto pour le cout et la robustesse.
 
 
-L'application du modèle de slime-mould à la generation de réseau s'effectue de la façon suivante :
+L'application du modèle de slime-mould à la generation de réseau s'effectue de la façon suivante, en s'insérant dans le cadre global décrit précédemment :
 
 \begin{enumerate}
 	\item A partir du réseau existant auquel on ajoute un réseau en grille avec connexion diagonales, et dans lequel on supprime de manière aléatoire 20\% des liens pour simuler les perturbations liées a la topologie, on constitue le support initial dans lequel les flux du slime-mould seront simulés 
-	\item On itere pour $k$ croissant ($k\in \{ 1,2,4 \}$ en pratique) :
+	\item On itère pour $k$ croissant ($k\in \{ 1,2,4 \}$ en pratique) :
 	\begin{itemize}
-		\item Etant donné la distribution de la population, on itere $k\cdot n_b$ fois le modèle de slime mould pour obtenir le réseau emergent par convergence des capacités
-		\item Les liens de capacité inférieure à $\theta_d$ sont supprimés
+		\item Etant donné la distribution de la population, on itère $k\cdot n_b$ fois le modèle de slime mould pour obtenir le réseau emergent par convergence des capacités
+		\item Les liens de capacité inférieure à un paramètre de seuil $\theta_d$ sont supprimés
 		\item La plus grande composante connexe est conservée
 	\end{itemize}
 	\item Le réseau final est planarisé et simplifié
@@ -145,6 +143,10 @@ La notion de cout n'est pas présente de manière explicite dans l'ensemble des 
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Results}{Résultats}
+
+
+\subsubsection{Model setup}{Initialisation du modèle}
+
 
 
 \subsubsection{Generated networks}{Réseaux générés}
