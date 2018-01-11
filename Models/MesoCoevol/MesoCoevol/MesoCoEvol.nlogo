@@ -330,8 +330,8 @@ biological-network-real-links-own [
 GRAPHICS-WINDOW
 4
 10
-1314
-1991
+664
+691
 -1
 -1
 13.0
@@ -345,9 +345,9 @@ GRAPHICS-WINDOW
 0
 1
 0
-99
+49
 0
-149
+49
 0
 0
 1
@@ -704,7 +704,7 @@ CHOOSER
 network-generation-method
 network-generation-method
 "deterministic-breakdown" "random-breakdown" "biological" "cost-driven" "road-connexion" "random"
-1
+2
 
 SLIDER
 884

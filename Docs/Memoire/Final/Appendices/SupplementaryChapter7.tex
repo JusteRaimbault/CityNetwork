@@ -11,6 +11,57 @@
 
 \label{app:sec:networkgrowth}
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Slime mould model}{Modèle de slime mould}
+
+Nous rappelons ici la procédure d'évolution du réseau biologique de type \emph{slime mould}, à partir de~\cite{tero2007mathematical}. Le réseau est composé de noeuds caractérisés par leur pression $p_i$ et de liens caractérisés par leur longueur $L_{ij}$, leur diamètre $D_{ij}$, une impédance $Z_ij$ et le flux les traversant $\phi_{ij}$. La relation analogue à la loi d'Ohm pour les liens s'écrit
+
+\[
+\phi_{ij} = \frac{D_{ij}}{Z_{ij}\cdot L_{ij}} \left(p_i - p_j\right)
+\]
+
+Par ailleurs, la conservation des flux à chaque noeud (loi de Kirchoff) impose
+
+\[
+\sum_i \phi_{ij} = 0
+\]
+
+pour tout $j$ sauf pour la source et le puit, que nous supposons aux indices $j_+$ et $j_-$, tel que $\sum_i \phi_{ij_+} = I_0$ et $\sum_i \phi_{ij_-} = -I_0$ avec $I_0$ paramètre de flux initial.
+
+La combinaison des contraintes ci-dessus donne pour tout $j$
+
+\[
+\sum_i \frac{D_{ij}}{Z_{ij}\cdot L_{ij}} (p_i - p_j) = \mathbbm{1}_{j=j_+} I_0 - \mathbbm{1}_{j=j_-} I_0 
+\]
+
+ce qui se simplifie en une équation matricielle, en notant $\mathbf{Z} = \left(\frac{\frac{D_{ij}}{Z_{ij}\cdot L_{ij}}}{\sum_i \frac{D_{ij}}{Z_{ij}\cdot L_{ij}}}\right)_{ij}$, ainsi que $\vec{k} = \frac{\mathbbm{1}_{j=j_+} I_0 - \mathbbm{1}_{j=j_-} I_0 }{\sum_i \frac{D_{ij}}{Z_{ij}\cdot L_{ij}}}$ et $\vec{p} = p_i$, qui se simplifie en
+
+\[
+\left(Id - \mathbf{Z}\right) \vec{p} = \vec{k}
+\]
+
+Le système admet une solution lorsque $\left(Id - \mathbf{Z}\right)$ est inversible. L'espace des matrices inversible étant dense dans $\mathcal{M}_n(\mathbb{R})$, par multilinéarité du déterminant, une perturbation infinitésimale de la position des noeuds permet d'inverser la matrice si celle-ci est effectivement singulière. On obtient donc les pressions $p_i$ et par conséquent les flux $\phi_{ij}$.
+
+% François le resoud avec https://arxiv.org/pdf/1301.6628.pdf
+% https://github.com/fqueyroi/tulip_plugins/blob/master/TransportationNetworks/FlowBetweenness/flowbetweenness.cpp
+
+L'évolution du diamètre $D_{ij}$ entre deux étapes d'équilibre est fonction du flux à l'équilibre, par l'équation 
+
+\[
+D_{ij} (t+1) - D_{ij} = \delta t \left[ \frac{\phi_{ij}(t)^\gamma}{1 + \phi_{ij}(t)^\gamma} - D_{ij}(t)\right]
+\]
+
+Nous prenons pour simplifier $\delta t = 1$ et $\gamma = 1.8$
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Results}{Résultats}
+
+
 Les espaces topologiques des réseaux générés en~\ref{sec:networkgrowth} peuvent être conditionnés aux classes morphologiques pour la distribution de densité initiale. Ce conditionnement est montré en Fig.~\ref{fig:app:networkgrowth:feasiblespace_bymorph}
 
 
