@@ -646,7 +646,7 @@ setup-center-number
 setup-center-number
 1
 40
-30
+18
 1
 1
 NIL
@@ -704,7 +704,7 @@ CHOOSER
 network-generation-method
 network-generation-method
 "deterministic-breakdown" "random-breakdown" "biological" "cost-driven" "road-connexion" "random"
-2
+3
 
 SLIDER
 884
@@ -959,7 +959,7 @@ raster-row
 raster-row
 0
 100000
-24762
+34286
 1
 1
 NIL
@@ -988,7 +988,7 @@ CHOOSER
 density-setup-method
 density-setup-method
 "synthetic" "empty" "real"
-0
+2
 
 CHOOSER
 855
@@ -1149,7 +1149,7 @@ SWITCH
 97
 density-from-raster?
 density-from-raster?
-1
+0
 1
 -1000
 

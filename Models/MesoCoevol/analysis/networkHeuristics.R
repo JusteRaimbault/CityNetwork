@@ -61,6 +61,12 @@ g+geom_point(size=0.5,alpha=0.8)+facet_wrap(~morpho)+
 ggsave(paste0(resdir,'feasible_space_pca_bymorph.png'),width=30,height=21,units = 'cm')
 
 
+##
+nres$cell = paste0(as.character(cut(nres$PC1,breaks = 20)),as.character(cut(nres$PC2,breaks = 20)))
+gnres = nres%>%group_by(cell)%>%summarise(p1=length(which(heuristic=="biological"))/n(),p2=length(which(heuristic=="connexion"))/n(),p3=length(which(heuristic=="cost"))/n(),p4=length(which(heuristic=="det-brkdn"))/n(),p5=length(which(heuristic=="random"))/n(),p6=length(which(heuristic=="rnd-brkdn"))/n(),count=n())%>%
+  mutate(concentration=p1^2+p2^2+p3^2+p4^2+p5^2+p6^2)
+summary(gnres$concentration)
+
 ####
 # distance to real network : 
 #   - compare effective dimensions of pca
