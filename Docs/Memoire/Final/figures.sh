@@ -453,7 +453,7 @@ then
   # fig:networkgrowth:examples
   FIGNAME=7-1-2-fig-networkgrowth-examples
   echo $FIGNAME
-  montage Figures/NetworkGrowth/example_nw-connection.png Figures/NetworkGrowth/example_nw-random.png Figures/NetworkGrowth/example_nw-rndbrkdwn.png Figures/NetworkGrowth/example_nw-gravity.png Figures/NetworkGrowth/example_nw-cost.png Figures/NetworkGrowth/example_nw-bio.png -tile 3x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -border 2 -bordercolor Black $FIGDIR/"$FIGNAME"_tmp.png
+  montage Figures/NetworkGrowth/example_comp_nwSize200_connex.png Figures/NetworkGrowth/example_comp_nwSize200_random.png Figures/NetworkGrowth/example_comp_nwSize200_rndbrkdwn.png Figures/NetworkGrowth/example_comp_nwSize200_detbrkdwn.png Figures/NetworkGrowth/example_comp_nwSize200_cost.png Figures/NetworkGrowth/example_comp_nwSize200_bio.png -tile 3x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -border 2 -bordercolor Black $FIGDIR/"$FIGNAME"_tmp.png
   convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm $FIGDIR/"$FIGNAME"_tmp.png
 
