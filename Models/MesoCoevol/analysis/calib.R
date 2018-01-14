@@ -36,6 +36,8 @@ sim=sim[sim$meanClosenessCentrality<0.3,]
 
 heuristics = c("random","connexion","det-brkdn","rnd-brkdn","cost","biological")
 
+sim %>% group_by(id,replication) %>% summarise(count=n())
+
 # get measures only
 sres = sim %>% group_by(id,replication) %>% summarise(
   moran=mean(moran),entropy=mean(entropy),distance=mean(distance),slope=mean(slope),
@@ -203,9 +205,15 @@ for(heuristic in unique(floor(sim$nwHeuristic))){
   heurname = heuristics[heuristic+1];show(heurname)
   currentsim = sres[sres$heuristic==heurname,]
   currentparams = c(commonparams, params[[heurname]])
-  ids=c();for(param in currentparams){currentsim[[param]]=cut(currentsim[[param]],floor(15/length(currentparams)));ids=paste0(ids,as.character(currentsim[[param]]))}
+  
+  # cut the param space into areas on which correlations will be estimated
+  ids=c();
+  for(param in currentparams){
+    currentsim[[param]]=cut(currentsim[[param]],floor(15/length(currentparams)));
+    ids=paste0(ids,as.character(currentsim[[param]]))
+  }
   currentsim$ids = ids
-  #currentsim%>%group_by(ids)%>%summarise(count=n())
+  #currentsim%>%group_by(ids)%>%summarise(count=n()) # -> reasonable number of observations ?
   
   # for each row, compute and aggregate indicators distance and correlation distance
   opt = closestRealPoint(currentsim)

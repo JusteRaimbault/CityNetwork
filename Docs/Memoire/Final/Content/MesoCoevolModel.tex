@@ -20,18 +20,15 @@
 \bpar{
 Urban settlements and transportation networks are widely admitted to be co-evolving in the thematic and empirical studies of territorial systems. However, modeling approaches of such dynamical interactions between networks and territories are less developed. We propose to study this issue at an intermediate scale, focusing on morphological and functional properties of the territorial system in a stylized way. We introduce a stochastic dynamical model of urban morphogenesis that couples the evolution of population density within grid cells with a growing road network.
 }{
-Les établissements urbains et les réseaux de transport ont été montrés comme co-évolutif, dans les différentes approches thématiques, empiriques, et de modélisation des systèmes territoriaux développées jusqu'ici. Comme on l'a vu, les approches modélisant ces interactions dynamiques entre réseaux et territoires sont peu développées. Nous proposons dans cette section de réaliser une première entrée à une échelle intermédiaire, en s'intéressant aux propriétés morphologiques et fonctionnelles des systèmes territoriaux de manière stylisée. Nous introduisons un modèle dynamique et stochastique de morphogenèse urbaine qui couple l'évolution de la densité de population dans les cellules d'une grille avec un réseau routier croissant.
+Les établissements urbains et les réseaux de transport ont été montrés comme co-évolutif, dans les différentes approches thématiques, empiriques, et de modélisation des systèmes territoriaux développées jusqu'ici. Comme on l'a vu, les approches modélisant ces interactions dynamiques entre réseaux et territoires sont peu développées. Nous proposons dans cette section de réaliser une première entrée à une échelle intermédiaire, en s'intéressant aux propriétés morphologiques et fonctionnelles des systèmes territoriaux de manière stylisée. Nous introduisons un modèle dynamique et stochastique de morphogenèse urbaine qui couple l'évolution de la densité de population dans les cellules d'une grille avec l'évolution d'un réseau routier.
 }
 
 
 %%%%%%%%%%%%%%%%%%
-\subsection{Model}{Modèle}
+\subsection{Model}{Description du Modèle}
 
 
-
-
-\paragraph{Rationale}{Rationelle}
-
+\subsubsection{Rationale}{Structure générale}
 
 
 \bpar{
@@ -50,31 +47,67 @@ Les principes généraux du modèle sont les suivants. Avec un taux de croissanc
 %%%%%%%%%%%%%%%
 \begin{figure}
 	\includegraphics[width=\linewidth]{Figures/MesoCoEvol/mesocoevol}
-	\caption[][Morphogenèse mesoscopique]{}{\textbf{Workflow du modèle de co-évolution à l'échelle mesoscopique.}\label{fig:mesocoevolmodel:workflow}}
+	\caption[Morphogenesis at the mesoscopic scale][Morphogenèse mesoscopique]{\textbf{Structure of the co-evolution model at the mesoscopic scale.}\label{fig:mesocoevolmodel:workflow}}{\textbf{Structure du modèle de co-évolution à l'échelle mesoscopique.}\label{fig:mesocoevolmodel:workflow}}
 \end{figure}
 %%%%%%%%%%%%%%%
 
 
 
-\paragraph{Formalization}{Formalisation}
+\subsubsection{Formalization}{Formalisation}
 
 
-On suppose une grille carrée de population de côté $N$, définie par les populations $(P_i)$. Un réseau routier  
+Le modèle est basé sur une grille carrée de population de côté $N$, dont les cellules sont définies par les populations $(P_i)$. Un réseau routier s'y superpose de la même manière qu'en~\ref{sec:networkgrowth}. Nous supposons une distribution de population à l'instant initial ainsi qu'un réseau.
 
 
-L'utilité d'un patch est donnée par $U_i = \sum_k w_k \cdot \tilde{x}_k$, où les $\tilde{x}_k$ sont les variables explicatives locales normalisées, et $w_k$ un vecteur de poids, paramètres du modèle. Plus précisément, soit $x_k$ une variable explicative locale, que l'on prendra parmi la population, la centralité de chemin, la centralité de proximité, la distance aux routes et l'accessibilité. Alors on prend $\tilde{x}_k = x_k - \min_i x_k(i) / (\max_i x_k(i) - \min_i x_k(i))$. 
+L'évolution des densités se base sur une fonction d'utilité, influencée par des caractéristiques locales de la forme et de la fonction urbaine, que l'on appelle \emph{variable explicative}. Soit $x_k(i)$ une variable explicative locale pour la cellule $i$, qui sera parmi les variables suivantes : 
+\begin{itemize}
+	\item population $P_i$
+	\item distance aux routes
+	\item centralité de chemin
+	\item centralité de proximité
+	\item accessibilité.
+\end{itemize}
+Pour les trois dernières, celles-ci sont définies comme précédemment pour les noeuds du réseau, puis associées aux cellules en prenant la valeur du noeud le plus proche, pondérée par une fonction décroissante en fonction de la distance à celui-ci\footnote{C'est à dire de la forme $x_k = x^{(n)}_k (\argmin_j d(i,j)) \cdot \exp \left( -  \min_j d(i,j) / d_0 \right)$, avec $x^{(n)}_k$ variable correspondante pour les noeuds, l'indice $j$ étant pris sur l'ensemble des noeuds, et le paramètre de décroissance $d_0$ étant dans notre cas fixé à $d_0 = 1$ pour garder la caractéristique que les variables de réseau sont essentiellement significatives proche de celui-ci.}. Nous considérons alors les variables explicatives normalisées définies par $\tilde{x}_k(i) = x_k(i) - \min_j x_k(j) / (\max_j x_k(j) - \min_j x_k(j))$. 
 
-L'évolution de la population suit alors des règles similaires au modèle de morphogenèse développé en~\ref{sec:densitygeneration}. Etant donné un taux de croissance exogène $N_G$, les individus sont ajoutés de manière indépendante suivant :
+L'utilité d'une cellule est alors donnée par une agrégation linéaire\footnote{Une alternative étant par exemple une fonction de Cobb-Douglas, qui revient à une agrégation linéaire sur les logarithmes des variables.}
+\[
+U_i = \sum_k w_k \cdot \tilde{x}_k(i)
+\]
+où les $\tilde{x}_k$ sont les variables explicatives locales normalisées, et $w_k$ des paramètres de poids, qui permettent de pondérer les différentes influences.
+
+
+Un pas de temps d'évolution du modèle comporte alors les étapes suivantes :
 \begin{enumerate}
-	\item Une agrégation faite suivant la probabilité $\left(U_i/\sum_k U_k\right)^\alpha$
-	\item Une diffusion aux voisins de force $\beta$, effectuée $n_d$ fois.
+	\item Evolution de la population selon des règles similaires au modèle de morphogenèse développé en~\ref{sec:densitygeneration}. Etant donné un taux de croissance exogène $N_G$, les individus sont ajoutés de manière indépendante suivant une agrégation faite selon la probabilité $U_i^\alpha/\sum_k U_k^\alpha$, suivie d'une diffusion aux voisins de force $\beta$, effectuée $n_d$ fois.
+	\item Croissance du réseau selon les règles décrites en~\ref{sec:networkgrowth}, sachant que celle-ci a lieu si le pas de temps est un multiple d'un paramètre $t_N$, qui permet d'intégrer un différentiel d'échelles temporelles entre la croissance de la population et celle du réseau.
 \end{enumerate}
 
-La croissance du réseau suit exactement les règles décrites en~\ref{sec:networkgrowth}, sachant que celle-ci a lieu si le pas de temps est un multiple d'un paramètre $t_N$, qui permet d'intégrer un différentiel d'échelles temporelles entre la croissance de la population et celle du réseau.
+Les paramètres du modèle que nous ferons varier sont donc :
+\begin{itemize}
+	\item les paramètres d'agrégation-diffusion $\alpha,\beta,N_g,n_d$, résumés en Table~\ref{tab:density:parameters},
+	\item les paramètres de poids des variables explicatives $w_k$, au nombre de 4, compris dans $[0;1]$,
+	\item et les paramètres de croissance de réseau des différentes heuristiques, résumés en Table~\ref{tab:networkgrowth:parameters}.
+\end{itemize}
+
+Les indicateurs de sortie du modèle sont les indicateurs de morphologie urbaine, les indicateurs topologique du réseau, et les corrélations retardées entre les différentes variables explicatives.
 
 
 %%%%%%%%%%%%%%%%%%%
 \subsection{Results}{Résultats}
+
+\subsubsection{Implementation}{Implémentation}
+
+Le modèle est implémenté en NetLogo, vu l'hétérogénéité des aspects à prendre en compte, et ce langage se montrant particulièrement efficace pour coupler une grille de cellules à un réseau. Les indicateurs de morphologie urbaine sont calculés grâce à une extension NetLogo spécifiquement développée (voir~\ref{app:tools}).
+
+
+\subsubsection{Experience plan}{Plan d'expérience}
+
+Nous proposons de nous concentrer sur la capacité du modèle à capturer les relations entre réseaux et territoires, et en particulier la co-évolution. Pour cela, nous chercherons si (i) le modèle est capable de reproduire, en plus des indicateurs de forme, les matrices de corrélation statiques calculées en~\ref{sec:staticcorrelations} ; et (ii) le modèle produit une variété de relations dynamiques au sens des régimes de causalité développés en~\ref{sec:causalityregimes}.
+
+Le modèle est initialisé sur configurations entièrement synthétiques, avec une taille de grille $50$. Les configurations sont générées par mélange d'exponentielle : $N_c = 8$ centres sont localisés de manière aléatoire, et une population leur est attribuée selon une loi d'échelle $P_i = P_0\cdot (i+1)^{-\alpha_S}$ avec $\alpha_S = 0.8$ et $P_0 = 200$. La population de chaque centre est distribuée à l'ensemble des cellules avec un noyau exponentiel de forme $d(r) = P_{max}\exp\left( - r / r_0\right)$ où le paramètre $r_0$ est déterminé pour fixer la population à $P_i$, avec $P_max = 20$ (densité au centre)\footnote{On a en effet $P_i = \iint d(r) = \int_{\theta=0}^{2\pi} \int_{r=0}^{\infty} d(r) rdrd\theta = 2 \pi P_{max} \int_r r\cdot \exp\left( - r / r_0\right) = 2 \pi P_{max} r_0^2$, et donc $r_0 = \sqrt{\frac{P_i}{2\pi P_{max}}}$.}. Le squelette de réseau initial est généré comme détaillé en~\ref{sec:networkgrowth}.
+
+Nous explorons un échantillonnage LHS de l'espace des paramètres, avec 10 répétitions pour environ 70,000 points de paramètres, correspondant à un total autour de 700,000 répétitions du modèle\footnote{Pour lesquelles les résultats de simulation sont disponibles également à \url{http://dx.doi.org/10.7910/DVN/OBQ4CS}.}, effectuées sur grille de calcul par l'intermédiaire d'OpenMole.
+
 
 
 \subsubsection{Static and Dynamical calibration}{Calibration statique et dynamique}
@@ -84,7 +117,8 @@ La croissance du réseau suit exactement les règles décrites en~\ref{sec:netwo
 \bpar{
 The model is calibrated at the first order (indicators of urban form and network measures) and at the second order (correlations) with Eurostat population grid coupled with street network from OpenStreetMap through the following workflow: indicators (Moran index, mean distance, hierarchy, entropy for morphology, mean path length, centralities, performance for network) are computed on real areas of width 50km for all Europe (what corresponds to the typical scale of processes the model includes); parameter space of the model is explored using grid computing (with OpenMole model exploration software), from simple synthetic initial configurations (few connected punctual settlements), computing indicators on final simulated configurations; among candidate parameters for given contiguous (in space and indicator space) real areas on which correlations can be computed, the one with the closest correlation matrix computed on repetitions is chosen.
 }{
-Le modèle est calibré au premier ordre, sur les indicateurs de forme urbaine et de mesure de réseau, ainsi qu'au second ordre sur les correlations entre ceux-ci. Les données réelles utilisées sont toujours celles introduites en~\ref{sec:staticcorrelations}, basées sur les données de population raster Eurostat et le réseau routier issu d'OpenStreetMap. Le processus de calibration est le suivant :
+Le modèle est calibré au premier ordre, sur les indicateurs de forme urbaine et de mesure de réseau, ainsi qu'au second ordre sur les correlations entre ceux-ci. Les données réelles utilisées sont toujours celles introduites en~\ref{sec:staticcorrelations}, qui ont le rappelle sont basées sur les données de population raster Eurostat et le réseau routier issu d'OpenStreetMap. Le processus de calibration est le suivant :
+
 }
 
 
@@ -113,7 +147,7 @@ La Fig.~\ref{fig:mesocoevolmodel:calibration} résume les résultats de la calib
 	%\includegraphics[width=0.48\linewidth]{Figures/MesoCoEvol/pca_morpho_byheuristic}
 	%\includegraphics[width=0.48\linewidth]{Figures/MesoCoEvol/pca_network_byheuristic}
 	\includegraphics[width=\linewidth]{Figures/Final/7-2-2-fig-mesocoevolmodel-calibration.jpg}
-	\caption[Morphogenesis model calibration][Calibration du modèle de morphogenèse]{\label{fig:mesocoevolmodel:calibration}}{\textbf{Calibration du modèle de morphogenèse au premier et au second ordre.}\label{fig:mesocoevolmodel:calibration}}
+	\caption[Morphogenesis model calibration][Calibration du modèle de morphogenèse]{\label{fig:mesocoevolmodel:calibration}}{\textbf{Calibration du modèle de morphogenèse au premier et au second ordre.} (\textit{Haut Gauche}) Nuages de points simulés et réels dans un plan principal pour l'ensemble des indicateurs. (\textit{Haut Droite})\label{fig:mesocoevolmodel:calibration}}
 \end{figure}
 %%%%%%%%%%%%%%%
 
