@@ -363,7 +363,7 @@ gravity-radius
 gravity-radius
 0
 10000
-2357
+2229
 1
 1
 NIL
@@ -552,7 +552,7 @@ gravity-inflexion
 gravity-inflexion
 0
 10
-2.7
+3.4
 0.1
 1
 NIL
@@ -704,7 +704,7 @@ CHOOSER
 network-generation-method
 network-generation-method
 "deterministic-breakdown" "random-breakdown" "biological" "cost-driven" "road-connexion" "random"
-5
+3
 
 SLIDER
 884

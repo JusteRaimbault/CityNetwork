@@ -3,6 +3,8 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/MesoCoevol'))
 
 library(dplyr)
 library(ggplot2)
+library(rgdal)
+library(rgeos)
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 res <- as.tbl(read.csv('MesoCoevol/exploration/2017_08_18_08_05_31_NETWORK_LHS_GRID.csv'))
@@ -61,11 +63,15 @@ g+geom_point(size=0.5,alpha=0.8)+facet_wrap(~morpho)+
 ggsave(paste0(resdir,'feasible_space_pca_bymorph.png'),width=30,height=21,units = 'cm')
 
 
-##
+
+######
+## covered space
 nres$cell = paste0(as.character(cut(nres$PC1,breaks = 20)),as.character(cut(nres$PC2,breaks = 20)))
 gnres = nres%>%group_by(cell)%>%summarise(p1=length(which(heuristic=="biological"))/n(),p2=length(which(heuristic=="connexion"))/n(),p3=length(which(heuristic=="cost"))/n(),p4=length(which(heuristic=="det-brkdn"))/n(),p5=length(which(heuristic=="random"))/n(),p6=length(which(heuristic=="rnd-brkdn"))/n(),count=n())%>%
   mutate(concentration=p1^2+p2^2+p3^2+p4^2+p5^2+p6^2)
 summary(gnres$concentration)
+
+
 
 ####
 # distance to real network : 
@@ -77,7 +83,7 @@ realres=as.tbl(raw[rows,])
 countries = readOGR(paste0(Sys.getenv('CN_HOME'),'/Models/MesoCoevol/analysis/gis'),'countries');country = countries[countries$CNTR_ID=="FR",];datapoints = SpatialPoints(data.frame(realres[,c("lonmin","latmin")]),proj4string = countries@proj4string)
 selectedpoints = gContains(country,datapoints,byid = TRUE)
 sdata = realres[selectedpoints,]
-rm(raw,realres);gc()
+#rm(raw,realres);gc()
 
 sdata=sdata[apply(sdata,1,function(r){prod(as.numeric(!is.na(r)))>0}),]
 cdata=sdata[,c("meanBetweenness","meanPathLength","meanCloseness","networkPerf","diameter")]
