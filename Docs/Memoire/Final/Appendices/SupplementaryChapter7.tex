@@ -90,7 +90,7 @@ Classe & Moran $I$ & distance $\bar{d}$ & entropie $\mathcal{E}$ & slope $\gamma
 %%%%%%%%%%%%%%%
 
 
-Les espaces topologiques des réseaux générés en~\ref{sec:networkgrowth} peuvent être conditionnés aux classes morphologiques pour la distribution de densité initiale. Ce conditionnement est montré en Fig.~\ref{fig:app:networkgrowth:feasiblespace_bymorph}.
+Les espaces topologiques des réseaux générés en~\ref{sec:networkgrowth} peuvent être conditionnés aux classes morphologiques pour la distribution de densité initiale. Ce conditionnement est montré en Fig.~\ref{fig:app:networkgrowth:feasiblespace_bymorph}. Nous donnons également les espaces faisables avec les points réels. Les classe 1 et 5 semblent être celle pour laquelle le rapprochement aux points réels est le plus facile, en termes de points extrêmes.
 
 
 %%%%%%%%%%%%%%%%%
@@ -98,7 +98,7 @@ Les espaces topologiques des réseaux générés en~\ref{sec:networkgrowth} peuv
 %\includegraphics[width=\linewidth]{Figures/NetworkGrowth/feasible_space_pca_bymorph}
 %\includegraphics[width=\linewidth]{Figures/NetworkGrowth/feasible_space_withreal_pca_bymorph}
 \includegraphics[width=0.9\linewidth]{Figures/Final/A-networkgrowth-feasiblespace_bymorph}
-\appcaption{}{\textbf{Espace topologique faisable pour les différentes heuristiques de génération, conditionné à la classe morphologique de densité.}\label{fig:app:networkgrowth:feasiblespace_bymorph}}
+\appcaption{\textbf{Results conditional to morphological classes.}\label{fig:app:networkgrowth:feasiblespace_bymorph}}{\textbf{Conditionnement des résultats aux classes morphologiques pour la densité.} (\textit{Haut}) Espace topologique faisable pour les différentes heuristiques de génération, conditionné à la classe morphologique de densité. (\textit{Bas}) Mêmes graphiques avec les points réels en rouge.\label{fig:app:networkgrowth:feasiblespace_bymorph}}
 \end{figure}
 %%%%%%%%%%%%%%%%%
 
@@ -108,6 +108,54 @@ Les espaces topologiques des réseaux générés en~\ref{sec:networkgrowth} peuv
 
 
 
+
+
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\section{Co-evolution at the meso scale}{Co-évolution à l'échelle mesoscopique}
+
+\label{app:sec:mesocoevolmodel}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Calibration}{Calibration}
+
+
+Afin de justifier l'agrégation des distances pour les indicateurs et pour les corrélations, nous avons contrôlé visuellement la forme des fronts de Pareto pour ces deux objectifs pour une vingtaine de points simulés. Un example pour deux points est donné en Fig.~\ref{fig:app:mesocoevolmodel:paretodists}. Il apparait que ces fronts sont quasi-inexistants, c'est à dire qu'il existe presque un optimum global.
+
+Illustrons dans quelle mesure une agrégation linéaire à coefficient égaux peut être pertinente dans le cas d'un front de Pareto quasiment vertical/horizontal. La fonction
+\[
+f_{\alpha} : x \mapsto \frac{1}{(x+1)^\alpha}
+\]
+prend cette forme dans un voisinage de 0 lorsque $\alpha$ devient grand. Considérons alors les deux objectifs $o_1(x) = x$ et $o_2(x) = f_{\alpha}(x)$, qui peuvent soit être considérés pour une minimisation bi-objectifs, soit dans le cadre d'une agrégation linéaire par minimisation de $o(x) = \beta x + (1-\beta) \frac{1}{(x+1)^{\alpha}}$. Cette dernière est minimale en $x = \left(\frac{\beta}{\alpha (1-\beta)}\right)^{\frac{1}{\alpha + 1}} - 1$, terme qui se développe en 
+\[
+x = \frac{\ln\left(\beta (1-\beta)\right)}{\alpha + 1} + \frac{\ln\alpha}{\alpha + 1} + o(\frac{1}{\alpha})
+\]
+
+Par ailleurs, considérons que dans le cadre d'une optimisation bi-objectifs, on prenne le compromis auquel les variations de $o_1$ égalent celles de $o_2$, ce qui revient à prendre $x$ tel que $\frac{\partial f}{\partial x} = \frac{\partial f^{-1}}{\partial x}$. Cette équation conduit à $\frac{x^{\frac{1}{\alpha}}}{x + 1} = \frac{1}{\alpha^{\frac{2}{\alpha + 1}}}$. On peut alors développer au second ordre de chaque côté pour obtenir
+\[
+\frac{\ln x}{\alpha} = x \left[1 - 2 \frac{\ln \alpha}{\alpha + 1} + o(\frac{1}{\alpha})\right] - 2 \frac{\ln \alpha}{\alpha + 1} + o(\frac{1}{\alpha}) 
+\]
+Or on a nécessairement $x\rightarrow_{\alpha \rightarrow \infty} 0$, puisque si $x \rightarrow K \neq 0$, on a une contradiction dans l'équation précédente car $1/(1+K) \neq 0$. Cela implique que $\frac{\ln x}{\alpha} = o(\frac{1}{\alpha})$, et donc que
+\[
+x = 2 \frac{\ln \alpha}{\alpha + 1} + o(\frac{1}{\alpha})
+\]
+Pour avoir donc les mêmes ordres de grandeur pour les solutions aux deux approches, il faut éliminer le terme en $1/(\alpha + 1)$ dans la première, ce qui revient à prendre $\ln \left(\beta (1- \beta)\right) = 0$ et donc $\beta = 1/2$.
+
+Ainsi, il y a équivalence des ordres de grandeurs en $\alpha$ pour les deux approches si et seulement si $\beta = 1/2$. Vu la forme de nos fronts de Pareto, nous considérons la solution analogue et considérons ainsi la somme des deux distances.
+
+
+%%%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=0.49\linewidth]{Figures/MesoCoEvol/dists_pareto_i1.png}
+	%\includegraphics[width=0.49\linewidth]{Figures/MesoCoEvol/dists_pareto_i10.png}
+	\includegraphics[width=\linewidth]{Figures/Final/A-mesocoevolmodel-paretodists.jpg}
+	\appcaption{\textbf{Example of Pareto fronts for the calibration at the first and second order.}\label{fig:app:mesocoevolmodel:paretodists}}{\textbf{Exemples de fronts de Pareto pour la calibration au premier et au second ordre.} Nous donnons pour deux points particuliers de simulation, les distances aux indicateurs $d_I^2$ et les distances aux corrélations $d_C^2$ pour l'ensemble des points réels.\label{fig:app:mesocoevolmodel:paretodists}}
+\end{figure}
+%%%%%%%%%%%%%%
 
 
 

@@ -174,6 +174,8 @@ closestRealPoint<-function(currentsim){
   )
   
   show(nrow(currentcorrs))
+  #show(max(apply(currentcorrs[,corrsnames],MARGIN = 2,max)))
+  #show(min(apply(currentcorrs[,corrsnames],MARGIN = 2,min)))
   
   dists=c();rows=c();optlon=c();optlat=c();distsindics=c();distscorrs=c();abscorrs=c()
   for(i in 1:nrow(currentcorrs)){
@@ -185,10 +187,11 @@ closestRealPoint<-function(currentsim){
     #distscorrs = append(distscorrs,min(rowSums(d2corrs)));
     #plot(rowMeans(d2corrs),rowMeans(d2indics))
     # -> take the sum of means, should be reasonnable
-    d2corrs=rowMeans(d2indicsmat);d2indics=rowMeans(d2indicsmat)
+    d2corrs=rowMeans(d2corrsmat);d2indics=rowMeans(d2indicsmat)
     d2 = d2corrs+d2indics;row=which(min(d2)==d2)
-    dists=append(dists,min(d2));rows=append(rows,row)
-    distsindics=append(distsindics,d2indics[row]);distscorrs=append(distscorrs,d2corrs[row]);
+    dists=append(dists,sqrt(min(d2)));rows=append(rows,row)
+    distsindics=append(distsindics,sqrt(d2indics[row]));
+    distscorrs=append(distscorrs,sqrt(d2corrs[row]));
     optlon=append(optlon,res[row,1]);optlat=append(optlat,res[row,2]);
     abscorrs=append(abscorrs,mean(abs(unlist(currentcorrs[i,corrsnames]))))
   }
@@ -202,6 +205,7 @@ distsindics=c();distscorrs=c()
 abscorrs=c()
 
 for(heuristic in unique(floor(sim$nwHeuristic))){
+  show(heuristic)
   heurname = heuristics[heuristic+1];show(heurname)
   currentsim = sres[sres$heuristic==heurname,]
   currentparams = c(commonparams, params[[heurname]])
@@ -233,12 +237,26 @@ for(heuristic in unique(floor(sim$nwHeuristic))){
 #}
 #save(opt,file='res/corrnullmodel.RData')
 #
+# -> should also filter on significativity ?
+
 
 g=ggplot(data.frame(distance=dists,heuristic=cheur),aes(x=distance,color=heuristic))
-g+geom_density()
-ggsave(paste0(resdir,'/corrs-distrib_rhoasize',rhoasize,'.png'),width=18,height = 15,units='cm')
+g+geom_density()+xlab(expression(d[A]))+stdtheme
+ggsave(paste0(resdir,'/distance-all-distrib_rhoasize',rhoasize,'.png'),width=18,height = 15,units='cm')
 
-# -> should also filter on significativity ?
+g=ggplot(data.frame(distance=distscorrs,heuristic=cheur),aes(x=distance,color=heuristic))
+g+geom_density()+xlab(expression(d[rho]))+stdtheme
+ggsave(paste0(resdir,'/distance-corrs-distrib_rhoasize',rhoasize,'.png'),width=18,height = 15,units='cm')
+
+
+g=ggplot(data.frame(distance=distsindics,heuristic=cheur),aes(x=distance,color=heuristic))
+g+geom_density()+xlab(expression(d[I]))+stdtheme
+ggsave(paste0(resdir,'/distance-indics-distrib_rhoasize',rhoasize,'.png'),width=18,height = 15,units='cm')
+
+
+g=ggplot(data.frame(distanceindics=distsindics,distancecorrs=distscorrs,heuristic=cheur),aes(x=distanceindics,distancecorrs,color=heuristic))
+g+geom_point()+xlab(expression(d[I]))+ylab(expression(d[rho]))+stdtheme
+ggsave(paste0(resdir,'/distances-pareto_rhoasize',rhoasize,'.png'),width=18,height = 15,units='cm')
 
 
 
@@ -267,10 +285,12 @@ sres = sim %>% group_by(replication,id) %>% summarise(
   rhoRoadCloseness1=rhoRoadCloseness[1],rhoRoadCloseness2=rhoRoadCloseness[2],rhoRoadCloseness3=rhoRoadCloseness[3],rhoRoadCloseness4=rhoRoadCloseness[4],rhoRoadCloseness5=rhoRoadCloseness[5],rhoRoadCloseness6=rhoRoadCloseness[6],rhoRoadCloseness7=rhoRoadCloseness[7],rhoRoadCloseness8=rhoRoadCloseness[8],rhoRoadCloseness9=rhoRoadCloseness[9],rhoRoadCloseness10=rhoRoadCloseness[10],rhoRoadCloseness11=rhoRoadCloseness[11]
 )
 
+set.seed(0)
+
 ccoef=c();ck=c();
 for(k in 3:10){
   show(k)
-  km = kmeans(sres[,3:ncol(sres)],k,nstart=10)#,iter.max = 1000,nstart=100)
+  km = kmeans(sres[,3:ncol(sres)],k,nstart=100)#,iter.max = 1000,nstart=100)
   ccoef=append(ccoef,km$betweenss/km$totss);ck=append(ck,k)
 }
 
@@ -278,14 +298,14 @@ g=ggplot(data.frame(ccoef,k=ck),aes(x=k,y=ccoef))
 g+geom_line()+geom_point()+ylab("Clustering coefficient")+stdtheme
 ggsave(paste0(resdir,'clustcoef.png'),width=15,height=10,units='cm')
 
-g=ggplot(data.frame(dccoef=diff(ccoef),k=ck[2:length(ck)]),aes(x=k,y=dccoef))
+g=ggplot(data.frame(dccoef=diff(ccoef),k=ck[1:(length(ck)-1)]),aes(x=k,y=dccoef))
 g+geom_line()+geom_point()+ylab("Diff Clustering coefficient")+stdtheme
 ggsave(paste0(resdir,'diffclustcoef.png'),width=15,height=10,units='cm')
 
 # k=4 to simplify
 
 k=4
-km = kmeans(sres[,3:ncol(sres)],k,nstart=10)
+km = kmeans(sres[,3:ncol(sres)],k,nstart=100)
 
 # plot center trajs
 centers=km$centers
@@ -314,10 +334,16 @@ sparams$laAccessibility=cut(sparams$laAccessibility,5,labels = labs);sparams$laB
 sparams$laDroadCoef=cut(sparams$laDroadCoef,5,labels = labs);sparams$laPopCoef=cut(sparams$laPopCoef,5,labels = labs)
 
 g=ggplot(data.frame(sparams,cluster=as.character(km$cluster)),aes(x=laBw,y=laDroadCoef,fill=cluster))
-g+geom_raster()+facet_grid(laCloseness~laPopCoef)+stdtheme
-ggsave(paste0(resdir,'cluster-params.png'),width=25,height=20,units='cm')
+g+geom_raster()+facet_grid(laCloseness~laPopCoef)+xlab(expression(w[betwenness]))+ylab(expression(w[road]))+stdtheme
+ggsave(paste0(resdir,'cluster-params-gridClosenessPop.png'),width=25,height=20,units='cm')
 
+g=ggplot(data.frame(sparams,cluster=as.character(km$cluster)),aes(x=laBw,y=laCloseness,fill=cluster))
+g+geom_raster()+facet_grid(laDroadCoef~laPopCoef)+xlab(expression(w[betwenness]))+ylab(expression(w[closeness]))+stdtheme
+ggsave(paste0(resdir,'cluster-params-gridRoadPop.png'),width=25,height=20,units='cm')
 
+g=ggplot(data.frame(sparams,cluster=as.character(km$cluster)),aes(x=laPopCoef,y=laDroadCoef,fill=cluster))
+g+geom_raster()+facet_grid(laBw~laCloseness)+xlab(expression(w[population]))+ylab(expression(w[road]))+stdtheme
+ggsave(paste0(resdir,'cluster-params-gridBetwennessCloseness.png'),width=25,height=20,units='cm')
 
 
 

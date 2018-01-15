@@ -479,13 +479,15 @@ then
   # fig:mesocoevolmodel:calibration
   FIGNAME=7-2-2-fig-mesocoevolmodel-calibration
   echo $FIGNAME
-  montage Figures/MesoCoEvol/pca_allobjs.png Figures/MesoCoEvol/corrs-distrib_rhoasize4.png Figures/MesoCoEvol/pca_morpho_byheuristic.png Figures/MesoCoEvol/pca_network_byheuristic.png -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$((WIDTH / 2))"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  montage Figures/MesoCoEvol/pca_morpho_byheuristic.png Figures/MesoCoEvol/pca_network_byheuristic.png Figures/MesoCoEvol/pca_allobjs.png Figures/MesoCoEvol/distance-corrs-distrib_rhoasize4.png -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$((WIDTH / 2))"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #montage Figures/MesoCoEvol/pca_morpho_byheuristic.png Figures/MesoCoEvol/pca_network_byheuristic.png Figures/MesoCoEvol/pca_allobjs.png Figures/MesoCoEvol/distance-all-distrib_rhoasize4.png Figures/MesoCoEvol/distance-indics-distrib_rhoasize4.png Figures/MesoCoEvol/distance-corrs-distrib_rhoasize4.png -tile 2x3 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$((WIDTH / 2))"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
 
   # fig:mesocoevolmodel:causality
   FIGNAME=7-2-2-fig-mesocoevolmodel-causality
   echo $FIGNAME
   convert Figures/MesoCoEvol/centertrajs.png -resize "$((3 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/centertrajs.jpg
-  convert Figures/MesoCoEvol/cluster-params.png -resize "$((2 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/cluster-params.jpg
+  convert Figures/MesoCoEvol/cluster-params-gridRoadPop.png -resize "$((2 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/cluster-params.jpg
   montage Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
   rm Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg
 
@@ -838,6 +840,15 @@ then
   FIGNAME=A-networkgrowth-feasiblespace_bymorph
   echo $FIGNAME
   montage Figures/NetworkGrowth/feasible_space_pca_bymorph.png Figures/NetworkGrowth/feasible_space_withreal_pca_bymorph.png -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+  ############
+  ## Mesocoevol
+
+  # fig:app:mesocoevolmodel:paretodists
+  FIGNAME=A-mesocoevolmodel-paretodists
+  echo $FIGNAME
+  montage Figures/MesoCoEvol/dists_pareto_i1.png Figures/MesoCoEvol/dists_pareto_i10.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
   #############
