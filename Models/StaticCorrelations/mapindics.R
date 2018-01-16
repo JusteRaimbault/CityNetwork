@@ -196,8 +196,33 @@ gwr = gwr.basic("meanBetweenness~slope+moran",data=points,bw=bw)
 
 
 
+################
+## Stationarity tests
 
+library(tseries)
 
+x = sdata$moran[sdata$lonmin==median(sdata$lonmin)]
+plot(1:length(x),x,type='l')
+
+adf.test(rnorm(10000))
+plot(diffinv(rnorm(10000)))
+adf.test(diffinv(rnorm(10000)))
+kpss.test(diffinv(rnorm(10000)))
+
+adf.test(x[!is.na(x)])
+kpss.test(x[!is.na(x)])
+
+plot(sdata$moran[!is.na(sdata$moran)],type='l')
+adf.test(sdata$moran[!is.na(sdata$moran)])
+# fails - but one dimensionnal projection, not valid in space !
+
+# ks test
+x = sdata$rankSizeAlpha[sdata$lonmin>median(sdata$lonmin)&!is.na(sdata$rankSizeAlpha)]
+y = sdata$rankSizeAlpha[sdata$lonmin<=median(sdata$lonmin)&!is.na(sdata$rankSizeAlpha)]
+ks.test(x,y)$statistic
+1.63*sqrt((length(x)+length(y))/(length(x)*length(y))) # at 1%
+1.95*sqrt((length(x)+length(y))/(length(x)*length(y))) # at 0.1%
+ks.test(rnorm(10000),rnorm(10000))
 
 
 

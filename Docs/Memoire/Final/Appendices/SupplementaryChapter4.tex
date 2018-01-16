@@ -330,14 +330,14 @@ La Fig.~\ref{fig:app:staticcorrelations:europe_correlations} donne la distributi
 
 
 
-
+La Fig.~\ref{fig:app:staticcorrelations:corr-distribs} donne les distributions statistiques des correlations estimées, pour différentes valeurs de $\delta$.
 
 
 %%%%%%%%%%%%%%
 \begin{figure}
 %\includegraphics[width=0.48\linewidth]{Figures/StaticCorrelations/corrs-distrib_varyingdelta_bytype}
 %\includegraphics[width=0.48\linewidth]{Figures/StaticCorrelations/scatter_meanabs_colcross}
-\includegraphics[width=\linewidth]{Figures/Final/A-staticcorrelations-corr-distribs.jpg}
+\includegraphics[width=\linewidth,height=0.9\textheight]{Figures/Final/A-staticcorrelations-corr-distribs.jpg}
 \appcaption{}{\textbf{Distribution des corrélations.} \textit{(Haut Gauche)} Distribution statistique des corrélations, pour les différents blocs morphologiques, réseau et corrélations croisées (couleur), pour différentes valeurs de $\delta$ (type de ligne) ; \textit{(Bas Droite)} Correlation absolues moyennes pour le réseau en fonction de la morphologie, niveau de couleur donnant la corrélation croisée, pour différentes valeur de $\delta$.\label{fig:app:staticcorrelations:corr-distribs}}
 \end{figure}
 %%%%%%%%%%%%%%
@@ -361,8 +361,49 @@ La Fig.~\ref{fig:app:staticcorrelations:europe_correlations} donne la distributi
 \subsection{Multi-scale}{Multi-scalarité}
 
 
+\subsubsection{Estimation of correlations for a multi-scalar process}{Estimation des corrélations pour un processus multi-scalaire}
 
-\paragraph{Confidence interval for correlation}{Intervalle de confiance pour la corrélation}
+Nous proposons ici de relier le caractère multi-scalaire d'un processus stochastique spatio-temporel avec l'estimation de sa matrice de correlation. Pour simplifier et dans le cadre où ce résultat est utilisé en texte principal, nous considérons des corrélations statiques estimées dans l'espace. Pour simplifier également, considérons des processus ayant deux échelles caractéristiques se superposant linéairement, c'est à dire s'écrivant sous la forme
+\[
+X_i = X_i^{(0)} + \tilde{X}_i
+\]
+avec $X_i^{(0)}$ tendance aux petites échelles ayant une distance caractéristique d'évolution $d_0$, et $\tilde{X}_i$ signal évoluant à une distance caractéristique $d \ll d_0$.
+
+Nous pouvons alors calculer la décomposition de la corrélation entre deux processus, de manière similaire à ce qui est fait en~\ref{app:sec:syntheticdata-finance}. En supposant que $\Covb{X_i^{(0)}}{\tilde{X}_j}$ pour tous $i,j$, et en notant $\varepsilon_i = \frac{\sigma\left[X_i^{(0)}\right]}{\sigma\left[\tilde{X}_i\right]}$ le rapport des écarts type entre tendance et signal, il y a
+\[
+\begin{split}
+	\rho\left[X_1,X_2\right] & = \rho\left[X_1^{(0)} + \tilde{X}_1,X_2^{(0)} + \tilde{X}_2\right]\\
+	& = \frac{\Covb{\tilde{X}_1}{\tilde{X}_2} + \Covb{X_1^{(0)}}{X_2^{(0)}}}{\sqrt{\left(\Varb{X_1^{(0)}} + \Varb{\tilde{X}_1}\right)\left(\Varb{X_2^{(0)}} + \Varb{\tilde{X}_2}\right)}}\\
+	& = \frac{\varepsilon_1 \varepsilon_2\rho\left[X_1^{(0)},X_2^{(0)}\right] + \rho\left[\tilde{X}_1,\tilde{X}_2\right]}{\sqrt{\left(1 + \varepsilon_1^2\right)\left(1 + \varepsilon_2^2\right)}}
+\end{split}
+\]
+
+En supposant $\varepsilon_i \ll 1$, on peut développer cette expression au premier ordre et obtenir
+
+\begin{equation}
+	\rho\left[X_1,X_2\right] = \left( \varepsilon_1 \varepsilon_2\rho\left[X_1^{(0)},X_2^{(0)}\right] + \rho\left[\tilde{X}_1,\tilde{X}_2\right]\right)\cdot\left(1 - \frac{1}{2}(\varepsilon_1^2 + \varepsilon_2^2)\right)
+\end{equation}
+
+L'ajout de la tendance au signal introduit ainsi une correction sur la corrélation, d'une part par la prise en compte directe de la corrélation entre tendance atténuée, et d'autre part par le terme d'interférence en facteur.
+
+Pour appliquer ce résultat à notre problématique, supposons que $d \simeq l_0$,$l_0$ étant la distance minimale d'estimation des corrélations. On a par ailleurs l'échelle de stationnarité $d_s$ qui correspond à l'échelle de variation des corrélations, et selon les résultats empiriques vérifie $d_s > l_0$, significativement au moins pour certains indicateurs (par exemple hiérarchie et Moran, pour laquelle elle est de l'ordre du pays). Enfin, notons $\delta_0 = d_0/d$ l'échelle de la tendance en termes de $\delta$. On suppose donc
+
+\[
+d < d_s < d
+\]
+
+Pour les valeurs de $\delta$ telles que $\delta \cdot d < d_s$, on devrait avoir $\hat{\Cov}_{\delta}\left[\tilde{X}_1,\tilde{X}_2\right] \simeq \hat{\Cov}_{\delta = 1}\left[\tilde{X}_1,\tilde{X}_2\right]$ si $\hat{\Cov}_{\delta}$ est l'estimateur sur la zone de taille $\delta$.
+
+Par ailleurs, on peut supposer raisonnablement que $\hat{\Var}_{\delta = 1}\left[X_i^{(0)}\right] \ll \hat{\Var}_{\delta = d_s / d}\left[X_i^{(0)}\right]$, c'est à dire que la tendance est constante à la plus petite échelle en comparaison des variations aux échelles intermédiaires.
+
+Sous ces hypothèses, l'estimateur de $\rho$ devrait varier en fonction de $\delta$ selon les variations de $\varepsilon_i$ en fonction de $\delta$. En supposant enfin les tendances très peu corrélées (effets structurels indépendants), on conserve la correction d'interférence dans l'expression de $\rho$, et donc que $\rho(\delta)$ décroit pour des faibles valeurs de $\delta$.
+
+
+Nous avons ainsi démontré qu'une structure simple multi-scalaire du processus implique une variation de la corrélation estimée en fonction de $\delta$, sous un certain nombre d'hypothèse. La réciproque n'a a priori pas de raison d'être vraie. Le lien que nous opérons ici est ainsi une illustration pour renforcer une hypothèse, qui est par ailleurs également soutenue par les résultats sur la variation de l'intervalle de confiance décrits par la suite.
+
+
+
+\subsubsection{Confidence interval for correlation}{Intervalle de confiance pour la corrélation}
 
 Nous dérivons ici le comportement de l'estimateur de corrélation en fonction de la taille de l'échantillon. Sous l'hypothèse de distribution normale de deux variables aléatoire $X,Y$, alors la transformée de Fisher de l'estimateur de Pearson $\hat{\rho}$ telle que $\hat{\rho} = \tanh (\hat{z})$ a une distribution normale. Si $z$ est la transformée de la corrélation réelle $\rho$, alors un intervalle de confiance pour $\rho$ est de taille
 
@@ -533,13 +574,15 @@ En utilisant le fait que $\cosh u \sim_0 1 + u^2/2$ et que $\sinh u \sim_0 u$, o
 \subsubsection{Urban Morphogenesis}{Morphogenèse Urbaine}
 
 
+La Fig.\ref{fig:app:causalityregimes:clustering} donne le comportement des résultats du clustering en fonction du nombre de cluster $k$, ainsi que la répartition des clusters dans un plan principal pour $k=6$.
+
 %%%%%%%%%%%%%%
 \begin{figure}
 %\includegraphics[width=0.49\linewidth]{Figures/CausalityRegimes/ccoef-knum_valuesFALSE_theta05-3.pdf}
 %\includegraphics[width=0.49\linewidth]{Figures/CausalityRegimes/dccoef-knum_valuesFALSEtheta05-3.pdf}\\
 %\includegraphics[width=0.4\linewidth]{Figures/CausalityRegimes/clusters-PCA-features_valuesFALSEtheta2_k6}
 \includegraphics[width=\linewidth]{Figures/Final/A-causalityregimes-clustering.jpg}
-\appcaption{\textbf{Identification de régimes d'interactions endogènes par classification non-supervisée} \textbf{(Haut Gauche)} Variance inter-cluster comme fonction du nombre de clusters. \textbf{(Haut Droite)} Dérivée de la variance inter-cluster. \textbf{(Bas)} \emph{Features} dans un plan principal (81\% de variance expliquée par les deux premières composantes)\label{fig:app:causalityregimes:clustering}}{\label{fig:app:causalityregimes:clustering}}
+\appcaption{\label{fig:app:causalityregimes:clustering}}{\textbf{Identification de régimes d'interactions endogènes par classification non-supervisée.} \textbf{(Haut Gauche)} Variance inter-cluster comme fonction du nombre de clusters. \textbf{(Haut Droite)} Dérivée de la variance inter-cluster. \textbf{(Bas)} \emph{Features} dans un plan principal (81\% de variance expliquée par les deux premières composantes).\label{fig:app:causalityregimes:clustering}}
 \end{figure}
 %%%%%%%%%%%%%%
 
@@ -547,6 +590,8 @@ En utilisant le fait que $\cosh u \sim_0 1 + u^2/2$ et que $\sinh u \sim_0 u$, o
 
 \subsection{South Africa}{Afrique du Sud}
 
+
+La Fig.~\ref{fig:app:causalityregimes:sudafcorrs} donne le comportement des corrélations estimées, en termes de corrélation absolue moyenne, et de proportion de corrélations significatives, en fonction de $d_0$ et de $T_W$. Elle donne également les profils de corrélations retardées pour les accessibilité pondérées, à l'origine et à la destination.
 
 
 %%%%%%%%%%%%%%

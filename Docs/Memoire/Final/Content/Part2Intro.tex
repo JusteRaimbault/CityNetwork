@@ -1,12 +1,13 @@
 
 
 
-%\chapter*{Part II Introduction}{Introduction de la Partie II}
+%\chapter*{Part II Introduction}
 \chapter*{Introduction de la Partie II}
 
 
 % to have header for non-numbered introduction
-%\markboth{Introduction}{Introduction}
+%\markboth{Introduction of Part II}{Introduction of Part II}
+\markboth{Introduction de la Partie II}{Introduction de la Partie II}
 
 
 %\headercit{}{}{}
@@ -60,72 +61,61 @@ Cette partie ouvre directement les pistes de réponse thématiques pour la modé
 
 \chapter*{Préliminaires mathématiques}
 
-
-Afin de toucher l'audience la plus large possible, nous proposons de preciser dans cet intermède préliminaire les definitions de notions ou méthodes clés qui seront utilisées de manière par la suite, souvent hors d'un cadre mathématique. Ce choix permet de garder un cadre rigoureux sans rendre indigeste la lecture du manuscrit à une grande partie de son public légitime.
-
-
-Sauf indication, les specifications données ici feront référence lors de l'utilisation des termes correspondants.
+% to have header for non-numbered introduction
+\markboth{Préliminaires mathématiques}{Préliminaires mathématiques}
+%\markboth{Mathematical preliminaries}{Mathematical preliminaries}
 
 
 
-\subsection*{Stochastic Processes}{Processus stochastiques}
 
-\paragraph{Stationarity}{Stationnarité}
-
-Nous utiliserons une notion faible de la stationnarité des processus stochastiques, puisqu'on la mobilisera pour des analyses empiriques sur lesquelles la taille des données ne permettra pas des tests sur les distributions completes. Soit $X_i$ un processus stochastique
-
-
-\paragraph{Ergodicity}{Ergodicité}
-
-La notion d'ergodicité sera utilisée dans le cadre de l'universalité des processus spatio-temporels. Soit $X(t,\vec{x})$ un processus stochastique spatio-temporel
-
-
-
-\subsection*{Dynamical systems}{Systèmes dynamiques}
-
-\paragraph{Chaos}{Chaos}
-
-
-Un système dynamique $\dot{X}=\Phi(X,t)$ sera dit chaotique si ses exposants de Liapounov sont strictement positifs dans une region non-négligeable de l'espace des conditions initiales. Pour rappel, le flot de Poincarré est défini de manière univoque par $X_0 \mapsto \Phi(X_0,t_0)$.
-
-
-\subsection*{Agent-based modeling}{Modélisation basée-agents}
-
-
+Afin de toucher l'audience la plus large possible, nous proposons de preciser dans cet intermède préliminaire les definitions de notions ou méthodes clés qui seront utilisées de manière par la suite, souvent hors d'un cadre mathématique. Ce choix permet de garder un cadre rigoureux sans rendre indigeste la lecture du manuscrit à une grande partie de son public légitime. Sauf indication contraire, les specifications données ici feront référence lors de l'utilisation des termes correspondants.
 
 
 
 \subsection*{Statistics}{Statistiques}
 
 
-\paragraph{Correlation}{Correlation}
+\subsubsection*{Correlation}{Correlation}
 
-Sauf indication contraire, nous estimerons la covariance entre deux processus par estimateur de Pearson non-biaisé, c'est à dire si $(X_i,Y_i)_i$ est un jeu d'observations des processus $X,Y$, la correlation est estimée par
+Sauf indication contraire, nous estimerons la covariance entre deux processus par estimateur de Pearson, c'est à dire si $(X_i,Y_i)_i$ est un jeu d'observations des processus $X,Y$, la correlation est estimée par
 
 \[
-\hat{\rho} = \frac{\hat{\Covb{X}{Y}}}{\sqrt{\hat{\sigma} \left[X\right] \cdot \hat{\sigma}\left[Y\right]}}
+\hat{\rho} = \frac{\hat{\Cov}\left[X,Y\right]}{\sqrt{\hat{\sigma} \left[X\right] \cdot \hat{\sigma}\left[Y\right]}}
 \]
 
-
-
-
-\paragraph{Granger causality}{Causalité de Granger}
-
-
-Une série temporelle multi-dimensionnelle $X(t)$ présente une causalité de Granger si avec $X(t) = A\cdot \left(X(t-\tau)\right)_{\tau >0} + \varepsilon$, il existe $\tau,i$ tels que $a_{i\tau}>0$ significativement. Nous utiliserons une version faible de la causalité de Granger, c'est à dire un test sur les correlations retardées, pour quantifier des relations entre variables aléatoires définies dans l'espace et dans le temps.
+où la covariance est estimée par l'estimateur non biaisé $\hat{\Cov}$.
 
 
 
 
-\paragraph{Geographically Weighted Regression}{Regression Géographique Pondérée}
+\subsubsection*{Granger causality}{Causalité de Granger}
 
 
-La Régression Géographique Pondérée est une technique d'estimation de modèles statistiques permettant de prendre en compte la non-stationnarité spatiale des processus. Si $Y_i$ est une variable à expliquer et $X_i$ un jeu de variables explicatives, mesurés en des mêmes points de l'espace, on estime un modèle $Y_i = f(X_i,\vec{x}_i)$ à chaque point $\vec{x}_i$, en prenant en compte les observations par pondération spatiale autour du point, où les poids sont fixés par un noyau pouvant prendre plusieurs formes (par exemple noyau exponentiel $w_i(\vec{x}) = \exp\left(- \norm{\vec{x} - \vec{x_i}} / d_0\right)$).
+Une série temporelle multi-dimensionnelle $\vec{X}(t)$ présente une causalité de Granger si avec
+\[
+\vec{X}(t) = \mathbf{A}\cdot \left(\vec{X}(t-\tau)\right)_{\tau >0} + \varepsilon
+\]
+il existe $\tau,i$ tels que $a_{i\tau}>0$ significativement. Nous utiliserons une version faible de la causalité de Granger, c'est à dire un test sur les correlations retardées définies par
+\[
+\rho_{\tau}\left[X_i,X_j\right] = \hat{\rho}\left[X_i(t-\tau),X_j(t)\right]
+\]
+avec $\tau$ retard ou avance. Cela nous permettra de quantifier des relations entre variables aléatoires définies dans l'espace et dans le temps.
+
+
+
+\subsubsection*{Geographically Weighted Regression}{Regression Géographique Pondérée}
+
+
+La Régression Géographique Pondérée est une technique d'estimation de modèles statistiques permettant de prendre en compte la non-stationnarité spatiale des processus. Si $Y_i$ est une variable à expliquer et $X_i$ un jeu de variables explicatives, mesurés en des mêmes points de l'espace, on estime un modèle $Y_i = f(X_i,\vec{x}_i)$ à chaque point $\vec{x}_i$, en prenant en compte les observations par pondération spatiale autour du point, où les poids sont fixés par un noyau pouvant prendre plusieurs formes, par exemple un noyau exponentiel est de la forme
+\[
+w_i(\vec{x}) = \exp\left(- \norm{\vec{x} - \vec{x_i}} / d_0\right)
+\]
+L'échelle de stationnarité spatiale supposée par le modèle est alors de l'ordre de $d_0$. Celle-ci peut être ajustée par validation croisée par exemple.
 
 
 
 
-\paragraph{Machine learning}{Apprentissage statistique}
+\subsubsection*{Machine learning}{Apprentissage statistique}
 
 
 On désignera par \emph{Apprentissage supervisé} toute méthode d'estimation d'une relation entre variables $Y=f(X)$ où la valeur de $Y$ est connue sur un échantillon de données. On parlera de classification si la variable est discrete. La classification non-supervisée consiste à construire $Y$ lorsque seul $X$ est donné. On utilisera pour classifier une technique basique qui donne de bons résultats sur des données qui n'ont pas une structure exotique : la méthode des \emph{k-means}, répétée un nombre suffisant de fois pour prendre en compte son caractère stochastique. Le complexité du \emph{k-means} est polynomiale en moyenne, bien que la résolution exacte du problème de partition soit NP-difficile.
@@ -133,14 +123,21 @@ On désignera par \emph{Apprentissage supervisé} toute méthode d'estimation d'
 
 
 
-\paragraph{Overfitting}{Overfitting}
+\subsubsection*{Overfitting}{Overfitting}
 
 % AIC
 
 La question de l'overfitting est particulièrement importante lors de l'estimation de modèles, puisque un nombre trop important de paramètres pourra conduire a capturer le bruit de realisation comme structure. Lors de l'estimation de modèles statistiques, des critères d'information sont mobilisables pour quantifier le gain d'information produit par l'ajout d'un paramètre, et obtenir un compromis entre performance et parcimonie.
 
 
-Le \emph{Critère d'Information d'Akaike} (AIC) permet de quantifier le gain d'information permis par l'ajout de paramètres dans un modèle. Pour un modèle statistique qui dispose d'une Fonction de Vraisemblance (\emph{Likelihood}), l'AIC est alors défini par $AIC = 2k - 2 \ln{\mathcal{L}}$ si $k$ est le nombre de paramètres du modèle et $\mathcal{L}$ la valeur maximale de la fonction de vraisemblance. \cite{akaike1998information} montre que cette expression correspond à une estimation du gain d'information de Kullback-Leiber. Une correction pour les petits échantillons de taille $n$ est donnée par $AICc = 2 (k + \frac{k^2 + k}{n-k -1} - 2 \ln{\mathcal{L}})$.
+Le \emph{Critère d'Information d'Akaike} (AIC) permet de quantifier le gain d'information permis par l'ajout de paramètres dans un modèle. Pour un modèle statistique qui dispose d'une Fonction de Vraisemblance (\emph{Likelihood}), l'AIC est alors défini par
+\[
+AIC = 2k - 2 \ln{\mathcal{L}}
+\]
+si $k$ est le nombre de paramètres du modèle et $\mathcal{L}$ la valeur maximale de la fonction de vraisemblance. \cite{akaike1998information} montre que cette expression correspond à une estimation du gain d'information de Kullback-Leiber. Une correction pour les petits échantillons de taille $n$ est donnée par
+\[
+AICc = 2\cdot\left(k + \frac{k^2 + k}{n-k -1} - \ln{\mathcal{L}}\right)
+\]
 
 Un critère similaire mais dérivé dans un cadre bayésien est le \emph{Critère d'Information Bayésien} (BIC)~\cite{burnham2003model}, qui conduit à une pénalisation plus forte du nombre de paramètres : $BIC = \ln n \cdot k - 2 \ln{\mathcal{L}}$.
 
@@ -149,38 +146,75 @@ Ces critères sont appliqués pour la sélection de modèles en étudiant leur d
 
 
 
+\subsection*{Stochastic Processes}{Processus stochastiques}
 
-\subsection*{Model Exploration}{Exploration de modèles}
+\subsubsection*{Stationarity}{Stationnarité}
+
+Les propriétés de stationnarité informent sur la variabilité de la distribution d'un processus stochastique. Soit $(\vec{X}_i)_{i\in I}$ un processus stochastique multidimensionnel. Il sera dit fortement stationnaire si sa loi ne dépend pas de $i$, c'est à dire si $\Pb{\vec{X}_i} = \Pb{\vec{X}_{i+1}}$. La stationnarité forte implique l'égalité de tous les moments pour tout $i$.
+
+Nous utiliserons une notion plus faible de la stationnarité des processus stochastiques, ou \emph{Weak Stationarity}, qui utilise les deux premiers moments : $(\vec{X}_i)_{i\in I}$ est faiblement stationnaire si
+\begin{enumerate}
+	\item $\Eb{\vec{X}_i} = \Eb{\vec{X}_0}$ pour tout $i$
+	\item $\Covb{\vec{X}_i}{\vec{X}_j}$ ne dépend que de $i-j$
+\end{enumerate}
+On peut parler de stationnarité faible du premier ordre si seulement la condition sur l'espérance est vérifiée, et du second ordre si on a aussi la condition sur l'autocovariance~\cite{zhang2014test}.
+
+% on spatial stationarity / spatio-temporal stationarity ? -> better be in 4.1
+
+\subsubsection*{Ergodicity}{Ergodicité}
+
+La notion d'ergodicité sera utilisée en lien avec l'universalité et la dépendance au chemin des processus spatio-temporels. Soit $X(t,\vec{x})$ un processus stochastique spatio-temporel, défini à chaque instant $t$ et à chaque point de l'espace $\vec{x}$. En supposant que $X$ réalise l'ensemble de son espace des phases dans l'espace, il est dit ergodique si pour tous $t$ et tout $\vec{x}$, sa moyenne temporelle $\mathbb{E}_t\left[X(\vec{x})\right]$ est égale à sa moyenne spatiale $\mathbb{E}_{\vec{x}}\left[X(t)\right]$.
 
 
-%\paragraph{Discrepancy}{Discrépance}
+%%%%%%%%
+%% -- ON HOLD -- not really used. (or check definition in 8.2)
+
+%\subsection*{Dynamical systems}{Systèmes dynamiques}
+
+%\paragraph{Chaos}{Chaos}
+
+
+%Un système dynamique $\dot{X}=\Phi(X,t)$ sera dit chaotique si ses exposants de Liapounov sont strictement positifs dans une region non-négligeable de l'espace des conditions initiales. Pour rappel, le flot de Poincarré est défini de manière univoque par $X_0 \mapsto \Phi(X_0,t_0)$.
 
 
 
-\paragraph{Experience plan by Sampling}{Plan d'expérience par échantillonnage}
+\subsection*{Model Exploration}{Exploration de modèles de simulation}
+
+Nous désignerons par modèle de simulation tout algorithme associant une réalisation $\mathcal{M}\left[\vec{x},\vec{\alpha}\right]$ à des données $\vec{x}$ étant donné des paramètres $\alpha$. L'enjeu est alors de comprendre le comportement du modèle de manière empirique, en le simulant, possiblement avec plusieurs répétitions pour des mêmes paramètres si celui-ci est stochastique. Il est alors par exemple possible de calibrer le modèle, c'est à dire trouver un jeu de paramètres permettant de remplir des objectifs donnés (qui peuvent être des distances à des données observée).
+
+
+\subsubsection*{Experience plan by Sampling}{Plan d'expérience par échantillonnage}
 
 Le sort de la dimension (\emph{Dimensionality Curse}), qui correspond simplement au fait que la taille de l'espace des paramètres est exponentielle en le nombre de paramètre. Lorsque celle-ci grandit mais qu'on veut garder un aperçu du comportement d'un modèle sur des valeurs très variées des paramètres d'entrée, on peut alors échantillonner l'espace par un nombre donné de point.
 
 
-L'échantillonnage par Hypercube Latin (LHS) permet d'assurer que pour chaque dimension, l'ensemble de la plage des valeurs est couverte.
+L'échantillonnage par Hypercube Latin (LHS) permet d'assurer que pour chaque dimension, l'ensemble de la plage des valeurs est couverte lorsqu'on projette les points générés sur la dimension. L'échantillonnage par suite de Sobol permet de générer des points de discrépance faible (voir~\ref{app:sec:robustness} pour une définition précise de la discrépance, qu'il faut comprendre comme une couverture de l'espace), et est particulièrement adapté au calcul d'intégrales.
 
 
-% mais pas efficient si modele tres irregulier : evoquer algos genetiques, PSE.
+L'échantillonnage peut devenir laborieux si le modèle est très irrégulier, ou pour un objectif précis de calibration. Pour cela, il existe des algorithmes spécifiques d'exploration et de calibration pour lesquels nous pouvons donner des exemples.
 
- 
+\subsubsection*{Genetic algorithm calibration}{Calibration par algorithme génétique}
 
-\paragraph{Genetic algorithm calibration}{Calibration par algorithme génétique}
+Les algorithmes génétiques sont une alternative largement utilisée en optimisation, et font plus généralement partie des méta-heuristiques de computation évolutionnaire~\cite{rey2015plateforme}. Nous utiliserons généralement pour la calibration des modèles l'algorithme standard implémenté dans OpenMole, décrit en détails par~\cite{pumain2017evaluation}. Il s'agit d'une extension stochastique de l'algorithme NSGA2 pour l'optimisation multi-objectif. Il possède les caractéristiques principales suivantes :
+\begin{itemize}
+	\item étant donné une population de paramètres candidats comme solution au problème multi-objectif, le front de Pareto est déterminé comme les points non-dominés ;
+	\item un ensemble est construit à partir de ce front en prenant en compte une contrainte de diversité ;
+	\item une descendance est générée à partir de cet ensemble par croisements et mutations et évaluée pour sa performance ;
+	\item l'algorithme itère sur la nouvelle population.
+\end{itemize}
 
-% algo gen standard pour calibration.
-
-Nous utilisons l'algorithme standard implémenté dans OpenMole, décrit en détails par~\cite{pumain2017evaluation}. Il s'agit d'une extension stochastique de l'algorithme NSGA2 pour l'optimisation multi-objectif.
+\cite{pumain2017evaluation} ajoute l'objectif du nombre de réplications aux objectifs de l'algorithme, afin de prendre en compte la stochasticité et trouver un compromis entre optimalité et robustesse des solutions.
 
 
+\subsubsection*{Specific algorithms}{Algorithmes spécifiques}
+
+Se basant sur des algorithmes génétiques, divers algorithmes ont été proposés pour raffiner l'exploration des modèles. Mentionnons deux exemples développés dans le cadre d'OpenMole : l'algorithme PSE (\emph{Pattern Space Exploration})~\cite{10.1371/journal.pone.0138212} vise à découvrir l'ensemble de l'espace des sorties d'un modèle, dans l'idée d'une recherche de l'ensemble des comportements possibles. L'algorithme \emph{Calibration Profile}~\cite{reuillon2015} vise quant à lui à établir le caractère nécessaire d'un paramètre pour arriver à un objectif, indépendamment des autres paramètres.
 
 
 
 
 
+\stars
 
 
 
