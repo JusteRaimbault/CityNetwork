@@ -145,12 +145,15 @@ then
   # fig:staticcorrelations:empirical
   FIGNAME=4-1-1-fig-staticcorrelations-empirical
   echo $FIGNAME
-  convert Figures/Density/Fig1.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  montage Figures/StaticCorrelations/cluster_pca_k5_morpho.png Figures/StaticCorrelations/cluster_map_k5_morpho.png -resize "$WIDTH"x -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME"_tmp.jpg
+  montage Figures/StaticCorrelations/indics_morpho_areasize100_offset50_factor0.5.png $FIGDIR/"$FIGNAME"_tmp.jpg -resize "$WIDTH"x -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.jpg
+  #convert Figures/Density/Fig1.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # fig:staticcorrs:network
   FIGNAME=4-1-2-fig-staticcorrs-network
   echo $FIGNAME
-  convert Figures/StaticCorrelations/FR_indics_network_selected_2_discrquantiles.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  convert Figures/StaticCorrelations/indics_network_areasize100_offset50_factor0.5.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # fig:staticcorrs:mapscorrs
   FIGNAME=4-1-3-fig-staticcorrs-mapscorrs
