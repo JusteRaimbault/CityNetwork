@@ -34,6 +34,12 @@ networkIndics = c("meanBetweenness","meanCloseness","networkPerf","vcount")
 indics = c(morphoindics,networkIndics)
 
 
+data=sdata
+points = SpatialPointsDataFrame(coords=data.frame(data[,c("lonmin","latmin")]),data.frame(data),match.ID=F,proj4string = countries@proj4string)
+coords = points@coords
+dmat = gw.dist(dp.locat = coords,coords)
+
+
 
 ###############
 
@@ -58,7 +64,7 @@ registerDoParallel(cl)
 
 resgwrstat <- foreach(i=1:nrow(bestmodels)) %dopar% {
   library(GWmodel);library(sp);set.seed(i)
-  currentmodel = bestmodels$bestmodel[i]
+  currentmodel = as.character(bestmodels$bestmodel[i])
   gw = gwr.montecarlo(currentmodel,data=points,bw=bestmodels$bw[i],dMat = dmat,adaptive = T)
   return(gw)
 }
