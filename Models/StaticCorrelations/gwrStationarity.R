@@ -72,5 +72,15 @@ resgwrstat <- foreach(i=1:nrow(bestmodels)) %dopar% {
 save(resgwrstat,file='res/gwr_stationarity,RData')
 
 
+####################
+####################
+
+load('res/gwr_stationarity,RData')
+
+
+
+
+
+
 
 

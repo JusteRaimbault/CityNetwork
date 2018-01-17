@@ -326,8 +326,12 @@ On peut s'intéresser aux sous-blocs morphologique, de réseau, ou les corrélat
 }
 
 \bpar{}{
- Les métropoles semblent exhiber une corrélation positive dans ce cas, et des espaces ruraux une corrélation négative. Cela suggère une très grande variété de régimes d'interaction. La variation spatiale de la première composante confirme celle-ci, ce qui révèle clairement la non-stationnarité spatiale des processus d'interaction entre formes, puisque les premiers et second moments varient dans l'espace. Nous donnons en Appendice~\ref{app:sec:staticcorrelations} d'autres exemples de cartographie de la matrice des corrélation.
+ Les métropoles semblent exhiber une corrélation positive dans ce cas, et des espaces ruraux une corrélation négative. Cela suggère une très grande variété de régimes d'interaction. La variation spatiale de la première composante confirme celle-ci, ce qui révèle clairement la non-stationnarité spatiale des processus d'interaction entre formes, puisque les premiers et second moments varient dans l'espace. Nous donnons en Appendice~\ref{app:sec:staticcorrelations} d'autres exemples de cartographie de la matrice des corrélation. La significativité statistique de la non-stationnarité spatiale peut être vérifiée de différentes façons\footnote{Il n'existe à notre connaissance pas de test générique de non-stationnarité spatiale. \cite{zhang2014test} développe par exemple un test pour des régions rectangulaires de dimensions quelconques, mais dans le cas spécifiques des \emph{point processes}.}. Nous utilisons ici la méthode de \cite{leung2000statistical} qui consiste à estimer par bootstrap la robustesse de modèles de Régression Géographique Pondérée. Ceux-ci seront développés ci-dessous, mais on obtient pour l'ensemble des modèles testés une non-stationnarité sans équivoque ($p<10^{-3}$).
 }
+
+
+
+
 
 % -- eventuellement ajout test de stationnarité ici --
 %  -> test avec GWR
@@ -360,7 +364,7 @@ Nous montrons en Fig.~\ref{fig:staticcorrs:corrsdistrib} la variation de l'estim
 
 
 \bpar{}{
-Par ailleurs, la variation de la taille normalisée de l'intervalle de confiance pour les corrélations, qui en théorie sous hypothèse de normalité devrait conduire $\delta\cdot \left|\rho_+ - \rho -\right|$ à être constant, puisque les bornes varient asymptotiquement comme $1/\sqrt{N}\sim 1/\sqrt{\delta^2}$ (la démonstration est donnée en Appendice~\ref{app:sec:staticcorrelations}), va dans la direction de cette hypothèse de processus superposés à plusieurs échelles
+Par ailleurs, la variation de la taille normalisée de l'intervalle de confiance pour les corrélations, qui en théorie sous hypothèse de normalité devrait conduire $\delta\cdot \left|\rho_+ - \rho -\right|$ à être constant, puisque les bornes varient asymptotiquement comme $1/\sqrt{N}\sim 1/\sqrt{\delta^2}$ (la démonstration est donnée en Appendice~\ref{app:sec:staticcorrelations}), va dans la direction de cette hypothèse de processus superposés à plusieurs échelles comme proposé précédemment.
 }
 
 
@@ -391,11 +395,11 @@ Nous proposons d'autre part d'explorer la propriété éventuelle de multi-scala
 
 
 \bpar{}{
-Nous implémentons pour cela la méthode suivante : nous considérons un échantillon typique d'indicateurs (quatre pour chaque aspect, voir la liste en Table~\ref{tab:staticcorrelations:gwr}), et pour chaque indicateur nous formulons l'ensemble des modèles linéaires possibles en fonction des indicateurs opposés (réseau pour un indicateur morphologique, morphologique pour un indicateur de réseau), visant à capturer directement l'interaction sans contrôle sur le type de forme ou de réseau. Ces modèles sont alors ajustés par une Régression Géographique Pondérée (GWR) à portée optimale déterminée par critère d'information corrigé (AICc). Pour chaque indicateur, on retient le modèle ayant la meilleure valeur du critère d'information. Nous ajustons les modèles sur les données de la France, avec un noyau \emph{bisquare} et une portée adaptable en nombre de voisins.
+Nous implémentons pour cela la méthode suivante : nous considérons un échantillon typique d'indicateurs (quatre pour chaque aspect, voir la liste en Table~\ref{tab:staticcorrelations:gwr}), et pour chaque indicateur nous formulons l'ensemble des modèles linéaires possibles en fonction des indicateurs opposés (réseau pour un indicateur morphologique, morphologique pour un indicateur de réseau), visant à capturer directement l'interaction sans contrôle sur le type de forme ou de réseau. Ces modèles sont alors ajustés par une Régression Géographique Pondérée (GWR) à portée optimale déterminée par critère d'information corrigé (AICc)\footnote{En utilisant le package R GWModel~\cite{gollini2013gwmodel}.}. Pour chaque indicateur, on retient le modèle ayant la meilleure valeur du critère d'information. Nous ajustons les modèles sur les données de la France, avec un noyau \emph{bisquare} et une portée adaptable en nombre de voisins.
 }
 
 \bpar{}{
-Les résultats sont présentés en Table~\ref{tab:staticcorrelations:gwr}. Il est intéressant de noter dans un premier temps que l'ensemble des modèles ne comprend qu'une seule variable, suggérant des correspondances relativement directes entre topologie et morphologie. L'ensemble des indicateurs morphologiques est expliqué par la performance du réseau, c'est à dire la quantité de détour qu'il comprend. Au contraire, la topologie est expliquée par le Moran pour les centralités, et par l'entropie pour la performance et le nombre de sommets. On a ainsi une dissymétrie des relations, le réseau étant conditionné de manière plus complexe à la morphologie que la morphologie au réseau. Les ajustements sont bons ($R^2 > 0.5$) pour une majorité d'indicateurs. Les échelles optimales sont quant à elles très localisées, de l'ordre de la dizaine de kilomètres, c'est à dire une plus grande variation que celle obtenue par les corrélations.
+Les résultats sont présentés en Table~\ref{tab:staticcorrelations:gwr}. Il est intéressant de noter dans un premier temps que l'ensemble des modèles ne comprend qu'une seule variable, suggérant des correspondances relativement directes entre topologie et morphologie. L'ensemble des indicateurs morphologiques est expliqué par la performance du réseau, c'est à dire la quantité de détour qu'il comprend. Au contraire, la topologie est expliquée par le Moran pour les centralités, et par l'entropie pour la performance et le nombre de sommets. On a ainsi une dissymétrie des relations, le réseau étant conditionné de manière plus complexe à la morphologie que la morphologie au réseau. Les ajustements sont bons ($R^2 > 0.5$) pour une majorité d'indicateurs, et les \emph{p-values} obtenues pour l'ensemble des modèles (constante et coefficient) sont inférieures à $10^-3$. Les échelles optimales sont quant à elles très localisées, de l'ordre de la dizaine de kilomètres, c'est à dire une plus grande variation que celle obtenue par les corrélations. Cette analyse confirme ainsi statistiquement d'une part la non-stationnarité, et d'autre part donne un point de vue complémentaire sur la question des échelles endogènes.
 }
 
 %bestmodels
@@ -531,6 +535,15 @@ Enfin, la recherche de classes de processus sur lesquels il est possible d'étab
 % On suggère par exemple en Appendice~\ref{sec:spatiotempcorrs} des cas idéaux pour lesquels un lien peut être directement obtenu, comme le cas de processus territoriaux ayant une caractérisation ondulatoire par exemple.
 
 
+
+%%%
+% ouverture covariance spatio-temporelle:
+% \cite{wikle1999dimension} space time Kalman filter
+% \cite{crutchfield1987phenomenology} spatio-temporal chaos
+% \cite{fuentes2006testing} separability of space-time covariance functions
+% \cite{rand1995using} : application of spatio-temporal chaos to CA model of an ecosystem
+% \cite{aubry1991spatiotemporal} orthogonal decomposition in space and time
+% https://projecteuclid.org/download/pdf_1/euclid.aop/1176996986 other def of ergodicity (convergence of proba matrix) : ?
 
 
 

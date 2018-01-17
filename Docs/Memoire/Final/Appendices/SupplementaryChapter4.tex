@@ -636,13 +636,44 @@ En utilisant le fait que $\cosh u \sim_0 1 + u^2/2$ et que $\sinh u \sim_0 u$, o
 
 % autocorrelation structure : http://www.jstor.org/stable/pdf/2984853.pdf
 
+Calculons ici les valeurs théoriques des corrélations retardées pour un processus auto-régressif simple. Nous rappelons le cadre, à savoir $\vec{X}(t)$ qui est un processus stochastique suivant l'équation d'auto-régression
+\[
+\vec{X}(t) = \sum_{\tau > 0} \mathbf{A}(\tau) \cdot \vec{X}(t - \tau ) + \vec{\varepsilon}(t)
+\]
+et nous nous plaçons dans le cas où $\mathbf{A}(\tau) = 0$ pour $\tau \neq \tau_0$ et 
+\[
+\mathbf{A}(\tau_0) = \left( {\begin{array}{cc} 0 & a \\ a & 0 \\ \end{array}} \right)\]
+avec $-1<a<1$. Nous supposons de plus $\varepsilon$ bruit blanc et notons $\vec{\varepsilon} = (\varepsilon_X,\varepsilon_Y)$ et supposons $\Varb{\varepsilon_X} = \Varb{\varepsilon_Y} = \sigma^2$.
+
+En notant $\vec{X} = (X,Y)$, le processus est spécifié par
+\[
+\begin{cases}
+	X(t) = a\cdot Y(t-\tau_0) + \varepsilon_X \\
+	y(t) = a\cdot X(t-\tau_0) + \varepsilon_Y
+\end{cases}
+\]
+
+
+En prenant la variance dans les deux équations et en faisant la différence, on obtient que nécessairement $\Varb{X} = \Varb{Y}$ car $\alpha^2 \neq 1$. La somme donne alors $\Varb{X} = \Varb{Y} = \frac{\sigma^2}{1 - a^2}$.
+
+Nous calculons alors 
+
+\[
+\begin{split}
+	\rhob{X(t)}{Y(t-\tau_0)} & = \rhob{aY(t-\tau_0)+\varepsilon_X}{Y(t-\tau_0)}\\
+	& = \frac{\Covb{aY(t-\tau_0)+\varepsilon_X}{Y(t-\tau_0)}}{\sqrt{(a^2\Varb{Y} + \sigma^2)\Varb{Y}}} \\
+	& = \frac{a\Varb{Y}}{a\Varb{Y}\sqrt{1 + \frac{\sigma^2}{a^2\Varb{Y}}}}\\
+	& = \frac{1}{\sqrt{1 + \frac{1 - a^2}{a^2}}}
+\end{split}
+\]
+
 
 
 
 \subsubsection{Urban Morphogenesis}{Morphogenèse Urbaine}
 
 
-La Fig.\ref{fig:app:causalityregimes:clustering} donne le comportement des résultats du clustering en fonction du nombre de cluster $k$, ainsi que la répartition des clusters dans un plan principal pour $k=6$.
+La Fig.\ref{fig:app:causalityregimes:clustering} donne, pour l'analyse non-supervisée menée sur les caractéristiques issues des corrélations retardées, le comportement des résultats du clustering en fonction du nombre de cluster $k$, qui permet de lire une transition en fonction de $k$. Nous donnons aussi que la répartition des clusters dans un plan principal pour $k=6$.
 
 %%%%%%%%%%%%%%
 \begin{figure}
