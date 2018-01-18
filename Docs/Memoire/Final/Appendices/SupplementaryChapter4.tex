@@ -643,7 +643,7 @@ Calculons ici les valeurs théoriques des corrélations retardées pour un proce
 et nous nous plaçons dans le cas où $\mathbf{A}(\tau) = 0$ pour $\tau \neq \tau_0$ et 
 \[
 \mathbf{A}(\tau_0) = \left( {\begin{array}{cc} 0 & a \\ a & 0 \\ \end{array}} \right)\]
-avec $-1<a<1$. Nous supposons de plus $\varepsilon$ bruit blanc et notons $\vec{\varepsilon} = (\varepsilon_X,\varepsilon_Y)$ et supposons $\Varb{\varepsilon_X} = \Varb{\varepsilon_Y} = \sigma^2$.
+avec $-1<a<1$. Nous supposons de plus $\vec{\varepsilon}$ bruit blanc et notons $\vec{\varepsilon} = (\varepsilon_X,\varepsilon_Y)$ et supposons $\Varb{\varepsilon_X} = \Varb{\varepsilon_Y} = \sigma^2$.
 
 En notant $\vec{X} = (X,Y)$, le processus est spécifié par
 \[
@@ -662,10 +662,43 @@ Nous calculons alors
 \begin{split}
 	\rhob{X(t)}{Y(t-\tau_0)} & = \rhob{aY(t-\tau_0)+\varepsilon_X}{Y(t-\tau_0)}\\
 	& = \frac{\Covb{aY(t-\tau_0)+\varepsilon_X}{Y(t-\tau_0)}}{\sqrt{(a^2\Varb{Y} + \sigma^2)\Varb{Y}}} \\
-	& = \frac{a\Varb{Y}}{a\Varb{Y}\sqrt{1 + \frac{\sigma^2}{a^2\Varb{Y}}}}\\
-	& = \frac{1}{\sqrt{1 + \frac{1 - a^2}{a^2}}}
+	& = \frac{a\Varb{Y}}{\left|a\right|\Varb{Y}\sqrt{1 + \frac{\sigma^2}{a^2\Varb{Y}}}} = \frac{a}{\left|a\right|\sqrt{1 + \frac{1 - a^2}{a^2}}}\\
+	& = a
 \end{split}
 \]
+
+Il est en fait possible de calculer la corrélation retardée pour $\tau$ quelconque. Par stationnarité du processus, on a pour $\tau > 0$, $\rhob{X(t)}{Y(t-\tau)} = \rhob{X(\tau)}{Y(0)}$.
+
+De la même manière que précédemment, nous développons pour $\tau > 0$
+
+\[
+\begin{split}
+	\rhob{X(\tau)}{Y(0)} & = \rhob{aY(\tau - \tau_0) + \varepsilon_X}{Y(0)}\\
+	 & = \rhob{a^2 X(\tau - 2\tau_0) + a \varepsilon_Y + \varepsilon_X}{Y(0)}\\
+	 & = \frac{a^2\Covb{X(\tau - 2\tau_0)}{Y(0)}}{\sqrt{(a^4\Varb{X} + (1+a^2)\sigma^2)\Varb{Y}}}\\
+	 & = \frac{\rhob{X(\tau-2\tau_0)}{Y(0)}}{\sqrt{1 + (1+a^2)(1-a^2)/a^4}}
+	 & = a^2\cdot \rhob{X(\tau-2\tau_0)}{Y(0)}
+\end{split}
+\]
+
+et donc par récurrence, pour $k\in \mathbb{N}$, 
+
+\[
+\rhob{X(\tau)}{Y(0)} = a^{2k}\cdot \rhob{X(\tau-2k\tau_0)}{Y(0)}
+\]
+
+Si $\tau \notin (2 \mathbb{N} + 1) \tau_0$, on descend à $\rhob{X(\tau')}{Y(0)}$ tel que $\tau' < \tau_0$ et la corrélation est donc nulle.
+
+Si $\tau \in (2 \mathbb{N} + 1) \tau_0$, on a alors
+
+\[
+\rhob{X((2k+1)\tau_0)}{Y(0)} = a^{2k+1}
+\]
+
+Pour $\tau < 0 $, le calcul est similaire en échangeant les variables.
+
+
+Ce modèle simple auto-régressif permet ainsi de contrôler simplement les corrélations retardées à des ordres donnés.
 
 
 

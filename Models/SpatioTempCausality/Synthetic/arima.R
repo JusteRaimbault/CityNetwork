@@ -63,12 +63,13 @@ mtest = marima(marima.sim(kvar=2,nsim=100))
 x = marima.sim(kvar=3,nsim=100000)
 plotLaggedCorrs(x,taumax = 10)
 
-tf=100000
-ar=array(data = c(diag(2),c(0,-0.5,-0.5,0)),dim = c(2,2,2))
+tf=500000
+ar=array(data = c(diag(2),rep(0,4),c(0,0.5,0.5,0)),dim = c(2,2,3))
 x=marima.sim(kvar=2,ar.model = ar,nsim=tf)
 plot(1:tf,x[,1],type='l');points(1:tf,x[,2],col='red',type='l')
 cor.test(x[2:nrow(x),1],x[1:(nrow(x)-1),2])
 var(x[,1])
+plotLaggedCorrs(x)
 
 laggedcorrs = getLaggedCorrs(x[,1],x[,2],10)
 
@@ -117,7 +118,7 @@ for(b in 1:nbootstrap){
   #plotLaggedCorrs(x)
   trajs=rbind(trajs,laggedCorrs(x,format = "coldf"))
   #eigs=rbind(eigs,eigen(ar[,,2])$values)
-  eigs=rbind(eigs,c(ar[1,2,3],ar[2,1,3]))
+  eigs=rbind(eigs,c(-ar[1,2,3],-ar[2,1,3]))
 }
 
 # cluster ts
