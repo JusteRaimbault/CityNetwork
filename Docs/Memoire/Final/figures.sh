@@ -394,10 +394,8 @@ then
   # fig:macrocoevol:correlations
   FIGNAME=6-2-2-fig-macrocoevol-correlations
   echo $FIGNAME
-  convert -density $PDFRESOLUTION Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.jpg
-  convert -density $PDFRESOLUTION Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.jpg
-  montage Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.jpg Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.jpg Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.jpg
+  convert Figures/MacroCoEvol/laggedregimes_nwGmax0_05.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
 
   # fig:macrocoevol:empirical
   FIGNAME=6-2-3-fig-macrocoevol-empirical
@@ -827,6 +825,14 @@ then
   convert -density $PDFRESOLUTION Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.jpg
   montage Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05.jpg Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05.jpg Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.jpg
+
+  FIGNAME=A-macrocoevol-distcorrs
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  FIGNAME=A-macrocoevol-laggedcorrs
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
   # fig:app:macrocoevol:pareto

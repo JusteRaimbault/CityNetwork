@@ -320,7 +320,7 @@ load(paste0(resdir,"signifs.RData"))
 # no extrema without nw (expected)
 
 signs = signifs[signifs$nwGmax==0.05,]%>%group_by(synthRankSize,nwGmax,gravityWeight,nwThreshold,gravityGamma,gravityDecay)%>%summarise(
-  sign = paste0(signif[varcouple==1],signif[varcouple==2],signif[varcouple==3],signif[varcouple==4],signif[varcouple==5],signif[varcouple==6]),
+  sign = paste0(signif[varcouple==3],signif[varcouple==4],"/",signif[varcouple==1],signif[varcouple==2],"/",signif[varcouple==5],signif[varcouple==6]),
   #count=n(),
   strength=sum(abs(signif)),
   corrstrength = sum(abs(signif*val))
@@ -333,7 +333,7 @@ signs[signs$strength>4,]
 # plot these strongest regimes
 
 sdata=data.frame()
-for(r in which(signs$strength>4)){
+for(r in which(signs$strength>4)[!duplicated(signs$sign[signs$strength>4])]){
   synthRankSize=signs$synthRankSize[r];nwGmax=signs$nwGmax[r];gravityWeight=signs$gravityWeight[r];nwThreshold=signs$nwThreshold[r];gravityGamma=signs$gravityGamma[r];gravityDecay=signs$gravityDecay[r]
   sdata=rbind(sdata,data.frame(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay,],
                                id=paste0(synthRankSize,nwGmax,gravityWeight,nwThreshold,gravityGamma,gravityDecay),
@@ -343,7 +343,8 @@ for(r in which(signs$strength>4)){
 }
 
 g=ggplot(sdata,aes(x=tau,y=rho,colour=var,group=var))
-g+geom_point(pch='.')+geom_smooth()+facet_wrap(~reg,scales="free")
+g+geom_point(pch='.')+geom_smooth()+facet_wrap(~reg,scales="free")+xlab(expression(tau))+ylab(expression(rho[tau]))+stdtheme
+ggsave(paste0(resdir,'targeted/laggedregimes_nwGmax',parstr(nwGmax),'.png'),width=30,height=25,units='cm')
 
 
 
