@@ -1,6 +1,8 @@
 import java.text.SimpleDateFormat
 import java.util.Date
 
+logger.level("FINE")
+
 // variables
 val synthRankSize = Val[Double]
 val nwThreshold = Val[Double]
@@ -53,8 +55,8 @@ val varSetting = ExplorationTask(
   x (feedbackDecay is 1.0)
   x (finalTime is 30)
 ) set(
-  inputs += (gravityWeight,gravityGamma,gravityDecay,nwThreshold,nwExponent,nwGmax),
-  outputs += (gravityWeight,gravityGamma,gravityDecay,nwThreshold,nwExponent,nwGmax)
+  inputs += (gravityWeight,gravityGamma,gravityDecay,nwThreshold,nwGmax,synthRankSize,replication),
+  outputs += (gravityWeight,gravityGamma,gravityDecay,nwThreshold,nwGmax,synthRankSize,replication)
 )
 
 val eval = varSetting -< model
@@ -65,11 +67,11 @@ val exploration =
       genome =
         Seq(
           synthRankSize in (0.1,2.5)
-          ,nwThreshold in (0.0,10.0)
-          ,nwGmax in Range(0.0,0.1)
+          ,nwThreshold in (0.0,5.0)
+          ,nwGmax in Range(0.0,0.05)
           ,gravityWeight in (0.0,0.001)
-          ,gravityGamma in (0.0,4.0)
-          ,gravityDecay in (0.0,1000.0)
+          ,gravityGamma in (0.0,3.0)
+          ,gravityDecay in (0.0,200.0)
         ),
       objectives =
         Seq(
