@@ -87,6 +87,17 @@ to-report lagged-corrs [var1 var2 abstaumax t0]
   report res
 end
 
+;;
+; specific way to get max/min lagged corrs
+to-report lagged-cor-minmax [var1 var2 abstaumax tau-pos?]
+  let lc lagged-corrs var1 var2 abstaumax 0
+  ifelse tau-pos? = true [
+    let clc sublist lc (abstaumax + 1) (length lc) ifelse mean clc > 0 [report max clc][report min clc]
+  ][
+    let clc sublist lc 0 abstaumax ifelse mean clc > 0 [report max clc][report min clc]
+  ]
+end
+
 
 ;;
 ; in space

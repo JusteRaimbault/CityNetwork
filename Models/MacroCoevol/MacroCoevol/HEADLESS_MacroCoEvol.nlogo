@@ -2,98 +2,98 @@
 extensions [gis matrix table gradient nw]
 
 __includes [
-  
+
    ;;;
    ; setup
    "setup.nls"
-   
+
    ;;;
    ; main
    "main.nls"
- 
+
    "cities.nls"
    "network.nls"
- 
+
    ;;;
    ; indicators
    "indicators.nls"
- 
+
    ;;;
    ; display
    "display.nls"
- 
+
    ;;;
    ; experiment
    "experiments.nls"
- 
+
    ;;;;;
    ;; utils
    ;;;;;
-   
+
    "utils/File.nls"
    "utils/String.nls"
    "utils/Matrix.nls"
    "utils/List.nls"
    "utils/Network.nls"
-      
+
 ]
 
 
 
 globals [
-  
+
   ;;
   ; dates
   dates
-  
+
   ;;
   ; matrix of cities population in time
   populations
-  
+
   ;;
   ; corresponding real populations
   real-populations
-  
+
   ;;
   ; distance matrices
   distance-matrix
   initial-distance-matrix
   feedback-distance-matrix
-  
+
   distance-matrices
-  
+
   real-distance-matrices
   real-feedback-distance-matrices
-  
+
   gravity-weights
   feedback-weights
-  
+
   ; matrice of gravity flows
   gravity-flows
   feedback-flows
-  
+
   ;;
   ; shortest paths params
   alpha0
   n0
-  
+
   ;
   ;total-time-steps
-  
+
   ; indicators
   indicator-sample-cities
   city-values-table
   indicator-sampling-time-step
-  
-  
+
+
   headless?
-  
+
   visualization
   period
-  
+
   ;;
   ; HEADLESS
-  
+
   setup-type
   synthetic-cities-number
   synthetic-rank-size-exp
@@ -111,67 +111,67 @@ globals [
   feedback-weight
   feedback-gamma
   feedback-decay
-  
+
   slime-mould-node-distance
   slime-mould-reinforcment-function
   physical-network-heuristic
   physical-network-reinforcment-threshold
   physical-network-reinforcment-quantile
-  
+
   link-display-var
- 
+
   synthetic-shortcut-number
   synthetic-city-max-degree
   synthetic-shortcut-radius
-  
+
   shortest-paths
   nw-relative-speeds
   nw-distances
   pairs-total-weight
-  
+
   geo-paths?
   fixed-dist?
 
   failed?
-   
+
 ]
 
 
 
 patches-own [
- 
+
   elevation
-  
+
 ]
 
 
 breed [cities city]
 
 cities-own [
-  
+
   ; name
   name
-  
+
   ; current population
   population
-  
+
   ; row index in pop matrix
   index
-  
+
   ; history of population
   population-history
   expected-population-history ; convenience variable
-  
+
   ; for comparing between runs : previous population history
   previous-population-history
-  
+
   current-mse
-  
+
   color-var
-   
+
   city-bw-centrality
   city-flow
-   
+
 ]
 
 
@@ -181,7 +181,7 @@ undirected-link-breed [paths path]
 
 paths-own [
   impedance
-  
+
   path-length
   bw-centrality
   flow
@@ -189,8 +189,8 @@ paths-own [
   speed
   relative-speed
   effective-length
-  
-   
+
+
 ]
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -563,7 +563,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.3.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
