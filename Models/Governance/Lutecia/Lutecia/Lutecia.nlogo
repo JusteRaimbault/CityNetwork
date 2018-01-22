@@ -459,11 +459,11 @@ breed[ghost-transportation-nodes ghost-transportation-node]
 GRAPHICS-WINDOW
 373
 11
-813
-472
-7
-7
-28.666666666666668
+845
+504
+6
+6
+35.833333333333336
 1
 10
 1
@@ -473,10 +473,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--7
-7
--7
-7
+-6
+6
+-6
+6
 0
 0
 1
@@ -492,7 +492,7 @@ SLIDER
 #-initial-territories
 0
 5
-3
+2
 1
 1
 NIL
@@ -523,7 +523,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance" "network"
-5
+2
 
 TEXTBOX
 11
@@ -707,7 +707,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-1
+0
 0.05
 1
 NIL
@@ -805,10 +805,10 @@ SLIDER
 307
 road-length
 road-length
-0
+1.0
 20
-2
-0.5
+1
+1.0
 1
 NIL
 HORIZONTAL
@@ -869,7 +869,7 @@ total-time-steps
 total-time-steps
 0
 10000
-10
+7164
 1
 1
 NIL
@@ -983,7 +983,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file" "gis-synthetic" "gis"
-3
+2
 
 BUTTON
 471
@@ -1068,7 +1068,7 @@ world-size
 world-size
 0
 50
-15
+12
 1
 1
 NIL
@@ -1080,7 +1080,7 @@ INPUTBOX
 365
 70
 conf-file
-setup/conf/real_fullsetup.conf
+setup/conf/synth_balanced_distant.conf
 1
 0
 String
@@ -1110,7 +1110,7 @@ SWITCH
 608
 evolve-network?
 evolve-network?
-0
+1
 1
 -1000
 
@@ -1183,7 +1183,7 @@ relocation-rate
 relocation-rate
 0
 1
-0.1
+0.15
 0.01
 1
 NIL

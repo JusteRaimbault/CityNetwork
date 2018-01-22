@@ -363,7 +363,7 @@ gravity-radius
 gravity-radius
 0
 10000
-2357
+2229
 1
 1
 NIL
@@ -378,7 +378,7 @@ population-growth-rate
 population-growth-rate
 0
 3000
-3000
+0
 1
 1
 NIL
@@ -552,7 +552,7 @@ gravity-inflexion
 gravity-inflexion
 0
 10
-2.7
+3.4
 0.1
 1
 NIL
@@ -615,7 +615,7 @@ INPUTBOX
 732
 160
 seed
-1
+3
 1
 0
 Number
@@ -646,7 +646,7 @@ setup-center-number
 setup-center-number
 1
 40
-18
+8
 1
 1
 NIL
@@ -844,7 +844,7 @@ network-biological-threshold
 network-biological-threshold
 0
 2
-0.3
+0.6
 0.1
 1
 NIL
@@ -944,7 +944,7 @@ network-biological-steps
 network-biological-steps
 0
 100
-82
+50
 1
 1
 NIL
@@ -988,7 +988,7 @@ CHOOSER
 density-setup-method
 density-setup-method
 "synthetic" "empty" "real"
-2
+0
 
 CHOOSER
 855
@@ -1044,7 +1044,7 @@ random-breakdown-threshold
 random-breakdown-threshold
 0
 5
-0.8
+1.6
 0.1
 1
 NIL
@@ -1079,7 +1079,7 @@ cost-tradeoff
 cost-tradeoff
 0
 0.1
-0.05
+0.009
 0.001
 1
 NIL
@@ -1094,7 +1094,7 @@ max-network-size
 max-network-size
 0
 1000
-1000
+200
 1
 1
 NIL

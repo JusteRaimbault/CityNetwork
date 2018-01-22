@@ -18,7 +18,7 @@
 %----------------------------------------------------------------------------------------
 
 
-Nous pouvons à présent faire la synthèse d'une part des paradigmes d'intégration d'un système de ville et du réseau de transport, effectué de manière statique pour le comportement du réseau dans le modèle d'interaction développé et exploré en section~\ref{sec:interactiongibrat}, d'autre part des indicateurs pour la compréhension d'un modèle de co-évolution pour un système de villes,\comment[FL]{reprendre tous ces concepts : modele, indicateur etc sont ici trop mis au meme niveau} expérimentés dans la section précédente~\ref{sec:macrocoevolexplo}, ainsi que de manière indicative pour comparaison des comportements obtenus pour le modèle SimpopNet. Cette synthèse consiste en une première formulation d'un \emph{modèle de co-évolution macroscopique pour les systèmes de villes}, qui est un élément clé pour apporter un éclaircissement partiel de notre problématique générale.\comment[FL]{oui !}
+Nous pouvons à présent faire la synthèse d'une part des paradigmes d'intégration d'un système de ville et du réseau de transport, effectué de manière statique pour le comportement du réseau dans le modèle d'interaction développé et exploré en section~\ref{sec:interactiongibrat}, d'autre part des indicateurs pour la compréhension d'un modèle de co-évolution pour un système de villes,\comment[FL]{reprendre tous ces concepts : modele, indicateur etc sont ici trop mis au meme niveau} expérimentés dans la section précédente~\ref{sec:macrocoevolexplo}, ainsi que de manière indicative pour comparaison des comportements obtenus pour le modèle SimpopNet. Cette synthèse consiste en une première formulation d'un \emph{modèle de co-évolution macroscopique pour les systèmes de villes}, qui est un élément clé pour apporter un éclaircissement partiel de notre problématique générale.
 
 \comment[AB]{reformuler}
 
@@ -51,7 +51,7 @@ Cette première approche se place dans une logique d'extension directe du modèl
 %%%%%%%%%%%%%%%%%
 \begin{figure}
 \includegraphics[width=\linewidth]{Figures/MacroCoEvol/model}
-\caption[Schematic Model Representation][Schématisation du modèle]{}{\textbf{Représentation abstraite du modèle.} Les ovales correspondent aux éléments ontologiques principaux (Villes, Réseau, Flux), tandis que les flèches traduisent des processus et les paramètres associés. Le modèle est décrit dans son écosystème plus large d'initialisation et d'indicateurs de sortie.\label{fig:macrocoevol:model}}
+\caption[Schematic Model Representation][Schématisation du modèle de co-évolution macroscopique]{\textbf{Abstract representation of the model.}}{\textbf{Représentation abstraite du modèle.} Les ovales correspondent aux éléments ontologiques principaux (Villes, Réseau, Flux), tandis que les flèches traduisent des processus et les paramètres associés sont indiqués. Le modèle est décrit dans son écosystème plus large d'initialisation et d'indicateurs de sortie.\label{fig:macrocoevol:model}}
 \end{figure}
 %%%%%%%%%%%%%%%%%
 
@@ -76,13 +76,17 @@ d(t+1) = d(t)\cdot \left( 1 + g_{max} \cdot \left[\frac{1 - \left(\frac{\phi}{\p
 
 \comment[AB]{donner une intuition + references}
 
-cf Tero ? papier Francois \cite{2013arXiv1301.6628K}
+\cite{tero2007mathematical}
+
+%cf Tero ? papier Francois \cite{2013arXiv1301.6628K}
 % implementation
 % https://github.com/fqueyroi/tulip_plugins/tree/master/TransportationNetworks
 
 
 
-avec $\gamma_s$ un paramètre de hiérarchie, $\phi_0$ le paramètre de seuil et $g_{max}$ le taux de croissance maximal qui peut s'ajuster à des valeurs réalistes par exemple par l'intermédiaire du calcul de $(1+g_{max})^{t_f}$.\comment[FL]{phrase tres floue}
+avec $\gamma_s$ un paramètre de hiérarchie, $\phi_0$ le paramètre de seuil et $g_{max}$ le taux de croissance maximal à chaque étape.
+
+%qui peut s'ajuster à des valeurs réalistes par exemple par l'intermédiaire du calcul de $(1+g_{max})^{t_f}$.\comment[FL]{phrase tres floue}
 
 
 
@@ -93,9 +97,14 @@ avec $\gamma_s$ un paramètre de hiérarchie, $\phi_0$ le paramètre de seuil et
 
 \bpar{
 }{
-Le couplage du modèle d'interaction à la prise en compte\comment[AB]{pas clair} plus fine des processus de réseau rend plus difficile l'intégration complète dans un plugin OpenMole comme c'était le cas pour le modèle étudié en~\ref{sec:interactiongibrat}.\comment[AB]{preciser} L'utilisation d'un workflow comme médiateur pour le couplage est une solution intéressante mais réaliste uniquement dans le cas d'un couplage faible. L'un des défis que devra relever la bibliothèque de méta-modélisation en cours de développement autour d'OpenMole, serait la possibilité de coupler fortement (par exemple au sens de dynamiquement dans l'évolution de la simulation) des composantes hétérogènes de manière transparente.\comment[AB]{pourquoi ? $\rightarrow$ preciser} Nous optons pour ce modèle pour une implémentation complète en NetLogo pour une simplicité de couplage des composantes. Une attention particulière est portée à la dualité de la représentation du réseau, à la fois sous forme de matrice de distance et sous forme physique, pour permettre facilement l'extension à des heuristiques de réseau physique.\comment[FL]{mal mis en valeur}
+Le couplage du modèle d'interaction à une explicitation du réseau plus fine (par exemple encodage de l'ensemble de la structure du réseau) rend plus difficile l'intégration complète dans un plugin OpenMole comme c'était le cas pour le modèle étudié en~\ref{sec:interactiongibrat}, nécessitant une implémentation ad hoc. L'utilisation d'un workflow comme médiateur pour le couplage est une solution intéressante mais réaliste uniquement dans le cas d'un couplage faible. L'un des défis que devra relever la bibliothèque de méta-modélisation en cours de développement autour d'OpenMole, serait la possibilité de coupler fortement (par exemple au sens de dynamiquement dans l'évolution de la simulation) des composantes hétérogènes de manière transparente, permettant de tirer parti des avantages de différents langages ou d'implémentation déjà existantes.
 }
 
+\bpar{}{
+ Nous optons pour ce modèle pour une implémentation complète en NetLogo pour une simplicité de couplage des composantes. Une attention particulière est portée à la dualité de la représentation du réseau, à la fois sous forme de matrice de distance et sous forme physique, pour permettre facilement l'extension à des heuristiques de réseau physique.
+}
+
+% \comment[FL]{mal mis en valeur}[pas très important]
 
 
 
@@ -113,30 +122,33 @@ Le modèle est d'abord testé et exploré sur des systèmes de villes synthétiq
 }
 
 
-\paragraph{Synthetic data}{Données Synthétiques}
+\subsubsection{Synthetic data}{Données Synthétiques}
 
 
 Un système de villes synthétiques est généré, en suivant l'heuristique utilisée dans la section précédente : (i) des villes en nombre $N_S$ sont placées aléatoirement dans le plan euclidien; (ii) les populations sont attribuées aux villes selon une loi de puissance inverse, avec un paramètre de hiérarchie $\alpha_S$ et de telle façon que la plus grande ville ait une population $P_{max}$, c'est-à-dire suivant $P_i = P_{max} \cdot i^{-\alpha_S}$. Pour simplifier, nous fixons un certain nombre de méta-paramètres : le nombre de villes est fixé à $N_S = 30$, la population maximale à $P_{max} = 100000$ et la croissance maximale du réseau à $g_{max} = 0.005$. Le temps final est fixé à $t_f = 30$, ce qui correspond à des distances divisées par 5 environ\footnote{En effet, on peut calculer que le facteur multiplicatif minimal pour la distance est de $(1 - g_{max})^{t_f}$, ce qui donne pour ces valeurs $(1 - 0.05)^{30} \simeq 0.214$, c'est à dire une division par 5 du temps de trajet.}, afin de respecter un critère empirique : cela correspond à un passage du Paris-Lyon en une dizaine d'heures au début du 19ème siècle à deux heures aujourd'hui, mis en évidence par exemple par~\cite{thevenin2013mapping}. Nous négligeons aussi les effets de réseau au second ordre en fixant $w_N = 0$.
 
-
-\paragraph{Results}{Résultats}
 
 %%%%%%%%%%
 % -- ON HOLD
 % sensibilite a \alpha_S 
 
 
-Nous explorons une grille de l'espace des paramètres $(\alpha_S,\phi_0,\gamma_s,w_G,d_G,\gamma_G)$. Nous utilisons les indicateurs introduits en~\ref{sec:macrocoevolexplo} pour quantifier le comportement du modèle dans l'espace des paramètres. En Fig.~\ref{fig:macrocoevol:behavior}, nous montrons l'évolution d'indicateurs dans le temps ainsi que des mesures agrégées, pour une grande partie de l'espace des paramètres couvert. Nous montrons les résultats pour $\alpha_S = 1$, valeur la plus proche d'un système de villes réel (par rapport à 0.5 et 1.5, voir la revue systématique des estimations de la loi rang-taille faite par~\cite{10.1371/journal.pone.0183919}).
+Nous explorons une grille de l'espace des paramètres $(\alpha_S,\phi_0,\gamma_s,w_G,d_G,\gamma_G)$. Nous utilisons les indicateurs introduits en~\ref{sec:macrocoevolexplo} pour quantifier le comportement du modèle dans l'espace des paramètres. En Fig.~\ref{fig:macrocoevol:behavior-time}, nous montrons l'évolution d'indicateurs dans le temps ainsi que des mesures agrégées, pour une grande partie de l'espace des paramètres couvert. Nous montrons les résultats pour $\alpha_S = 1$, valeur la plus proche d'un système de villes réel (par rapport à 0.5 et 1.5, voir la revue systématique des estimations de la loi rang-taille faite par~\cite{10.1371/journal.pone.0183919}).
+
+
+
+\subsubsection{Trajectories}{Trajectoires}
 
 
 L'évolution de la centralité de proximité moyenne dans le temps est visualisée en Fig.~\ref{fig:macrocoevol:behavior-time} (haut) pour $w_G = 0.001$, et à $(\gamma_G,\phi_0)$ variables. Le comportement n'est pas sensible à $d_G$ (voir graphique complet en~\ref{app:sec:macrocoevol}). Cette évolution témoigne d'une transition en fonction du niveau de hiérarchie : lorsque celui-ci décroit, on observe l'émergence de trajectoires où la centralité moyenne croît dans le temps, ce qui correspond à des situations où l'ensemble des villes bénéficie d'accroissements d'accessibilité.
 
 
 
-En terme d'entropie des populations, dont nous traçons la trajectoire temporelle en Fig.~\ref{fig:macrocoevol:behavior-time} (bas), l'ensemble des paramètres donne une entropie décroissante, c'est à dire des convergences des trajectoires dans le temps\comment[FL]{c'est vite dit, tu sembles mettre tous les parametres au meme niveau}.\comment[JR]{note de bas de page lien entropie et convergence}
+En terme d'entropie des populations, dont nous traçons la trajectoire temporelle en Fig.~\ref{fig:macrocoevol:behavior-time} (bas), l'ensemble des paramètres donne une entropie décroissante, c'est à dire des comportements de convergence des trajectoires des villes dans le temps\footnote{En effet, l'entropie pour la variable de population exprime la dispersion de la distribution des populations, et donc une décroissance de celle-ci exprime une tendance à la concentration dans le temps.}.
 
 
-Lorsqu'on s'intéresse à la complexité des trajectoires d'accessibilité, on note pour des valeurs de $\phi_0 > 1.5$ un maximum de la complexité en fonction de la distance d'interaction $d_G$, stable lorsque $w_G$ et $\gamma_G$ varient. Cette échelle intermédiaire peut être interprétée comme produisant des sous-systèmes régionaux, assez grands pour développer chacun un certain niveau de complexité, et assez isolés pour ne pas uniformiser les trajectoires sur l'ensemble de l'espace. Nous reconstruisons ainsi une non-stationnarité spatiale, typiquement observée en~\ref{sec:staticcorrelations}, et rejoignons le concept de niche écologique localisée dans l'espace (voir~\ref{sec:theory}).\comment[AB]{developper}
+
+Lorsqu'on s'intéresse à la complexité des trajectoires d'accessibilité, on note pour des valeurs de $\phi_0 > 1.5$ un maximum de la complexité en fonction de la distance d'interaction $d_G$, stable lorsque $w_G$ et $\gamma_G$ varient. Cette échelle intermédiaire peut être interprétée comme produisant des sous-systèmes régionaux, assez grands pour développer chacun un certain niveau de complexité, et assez isolés pour ne pas uniformiser les trajectoires sur l'ensemble de l'espace. Nous reconstruisons ainsi une non-stationnarité spatiale, typiquement observée en~\ref{sec:staticcorrelations}, et rejoignons le concept de niche écologique\footnote{Comme nous l'avons déjà présenté en~\ref{sec:interdiscmorphogenesis}, une niche écologique au sens de~\cite{holland2012signals} correspond à l'écosystème relativement indépendant au sein de laquelle il y a co-évolution entre les espèces.} localisée dans l'espace : les sous-systèmes émergents, relativement indépendants, sont de bons candidats pour être porteurs de processus de co-évolution.\comment[AB]{developper}
 
 
 
@@ -148,7 +160,7 @@ Enfin, le comportement des corrélations de rang pour l'accessibilité révèle 
 \begin{figure}
 %\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvol/closenessSummaries_mean_synthRankSize1_gravityWeight0_001_gravityDecay10.png}\\
 %\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvol/populationEntropies_synthRankSize1_gravityWeight0_001_gravityGamma0_5.png}
-\includegraphics[width=\linewidth]{Figures/Final/6-2-2-fig-macrocoevol-behavior-time.jpg}
+\includegraphics[width=\linewidth,height=0.9\textheight]{Figures/Final/6-2-2-fig-macrocoevol-behavior-time.jpg}
 \caption[Behavior of the co-evolution model][Comportement temporel du modèle de co-evolution]{\textbf{Behavior of the co-evolution model.}\label{fig:macrocoevol:behavior-time}}{\textbf{Comportement temporel du modèle de co-evolution avec réseau abstrait sur un système de villes synthétique.} \textit{(Haut)} Moyenne des centralités de proximité, en fonction du temps, pour $d_G$ (colonnes), $\gamma_G$ (lignes) et $\phi_0$(couleur) variables, à $w_G = 0.001$ fixé ; \textit{(Bas)} Entropie de populations, en fonction du temps, pour $d_G$ (colonnes), $\gamma_G$ (lignes) et $\phi_0$(couleur) variables, à $w_G = 0.001$ fixé Se référer au texte pour l'interprétation.\label{fig:macrocoevol:behavior-time}}
 \end{figure}
 %%%%%%%%%%%%%
@@ -166,35 +178,40 @@ Enfin, le comportement des corrélations de rang pour l'accessibilité révèle 
 
 
 
+\subsubsection{Correlations}{Corrélations}
+
+
+Tournons nous à present vers les motifs de corrélation produits par le modèle, illustrés en Fig.~\ref{fig:macrocoevol:correlations}.
+
+
+En fonction de la distance, les profils de $\rho_d$ pour les trois couples de variables montrent que des valeurs moyennes et grandes de la distance d'interaction ($d_G > 50$) induisent des populations totalement décorrélées aux centralités et accessibilités. Pour des petits $d_G$, un profil décroissant puis nul confirme l'existence d'effets locaux forts, où des villes très proches s'influenceront fortement. Le comportement de la correlation entre accessibilité et centralité est plus difficile à interpréter, et peut être dû aux phénomènes d'auto-correlation\footnote{qui ne sont pas calculables, car il s'agirait de décomposer $\rho\left[\sum_{i\neq j} \frac{1}{d_{ij}}; \sum_{i\neq j} P_j \exp{\left(-d_{ij}/d_G\right)}\right]$. Il est possible par exemple d'approximer $\rho\left[X+Y;Z\right]$ sous la condition que $\varepsilon = \sigma_Y / \sigma_X \ll 1$ au premier ordre par $\rho\left[ X+Y;Z \right] \simeq \left(\rho\left[ X;Z \right]  + \varepsilon \rho\left[Y;Z\right]\right)\cdot\left(1 - \frac{1}{2}\rho\left[X;Y\right]\varepsilon - \frac{\varepsilon^2}{2})\right)$, mais cette hypothèse est trop restrictive pour être valable sur l'ensemble de la somme.}. Son niveau ne dépend pas de la distance mais de $d_G$, et est décroissant pour finir à une corrélation négative.
+
+
+
+Enfin, concernant les corrélations retardées, on observe toujours une corrélation synchronisée, et a priori l'existence de $\tau_+$ ou $\tau_-$ dans certains configurations, mais difficile à valider visuellement. Nous ajoutons donc ici un critère basé sur un test statistique : pour $\tau = \argmax \rho_{\tau}$ ou $\tau = \argmin \rho_{\tau}$ selon leur existence, un test de Kolmogorov-Smirnov est utilisé pour comparer les distributions de $\rho_{\tau}$ et de $\rho_0$. S'il donne une valeur inférieur à $0.01$, les distributions sont jugées similaires et il n'existe pas de relation entre les variables correspondantes.
+
+On a systématiquement une déviation positive de la corrélation entre population et accessibilité pour les retards positifs, en croissance jusqu'au retard maximal, ce qui pourrait être un marqueur du renforcement des dynamiques de population par la centralité, fait stylisé exhibé pour le système de ville Français par~\cite{bretagnolle:tel-00459720}. La correlation entre population et accessibilité est constante, probablement par l'auto-corrélation, et n'entre pas en jeu dans la définition des régimes. Pour des valeurs intermédiaires de $d_G$ et les fortes valeurs de $\gamma_G$, on observe également une très légère déviation pour les retards négatifs : pour ces régimes, on a causalité circulaire et le modèle capture une co-évolution dans ce sens. L'accessibilité quant à elle cause fortement la centralité pour $d_G = 10$, puis la tendance s'inverse pour les grands $d_G$. Pour $d_G = 10$, cela va dans le sens du lien entre population et centralité, et il n'y a dans ce cas pas co-évolution mais adaptation des populations au réseau.\comment[FL]{il faut harmoniser les termes ici : relation univoque est plus generique ?} Pour les régimes intermédiaire, on a circularité directement entre population et centralité, tandis que pour $d_G > 110$ il y a ``circularité indirecte'', puisque accessibilité cause centralité qui cause population (qui entre en jeu dans la centralité). Ainsi, le modèle capture au moins trois régimes de co-évolution distincts, en fonction de la distance d'interaction et du niveau de hiérarchie\footnote{Une analyse plus systématique par apprentissage non-supervisé comme en~\ref{sec:causalityregimes} et en~\ref{sec:mesocoevolmodel} est laissée pour de futures développements.}.
 
 
 
 %%%%%%%%%%%%%
 \begin{figure}
-	%\includegraphics[width=0.9\linewidth]{Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5}
-	\includegraphics[width=\linewidth,height=0.8\textheight]{Figures/Final/6-2-2-fig-macrocoevol-correlations.jpg}
-\caption[Correlations in the abstract model][Correlations dans le modèle abstrait]{}{\textbf{Motifs de correlation dans le modèle abstrait.} Correlations retardées $\rho_{\tau}$ en fonction du retard $\tau$, de manière similaire pour $d_G$ variable (colonnes) et $\gamma_G$ variable (lignes), à $w_G = 5e-4$ et $\phi_0 = 4.5$.\label{fig:macrocoevol:correlations}}
+	%\includegraphics[width=\linewidth]{Figures/MacroCoEvol/laggedregimes_nwGmax0_05.png}
+	\includegraphics[width=\linewidth]{Figures/Final/6-2-2-fig-macrocoevol-correlations.jpg}
+\caption[Correlations in the abstract model][Correlations dans le modèle abstrait]{\textbf{Lagged correlations.} \label{fig:macrocoevol:correlations}}{\textbf{Corrélation retardées.} \label{fig:macrocoevol:correlations}}
 \end{figure}
 %%%%%%%%%%%%%
 
-% \comment[AB]{Test Stat ; Idem}
-
-
-%\includegraphics[width=0.9\linewidth]{Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5}\\
-% Correlation $\rho_d$ entre couples de variables (donné par la couleur), en fonction de la distance $d$ (discrétisée en déciles), pour $d_G$ variable (colonnes) et $\gamma_G$ variable (lignes), à $w_G = 5e-4$ et $\phi_0 = 4.5$
-
-Tournons nous à present vers les motifs de corrélation produits par le modèle, illustrés en Fig.~\ref{fig:macrocoevol:correlations}. En fonction de la distance, les profils de $\rho_d$ pour les trois couples de variables montrent que des valeurs moyennes et grandes de la distance d'interaction ($d_G > 50$) décorrèlent\comment[FL]{md} totalement population avec centralité et accessibilité. Pour des petits $d_G$, un profil décroissant puis nul confirme l'existence d'effets locaux forts, où des villes très proches s'influenceront fortement. Le comportement de la correlation entre accessibilité et centralité est plus difficile à interpréter, et peut être dû aux phénomènes d'auto-correlation\footnote{qui ne sont pas calculables, car il s'agirait de décomposer $\rho\left[\sum_{i\neq j} \frac{1}{d_{ij}}; \sum_{i\neq j} P_j \exp{\left(-d_{ij}/d_G\right)}\right]$. Il est possible par exemple d'approximer $\rho\left[X+Y;Z\right]$ sous la condition que $\varepsilon = \sigma_Y / \sigma_X \ll 1$ au premier ordre par $\rho\left[ X+Y;Z \right] \simeq \rho\left[ X;Z \right]\left(1+\frac{1}{2}\rho\left[X;Y\right]\varepsilon - \frac{\varepsilon^2}{2})\right) + \varepsilon \rho\left[Y;Z\right]$, mais cette hypothèse est trop restrictive pour être valable sur l'ensemble de la somme.}. Son niveau ne dépend pas de la distance mais de $d_G$, et est décroissant pour finir à une corrélation négative.
 
 
 
-Enfin, concernant les corrélations retardées, on observe systématiquement une déviation positive de la corrélation entre population et accessibilité pour les retards positifs, en croissance jusqu'au retard maximal, ce qui pourrait être un marqueur du renforcement des dynamiques de population par la centralité, fait stylisé exhibé pour le système de ville Français par~\cite{bretagnolle:tel-00459720}. La correlation entre population et accessibilité est constante, probablement par l'auto-corrélation, et n'entre pas en jeu dans la définition des régimes. Pour des valeurs intermédiaires de $d_G$ et les fortes valeurs de $\gamma_G$, on observe également une très légère déviation pour les retards négatifs : pour ces régimes, on a causalité circulaire et le modèle capture une co-évolution dans ce sens. L'accessibilité quant à elle cause fortement la centralité pour $d_G = 10$, puis la tendance s'inverse pour les grands $d_G$. Pour $d_G = 10$, cela va dans le sens du lien entre population et centralité, et il n'y a dans ce cas pas co-évolution mais adaptation des populations au réseau.\comment[FL]{il faut harmoniser les termes ici : relation univoque est plus generique ?} Pour les régimes intermédiaire, on a circularité directement entre population et centralité, tandis que pour $d_G > 110$ il y a ``circularité indirecte'', puisque accessibilité cause centralité qui cause population (qui entre en jeu dans la centralité). Ainsi, le modèle capture au moins trois régimes de co-évolution distincts, en fonction de la distance d'interaction et du niveau de hiérarchie\footnote{Une analyse plus systématique par apprentissage non-supervisé comme en~\ref{sec:causalityregimes} et en~\ref{sec:mesocoevolmodel} est laissée pour de futures développements.}.
 
 
 \comment[AB]{trop abstrait}
 
 
 
-\paragraph{Synthesis}{Synthèse}
+\subsubsection{Synthesis}{Synthèse}
 
 Les faits stylisés marquants qui ressortent de l'exploration du modèle synthétique sont les suivants :
 
@@ -216,14 +233,14 @@ reproduction du first mover advantage ? \cite{levinson2011does}
 \bpar{
 The model is applied to the French Urban System on long time dynamical data : Pumain-INED database for populations spanning between 1831 and 1999, with the evolving railway network from 1840 to 2000.
 }{
-Le modèle est ensuite appliqué au système de villes français sur des données dynamiques sur le temps long : la base Pumain-INED pour les populations, couvrant de 1831 à 1999~\cite{pumain1986fichier}, avec le réseau ferré dynamique de 1840 à 2000~\cite{thevenin2013mapping}. Cette application vise d'une part à tester la capacité du modèle à reproduire une dynamique de co-évolution réelle, et d'autre part à extraire une information thématique sur les processus via les valeurs calibrées des paramètres. \comment[FL]{pourquoi est-il pertinent / necessaire de travailler avec ce recul temporel ?}
+Le modèle est ensuite appliqué au système de villes français sur des données dynamiques sur le temps long : la base Pumain-INED pour les populations, couvrant de 1831 à 1999~\cite{pumain1986fichier}, avec le réseau ferré dynamique de 1840 à 2000~\cite{thevenin2013mapping}. Cette durée temporelle découle de la logique des effets de structure sur le temps long, comme développé en~\ref{sec:networkterritories}. Cette application vise d'une part à tester la capacité du modèle à reproduire une dynamique de co-évolution réelle, et d'autre part à extraire une information thématique sur les processus via les valeurs calibrées des paramètres.
 }
 
 
 
 \subsubsection{Network Data}{Données de Réseau}
 
-Nous travaillons sur les données de réseau ferré construites par~\cite{thevenin2013mapping}. Le réseau ferré français est particulièrement intéressant en conjonction avec les données de population déjà présentées, puisque la période couverte est relativement similaire, et que ce moyen de transport a à toute période concrétisé l'implication d'acteurs publiques et privés importants, tout en correspondant à différents processus selon les époques, d'une gestion plutôt décentralisée à une centralisation très forte plus récemment, et différentes concrétisations technologiques avec par exemple l'émergence récente de la grande vitesse.\comment[AB]{references} Pour chaque date de la base de donnée de population, nous extrayons le graphe abstrait simplifié où toutes les gares et intersections de degré supérieur à deux sont reliés par les liens abstrait avec attributs de vitesse et distance traduisant la valeur réelle, à une granularité de 1km. Cela permet également de construire les matrice de distance-temps entre les villes considérées dans le modèle.
+Nous travaillons sur les données de réseau ferré construites par~\cite{thevenin2013mapping}. Le réseau ferré français est particulièrement intéressant en conjonction avec les données de population déjà présentées, puisque la période couverte est relativement similaire, et que comme le rappelle \cite{thevenin2013mapping}, ce moyen de transport a à toute période concrétisé l'implication d'acteurs publiques et privés importants, tout en correspondant à différents processus selon les époques, d'une gestion plutôt décentralisée à une centralisation très forte plus récemment, et différentes concrétisations technologiques avec par exemple l'émergence récente de la grande vitesse~\cite{zembri1997fondements}. Pour chaque date de la base de donnée de population, nous extrayons le graphe abstrait simplifié où toutes les gares et intersections de degré supérieur à deux sont reliés par les liens abstrait avec attributs de vitesse et distance traduisant la valeur réelle, à une granularité de 1km. Cela permet également de construire les matrices de distance-temps entre les villes considérées dans le modèle.
 
 \comment[AB]{mieux mettre en valeur}
 \comment[FL]{developpe cette partie pour mieux la mettre en valeur}
@@ -237,10 +254,10 @@ Nous travaillons sur les données de réseau ferré construites par~\cite{theven
 Avant de calibrer le modèle, observons les motifs de corrélation présents dans les données, en appliquant la méthode des corrélations retardées. Cette étude empirique devrait permettre d'une part de vérifier des faits stylisés connus, d'autre part d'établir une connaissance préliminaire du comportement empirique du système. Nous calculons comme précisé ci-dessus la centralité de proximité via le réseau, donnée par $T_i = \sum_j \exp{-d_{ij}/d_0}$, et étudions la corrélation retardée entre sa dérivée $\Delta T_i$ et celle de la population $\Delta P_i$, donnée par $\hat{\rho}_{\tau} = \hat{\rho}\left[\Delta P_i(t),\Delta T_i(t-\tau)\right]$ estimée sur une fenêtre glissante comprenant $T_w$ dates successives. Nous montrons en Fig.~\ref{fig:macrocoevol:empirical} les résultats obtenus.
 
 
-Ces résultats sont importants pour au moins deux raisons. Dans un premier temps, le comportement du nombre de corrélations significatives en fonction de $T_w$ et de $d_0$ permet la recherche d'échelles de stationnarité dans le système. On observe d'une part une échelle spatiale spécifique donnant un maximum pour l'ensemble des fenêtres temporelles, à $d_0 = 100km$, ce qui suggère l'existence de sous-systèmes régionaux cohérents, dont l'existence est stable dans le temps\comment[FL]{rapide}. Celle-ci coincide remarquablement avec l'échelle intermédiaire isolée dans le modèle synthétique. D'autre part, les grandes portées spatiales induisent une échelle temporelle optimale, pour $T_w = 4$ ce qui correspond à une vingtaine d'année : nous l'identifions comme l'échelle de stationnarité temporelle du système dans son ensemble et étudions les corrélations retardées pour cette valeur.
+Ces résultats sont importants pour au moins deux raisons. Dans un premier temps, le comportement du nombre de corrélations significatives en fonction de $T_w$ et de $d_0$ permet la recherche d'échelles de stationnarité dans le système. On observe d'une part une échelle spatiale spécifique donnant un maximum pour l'ensemble des fenêtres temporelles, à $d_0 = 100km$, ce qui suggère l'existence de sous-systèmes régionaux cohérents, dont l'existence est stable dans le temps : en effet, cette valeur correspond à la distance d'interaction . Celle-ci coincide remarquablement avec l'échelle intermédiaire isolée dans le modèle synthétique. D'autre part, les grandes portées spatiales induisent une échelle temporelle optimale, pour $T_w = 4$ ce qui correspond à une vingtaine d'année : nous l'identifions comme l'échelle de stationnarité temporelle du système dans son ensemble et étudions les corrélations retardées pour cette valeur.
 
 
-Dans un second temps, le comportement des corrélations retardées apporte une mauvaise nouvelle\comment[AB]{:-)} pour la littérature existante et pour les potentialités d'application de notre modèle.\comment[AB]{trop abstrait} A l'échelle spatiale intermédiaire, les valeurs de $\rho_+,\rho_-$ n'exhibent aucune régularité. Sur l'ensemble du système, on a jusqu'en 1946 quasiment aucun effet significatif, puis aucune causalité entre 1946 et 1975 (maximum à $\tau = 0$, minimum non significatif), puis un décalage de 5 an de l'accessibilité causant la population après 1968 (l'effet restant tout de même douteux). Nous ne reproduisons pas l'effet de corrélation entre centralité dans le réseau et place dans la hiérarchie urbaine défendu par~\cite{bretagnolle2003vitesse}\footnote{Tout comme~\cite{lemoy2017scaling} n'arrivent pas à reproduire, pour les profils de densité en fonction de la distance au centre des métropoles européennes, la transition permettant à \cite{guerois2008built} de définir le péri-urbain. Ces travaux plus ou moins anciens ne sont pas reproductibles, ne fournissant ni code, ni données et ne donnant qu'une description très succincte des méthodes, et il est ainsi impossible de connaitre l'origine de la divergence qualitative obtenue. Il devient urgent d'imposer la reproductibilité absolue comme critère \emph{sinequanone} de scientificité, et de construire des comparaisons systématiques (\emph{benchmarks}) de modèles, analyses empiriques, récentes mais aussi en validation d'études passées.}\comment[AB]{ca y'est tu reveles ton vrai visage :-)}, ce qui amène à relativiser l'existence de la ``co-évolution structurelle'' sur le temps long décrite par \noun{Bretagnolle} dans~\cite{espacegeo2014effets}.\comment[AB]{expliciter systematiquement le lien} Nous rejoignons les résultats récents de~\cite{mimeur:hal-01616746} qui montrent le non-significativité statistique de la corrélation entre taux de croissance et évolution de la couverture du réseau ainsi que l'évolution de l'accessibilité, à délai nul. Nos résultats sont moins précis pour les classes de villes étudiées (ils différencient grandes villes et petites, et travaillent sur un panel plus grand), mais plus généraux car pour un délai et une portée de l'accessibilité variables, et donc complémentaires.
+Dans un second temps, le comportement des corrélations retardées apporte une mauvaise nouvelle pour la littérature existante et pour les potentialités d'application de notre modèle.\comment[AB]{trop abstrait} A l'échelle spatiale intermédiaire, les valeurs de $\rho_+,\rho_-$ n'exhibent aucune régularité. Sur l'ensemble du système, on a jusqu'en 1946 quasiment aucun effet significatif, puis aucune causalité entre 1946 et 1975 (maximum à $\tau = 0$, minimum non significatif), puis un décalage de 5 an de l'accessibilité causant la population après 1968 (l'effet restant tout de même douteux). Nous ne reproduisons pas l'effet de corrélation entre centralité dans le réseau et place dans la hiérarchie urbaine défendu par~\cite{bretagnolle2003vitesse}\footnote{Tout comme~\cite{lemoy2017scaling} n'arrivent pas à reproduire, pour les profils de densité en fonction de la distance au centre des métropoles européennes, la transition permettant à \cite{guerois2008built} de définir le péri-urbain. Ces travaux plus ou moins anciens ne sont pas reproductibles, ne fournissant ni code, ni données et ne donnant qu'une description très succincte des méthodes, et il est ainsi impossible de connaitre l'origine de la divergence qualitative obtenue. Une bonne reproductibilité ainsi que la construction de comparaisons systématiques (\emph{benchmarks}) de modèles, analyses empiriques, récentes mais aussi en validation d'études passées, nous semble une bonne solution à ce genre de problèmes.}, ce qui amène à relativiser l'existence de la ``co-évolution structurelle'' sur le temps long décrite par \noun{Bretagnolle} dans~\cite{espacegeo2014effets}.\comment[AB]{expliciter systematiquement le lien} Nous rejoignons les résultats récents de~\cite{mimeur:hal-01616746} qui montrent le non-significativité statistique de la corrélation entre taux de croissance et évolution de la couverture du réseau ainsi que l'évolution de l'accessibilité, à délai nul. Nos résultats sont moins précis pour les classes de villes étudiées (ils différencient grandes villes et petites, et travaillent sur un panel plus grand), mais plus généraux car pour un délai et une portée de l'accessibilité variables, et donc complémentaires.
 
 
 
@@ -258,7 +275,6 @@ Dans un second temps, le comportement des corrélations retardées apporte une m
 \end{figure}
 %%%%%%%%%%%%%
 
-\comment[AB]{graphes plus ciblés (?)}
 
 
 
@@ -277,19 +293,14 @@ Les résultats attendus de la calibration sur données réelles concernent à la
 }
 
 
-\paragraph{Indicators}{Indicateurs}\comment[FL]{plutot : mesure de performance des ecarts aux observations}
+\paragraph{Model evaluation}{Evaluation du modèle}
 
 On peut ajouter aux indicateurs utilisés précédemment un indicateur de calibration pour la distance. L'aspect particulier de l'ajustement pour les populations, qui résidait dans la présence d'une loi de puissance pour les tailles de villes rendant négligeables les performances sur les villes moyennes et les petites villes dans le cas d'une erreur cumulée, et suggérait l'ajout de l'indicateur de l'erreur sur les logarithmes\comment[FL]{detail technique a ce stade ?}, n'est pas présent pour les distances qui suivent une distribution concentrée sur un ordre de grandeur unique. Nous utilisons ainsi le logarithme de l'erreur carré sur les distances, donnée par\comment[FL]{cela ne donne pas plus d'eclairage sur tes choix}
 
 \[
 \varepsilon_D = \log \left[ \sum_t \sum_{i,j} \left(d_{ij}(t) - \tilde{d}_{ij}(t)\right)^2\right]
 \]
-
-\comment[AB]{preciser + references}
-
-similaire a l'indicateur de \cite{jacobs2016transport}
-
-
+où $d_{ij}(t)$ sont les distances observées et $\tilde{d}_{ij}(t)$ les distances simulées. Il s'agit simplement d'une erreur carré cumulée, comme utilisée pour la comparaison de matrices origine-destination dans un cas similaire de simulation d'un réseau de transport dans~\cite{jacobs2016transport}.
 
 
 %%%%%%%%%%%%%
@@ -310,7 +321,7 @@ similaire a l'indicateur de \cite{jacobs2016transport}
 \paragraph{Results}{Résultats}
 
 
-Nous procédons à une calibration non-stationnaire, sur les objectifs $(\varepsilon_P,\varepsilon_D)$\comment[FL]{expliciter}, par fenêtre mobile sur les périodes déjà utilisées en~\ref{sec:interactiongibrat}. Pour limiter la dimension à explorer, nous fixons $w_N = 0$ pour n'étudier les interactions qu'au premier ordre, sachant que les paramètres de réseau abstrait $(g_{max},\gamma_S,\varphi_0)$ sont pris en compte dans la calibration. La calibration est effectuée par algorithme génétique de façon similaire La Fig.~\ref{fig:macrocoevol:pareto} montre les fronts de Pareto obtenus, et la Fig.~\ref{fig:macrocoevol:parameters} l'évolution dans le temps des valeurs des paramètres pour les solution optimales.
+Nous procédons à une calibration non-stationnaire, sur les objectifs $(\varepsilon_P,\varepsilon_D)$, c'est à dire l'erreur carrée sur les population et celle sur les distances. L'estimation est faite par fenêtre mobile sur les périodes déjà utilisées en~\ref{sec:interactiongibrat}. Pour limiter la dimension à explorer, nous fixons $w_N = 0$ pour n'étudier les interactions qu'au premier ordre, sachant que les paramètres de réseau abstrait $(g_{max},\gamma_S,\varphi_0)$ sont pris en compte dans la calibration. La calibration est effectuée par algorithme génétique de façon similaire La Fig.~\ref{fig:macrocoevol:pareto} montre les fronts de Pareto obtenus, et la Fig.~\ref{fig:macrocoevol:parameters} l'évolution dans le temps des valeurs des paramètres pour les solution optimales.
 
 
 On note la faible consistence des fronts de Pareto de manière générale, en comparaison avec ceux obtenus pour la population seule précédemment, ce qui suggère la difficulté d'optimiser conjointement trajectoire des populations et trajectoire des distances. Certaines périodes, comme 1851-1872 puis toutes celles après 1946, présentent un point optimal simultané pour les deux objectifs, ce qui pourrait aussi témoigner d'une mauvaise convergence de l'algorithme. Dans tous les cas, la très faible significativité des corrélations empiriques observées précédemment pouvait laisser présager de ces mauvais ajustements.
@@ -355,7 +366,7 @@ Nous esquissons à présent les contours d'une spécification du modèle avec r�
 
 similaire à \cite{li2014modeling}
 
-Le réseau physique que nous implémentons cherche à satisfaire un critère gourmand\comment[FL]{?} de gain de temps local. Plus précisément, on suppose un auto-renforcement à la manière de~\cite{tero2010rules}. Une specification analogue à celle utilisée précédemment suppose une croissance pour chaque lien, donnée par :
+Le réseau physique que nous implémentons cherche à satisfaire un critère de gain de temps local. Plus précisément, on suppose un auto-renforcement à la manière de~\cite{tero2010rules}. Une specification analogue à celle utilisée précédemment suppose une croissance pour chaque lien, donnée par :
 
 \[
 d(t+1) = d(t)\cdot \left(1 + g_{max} \cdot \left[\frac{\phi}{\max \phi}\right]^{\gamma_s}\right)
@@ -367,7 +378,7 @@ la specification par seuil ne permettant pas une bonne convergence dans le temps
 
 \comment[FL]{repartition des pop pas differentes ?}
 
-Nous générons un réseau initial aléatoire, en perturbant la position des sommets d'une grille dont une proportion fixée de liens a été supprimée (40\%) et en y reliant les villes au plus court. Les liens ont tous même impédance, puis celle-ci évolue selon l'équation ci-dessus. Un exemple de configuration obtenue par cette spécification est donné en Fig.~\ref{fig:macrocoevolution:slimemould}. Les bonnes propriétés de convergence suggèrent les potentialités offertes par cette spécification\comment[AB]{visuelles uniquement ?}, dont l'exploration systématique est hors de notre portée ici.
+Nous générons un réseau initial aléatoire, en perturbant la position des sommets d'une grille dont une proportion fixée de liens a été supprimée (40\%) et en y reliant les villes au plus court. Les liens ont tous même impédance, puis celle-ci évolue selon l'équation ci-dessus. Un exemple de configuration obtenue par cette spécification est donné en Fig.~\ref{fig:macrocoevolution:slimemould}. Les bonnes propriétés de convergence (stabilisation visuelle de la structure du réseau lors d'expériences restreintes) suggèrent les potentialités offertes par cette spécification, dont l'exploration systématique est hors de notre portée ici.
 
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -375,7 +386,7 @@ Nous générons un réseau initial aléatoire, en perturbant la position des som
 	%\includegraphics[width=0.45\linewidth]{Figures/MacroCoEvol/example_slimemould_1_t0}
 	%\includegraphics[width=0.45\linewidth]{Figures/MacroCoEvol/example_slimemould_1_tf}
 	\includegraphics[width=\linewidth]{Figures/Final/6-2-3-fig-macrocoevol-slimemould}
-	\caption[][Example de réseau auto-renforçant]{}{\textbf{Example de configuration obtenue avec réseau auto-renforçant.} \textit{(Gauche)} Configuration initiale aléatoire, capacités égales ; \textit{(Droite)} Configuration finale obtenue après 100 itérations.\label{fig:macrocoevolution:slimemould}}
+	\caption[Example of self-reinforcing network][Example de réseau auto-renforçant]{\textbf{Example of configuration obtained with a self-reinforcing network.}\label{fig:macrocoevolution:slimemould}}{\textbf{Example de configuration obtenue avec réseau auto-renforçant.} \textit{(Gauche)} Configuration initiale aléatoire, capacités égales ; \textit{(Droite)} Configuration finale obtenue après 100 itérations.\label{fig:macrocoevolution:slimemould}}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%
 
@@ -417,7 +428,7 @@ L'étude de trajectoires particulières au sein du système de villes peut perme
 \bpar{
 Finally, a comparison between the urban systems in different geographical and political contexts and at different scales should unveil implications of planning on the interactions between networks and cities, for example by comparing the rather bottom-up growth of the French railway network to the top-down state-planned French highway and Chinese HSR networks.
 }{
-On s'attend finalement également à pouvoir par l'intermédiaire de ce modèle comparer des systèmes urbains dans des contextes géographiques et politiques différents, ainsi qu'à différentes échelles. Cela devrait permettre de révéler les implications des actions de planification sur les interactions entre réseaux et territoires. Par exemple, le réseau ferre français a émergé de manière relativement auto-organisée (de par les multiples opérateurs)\comment[FL]{c'est faux}[a reformuler - multi-acteurs (// HSR Chinois)], tandis que les autoroutes ont été fortement planifiées, à l'image du réseau ferré à grande vitesse Chinois, pour lequel un développement précis pourrait être envisagé.
+On s'attend finalement également à pouvoir par l'intermédiaire de ce modèle comparer des systèmes urbains dans des contextes géographiques et politiques différents, ainsi qu'à différentes échelles. Cela devrait permettre de révéler les implications des actions de planification sur les interactions entre réseaux et territoires. Par exemple, le réseau ferre français a émergé par l'intermédiaire de multiples opérateurs, au contraire du réseau ferré à grande vitesse Chinois, pour lequel un développement précis pourrait être envisagé.
 }
 
 

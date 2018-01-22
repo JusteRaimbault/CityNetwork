@@ -33,17 +33,23 @@
 \begin{figure}
 %\includegraphics[width=\linewidth]{Figures/StaticCorrelations/CN_indics_morpho}
 \includegraphics[width=\linewidth]{Figures/Final/A-staticcorrelations-morphocn.jpg}
-\appcaption{}{\textbf{Indicateurs morphologiques pour la Chine.}}
-\label{fig:app:staticcorrelations:morphocn}
+\appcaption{\textbf{Morphological indicators for China.}\label{fig:app:staticcorrelations:morphocn}}{\textbf{Indicateurs morphologiques pour la Chine.}\label{fig:app:staticcorrelations:morphocn}}
 \end{figure}
 %%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Network measures}{Mesures de réseau}
+
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Network Simplification Algorithm}{Algorithme de Simplification du Réseau}
+\subsubsection{Network Simplification Algorithm}{Algorithme de Simplification du Réseau}
 
 % data collected from http://download.geofabrik.de/europe.html : bosse pas sur le fichier world, huge.
+
+
+Le réseau est d'abord agrégé à une granularité de 100m pour pouvoir être utilisé de manière cohérente avec les grilles de population. Cela permet par ailleurs d'être robuste aux imperfections locales de codage ou données très locales manquantes. Les données OSM sont importées dans une base de données \texttt{pgsql} en utilisant le logiciel \texttt{osmosis}~\cite{osmosis}.
 
  
  
@@ -75,7 +81,7 @@ Sensitivity of indicators to raster resolution and to degree simplification algo
 
 
 
-\subsection{Network Indicators}{Indicateurs de réseau}
+\subsubsection{Network Indicators}{Indicateurs de réseau}
 
 
 %%%%%%%%%%%%%%
@@ -330,14 +336,14 @@ La Fig.~\ref{fig:app:staticcorrelations:europe_correlations} donne la distributi
 
 
 
-
+La Fig.~\ref{fig:app:staticcorrelations:corr-distribs} donne les distributions statistiques des correlations estimées, pour différentes valeurs de $\delta$.
 
 
 %%%%%%%%%%%%%%
 \begin{figure}
 %\includegraphics[width=0.48\linewidth]{Figures/StaticCorrelations/corrs-distrib_varyingdelta_bytype}
 %\includegraphics[width=0.48\linewidth]{Figures/StaticCorrelations/scatter_meanabs_colcross}
-\includegraphics[width=\linewidth]{Figures/Final/A-staticcorrelations-corr-distribs.jpg}
+\includegraphics[width=\linewidth,height=0.9\textheight]{Figures/Final/A-staticcorrelations-corr-distribs.jpg}
 \appcaption{}{\textbf{Distribution des corrélations.} \textit{(Haut Gauche)} Distribution statistique des corrélations, pour les différents blocs morphologiques, réseau et corrélations croisées (couleur), pour différentes valeurs de $\delta$ (type de ligne) ; \textit{(Bas Droite)} Correlation absolues moyennes pour le réseau en fonction de la morphologie, niveau de couleur donnant la corrélation croisée, pour différentes valeur de $\delta$.\label{fig:app:staticcorrelations:corr-distribs}}
 \end{figure}
 %%%%%%%%%%%%%%
@@ -361,8 +367,49 @@ La Fig.~\ref{fig:app:staticcorrelations:europe_correlations} donne la distributi
 \subsection{Multi-scale}{Multi-scalarité}
 
 
+\subsubsection{Estimation of correlations for a multi-scalar process}{Estimation des corrélations pour un processus multi-scalaire}
 
-\paragraph{Confidence interval for correlation}{Intervalle de confiance pour la corrélation}
+Nous proposons ici de relier le caractère multi-scalaire d'un processus stochastique spatio-temporel avec l'estimation de sa matrice de correlation. Pour simplifier et dans le cadre où ce résultat est utilisé en texte principal, nous considérons des corrélations statiques estimées dans l'espace. Pour simplifier également, considérons des processus ayant deux échelles caractéristiques se superposant linéairement, c'est à dire s'écrivant sous la forme
+\[
+X_i = X_i^{(0)} + \tilde{X}_i
+\]
+avec $X_i^{(0)}$ tendance aux petites échelles ayant une distance caractéristique d'évolution $d_0$, et $\tilde{X}_i$ signal évoluant à une distance caractéristique $d \ll d_0$.
+
+Nous pouvons alors calculer la décomposition de la corrélation entre deux processus, de manière similaire à ce qui est fait en~\ref{app:sec:syntheticdata-finance}. En supposant que $\Covb{X_i^{(0)}}{\tilde{X}_j}$ pour tous $i,j$, et en notant $\varepsilon_i = \frac{\sigma\left[X_i^{(0)}\right]}{\sigma\left[\tilde{X}_i\right]}$ le rapport des écarts type entre tendance et signal, il y a
+\[
+\begin{split}
+	\rho\left[X_1,X_2\right] & = \rho\left[X_1^{(0)} + \tilde{X}_1,X_2^{(0)} + \tilde{X}_2\right]\\
+	& = \frac{\Covb{\tilde{X}_1}{\tilde{X}_2} + \Covb{X_1^{(0)}}{X_2^{(0)}}}{\sqrt{\left(\Varb{X_1^{(0)}} + \Varb{\tilde{X}_1}\right)\left(\Varb{X_2^{(0)}} + \Varb{\tilde{X}_2}\right)}}\\
+	& = \frac{\varepsilon_1 \varepsilon_2\rho\left[X_1^{(0)},X_2^{(0)}\right] + \rho\left[\tilde{X}_1,\tilde{X}_2\right]}{\sqrt{\left(1 + \varepsilon_1^2\right)\left(1 + \varepsilon_2^2\right)}}
+\end{split}
+\]
+
+En supposant $\varepsilon_i \ll 1$, on peut développer cette expression au premier ordre et obtenir
+
+\begin{equation}
+	\rho\left[X_1,X_2\right] = \left( \varepsilon_1 \varepsilon_2\rho\left[X_1^{(0)},X_2^{(0)}\right] + \rho\left[\tilde{X}_1,\tilde{X}_2\right]\right)\cdot\left(1 - \frac{1}{2}(\varepsilon_1^2 + \varepsilon_2^2)\right)
+\end{equation}
+
+L'ajout de la tendance au signal introduit ainsi une correction sur la corrélation, d'une part par la prise en compte directe de la corrélation entre tendance atténuée, et d'autre part par le terme d'interférence en facteur.
+
+Pour appliquer ce résultat à notre problématique, supposons que $d \simeq l_0$,$l_0$ étant la distance minimale d'estimation des corrélations. On a par ailleurs l'échelle de stationnarité $d_s$ qui correspond à l'échelle de variation des corrélations, et selon les résultats empiriques vérifie $d_s > l_0$, significativement au moins pour certains indicateurs (par exemple hiérarchie et Moran, pour laquelle elle est de l'ordre du pays). Enfin, notons $\delta_0 = d_0/d$ l'échelle de la tendance en termes de $\delta$. On suppose donc
+
+\[
+d < d_s < d
+\]
+
+Pour les valeurs de $\delta$ telles que $\delta \cdot d < d_s$, on devrait avoir $\hat{\Cov}_{\delta}\left[\tilde{X}_1,\tilde{X}_2\right] \simeq \hat{\Cov}_{\delta = 1}\left[\tilde{X}_1,\tilde{X}_2\right]$ si $\hat{\Cov}_{\delta}$ est l'estimateur sur la zone de taille $\delta$.
+
+Par ailleurs, on peut supposer raisonnablement que $\hat{\Var}_{\delta = 1}\left[X_i^{(0)}\right] \ll \hat{\Var}_{\delta = d_s / d}\left[X_i^{(0)}\right]$, c'est à dire que la tendance est constante à la plus petite échelle en comparaison des variations aux échelles intermédiaires.
+
+Sous ces hypothèses, l'estimateur de $\rho$ devrait varier en fonction de $\delta$ selon les variations de $\varepsilon_i$ en fonction de $\delta$. En supposant enfin les tendances très peu corrélées (effets structurels indépendants), on conserve la correction d'interférence dans l'expression de $\rho$, et donc que $\rho(\delta)$ décroit pour des faibles valeurs de $\delta$.
+
+
+Nous avons ainsi démontré qu'une structure simple multi-scalaire du processus implique une variation de la corrélation estimée en fonction de $\delta$, sous un certain nombre d'hypothèse. La réciproque n'a a priori pas de raison d'être vraie. Le lien que nous opérons ici est ainsi une illustration pour renforcer une hypothèse, qui est par ailleurs également soutenue par les résultats sur la variation de l'intervalle de confiance décrits par la suite.
+
+
+
+\subsubsection{Confidence interval for correlation}{Intervalle de confiance pour la corrélation}
 
 Nous dérivons ici le comportement de l'estimateur de corrélation en fonction de la taille de l'échantillon. Sous l'hypothèse de distribution normale de deux variables aléatoire $X,Y$, alors la transformée de Fisher de l'estimateur de Pearson $\hat{\rho}$ telle que $\hat{\rho} = \tanh (\hat{z})$ a une distribution normale. Si $z$ est la transformée de la corrélation réelle $\rho$, alors un intervalle de confiance pour $\rho$ est de taille
 
@@ -380,6 +427,68 @@ où $k$ est une constante. Comme $\tanh{z} = \frac{\exp (2z) - 1}{\exp (2z) + 1}
 \]
 
 En utilisant le fait que $\cosh u \sim_0 1 + u^2/2$ et que $\sinh u \sim_0 u$, on obtient bien que $\rho_{+} - \rho_{-} \sim_{N\gg 0} k' / \sqrt{N}$.\qed
+
+
+
+
+
+%%%%%%%
+%% -- ON HOLD --
+% ergod spatio-temporelle
+
+
+%\bpar{
+%Analytical Deductions
+%1. \textbf{Regimes of temporal correlations.} Let assume local ergodicity in $\vec{x}_0$ at scale $\delta \cdot l_0$ (reasonable with urban growth and network extension in recent times). The Ergodic theorem implies that $\exists \mathcal{T}$ such that
+%
+%\[<Y_i (t) >_{\norm{\vec{x}-\vec{x}_0} < \delta\cdot l_0} = <Y_i (\vec{x}_0)>_{t\in \mathcal{T}}\] 
+%
+%With spatial stationarity, $<Y_i>_{\vec{x}_0}=<Y_i>_{\vec{x}_1}$, thus $\mathcal{T}$ must be constant to be invariant by translation. By contraposition and (2), processes have different dynamical characteristics.
+%% if translate in a given direction, looses a small part, must be compensated by the area translated by delta (overlap), thus must be constant.
+%}{
+%Nous suggérons que la non-stationnarité spatiale est reliée d'une part à différentes échelles de temps impliquées, et d'autre part à une non-ergodicité globale\comment[FL]{le lecteur ne te suit plus : c'est trop rapide}, sous l'hypothèse de stationnarité et d'ergodicité locale.
+%
+% Supposons ergodicité locale en $\vec{x}_0$ à l'échelle $\delta \cdot l_0$ à laquelle nous estimons les corrélations. Alors le théorème ergodique fournit un échantillonnage temporel $\mathcal{T}$ tel que 
+%\[
+%<Y_i (t) >_{\norm{\vec{x}-\vec{x}_0} < \delta\cdot l_0} = <Y_i (\vec{x}_0)>_{t\in \mathcal{T}}
+%\]
+%\comment[FL]{c'est du raisonnement de matheux, ca n'est pas comprehensible dans ce contexte}
+%En se plaçant en un autre point $\vec{x}_1$ assez loin\comment[FL]{?}, la stationnarité spatiale devrait impliquer $<Y_i>_{\vec{x}_0}=<Y_i>_{\vec{x}_1}$ et $\mathcal{T}$ sera similaire pour garder invariance par translation. Par contraposition comme on a montré la non-stationnarité, les processus ont ainsi nécessairement des caractéristiques dynamiques différentes.
+%
+%}
+
+
+
+%%%%%%%%%%%%%%
+%\begin{figure}
+%\begin{mdframed}
+%	Montrons que la non-stationnarité spatiale implique des caractéristiques dynamiques différentes, au sens que $\frac{\partial Y}{\partial t}(x_0,t) \neq \frac{\partial Y}{\partial t}(x_1,t)$ pour tous $t$ et $x_0,x_1$ tels que $\norm{x_0 - x_1} \gg \delta $.
+%
+%	\medskip
+%\noun{Encadré : } \textit{Non-stationnarité spatiale et non-ergodicité}
+%\end{mdframed}
+%\end{figure}
+%%%%%%%%%%%%%%
+
+%\bpar{
+%2. \textbf{Global non-ergodicity.} Let $X_k$ a partition of space into local areas. We have $<\cdot>_x = \sum_k w_k <\cdot>_{x_k} =_{(1)} \sum_k w_k <\cdot>_{\mathcal{T}_k} $. On the other hand, global ergodicity would give $<\cdot>_t = <\cdot>_{\mathcal{T}} = \sum_k w_k <\cdot>_{\mathcal{T}}$ and $\sum_k w_k \left(<\cdot>_{\mathcal{T}} - <\cdot>_{\mathcal{T}_k}\right) = 0$. Being true on each subset implies $\mathcal{T}=\mathcal{T}_k$, what contradicts (1).
+%}{
+%Concernant la non-ergodicité globale, soit $X_k$ une partition de l'espace en zones locales. On a  $<\cdot>_x = \sum_k w_k <\cdot>_{x_k} = \sum_k w_k <\cdot>_{\mathcal{T}_k} $. Mais d'autre part, l'ergodicité globale impliquerait que  $<\cdot>_t = <\cdot>_{\mathcal{T}} = \sum_k w_k <\cdot>_{\mathcal{T}}$ et donc $\sum_k w_k \left(<\cdot>_{\mathcal{T}} - <\cdot>_{\mathcal{T}_k}\right) = 0$.\comment[FL]{notations non comprehensibles} Pour que cette relation soit vraie sur la totalité des sous-ensembles, il est nécessaire que $\mathcal{T}=\mathcal{T}_k$, ce qui contredit la propriété montrée précédemment, et le système global est nécessairement non-ergodique. Ces résultats dépendent des hypothèses théoriques, mais nous postulons qu'ils devraient rester vrais de manière empirique vu les suggestions\comment[FL]{???} de la Théorie Evolutive. \comment[FL]{je ne suis pas certain que ton raisonnement soit entierement valide. il faut en discuter car ta demonstration ecrite n'est pas assez claire pour que je puisse en juger.}
+%}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -527,11 +636,77 @@ En utilisant le fait que $\cosh u \sim_0 1 + u^2/2$ et que $\sinh u \sim_0 u$, o
 
 % autocorrelation structure : http://www.jstor.org/stable/pdf/2984853.pdf
 
+Calculons ici les valeurs théoriques des corrélations retardées pour un processus auto-régressif simple. Nous rappelons le cadre, à savoir $\vec{X}(t)$ qui est un processus stochastique suivant l'équation d'auto-régression
+\[
+\vec{X}(t) = \sum_{\tau > 0} \mathbf{A}(\tau) \cdot \vec{X}(t - \tau ) + \vec{\varepsilon}(t)
+\]
+et nous nous plaçons dans le cas où $\mathbf{A}(\tau) = 0$ pour $\tau \neq \tau_0$ et 
+\[
+\mathbf{A}(\tau_0) = \left( {\begin{array}{cc} 0 & a \\ a & 0 \\ \end{array}} \right)\]
+avec $-1<a<1$. Nous supposons de plus $\vec{\varepsilon}$ bruit blanc et notons $\vec{\varepsilon} = (\varepsilon_X,\varepsilon_Y)$ et supposons $\Varb{\varepsilon_X} = \Varb{\varepsilon_Y} = \sigma^2$.
+
+En notant $\vec{X} = (X,Y)$, le processus est spécifié par
+\[
+\begin{cases}
+	X(t) = a\cdot Y(t-\tau_0) + \varepsilon_X \\
+	y(t) = a\cdot X(t-\tau_0) + \varepsilon_Y
+\end{cases}
+\]
+
+
+En prenant la variance dans les deux équations et en faisant la différence, on obtient que nécessairement $\Varb{X} = \Varb{Y}$ car $\alpha^2 \neq 1$. La somme donne alors $\Varb{X} = \Varb{Y} = \frac{\sigma^2}{1 - a^2}$.
+
+Nous calculons alors 
+
+\[
+\begin{split}
+	\rhob{X(t)}{Y(t-\tau_0)} & = \rhob{aY(t-\tau_0)+\varepsilon_X}{Y(t-\tau_0)}\\
+	& = \frac{\Covb{aY(t-\tau_0)+\varepsilon_X}{Y(t-\tau_0)}}{\sqrt{(a^2\Varb{Y} + \sigma^2)\Varb{Y}}} \\
+	& = \frac{a\Varb{Y}}{\left|a\right|\Varb{Y}\sqrt{1 + \frac{\sigma^2}{a^2\Varb{Y}}}} = \frac{a}{\left|a\right|\sqrt{1 + \frac{1 - a^2}{a^2}}}\\
+	& = a
+\end{split}
+\]
+
+Il est en fait possible de calculer la corrélation retardée pour $\tau$ quelconque. Par stationnarité du processus, on a pour $\tau > 0$, $\rhob{X(t)}{Y(t-\tau)} = \rhob{X(\tau)}{Y(0)}$.
+
+De la même manière que précédemment, nous développons pour $\tau > 0$
+
+\[
+\begin{split}
+	\rhob{X(\tau)}{Y(0)} & = \rhob{aY(\tau - \tau_0) + \varepsilon_X}{Y(0)}\\
+	 & = \rhob{a^2 X(\tau - 2\tau_0) + a \varepsilon_Y + \varepsilon_X}{Y(0)}\\
+	 & = \frac{a^2\Covb{X(\tau - 2\tau_0)}{Y(0)}}{\sqrt{(a^4\Varb{X} + (1+a^2)\sigma^2)\Varb{Y}}}\\
+	 & = \frac{\rhob{X(\tau-2\tau_0)}{Y(0)}}{\sqrt{1 + (1+a^2)(1-a^2)/a^4}}
+	 & = a^2\cdot \rhob{X(\tau-2\tau_0)}{Y(0)}
+\end{split}
+\]
+
+et donc par récurrence, pour $k\in \mathbb{N}$, 
+
+\[
+\rhob{X(\tau)}{Y(0)} = a^{2k}\cdot \rhob{X(\tau-2k\tau_0)}{Y(0)}
+\]
+
+Si $\tau \notin (2 \mathbb{N} + 1) \tau_0$, on descend à $\rhob{X(\tau')}{Y(0)}$ tel que $\tau' < \tau_0$ et la corrélation est donc nulle.
+
+Si $\tau \in (2 \mathbb{N} + 1) \tau_0$, on a alors
+
+\[
+\rhob{X((2k+1)\tau_0)}{Y(0)} = a^{2k+1}
+\]
+
+Pour $\tau < 0 $, le calcul est similaire en échangeant les variables.
+
+
+Ce modèle simple auto-régressif permet ainsi de contrôler simplement les corrélations retardées à des ordres donnés.
+
 
 
 
 \subsubsection{Urban Morphogenesis}{Morphogenèse Urbaine}
 
+
+La Fig.\ref{fig:app:causalityregimes:clustering} donne, pour l'analyse non-supervisée menée sur les caractéristiques issues des corrélations retardées, le comportement des résultats du clustering en fonction du nombre de cluster $k$, qui permet de lire une transition en fonction de $k$. Nous donnons aussi que la répartition des clusters dans un plan principal pour $k=6$.
 
 %%%%%%%%%%%%%%
 \begin{figure}
@@ -539,7 +714,7 @@ En utilisant le fait que $\cosh u \sim_0 1 + u^2/2$ et que $\sinh u \sim_0 u$, o
 %\includegraphics[width=0.49\linewidth]{Figures/CausalityRegimes/dccoef-knum_valuesFALSEtheta05-3.pdf}\\
 %\includegraphics[width=0.4\linewidth]{Figures/CausalityRegimes/clusters-PCA-features_valuesFALSEtheta2_k6}
 \includegraphics[width=\linewidth]{Figures/Final/A-causalityregimes-clustering.jpg}
-\appcaption{\textbf{Identification de régimes d'interactions endogènes par classification non-supervisée} \textbf{(Haut Gauche)} Variance inter-cluster comme fonction du nombre de clusters. \textbf{(Haut Droite)} Dérivée de la variance inter-cluster. \textbf{(Bas)} \emph{Features} dans un plan principal (81\% de variance expliquée par les deux premières composantes)\label{fig:app:causalityregimes:clustering}}{\label{fig:app:causalityregimes:clustering}}
+\appcaption{\label{fig:app:causalityregimes:clustering}}{\textbf{Identification de régimes d'interactions endogènes par classification non-supervisée.} \textbf{(Haut Gauche)} Variance inter-cluster comme fonction du nombre de clusters. \textbf{(Haut Droite)} Dérivée de la variance inter-cluster. \textbf{(Bas)} \emph{Features} dans un plan principal (81\% de variance expliquée par les deux premières composantes).\label{fig:app:causalityregimes:clustering}}
 \end{figure}
 %%%%%%%%%%%%%%
 
@@ -547,6 +722,8 @@ En utilisant le fait que $\cosh u \sim_0 1 + u^2/2$ et que $\sinh u \sim_0 u$, o
 
 \subsection{South Africa}{Afrique du Sud}
 
+
+La Fig.~\ref{fig:app:causalityregimes:sudafcorrs} donne le comportement des corrélations estimées, en termes de corrélation absolue moyenne, et de proportion de corrélations significatives, en fonction de $d_0$ et de $T_W$. Elle donne également les profils de corrélations retardées pour les accessibilité pondérées, à l'origine et à la destination.
 
 
 %%%%%%%%%%%%%%

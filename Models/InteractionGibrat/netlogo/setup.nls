@@ -1,0 +1,126 @@
+
+;;
+;  setup
+
+
+to setup
+  
+  ca
+  
+  ;;
+  ; global vars
+  setup-globals
+  
+  ;;
+  ; world config
+  setup-world
+  
+  ;;
+  ; load data files
+  setup-data
+  
+  ; TODO : check fit dates - pb with cst growth rates and ≠ ∆t
+  
+  ;;
+  ; cities
+  setup-cities
+  
+  
+  reset-ticks
+  
+  setup-display
+  
+  
+  
+  
+end
+
+
+;;
+;  partial setup
+to reset
+  setup-globals
+  setup-data
+  reset-ticks
+  clear-all-plots
+  update-display
+end
+
+
+
+to setup-globals
+  set alpha0 3 set n0 3
+end
+
+
+to setup-world
+  
+  ;;
+  ; raster patch elevation (for visual only)
+  let elevation-raster gis:load-dataset "setup/mnt.asc"
+  ; world envelope : xmin 1000 xmax 11000 ymin 61250 ymax 71200
+  ;gis:set-world-envelope gis:envelope-of elevation-raster
+  gis:set-world-envelope (list 100000 1100000 6125000 7120000)
+  gis:apply-raster elevation-raster elevation
+  ; deal with NaNs
+  ask patches with [not (elevation < 0 or elevation > 0)] [set elevation -1]
+  
+  ;;
+  ; setup geographical path network
+  ask patches with [elevation > 0] [sprout-nodes 1 [set hidden? true]]
+  ask nodes [create-paths-with other nodes in-radius 1.5 with [not link-neighbor? myself] [
+      set hidden? true
+      let slope atan (abs ([elevation] of end1 - [elevation] of end2)) (link-length * 1000)
+      set impedance link-length * (1 + (slope / alpha0)^ n0)
+    ]
+  ]
+  
+end
+
+
+;;
+; load data from files
+to setup-data
+  ;; population matrices
+  set real-populations read-numeric-csv-as-matrix (word "setup/pops/pop50_" period".csv") ","
+  set populations matrix:make-constant length matrix:get-column real-populations 0 length matrix:get-row real-populations 0 0
+  matrix:set-column populations 0 matrix:get-column real-populations 0
+  
+  ;; distances
+  set distance-matrix read-numeric-csv-as-matrix "setup/dist50.csv" ","
+  set feedback-distance-matrix read-numeric-csv-as-matrix "setup/fdists50.csv" ","
+  
+  ;; weights
+  set gravity-weights matrix:map [exp (- ? / gravity-decay)] distance-matrix
+  set feedback-weights matrix:map [exp (- ? / feedback-decay)] feedback-distance-matrix
+  
+  ;; dates
+  set dates map [read-from-string ?] (read-file (word "setup/dates/dates_" period ".csv"))
+  
+  
+end
+
+
+to setup-cities
+  
+  let coords read-csv "setup/coords.csv" ","
+  let i 0
+  foreach coords [
+    let cname first ? let x read-from-string item 1 ? let y read-from-string last ?
+    create-cities 1 [set name cname set-coords-l93 x y set index i set population matrix:get real-populations i 0 new-city]
+    set i i + 1 
+  ]
+  
+end
+
+
+
+to setup-display
+  color-patches
+  display-plots
+end
+
+
+
+
+

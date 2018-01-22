@@ -145,12 +145,15 @@ then
   # fig:staticcorrelations:empirical
   FIGNAME=4-1-1-fig-staticcorrelations-empirical
   echo $FIGNAME
-  convert Figures/Density/Fig1.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  montage Figures/StaticCorrelations/cluster_pca_k5_morpho.png Figures/StaticCorrelations/cluster_map_k5_morpho.png -resize "$WIDTH"x -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME"_tmp.jpg
+  montage Figures/StaticCorrelations/indics_morpho_areasize100_offset50_factor0.5.png $FIGDIR/"$FIGNAME"_tmp.jpg -resize "$WIDTH"x -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  rm $FIGDIR/"$FIGNAME"_tmp.jpg
+  #convert Figures/Density/Fig1.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # fig:staticcorrs:network
   FIGNAME=4-1-2-fig-staticcorrs-network
   echo $FIGNAME
-  convert Figures/StaticCorrelations/FR_indics_network_selected_2_discrquantiles.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  convert Figures/StaticCorrelations/indics_network_areasize100_offset50_factor0.5.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # fig:staticcorrs:mapscorrs
   FIGNAME=4-1-3-fig-staticcorrs-mapscorrs
@@ -311,9 +314,9 @@ convert Figures/Density/Fig6.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/
 # fig:correlatedsyntheticdata:densnwcor
 FIGNAME=5-3-2-fig-correlatedsyntheticdata-densnwcor
 echo $FIGNAME
-convert -density $PDFRESOLUTION Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.jpg
-convert Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.png -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.jpg
-montage Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.jpg Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.jpg -tile 2x1 -geometry +0+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+convert -density $PDFRESOLUTION Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.jpg
+convert Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.png -resize "$WIDTH"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.jpg
+montage Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.jpg Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.jpg -tile 1x2 -geometry +"$VERTICALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 #montage $FIGDIR/"$FIGNAME"_tmp1.jpg $FIGDIR/"$FIGNAME"_tmp2.jpg -tile 1x2 -geometry +"$VERTICALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 rm Figures/CorrelatedSyntheticData/pca_realDistCol_meanAbsCorSize_withSpecificPoints.jpg Figures/CorrelatedSyntheticData/hist_crossCorMat_breaks30.jpg
 
@@ -391,10 +394,8 @@ then
   # fig:macrocoevol:correlations
   FIGNAME=6-2-2-fig-macrocoevol-correlations
   echo $FIGNAME
-  convert -density $PDFRESOLUTION Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.jpg
-  convert -density $PDFRESOLUTION Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.jpg
-  montage Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.jpg Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.jpg Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.jpg
+  convert Figures/MacroCoEvol/laggedregimes_nwGmax0_05.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
 
   # fig:macrocoevol:empirical
   FIGNAME=6-2-3-fig-macrocoevol-empirical
@@ -453,7 +454,7 @@ then
   # fig:networkgrowth:examples
   FIGNAME=7-1-2-fig-networkgrowth-examples
   echo $FIGNAME
-  montage Figures/NetworkGrowth/example_nw-connection.png Figures/NetworkGrowth/example_nw-random.png Figures/NetworkGrowth/example_nw-rndbrkdwn.png Figures/NetworkGrowth/example_nw-gravity.png Figures/NetworkGrowth/example_nw-cost.png Figures/NetworkGrowth/example_nw-bio.png -tile 3x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -border 2 -bordercolor Black $FIGDIR/"$FIGNAME"_tmp.png
+  montage Figures/NetworkGrowth/example_comp_nwSize200_connex.png Figures/NetworkGrowth/example_comp_nwSize200_random.png Figures/NetworkGrowth/example_comp_nwSize200_rndbrkdwn.png Figures/NetworkGrowth/example_comp_nwSize200_detbrkdwn.png Figures/NetworkGrowth/example_comp_nwSize200_cost.png Figures/NetworkGrowth/example_comp_nwSize200_bio.png -tile 3x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -border 2 -bordercolor Black $FIGDIR/"$FIGNAME"_tmp.png
   convert $FIGDIR/"$FIGNAME"_tmp.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm $FIGDIR/"$FIGNAME"_tmp.png
 
@@ -479,13 +480,15 @@ then
   # fig:mesocoevolmodel:calibration
   FIGNAME=7-2-2-fig-mesocoevolmodel-calibration
   echo $FIGNAME
-  montage Figures/MesoCoEvol/pca_allobjs.png Figures/MesoCoEvol/corrs-distrib_rhoasize4.png Figures/MesoCoEvol/pca_morpho_byheuristic.png Figures/MesoCoEvol/pca_network_byheuristic.png -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$((WIDTH / 2))"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  montage Figures/MesoCoEvol/pca_morpho_byheuristic.png Figures/MesoCoEvol/pca_network_byheuristic.png Figures/MesoCoEvol/pca_allobjs.png Figures/MesoCoEvol/distance-corrs-distrib_rhoasize4.png -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$((WIDTH / 2))"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #montage Figures/MesoCoEvol/pca_morpho_byheuristic.png Figures/MesoCoEvol/pca_network_byheuristic.png Figures/MesoCoEvol/pca_allobjs.png Figures/MesoCoEvol/distance-all-distrib_rhoasize4.png Figures/MesoCoEvol/distance-indics-distrib_rhoasize4.png Figures/MesoCoEvol/distance-corrs-distrib_rhoasize4.png -tile 2x3 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$((WIDTH / 2))"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
 
   # fig:mesocoevolmodel:causality
   FIGNAME=7-2-2-fig-mesocoevolmodel-causality
   echo $FIGNAME
   convert Figures/MesoCoEvol/centertrajs.png -resize "$((3 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/centertrajs.jpg
-  convert Figures/MesoCoEvol/cluster-params.png -resize "$((2 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/cluster-params.jpg
+  convert Figures/MesoCoEvol/cluster-params-gridRoadPop.png -resize "$((2 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/cluster-params.jpg
   montage Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
   rm Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg
 
@@ -823,6 +826,14 @@ then
   montage Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05.jpg Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05.jpg Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.jpg
 
+  FIGNAME=A-macrocoevol-distcorrs
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  FIGNAME=A-macrocoevol-laggedcorrs
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
 
   # fig:app:macrocoevol:pareto
   FIGNAME=A-macrocoevol-pareto
@@ -838,6 +849,15 @@ then
   FIGNAME=A-networkgrowth-feasiblespace_bymorph
   echo $FIGNAME
   montage Figures/NetworkGrowth/feasible_space_pca_bymorph.png Figures/NetworkGrowth/feasible_space_withreal_pca_bymorph.png -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+  ############
+  ## Mesocoevol
+
+  # fig:app:mesocoevolmodel:paretodists
+  FIGNAME=A-mesocoevolmodel-paretodists
+  echo $FIGNAME
+  montage Figures/MesoCoEvol/dists_pareto_i1.png Figures/MesoCoEvol/dists_pareto_i10.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
   #############

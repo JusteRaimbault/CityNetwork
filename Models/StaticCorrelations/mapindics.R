@@ -8,8 +8,8 @@ source('mapFunctions.R')
 areasize=100;offset=50;factor=0.5
 countrycode="FR"
 # load data
-res = loadIndicatorData(paste0("res/europecoupled_areasize",areasize,"_offset",offset,"_factor",factor,"_temp.RData"))
-#res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe csv
+#res = loadIndicatorData(paste0("res/europecoupled_areasize",areasize,"_offset",offset,"_factor",factor,"_temp.RData"))
+res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe csv
 #res = loadIndicatorData('res/chinacoupled_areasize100_offset50_factor0.1_temp.RData') # China
 
 # load spatial mask to select area
@@ -27,16 +27,20 @@ sdata = res[selectedpoints,]
 #g+geom_raster()+scale_fill_brewer(palette = "Spectral")+theme_bw()
 
 #resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/CN/')
-resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'/')
+#resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'/')
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'_20160824/')
 dir.create(resdir)
 
 figsuff = paste0('areasize',areasize,'_offset',offset,'_factor',factor)
 
 # morpho
-map(indiccols = c(8,9,10,6),filename=paste0('indics_morpho_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
-    indicnames=c(expression("Indice de Moran (I)"),expression("Distance moyenne ("*bar(d)*")"),expression("Entropie ("*epsilon*")"),expression("Hierarchie ("*gamma*")"))) # FR
+#map(indiccols = c(8,9,10,6),filename=paste0('indics_morpho_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
+#    indicnames=c(expression("Indice de Moran (I)"),expression("Distance moyenne ("*bar(d)*")"),expression("Entropie ("*epsilon*")"),expression("Hierarchie ("*gamma*")"))) # FR
 #map(c(3,4,5,6),'indics_morpho.png',20,20,c(2,2)) # UK
 #map(c(8,9,10,6),'indics_morpho.png',40,22,c(2,2)) # CN
+map(indiccols = c(3,4,5,6),filename=paste0('indics_morpho_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
+    indicnames=c(expression("Indice de Moran (I)"),expression("Distance moyenne ("*bar(d)*")"),expression("Entropie ("*epsilon*")"),expression("Hierarchie ("*gamma*")"))) # FR
+
 
 # all morpho
 map(c(8,9,10,6,7,3),filename=paste0('indics_morpho_all_',figsuff,'.png'),32,18,c(2,3),mar=c(2.5,2.5,1.5,6),sdata=sdata) # FR
@@ -54,12 +58,17 @@ map(c(11:31),filename = paste0('indics_network_all_',figsuff,'.png'),60,30,c(3,7
 # selected network
 #map(c(10,15,19,20),'indics_network_selected.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
 #map(c(10,13,19,20),'indics_network_selected_2.png',22,18,c(2,2),mar=c(2.5,2,1.5,7.5))
-map(c(21,26,19,11),filename=paste0('indics_network_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
+#map(c(21,26,19,11),filename=paste0('indics_network_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
+#    indicnames = c(expression("Betweenness moyenne ("*bar(bw)*")"),expression("Hierarchie de la proximite ("*alpha[cl]*")"),
+#                   expression("Clustering moyen ("*bar(c)*")"),expression("Nombre de noeuds (|V|)")
+#                   )
+#    )
+
+map(c(10,13,19,20),filename=paste0('indics_network_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
     indicnames = c(expression("Betweenness moyenne ("*bar(bw)*")"),expression("Hierarchie de la proximite ("*alpha[cl]*")"),
                    expression("Clustering moyen ("*bar(c)*")"),expression("Nombre de noeuds (|V|)")
-                   )
     )
-
+)
 
 
 
@@ -196,8 +205,33 @@ gwr = gwr.basic("meanBetweenness~slope+moran",data=points,bw=bw)
 
 
 
+################
+## Stationarity tests
 
+library(tseries)
 
+x = sdata$moran[sdata$lonmin==median(sdata$lonmin)]
+plot(1:length(x),x,type='l')
+
+adf.test(rnorm(10000))
+plot(diffinv(rnorm(10000)))
+adf.test(diffinv(rnorm(10000)))
+kpss.test(diffinv(rnorm(10000)))
+
+adf.test(x[!is.na(x)])
+kpss.test(x[!is.na(x)])
+
+plot(sdata$moran[!is.na(sdata$moran)],type='l')
+adf.test(sdata$moran[!is.na(sdata$moran)])
+# fails - but one dimensionnal projection, not valid in space !
+
+# ks test
+x = sdata$rankSizeAlpha[sdata$lonmin>median(sdata$lonmin)&!is.na(sdata$rankSizeAlpha)]
+y = sdata$rankSizeAlpha[sdata$lonmin<=median(sdata$lonmin)&!is.na(sdata$rankSizeAlpha)]
+ks.test(x,y)$statistic
+1.63*sqrt((length(x)+length(y))/(length(x)*length(y))) # at 1%
+1.95*sqrt((length(x)+length(y))/(length(x)*length(y))) # at 0.1%
+ks.test(rnorm(10000),rnorm(10000))
 
 
 

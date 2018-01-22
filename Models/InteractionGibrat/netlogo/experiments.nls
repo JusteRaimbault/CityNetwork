@@ -1,0 +1,25 @@
+
+;;
+;  experiments
+
+
+;;
+;  do a profile along one parameter, all other being fixed
+to profile [parameter p-min p-max p-step]
+  let pvalues seq p-min p-max p-step
+  let res-logmse [] let res-mselog []
+  foreach pvalues [
+    show (word "profile : " parameter " = " ?)
+    run (word "set " parameter " " ?)
+    reset
+    go-full-period
+    set res-logmse lput log-mse res-logmse set res-mselog lput mse-log res-mselog
+  ]
+
+  ; plot the results
+  set-current-plot "profile-logmse" set-plot-x-range min pvalues max pvalues set-plot-y-range min res-logmse max res-logmse
+  let i 0 foreach res-logmse [plotxy item i pvalues ? set i i + 1]
+  set-current-plot "profile-mselog" set-plot-x-range min pvalues max pvalues set-plot-y-range min res-mselog max res-mselog
+  set i 0 foreach res-mselog [plotxy item i pvalues ? set i i + 1]
+end
+

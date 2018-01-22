@@ -57,8 +57,8 @@ for(t in (min(d$t)+5):max(d$t)){
 
 # plot the variables in time
 #deltad=deltad[deltad$density!=0&deltad$cdistance!=0,]
-#dd1=cbind(deltad[,c(1,5)],var=rep("∆density",nrow(deltad)));names(dd1)<-c("var","t","varname")
-#dd2=cbind(deltad[,c(2,5)],var=rep("∆dcenter",nrow(deltad)));names(dd2)<-c("var","t","varname")
+#dd1=cbind(deltad[,c(1,5)],var=rep("???density",nrow(deltad)));names(dd1)<-c("var","t","varname")
+#dd2=cbind(deltad[,c(2,5)],var=rep("???dcenter",nrow(deltad)));names(dd2)<-c("var","t","varname")
 
 #g=ggplot(rbind(dd1,dd2),aes(x=t,y=var,colour=varname))
 #g+geom_point(pch='+',cex=2)+stat_smooth(method = "loess",span=0.3)+ylim(-0.3,1.0)
@@ -145,9 +145,9 @@ g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)
 # test
 
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Simple/ModelCA/'))
-setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Statistics/Synthetic/rdb/20170210_gridexplo/'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/Synthetic/rdb/20170210_gridexplo/'))
 
-resdir = paste0(Sys.getenv('CN_HOME'),'/Results/Statistics/Synthetic/rdb/20170210_gridexplo/')
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/Synthetic/rdb/20170210_gridexplo/')
 
 #d=as.tbl(read.csv("res/exploration/2017_02_07_10_56_26_gridexplo.csv",sep=",",header = FALSE,stringsAsFactors = FALSE))
 d=as.tbl(read.csv("data/2017_02_10_18_41_22_gridexplo.csv",sep=",",header = FALSE,stringsAsFactors = FALSE))
@@ -197,8 +197,8 @@ g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_wrap(~pars,sca
 
 sdd=dd[dd$wdensity%in%c(0,1)&dd$wcenter%in%c(0,1)&dd$wroad%in%c(0,1),]
 pars = paste0(sdd$wdensity,"-",sdd$wcenter,"-",sdd$wroad)
-g=ggplot(data.frame(sdd,pars=pars),aes(x=tau,y=corr,colour=vars))
-g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_wrap(~pars,scales = "free",nrow = 2)+theme(legend.position = c(0.85, 0.15))+ylab("Lagged correlation")
+g=ggplot(data.frame(sdd,pars=pars),aes(x=-tau,y=corr,colour=vars))
+g+geom_point(size=0.2)+stat_smooth(method="loess",span=0.1)+facet_wrap(~pars,scales = "free",nrow = 2)+theme(legend.position = c(0.85, 0.15))+ylab(expression(rho[tau]))+xlab(expression(tau))+stdtheme
 ggsave(paste0(resdir,'laggedcorrs_facetextreme.png'),width=35,height=20,units = 'cm')
 
 
@@ -298,7 +298,7 @@ for(withValues in c(TRUE,FALSE)){
 # compute cluster center trajectories
 #  -> plot representative of regimes
 #theta=2.0
-#k=5
+#k=6
 
 withValues=FALSE
 for(k in c(5,6,7)){
@@ -313,8 +313,8 @@ clusters=as.character(km$cluster)
 features$cluster=clusters
 
 g=ggplot(features,aes(x=wdensity,y=wcenter,fill=cluster))
-g+geom_raster()+facet_wrap(~wroad)+theme(legend.position = c(0.85, 0.15))+guides(fill=guide_legend(ncol=2))
-ggsave(file=paste0(resdir,'clusters-paramfacet_values',withValues,'theta',theta,'_k',k,'.png'),width=15,height=10,units = 'cm')
+g+geom_raster()+facet_wrap(~wroad)+theme(legend.position = c(0.85, 0.15))+guides(fill=guide_legend(ncol=2))+stdtheme+xlab(expression(w[d]))+ylab(expression(w[c]))
+ggsave(file=paste0(resdir,'clusters-paramfacet_values',withValues,'theta',theta,'_k',k,'.png'),width=30,height=20,units = 'cm')
 
 ## plot features in a principal component plane
 fcoords = features[,4:(ncol(features)-1)]
@@ -334,17 +334,17 @@ for(k in 1:nrow(km$centers)){
   pvals = features[features$cluster==as.character(k),1:3]
   currentcorrs=data.frame()
   for(i in 1:nrow(pvals)){
-    currentcorrs=rbind(currentcorrs,meancorrs[meancorrs$wdensity==pvals$wdensity[i]&meancorrs$wcenter==pvals$wcenter[i]&meancorrs$wroad==pvals$wroad[i],])
+    currentcorrs=rbind(currentcorrs,data.frame(meancorrs[meancorrs$wdensity==pvals$wdensity[i]&meancorrs$wcenter==pvals$wcenter[i]&meancorrs$wroad==pvals$wroad[i],]))
   }
   sumcorrs=currentcorrs%>%group_by(vars,tau)%>%summarise(rho=mean(corr))
-  centertrajs = rbind(centertrajs,cbind(sumcorrs,cluster=as.character(k)))
+  centertrajs = rbind(centertrajs,data.frame(cbind(sumcorrs,cluster=rep(as.character(k),nrow(sumcorrs)))))
 }
 
-g=ggplot(centertrajs,aes(x=tau,y=rho,color=vars,group=vars))
-g+geom_point()+geom_line()+facet_wrap(~cluster)
+g=ggplot(centertrajs,aes(x=-tau,y=rho,color=vars,group=vars))
+g+geom_point()+geom_line()+facet_wrap(~cluster)+xlab(expression(tau))+ylab(expression(rho[tau]))+stdtheme
 ggsave(file=paste0(resdir,'clusters-centertrajs-facetclust_values',withValues,'theta',theta,'_k',k,'.png'),width=20,height=10,units = 'cm')
 
-g=ggplot(centertrajs,aes(x=tau,y=rho,color=cluster,group=cluster))
+g=ggplot(centertrajs,aes(x=-tau,y=rho,color=cluster,group=cluster))
 g+geom_point()+geom_line()+facet_wrap(~vars)
 ggsave(file=paste0(resdir,'clusters-centertrajs-facetvars_values',withValues,'theta',theta,'_k',k,'.png'),width=20,height=10,units = 'cm')
 
