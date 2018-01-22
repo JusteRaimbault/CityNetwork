@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import time,sys
-import relevant,utils,stats,dbmanagement#,kwExtraction
-
+import relevant,utils,stats,dbmanagement,kwExtraction
 
 def run():
     task = sys.argv[1]
 
     if task=='--keywords-extraction':
+        from treetagger import TreeTagger
         ## extract keywords
         if len(sys.argv) != 4 : raise(Exception('Usage : --keywords-extraction sourcefile.csv outfile.sqlite3'))
         source = sys.argv[2]
