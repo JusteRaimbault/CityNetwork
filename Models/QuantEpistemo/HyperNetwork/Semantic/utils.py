@@ -37,16 +37,19 @@ def corpus_from_csv(f,delimiter):
     currentLine = data.readline().replace('\n','')
     i=0
     while currentLine != '' :
+        #print(currentLine)
         t=str.split(currentLine,delimiter)
-        title=t[0].replace("\"","")
-        ident=t[1].replace("\"","")
-        year=t[2].replace("\"","")
-        abstract='';authors=''
-        if len(t)==5:
-            abstract=t[3].replace("\"","");authors=t[4].replace("\"","")
-        res.append({'title':title,'id':ident,'year':year,'abstract':abstract,'authors':authors})
+        #print(t)
+        if len(t)>2 :
+            title=t[0].replace("\"","")
+            ident=t[1].replace("\"","")
+            year=t[2].replace("\"","")
+            abstract='';authors=''
+            if len(t)==5:
+                abstract=t[3].replace("\"","");authors=t[4].replace("\"","")
+            res.append({'title':title,'id':ident,'year':year,'abstract':abstract,'authors':authors})
+            print(t[1])
         currentLine = data.readline().replace('\n','')
-        print(t[1])
         i=i+1
     return(res)
 
