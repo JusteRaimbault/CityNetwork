@@ -1157,6 +1157,25 @@ then
   echo $FIGNAME
   convert Figures/Reflexivity/citcore.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
+  # fig:app:reflexivity:time
+  FIGNAME=F-reflexivity-time
+  echo $FIGNAME
+  montage Figures/Reflexivity/weekly-macroproj.png Figures/Reflexivity/weekly-chapter.png Figures/Reflexivity/weekly-knowledgedomains.png -resize "$WIDTH"x -quality $JPGQUALITY -tile 1x3 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:reflexivity:projects
+  FIGNAME=F-reflexivity-projects
+  echo $FIGNAME
+  montage -resize "$(( WIDTH / 2))"x Figures/Reflexivity/graph-projects-cooccs.png -resize "$(( WIDTH / 2))"x Figures/Reflexivity/graph-projects-laggedflow.png -quality $JPGQUALITY -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:reflexivity:kd
+  FIGNAME=F-reflexivity-kd
+  echo $FIGNAME
+  montage -resize "$(( WIDTH / 2))"x Figures/Reflexivity/graph-kd-cooccs.png -resize "$(( WIDTH / 2))"x Figures/Reflexivity/graph-kd-laggedflow.png -quality $JPGQUALITY -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
+
+
+
+
+
 
 
 
