@@ -12,16 +12,16 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNet
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Reflexivity'))
 
-load('processed/citation.RData')
+#load('processed/citation.RData')
 
 mongobase='reflexivity';kwLimit=50000;eth_graph=10
 
 graphfile=paste0(mongobase,'_network_',kwLimit,'_eth',eth_graph,'_nonfiltdico')
 outputfile=paste0('sensitivity/',graphfile,'.RData')
-load(paste0('processed/',graphfile,'.RData'))
+load(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork/processed/',graphfile,'.RData'))
 semantic=res$g;
 keyword_dico=res$keyword_dico
-rm(res);gc()
+#rm(res);gc()
 
 #figdir=paste0(Sys.getenv('CN_HOME'),'/Results/QuantEpistemo/HyperNetwork/NetworkTerritories/Semantic/network_kwLimit',kwLimit,'_eth',eth_graph,'/')
 figdir=paste0(Sys.getenv('CN_HOME'),'/Results/Reflexivity/')
@@ -85,6 +85,6 @@ coms=sub$com
 # no need to save
 
 probas = computeThemProbas(sub$gg,sub$com,res$keyword_dico)
-save(probas,sub,coms,file=paste0('processed/',mongobase,'_probas_',kwLimit,'_eth',eth_graph,'_nonfiltdico_kmin',kminopt,'_kmax',kmaxopt,'_freqmin',freqminopt,'_freqmax',freqmaxopt,'_eth',ethopt))
+save(probas,sub,coms,file=paste0('processed/',mongobase,'_probas_',kwLimit,'_eth',eth_graph,'_nonfiltdico_kmin',kminopt,'_kmax',kmaxopt,'_freqmin',freqminopt,'_freqmax',freqmaxopt,'_eth',ethopt,'.RData'))
 
 
