@@ -1146,5 +1146,25 @@ then
 fi
 
 
+###############
+## Appendix F
+
+if [ "$TARGET" == "--F" ] || [ "$TARGET" == "--all" ]
+then
+
+  # fig:app:reflexivity:citnw
+  FIGNAME=F-reflexivity-citnw
+  echo $FIGNAME
+  convert Figures/Reflexivity/citcore.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+
+
+
+fi
+
+
+
+
 
 osascript -e 'display notification "Finished figures for chapter '$TARGET'" with title "Figures generation"'
