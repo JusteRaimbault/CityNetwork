@@ -2,15 +2,26 @@
 
 # (following sensitivity)
 
+library(ggplot2)
+library(reshape2)
+source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
+
+source(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork/functions.R'))
+source(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork/networkConstruction.R'))
+
+
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Reflexivity'))
+
+figdir=paste0(Sys.getenv('CN_HOME'),'/Results/Reflexivity/')
+
 #sub<-extractSubGraphCommunities(semantic,kminopt,kmaxopt,freqminopt,freqmaxopt,ethopt)
-#coms=sub$com;gg=sub$gg
+coms=sub$com;gg=sub$gg
 
-
-load(paste0('processed/',mongobase,'_probas_',kwLimit,'_eth',eth_graph,'_nonfiltdico_kmin',kminopt,'_kmax',kmaxopt,'_freqmin',freqminopt,'_freqmax',freqmaxopt,'_eth',ethopt))
+load(paste0('processed/',mongobase,'_probas_',kwLimit,'_eth',eth_graph,'_nonfiltdico_kmin',kminopt,'_kmax',kmaxopt,'_freqmin',freqminopt,'_freqmax',freqmaxopt,'_eth',ethopt,'.RData'))
 
 # content of communities
 
-for(k in unique(coms$membership)){
+for(k in sort(unique(coms$membership))){
   show(paste0('Com ',k,', size : ',length(which(coms$membership==k)),' , weight docs : ',100*colSums(probas)[k]/sum(probas)))
    vertices=(coms$membership==k)
    currentnames=V(gg)$name[vertices];currentdegree=degree(gg)[vertices]
@@ -18,17 +29,16 @@ for(k in unique(coms$membership)){
    show(data.frame(name=currentnames[currentdegree>degth],degree=currentdegree[currentdegree>degth]))
 }
 
-#semnames <- c('Maritime Networks','Accessibility','Sustainable Transport','Socio-economic','Policy',
-#              'Remote Sensing','Measuring','Agent-based Modeling','French Geography','Climate Change',
-#              'Environment','High Speed Rail','Transportation planning','Traffic','Health Geography',
-#              'Spanish Geography','Freight and Logistics','Mobility Data Mining','Education','Networks'
-#             )
-
-semnames <- c('brt','tod','hedonic','infra planning','hsr','complex networks','networks')
+semnames <- c('toxicology','chemistry','political science','theoretical ecology','urban systems (french)',
+              'sustainibility','innovation economics','maup','physiology','NA','physics',
+              'networks','bioanthropology','health','statistics','microbiology',
+              'transportation','biological network','copyrights','publication',
+              'health geography','botanics','evolution','ecology','formulas','genetics'
+              )
 
 
 # export network
-write_graph(gg,file=paste0(figdir,'subgraph.gml'),format = 'gml')
+write_graph(gg,file='data/semsubgraph.gml',format = 'gml')
 
 # save(gg,coms,probas,semantic,keyword_dico,file='processed/semantic.RData')
 
