@@ -53,24 +53,25 @@ colnames(probas)<-semnames
 
 # extract citation graph with probas
 
-#subcit = induced_subgraph(citationcore,which(V(citationcore)$name%in%rownames(probas)[rowSums(probas)>0]))
-subcit = induced_subgraph(citation,which(V(citation)$name%in%rownames(probas)[rowSums(probas)>0]))
-#subprobas = probas[V(subcit)$name,]
-subprobas = probas
+subcit = induced_subgraph(citationcore,which(V(citationcore)$name%in%rownames(probas)[rowSums(probas)>0]))
+#subcit = induced_subgraph(citation,which(V(citation)$name%in%rownames(probas)[rowSums(probas)>0]))
+subprobas = probas[V(subcit)$name,]
+#subprobas = probas
 
 # interdisciplinarity
-interdisc = data.frame(interdisc = 1 - apply(subprobas^2,1,sum),id=as.character(rownames(subprobas)))#,citclass =  unlist(sapply(as.character(V(subcit)$citmemb),function(n){ifelse(n%in%names(citcomnames),unlist(citcomnames[n]),'NA')})))
+interdisc = data.frame(interdisc = 1 - apply(subprobas^2,1,sum),id=as.character(rownames(subprobas)),citclass =  unlist(sapply(as.character(V(subcit)$citmemb),function(n){ifelse(n%in%names(citcomnames),unlist(citcomnames[n]),'NA')})))
 
 g=ggplot(interdisc[interdisc$citclass!='NA',],aes(x=interdisc,colour=citclass))
 g+geom_density(alpha=0.3)+stdtheme+xlab('interdisciplinarity')+scale_color_discrete(name='Cit. Class')
-ggsave(file=paste0(figdir,'interdisciplinarities.png'),width=20,height=10,units = 'cm')
+ggsave(file=paste0(figdir,'interdisciplinarities.png'),width=30,height=15,units = 'cm')
 
 
 # composition of citation coms
-#dd=as.tbl(data.frame(content=c(subprobas),semclass=c(matrix(rep(semnames,nrow(subprobas)),byrow = F)),citclass=rep(as.character(interdisc$citclass),ncol(subprobas))))
-#compos = dd%>%group_by(citclass,semclass)%>%summarise(compo=sum(content))
-# why u no work ? # do it by hand ? -> OK FUCKING Factor
-selectedsem = c('Networks','Policy','Socio-economic','High Speed Rail','Education','Climate Change','Remote Sensing','Sustainable Transport')
+selectedsem = c('political science','urban systems (french)',
+                'sustainibility','innovation economics','physics',
+                'networks','bioanthropology','health','statistics','microbiology',
+                'transportation','biological network',
+                'health geography','ecology','genetics')
 
 compos=c();cit=c();sem=c()
 for(citclass in citcomnames){
@@ -88,7 +89,7 @@ ggsave(file=paste0(figdir,'compos.png'),width=20,height=10,units = 'cm')
 for(citclass in unique(dd$citclass)){dd$compo[dd$citclass==citclass]=dd$compo[dd$citclass==citclass]/sum(dd$compo[dd$citclass==citclass])}
 g=ggplot(dd,aes(x=citclass,y=compo,fill=semclass))
 g+geom_col()+xlab('Citation class')+ylab('Proportion')+scale_colour_discrete(name='Semantic')#+stdtheme
-ggsave(file=paste0(figdir,'compo_proportion.png'),width=20,height=10,units = 'cm')
+ggsave(file=paste0(figdir,'compo_proportion.png'),width=40,height=20,units = 'cm')
 
 
 ###

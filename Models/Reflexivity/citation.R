@@ -12,16 +12,17 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNet
 edges <- read.csv('data/CityNetwork_20171127_links.csv',sep=";",header=F,colClasses = c('character','character'))
 nodes <- as.tbl(read.csv('data/CityNetwork_20171127.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character')))
 
-nodesabstract <-read.csv('data/abstracts_ids.csv',colClasses = c('character'))
+#nodesabstract <-read.csv('data/abstracts_ids.csv',colClasses = c('character'))
 
 names(nodes)<-c("title","id","year")
 nodes=nodes[nchar(nodes$id)>0,]
 
-intersect(nodesabstract$X8635210426419881284,nodes$id)
+#intersect(nodesabstract$X8635210426419881284,nodes$id)
 mongoids <-read.csv('data/mongoids.csv',colClasses = c('character'))
-intersect(mongoids$id,nodes$id)
-intersect(nodesabstract$X8635210426419881284,mongoids$id)
-
+#intersect(mongoids$id,nodes$id)
+#intersect(nodesabstract$X8635210426419881284,mongoids$id)
+#nwconstructids<-read.csv('data/nwconstructids.csv',colClasses = c('character','character'))
+#intersect(nwconstructids$id,mongoids$id)
 
 elabels = unique(c(edges$V1,edges$V2))
 empty=rep("",length(which(!elabels%in%nodes$id)))
@@ -118,10 +119,10 @@ for(c in unique(com$membership)){
 # nom des communautes de citation
 citcomnames=list('28'='Chaos','64'='Economic Geography','62'='Urban Systems','67'='ABM',
                  '68'='Datamining','49'='Networks','47'='Spatial Statistics',
-                 '34'='Fractals','37'='Powe Laws','52'='Evolutionnary Economic Geography',
+                 '34'='Fractals','37'='Power Laws','52'='Evolutionnary Economic Geography',
                  '21'='Quantitative Epistemology','23'='Spatial Urban Growth Models',
                  '60'='Complexity','66'='LUTI','50'='Physics of Cities',
-                 '14'='SPatio-temporal data','40'='Biological Networks',
+                 '14'='Spatio-temporal data','40'='Biological Networks',
                  '63'='Space Syntax/Procedural modeling','51'='VGI'
                  )
 
