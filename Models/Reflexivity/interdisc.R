@@ -14,10 +14,15 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Reflexivity'))
 
 figdir=paste0(Sys.getenv('CN_HOME'),'/Results/Reflexivity/')
 
+load(paste0('processed/',mongobase,'_probas_',kwLimit,'_eth',eth_graph,'_nonfiltdico_kmin',kminopt,'_kmax',kmaxopt,'_freqmin',freqminopt,'_freqmax',freqmaxopt,'_eth',ethopt,'.RData'))
 #sub<-extractSubGraphCommunities(semantic,kminopt,kmaxopt,freqminopt,freqmaxopt,ethopt)
 coms=sub$com;gg=sub$gg
 
-load(paste0('processed/',mongobase,'_probas_',kwLimit,'_eth',eth_graph,'_nonfiltdico_kmin',kminopt,'_kmax',kmaxopt,'_freqmin',freqminopt,'_freqmax',freqmaxopt,'_eth',ethopt,'.RData'))
+load(paste0(Sys.getenv('CN_HOME'),'/Models/Reflexivity/processed/',graphfile,'.RData'))
+semantic=res$g;
+keyword_dico=res$keyword_dico
+rm(res);gc()
+
 
 # content of communities
 
@@ -48,7 +53,8 @@ colnames(probas)<-semnames
 
 # extract citation graph with probas
 
-subcit = induced_subgraph(citationcore,which(V(citationcore)$name%in%rownames(probas)[rowSums(probas)>0]))
+#subcit = induced_subgraph(citationcore,which(V(citationcore)$name%in%rownames(probas)[rowSums(probas)>0]))
+subcit = induced_subgraph(citation,which(V(citation)$name%in%rownames(probas)[rowSums(probas)>0]))
 #subprobas = probas[V(subcit)$name,]
 subprobas = probas
 

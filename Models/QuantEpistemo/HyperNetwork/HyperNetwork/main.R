@@ -2,9 +2,10 @@ options( java.parameters = "-Xmx128G" ) # to ensure large edge queries
 
 ##
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork'))
+# setwd(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/Reflexivity'))
 
-source('networkConstruction.R')
+source(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork/networkConstruction.R'))
 
 args <- commandArgs(trailingOnly = F)
 task = args[4]
@@ -22,8 +23,6 @@ eth = 5
 eth_graph=10
 
 if(task=='--semantic-construction'){
-  #mongo <- mongoDbConnect('nwterrit','127.0.0.1',27017)
-  #mongo <- mongoDbConnect('modelography','127.0.0.1',27017)
   mongo <- mongoDbConnect(mongobase,'127.0.0.1',27017)
   ####
   ## Construct the semantic nw
@@ -33,7 +32,12 @@ if(task=='--semantic-construction'){
   nwcollection = paste0('network_',kwLimit,'_eth',eth)
   dir.create('processed')
   target = paste0('processed/',mongobase,'_network_',kwLimit,'_eth',eth_graph,'_nonfiltdico')
-  constructSemanticNetwork(relevantcollection,kwcollection,nwcollection,eth_graph,target,mongo)
+  #constructSemanticNetwork(relevantcollection,kwcollection,nwcollection,eth_graph,target,mongo)
+  
+  # test
+  dicoraw <- dbGetQueryForKeys(mongo,kwcollection,'{}','{"id":1,"keywords":1}',skip=0,limit=1000000)
+  write.csv(data.frame(id=trimws(format(dicoraw$id,scientific=F))),file='data/nwconstructids.csv')
+  
 }
 
 

@@ -18,10 +18,12 @@ mongobase='reflexivity';kwLimit=50000;eth_graph=10
 
 graphfile=paste0(mongobase,'_network_',kwLimit,'_eth',eth_graph,'_nonfiltdico')
 outputfile=paste0('sensitivity/',graphfile,'.RData')
-load(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNetwork/processed/',graphfile,'.RData'))
+load(paste0(Sys.getenv('CN_HOME'),'/Models/Reflexivity/processed/',graphfile,'.RData'))
 semantic=res$g;
 keyword_dico=res$keyword_dico
 #rm(res);gc()
+head(names(keyword_dico))
+head(nodesabstract$X8635210426419881284)
 
 #figdir=paste0(Sys.getenv('CN_HOME'),'/Results/QuantEpistemo/HyperNetwork/NetworkTerritories/Semantic/network_kwLimit',kwLimit,'_eth',eth_graph,'/')
 figdir=paste0(Sys.getenv('CN_HOME'),'/Results/Reflexivity/')

@@ -12,8 +12,16 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNet
 edges <- read.csv('data/CityNetwork_20171127_links.csv',sep=";",header=F,colClasses = c('character','character'))
 nodes <- as.tbl(read.csv('data/CityNetwork_20171127.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character')))
 
+nodesabstract <-read.csv('data/abstracts_ids.csv',colClasses = c('character'))
+
 names(nodes)<-c("title","id","year")
 nodes=nodes[nchar(nodes$id)>0,]
+
+intersect(nodesabstract$X8635210426419881284,nodes$id)
+mongoids <-read.csv('data/mongoids.csv',colClasses = c('character'))
+intersect(mongoids$id,nodes$id)
+intersect(nodesabstract$X8635210426419881284,mongoids$id)
+
 
 elabels = unique(c(edges$V1,edges$V2))
 empty=rep("",length(which(!elabels%in%nodes$id)))
@@ -121,7 +129,7 @@ citcomnames=list('28'='Chaos','64'='Economic Geography','62'='Urban Systems','67
 V(citationcore)$citmemb = com$membership
 
 save(citation,citationcore,citcomnames,com,undirected_rawcore,file='processed/citation.RData')
-# load('HyperNetwork/HyperNetwork/processed/citation.RData')
+# load('processed/citation.RData')
 
 ## these communities are on the core ; for semantic shall we extend ?
 #  -> compare with full communities
