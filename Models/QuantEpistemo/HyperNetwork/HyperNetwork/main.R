@@ -1,3 +1,4 @@
+options( java.parameters = "-Xmx128G" ) # to ensure large edge queries
 
 ##
 
@@ -11,18 +12,18 @@ show(paste0('Running ',task,'...'))
 
 #mongobase = 'nwterrit'
 #mongobase='modelography'
-mongobase='urbangrowth'
+#mongobase='urbangrowth'
+mongobase='reflexivity'
 #kwLimit = 10000
-kwLimit=5000
-#eth = 5
-eth=10
+kwLimit=50000
+eth = 5
+#eth=10
 #eth_graph = 10
 eth_graph=10
 
 if(task=='--semantic-construction'){
   #mongo <- mongoDbConnect('nwterrit','127.0.0.1',27017)
   #mongo <- mongoDbConnect('modelography','127.0.0.1',27017)
-  options( java.parameters = "-Xmx64G" ) # to ensure large edge queries
   mongo <- mongoDbConnect(mongobase,'127.0.0.1',27017)
   ####
   ## Construct the semantic nw
@@ -45,8 +46,8 @@ if(task=='--semantic-sensitivity'){
   filters=c()#c('data/filter.csv','data/french.csv')
   freqmaxvals=c(10000)
   freqminvals=c(0,5)
-  kmaxvals=seq(from=500,to=7000,by=500)
-  ethvals=c(seq(from=5,to=50,by=10))#,seq(from=60,to=100,by=10))
+  kmaxvals=seq(from=500,to=10000,by=500)
+  ethvals=c(seq(from=5,to=100,by=10))#,seq(from=60,to=100,by=10))
   dir.create('sensitivity')
   outputfile=paste0('sensitivity/',graphfile,'.RData')
 

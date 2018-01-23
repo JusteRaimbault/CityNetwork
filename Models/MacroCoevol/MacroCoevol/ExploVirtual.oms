@@ -30,6 +30,8 @@ val rhoPopCloseness = Val[Array[Double]]
 val rhoPopAccessibility = Val[Array[Double]]
 val rhoClosenessAccessibility = Val[Array[Double]]
 
+val rhoPopClosenessPos = Val[Double]
+
 // distance corrs
 val rhoDistPopCloseness = Val[Array[Double]]
 val rhoDistPopAccessibility = Val[Array[Double]]
@@ -70,6 +72,7 @@ NetLogo5Task.workspace(workDirectory,"HEADLESS_MacroCoEvol.nlogo",cmds) set(
     netLogoOutputs += ("lagged-corrs \"city-population\" \"city-closeness-centrality\" 6 0",rhoPopCloseness),
     netLogoOutputs += ("lagged-corrs \"city-population\" \"city-accessibility\" 6 0",rhoPopAccessibility),
     netLogoOutputs += ("lagged-corrs \"city-closeness-centrality\" \"city-accessibility\" 6 0",rhoClosenessAccessibility),
+    netLogoOutputs += ("lagged-cor-minmax \"city-population\" \"city-closeness-centrality\" 6 true",rhoPopClosenessPos),
     netLogoOutputs += ("distance-correlation \"city-population\" \"city-closeness-centrality\"",rhoDistPopCloseness),
     netLogoOutputs += ("distance-correlation \"city-population\" \"city-accessibility\"",rhoDistPopAccessibility),
     netLogoOutputs += ("distance-correlation \"city-closeness-centrality\" \"city-accessibility\"",rhoDistClosenessAccessibility),
@@ -91,14 +94,14 @@ NetLogo5Task.workspace(workDirectory,"HEADLESS_MacroCoEvol.nlogo",cmds) set(
 // (synthRankSize,nwThreshold,nwGmax,finalTime,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,replication,id)
 
 val exploration =  ExplorationTask(
-  (((synthRankSize in (0.5 to 1.5 by 0.5)) x
+  /*(((synthRankSize in (0.5 to 1.5 by 0.5)) x
     (nwThreshold in (0.5 to 4.5 by 0.5)) x
     (nwGmax in (0.0 to 0.05 by 0.05)) x
     (gravityWeight in (0.00025 to 0.001 by 0.00025)) x
     (gravityGamma in (0.5 to 1.5 by 0.5)) x
     (gravityDecay in (10.0 to 210.0 by 50.0))
-  ) withIndex id )
-  /*((LHS (
+  ) withIndex id )*/
+  ((LHS (
     1
     ,synthRankSize in Range(0.5,1.5)
     ,nwThreshold in Range(0.0,5.0)
@@ -106,7 +109,7 @@ val exploration =  ExplorationTask(
     ,gravityWeight in Range(0.0,0.001)
     ,gravityGamma in Range(0.0,2.0)
     ,gravityDecay in Range(0.0,200.0)
-  )) withIndex id)*/
+  )) withIndex id)
     x (finalTime is 30)
   //x (synthRankSize is 1.1)
   //x (nwThreshold is 2.0)
@@ -120,13 +123,18 @@ val exploration =  ExplorationTask(
   x (replication in (UniformDistribution[Int]() take 50))
 )
 
-val purpose = "GRID_VIRTUAL"
+//val purpose = "GRID_VIRTUAL"
+val purpose = "test"
 
 // output
 val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
   arraysOnSingleRow := true
 )
 
-val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+val local = LocalEnvironment(50)
+//val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
-exploration -< (model on grid by 10 hook indics_hook)
+//exploration -< (model on grid by 10 hook indics_hook)
+exploration -< (model on local hook indics_hook)
+
+

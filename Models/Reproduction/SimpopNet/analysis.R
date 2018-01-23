@@ -199,6 +199,8 @@ ggsave(paste0(resdir,'targeted/',var,'_networkGamma',networkGamma,'_networkSpeed
 
 # lagged correlations
 
+params = c("gravityDecay","gravityGamma","networkGamma","networkThreshold","networkSpeed","synthRankSize","synthCities","synthShortcut","synthMaxDegree","synthShortcutNum")
+
 lagdata=data.frame()
 for(couple in c("ClosenessAccessibility","PopAccessibility","PopCloseness")){
   melted = melt(currentdata,id.vars=params,measure.vars = paste0("rho",couple,"_tau",lags),value.name="rho")
@@ -232,6 +234,67 @@ g=ggplot(lagdata[lagdata$networkGamma==networkGamma&lagdata$networkThreshold==ne
 )
 g+geom_point(pch='.')+stat_smooth(span = 0.1)+facet_wrap(~gravityGamma)+stdtheme+xlab(expression(tau))+ylab(expression(rho(tau)))
 ggsave(paste0(resdir,'targeted/laggedcorrs_networkGamma',networkGamma,'_networkSpeed',networkSpeed,'_gravityDecay',gravityDecay,'_networkThreshold',networkThreshold,'.pdf'),width=30,height=20,units='cm')
+
+
+## causality regimes
+
+params = c("gravityDecay","gravityGamma","networkGamma","networkThreshold","networkSpeed","synthRankSize","synthCities","synthShortcut","synthMaxDegree","synthShortcutNum")
+
+lagdata=data.frame()
+for(couple in c("ClosenessAccessibility","PopAccessibility","PopCloseness")){
+  melted = melt(res,id.vars=params,measure.vars = paste0("rho",couple,"_tau",lags),value.name="rho")
+  melted$tau = as.numeric(substring(melted$variable,first=8+nchar(couple)))
+  melted$var = rep(couple,nrow(melted))
+  lagdata=rbind(lagdata,melted)
+}
+
+
+getSignif <- function(rho,tau){
+  #rho0 = mean(rho[tau==0])
+  sdata = as.tbl(data.frame(rho,tau))%>%group_by(tau)%>%summarise(rho=mean(rho))
+  taumax = sdata$tau[abs(sdata$rho)==max(abs(sdata$rho[sdata$tau!=0]))]
+  #taumin = sdata$tau[abs(sdata$rho)==max(abs(sdata$rho[sdata$tau<0]))]
+  tplus = ks.test(rho[tau==0],rho[tau==taumax])
+  #tminus = ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumin])
+  rhomax = sdata$rho[sdata$tau==taumax]
+  return(ifelse(tplus$p.value<0.01,ifelse(abs(rhomax)<0.05,0,ifelse(rhomax>0,1,-1)),0))
+}
+
+signifneg = lagdata[lagdata$tau<=0,]%>%group_by(var,gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum)%>%summarise(
+  signifneg = getSignif(rho,tau)
+)
+
+signifpos = lagdata[lagdata$tau>=0,]%>%group_by(var,gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum)%>%summarise(
+  signifpos = getSignif(rho,tau)
+)
+
+signifpos$signifneg = signifneg$signifneg
+
+signs = signifpos%>%group_by(gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum)%>%summarise(
+  sign = paste0(signifpos[var=="ClosenessAccessibility"],signifneg[var=="ClosenessAccessibility"],"/",signifpos[var=="PopAccessibility"],signifneg[var=="PopAccessibility"],"/",signifpos[var=="PopCloseness"],signifneg[var=="PopCloseness"]),
+  strength=sum(abs(signifpos))+sum(abs(signifneg))
+)
+
+unique(signs$sign)
+unique(signs$sign[signs$strength>2])
+
+
+sdata=data.frame()
+for(r in which(signs$strength>2)[!duplicated(signs$sign[signs$strength>2])]){
+  gravityDecay=signs$gravityDecay[r];gravityGamma=signs$gravityGamma[r];networkGamma=signs$networkGamma[r];networkThreshold=signs$networkThreshold[r];networkSpeed=signs$networkSpeed[r];synthRankSize=signs$synthRankSize[r];synthCities=signs$synthCities[r];synthShortcut=signs$synthShortcut[r];synthMaxDegree=signs$synthMaxDegree[r];synthShortcutNum=signs$synthShortcutNum[r]
+  sdata=rbind(sdata,data.frame(lagdata[lagdata$gravityDecay==gravityDecay&lagdata$gravityGamma==gravityGamma&lagdata$networkGamma==networkGamma&lagdata$networkThreshold==networkThreshold&lagdata$networkSpeed==networkSpeed&lagdata$synthRankSize==synthRankSize&lagdata$synthCities==synthCities&lagdata$synthShortcut==synthShortcut&lagdata$synthMaxDegree==synthMaxDegree&lagdata$synthShortcutNum==synthShortcutNum,],
+              reg=signs$sign[r]
+  )
+  )
+}
+
+g=ggplot(sdata,aes(x=tau,y=rho,colour=var,group=var))
+g+geom_point(pch='.')+geom_smooth(span=0.1)+facet_wrap(~reg,scales="free")+xlab(expression(tau))+ylab(expression(rho[tau]))+stdtheme
+ggsave(paste0(resdir,'targeted/laggedregimes.png'),width=30,height=25,units='cm')
+
+
+
+
 
 
 

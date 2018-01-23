@@ -38,7 +38,7 @@
 %%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Network measures}{Mesures de réseau}
+\subsection{Road network}{Réseau routier}
 
 
 
@@ -48,30 +48,28 @@
 
 % data collected from http://download.geofabrik.de/europe.html : bosse pas sur le fichier world, huge.
 
+Nous détaillons ici l'algorithme de simplification du réseau routier à partir des données OpenStreetMap. La logique générale est la suivante : (i) import des données par sélection et agrégation spatiale à la résolution du raster ; (ii) simplification pour conserver le réseau topologique uniquement, opérée en parallèle par \emph{split/merge}.
 
-Le réseau est d'abord agrégé à une granularité de 100m pour pouvoir être utilisé de manière cohérente avec les grilles de population. Cela permet par ailleurs d'être robuste aux imperfections locales de codage ou données très locales manquantes. Les données OSM sont importées dans une base de données \texttt{pgsql} en utilisant le logiciel \texttt{osmosis}~\cite{osmosis}.
 
- 
- 
-More precisely we use the following procedure :
-\begin{itemize}
-\item a background raster (which resolution $r$ gives the snapping parameter for aggregation) is constructed from a reference raster and the extent of network. This grid gives spatial aggregation units for network nodes.
-\item for each feature of the road dataset, corresponding connected raster cells are stored with corresponding impedance and distance in a sparse adjacency matrix.
+Les données OSM sont importées dans une base de données \texttt{pgsql} (extension \texttt{Postgis} pour la gestion des géométries et avoir des index spatiaux. L'import est fait en utilisant le logiciel \texttt{osmosis}~\cite{osmosis}, à partir d'une image en format compressé \texttt{pbf} de la base OpenStreetMap\footnote{Les dumps ont été récupérés à partir de \url{http://download.geofabrik.de}, en juillet 2016 pour l'Europe, et juillet 2017 pour la Chine.}. Nous filtrons à cette étape les liens (\texttt{ways}) qui possèdent le tag \texttt{highway}, et conservons les noeuds correspondants.
+
+
+Le réseau est d'abord agrégé à une granularité de 100m pour pouvoir être utilisé de manière cohérente avec les grilles de population. Cela permet par ailleurs d'être robuste aux imperfections locales de codage ou données très locales manquantes. Pour cette étape, les routes sont filtrées sur un sous-ensemble de tags pertinents\footnote{Que nous prenons dans \texttt{motorway,trunk,primary,secondary,tertiary,unclassified,residential}.}. Pour l'ensemble des segments des lignes correspondantes, un lien est créé entre la cellule d'origine et de destination, avec longueur réelle calculée entre les centres des cellules et vitesse prise comme la vitesse de la ligne si elle est disponible.
+  
+La simplification est alors opérée de la façon suivante :
+\begin{enumerate}
 \item Network is simplified by iterative suppression of nodes with degree two, with keeping link speed and real length to their effective value.
-\end{itemize}
+\end{enumerate}
 
 % \cite{2016arXiv161101890B} : interactive appli for network simplification
 
 
 
-\paragraph{Implementation}{Implémentation}
+%\paragraph{Implementation}{Implémentation}
+%A \texttt{PostGIS} database is used to store raw and simplified network, in order to perform efficient spatial requests, compared for example to initial \texttt{osm} data formats (\texttt{osm} or \texttt{pbf}). However the size of storage of data into this base is much higher (factor 10) so processing was parallelized between european countries. Consistence is ensured by the use of the same common density raster as simplification canvas. Final network is stored into the Postgis database for efficient indicator computation given a spatial extent.
 
-A \texttt{PostGIS} database is used to store raw and simplified network, in order to perform efficient spatial requests, compared for example to initial \texttt{osm} data formats (\texttt{osm} or \texttt{pbf}). However the size of storage of data into this base is much higher (factor 10) so processing was parallelized between european countries. Consistence is ensured by the use of the same common density raster as simplification canvas. Final network is stored into the Postgis database for efficient indicator computation given a spatial extent. \comment{(Florent) y'a t'il un effet de bord dans les carrés 50x50 qui se trouvent à la frontière de 2 pays}[pas avec nouvelle parallelisation pas par pays mais par split and merge (TODO rewrite nouvel algo)]
-
-
-\paragraph{Sensitivity to simplification parameters}{Sensibilité aux paramètres de simplification}
-
-Sensitivity of indicators to raster resolution and to degree simplification algorithm must still be tested to ensure the relevance of data preprocessing.
+%\paragraph{Sensitivity to simplification parameters}{Sensibilité aux paramètres de simplification}
+%Sensitivity of indicators to raster resolution and to degree simplification algorithm must still be tested to ensure the relevance of data preprocessing.
 
 
 
@@ -83,13 +81,13 @@ Sensitivity of indicators to raster resolution and to degree simplification algo
 
 \subsubsection{Network Indicators}{Indicateurs de réseau}
 
+Nous donnons en Fig.~\ref{fig:app:staticcorrelations:networkcn} un échantillon d'indicateurs de réseau pour la Chine.
 
 %%%%%%%%%%%%%%
 \begin{figure}
 %\includegraphics[width=\linewidth]{Figures/StaticCorrelations/CN_indics_network_selected}
 \includegraphics[width=\linewidth]{Figures/Final/A-staticcorrelations-networkcn.jpg}
-\appcaption{}{\textbf{Indicateurs de réseau pour la Chine.}}
-\label{fig:app:staticcorrelations:networkcn}
+\appcaption{\textbf{Network indicators for China.}\label{fig:app:staticcorrelations:networkcn}}{\textbf{Indicateurs de réseau pour la Chine.} Nous montrons une sélection d'indicateurs de réseau : nombre de noeuds $\left|V\right|$ (\texttt{vcount}), hiérarchie de \emph{closeness} $\alpha_{cl}$ (\texttt{alphaCloseness.x}), hiérarchie de l'accessibilité $\alpha_Z$ (\texttt{alphaAccessibility}), performance euclidienne $v_0$ (\texttt{euclPerf}).\label{fig:app:staticcorrelations:networkcn}}
 \end{figure}
 %%%%%%%%%%%%%%
 

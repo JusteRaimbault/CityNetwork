@@ -35,8 +35,7 @@ Nous pouvons à présent faire la synthèse d'une part des paradigmes d'intégra
 \bpar{
 In a multi-modeling fashion, the model can take into account various processes such as between cities direct interactions, network-mediated interactions, feedback of network flows, and for the network demand-induced growth.
 }{
-Cette première approche se place dans une logique d'extension directe du modèle d'interactions au sein d'un système de villes présenté en chapitre~\ref{ch:evolutiveurban}, c'est à dire à une échelle macroscopique et avec une ontologie typique aux systèmes de villes. Toujours dans un choix de simplicité%, dont la relaxation pourra être explorée pour le cas d'application à la Chine avec l'ajout de variables économiques
-, nous restons ici\comment[AB]{{\_}} à une description unidimensionnelle des villes par leur population. Concernant la croissance du réseau, nous proposons de nous placer également à un niveau relativement agrégé et simplifié, en permettant de tester des heuristiques de croissance à différents niveaux d'abstraction. Dans une logique de multi-modélisation,\comment[FL]{sens ?} le modèle peut prendre en compte divers processus comme les interactions directes entre les villes, les interactions intermédiaires par le réseau, la rétroaction des flux de réseau et une croissance du réseau induite par la demande. Les éléments empiriques mis en valeur pour le réseau ferré français par~\cite{thevenin2013mapping} suggèrent l'existence de retroactions de l'utilisation du réseau, ou des flux le traversant, sur sa persistence et son développement, dont les propriétés ont évolué dans le temps : une première phase de développement fort correspondrait à une réponse à des demandes\comment[FL]{?} même faibles, tandis que le renforcement des liens principaux et la disparition des liens faibles observés plus tard s'interpréterait comme une rétroaction dont le signe est fixé par seuil.\comment[AB]{?}\comment[AB]{pas super clair}
+Cette première approche se place dans une logique d'extension directe du modèle d'interactions au sein d'un système de villes présenté en chapitre~\ref{ch:evolutiveurban}, c'est à dire à une échelle macroscopique et avec une ontologie typique aux systèmes de villes. Toujours dans un choix de simplicité, nous gardons ici une description unidimensionnelle des villes par leur population. Concernant la croissance du réseau, nous proposons de nous placer également à un niveau relativement agrégé et simplifié, en permettant de tester des heuristiques de croissance à différents niveaux d'abstraction. Dans une logique de multi-modélisation,\comment[FL]{sens ?} le modèle peut prendre en compte divers processus comme les interactions directes entre les villes, les interactions intermédiaires par le réseau, la rétroaction des flux de réseau et une croissance du réseau induite par la demande. Les éléments empiriques mis en valeur pour le réseau ferré français par~\cite{thevenin2013mapping} suggèrent l'existence de retroactions de l'utilisation du réseau, ou des flux le traversant, sur sa persistence et son développement, dont les propriétés ont évolué dans le temps : une première phase de développement fort correspondrait à une réponse à des demandes\comment[FL]{?} même faibles, tandis que le renforcement des liens principaux et la disparition des liens faibles observés plus tard s'interpréterait comme une rétroaction dont le signe est fixé par seuil.\comment[AB]{?}\comment[AB]{pas super clair}
 }
 
 
@@ -66,7 +65,15 @@ Le système urbain est caractérisé par les populations $\mu_i(t)$ et le résea
 \paragraph{Network Growth}{Croissance du réseau}
 
 
-Concernant le réseau, nous faisons l'hypothèse que celui-ci évolue suivant $\mathbf{N}(t + 1) = F(\mathbf{N}(t),\phi_{ij}(t))$, de telle façon qu'une assignation des flux dans le réseau ainsi qu'un variation locale de ses éléments est possible. Nous proposons dans un premier temps de nous intéresser aux motifs liés à la distance uniquement, et de spécifier une relation sur un réseau abstrait uniquement par $d^N_{ij}(t+1) = F(d^N_{ij}(t),\phi_{ij}(t))$.\comment[FL]{la difference entre les deux formules est subtiles, expliciter} Dans cette logique, nous restons dans un modèle d'interaction à l'echelle macroscopique uniquement (puisqu'un spatialisation précise du réseau implique la prise en compte d'une échelle plus fine).\comment[AB]{developper}
+Concernant le réseau, nous faisons l'hypothèse que celui-ci évolue suivant
+\[
+\mathbf{G}(t + 1) = F(\mathbf{G}(t),\phi_{ij}(t))
+\]
+de telle façon qu'une assignation des flux dans le réseau ainsi qu'une variation locale de ses éléments est possible. Nous proposons dans un premier temps de nous intéresser aux motifs liés à la distance uniquement, et de spécifier une relation sur un réseau abstrait uniquement par
+\[
+d^N_{ij}(t+1) = F(d^N_{ij}(t),\phi_{ij}(t))
+\]
+, c'est à dire une évolution de la matrice de distance uniquement. Dans cette logique, nous restons dans un modèle d'interaction à l'échelle macroscopique uniquement (puisqu'une spatialisation précise du réseau implique la prise en compte d'une échelle plus fine).\comment[AB]{developper}
 
 Suivant l'heuristique de rétroaction par seuil, étant donné un flux $\phi$ dans un lien, on suppose que sa distance effective est mise à jour par :
 
@@ -74,20 +81,14 @@ Suivant l'heuristique de rétroaction par seuil, étant donné un flux $\phi$ da
 d(t+1) = d(t)\cdot \left( 1 + g_{max} \cdot \left[\frac{1 - \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}{1 + \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}\right]\right)
 \]
 
-\comment[AB]{donner une intuition + references}
 
-\cite{tero2007mathematical}
+avec $\gamma_s$ un paramètre de hiérarchie, $\phi_0$ le paramètre de seuil et $g_{max}$ le taux de croissance maximal à chaque étape. Cette fonction d'auto-renforcement s'interprète de la façon suivante : au dessus d'un flux limite $\phi_0$, les conditions de trajet s'améliorent, tandis qu'elles diminuent en dessous. La hiérarchie du gain est donnée par $\gamma_s$ et comme $\frac{1 - \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}{1 + \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}} \rightarrow_{\phi\rightarrow \infty} -1$, $g_{max}$ est le gain de distance maximal. Il s'agit d'une fonction similaire à celle utilisée par \cite{tero2007mathematical}\footnote{Qui utilise $\Delta d = \Delta t \left[ \frac{\phi^\gamma}{1 + \phi^\gamma} - d\right]$. Cette fonction permet également un effet de seuil, puisque la dérivée s'annule en $\phi^{\ast} = \left(\frac{d}{1 - d}\right)^{1/\gamma}$, mais celui-ci ne peut pas être ajusté.}.
+
+%qui peut s'ajuster à des valeurs réalistes par exemple par l'intermédiaire du calcul de $(1+g_{max})^{t_f}$.\comment[FL]{phrase tres floue}
 
 %cf Tero ? papier Francois \cite{2013arXiv1301.6628K}
 % implementation
 % https://github.com/fqueyroi/tulip_plugins/tree/master/TransportationNetworks
-
-
-
-avec $\gamma_s$ un paramètre de hiérarchie, $\phi_0$ le paramètre de seuil et $g_{max}$ le taux de croissance maximal à chaque étape.
-
-%qui peut s'ajuster à des valeurs réalistes par exemple par l'intermédiaire du calcul de $(1+g_{max})^{t_f}$.\comment[FL]{phrase tres floue}
-
 
 
 
@@ -188,11 +189,14 @@ En fonction de la distance, les profils de $\rho_d$ pour les trois couples de va
 
 
 
-Enfin, concernant les corrélations retardées, on observe toujours une corrélation synchronisée, et a priori l'existence de $\tau_+$ ou $\tau_-$ dans certains configurations, mais difficile à valider visuellement. Nous ajoutons donc ici un critère basé sur un test statistique : pour $\tau = \argmax \rho_{\tau}$ ou $\tau = \argmin \rho_{\tau}$ selon leur existence, un test de Kolmogorov-Smirnov est utilisé pour comparer les distributions de $\rho_{\tau}$ et de $\rho_0$. S'il donne une valeur inférieur à $0.01$, les distributions sont jugées similaires et il n'existe pas de relation entre les variables correspondantes.
+Enfin, concernant les corrélations retardées, on observe toujours une corrélation synchronisée, et a priori l'existence de $\tau_+$ ou $\tau_-$ dans certains configurations, mais difficile à valider visuellement. Nous ajoutons donc ici un critère basé sur un test statistique : pour $\tau = \textrm{argmax} \rho_{\tau}$ ou $\tau = \textrm{argmin} \rho_{\tau}$ selon leur existence, un test de Kolmogorov-Smirnov est utilisé pour comparer les distributions de $\rho_{\tau}$ et de $\rho_0$. S'il donne une valeur inférieur à $0.01$, les distributions sont jugées similaires et il n'existe pas de relation entre les variables correspondantes.
 
-On a systématiquement une déviation positive de la corrélation entre population et accessibilité pour les retards positifs, en croissance jusqu'au retard maximal, ce qui pourrait être un marqueur du renforcement des dynamiques de population par la centralité, fait stylisé exhibé pour le système de ville Français par~\cite{bretagnolle:tel-00459720}. La correlation entre population et accessibilité est constante, probablement par l'auto-corrélation, et n'entre pas en jeu dans la définition des régimes. Pour des valeurs intermédiaires de $d_G$ et les fortes valeurs de $\gamma_G$, on observe également une très légère déviation pour les retards négatifs : pour ces régimes, on a causalité circulaire et le modèle capture une co-évolution dans ce sens. L'accessibilité quant à elle cause fortement la centralité pour $d_G = 10$, puis la tendance s'inverse pour les grands $d_G$. Pour $d_G = 10$, cela va dans le sens du lien entre population et centralité, et il n'y a dans ce cas pas co-évolution mais adaptation des populations au réseau.\comment[FL]{il faut harmoniser les termes ici : relation univoque est plus generique ?} Pour les régimes intermédiaire, on a circularité directement entre population et centralité, tandis que pour $d_G > 110$ il y a ``circularité indirecte'', puisque accessibilité cause centralité qui cause population (qui entre en jeu dans la centralité). Ainsi, le modèle capture au moins trois régimes de co-évolution distincts, en fonction de la distance d'interaction et du niveau de hiérarchie\footnote{Une analyse plus systématique par apprentissage non-supervisé comme en~\ref{sec:causalityregimes} et en~\ref{sec:mesocoevolmodel} est laissée pour de futures développements.}.
+On a systématiquement une déviation positive de la corrélation entre population et accessibilité pour les retards positifs, en croissance jusqu'au retard maximal, ce qui pourrait être un marqueur du renforcement des dynamiques de population par la centralité, fait stylisé exhibé pour le système de ville Français par~\cite{bretagnolle:tel-00459720}. La correlation entre population et accessibilité est constante, probablement par l'auto-corrélation, et n'entre pas en jeu dans la définition des régimes. Pour des valeurs intermédiaires de $d_G$ et les fortes valeurs de $\gamma_G$, on observe également une très légère déviation pour les retards négatifs : pour ces régimes, on a causalité circulaire et le modèle capture une co-évolution dans ce sens. L'accessibilité quant à elle cause fortement la centralité pour $d_G = 10$, puis la tendance s'inverse pour les grands $d_G$. Pour $d_G = 10$, cela va dans le sens du lien entre population et centralité, et il n'y a dans ce cas pas co-évolution mais adaptation des populations au réseau.\comment[FL]{il faut harmoniser les termes ici : relation univoque est plus generique ?} Pour les régimes intermédiaires, on a circularité directement entre population et centralité, tandis que pour $d_G > 110$ il y a ``circularité indirecte'', puisque accessibilité cause centralité qui cause population (qui entre en jeu dans la centralité).
 
+% -- a modifier : signifs --
+%Ainsi, le modèle capture au moins trois régimes de co-évolution distincts, en fonction de la distance d'interaction et du niveau de hiérarchie\footnote{Une analyse plus systématique par apprentissage non-supervisé comme en~\ref{sec:causalityregimes} et en~\ref{sec:mesocoevolmodel} est laissée pour de futures développements.}.
 
+\comment[AB]{trop abstrait}
 
 %%%%%%%%%%%%%
 \begin{figure}
@@ -203,11 +207,10 @@ On a systématiquement une déviation positive de la corrélation entre populati
 %%%%%%%%%%%%%
 
 
+% plus resultats PSE
 
 
 
-
-\comment[AB]{trop abstrait}
 
 
 
@@ -242,8 +245,7 @@ Le modèle est ensuite appliqué au système de villes français sur des donnée
 
 Nous travaillons sur les données de réseau ferré construites par~\cite{thevenin2013mapping}. Le réseau ferré français est particulièrement intéressant en conjonction avec les données de population déjà présentées, puisque la période couverte est relativement similaire, et que comme le rappelle \cite{thevenin2013mapping}, ce moyen de transport a à toute période concrétisé l'implication d'acteurs publiques et privés importants, tout en correspondant à différents processus selon les époques, d'une gestion plutôt décentralisée à une centralisation très forte plus récemment, et différentes concrétisations technologiques avec par exemple l'émergence récente de la grande vitesse~\cite{zembri1997fondements}. Pour chaque date de la base de donnée de population, nous extrayons le graphe abstrait simplifié où toutes les gares et intersections de degré supérieur à deux sont reliés par les liens abstrait avec attributs de vitesse et distance traduisant la valeur réelle, à une granularité de 1km. Cela permet également de construire les matrices de distance-temps entre les villes considérées dans le modèle.
 
-\comment[AB]{mieux mettre en valeur}
-\comment[FL]{developpe cette partie pour mieux la mettre en valeur}
+%\comment[FL]{developpe cette partie pour mieux la mettre en valeur}[(AB) mieux mettre en valeur][(JR) pas utile, juste construction d'une matrice de distances.]
 
 
 
@@ -366,15 +368,14 @@ Nous esquissons à présent les contours d'une spécification du modèle avec r�
 
 similaire à \cite{li2014modeling}
 
-Le réseau physique que nous implémentons cherche à satisfaire un critère de gain de temps local. Plus précisément, on suppose un auto-renforcement à la manière de~\cite{tero2010rules}. Une specification analogue à celle utilisée précédemment suppose une croissance pour chaque lien, donnée par :
+Le réseau physique que nous implémentons cherche à satisfaire un critère de gain de temps local. Plus précisément, on suppose un auto-renforcement à la manière de~\cite{tero2010rules}. Une specification analogue à celle utilisée précédemment suppose une croissance pour chaque lien, donnée également dans une logique d'auto-renforcement par :
 
 \[
 d(t+1) = d(t)\cdot \left(1 + g_{max} \cdot \left[\frac{\phi}{\max \phi}\right]^{\gamma_s}\right)
 \]
 
-\comment[AB]{expliciter l'autorenforcement ici}
 
-la specification par seuil ne permettant pas une bonne convergence dans le temps.
+la specification par seuil utilisée précédemment ne permettant pas une bonne convergence dans le temps.
 
 \comment[FL]{repartition des pop pas differentes ?}
 
