@@ -457,10 +457,10 @@ undirected-link-breed[ghost-transportation-links ghost-transportation-link]
 breed[ghost-transportation-nodes ghost-transportation-node]
 @#$#@#$#@
 GRAPHICS-WINDOW
-373
-11
-845
-504
+371
+10
+843
+503
 6
 6
 35.833333333333336
@@ -523,7 +523,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance" "network"
-2
+13
 
 TEXTBOX
 11
@@ -672,10 +672,10 @@ PENS
 "pen-1" 1.0 0 -12087248 true "" "plot rel-diff-actives / count patches"
 
 OUTPUT
-838
-410
-1295
-704
+877
+383
+1334
+677
 10
 
 TEXTBOX
@@ -781,7 +781,7 @@ CHOOSER
 log-level
 log-level
 "DEBUG" "VERBOSE" "DEFAULT"
-2
+1
 
 SLIDER
 8
@@ -807,7 +807,7 @@ road-length
 road-length
 1.0
 20
-1
+2
 1.0
 1
 NIL
@@ -893,7 +893,7 @@ CHOOSER
 game-type
 game-type
 "random" "simple-nash" "discrete-choices"
-0
+1
 
 TEXTBOX
 183
@@ -1053,7 +1053,7 @@ seed
 seed
 -100000
 100000
-15
+0
 1
 1
 NIL
@@ -1110,7 +1110,7 @@ SWITCH
 608
 evolve-network?
 evolve-network?
-1
+0
 1
 -1000
 
@@ -1144,10 +1144,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean-effective-distance"
 
 INPUTBOX
-297
-111
-371
-171
+292
+110
+366
+170
 target-network-file
 setup/target/network0.shp
 1
@@ -1156,9 +1156,9 @@ String
 
 TEXTBOX
 404
-498
+503
 433
-516
+521
 Run
 11
 0.0
@@ -1183,7 +1183,7 @@ relocation-rate
 relocation-rate
 0
 1
-0.15
+0.5
 0.01
 1
 NIL

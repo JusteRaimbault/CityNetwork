@@ -1157,6 +1157,11 @@ then
   echo $FIGNAME
   convert Figures/Reflexivity/citcore.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
+  # fig:app:reflexivity:interdisc
+  FIGNAME=F-reflexivity-interdisc
+  echo $FIGNAME
+  convert Figures/Reflexivity/interdisciplinarities.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
   # fig:app:reflexivity:time
   FIGNAME=F-reflexivity-time
   echo $FIGNAME
