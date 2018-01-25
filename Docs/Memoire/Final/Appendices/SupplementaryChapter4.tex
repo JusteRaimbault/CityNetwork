@@ -26,6 +26,7 @@
 %%%%%%%%%%%%%%%%%%
 %
 
+Nous calculons pour la Chine, à partir de la grille de population à 1km~\cite{fu1km}, les indicateurs morphologiques. Nous prenons des zones de 100km de côté, afin d'avoir un nombre raisonnable de points pour l'estimation, avec un décalage de 50km. Les cartes correspondantes sont données en Fig.~\ref{fig:app:staticcorrelations:morphocn}. La distribution de certains indicateurs comme l'entropie $\mathcal{E}$ semblant conditionnée aux limites de province comme pour le Sichuan, l'uniformité du jeu de données est éventuellement à questionner.
 
 
 
@@ -33,7 +34,7 @@
 \begin{figure}
 %\includegraphics[width=\linewidth]{Figures/StaticCorrelations/CN_indics_morpho}
 \includegraphics[width=\linewidth]{Figures/Final/A-staticcorrelations-morphocn.jpg}
-\appcaption{\textbf{Morphological indicators for China.}\label{fig:app:staticcorrelations:morphocn}}{\textbf{Indicateurs morphologiques pour la Chine.}\label{fig:app:staticcorrelations:morphocn}}
+\appcaption{\textbf{Morphological indicators for China.}\label{fig:app:staticcorrelations:morphocn}}{\textbf{Indicateurs morphologiques pour la Chine.} Nous donnons pour les zones où une population et le réseau sont simultanément définis, l'indice de Moran $I$ (\texttt{moran}), la distance moyenne $\bar{d}$ (\texttt{averageDistance}), l'entropie $\mathcal{E}$ (\texttt{entropy}) et la hiérarchie $\gamma$ (\texttt{rankSizeAlpha}).\label{fig:app:staticcorrelations:morphocn}}
 \end{figure}
 %%%%%%%%%%%%%%
 
@@ -58,12 +59,16 @@ Le réseau est d'abord agrégé à une granularité de 100m pour pouvoir être u
   
 La simplification est alors opérée de la façon suivante :
 \begin{enumerate}
-\item L'ensemble de la couverture géographique est découpée en zones sur lesquelles les traitement seront effectués en partie par du calcul parallèle (paradigme\emph{split})
+\item L'ensemble de la couverture géographique est découpée en zones sur lesquelles les traitement seront effectués en partie par du calcul parallèle (paradigme\emph{split}). Les zones sont de côté fixe en nombre de cellules du raster de base (200 cellules).
 \item Sur chaque sous-zone, un algorithme de simplification est effectué de la façon suivante : tant qu'il reste des sommets de degré 2, les séquences successives de tels sommets sont déterminées, et les liens correspondants sont remplacés par un lien unique avec longueur et vitesse réels calculés par cumul sur les liens supprimés.
+\item Comme l'algorithme de simplification conserve les liens ayant une intersection avec la bordure des zones, une fusion puis simplification des graphes fusionnés est nécessaire. Pour garder un coût computationnel raisonnable, la taille des zones fusionnées doit rester modeste : nous prenons des zones de fusion composées de deux zones contiguës. Un pavage par quatre séquences de fusion indépendantes permet alors de couvrir l'ensemble des jointures entre zones\footnote{Dans les cas très rares d'un lien entre deux zones non contiguës, le lien restant n'est pas simplifié. Ce cas n'a pas été observé en pratique dans nos données.}, ces séquences pouvant être exécutées à la suite. L'encadré \ref{frame:app:staticcorrelations:merging} montre le recouvrement des jointures par les zones de fusion.
 \end{enumerate}
 
 
-% Network is simplified by iterative suppression of nodes with degree two, with keeping link speed and real length to their effective value.
+Nous disposons alors d'un graphe topologique donné par les liens entre cellules du raster de base, ayant des attributs de distance et de vitesse correspondant au liens réels sous-jacents.
+
+
+Les graphes pour l'Europe et la Chine sont disponibles en base de données ouverte (voir Annexe~\ref{app:data}).
 
 
 
@@ -76,7 +81,7 @@ La simplification est alors opérée de la façon suivante :
 
 	\medskip
 
-	\framecaption{\textbf{Schema of merging sequences.}\label{frame:app:staticcorrelations:merging}}{\textbf{Illustration des séquences de fusion.}\label{frame:app:staticcorrelations:merging}}
+	\framecaption{\textbf{Schema of merging sequences.}\label{frame:app:staticcorrelations:merging}}{\textbf{Illustration des séquences de fusion.} Les quatre séquences indépendantes (horizontales et verticales) permettent le recouvrement de l'ensemble des jointures entre zones.\label{frame:app:staticcorrelations:merging}}
 \end{mdframed}
 \end{figure}
 %%%%%%%%%%%%%
@@ -281,21 +286,7 @@ Nous donnons en Fig.~\ref{fig:app:staticcorrelations:networkcn} un échantillon 
 
 
 \bpar{}{
-Nous évaluons ici la sensibilité des divers indicateurs à la taille de la grille. Nous montrons en Fig.~\ref{fig:app:staticcorrelations:sensitivity-maps-morpho} les indicateurs morphologiques et en Fig.~\ref{fig:app:staticcorrelations:sensitivity-maps-morpho} certains indicateurs de réseau, cartographiés pour la France, pour des tailles différentes de grille. Les tailles données ici, en écho à celle de 50km utilisée dans les résultats principaux, sont dans des ordres de grandeur équivalents : nous testons des fenêtres de taille 30km et 60km. Les décalages sont à chaque fois de la moitié de la fenêtre (15km et 50km respectivement). Il est possible de voir ``à l'oeil'' que certains indicateurs sont peu sensibles, le changement d'échelle ressemblant à un lissage du champ le plus fin : par exemple dans le cas morphologique pour l'indice de Moran, l'entropie et la hiérarchie. La distance moyenne, en fait très bruitée à l'échelle la plus faible, est nécessairement sensible à l'agrégation, ce qui est consistant avec une sensibilité attendue au lissage. Les indicateurs de réseau sont relativement robustes à la taille de la fenêtre.
-}
-
-\bpar{}{
-Cette comparaison, d'une part est à prendre avec précaution de par la non-comparabilité directe des échelles pour les indicateurs, et d'autre part reste limitée. Nous proposons alors une méthode pour quantifier la variabilité des indicateurs à la taille de la fenêtre. Soit $X_D$ et $X_d$ deux champs spatiaux correspondant à deux échelles spatiales $D > d$ (qu'on prend comme des distances caractéristiques), qu'on suppose discrets en des points respectifs $\left(\vec{x}_i^{(D)}\right)_{1 \leq i \leq N_D}$ et $\left(\vec{x}_j^{(d)}\right)_{1 \leq i \leq N_d}$. L'idée est de comparer un lissage du champ le plus fin au champ le moins fin : si la corrélation entre ces deux valeurs est forte, il est possible de passer d'un champ à l'autre par agrégation et l'échelle de calcul n'influe ainsi pas autrement que sur la résolution finale. Soit $W_{ij} = \left( \exp{ - d_{ij} / d_0} \right)_{ij}$ une matrice de poids spatiaux calculée par les distances euclidiennes $d_{ij}$ entre les points $\vec{x}_i^{(D)}$ et $\vec{x}_j^{(d)}$. Alors avec $W'_{ij} = W_{ij} / \sum_j W_{ij}$, on peut calculer le lissage spatial de $X_d$ aux points $\vec{x}_i^{(D)}$, par le produit matriciel
-\[
-\tilde{X}_d (\vec{x}_i^{(D)}) = W' \ast \vec{x}_j^{(d)}
-\]
-
-La corrélation est alors donnée par $\rhob{\tilde{X}_d}{X_D}$ évaluée sur l'ensemble des points $\vec{x}_i^{(D)}$.
-}
-
-
-\bpar{}{
-La Fig.~\ref{fig:app:staticcorrelations:sensitivity-corrs} donne les variations de la corrélation pour l'ensemble des couples $(D,d)$
+Nous évaluons ici la sensibilité des divers indicateurs à la taille de la grille. Nous montrons en Fig.~\ref{fig:app:staticcorrelations:sensitivity-maps-morpho} les indicateurs morphologiques et en Fig.~\ref{fig:app:staticcorrelations:sensitivity-maps-network} certains indicateurs de réseau, cartographiés pour la France, pour des tailles différentes de grille. Les tailles données ici, en écho à celle de 50km utilisée dans les résultats principaux, sont dans des ordres de grandeur équivalents : nous testons des fenêtres de taille 30km et 60km. Les décalages sont à chaque fois de la moitié de la fenêtre (15km et 50km respectivement). Il est possible de voir ``à l'oeil'' que certains indicateurs sont peu sensibles, le changement d'échelle ressemblant à un lissage du champ le plus fin : par exemple dans le cas morphologique pour l'indice de Moran, l'entropie et la hiérarchie. La distance moyenne, en fait très bruitée à l'échelle la plus faible, est nécessairement sensible à l'agrégation, ce qui est consistant avec une sensibilité attendue au lissage. Les indicateurs de réseau sont relativement robustes à la taille de la fenêtre.
 }
 
 
@@ -320,6 +311,24 @@ La Fig.~\ref{fig:app:staticcorrelations:sensitivity-corrs} donne les variations 
 %%%%%%%%%%%%
 
 
+
+\bpar{}{
+Cette comparaison, d'une part est à prendre avec précaution de par la non-comparabilité directe des échelles pour les indicateurs, et d'autre part reste limitée. Nous proposons alors une méthode pour quantifier la variabilité des indicateurs à la taille de la fenêtre. Soit $X_D$ et $X_d$ deux champs spatiaux correspondant à deux échelles spatiales $D > d$ (qu'on prend comme des distances caractéristiques), qu'on suppose discrets en des points respectifs $\left(\vec{x}_i^{(D)}\right)_{1 \leq i \leq N_D}$ et $\left(\vec{x}_j^{(d)}\right)_{1 \leq i \leq N_d}$. L'idée est de comparer un lissage du champ le plus fin au champ le moins fin : si la corrélation entre ces deux valeurs est forte, il est possible de passer d'un champ à l'autre par agrégation et l'échelle de calcul n'influe ainsi pas autrement que sur la résolution finale. Soit $W_{ij} = \left( \exp{ - d_{ij} / d_0} \right)_{ij}$ une matrice de poids spatiaux calculée par les distances euclidiennes $d_{ij}$ entre les points $\vec{x}_i^{(D)}$ et $\vec{x}_j^{(d)}$. Alors avec $W'_{ij} = W_{ij} / \sum_j W_{ij}$, on peut calculer le lissage spatial de $X_d$ aux points $\vec{x}_i^{(D)}$, par le produit matriciel
+\[
+\tilde{X}_d (\vec{x}_i^{(D)}) = W' \ast \vec{x}_j^{(d)}
+\]
+
+La corrélation est alors donnée par $\rhob{\tilde{X}_d}{X_D}$ évaluée sur l'ensemble des points $\vec{x}_i^{(D)}$.
+}
+
+
+\bpar{}{
+La Fig.~\ref{fig:app:staticcorrelations:sensitivity-corrs} donne les variations de cette corrélation pour l'ensemble des couples $(D,d)$, avec le lissage effectué avec $d_0$ variable à chaque fois. Nous observons généralement l'existence d'un maximum, qui correspond au niveau de lissage optimal pour déduire la plus grande échelle à partir de la petite. Les meilleures corrélations sur l'ensemble des indicateurs sont obtenues pour $D=50$km et $d=30$km, ce qui signifie que les indicateurs sont peu sensibles aux faibles variations dans les petites tailles. Logiquement, les plus basses corrélations sont obtenues pour l'écart d'échelle le plus grand (100/30km). Les indicateurs morphologiques ont le même comportement qualitatif selon les combinaisons, et on retrouve le comportement observé à l'oeil sur les cartes (entropie et hiérarchie les moins sensibles, Moran et distance moyenne plus sensibles). Pour le réseau, certains indicateurs comme $\alpha_{bw}$ présentent une forte transition selon $D-d$ : il existe pour cet indicateur une forte sensibilité dans les petites tailles. Sur l'ensemble des indicateurs, la sensibilité reste tout de même raisonnable. Enfin, un lissage des deux champs donne des corrélations maximales asymptotiquement et très forte : la taille de calcul importe peu si on considère des champs lissés.
+}
+
+
+
+
 %% smoothed correlation
 
 %%%%%%%%%%%%
@@ -329,7 +338,7 @@ La Fig.~\ref{fig:app:staticcorrelations:sensitivity-corrs} donne les variations 
 	% Figures/StaticCorrelations/sensit_network_low100_high200.png	% Figures/StaticCorrelations/sensit_morpho_crossed.png
 	% Figures/StaticCorrelations/sensit_network_crossed.png
 	\includegraphics[width=\linewidth,height=0.9\textheight]{Figures/Final/A-staticcorrelations-sensitivity-corrs.jpg}
-	\appcaption{\label{fig:app:staticcorrelations:sensitivity-corrs}}{\textbf{Corrélations entre indicateurs à différentes échelles.} \label{fig:app:staticcorrelations:sensitivity-corrs}}
+	\appcaption{\label{fig:app:staticcorrelations:sensitivity-corrs}}{\textbf{Corrélations entre indicateurs à différentes échelles.} Dans l'ordre de haut en bas (colonne de gauche indicateurs morphologiques, colonne de droite indicateurs de réseau), $(d=30,D=50)$, $(d=30,D=100)$, $(d=50,D=100)$, et la dernière colonne donne la corrélation entre les deux champs $d_1=30$ et $d_2=50$ tous les deux lissés à la taille $d_0$.\label{fig:app:staticcorrelations:sensitivity-corrs}}
 \end{figure}
 %%%%%%%%%%%%
 
@@ -768,40 +777,17 @@ La Fig.~\ref{fig:app:causalityregimes:sudafcorrs} donne le comportement des corr
 
 
 
+
+
 %----------------------------------------------------------------------------------------
 
 
 %\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%
-%\section{Spatio-temporal causalities}{Causalités spatio-temporelles}
+%\section{Network Effects}{Effets de réseau}
 
-%\label{app:sec:causalityregimes}
-
-
-
-
-%%%%%%%%%%%%%%%
-%\begin{figure}
-%\includegraphics[height=\textwidth,angle=90]{Figures/SynthRBD/laggedcorrs_facet.png}
-%\caption[][]{}{}
-%\end{figure}
-%%%%%%%%%%%%%%%
-
-
-
-%----------------------------------------------------------------------------------------
-
-
-\newpage
-
-%%%%%%%%%%%%%%%%%%%%%%%
-\section{Network Effects}{Effets de réseau}
-
-\label{app:sec:interactiongibrat}
-
-
-
+%\label{app:sec:interactiongibrat}
 
 
 

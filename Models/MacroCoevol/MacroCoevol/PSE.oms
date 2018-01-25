@@ -35,12 +35,12 @@ val model =
 NetLogo5Task.workspace(workDirectory,"HEADLESS_MacroCoEvol.nlogo",cmds) set(
     inputs += (synthRankSize,nwThreshold,nwGmax,finalTime,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,replication),
     outputs += (synthRankSize,nwThreshold,nwGmax,finalTime,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay,replication),
-    netLogoOutputs += ("lagged-cor-minmax \"city-population\" \"city-closeness-centrality\" 6 true",rhoPopClosenessPos),
-    netLogoOutputs += ("lagged-cor-minmax \"city-population\" \"city-closeness-centrality\" 6 false",rhoPopClosenessNeg),
-    netLogoOutputs += ("lagged-cor-minmax \"city-population\" \"city-accessibility\" 6 true",rhoPopAccessibilityPos),
-    netLogoOutputs += ("lagged-cor-minmax \"city-population\" \"city-accessibility\" 6 false",rhoPopAccessibilityNeg),
-    netLogoOutputs += ("lagged-cor-minmax \"city-closeness-centrality\" \"city-accessibility\" 6 true",rhoClosenessAccessibilityPos),
-    netLogoOutputs += ("lagged-cor-minmax \"city-closeness-centrality\" \"city-accessibility\" 6 false",rhoClosenessAccessibilityNeg)
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-closeness-centrality\" 6 true",rhoPopClosenessPos),
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-closeness-centrality\" 6 false",rhoPopClosenessNeg),
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-accessibility\" 6 true",rhoPopAccessibilityPos),
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-accessibility\" 6 false",rhoPopAccessibilityNeg),
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-closeness-centrality\" \"city-accessibility\" 6 true",rhoClosenessAccessibilityPos),
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-closeness-centrality\" \"city-accessibility\" 6 false",rhoClosenessAccessibilityNeg)
 )
 
 
@@ -75,12 +75,12 @@ val exploration =
         ),
       objectives =
         Seq(
-          rhoPopClosenessPos in (-1.0 to 1.0 by 0.05),
-          rhoPopClosenessNeg in (-1.0 to 1.0 by 0.05),
-          rhoPopAccessibilityPos in (-1.0 to 1.0 by 0.05),
-          rhoPopAccessibilityNeg in (-1.0 to 1.0 by 0.05),
-          rhoClosenessAccessibilityPos in (-1.0 to 1.0 by 0.05),
-          rhoClosenessAccessibilityNeg in (-1.0 to 1.0 by 0.05)
+          rhoPopClosenessPos in (-0.2 to 0.2 by 0.01),
+          rhoPopClosenessNeg in (-0.2 to 0.2 by 0.01),
+          rhoPopAccessibilityPos in (-0.2 to 0.2 by 0.01),
+          rhoPopAccessibilityNeg in (-0.2 to 0.2 by 0.01),
+          rhoClosenessAccessibilityPos in (-0.2 to 0.2 by 0.01),
+          rhoClosenessAccessibilityNeg in (-0.2 to 0.2 by 0.01)
           ),
       stochastic = Stochastic(seed = replication)
     )
@@ -88,10 +88,10 @@ val exploration =
 val evolution = SteadyStateEvolution(
       algorithm = exploration,
       evaluation = eval,
-      termination = 1 hours
+      termination = 2 hours
 )
 
-val island = IslandEvolution(evolution, parallelism = 100,termination=24 hours)
+val island = IslandEvolution(evolution, parallelism = 300,termination=48 hours)
 
 val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir)
 
