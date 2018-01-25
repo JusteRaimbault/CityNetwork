@@ -12,16 +12,17 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/QuantEpistemo/HyperNetwork/HyperNet
 edges <- read.csv('data/CityNetwork_20171127_links.csv',sep=";",header=F,colClasses = c('character','character'))
 nodes <- as.tbl(read.csv('data/CityNetwork_20171127.csv',sep=";",header=F,stringsAsFactors = F,colClasses = c('character','character','character')))
 
-nodesabstract <-read.csv('data/abstracts_ids.csv',colClasses = c('character'))
+#nodesabstract <-read.csv('data/abstracts_ids.csv',colClasses = c('character'))
 
 names(nodes)<-c("title","id","year")
 nodes=nodes[nchar(nodes$id)>0,]
 
-intersect(nodesabstract$X8635210426419881284,nodes$id)
+#intersect(nodesabstract$X8635210426419881284,nodes$id)
 mongoids <-read.csv('data/mongoids.csv',colClasses = c('character'))
-intersect(mongoids$id,nodes$id)
-intersect(nodesabstract$X8635210426419881284,mongoids$id)
-
+#intersect(mongoids$id,nodes$id)
+#intersect(nodesabstract$X8635210426419881284,mongoids$id)
+#nwconstructids<-read.csv('data/nwconstructids.csv',colClasses = c('character','character'))
+#intersect(nwconstructids$id,mongoids$id)
 
 elabels = unique(c(edges$V1,edges$V2))
 empty=rep("",length(which(!elabels%in%nodes$id)))
@@ -30,6 +31,7 @@ nodes=rbind(nodes,data.frame(title=empty,id=elabels[!elabels%in%nodes$id],year=e
 citation <- graph_from_data_frame(edges,vertices = nodes[,c(2,1,3)])#3:7)])
 citation = induced_subgraph(citation,which(components(citation)$membership==1))
 #V(raw)$primary = V(raw)$name%in%nodesprim$V2
+max(sizes(components(citation)))/vcount(citation)
 
 #primary = induced_subgraph(raw,which(V(raw)$primary==TRUE))
 #V(primary)$reduced_title = sapply(V(primary)$title,function(s){substr(s,1,20)})
@@ -105,10 +107,12 @@ show(paste0(mean(mods)," +- ",sd(mods)))
 d=degree(citationcore,mode='in')
 for(c in unique(com$membership)){
   if(sizes(com)[c] > 10){
-    show(paste0("Community ",c, " ; corpus prop ",length(which(com$membership==c))/vcount(undirected_rawcore)))
+    #show(paste0("Community ",citcomnames[as.character(c)], " ; corpus prop ",100*length(which(com$membership==c))/vcount(undirected_rawcore)))
+    show(paste0(citcomnames[as.character(c)], " & ",format(100*length(which(com$membership==c))/vcount(undirected_rawcore),digits=3)," \\% \\\\"))
+    
     #show(paste0("Size ",length(which(com$membership==c))))
-    currentd=d[com$membership==c];dth=sort(currentd,decreasing = T)[10]
-    show(data.frame(titles=V(citationcore)$title[com$membership==c&d>dth],degree=d[com$membership==c&d>dth]))
+    #currentd=d[com$membership==c];dth=sort(currentd,decreasing = T)[10]
+    #show(data.frame(titles=V(citationcore)$title[com$membership==c&d>dth],degree=d[com$membership==c&d>dth]))
     #show(V(rawcore)$title[com$membership==c])
   }
 }
@@ -118,12 +122,21 @@ for(c in unique(com$membership)){
 # nom des communautes de citation
 citcomnames=list('28'='Chaos','64'='Economic Geography','62'='Urban Systems','67'='ABM',
                  '68'='Datamining','49'='Networks','47'='Spatial Statistics',
-                 '34'='Fractals','37'='Powe Laws','52'='Evolutionnary Economic Geography',
+                 '34'='Fractals','37'='Power Laws','52'='Evolutionnary Economic Geography',
                  '21'='Quantitative Epistemology','23'='Spatial Urban Growth Models',
                  '60'='Complexity','66'='LUTI','50'='Physics of Cities',
-                 '14'='SPatio-temporal data','40'='Biological Networks',
+                 '14'='Spatio-temporal data','40'='Biological Networks',
                  '63'='Space Syntax/Procedural modeling','51'='VGI'
                  )
+
+citcomnamesdisplay = list('28'='Chaos','64'='Economic\nGeography','62'='Urban\nSystems','67'='ABM',
+                          '68'='Datamining','49'='Networks','47'='Spatial\nStatistics',
+                          '34'='Fractals','37'='Power\nLaws','52'='Evolutionnary\nEconomic\nGeography',
+                          '21'='Quantitative\nEpistemology','23'='Spatial Urban\nGrowth Models',
+                          '60'='Complexity','66'='LUTI','50'='Physics of\nCities',
+                          '14'='Spatio\ntemporal\ndata','40'='Biological\nNetworks',
+                          '63'='Space\nSyntax','51'='VGI'
+)
 
 #V(citationcore)$citclass = unlist(sapply(as.character(com$membership),function(n){ifelse(n%in%names(citcomnames),unlist(citcomnames[n]),'NA')}))
 V(citationcore)$citmemb = com$membership

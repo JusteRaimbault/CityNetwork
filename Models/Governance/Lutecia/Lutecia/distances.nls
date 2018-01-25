@@ -316,7 +316,7 @@ to update-inters [new-inters in-between]
     
     foreach nw-inters [
       let n1 ?
-      if table:has-key? to-replace n1 [
+      if table:has-key? to-replace n1 and table:has-key? closest-nw-inters n1 [
          let newints [] foreach table:get closest-nw-inters n1 [ifelse first ? = table:get to-replace n1 [set newints lput (list ni (matrix:get euclidian-distance-matrix ni n1)) newints][set newints lput ? newints]]
          table:put closest-nw-inters n1 newints
       ]
@@ -419,7 +419,7 @@ to update-vertices-and-paths [new-inters]
       let ind ? let p table:get network-shortest-paths ?
       
       ; iterate on couples of neighbors
-      let neighs table:get closest-nw-inters o
+      let neighs [] if table:has-key? closest-nw-inters o [set neighs table:get closest-nw-inters o]
       let i 0 let j 1 repeat length neighs - 1 [set j (i + 1) repeat (length neighs) - i - 1 [
           let n1 first (item i neighs) let n2 first (item j neighs)
           
@@ -476,6 +476,7 @@ to update-vertices-and-paths [new-inters]
          ; put path in both senses here because directed path
          
          let path [] let dmin -1
+         if table:has-key? closest-nw-inters o [
          foreach table:get closest-nw-inters o [
            debug (word " ---- neigh : " (first ?) " ; " table:has-key? network-shortest-paths (list d (first ?)) )
             if table:has-key? network-shortest-paths (list d (first ?)) [
@@ -490,6 +491,7 @@ to update-vertices-and-paths [new-inters]
                  debug (word " ---- dmin : " dmin " ; path : " path)
               ]
             ]
+         ]
          ]
          
          debug (word " -- Final path : " path)
@@ -660,8 +662,9 @@ to-report connex-components
   
   ;; add other network patches, using closest-nw-inters  
   foreach nw-patches [
-    if not member? ? nw-inters [
-      let p ? let inters table:get closest-nw-inters p let k 0 let c clusters
+    let p ?
+    if not member? ? nw-inters and table:has-key? closest-nw-inters p [
+      let inters table:get closest-nw-inters p let k 0 let c clusters
       foreach c [
         if member? (first first inters) ? or member? (first last inters) ? [set clusters replace-item k clusters (lput p (item k clusters))]
         set k k + 1
@@ -722,8 +725,9 @@ to update-network-distance-matrix [everything]
       let p2 ?
       let d matrix:get network-distance-matrix p1 p2
       let i1 [] let i2 []
-      ;carefully [
+      carefully [
       set i1 table:get closest-nw-inters p1 set i2 table:get closest-nw-inters p2
+      ][]
       ;][print error-message inspect one-of patches with [number = p1] inspect one-of patches with [number = p2]]
       ifelse i1 = i2 or rev i1 = i2 or member? p1 (map first i2) or member? p2 (map first i1) [
         ; patches are on same link

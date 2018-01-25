@@ -92,9 +92,33 @@ end
 to-report lagged-cor-minmax [var1 var2 abstaumax tau-pos?]
   let lc lagged-corrs var1 var2 abstaumax 0
   ifelse tau-pos? = true [
-    let clc sublist lc (abstaumax + 1) (length lc) ifelse mean clc > 0 [report max clc][report min clc]
+    let clc sublist lc (abstaumax + 1) (length lc)
+    ifelse mean clc > 0 [report max clc][report min clc]
   ][
     let clc sublist lc 0 abstaumax ifelse mean clc > 0 [report max clc][report min clc]
+  ]
+end
+
+
+;;
+; specific way to get max/min lagged corrs
+;  relative to rho0
+to-report lagged-cor-minmax-rel [var1 var2 abstaumax tau-pos?]
+  let lc lagged-corrs var1 var2 abstaumax 0
+  let rho0 item abstaumax lc let clc []
+  ifelse tau-pos? = true [
+    set clc map [? - rho0] (sublist lc (abstaumax + 1) (length lc))    
+  ][
+    set clc map [? - rho0] (sublist lc 0 abstaumax)
+  ]
+  let rhominus min clc let rhoplus max clc
+  if rhoplus = 0 [ifelse abs (rhominus + rho0) > abs rho0 [report rhominus][report 0]]
+  if rhominus = 0 [ifelse abs (rhoplus + rho0) > abs rho0 [report rhoplus][report 0]]
+  if abs (rhoplus + rho0) < abs rho0 and abs (rhominus + rho0) < abs rho0 [report 0]
+  if abs (rhoplus + rho0) < abs rho0 and abs (rhominus + rho0) > abs rho0 [report rhominus]
+  if abs (rhoplus + rho0) > abs rho0 and abs (rhominus + rho0) < abs rho0 [report rhoplus]
+  if abs (rhoplus + rho0) > abs rho0 and abs (rhominus + rho0) > abs rho0 [
+    ifelse abs (rhoplus + rho0) > abs (rhominus + rho0) [report rhoplus][report rhominus]
   ]
 end
 

@@ -1157,6 +1157,11 @@ then
   echo $FIGNAME
   convert Figures/Reflexivity/citcore.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
+  # fig:app:reflexivity:interdisc
+  FIGNAME=F-reflexivity-interdisc
+  echo $FIGNAME
+  convert Figures/Reflexivity/interdisciplinarities.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
   # fig:app:reflexivity:time
   FIGNAME=F-reflexivity-time
   echo $FIGNAME
@@ -1171,11 +1176,6 @@ then
   FIGNAME=F-reflexivity-kd
   echo $FIGNAME
   montage -resize "$(( WIDTH / 2))"x Figures/Reflexivity/graph-kd-cooccs.png -resize "$(( WIDTH / 2))"x Figures/Reflexivity/graph-kd-laggedflow.png -quality $JPGQUALITY -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
-
-
-
-
-
 
 
 

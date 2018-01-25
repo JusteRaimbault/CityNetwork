@@ -21,20 +21,26 @@ to-report network:new-infra [coords construct?]
       set e2 one-of transportation-nodes with [xcor = x2 and ycor = y2] if e2 = nobody [create-transportation-nodes 1 [network:new-transportation-node setxy x2 y2 set e2 self]]
     ]
   
-    ask e2 [create-transportation-link-with e1 [network:new-transportation-link set new-link self]]
+    
+    ;show e1 show e2
+    
+    ifelse e1 != nobody and e2 != nobody [
+      ask e2 [create-transportation-link-with e1 [network:new-transportation-link set new-link self]]
   
-    ; check if link is valid
-    let valid? false
-    ask new-link [
-      foreach link:footprint [ask ? [set valid? (valid? or not member? number nw-patches)]]
-    ]
-    ifelse valid? [
-      report new-link
-    ][
-      verbose "¡¡ Unvalid infrastructure !!"
-      ask new-link [ask both-ends [die] die]
-      report nobody
-    ]
+      ; check if link is valid
+      let valid? false
+      ask new-link [
+        foreach link:footprint [ask ? [set valid? (valid? or not member? number nw-patches)]]
+        set valid? (valid? and length link:footprint > 1)
+      ]
+      ifelse valid? [
+        report new-link
+      ][
+        verbose "¡¡ Unvalid infrastructure !!"
+        ask new-link [ask both-ends [die] die]
+        report nobody
+      ]
+    ][report nobody]
   ][report nobody]
 end
 

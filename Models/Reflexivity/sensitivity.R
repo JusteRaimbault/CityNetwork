@@ -21,6 +21,12 @@ outputfile=paste0('sensitivity/',graphfile,'.RData')
 load(paste0(Sys.getenv('CN_HOME'),'/Models/Reflexivity/processed/',graphfile,'.RData'))
 semantic=res$g;
 keyword_dico=res$keyword_dico
+names(keyword_dico)=mongoids$id
+
+
+
+
+
 #rm(res);gc()
 head(names(keyword_dico))
 head(nodesabstract$X8635210426419881284)
