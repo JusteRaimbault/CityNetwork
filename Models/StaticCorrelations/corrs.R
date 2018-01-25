@@ -139,7 +139,7 @@ lcorrs = getCorrMatrices(xcors,ycors,step,rhoasize,res)
 #save(corrs,file='res/res/corrstemp.RData')
 #load('res/res/corrstemp.RData')
 
-corrmat = matrix(data = unlist(lcorrs$corrs),ncol=400,byrow=TRUE)
+corrmat = matrix(data = unlist(lcorrs$corrs),ncol=(ncol(res)-2)^2,byrow=TRUE)
 #corrmat = matrix(data = unlist(corrs),ncol=400,byrow=TRUE)
 rows=apply(corrmat,1,function(r){prod(as.numeric(!is.na(r)))>0})
 corrmat = corrmat[rows,]
@@ -172,10 +172,9 @@ colnames(rhopca)<-c("lon","lat","rho")
 #  xlim(c(-11,32))+ylim(c(35.55,70))+facet_grid(type~delta)+ggtitle("Mean abs correlation")##+ggtitle("PCA (full matrix) ; delta = 4")#
 
 ###
-
-g=ggplot(rhopca)
-g+geom_raster(aes(x=lat,y=lon,fill=rho))+scale_fill_gradient2(low="#998ec3",mid="#f7f7f7",high="#f1a340",midpoint = median(rhopca$rho,na.rm = T))+#scale_fill_gradient(low="yellow",high="red",name="PC1")+
-  xlim(c(-11,32))+ylim(c(35.55,70))+ggtitle("PCA (full matrix) ; delta = 4")#
+#g=ggplot(rhopca)
+#g+geom_raster(aes(x=lat,y=lon,fill=rho))+scale_fill_gradient2(low="#998ec3",mid="#f7f7f7",high="#f1a340",midpoint = median(rhopca$rho,na.rm = T))+#scale_fill_gradient(low="yellow",high="red",name="PC1")+
+#  xlim(c(-11,32))+ylim(c(35.55,70))+ggtitle("PCA (full matrix) ; delta = 4")#
 
 
 

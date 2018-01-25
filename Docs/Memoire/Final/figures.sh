@@ -683,6 +683,19 @@ then
   echo $FIGNAME
   convert Figures/StaticCorrelations/CN_indics_network_selected.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
+
+  # fig:app:staticcorrelations:overallcorrs
+  FIGNAME=A-staticcorrelations-overallcorrs
+  echo $FIGNAME
+  convert Figures/StaticCorrelations/corrmat_deltainfty.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+  # fig:app:staticcorrelations:europe-correlations
+  FIGNAME=A-staticcorrelations-europe-correlations
+  echo $FIGNAME
+  montage Figures/StaticCorrelations/corr_alphaCloseness.moran_rhoasize12.png Figures/StaticCorrelations/corr_slope.moran_rhoasize12.png Figures/StaticCorrelations/corr_meanBetweenness.slope_rhoasize12.png Figures/StaticCorrelations/corr_alphaCloseness.alphaBetweenness_rhoasize12.png Figures/StaticCorrelations/corr_vcount.meanPathLength_rhoasize12.png Figures/StaticCorrelations/corr_slope.rsquaredslope_rhoasize12.png -resize "$WIDTH"x -tile 2x3 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
   # fig:app:staticcorrelations:corr-distribs
   FIGNAME=A-staticcorrelations-corr-distribs
   echo $FIGNAME
