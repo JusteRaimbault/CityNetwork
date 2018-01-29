@@ -577,9 +577,7 @@ then
   # fig:energyprice:moran
   FIGNAME=8-2-2-fig-energyprice-moran
   echo $FIGNAME
-  montage Figures/EnergyPrice/moran_days.png Figures/EnergyPrice/moran_decay_weeks.png -tile 2x1 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
-  convert $FIGDIR/"$FIGNAME"_tmp.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm $FIGDIR/"$FIGNAME"_tmp.png
+  montage Figures/EnergyPrice/moran_days.png Figures/EnergyPrice/moran_decay_weeks.png -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # fig:energyprice:gwr
   FIGNAME=8-2-2-fig-energyprice-gwr
