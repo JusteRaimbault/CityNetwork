@@ -1003,7 +1003,7 @@ then
 
   FIGNAME=C-cybergeonetworks-who
   echo $FIGNAME
-  convert Figures/CybergeoNetworks/whoStudiesWho.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  convert Figures/CybergeoNetworks/who-who.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   FIGNAME=C-cybergeonetworks-commintern
   echo $FIGNAME
