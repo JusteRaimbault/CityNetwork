@@ -1,7 +1,7 @@
 
 # empirical AIC
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/InteractionGibrat'))
 
 source('setup.R')
 
@@ -46,6 +46,13 @@ show(paste0('(1) : ',logmse1,' ; ',mselog1))
 show(paste0('(2) : ',logmse2,' ; ',mselog2))
 
 
+# 
+n1=length(resM1$df$populations);k1=4
+n2=length(resM2$df$populations);k2=4
+(n1*log(mse1/n1) + 2*k1*n1/(n1-k1-1)) - (n2*log(mse2/n2) + 2*k2*n2/(n2-k2-1))
+
+n1*mselog1 + 2*k1*n1/(n1-k1-1)
+n2*mselog2 + 2*k2*n2/(n2-k2-1)
 
 ##
 # Fit random statistical models with same parameter number

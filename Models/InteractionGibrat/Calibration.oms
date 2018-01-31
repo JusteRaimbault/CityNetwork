@@ -1,4 +1,54 @@
-import Model._
+import interaction._
+
+import java.text.SimpleDateFormat
+import java.util.Date
+
+logger.level("FINE")
+
+
+// Parameters
+val growthRate = Val[Double]
+val gravityWeight = Val[Double]
+val gravityGamma = Val[Double]
+val gravityDecay = Val[Double]
+val gravityAlpha = Val[Double]
+val feedbackWeight = Val[Double]
+val feedbackGamma = Val[Double]
+val feedbackDecay = Val[Double]
+
+// Exploration
+val id=Val[Int]
+
+// Reporters
+val logmse=Val[Double]
+val mselog=Val[Double]
+
+// config files
+val popFile=Val[File]
+val distFile=Val[File]
+val fdistsFile=Val[File]
+val dateFile=Val[File]
+
+// Model
+val model =
+  ScalaTask(
+    """
+      | import interaction._
+      | val pop = ModelLauncher.main(input.popFile,input.distFile,input.fdistsFile,input.dateFile,input.growthRate,input.gravityWeight,input.gravityGamma,input.gravityDecay,input.gravityAlpha,input.feedbackWeight,input.feedbackGamma,input.feedbackDecay,input.id)
+      | val logmse = InteractionModel.logmse(pop)
+      | val mselog = InteractionModel.mselog(pop)
+    """.stripMargin
+  ) set (
+    plugins += pluginsOf(ModelLauncher),
+    //inputFiles += ((popFile, "popFileName"),(distFile,"distFileName"),(fdistsFile,"fdistsFileName")),
+    inputs += (popFile,distFile,fdistsFile,dateFile,growthRate,gravityWeight,gravityGamma,gravityDecay,gravityAlpha,feedbackWeight,feedbackGamma,feedbackDecay,id),
+    outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,gravityAlpha,feedbackWeight,feedbackGamma,feedbackDecay,id),
+    outputs += (logmse,mselog)
+  )
+val modelCapsule = Capsule(model)
+
+
+
 
 val fileSetting = ExplorationTask(
   (popFile in Seq( workDirectory / "data" / "pop50.csv")) x
@@ -11,36 +61,41 @@ val fileSetting = ExplorationTask(
 
 val eval = fileSetting -< model
 
+
+
+val datestr = (new SimpleDateFormat("yyyyMMdd")).format(new Date())
+val purpose = "fullcalib_logmse"
+val resdir = datestr+"_"+purpose
+
+
 val evolution =
   SteadyStateEvolution(
-    algorithm =   
+    algorithm =
       NSGA2(
         mu = 200,
-        genome = 
+        genome =
           Seq(
-            growthRate in Range(0.0005, 0.007),
+            growthRate in Range(0.0005, 0.05),
             gravityWeight in Range(0.0001,0.01),
-            gravityGamma in Range(0.2,3.0),
-            gravityDecay in Range(50.0,2000.0),
+            gravityGamma in Range(0.1,10.0),
+            gravityDecay in Range(1.0,2000.0),
             feedbackWeight in Range(0.0001,0.01),
-            feedbackGamma in Range(0.2,3.0),
+            feedbackGamma in Range(0.1,10.0),
             feedbackDecay in Range(1.0,500.0)
           ),
         objectives = Seq(logmse)
       ),
     evaluation = eval,
-    termination = 10 minutes
+    termination = 1 hours
   )
-  
-val island = IslandEvolution(evolution, parallelism = 15, termination = 200000)
+
+val island = IslandEvolution(evolution, parallelism = 300,termination=24 hours)
 
 // Define the hook to save the results
-val savePopulation = SavePopulationHook(island, workDirectory / "calibration") 
+val savePopulation = SavePopulationHook(island, workDirectory / "calib" / resdir)
 
-//val grid = EGIEnvironment("vo.complex-systems.eu")
-val local = LocalEnvironment(15)
+val grid = EGIEnvironment("vo.complex-systems.eu")
+//val local = LocalEnvironment(15)
 
 // Define the execution
 (island on local hook savePopulation)
-
-

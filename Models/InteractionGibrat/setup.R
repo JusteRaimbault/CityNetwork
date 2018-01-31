@@ -7,7 +7,7 @@ library(GA)
 library(ggplot2)
 library(Matrix)
 
-setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/InteractionGibrat'))
 
 source('functions.R')
 
