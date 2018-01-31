@@ -8,7 +8,7 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/MacroCoEvol/MacroCoEvol/calibres'))
 
-resdir = '20180122_pse_grid'
+resdir = '20180125_pse_grid'
 
 params = c("growthRate","gravityGamma","gravityDecay","gravityWeight"#,"feedbackGamma","feedbackDecay","feedbackWeight")
            ,"nwThreshold","nwExponent","nwGmax")
@@ -28,16 +28,17 @@ res$gravityDecayF = cut(res$gravityDecay,6)
 ggpairs(data=res,columns = c("rhoPopClosenessPos","rhoPopClosenessNeg","rhoPopAccessibilityPos","rhoPopAccessibilityNeg","rhoClosenessAccessibilityPos","rhoClosenessAccessibilityNeg"),
         aes(colour=gravityDecayF,alpha=0.4)
         )
-
+ggsave(filename = paste0(figdir,'scatterplot_colorgravityDecay.png'),width=40,height=25,units='cm')
 
 res$nwThresholdF = cut(res$nwThreshold,6)
 ggpairs(data=res,columns = c("rhoPopClosenessPos","rhoPopClosenessNeg","rhoPopAccessibilityPos","rhoPopAccessibilityNeg","rhoClosenessAccessibilityPos","rhoClosenessAccessibilityNeg"),
         aes(colour=nwThresholdF,alpha=0.4)
 )
+ggsave(filename = paste0(figdir,'scatterplot_colornwThreshold.png'),width=40,height=25,units='cm')
 
 
-discr = discrepancyCriteria(res[,c("rhoPopClosenessPos","rhoPopClosenessNeg","rhoPopAccessibilityPos","rhoPopAccessibilityNeg","rhoClosenessAccessibilityPos","rhoClosenessAccessibilityNeg")],
-                            type=c('L2'))
+#discr = discrepancyCriteria(res[,c("rhoPopClosenessPos","rhoPopClosenessNeg","rhoPopAccessibilityPos","rhoPopAccessibilityNeg","rhoClosenessAccessibilityPos","rhoClosenessAccessibilityNeg")],
+#                            type=c('L2'))
 
 
 
