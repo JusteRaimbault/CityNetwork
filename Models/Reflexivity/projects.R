@@ -178,4 +178,59 @@ dev.off()
 
 
 
+#######
+## lagged correlations
+
+#'
+#' rho[X(t-tau),Y(t)]
+getLaggedCorrs <- function(x,y,taumax=10,delta=F){
+  res=data.frame()
+  if(delta==T){x=diff(x);y=diff(y)}
+  for(tau in -taumax:taumax){
+    if(tau>=0){xx=x;yy=y}else{xx=y;yy=x}
+    corrs = cor.test(xx[1:(length(xx)-abs(tau))],yy[(abs(tau)+1):(length(yy))])
+    estimate = corrs$estimate
+    rhomin = corrs$conf.int[1]
+    rhomax = corrs$conf.int[2]
+    res=rbind(res,data.frame(rho=estimate,rhomin = rhomin,rhomax=rhomax,tau=tau,pval=corrs$p.value,tstat=corrs$statistic))
+  }
+  return(res)
+}
+
+pth=0.05
+kds = unique(as.character(kddata$KnowledgeDomain));kds=kds[kds!="Data"]
+
+links=data.frame()
+for(i in 1:(length(kds)-1)){
+  v1 = kds[i]
+  for(j in (i+1):length(kds)){
+    v2 = kds[j]
+    rho = getLaggedCorrs(kddata$time[as.character(kddata$KnowledgeDomain)==v1],kddata$time[as.character(kddata$KnowledgeDomain)==v2],taumax = 4,delta = T)
+    rhoplus = rho%>%filter(pval<pth,tau>0)
+    if(nrow(rhoplus)>0){links=rbind(links,cbind(rhoplus[abs(rhoplus$rho)==max(abs(rhoplus$rho)),],x1 = v1,x2 = v2))}
+    rhominus = rho%>%filter(pval<pth,tau<0)
+    if(nrow(rhominus)>0){links=rbind(links,cbind(rhominus[abs(rhominus$rho)==max(abs(rhominus$rho)),],x1 = v2,x2 = v1))}
+  }
+}
+
+# for delta=F, taumax : 4 -> 8 : 1 link en plus uniquement, peu sensible. -> prend taumax = 4
+# delta = T , idem. taumax = 4
+clinks = links[,c("x1","x2","rho")];
+clinks$color = ifelse(clinks$rho>0,"green","red");clinks$rho=abs(clinks$rho)
+names(clinks)<-c("v1","v2","weight","color")
+
+laggedGraph = graph_from_edgelist(as.matrix(clinks[,1:2]),directed = T)
+E(laggedGraph)$weight = clinks$weight;E(laggedGraph)$color = clinks$color
+png(paste0(resdir,'laggedcorrs.png'),width = 15,height=15,units='cm',res=300)
+plot(laggedGraph,edge.width=20*E(laggedGraph)$weight,
+     edge.curved=0.1,edge.arrow.width=1,edge.arrow.size=1,
+     edge.color=E(laggedGraph)$color,layout= layout_in_circle(laggedGraph),
+     vertex.size = 0.1,vertex.label.cex=2
+     )
+dev.off()
+
+
+
+
+
 
