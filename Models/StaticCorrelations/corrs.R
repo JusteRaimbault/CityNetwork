@@ -14,6 +14,7 @@
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 source('functions.R')
+source('mapFunctions.R')
 
 library(raster)
 library(ggplot2)
@@ -25,9 +26,11 @@ library(rgdal)
 library(rgeos)
 
 # load data
-raw=read.csv(file="res/res/europe_areasize100_offset50_factor0.5_20160824.csv",sep=";",header=TRUE)
-rows=apply(raw,1,function(r){prod(as.numeric(!is.na(r)))>0})
-res=raw[rows,]
+params = 'areasize100_offset50_factor0.5'
+#res=read.csv(file="res/res/europe_areasize100_offset50_factor0.5_20160824.csv",sep=";",header=TRUE)
+res = loadIndicatorData("res/europecoupled_areasize100_offset50_factor0.5_temp.RData")
+rows=apply(res,1,function(r){prod(as.numeric(!is.na(r)))>0})
+res=res[rows,]
 
 
 #######################
@@ -124,8 +127,10 @@ for(j in 3:22){plot(dfToRaster(raw,col=j),main=colnames(raw)[j])}
 # pca analysis of corr matrices -> full matrix for now
 
 #istep=5;jstep=5;rhoasize=12
-rhoasize=4
-step=4
+#rhoasize=4
+rhoasize=12
+#step=4
+step=5
 xcors=sort(unique(res[,1]));xcors=xcors[seq(from=rhoasize/2,to=length(xcors)-(rhoasize/2),by=step)]
 ycors=sort(unique(res[,2]));ycors=ycors[seq(from=rhoasize/2,to=length(ycors)-(rhoasize/2),by=step)]
 
@@ -134,11 +139,14 @@ lcorrs = getCorrMatrices(xcors,ycors,step,rhoasize,res)
 #save(corrs,file='res/res/corrstemp.RData')
 #load('res/res/corrstemp.RData')
 
-corrmat = matrix(data = unlist(lcorrs$corrs),ncol=400,byrow=TRUE)
+corrmat = matrix(data = unlist(lcorrs$corrs),ncol=(ncol(res)-2)^2,byrow=TRUE)
+#corrmat = matrix(data = unlist(corrs),ncol=400,byrow=TRUE)
 rows=apply(corrmat,1,function(r){prod(as.numeric(!is.na(r)))>0})
 corrmat = corrmat[rows,]
 # names
-meltedcorrmat=melt(lcorrs$corrs[[2]][[which(sapply(lcorrs$corrs[[2]],length)>0)[1]]]);colnames(corrmat)<-paste0(meltedcorrmat$Var1,'-',meltedcorrmat$Var2)
+meltedcorrmat=melt(lcorrs$corrs[[2]][[which(sapply(lcorrs$corrs[[2]],length)>0)[1]]]);
+colnames(corrmat)<-paste0(meltedcorrmat$Var1,'-',meltedcorrmat$Var2)
+#meltedcorrmat=melt(corrs[[2]][[which(sapply(corrs[[2]],length)>0)[1]]]);colnames(corrmat)<-paste0(meltedcorrmat$Var1,'-',meltedcorrmat$Var2)
 # coordinates
 #lon=c();lat=c();for(i in 1:length(xcors)){for(j in 1:length(ycors)){if(!is.null(corrs[[i]][[j]])){if(length(corrs[[i]][[j]])>0&length(which(is.na(corrs[[i]][[j]])))==0){lon=append(lon,xcors[i]);lat=append(lat,ycors[j])}}}}
 lon=unlist(lcorrs$xcors)[rows];lat=unlist(lcorrs$ycors)[rows]
@@ -164,42 +172,53 @@ colnames(rhopca)<-c("lon","lat","rho")
 #  xlim(c(-11,32))+ylim(c(35.55,70))+facet_grid(type~delta)+ggtitle("Mean abs correlation")##+ggtitle("PCA (full matrix) ; delta = 4")#
 
 ###
+#g=ggplot(rhopca)
+#g+geom_raster(aes(x=lat,y=lon,fill=rho))+scale_fill_gradient2(low="#998ec3",mid="#f7f7f7",high="#f1a340",midpoint = median(rhopca$rho,na.rm = T))+#scale_fill_gradient(low="yellow",high="red",name="PC1")+
+#  xlim(c(-11,32))+ylim(c(35.55,70))+ggtitle("PCA (full matrix) ; delta = 4")#
 
-g=ggplot(rhopca)
-g+geom_raster(aes(x=lat,y=lon,fill=rho))+scale_fill_gradient2(low="#998ec3",mid="#f7f7f7",high="#f1a340",midpoint = median(rhopca$rho,na.rm = T))+#scale_fill_gradient(low="yellow",high="red",name="PC1")+
-  xlim(c(-11,32))+ylim(c(35.55,70))+ggtitle("PCA (full matrix) ; delta = 4")#
 
-resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/FR/')
 
-map <- function(data,col,coordcols,filename,main=""){
-  png(file=paste0(resdir,filename),width=12,height=10,units='cm',res=600)
-  par(mar=c(2,2,2,1))
-  cols <- carto.pal(pal1 = "green.pal",n1 = 5, pal2 = "red.pal",n2 = 5)
-  x = unlist(data[,col])
-  m=acast(data.frame(data[,coordcols],x),lat~lon);r = raster(m[seq(from=nrow(m),to=1,by=-1),])
-  crs(r)<-"+proj=longlat +datum=WGS84";extent(r)<-c(min(data$lon),max(data$lon),min(data$lat),max(data$lat))
-  breaks=classIntervals(x,10)
-  ticks = seq(round(minValue(r),digits=1),round(maxValue(r),digits=1), round((round(maxValue(r),digits=2) - round(minValue(r),digits=2))/5,digits=1))
-  plot(r,main=main,
-       col=cols,breaks=unique(breaks$brks),
-       legend.width = 1.5,
-       axis.args=list(at=ticks,labels=ticks,cex.axis=0.8)
-  )
-  dev.off()
-}
+
+country = 'EU'
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',country,'/',params,'/','corrs_rhoasize',rhoasize,'_step',step);dir.create(resdir,recursive = T)
+
 
 countries = readOGR('gis','countries')
-country = countries[countries$CNTR_ID=="FR",]
+#country = countries[countries$CNTR_ID=="FR",]
 #datapoints = SpatialPoints(data.frame(rhopca[,c("lon","lat")]),proj4string = countries@proj4string)
 datapoints = SpatialPoints(data.frame(corrmat[,c("lon","lat")]),proj4string = countries@proj4string)
-selectedpoints = gContains(country,datapoints,byid = TRUE)
+#selectedpoints = gContains(country,datapoints,byid = TRUE)
+selectedpoints=rep(T,length(datapoints))
 
-map(rhopca[selectedpoints,],3,c(1,2),'corr_PCA_rhoasize12.png')
+#map(rhopca[selectedpoints,],3,c(1,2),'corr_PCA_rhoasize12.png')
 
-corrmeasure = 'meanBetweenness.slope'
-map(corrmat[selectedpoints,],corrmeasure,c('lon','lat'),paste0('corr_',corrmeasure,'_rhoasize',rhoasize,'.png'),main=corrmeasure)
+#corrmeasure = 'meanBetweenness.slope'
+for(i in 3:ncol(corrmat)){
+  corrmeasure = colnames(corrmat)[i]
+  show(corrmeasure)
+  mapCorrs(corrmat[selectedpoints,],corrmeasure,c('lon','lat'),
+    paste0('/corr_',corrmeasure,'_rhoasize',rhoasize,'.png'),main=corrmeasure)
+}
 
 
+#####
+## overall corrs
+cor(res[,c(-1,-2)])
+
+rho = matrix(0,ncol(res)-2,ncol(res)-2);rhominus = matrix(0,ncol(res)-2,ncol(res)-2);rhoplus = matrix(0,ncol(res)-2,ncol(res)-2);
+for(i in 3:ncol(res)){
+  show(i)
+  for(j in 3:ncol(res)){
+    test = cor.test(res[,i],res[,j])
+    rho[i-2,j-2]=test$estimate;rhominus[i-2,j-2]=test$conf.int[1];rhoplus[i-2,j-2]=test$conf.int[2]
+  }
+}
+
+colnames(rho)<-colnames(res)[c(-1,-2)];rownames(rho)<-colnames(res)[c(-1,-2)]
+
+g=ggplot(melt(rho),aes(x=Var1,y=Var2,fill=value))
+g+geom_raster()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("")+ylab("")+scale_fill_continuous(name=expression(rho))
+ggsave(file=paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Correlations/20160824/corrmat_deltainfty.png'),height=20,width=22,units='cm')
 
 # plot given area
 

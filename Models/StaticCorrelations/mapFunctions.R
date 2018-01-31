@@ -58,3 +58,28 @@ map<-function(indiccols,filename=NULL,width=0,height=0,mfrow=c(1,1),mar=c(2,2.5,
   }
 }
 
+
+mapCorrs <- function(data,col,coordcols,filename,main=""){
+  png(file=paste0(resdir,filename),width=12,height=10,units='cm',res=600)
+  par(mar=c(2,2,2,1))
+  cols <- carto.pal(pal1 = "green.pal",n1 = 5, pal2 = "red.pal",n2 = 5)
+  x = unlist(data[,col])
+  m=acast(data.frame(data[,coordcols],x),lat~lon);r = raster(m[seq(from=nrow(m),to=1,by=-1),])
+  crs(r)<-"+proj=longlat +datum=WGS84";extent(r)<-c(min(data$lon),max(data$lon),min(data$lat),max(data$lat))
+  if(max(x)>min(x)){
+    breaks=classIntervals(x,10)
+    #ticks = seq(round(minValue(r),digits=1),round(maxValue(r),digits=1), round((round(maxValue(r),digits=2) - round(minValue(r),digits=2))/5,digits=1))
+    ticks = seq( minValue(r),maxValue(r),(maxValue(r)-minValue(r))/5)
+    ticks = round(ticks,digits=2)
+    plot(r,main=main,
+         col=cols,breaks=unique(breaks$brks),
+         legend.width = 1.5,
+         axis.args=list(at=ticks,labels=ticks,cex.axis=0.8)
+    )
+  }
+  dev.off()
+}
+
+
+
+

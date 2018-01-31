@@ -577,9 +577,7 @@ then
   # fig:energyprice:moran
   FIGNAME=8-2-2-fig-energyprice-moran
   echo $FIGNAME
-  montage Figures/EnergyPrice/moran_days.png Figures/EnergyPrice/moran_decay_weeks.png -tile 2x1 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME"_tmp.png
-  convert $FIGDIR/"$FIGNAME"_tmp.png -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm $FIGDIR/"$FIGNAME"_tmp.png
+  montage Figures/EnergyPrice/moran_days.png Figures/EnergyPrice/moran_decay_weeks.png -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize $WIDTH -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # fig:energyprice:gwr
   FIGNAME=8-2-2-fig-energyprice-gwr
@@ -682,6 +680,19 @@ then
   FIGNAME=A-staticcorrelations-networkcn
   echo $FIGNAME
   convert Figures/StaticCorrelations/CN_indics_network_selected.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+  # fig:app:staticcorrelations:overallcorrs
+  FIGNAME=A-staticcorrelations-overallcorrs
+  echo $FIGNAME
+  convert Figures/StaticCorrelations/corrmat_deltainfty.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+  # fig:app:staticcorrelations:europe-correlations
+  FIGNAME=A-staticcorrelations-europe-correlations
+  echo $FIGNAME
+  montage Figures/StaticCorrelations/corr_alphaCloseness.moran_rhoasize12.png Figures/StaticCorrelations/corr_slope.moran_rhoasize12.png Figures/StaticCorrelations/corr_meanBetweenness.slope_rhoasize12.png Figures/StaticCorrelations/corr_alphaCloseness.alphaBetweenness_rhoasize12.png Figures/StaticCorrelations/corr_vcount.meanPathLength_rhoasize12.png Figures/StaticCorrelations/corr_slope.rsquaredslope_rhoasize12.png -resize "$WIDTH"x -tile 2x3 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
 
   # fig:app:staticcorrelations:corr-distribs
   FIGNAME=A-staticcorrelations-corr-distribs
@@ -992,7 +1003,7 @@ then
 
   FIGNAME=C-cybergeonetworks-who
   echo $FIGNAME
-  convert Figures/CybergeoNetworks/whoStudiesWho.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  convert Figures/CybergeoNetworks/who-who.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   FIGNAME=C-cybergeonetworks-commintern
   echo $FIGNAME
@@ -1177,7 +1188,10 @@ then
   echo $FIGNAME
   montage -resize "$(( WIDTH / 2))"x Figures/Reflexivity/graph-kd-cooccs.png -resize "$(( WIDTH / 2))"x Figures/Reflexivity/graph-kd-laggedflow.png -quality $JPGQUALITY -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
 
-
+  # fig:app:reflexivity:laggedcorrs
+  FIGNAME=F-reflexivity-laggedcorrs
+  echo $FIGNAME
+  convert Figures/Reflexivity/laggedcorrs.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
 fi
