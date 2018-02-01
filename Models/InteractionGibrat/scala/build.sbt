@@ -2,7 +2,10 @@ name := "interaction"
 
 version := "1.0"
 
-scalaVersion := "2.11.6"
+//scalaVersion := "2.11.6"
+scalaVersion := "2.11.8"
+
+enablePlugins(SbtOsgi)
 
 osgiSettings
 
@@ -12,7 +15,9 @@ OsgiKeys.importPackage := Seq("*;resolution:=optional")
 
 OsgiKeys.privatePackage := Seq("!scala.*,*")
 
-scalariformSettings
+OsgiKeys.requireCapability := """osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))""""
+
+//scalariformSettings
 
 //resolvers += "ISC-PIF Release" at "http://maven.iscpif.fr/public/"
 

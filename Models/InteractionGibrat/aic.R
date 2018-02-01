@@ -48,8 +48,10 @@ show(paste0('(2) : ',logmse2,' ; ',mselog2))
 
 # 
 n1=length(resM1$df$populations);k1=4
-n2=length(resM2$df$populations);k2=4
+n2=length(resM2$df$populations);k2=7
 (n1*log(mse1/n1) + 2*k1*n1/(n1-k1-1)) - (n2*log(mse2/n2) + 2*k2*n2/(n2-k2-1))
+(n1*log(mse1/n1) + 2*k1) - (n2*log(mse2/n2) + 2*k2)
+
 
 n1*mselog1 + 2*k1*n1/(n1-k1-1)
 n2*mselog2 + 2*k2*n2/(n2-k2-1)
@@ -100,6 +102,12 @@ AIC(p1) - AIC(p2)
 # = 19.65414
 BIC(p1) - BIC(p2) 
 
+## tests
+n1=length(summary(p1)$residuals);k1=4
+n2=length(summary(p2)$residuals);k2=7
+(n1*log(sum(summary(p1)$residuals^2)/n1)+2*k1) - (n2*log(sum(summary(p2)$residuals^2)/n2)+2*k2)
+
+AIC(p1) - AIC(p2) - n1*(log(sum(summary(p1)$residuals^2)/mse1)-log(sum(summary(p2)$residuals^2)/mse2))
 
 ###
 
@@ -112,6 +120,9 @@ sum(summary(p2)$residuals^2)/mse2
 AIC(p1) - AIC(p2) 
 # = 19.65414
 BIC(p1) - BIC(p2) 
+
+AIC(p1) - AIC(p2) - n1*(log(sum(summary(p1)$residuals^2)/mse1)-log(sum(summary(p2)$residuals^2)/mse2))
+
 
 
 p1r = polFit(data.frame(X=X1r,Y=Y1r),4)
@@ -126,6 +137,7 @@ log(sum((X1-Y1)^2))
 log(sum((est-Y1)^2)) # = sum(summary(p1)$residuals^2)
 
 # set the seed as GA ?
+set.seed(0)
 fit<-function(alpha){tryCatch({-sum(summary(nls(as.formula(paste0("Y~a1+a2*X^",alpha[1],"+a3*X^",alpha[2],"+a4*X^",alpha[3])),data.frame(X=X1,Y=Y1),start=list(a1=0,a2=0,a3=0,a4=0)))$residuals^2)},error = function(e) return(-1e15))}
 optimnet = ga(type="real-valued",fitness = fit,min = c(0.0,0.0,0.0),max=c(10.0,10.0,10.0),maxiter = 1000,parallel=4)
 sol1 = optimnet@solution
@@ -136,6 +148,8 @@ optimnet = ga(type="real-valued",fitness = fit,min = c(0.0,0.0,0.0,0.0,0.0,0.0),
 sol2 = optimnet@solution
 p2best = nls(as.formula(paste0("Y~a1+a2*X^",sol2[1],"+a3*X^",sol2[2],"+a4*X^",sol2[3],"+a5*X^",sol2[4],"+a6*X^",sol2[5],"+a7*X^",sol2[6])),data.frame(X=X2,Y=Y2),start=list(a1=0,a2=0,a3=0,a4=0,a5=0,a6=0,a7=0))
 
+save(sol1,sol2,file='res/aicga.RData')
+
 sum(summary(p1best)$residuals^2)/mse1
 sum(summary(p2best)$residuals^2)/mse2
 
@@ -143,6 +157,9 @@ AIC(p1best)-AIC(p2best)
 # 11.70287
 BIC(p1best)-BIC(p2best)
 # -4.236787
+
+AIC(p1) - AIC(p2) - (log(sum(summary(p1)$residuals^2)/mse1)-log(sum(summary(p2)$residuals^2)/mse2))
+
 
 # polynoms with larger degree ? -> ok included in power functions
 
