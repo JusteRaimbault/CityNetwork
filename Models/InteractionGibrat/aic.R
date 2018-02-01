@@ -22,25 +22,33 @@ source('setup.R')
 
 resM1=networkFeedbackModel(real_populations,distances,dists,dates,
                            growthRate = 0.01334922,
-                           potentialWeight=0.0001287938,gammaGravity = 3.82252,decayGravity = 401997651796,
+                           #potentialWeight=0.0001287938,gammaGravity = 3.82252,decayGravity = 401997651796,
+                           potentialWeight=0.00013,gammaGravity = 3,decayGravity = 1000,
                            betaFeedback =0.0,feedbackDecay =  1.0  ,feedbackGamma = 0.0
 )
 
 logmse1 = log(sum((resM1$df$populations-resM1$df$real_populations)^2))
 mse1 = sum((resM1$df$populations-resM1$df$real_populations)^2)
 mselog1 = sum((log(resM1$df$populations)-log(resM1$df$real_populations))^2)
+logmse1
 
 # iterative calib necessary here ?
+logmses=c()
+for(fd in seq(1,500,10)){
 resM2=networkFeedbackModel(real_populations,distances,dists,dates,
                      growthRate = 0.01283191,
-                     potentialWeight=0.0001308851,gammaGravity = 3.809335,decayGravity = 8.434855e14,
-                     betaFeedback =0.6034981,feedbackDecay = 7.474787e14  ,
+                     #potentialWeight=0.0001308851,gammaGravity = 3.809335,decayGravity = 8.434855e14,
+                     #betaFeedback =0.6034981,feedbackDecay = 7.474787e14  ,
+                     potentialWeight=0.0001308851,gammaGravity = 3,decayGravity = 2000,
+                     betaFeedback =0.6034981,feedbackDecay = fd  ,
                      feedbackGamma = 1.148056
                      )
-
 logmse2 = log(sum((resM2$df$populations-resM2$df$real_populations)^2))
 mse2 = sum((resM2$df$populations-resM2$df$real_populations)^2)
 mselog2 = sum((log(resM2$df$populations)-log(resM2$df$real_populations))^2)
+logmses=append(logmses,logmse2)
+}
+plot(seq(1,500,10),logmses,type='l')
 
 show(paste0('(1) : ',logmse1,' ; ',mselog1))
 show(paste0('(2) : ',logmse2,' ; ',mselog2))

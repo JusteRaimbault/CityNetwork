@@ -1,0 +1,130 @@
+
+
+
+;;;;;;;;;;;;;;;;;
+;; triangulation functions
+;;;;;;;;;;;;;;;;;
+
+;;
+;; Requires nw, table extensions loaded
+;; Utils : ListUtilities
+;;
+
+;; get weak pavage of a plan
+;;   i.e. returns all closed polygons created by a graph.
+;; 
+;;   OK proven, as all paths between two vertices will be taken
+to-report pavage [vertices edges]
+  
+  ;; set network
+  nw:set-context vertices edges
+  ask edges [set edge-length link-length]
+  
+  ;; init table for storing polygons as lists
+  ;; (needs a set storage as recurrences will appear)
+  let polygons table:make
+  
+  ;; algo :
+  ;;   for each link, iterate other paths between extremities, not including the link (need to check minimality condition)
+  
+  ;; need to get diameter of the graph first
+  ;; as weighting value equivalent to infinity
+  ;; no easy way to get it ?!! dirty dirty
+  let l-vertices to-list vertices let n length l-vertices let i 0 let diameter 0
+  repeat (n - 1)[let j (i + 1) repeat (n - i - 1)[ask item i l-vertices [set diameter max (list diameter nw:weighted-distance-to (item j l-vertices) "edge-length")] set j j + 1] set i (i + 1)]
+  ;show diameter
+  ; diameter is exactly the longest path in graph
+  
+  
+  ask edges [
+;    ; reinitialize edge-length
+;    ask other edges [set edge-length link-length]
+;    ; and "supress" itself
+;    set edge-length 100 * diameter
+;    
+;    ; try with one single shortest path (not exact)
+;    let e2 end2 ask end1 [let p nw:weighted-path-to e2 "edge-length" if not member? myself p [
+;        set p lput myself p
+;        let r []
+;        foreach p [set r lput (list ([[who] of end1] of ? ) ([[who] of end2] of ? ) ) r]
+;        set r sort-by [(first ?1 < first ?2) or (first ?1 = first ?2 and last ?1 < last ?2)] r
+;        table:put polygons r r
+;        
+;        ]
+;    ]
+    
+    ;; exact algo : use marker to set context of network (reset for each edge ? at each internal iteration !) ; and ask both edges to consume links putting iteratively markers on each
+
+;    
+  ]
+  
+  ;; we return keys of hashtable, corresponding exactly to found polygons
+  report table:keys polygons
+  
+end
+
+
+;; report x y coordinates of barycenters of list of provided polygons
+to-report barycenters [polygons]
+  let res []
+  ; first recreates polygons as agentsets
+  let p []
+  foreach polygons [let l [] foreach ? [ set l lput (turtle last ?) (lput turtle (first ?) l) ] set p lput to-agentset remove-duplicates l p]
+  
+  foreach p [
+    set res lput (list ((sum [xcor] of ?) / count ?)  ((sum [ycor] of ?) / count ?)) res
+  ]
+  report res
+end
+
+
+
+to-report interior-patches [polygon]
+  let res []
+  ; first recreates polygons as agentsets
+  let l-vertices [] let l-edges [] foreach polygon [ set l-vertices lput (turtle last ?) (lput turtle (first ?) l-vertices) set l-edges lput (road first ? last ?) l-edges]
+  let vertices to-agentset remove-duplicates l-vertices
+  let edges to-agentset l-edges
+  let barycenter nobody crt 1 [setxy sum [xcor] of vertices / count vertices sum [ycor] of vertices / count vertices set barycenter self]
+  let l-interior []
+  ask patches [
+    let p self
+    sprout 1 [
+        create-road-with barycenter [
+          let inside? true
+          ask edges [
+            set inside? (inside? and intersection-with-link self myself = [])
+          ]
+          if inside? [set l-interior lput p l-interior]
+          die
+        ]
+        die
+      ]
+  ]
+  
+  ask barycenter  [die]
+  show l-interior
+  report to-agentset l-interior
+end
+
+
+to test-pavage
+;  let coords barycenters pavage turtles links
+;  foreach coords [
+;    crt 1 [setxy first ? last ? set color yellow set size 2] 
+;  ]
+
+  ;; test interiors and overall accuracity
+  foreach pavage turtles links [
+    let i interior-patches ?
+    if i != nobody [ask i [ 
+      set pcolor red
+    ]
+    ]
+  ]
+
+end
+
+
+
+

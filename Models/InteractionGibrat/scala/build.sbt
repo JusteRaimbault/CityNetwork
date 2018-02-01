@@ -3,7 +3,7 @@ name := "interaction"
 version := "1.0"
 
 //scalaVersion := "2.11.6"
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.4"
 
 enablePlugins(SbtOsgi)
 

@@ -1,0 +1,106 @@
+
+
+;; Network analysis function
+
+to setup-nw-analysis
+  ; set context
+  nw:set-context turtles roads
+  
+  ; reinitialize specific variables
+  ask roads [
+    set road-length link-length
+    set bw-centrality 0
+  ]
+  
+  ask turtles [set node-bw-centrality 0]
+  
+end
+
+
+;;;
+;; Gets proxy of nw diameter
+to-report get-approximate-diameter
+  let res 0
+  ask n-of min list count centers max-sampling-bw-centrality centers [
+    ask n-of min list (count centers - 1) max-sampling-bw-centrality other centers [
+      let d nw:weighted-distance-to myself "road-length"
+      if d != false [
+        set res max list res d 
+      ]
+    ]
+  ]
+  report res
+end
+
+
+to compute-road-bw-centrality
+  ; dirty, computed two times
+  
+  ; nw too big to compute on all pairs
+  ; take random samples, should be a good proxy (cv speed ?)
+  
+  ask n-of min list count centers max-sampling-bw-centrality centers [
+    ask n-of min list (count centers - 1) max-sampling-bw-centrality other centers [
+      let p nw:weighted-path-to myself "road-length"
+      if p != false [
+        foreach p [
+          ask ? [
+            set bw-centrality (bw-centrality + 1)
+          ]
+        ]
+      ]
+    ] 
+  ]
+  
+  ; set thicnkess
+  ask roads [
+    set thickness (bw-centrality / (count centers) ^ 2)
+  ]
+end
+
+
+to compute-node-bw-centrality
+  ; dirty, computed two times
+  
+  ; nw too big to compute on all pairs
+  ; take random samples, should be a good proxy (cv speed ?)
+  
+  ask n-of min list count centers max-sampling-bw-centrality centers [
+    ask n-of min list (count centers - 1) max-sampling-bw-centrality other centers [
+      let p nw:turtles-on-weighted-path-to myself "road-length"
+      if p != false [
+        foreach p [
+          ask ? [
+            set node-bw-centrality (node-bw-centrality + 1)
+          ]
+        ]
+      ]
+    ] 
+  ]
+end
+
+
+
+
+;; procedure to check if some roads are crossing in the overall nw
+to-report crossing-roads?
+  ; do it fastest way through list
+  let l to-list links
+  let n length l
+  let i 0
+  let res []
+  repeat (n - 1) [
+    let t1 item i l let t2 item (i + 1) l
+    if intersection-with-link t1 t2 != [] [set res lput (list t1 t2) res]
+    set i i + 1
+  ]
+  report res
+  
+end
+
+
+
+
+
+
+
