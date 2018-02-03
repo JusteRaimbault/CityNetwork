@@ -53,10 +53,11 @@ val modelCapsule = Capsule(model)
 val fileSetting = ExplorationTask(
   (popFile in Seq( workDirectory / "data" / "pop50.csv")) x
   (distFile in Seq(workDirectory / "data"/ "dist50.csv")) x
-  (fdistsFile in Seq(workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv")) x (id in Seq(1))
+  (fdistsFile in Seq(workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv")) x (id in Seq(1)) x
+  (dateFile in Seq(workDirectory / "data" / "dates.csv")) x (gravityAlpha in Seq(0.0)) x (feedbackWeight is 0.0) x (feedbackGamma is 1.0) x (feedbackDecay is 1.0)
 ) set(
-  inputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay),
-  outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay)
+  inputs += (growthRate,gravityWeight,gravityGamma,gravityDecay/*,feedbackWeight,feedbackGamma,feedbackDecay*/),
+  outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay/*,feedbackWeight,feedbackGamma,feedbackDecay*/)
 )
 
 val eval = fileSetting -< model
@@ -64,7 +65,7 @@ val eval = fileSetting -< model
 
 
 val datestr = (new SimpleDateFormat("yyyyMMdd")).format(new Date())
-val purpose = "fullcalib_logmse"
+val purpose = "gravitycalib_logmse"
 val resdir = datestr+"_"+purpose
 
 
@@ -78,10 +79,10 @@ val evolution =
             growthRate in Range(0.0005, 0.05),
             gravityWeight in Range(0.0001,0.01),
             gravityGamma in Range(0.1,10.0),
-            gravityDecay in Range(1.0,2000.0),
-            feedbackWeight in Range(0.0001,0.01),
-            feedbackGamma in Range(0.1,10.0),
-            feedbackDecay in Range(1.0,500.0)
+            gravityDecay in Range(1.0,2000.0)//,
+            //feedbackWeight in Range(0.0001,0.01),
+            //feedbackGamma in Range(0.1,10.0),
+            //feedbackDecay in Range(1.0,500.0)
           ),
         objectives = Seq(logmse)
       ),
@@ -89,13 +90,14 @@ val evolution =
     termination = 1 hours
   )
 
-val island = IslandEvolution(evolution, parallelism = 300,termination=24 hours)
+val island = IslandEvolution(evolution, parallelism = 300,termination=12 hours)
+//val island = IslandEvolution(evolution, parallelism = 20,termination=12 hours)
 
 // Define the hook to save the results
 val savePopulation = SavePopulationHook(island, workDirectory / "calib" / resdir)
 
 val grid = EGIEnvironment("vo.complex-systems.eu")
-//val local = LocalEnvironment(15)
+//val local = LocalEnvironment(20)
 
 // Define the execution
-(island on local hook savePopulation)
+(island on grid hook savePopulation)
