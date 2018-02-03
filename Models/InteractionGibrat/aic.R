@@ -5,6 +5,10 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/InteractionGibrat'))
 
 source('setup.R')
 
+res1 <- as.tbl(read.csv('calibration/20180201_gravitycalib_logmse/population3258.csv'))
+res2 <- as.tbl(read.csv('calibration/20180201_fullcalib_logmse/population1200.csv'))
+
+
 
 #####
 # compare two models
@@ -20,27 +24,31 @@ source('setup.R')
 # growthRate gravityWeight gravityGamma gravityDecay feedbackWeight feedbackGamma feedbackDecay
 #  0.01283191  0.0001308851     3.809335 8.434855e+14      0.6034981 1.148056  7.474787e+14
 
+logmses=c()
+for(gd in 1:40){
 resM1=networkFeedbackModel(real_populations,distances,dists,dates,
-                           growthRate = 0.01334922,
+                           growthRate = 0.01239654,
                            #potentialWeight=0.0001287938,gammaGravity = 3.82252,decayGravity = 401997651796,
-                           potentialWeight=0.00013,gammaGravity = 3,decayGravity = 1000,
+                           potentialWeight=0.0001287938,gammaGravity = 3.046197,decayGravity = exp(gd),
                            betaFeedback =0.0,feedbackDecay =  1.0  ,feedbackGamma = 0.0
 )
 
 logmse1 = log(sum((resM1$df$populations-resM1$df$real_populations)^2))
 mse1 = sum((resM1$df$populations-resM1$df$real_populations)^2)
 mselog1 = sum((log(resM1$df$populations)-log(resM1$df$real_populations))^2)
-logmse1
+logmses=append(logmses,mselog1)
+}
+diff(logmses)
 
 # iterative calib necessary here ?
 logmses=c()
 for(fd in seq(1,500,10)){
 resM2=networkFeedbackModel(real_populations,distances,dists,dates,
                      growthRate = 0.01283191,
-                     #potentialWeight=0.0001308851,gammaGravity = 3.809335,decayGravity = 8.434855e14,
-                     #betaFeedback =0.6034981,feedbackDecay = 7.474787e14  ,
-                     potentialWeight=0.0001308851,gammaGravity = 3,decayGravity = 2000,
-                     betaFeedback =0.6034981,feedbackDecay = fd  ,
+                     potentialWeight=0.0001308851,gammaGravity = 3.809335,decayGravity = 8.434855e14,
+                     betaFeedback =1.0,feedbackDecay = 7.474787e14 ,
+                     #potentialWeight=0.0001308851,gammaGravity = 3,decayGravity = 2000,
+                     #betaFeedback =1.0,feedbackDecay = fd  ,
                      feedbackGamma = 1.148056
                      )
 logmse2 = log(sum((resM2$df$populations-resM2$df$real_populations)^2))
