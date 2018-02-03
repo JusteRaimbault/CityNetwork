@@ -3,6 +3,8 @@ library(ggplot2)
 library(reshape2)
 library(boot)
 
+source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
+
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Network'))
 
 #res <- read.csv('20151224_LHSLocal/2015_12_24_19_39_03_LHS_LOCAL.csv')
@@ -11,6 +13,8 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Network'))
 # load multiple result files
 # and bind them into single tbl -- must incr idpar before to avoid collisions
 resdir='20160106_LHSDensityNW/data/'
+figdir='20160106_LHSDensityNW/res/'
+
 files <- list.files(resdir)
 #res <- read.csv(paste0(resdir,files[4]))
 
@@ -20,13 +24,15 @@ currentmaxidpar = max(res[,"idpar"])+1
 for(f in files[2:length(files)]){
   temp <- as.tbl(read.csv(paste0(resdir,f)))
   temp[,"idpar"] = temp[,"idpar"]+currentmaxidpar
-  res = bind_rows(res,temp)
+  #res = bind_rows(res,temp)
+  res = rbind(res,temp)
   currentmaxidpar = max(res[,"idpar"])+1
 }
+for(j in 1:ncol(res)){res[,j]<-as.numeric(unlist(res[,j]))}
 
 nrep=80
 
-gres <- as.tbl(res) %>% filter(meanBwCentrality<=1) %>% group_by(idpar)
+gres <- as.tbl(res) %>% filter(meanBwCentrality<=1&!is.na(meanBwCentrality)) %>% group_by(idpar)
 
 # Test of summarise with list of functions [as strings] -> DOES NOT WORK
 #l=list();l[["m"]]="mean(meanBwCentrality)"
@@ -198,12 +204,18 @@ maxabscor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){
 amplcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){max(c)-min(c)})
 meanabscor=amplcor = apply(crosscormat[,((0:(ncol(crosscormat)/3-1))*3+2)],2,function(c){mean(abs(c))})
 
-var=meanabscor;title = "Mean absolute correlations";purpose="mean abs cor"
+#var=meanabscor;title = "Mean absolute correlations";purpose="mean abs cor"
+#var=amplcor;title = "Amplitude of correlations";purpose="amplitude"
+var=maxabscor;title = "Maximal absolute correlations";purpose="max abs corr"
 
 df=melt(matrix(data=var,nrow=4,byrow=FALSE));names(df)=c("x","y","z")
-g = ggplot(df) + scale_fill_gradient(low="yellow",high="red",name=purpose)#+ geom_raster(hjust = 0, vjust = 0) 
-g+geom_raster(aes(x,y,fill=z))+scale_x_discrete(limits=nindics)+scale_y_discrete(limits=mindics)+theme(axis.ticks = element_blank(),panel.background=element_blank(),legend.title=element_text(""))+labs(title=title,x="",y="")
-
+g = ggplot(df) + scale_fill_gradient(low="yellow",high="red",name="")#+ geom_raster(hjust = 0, vjust = 0) 
+g+geom_raster(aes(x,y,fill=z))+scale_x_discrete(limits=nindics)+scale_y_discrete(limits=mindics)+
+  theme(axis.ticks = element_blank(),panel.background=element_blank(),
+        legend.title=element_text(""),axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.title = element_text(hjust = 0.5,vjust=-2))+
+  labs(title=title,x="",y="")+stdtheme
+ggsave(paste0(figdir,'/crosscor/heatmap_',gsub(' ', '',purpose),'.png'),width=20,height=18,units='cm')
 
 dgres = gres  %>% filter(idpar %in% glength$idpar[glength$groupLength==nrep])
 
@@ -470,7 +482,7 @@ which(rcormat[,1]>(-1.0)&rcormat[,1]<(-0.8)&rcormat[,2]<0.0&rcormat[,2]>(-0.1)) 
 
 ####### TODO
 # sort of space-matters approachs : sensitivity of phase diagram along nw parameters, 
-# for ≠ fixed density confs
+# for ??? fixed density confs
 #  -> 2nd order ? CHECK THAT. AMPLITUDE AND SIGNIFICANCE OF 2ND ORDER DEVIATION.
 
 

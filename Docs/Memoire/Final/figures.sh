@@ -810,8 +810,9 @@ then
   FIGNAME=A-correlatedsyntheticdata-correlations
   echo $FIGNAME
   convert -density $PDFRESOLUTION Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.pdf -resize "$((2 * WIDTH / 3))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg
-  convert Figures/CorrelatedSyntheticData/heatmaps.png -resize "$((WIDTH / 3))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/heatmaps.jpg
-  montage Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg Figures/CorrelatedSyntheticData/heatmaps.jpg -tile 2x1 -geometry +0+"$HORIZONTALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #convert Figures/CorrelatedSyntheticData/heatmaps.png -resize "$((WIDTH / 3))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/heatmaps.jpg
+  montage Figures/CorrelatedSyntheticData/heatmap_maxabscorr.png Figures/CorrelatedSyntheticData/heatmap_amplitude.png -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$((WIDTH / 3))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/heatmaps.jpg
+  montage Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg Figures/CorrelatedSyntheticData/heatmaps.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm Figures/CorrelatedSyntheticData/heatmaps.jpg Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg
 
 

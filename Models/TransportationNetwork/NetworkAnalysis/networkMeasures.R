@@ -91,3 +91,39 @@ louvainModularity<-function(g){
 
 
 
+
+#'
+#' from SpatioTempCausality/functions.R -> incorporate ?
+computeAccess<-function(accessorigdata,accessdestdata=NULL,matfun,d0=1,mode="time"){
+  if(is.null(dim(accessorigdata))){
+    # simple data vector
+    weightmat = exp(-matfun / d0)
+    data = accessorigdata
+    potod = which(names(data)%in%rownames(weightmat)&!is.na(data))
+    if(mode=="time"){Pi=rep(1,length(potod));Pj=matrix(rep(1,length(potod)),nrow=length(potod))}
+    if(mode=="weighteddest"){Pi=rep(1,length(potod));Pj=matrix(data[potod],nrow=length(potod))}
+    if(mode=="weightedboth"){Pi=data[potod];Pj=matrix(data[potod],nrow=length(potod))}
+    access = Pi*((weightmat[,names(data)[potod]]%*%Pj)[names(data)[potod],])
+    return(access)
+  }else{
+    # data frame of yearly data
+    accessyears = unique(accessorigdata$year)
+    allaccess = data.frame()
+    for(year in accessyears){
+      if(is.matrix(matfun)){weightmat=matfun}else{weightmat=matfun(year)}
+      yearlyaccessorig = accessorigdata[accessorigdata$year==year,]
+      potorig = which(yearlyaccessorig$id%in%rownames(weightmat)&!is.na(yearlyaccessorig$var))
+      potdest = which(accessdestdata$id%in%colnames(weightmat)&!is.na(accessdestdata$var))
+      Pi = yearlyaccessorig$var[potorig];
+      Ej = matrix(accessdestdata$var[potdest],nrow=length(potdest))
+      access = Pi*(weightmat[,accessdestdata$id[potdest]]%*%Ej)[yearlyaccessorig$id[potorig],]#/(sum(Pi)*sum(Ej)*sum(weightmat[yearlyaccessorig$id[potorig],accessdestdata$id[potdest]]))
+      allaccess=rbind(allaccess,data.frame(var = access,id=names(access),year=rep(year,length(access))))
+      rm(weightmat);gc()
+    }
+    allaccess$id=as.character(allaccess$id);allaccess$year=as.character(allaccess$year)
+    return(allaccess)
+  }
+}
+
+
+
