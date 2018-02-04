@@ -459,8 +459,8 @@ breed[ghost-transportation-nodes ghost-transportation-node]
 GRAPHICS-WINDOW
 371
 10
-843
-503
+846
+506
 6
 6
 35.833333333333336
@@ -523,7 +523,7 @@ CHOOSER
 patches-display
 patches-display
 "governance" "actives" "employments" "a-utility" "e-utility" "accessibility" "a-to-e-accessibility" "e-to-a-accessibility" "congestion" "mean-effective-distance" "lbc-effective-distance" "center-effective-distance" "lbc-network-distance" "network"
-13
+1
 
 TEXTBOX
 11
@@ -707,7 +707,7 @@ regional-decision-proba
 regional-decision-proba
 0
 1
-0
+1
 0.05
 1
 NIL
@@ -807,7 +807,7 @@ road-length
 road-length
 1.0
 20
-2
+1
 1.0
 1
 NIL
@@ -1080,7 +1080,7 @@ INPUTBOX
 365
 70
 conf-file
-setup/conf/synth_balanced_distant.conf
+setup/conf/synth_unbalanced_distant.conf
 1
 0
 String
@@ -1183,7 +1183,7 @@ relocation-rate
 relocation-rate
 0
 1
-0.5
+0.1
 0.01
 1
 NIL
