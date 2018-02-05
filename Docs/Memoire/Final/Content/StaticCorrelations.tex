@@ -205,29 +205,6 @@ L'analyse statique de réseau a été intensément documentée dans la littérat
 }
 
 
-\subsubsection{Data preprocessing}{Pré-traitement des données}
-
-
-\bpar{
-We work here with the road network, which structure is finely conditioned to territorial configuration of population densities. Furthermore, data for present day road network is openly available through the OpenStreetMap project~\cite{openstreetmap}. Its quality was investigated for different countries such as England~\cite{haklay2010good} and France~\cite{girres2010quality}. It was found to be of a quality equivalent to official surveys for the primary road network. Concerning China, although \cite{zheng2014assessing} underlined a quick acceleration of OpenStreetMap road data completeness and accuracy, its use for computation of network indicators may be questioned at a very fine scale. \cite{zhang2015density} highlights four regimes of data quality, partitioning China into regions among which qualitative behavior of OSM data varies. We underline that the results will be more valid on the regions where the quality is the highest, i.e. with high density and high diversity.
-}{
-Nous travaillons ici avec le réseau de rues, dont la structure est finement conditionnée aux configurations territoriales des densités de population. De plus, les données du réseau de routes actuel est disponible ouvertement par l'intermédiaire du projet OpenStreetMap (OSM)~\cite{openstreetmap}. Sa qualité a été étudiée pour différents pays comme l'Angleterre~\cite{haklay2010good} et la France~\cite{girres2010quality}. Il a été établi pour ces pays une qualité équivalente aux données officielles pour le réseau de rues primaire, au sens à la fois de la couverture spatiale et de la précision locale. Dans le cas de la Chine, bien que \cite{zheng2014assessing} soulève une récente accélération de la couverture et de la précision des données OSM pour les routes, leur usage pour le calcul d'indicateurs de réseau peut être questionné à une échelle très fine. \cite{zhang2015density} fournit une partition de la Chine en régions entre lesquelles le comportement qualitatif des données OSM varie. Nous devrons garder à l'esprit cette variabilité, et pour être assuré de la fiabilité des résultats, nous simplifierons le réseau à un niveau d'agrégation suffisant.
-}
-
-
-
-
-\bpar{
-From the primary road segments, we compute the topological road network for all studied areas, at 100m granularity scale to be used consistently with the population grid. The OSM data is imported into \texttt{pgsql} using \texttt{osmosis}, is then aggregated at fixed granularity, and the resulting topological network is finally simplified with a split/merge algorithm. We have for Europe $\simeq 44\cdot 10^6$ links in initial OSM db, $\simeq 61\cdot 10^6$ in first simplified layer, $\simeq 21\cdot 10^6$ in final database. For a given dataset corresponding to a subset of the overall road network, it is necessary to simplify network structure by spatial aggregation as initial data presents very detailed features and thus a very large numbers of nodes ($\simeq 10^10$ for Europe dataset). It is possible to drastically reduce network size by spatial aggregation of nodes and link replacements. The detailed algorithm and implementation are detailed in Supplementary material~\ref{app:sec:staticcorrelations}.
-}{
-Le réseau constitué des segments de rue primaires est agrégé à la granularité fixe de la grille de densité pour créer un graphe. Celui-ci est ensuite simplifié pour garder uniquement la structure topologique du réseau, les indicateurs normalisés étant relativement robustes à cette opération. Celle-ci est nécessaire pour un calcul simple des indicateurs et une cohérence thématique avec la couche de densité. On garde uniquement les noeuds ayant un degré strictement supérieur ou inférieur à deux, et les liaisons correspondantes, en prenant soin d'agréger la distance géographique réelle en construisant le lien topologique correspondant. Vu l'ordre de grandeur de taille des données (pour l'Europe, la base initiale a $\simeq 44.7\cdot 10^6$ liens, et la base finale simplifiée $\simeq 20.4\cdot 10^6$), un algorithme spécifique parallèle est mis en place, de structure \emph{split-merge}. Celui-ci découpe l'espace en zones qui peuvent être traitées indépendamment puis fusionnées. Il est détaillé en Appendice~\ref{app:sec:staticcorrelations}.
-}
-
-
-
-%china 2048589 ; simpl 2022802
-%europe 44706945 ; simpl 20443061
-
 \subsubsection{Indicators}{Indicateurs}
 
 \bpar{
@@ -273,6 +250,35 @@ Le concept d'accessibilité est capturé ici par un indicateur de réseau, puisq
 
 %\subsubsection{Network Shape and Resilience}{Forme de Réseau et Résilience}
 %L'idée fondamentale motivant le calcul d'indicateurs de réseau est d'obtenir une réduction de dimension drastique, s'il est possible d'associer certains ``types'' de réseau à des valeurs typiques d'indicateurs. On est très loin d'une connaissance fine de typologies qui associeraient propriétés topologiques, dynamiques et processus de génération du réseau, le tout de manière synthétique. Il est de même difficile de relier systématiquement ces propriétés à des caractéristiques dérivées, comme par exemple pour la résilience qui est une propriété aux définitions diverses\footnote{Pour laquelle~\cite{Gao:2016ty} introduit une nouvelle approche par la sensibilité des processus dynamiques.}. Afin d'illustrer d'une part la difficulté de caractériser les réseaux et d'autre part les potentialités offertes par notre base de données, nous développons en Appendice~\ref{app:sec:staticcorrelations} une courte analyse des propriétés de résilience au sens de~\cite{ash2007optimizing} pour des réseaux typiques. Cette analyse fait, de la même manière que le calcul des indicateurs, partie d'une démarche générale de caractérisation des réseaux, essentielle ici comme préliminaire à l'étude de leur interaction avec les territoires.
+
+
+
+
+\subsubsection{Data preprocessing}{Pré-traitement des données}
+
+
+\bpar{
+We work here with the road network, which structure is finely conditioned to territorial configuration of population densities. Furthermore, data for present day road network is openly available through the OpenStreetMap project~\cite{openstreetmap}. Its quality was investigated for different countries such as England~\cite{haklay2010good} and France~\cite{girres2010quality}. It was found to be of a quality equivalent to official surveys for the primary road network. Concerning China, although \cite{zheng2014assessing} underlined a quick acceleration of OpenStreetMap road data completeness and accuracy, its use for computation of network indicators may be questioned at a very fine scale. \cite{zhang2015density} highlights four regimes of data quality, partitioning China into regions among which qualitative behavior of OSM data varies. We underline that the results will be more valid on the regions where the quality is the highest, i.e. with high density and high diversity.
+}{
+Nous travaillons ici avec le réseau de rues, dont la structure est finement conditionnée aux configurations territoriales des densités de population. De plus, les données du réseau de routes actuel est disponible ouvertement par l'intermédiaire du projet OpenStreetMap (OSM)~\cite{openstreetmap}. Sa qualité a été étudiée pour différents pays comme l'Angleterre~\cite{haklay2010good} et la France~\cite{girres2010quality}. Il a été établi pour ces pays une qualité équivalente aux données officielles pour le réseau de rues primaire, au sens à la fois de la couverture spatiale et de la précision locale. Dans le cas de la Chine, bien que \cite{zheng2014assessing} soulève une récente accélération de la couverture et de la précision des données OSM pour les routes, leur usage pour le calcul d'indicateurs de réseau peut être questionné à une échelle très fine. \cite{zhang2015density} fournit une partition de la Chine en régions entre lesquelles le comportement qualitatif des données OSM varie. Nous devrons garder à l'esprit cette variabilité, et pour être assuré de la fiabilité des résultats, nous simplifierons le réseau à un niveau d'agrégation suffisant.
+}
+
+
+
+
+\bpar{
+From the primary road segments, we compute the topological road network for all studied areas, at 100m granularity scale to be used consistently with the population grid. The OSM data is imported into \texttt{pgsql} using \texttt{osmosis}, is then aggregated at fixed granularity, and the resulting topological network is finally simplified with a split/merge algorithm. We have for Europe $\simeq 44\cdot 10^6$ links in initial OSM db, $\simeq 61\cdot 10^6$ in first simplified layer, $\simeq 21\cdot 10^6$ in final database. For a given dataset corresponding to a subset of the overall road network, it is necessary to simplify network structure by spatial aggregation as initial data presents very detailed features and thus a very large numbers of nodes ($\simeq 10^10$ for Europe dataset). It is possible to drastically reduce network size by spatial aggregation of nodes and link replacements. The detailed algorithm and implementation are detailed in Supplementary material~\ref{app:sec:staticcorrelations}.
+}{
+Le réseau constitué des segments de rue primaires est agrégé à la granularité fixe de la grille de densité pour créer un graphe. Celui-ci est ensuite simplifié pour garder uniquement la structure topologique du réseau, les indicateurs normalisés étant relativement robustes à cette opération. Celle-ci est nécessaire pour un calcul simple des indicateurs et une cohérence thématique avec la couche de densité. On garde uniquement les noeuds ayant un degré strictement supérieur ou inférieur à deux, et les liaisons correspondantes, en prenant soin d'agréger la distance géographique réelle en construisant le lien topologique correspondant. Vu l'ordre de grandeur de taille des données (pour l'Europe, la base initiale a $\simeq 44.7\cdot 10^6$ liens, et la base finale simplifiée $\simeq 20.4\cdot 10^6$), un algorithme spécifique parallèle est mis en place, de structure \emph{split-merge}. Celui-ci découpe l'espace en zones qui peuvent être traitées indépendamment puis fusionnées. Il est détaillé en Appendice~\ref{app:sec:staticcorrelations}.
+}
+
+
+
+%china 2048589 ; simpl 2022802
+%europe 44706945 ; simpl 20443061
+
+
+
 
 
 
@@ -421,14 +427,14 @@ Les résultats sont présentés en Table~\ref{tab:staticcorrelations:gwr}. Il es
 \begin{tabular}{|l|l|l|l|}
 \hline
 Indicateur & Modèle & Portée (km) & Ajustement ($R^2$) \\ \hline
-Distance moyenne $\bar{d}$ & $\bar{d} \sim v_0$ & 11.609078 & 0.3145114 \\
-Entropie $\mathcal{E}$  & $\mathcal{E} \sim v_0$ &  8.795393  &0.7511295 \\
-Moran $I$ & $I \sim v_0$ &  8.795393 & 0.4886164 \\
-Hiérarchie $\gamma$ & $\gamma \sim v_0$ & 8.795393  & 0.6840567 \\\hline
-\emph{Betwenness} moyenne $\bar{bw}$ & $\bar{bw} \sim I$ & 12.294076 & 0.5776019 \\
-\emph{Closeness} moyenne $\bar{cl}$ & $\bar{cl}\sim I$ & 13.883025 & 0.2565047 \\
-Performance $v_0$ & $v_0 \sim \mathcal{E}$ & 8.595512  & 0.8640510 \\
-Nombre de noeuds $\left|V\right|$ & $\left|V\right| \sim \mathcal{E}$ & 8.595512  & 0.8825783 \\\hline
+Distance moyenne $\bar{d}$ & $\bar{d} \sim v_0$ & 11.6 & 0.31 \\
+Entropie $\mathcal{E}$  & $\mathcal{E} \sim v_0$ &  8.8  &0.75 \\
+Moran $I$ & $I \sim v_0$ & 8.8 & 0.49 \\
+Hiérarchie $\gamma$ & $\gamma \sim v_0$ & 8.8  & 0.68 \\\hline
+\emph{Betwenness} moyenne $\bar{bw}$ & $\bar{bw} \sim I$ & 12.3 & 0.58 \\
+\emph{Closeness} moyenne $\bar{cl}$ & $\bar{cl}\sim I$ & 13.9 & 0.26 \\
+Performance $v_0$ & $v_0 \sim \mathcal{E}$ & 8.6  & 0.86 \\
+Nombre de noeuds $\left|V\right|$ & $\left|V\right| \sim \mathcal{E}$ & 8.6  & 0.88 \\\hline
 \end{tabular}
 \end{table}
 %%%%%%%%%%%%%%%%%%
@@ -494,7 +500,7 @@ Nombre de noeuds $\left|V\right|$ & $\left|V\right| \sim \mathcal{E}$ & 8.595512
 \bpar{
 We show the regional nature of network-territories interactions, in particular the non-ergodicity of urban systems on \textbf{the interaction these components}. No direct results on time dynamics, but indirect : spatio-temporal processes do not have same speed and react/diffuse differently.
 }{
-Nous avons montré ainsi montré empiriquement la non-stationnarité des interactions entre morphologie de la distribution des population et topologie du réseau routier. Divers développement de cette analyse sont possibles.
+Nous avons montré ainsi montré empiriquement la non-stationnarité des interactions entre morphologie de la distribution des population et topologie du réseau routier. Divers développements de cette analyse sont possibles.
 }
 
 % la non-ergodicité du système territorial concernant l'interaction entre ces composantes.\comment[FL]{et alors ? par ailleurs vu que tu n'as jamais vraiment parlé de villes, tu ne peux pas avoir montré ce que tu prétends avoir montré} Nous n'extrayons pas de résultats directs sur les dynamiques par ces analyses statiques, mais pouvons postuler des résultats indirects :

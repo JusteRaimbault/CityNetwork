@@ -54,10 +54,10 @@ val fileSetting = ExplorationTask(
   (popFile in Seq( workDirectory / "data" / "pop50.csv")) x
   (distFile in Seq(workDirectory / "data"/ "dist50.csv")) x
   (fdistsFile in Seq(workDirectory / "data" / "distMat_Ncities50_alpha03_n03.csv")) x (id in Seq(1)) x
-  (dateFile in Seq(workDirectory / "data" / "dates.csv")) x (gravityAlpha in Seq(0.0)) //x (feedbackWeight is 0.0) x (feedbackGamma is 1.0) x (feedbackDecay is 1.0)
+  (dateFile in Seq(workDirectory / "data" / "dates.csv")) x (gravityAlpha in Seq(0.0)) x (feedbackWeight is 0.0) x (feedbackGamma is 1.0) x (feedbackDecay is 1.0)
 ) set(
-  inputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay),
-  outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay)
+  inputs += (growthRate,gravityWeight,gravityGamma,gravityDecay/*,feedbackWeight,feedbackGamma,feedbackDecay*/),
+  outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay/*,feedbackWeight,feedbackGamma,feedbackDecay*/)
 )
 
 val eval = fileSetting -< model
@@ -65,7 +65,7 @@ val eval = fileSetting -< model
 
 
 val datestr = (new SimpleDateFormat("yyyyMMdd")).format(new Date())
-val purpose = "fullcalib_logmse"
+val purpose = "gravitycalib_mselog"
 val resdir = datestr+"_"+purpose
 
 
@@ -78,13 +78,13 @@ val evolution =
           Seq(
             growthRate in Range(0.0, 0.05),
             gravityWeight in Range(0.0,0.05),
-            gravityGamma in Range(0.01,10.0),
-            gravityDecay in Range(0.01,20000.0),
-            feedbackWeight in Range(0.0,1.5),
-            feedbackGamma in Range(0.01,10.0),
-            feedbackDecay in Range(0.01,20000.0)
+            gravityGamma in Range(0.1,10.0),
+            gravityDecay in Range(0.1,20000.0)//,
+            //feedbackWeight in Range(0.0001,0.01),
+            //feedbackGamma in Range(0.1,10.0),
+            //feedbackDecay in Range(1.0,500.0)
           ),
-        objectives = Seq(logmse)
+        objectives = Seq(mselog)
       ),
     evaluation = eval,
     termination = 0.5 hours
