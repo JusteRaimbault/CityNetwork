@@ -137,7 +137,7 @@ val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) 
 //regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,relocationRate,evolveNetwork,targetNetwork,setupType,synthConfFile,finalTime
 
 val exploration =  ExplorationTask(
-  (((regionalproba in (0.0 to 0.0 by 0.01)) x
+  (((regionalproba in (0.0 to 1.0 by 0.05)) x
     //(lambdaAcc in (0.002 to 0.01 by 0.002)) x
     //(euclpace in (2.0 to 6.0 by 2.0)) x
     //(game in (1 to 2 by 1)) x
@@ -182,7 +182,7 @@ val exploration =  ExplorationTask(
   x (stopType is "time")
   //x (stopType is "infrastructure-stock")
   x (finalValue is 20)
-  x (replication in (UniformDistribution[Int]() take 1))
+  x (replication in (UniformDistribution[Int]() take 10))
 )
 
 
@@ -191,7 +191,7 @@ val exploration =  ExplorationTask(
 //val purpose = "grid_realnonw"
 //val purpose = "grid_sprawl"
 //val purpose = "grid_synth"
-val purpose = "test_synth"
+val purpose = "local_synth"
 
 
 // output
@@ -201,7 +201,7 @@ val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new Simp
 
 
 
-val local = LocalEnvironment(4)
+val local = LocalEnvironment(20)
 //val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
 exploration -< (model on local hook indics_hook)
