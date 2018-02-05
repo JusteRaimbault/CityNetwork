@@ -116,7 +116,8 @@ to-report governance:best-infrastructure [decidors old-config]
     ; no game, find the best among the choices
     let min-acc quantile ([a-to-e-accessibility + e-to-a-accessibility] of patches) 0.5
     let patchset (patches with [a-to-e-accessibility + e-to-a-accessibility > min-acc])
-    report (list first governance:compare-infrastructures old-config (governance:potential-infrastructures regional-authority (2 * road-length) patchset) regional-authority patchset)
+    let croadlength 0 ifelse game-type = "random" [set croadlength road-length][set croadlength (2 * road-length)]
+    report (list first governance:compare-infrastructures old-config (governance:potential-infrastructures regional-authority croadlength patchset) regional-authority patchset)
   ][
     ; generate potential infras here ?
     ; no, in the game, as different if random or nash game

@@ -32,6 +32,7 @@ val replication = Val[Int]
 
 // reporters : time series
 val accessibilityTS=Val[Array[Double]]
+val accessibilityBalanceTS=Val[Array[Double]]
 val minAccessibilityTS = Val[Array[Double]]
 val maxAccessibilityTS = Val[Array[Double]]
 val traveldistanceTS=Val[Array[Double]]
@@ -90,6 +91,7 @@ val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) 
   inputs += (regionalproba,lambdaAcc,euclpace,game,collcost,roadLength,gammaCDA,gammaCDE,betaDC,relocationRate,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
   outputs += (regionalproba,lambdaAcc,euclpace,game,collcost,roadLength,gammaCDA,gammaCDE,betaDC,relocationRate,evolveNetwork,evolveLanduse,targetNetwork,setupType,synthConfFile,stopType,finalValue,replication,id),
   netLogoOutputs += ("ts-indicator \"overall-mean-accessibility\"", accessibilityTS),
+  netLogoOutputs += ("ts-indicator \"mean-accessibility-balance\"", accessibilityBalanceTS),
   netLogoOutputs += ("ts-indicator \"mean-travel-distance\"", traveldistanceTS),
   netLogoOutputs += ("ts-indicator \"stability\"",stabilityTS),
   netLogoOutputs += ("ts-indicator \"mean-flow\"",meanFlowTS),
@@ -135,48 +137,51 @@ val model = NetLogo5Task.workspace(workDirectory,"HEADLESS_Lutecia.nlogo",cmds) 
 //regionalproba,lambdaAcc,euclpace,game,constrcost,collcost,gammaCDA,gammaCDE,betaDC,relocationRate,evolveNetwork,targetNetwork,setupType,synthConfFile,finalTime
 
 val exploration =  ExplorationTask(
-  /*((//(regionalproba in (0.0 to 0.0 by 1)) x
-    (lambdaAcc in (0.002 to 0.01 by 0.002)) x
-    (euclpace in (2.0 to 6.0 by 2.0)) x
+  (((regionalproba in (0.0 to 0.0 by 0.01)) x
+    //(lambdaAcc in (0.002 to 0.01 by 0.002)) x
+    //(euclpace in (2.0 to 6.0 by 2.0)) x
     //(game in (1 to 2 by 1)) x
     //(collcost in (0.00005 to 0.00013 by 0.00002))x
-    (gammaCDA in (0.1 to 1.0 by 0.1))x
-    (gammaCDE in (0.1 to 1.0 by 0.1))x
-    (betaDC in (0.5 to 2.0 by 0.5))x
-    (synthConfFile in Seq("setup/conf/synth_nonw.conf","setup/conf/synth_cross.conf","setup/conf/synth_spider.conf"))
-  ) withIndex id )*/
-  ((LHS (
+    //(gammaCDA in (0.1 to 1.0 by 0.1))x
+    //(gammaCDE in (0.1 to 1.0 by 0.1))x
+    //(betaDC in (0.5 to 2.0 by 0.5))x
+    (evolveLanduse in Seq(0,1))x
+    //(synthConfFile in Seq("setup/conf/synth_nonw.conf","setup/conf/synth_cross.conf","setup/conf/synth_spider.conf"))
+    (synthConfFile in Seq("setup/conf/synth_unbalanced_close.conf","setup/conf/synth_unbalanced_distant.conf"))
+  ) withIndex id )
+  /*((LHS (
     5000
     ,regionalproba in Range(0.0,1.0)
     //,lambdaAcc in Range(0.001,0.01)
     //,euclpace in Range(2.5,10.0)
-    ,game in Range(1.0,2.999)
-    ,collcost in Range(0.0,0.006)
-    ,roadLength in Range(0.5,2.5)
+    //,game in Range(1.0,2.999)
+    //,collcost in Range(0.0,0.006)
+    //,roadLength in Range(0.5,2.5)
     //,gammaCDA in Range(0.5,1.0)
     //,gammaCDE in Range(0.5,1.0)
     //,betaDC in Range(0.5,2.0)
-  )) withIndex id)
+  )) withIndex id)*/
   //x (regionalproba is 1.0)
   //x (regionalproba in (0.0 to 1.0 by 1.0))
   x (lambdaAcc is 0.005)
   x (euclpace is 6.0)
-  //x (game is 1)
-  //x (collcost is 0.0001)
+  x (game is 0.5)
+  x (collcost is 0.0001)
+  x (roadLength is 1.0)
   x (gammaCDA is 0.9)
   x (gammaCDE is 0.65)
   x (betaDC is 1.8)
   x (relocationRate is 0.1)
   x (evolveNetwork is 1)
   //x (evolveNetwork is 0)
-  x (evolveLanduse is 1)
+  //x (evolveLanduse is 1)
   x (targetNetwork is 1)
   //x (setupType is 2)
   x (setupType is 1)
-  x (synthConfFile is "setup/conf/synth_nonw.conf")
-  //x (stopType is "time")
-  x (stopType is "infrastructure-stock")
-  x (finalValue is 30)
+  //x (synthConfFile is "setup/conf/synth_nonw.conf")
+  x (stopType is "time")
+  //x (stopType is "infrastructure-stock")
+  x (finalValue is 20)
   x (replication in (UniformDistribution[Int]() take 1))
 )
 
@@ -185,7 +190,9 @@ val exploration =  ExplorationTask(
 //val purpose = "lhs"
 //val purpose = "grid_realnonw"
 //val purpose = "grid_sprawl"
-val purpose = "grid_synth"
+//val purpose = "grid_synth"
+val purpose = "test_synth"
+
 
 // output
 val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()))+"_"+purpose+".csv") set (
@@ -194,8 +201,8 @@ val indics_hook = AppendToCSVFileHook(workDirectory / "exploration" / ((new Simp
 
 
 
-//val local = LocalEnvironment(5)
-val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+val local = LocalEnvironment(4)
+//val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
 
-//exploration -< (model on local hook indics_hook)
-exploration -< (model on grid by 50 hook indics_hook)
+exploration -< (model on local hook indics_hook)
+//exploration -< (model on grid by 50 hook indics_hook)

@@ -21,6 +21,7 @@ to indicators:compute-indicators
   network:cache-nw-measures
   
   output-print (word "mean-accessibility : " mean-accessibility patches)
+  output-print (word "mean-accessibility-balance : " mean-accessibility-balance)
   output-print (word "mean-travel-distance : " mean-travel-distance)
   output-print (word "actives-entropy : " entropy-actives)
   output-print (word "moran-actives : " moran-actives)
@@ -96,6 +97,16 @@ end
 to-report overall-mean-accessibility
   report mean-accessibility patches
 end
+
+
+to-report mean-accessibility-mayor [i]
+  report mean-accessibility (patches with [governing-mayor = mayor i])
+end
+
+to-report mean-accessibility-balance
+  report mean-accessibility-mayor 0 / mean-accessibility-mayor 1
+end
+
 
 ; min / max access
 to-report max-accessibility

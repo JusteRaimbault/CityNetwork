@@ -27,36 +27,39 @@ res2 <- as.tbl(read.csv('calibration/20180201_fullcalib_logmse/population1200.cs
 logmses=c()
 for(gd in 1:40){
 resM1=networkFeedbackModel(real_populations,distances,dists,dates,
-                           growthRate = 0.01239654,
-                           #potentialWeight=0.0001287938,gammaGravity = 3.82252,decayGravity = 401997651796,
-                           potentialWeight=0.0001287938,gammaGravity = 3.046197,decayGravity = exp(gd),
+                           growthRate = 0.013323,
+                           potentialWeight=2.5497E-4,gammaGravity = 4.9568,decayGravity = 2.6555,
+                           #potentialWeight=0.0001287938,gammaGravity = 3.046197,decayGravity = exp(gd),
                            betaFeedback =0.0,feedbackDecay =  1.0  ,feedbackGamma = 0.0
 )
 
-logmse1 = log(sum((resM1$df$populations-resM1$df$real_populations)^2))
+logmse1 = log(sum((resM1$df$populations-resM1$df$real_populations)^2));
 mse1 = sum((resM1$df$populations-resM1$df$real_populations)^2)
-mselog1 = sum((log(resM1$df$populations)-log(resM1$df$real_populations))^2)
+mselog1 = sum((log(resM1$df$populations)-log(resM1$df$real_populations))^2);mselog1
 logmses=append(logmses,mselog1)
 }
 diff(logmses)
 
 # iterative calib necessary here ?
 logmses=c()
-for(fd in seq(1,500,10)){
+#for(fd in seq(1,10000,100)){
+for(fw in seq(-5,0,1)){
 resM2=networkFeedbackModel(real_populations,distances,dists,dates,
-                     growthRate = 0.01283191,
-                     potentialWeight=0.0001308851,gammaGravity = 3.809335,decayGravity = 8.434855e14,
-                     betaFeedback =1.0,feedbackDecay = 7.474787e14 ,
+                     growthRate = 0.013323,
+                     potentialWeight=2.5497E-4,gammaGravity = 4.9568,decayGravity = 10000,
+                     betaFeedback =10^fw,feedbackDecay = 10000 ,
                      #potentialWeight=0.0001308851,gammaGravity = 3,decayGravity = 2000,
                      #betaFeedback =1.0,feedbackDecay = fd  ,
-                     feedbackGamma = 1.148056
+                     feedbackGamma = 10.0
                      )
 logmse2 = log(sum((resM2$df$populations-resM2$df$real_populations)^2))
 mse2 = sum((resM2$df$populations-resM2$df$real_populations)^2)
-mselog2 = sum((log(resM2$df$populations)-log(resM2$df$real_populations))^2)
-logmses=append(logmses,logmse2)
+mselog2 = sum((log(resM2$df$populations)-log(resM2$df$real_populations))^2);mselog2
+logmses=append(logmses,mselog2)
 }
-plot(seq(1,500,10),logmses,type='l')
+#plot(seq(1,10000,100),logmses,type='l')
+plot(seq(-3,2,1),logmses,type='l')
+
 
 show(paste0('(1) : ',logmse1,' ; ',mselog1))
 show(paste0('(2) : ',logmse2,' ; ',mselog2))
