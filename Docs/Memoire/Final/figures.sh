@@ -158,17 +158,15 @@ then
   # fig:staticcorrs:mapscorrs
   FIGNAME=4-1-3-fig-staticcorrs-mapscorrs
   echo $FIGNAME
-  montage Figures/StaticCorrelations/FR_corr_meanBetweenness_slope_rhoasize12.png Figures/StaticCorrelations/FR_corr_PCA_rhoasize12.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".png
-  convert $FIGDIR/"$FIGNAME".png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm $FIGDIR/"$FIGNAME".png
+  montage Figures/StaticCorrelations/FR_corr_meanBetweenness.slope_rhoasize12.png Figures/StaticCorrelations/FR_corr_PC1_rhoasize12.png -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # fig:staticcorrs:corrsdistrib
   FIGNAME=4-1-3-fig-staticcorrs-corrsdistrib
   echo $FIGNAME
-  convert -density $PDFRESOLUTION Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg
-  convert -density $PDFRESOLUTION Figures/StaticCorrelations/normalized_CI_delta.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/StaticCorrelations/normalized_CI_delta.jpg
-  montage Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg Figures/StaticCorrelations/normalized_CI_delta.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg;rm Figures/StaticCorrelations/normalized_CI_delta.jpg
+  montage Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.png Figures/StaticCorrelations/normalized_CI_delta.png -resize "$WIDTH"x -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #convert -density $PDFRESOLUTION Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg
+  #convert -density $PDFRESOLUTION Figures/StaticCorrelations/normalized_CI_delta.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/StaticCorrelations/normalized_CI_delta.jpg
+  #rm Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype.jpg;rm Figures/StaticCorrelations/normalized_CI_delta.jpg
   #convert Figures/Final/fig-staticcorrs-corrsdistrib_tmp1.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/fig-staticcorrs-corrsdistrib_tmp2.jpg
   #montage Figures/StaticCorrelations/normalized_CI_delta.jpg Figures/StaticCorrelations/scatter_meanabs_colcross.jpg -resize "$WIDTH"x -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/fig-staticcorrs-corrsdistrib_tmp3.jpg
   #convert Figures/Final/fig-staticcorrs-corrsdistrib_tmp3.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/fig-staticcorrs-corrsdistrib_tmp4.jpg
@@ -219,13 +217,14 @@ then
   # fig:causalityregimes:network
   FIGNAME=4-2-3-fig-causalityregimes-network
   echo $FIGNAME
-  convert -density $PDFRESOLUTION Figures/CausalityRegimes/nw_nwSize.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/CausalityRegimes/nw_nwSize.jpg
-  convert -density $PDFRESOLUTION Figures/CausalityRegimes/nw_meanCentralities.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/CausalityRegimes/nw_meanCentralities.jpg
-  convert -density $PDFRESOLUTION Figures/CausalityRegimes/nw_hierarchies.pdf -resize "$((WIDTH + 100))"x -quality $JPGQUALITY Figures/CausalityRegimes/nw_hierarchies.jpg
-  convert -density $PDFRESOLUTION Figures/CausalityRegimes/nw_efficiency.pdf -resize "$((WIDTH - 100))"x -quality $JPGQUALITY Figures/CausalityRegimes/nw_efficiency.jpg
-  montage Figures/CausalityRegimes/nw_nwSize.jpg Figures/CausalityRegimes/nw_meanCentralities.jpg Figures/CausalityRegimes/nw_hierarchies.jpg Figures/CausalityRegimes/nw_efficiency.jpg -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME"_tmp.jpg
-  convert $FIGDIR/"$FIGNAME"_tmp.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm Figures/CausalityRegimes/nw_nwSize.jpg Figures/CausalityRegimes/nw_meanCentralities.jpg Figures/CausalityRegimes/nw_hierarchies.jpg Figures/CausalityRegimes/nw_efficiency.jpg $FIGDIR/"$FIGNAME"_tmp.jpg
+  montage Figures/CausalityRegimes/nw_efficiency.png Figures/CausalityRegimes/nw_meanCentralities.png Figures/CausalityRegimes/nw_hierarchies.png Figures/CausalityRegimes/nw_nwSize.png -resize "$WIDTH"x -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #convert -density $PDFRESOLUTION Figures/CausalityRegimes/nw_nwSize.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/CausalityRegimes/nw_nwSize.jpg
+  #convert -density $PDFRESOLUTION Figures/CausalityRegimes/nw_meanCentralities.pdf -resize "$WIDTH"x -quality $JPGQUALITY Figures/CausalityRegimes/nw_meanCentralities.jpg
+  #convert -density $PDFRESOLUTION Figures/CausalityRegimes/nw_hierarchies.pdf -resize "$((WIDTH + 100))"x -quality $JPGQUALITY Figures/CausalityRegimes/nw_hierarchies.jpg
+  #convert -density $PDFRESOLUTION Figures/CausalityRegimes/nw_efficiency.pdf -resize "$((WIDTH - 100))"x -quality $JPGQUALITY Figures/CausalityRegimes/nw_efficiency.jpg
+  #montage Figures/CausalityRegimes/nw_nwSize.jpg Figures/CausalityRegimes/nw_meanCentralities.jpg Figures/CausalityRegimes/nw_hierarchies.jpg Figures/CausalityRegimes/nw_efficiency.jpg -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME"_tmp.jpg
+  #convert $FIGDIR/"$FIGNAME"_tmp.jpg -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #rm Figures/CausalityRegimes/nw_nwSize.jpg Figures/CausalityRegimes/nw_meanCentralities.jpg Figures/CausalityRegimes/nw_hierarchies.jpg Figures/CausalityRegimes/nw_efficiency.jpg $FIGDIR/"$FIGNAME"_tmp.jpg
 
   # fig:causalityregimes:sudafcorrs
   FIGNAME=4-2-3-fig-causalityregimes-sudafcorrs
@@ -685,7 +684,7 @@ then
   # fig:app:staticcorrelations:overallcorrs
   FIGNAME=A-staticcorrelations-overallcorrs
   echo $FIGNAME
-  convert Figures/StaticCorrelations/corrmat_deltainfty.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  convert Figures/StaticCorrelations/corrmat_deltainfty_corrplot.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
   # fig:app:staticcorrelations:europe-correlations

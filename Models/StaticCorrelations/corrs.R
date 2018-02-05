@@ -15,6 +15,7 @@
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/StaticCorrelations'))
 source('functions.R')
 source('mapFunctions.R')
+source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 library(raster)
 library(ggplot2)
@@ -26,9 +27,10 @@ library(rgdal)
 library(rgeos)
 
 # load data
-params = 'areasize100_offset50_factor0.5'
-#res=read.csv(file="res/res/europe_areasize100_offset50_factor0.5_20160824.csv",sep=";",header=TRUE)
-res = loadIndicatorData("res/europecoupled_areasize100_offset50_factor0.5_temp.RData")
+#params = 'areasize100_offset50_factor0.5'
+params='areasize100_offset50_factor0.5_20160824'
+res=read.csv(file="res/res/europe_areasize100_offset50_factor0.5_20160824.csv",sep=";",header=TRUE)
+#res = loadIndicatorData("res/europecoupled_areasize100_offset50_factor0.5_temp.RData")
 rows=apply(res,1,function(r){prod(as.numeric(!is.na(r)))>0})
 res=res[rows,]
 
@@ -87,11 +89,20 @@ g+geom_point(aes(x=rho.x,y=rho.y,col=rho))+facet_wrap(~delta)+xlab("rho_cross")+
 
 load('res/res/sumcorrs.RData')
 
+resdir=paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Correlations/20160824/')
+
 g=ggplot(data.frame(sumcorrsmean,rhomin=sumcorrsmeanmin$meanrho,rhomax=sumcorrsmeanmax$meanrho),aes(x=delta,y=meanrho,color=type))
 g+geom_point()+geom_errorbar(aes(ymin=meanrho-rhosd,ymax=meanrho+rhosd))+#geom_line(aes(x=delta,y=rhomin,group=type,col=type),linetype=2)+geom_line(aes(x=delta,y=rhomax,group=type,col=type),linetype=2)
   ylab("rho")
 
-g+geom_line(aes(x=delta,y=(rhomax-rhomin)*delta,color=type))+ylab("|CI| x delta")
+g=ggplot(data.frame(sumcorrsmeanabs,rhomin=sumcorrsmeanabsmin$meanrho,rhomax=sumcorrsmeanabsmax$meanrho),aes(x=delta,y=meanrho,color=type))
+g+geom_point()+geom_errorbar(aes(ymin=meanrho-rhosd,ymax=meanrho+rhosd))+#geom_line(aes(x=delta,y=rhomin,group=type,col=type),linetype=2)+geom_line(aes(x=delta,y=rhomax,group=type,col=type),linetype=2)
+  ylab(expression(rho*'('*delta*')'))+xlab(expression(delta))+stdtheme
+ggsave(file=paste0(resdir,'corrs-summary-meanabs_varyingdelta_bytype.png'),width=30,height=20,units='cm')
+
+g+geom_line(data=data.frame(sumcorrsmean,rhomin=sumcorrsmeanmin$meanrho,rhomax=sumcorrsmeanmax$meanrho),
+            aes(x=delta,y=(rhomax-rhomin)*delta,color=type))+ylab(expression(delta%.%'|'*rho['+']-rho['-']*'|'))+xlab(expression(delta))+stdtheme
+ggsave(file=paste0(resdir,'normalized_CI_delta.png'),width=30,height=20,units='cm')
 
 #par(mfrow=c(1,1))
 #plot(sumcorrsmean$delta,sumcorrsmeanmax$meanrho-sumcorrsmeanmin$meanrho)
@@ -157,12 +168,15 @@ corrmat=data.frame(lon=lon,lat=lat,corrmat)
 
 #save(corrmat,file=paste0('res/res/corrmat_asize',rhoasize,'_step',step,'.RData'))
 
+# names of correlations
+# -> galere
 
 # do the pca
 pca=prcomp(corrmat[,c(-1,-2)])
 summary(pca)
-rhopca = data.frame(getCorrMeasure(xcors,ycors,corrs,function(rho){if(!is.matrix(rho)){return(NA)};r=matrix(c(rho),ncol=length(rho))%*%as.matrix(pca$rotation);return(r[1,1])}))
-colnames(rhopca)<-c("lon","lat","rho")
+#rhopca = data.frame(getCorrMeasure(xcors,ycors,corrs,function(rho){if(!is.matrix(rho)){return(NA)};r=matrix(c(rho),ncol=length(rho))%*%as.matrix(pca$rotation);return(r[1,1])}))
+rhopca=as.matrix(corrmat[,c(-1,-2)])%*%as.matrix(pca$rotation)
+rhopca=data.frame(corrmat[,c(1,2)],rhopca)
 
 ###
 #dd=d[d$measure=="meanabs",]
@@ -179,30 +193,35 @@ colnames(rhopca)<-c("lon","lat","rho")
 
 
 
-country = 'EU'
+#country = 'EU'
+countrycode='FR'
 resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',country,'/',params,'/','corrs_rhoasize',rhoasize,'_step',step);dir.create(resdir,recursive = T)
 
 
 countries = readOGR('gis','countries')
-#country = countries[countries$CNTR_ID=="FR",]
+country = countries[countries$CNTR_ID==countrycode,]
 #datapoints = SpatialPoints(data.frame(rhopca[,c("lon","lat")]),proj4string = countries@proj4string)
 datapoints = SpatialPoints(data.frame(corrmat[,c("lon","lat")]),proj4string = countries@proj4string)
-#selectedpoints = gContains(country,datapoints,byid = TRUE)
-selectedpoints=rep(T,length(datapoints))
+selectedpoints = gContains(country,datapoints,byid = TRUE)
+#selectedpoints=rep(T,length(datapoints))
 
-#map(rhopca[selectedpoints,],3,c(1,2),'corr_PCA_rhoasize12.png')
+mapCorrs(rhopca[selectedpoints,],'PC1',c('lon','lat'),paste0('/',countrycode,'_corr_PC1_rhoasize12.png'),main='PC1')
 
-#corrmeasure = 'meanBetweenness.slope'
+corrmeasure = 'meanBetweenness.slope'
 for(i in 3:ncol(corrmat)){
   corrmeasure = colnames(corrmat)[i]
   show(corrmeasure)
   mapCorrs(corrmat[selectedpoints,],corrmeasure,c('lon','lat'),
-    paste0('/corr_',corrmeasure,'_rhoasize',rhoasize,'.png'),main=corrmeasure)
+    paste0('/',countrycode,'_corr_',corrmeasure,'_rhoasize',rhoasize,'.png'),
+    #main=corrmeasure
+    main=expression(rho*'['*bar(bw)*','*gamma*']')
+    )
 }
 
 
 #####
 ## overall corrs
+library(corrplot)
 cor(res[,c(-1,-2)])
 
 rho = matrix(0,ncol(res)-2,ncol(res)-2);rhominus = matrix(0,ncol(res)-2,ncol(res)-2);rhoplus = matrix(0,ncol(res)-2,ncol(res)-2);
@@ -214,11 +233,17 @@ for(i in 3:ncol(res)){
   }
 }
 
+rho=cor(res[,c(-1,-2)])
 colnames(rho)<-colnames(res)[c(-1,-2)];rownames(rho)<-colnames(res)[c(-1,-2)]
 
 g=ggplot(melt(rho),aes(x=Var1,y=Var2,fill=value))
 g+geom_raster()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("")+ylab("")+scale_fill_continuous(name=expression(rho))
 ggsave(file=paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Correlations/20160824/corrmat_deltainfty.png'),height=20,width=22,units='cm')
+
+png(paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Correlations/20160824/corrmat_deltainfty_corrplot.png'),height=20,width=22,units='cm',res=300)
+corrplot(rho)
+dev.off()
+
 
 # plot given area
 

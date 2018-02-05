@@ -5,9 +5,10 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/InteractionGibrat'))
 
 source('setup.R')
 
-res1 <- as.tbl(read.csv('calibration/20180201_gravitycalib_logmse/population3258.csv'))
-res2 <- as.tbl(read.csv('calibration/20180201_fullcalib_logmse/population1200.csv'))
-
+resmselog1 <- as.tbl(read.csv('calibration/20180203_gravitycalib_mselog/population4908.csv'))
+resmselog2 <- as.tbl(read.csv('calibration/20180204_fullcalib_mselog/population4957.csv'))
+reslogmse1 <- as.tbl(read.csv('calibration/20180203_gravitycalib_logmse/population4962.csv'))
+reslogmse2 <- as.tbl(read.csv('calibration/20180205_fullcalib_logmse/population4897.csv'))
 
 
 #####
@@ -16,19 +17,21 @@ res2 <- as.tbl(read.csv('calibration/20180201_fullcalib_logmse/population1200.cs
 #
 #  corresponding to "optimal models" (heuristically fitted computational models)
 #
-#  M1 :
-#  growthRate gravityWeight gravityGamma gravityDecay
-#  0.01334922  0.0001287938      3.82252 401997651796
+#  M1 : 
+#  growthRate gravityWeight gravityGamma gravityDecay mselog
+#  [ old - 0.01334922  0.0001287938      3.82252 401997651796]
+#   0.01332339 0.0002549774 4.956849 2.655547 0.01 299.1716
 #
 #  M2 : 
 # growthRate gravityWeight gravityGamma gravityDecay feedbackWeight feedbackGamma feedbackDecay
-#  0.01283191  0.0001308851     3.809335 8.434855e+14      0.6034981 1.148056  7.474787e+14
+#  [old - 0.01283191  0.0001308851     3.809335 8.434855e+14      0.6034981 1.148056  7.474787e+14]
+#  0.01330867 0.0002152796 6.049928 2.207932 0.06647811 9.993359 0.01  298.5073
 
-logmses=c()
-for(gd in 1:40){
+#logmses=c()
+#for(gd in 1:40){
 resM1=networkFeedbackModel(real_populations,distances,dists,dates,
-                           growthRate = 0.013323,
-                           potentialWeight=2.5497E-4,gammaGravity = 4.9568,decayGravity = 2.6555,
+                           growthRate = 0.01236603,
+                           potentialWeight=0.0001695047,gammaGravity = 3.127771,decayGravity = 20000,
                            #potentialWeight=0.0001287938,gammaGravity = 3.046197,decayGravity = exp(gd),
                            betaFeedback =0.0,feedbackDecay =  1.0  ,feedbackGamma = 0.0
 )
@@ -36,29 +39,26 @@ resM1=networkFeedbackModel(real_populations,distances,dists,dates,
 logmse1 = log(sum((resM1$df$populations-resM1$df$real_populations)^2));
 mse1 = sum((resM1$df$populations-resM1$df$real_populations)^2)
 mselog1 = sum((log(resM1$df$populations)-log(resM1$df$real_populations))^2);mselog1
-logmses=append(logmses,mselog1)
-}
-diff(logmses)
+#logmses=append(logmses,mselog1)
+#}
+#diff(logmses)
 
 # iterative calib necessary here ?
-logmses=c()
+#logmses=c()
 #for(fd in seq(1,10000,100)){
-for(fw in seq(-5,0,1)){
+#for(fw in seq(-5,0,1)){
 resM2=networkFeedbackModel(real_populations,distances,dists,dates,
-                     growthRate = 0.013323,
-                     potentialWeight=2.5497E-4,gammaGravity = 4.9568,decayGravity = 10000,
-                     betaFeedback =10^fw,feedbackDecay = 10000 ,
-                     #potentialWeight=0.0001308851,gammaGravity = 3,decayGravity = 2000,
-                     #betaFeedback =1.0,feedbackDecay = fd  ,
-                     feedbackGamma = 10.0
+                     growthRate = 0.01230605,
+                     potentialWeight=0.0001718408,gammaGravity = 3.197045,decayGravity = 20000,
+                     betaFeedback =0.1616271,feedbackGamma = 8.234859,feedbackDecay = 0.01
                      )
 logmse2 = log(sum((resM2$df$populations-resM2$df$real_populations)^2))
 mse2 = sum((resM2$df$populations-resM2$df$real_populations)^2)
 mselog2 = sum((log(resM2$df$populations)-log(resM2$df$real_populations))^2);mselog2
-logmses=append(logmses,mselog2)
-}
+#logmses=append(logmses,mselog2)
+#}
 #plot(seq(1,10000,100),logmses,type='l')
-plot(seq(-3,2,1),logmses,type='l')
+#plot(seq(-5,0,1),logmses,type='l')
 
 
 show(paste0('(1) : ',logmse1,' ; ',mselog1))
@@ -70,6 +70,8 @@ n1=length(resM1$df$populations);k1=4
 n2=length(resM2$df$populations);k2=7
 (n1*log(mse1/n1) + 2*k1*n1/(n1-k1-1)) - (n2*log(mse2/n2) + 2*k2*n2/(n2-k2-1))
 (n1*log(mse1/n1) + 2*k1) - (n2*log(mse2/n2) + 2*k2)
+(n1*log(mselog1/n1) + 2*k1) - (n2*log(mselog2/n2) + 2*k2)
+(n1*log(mselog1/n1) + 2*k1*n1/(n1-k1-1)) - (n2*log(mselog2/n2) + 2*k2*n2/(n2-k2-1))
 
 
 n1*mselog1 + 2*k1*n1/(n1-k1-1)
