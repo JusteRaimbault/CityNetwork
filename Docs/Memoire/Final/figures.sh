@@ -249,7 +249,8 @@ then
   # fig:interactiongibrat:networkeffects
   FIGNAME=4-3-2-fig-interactiongibrat-networkeffects
   echo $FIGNAME
-  convert Figures/InteractionGibrat/Fig3.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  montage Figures/InteractionGibrat/logmse-feedbackDecay_ZOOM.png Figures/InteractionGibrat/mselog-feedbackDecay_ZOOM.png  -resize "$WIDTH"x -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #convert Figures/InteractionGibrat/Fig3.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # fig:interactiongibrat:gravity-pareto
   FIGNAME=4-3-2-fig-interactiongibrat-gravity-pareto
@@ -259,12 +260,14 @@ then
   # fig:interactiongibrat:gravity-params
   FIGNAME=4-3-2-fig-interactiongibrat-gravity-params
   echo $FIGNAME
-  convert Figures/InteractionGibrat/Fig5.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  montage Figures/InteractionGibrat/growthRate_filt1.png Figures/InteractionGibrat/gravityWeight_filt1.png Figures/InteractionGibrat/gravityDecay_filt1.png Figures/InteractionGibrat/gravityGamma_filt1.png  -resize "$WIDTH"x -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #convert Figures/InteractionGibrat/Fig5.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # fig:interactiongibrat:feedback
   FIGNAME=4-3-2-fig-interactiongibrat-feedback
   echo $FIGNAME
-  convert Figures/InteractionGibrat/Fig6.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  montage Figures/InteractionGibrat/growthRate_filt0.png Figures/InteractionGibrat/gravityWeight_relativegrowthRate.png Figures/InteractionGibrat/feedbackDecay_filt0.png Figures/InteractionGibrat/feedbackGamma_filt0.png  -resize "$WIDTH"x -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #convert Figures/InteractionGibrat/Fig6.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
 
