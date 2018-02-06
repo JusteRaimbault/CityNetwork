@@ -6,18 +6,20 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Governance/'))
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Governance/Lutecia/Lutecia/analysis/functions.R'))
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
-resdir = '20170528_real'
+#resdir = '20170528_real'
 #resdir = '20171219_sprawl/'
 #resdir = '20170522_realnonw/'
+resdir='20180205_localsynth/'
 #res <- as.tbl(read.csv(file = '20170523_sprawl/data/20170523_150406_grid_sprawl.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
 #res <- as.tbl(read.csv(file = '20170522_realnonw/data/20170522_174903_grid_realnonw_full.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
-res <- as.tbl(read.csv(file = '20171219_sprawl/data/20171219_164732_grid_sprawl.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
+#res <- as.tbl(read.csv(file = '20171219_sprawl/data/20171219_164732_grid_sprawl.csv',sep=',',header=F,stringsAsFactors = F,skip = 1))
+res <- as.tbl(read.csv(file = '20180205_localsynth/data/20180205_113455_local_synth.csv',sep=',',header=T,stringsAsFactors = F))
 
 
 
-
-finalTime = 50
+#finalTime = 50
 #finalTime = 10
+finalTime = 20
 names(res)<-namesTS(c("accessibilityTS","betaDC","centreActivesPropTS","centreEmploymentsPropTS"
               ,"collcost","constrcost","entropyActivesTS","entropyEmploymentsTS",
               "euclpace","evolveLanduse","evolveNetwork","expcollab","failed","finalTime","game","gametype",
@@ -25,7 +27,8 @@ names(res)<-namesTS(c("accessibilityTS","betaDC","centreActivesPropTS","centreEm
               "meanDistanceCentreActivesTS","meanDistanceCentreEmploymentsTS","meanDistanceEmploymentsTS",
               "meanFlowTS","minFlowTS","moranActivesTS","moranEmploymentsTS","nwBetweenness",
               "nwCloseness","nwDiameter","nwLength","nwPathLength","nwRelativeSpeed","realcollab",
-              "regionalproba","relDiffActivesTS","relDiffEmploymentsTS","replication","setupType","slopeActivesTS","slopeEmploymentsTS","slopeRsquaredActivesTS",
+              "regionalproba","relDiffActivesTS","relDiffEmploymentsTS","replication","setupType",
+              "slopeActivesTS","slopeEmploymentsTS","slopeRsquaredActivesTS",
               "slopeRsquaredEmploymentsTS","stabilityTS","synthConfFile","targetDistance","targetNetwork",
               "traveldistanceTS","wantedcollab"
               ),finalTime)
@@ -122,6 +125,27 @@ for(euclpace in unique(res$euclpace)){for(conffile in unique(res$synthConfFile))
 summary(res$cumreldiffactives)
 
 res[res$cumreldiffactives==min(res$cumreldiffactives),params]
+
+
+
+
+#######
+## metropolisation
+
+res$evolveLanduse = ifelse(res$evolveLanduse==1,"Avec usage du sol","Sans usage du sol")
+g=ggplot(res,aes(x=regionalproba,y=accessibilityBalanceTS19/accessibilityBalanceTS0,colour = synthConfFile,group=synthConfFile))
+g+geom_point(pch='.')+geom_smooth()+facet_wrap(~evolveLanduse,scales = 'free')+xlab(expression(xi))+
+  ylab(expression(frac(X[0](t[f]),X[1](t[f]))%.%frac(X[1](t[0]),X[0](t[0]))))+
+  scale_color_discrete(name='Configuration',labels=c('Proche','Distante'))+stdtheme
+ggsave(file=paste0(resdir,'accessbalance.png'),width=30,height=15,units='cm')
+
+g=ggplot(res,aes(x=regionalproba,y=accessibilityTS19/accessibilityTS0,colour = synthConfFile,group=synthConfFile))
+g+geom_point(pch='.')+geom_smooth()+facet_wrap(~evolveLanduse,scales = 'free')+xlab(expression(xi))+
+  ylab(expression(frac(X(t[f]),X(t[0]))))+
+  scale_color_discrete(name='Configuration',labels=c('Proche','Distante'))+stdtheme
+ggsave(file=paste0(resdir,'accesstot.png'),width=30,height=15,units='cm')
+
+
 
 
 

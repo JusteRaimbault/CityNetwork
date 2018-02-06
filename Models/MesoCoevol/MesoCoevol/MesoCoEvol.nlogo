@@ -378,7 +378,7 @@ population-growth-rate
 population-growth-rate
 0
 3000
-0
+1796
 1
 1
 NIL
@@ -715,7 +715,7 @@ linear-aggreg-population-coef
 linear-aggreg-population-coef
 0
 1
-0.5
+0
 0.1
 1
 NIL
@@ -745,7 +745,7 @@ linear-aggreg-closeness-centrality-coef
 linear-aggreg-closeness-centrality-coef
 0
 1
-0.5
+0
 0.1
 1
 NIL
@@ -760,7 +760,7 @@ linear-aggreg-bw-centrality-coef
 linear-aggreg-bw-centrality-coef
 0
 1
-0.5
+0
 0.1
 1
 NIL
@@ -775,7 +775,7 @@ linear-aggreg-accessibility-coef
 linear-aggreg-accessibility-coef
 0
 1
-0.5
+0
 0.1
 1
 NIL

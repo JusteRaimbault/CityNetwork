@@ -128,6 +128,13 @@ then
   montage Figures/Computation/phasediagram_id27_maxSugar110.jpg Figures/Computation/phasediagram_id0_maxSugar110.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm Figures/Computation/phasediagram_id27_maxSugar110.jpg Figures/Computation/phasediagram_id0_maxSugar110.jpg
 
+  ###############
+  ## 3.2 : Reproducibility
+
+  # fig:reproducibility:tijuana
+  FIGNAME=3-1-3-fig-reproducibility-tijuana
+  echo $FIGNAME
+  montage Figures/Reproducibility/stdView.png Figures/Reproducibility/ViewRoads.png Figures/Reproducibility/landValues_cityFinished.png -resize "$((WIDTH / 3))"x -quality $JPGQUALITY -tile 3x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
 
 
 fi
@@ -505,6 +512,10 @@ then
   echo $FIGNAME
   montage Figures/Lutecia/ex_setup.png Figures/Lutecia/ex_reg_infra50_explo200_seed1.png Figures/Lutecia/ex_maxcollabcost_infra45_explo200_seed3.png Figures/Lutecia/ex_mincollabcost_infra50_explo200_seed1.png -resize "$WIDTH"x -quality $JPGQUALITY -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
 
+  # fig:lutecia:coevol
+  FIGNAME=7-3-3-fig-lutecia-coevol
+  echo $FIGNAME
+  montage Figures/Lutecia/accessbalance.png Figures/Lutecia/accesstot.png -resize "$WIDTH"x -quality $JPGQUALITY -tile 1x2 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
 
   # fig:lutecia:ex-prd
   FIGNAME=7-3-3-fig-lutecia-ex-prd

@@ -103,7 +103,7 @@ for(seed in 1:nseeds){
 seeds=c();for(seed in 1:nseeds){seeds=append(seeds,rep(seed,nrow(res)/nseeds))}
 res$seed = seeds
 
-g=ggplot(res,aes(x=t,y=x,fill=cut(p,11,dig.lab = 1)))
+g=ggplot(res,aes(x=t,y=x,fill=cut(p,11,dig.lab = 1,right=F)))
 g+geom_raster()+scale_fill_brewer(palette = "Spectral",name='Proportion',direction = -1)+facet_wrap(~seed)+stdtheme
 ggsave(paste0(resdir,'bifurcations.png'),width=30,height=20,units='cm')
 

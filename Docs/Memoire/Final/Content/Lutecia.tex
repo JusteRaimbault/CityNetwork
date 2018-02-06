@@ -175,7 +175,7 @@ X^{(A)}_k = A_k\cdot \sum_{k'} E_{k'} \exp{\left(-\lambda \cdot d_{k,k'}\right)}
 \bpar{
 The accessibility of employments to actives is defined in a similar manner. Dynamics are taken in a discrete way: $t \in \{t_0 = 0 , \ldots , t_f\}$, with time ticks corresponding to a time scale at which land use typically evolves, i.e. 5 to 10 years.
 }{
-L'accessibilité des emplois aux actifs est définie de manière similaire. La dynamique est considérée de façon discrete : $t \in \{t_0 = 0 , \ldots , t_f\}$, avec les pas de temps correspondant à une échelle à laquelle l'usage du sol évolue en moyenne, i.e. de 5 à 10 ans.
+L'accessibilité des emplois aux actifs est définie de manière similaire. La dynamique est considérée de façon discrete : $t \in \{t_0 = 0 , \ldots , t_f\}$, avec les pas de temps correspondant à une échelle à laquelle l'usage du sol évolue en moyenne, i.e. de 5 à 10 ans. Nous prenons ainsi une vitesse plus lente pour l'évolution du réseau qui se construira par tronçons à chaque pas de temps, tandis que l'usage du sol sera considéré comme en équilibre à l'échelle de la décade, en cohérence avec le cadre développé en chapitre~\ref{ch:thematic}.
 }
 
 
@@ -357,13 +357,17 @@ p_i = \frac{J}{\Delta X_{1 - i}{Z^{\star}_{C}} - \Delta X_{1 - i}{Z^{\star}_{1 -
 \bpar{
 This expression can be interpreted in the way that in this competitive game, the likelihood of a player to cooperate will decrease as the other player gain increases, and somehow counterintuitively, will increase as collaboration cost increases.
 }{
-Cette expression peut être interprétée de la façon suivante : dans ce jeu compétitif, la chance qu'un joueur coopère décroit quand le gain de l'autre joueur augmente, et d'une certaine manière contre-intuitif, s'accroit quand le coût de collaboration augmente.
+Cette expression peut être interprétée de la façon suivante : dans ce jeu compétitif, la chance qu'un joueur coopère décroit quand le gain de l'autre joueur augmente, et d'une certaine manière contre-intuitif, s'accroit quand le coût de collaboration augmente. Le réalisme de cette hypothèse est donc à modérer, et nous pouvons supposer que l'équilibre n'est en pratique jamais atteint.
 }
 
 \bpar{
 It also forces feasibility conditions on $J$ and accessibility gains to keep a probability : that are $ J \leq \Delta X_{1 - i}(Z^{\star}_{C}) - \Delta X_{1 - i}(Z^{\star}_{1 - i})$ (equivalent to a cost-benefit condition) and $\Delta X_{1 - i}(Z^{\star}_{C}) \leq \Delta X_{1 - i}(Z^{\star}_{1 - i})$.
 }{
-Cela impose également des conditions de faisabilité pour $J$ et les gains d'accessibilité pour conserver une probabilité : celles-ci sont $ J \leq \Delta X_{1 - i}(Z^{\star}_{C}) - \Delta X_{1 - i}(Z^{\star}_{1 - i})$ (équivalent à une condition coût-bénéfice) et $\Delta X_{1 - i}(Z^{\star}_{C}) \leq \Delta X_{1 - i}(Z^{\star}_{1 - i})$.
+Cela impose également des conditions de faisabilité pour $J$ et les gains d'accessibilité pour conserver une probabilité. Celles-ci sont :
+\begin{itemize}
+	\item $ J \leq \Delta X_{1 - i}(Z^{\star}_{C}) - \Delta X_{1 - i}(Z^{\star}_{1 - i})$, qui s'interprète comme une condition coût-bénéfices, c'est à dire que le gain induit par l'infrastructure commune doit être supérieur au coût de collaboration ;
+	\item $\Delta X_{1 - i}(Z^{\star}_{C}) \leq \Delta X_{1 - i}(Z^{\star}_{1 - i})$, c'est à dire que le gain induit par l'infrastructure commune doit être positif.
+\end{itemize}
 }
 
 
@@ -413,7 +417,7 @@ Nous considérons également un mécanisme de référence, qui ne suppose pas de
 \subsubsection{Model implementation}{Implémentation du modèle}
 
 
-L'ensemble des paramètres du modèle est rappelé en Table~\ref{tab:lutecia:parameters}. Nous ne donnons ici que les paramètres qui n'ont pas été fixés explicitement précédemment, et il s'agit des paramètres privilégiés sur lesquels l'exploration et l'application du modèle sera faite.
+L'ensemble des paramètres du modèle est rappelé en Table~\ref{tab:lutecia:parameters}. Nous ne donnons ici que les paramètres qui n'ont pas été fixés explicitement précédemment, et il s'agit des paramètres privilégiés sur lesquels l'exploration et l'application du modèle sera faite. La borne $\sqrt{2}\cdot K$ correspond à la diagonale du monde, et celle pour $J$ a été fixée empiriquement selon les valeurs observées de la borne donnée précedemment.
 
 
 %%%%%%%%%%%%%%
@@ -454,7 +458,7 @@ Plus de détails d'implémentation sont donnés en Annexe~\ref{app:sec:lutecia}.
 \subsubsection{Model validation}{Validation du modèle}
 
 
-Différentes expériences nous permettent de valider le modèle dans une certaine mesure. Nous adoptons une stratégie modulaire, c'est à dire par tests relativement indépendants des sous-modèles pour commencer.
+Différentes expériences nous permettent de valider le modèle dans une certaine mesure. Nous adoptons une stratégie modulaire, c'est à dire par tests relativement indépendants des sous-modèles pour commencer. L'idée est de monter des expériences élémentaires en faisant évoluer soit l'usage du sol, soit le réseau, soit les deux, en étudiant les conséquences sur les différents aspects.
 
 
 Nous travaillons sur des systèmes synthétiques. Les configurations de populations et d'emplois suivent des mélanges d'exponentielles. Nous donnons en Annexe~\ref{app:sec:lutecia} les détails des paramètres d'initialisation.
@@ -462,11 +466,11 @@ Nous travaillons sur des systèmes synthétiques. Les configurations de populati
 
 \paragraph{Land-use}{Usage du sol}
 
-Les dynamiques d'usage du sol ont toujours un état stationnaire lorsque le réseau n'évolue pas. Nous démontrons l'existence de l'équilibre en~\ref{app:sec:lutecia}. Par ailleurs, les expériences numériques montrent que le modèle converge assez rapidement. Les expériences ciblant l'usage du sol uniquement et qui sont détaillées en~\ref{app:sec:lutecia} fournissent les résultats suivants :
+Les dynamiques d'usage du sol convergent toujours vers un état asymptotique lorsque le réseau n'évolue pas. Nous démontrons l'existence de l'équilibre en~\ref{app:sec:lutecia}. Par ailleurs, les expériences numériques montrent que le modèle converge assez rapidement. Les expériences ciblant l'usage du sol uniquement et qui sont détaillées en~\ref{app:sec:lutecia} fournissent les résultats suivants :
 \begin{itemize}
 	\item Une grande diversité de trajectoires morphologiques dans le temps, c'est à dire l'évolution des indicateurs morphologiques pour la distribution de la population et des emplois, est obtenue en jouant sur les paramètres $\gamma_A, \gamma_E, \lambda, \beta$, ainsi que sur la structure d'un réseau statique.
 	\item De même, ces trajectoires ne convergent pas vers les mêmes formes et on a donc une diversité des formes finales obtenues.
-	\item Il est possible de minimiser à $\alpha = 1$ fixé la quantité totale de relocalisation. Nous jouerons toutefois sur ce paramètre pour contrôler la vitesse d'étalement urbaine, et prendrons typiquement des valeurs autour de $0.1$.
+	\item Il est possible de minimiser à $\alpha = 1$ fixé la quantité totale de relocalisation. Nous jouerons toutefois sur ce paramètre pour contrôler la vitesse d'étalement urbain, et prendrons typiquement des valeurs autour de $0.1$, qui correspond à 10\% d'actifs se relocalisant à chaque pas de temps, c'est à dire sur une période de l'ordre de la dizaine d'années.
 \end{itemize}
 
 
@@ -476,7 +480,7 @@ Les dynamiques d'usage du sol ont toujours un état stationnaire lorsque le rés
 Afin de comprendre l'influence des paramètres de gouvernance sur les formes produites par le modèle, nous menons une expérience simple dans le cas d'un système bi-centrique, sans réseau initial. Les paramètres du modèle d'usage du sol sont fixés à des valeurs standard $\gamma_A = \gamma_E = 0.8, \beta = 2 ; \lambda = 0.001, \alpha = 0.16$ et la longueur des tronçons est fixée à $l_r = 2$. Nous considérons uniquement le jeu à choix discrets. La situation de référence est donnée par un niveau de décision uniquement régional, correspondant à $\xi = 1$. Nous la comparons à deux situations dans lesquelles le niveau de décision est uniquement local ($\xi = 0$) mais pour lequel nous forçons les probabilités de collaboration à des valeurs extrêmes par l'intermédiaire du coût de coopération, pris respectivement comme $J=0$ et $J=0.005$.
 
 
-La configuration initiale ainsi que trois exemples de formes de réseau obtenues pour chacune des configurations sont montrés en Fig.~\ref{fig:lutecia:governance}. Les formes de réseau sont visuellement\footnote{Cette expérience préliminaire n'implique pas d'exploration intensive, et il n'est donc pas possible de traduire ces conclusions de manière robuste en termes de statistiques des indicateurs.} différentes et témoignent de caractéristiques de structure particulière. Dans le cas de la décision régionale, un arc structurant relie les deux centre, à partir duquel se branchent des ramifications d'abord perpendiculaires puis parallèles. La structure obtenue dans le cas d'un local collaboratif est également arborescente mais comporte moins de branches, les prolongement se faisant majoritairement à la suite des branches existantes. Enfin, comme on pouvait s'y attendre, le réseau non-collaboratif parait moins optimal en termes de couverture que les deux premiers, et présente des redondances. Concernant la structure urbaine, on obtient que les niveaux locaux conservent plus la structure bicentrique en comparaison au niveau régional (voir la position des centres finaux par rapport à la position initiale) : via le réseau, la prise de décision au niveau régional a plus de potentiel pour créer de nouvelles centralités.
+La configuration initiale ainsi que trois exemples de formes de réseau obtenues pour chacune des configurations sont montrés en Fig.~\ref{fig:lutecia:governance}. Les formes de réseau sont visuellement\footnote{Cette expérience préliminaire n'implique pas d'exploration intensive, et il n'est donc pas possible de traduire ces conclusions de manière robuste en termes de statistiques des indicateurs.} différentes et témoignent de caractéristiques de structure particulière. Dans le cas de la décision régionale, un arc structurant relie les deux centres, à partir duquel se branchent des ramifications d'abord perpendiculaires puis parallèles. La structure obtenue dans le cas d'un local collaboratif est également arborescente mais comporte moins de branches, les prolongement se faisant majoritairement à la suite des branches existantes. Enfin, comme on pouvait s'y attendre, le réseau non-collaboratif parait moins optimal en termes de couverture que les deux premiers, et présente des redondances. Concernant la structure urbaine, on obtient que les niveaux locaux conservent plus la structure bi-centrique en comparaison au niveau régional (voir la position des centres finaux par rapport à la position initiale) : via le réseau, la prise de décision au niveau régional a plus de potentiel pour créer de nouvelles centralités.
 
 
 %%%%%%%%%%%%
@@ -490,7 +494,22 @@ La configuration initiale ainsi que trois exemples de formes de réseau obtenues
 \end{figure}
 %%%%%%%%%%%%
 
-
+
+\paragraph{Co-evolution}{Co-évolution}
+
+Dans une dernière expérience stylisée, nous proposons d'étudier plus directement l'effet de la co-évolution, notamment sur les variables d'usage du sol.
+
+
+
+
+%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=\linewidth]{Figures/Lutecia/accessbalance.png}\\    %\includegraphics[width=\linewidth]{Figures/Lutecia/accesstot.png}
+	\includegraphics[width=\linewidth]{Figures/Final/7-3-3-fig-lutecia-coevol.jpg}
+	\caption[Impact of co-evolution on accessibility in the Lutecia model.][Impact de la co-évolution sur l'accessibilité dans le modèle Lutecia]{\textbf{Impact of co-evolution on accessibility in the Lutecia model.}\label{fig:lutecia:coevol}}{\textbf{Impact de la co-évolution sur l'accessibilité dans le modèle Lutecia.}\label{fig:lutecia:coevol}}
+\end{figure}
+%%%%%%%%%%%%
+
 
 
 
@@ -578,7 +597,7 @@ Nous obtenons des résultats qualitativement similaires pour les deux expérienc
 	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/distanceviolin_gametype.png}
 	%\includegraphics[width=0.49\linewidth]{Figures/Lutecia/distanceviolin_gametype_real.png}
 	\includegraphics[width=\linewidth]{Figures/Final/7-3-3-fig-lutecia-calib.jpg}
-	\caption[Calibration of the Lutecia model][Calibration du modèle Lutecia]{\textbf{Model calibration with fixed land use.}\label{fig:lutecia:calib}}{\textbf{Calibration du modèle à usage du sol fixé.} On prend $\alpha = 0$ pour ne faire évoluer que le réseau, et échantillonnons l'espace des paramètres de gouvernance. (\textit{Haut Gauche}) Distance $d_A$ au réseau cible (targetDistance), dans le cas du réseau réel, en fonction de la probabilité de décision régionale $\xi$ (regionalproba), pour les deux types de jeu (couleur). (\textit{Haut Droite}) Distance $d_A$ en fonction de la probabilité de collaboration observée (realcollab) ; la courbe rouge donne les moyennes avec les barres d'erreur. (\textit{Bas Gauche}) Distribution statistique de la distance en fonction du type de jeu, dans le cas du réseau réel ; (\textit{Bas Droite}) dans le cas du réseau planifié. \label{fig:lutecia:calib}}
+	\caption[Calibration of the Lutecia model][Calibration du modèle Lutecia]{\textbf{Model calibration with fixed land use.}\label{fig:lutecia:calib}}{\textbf{Calibration du modèle à usage du sol fixé.} On prend $\alpha = 0$ pour ne faire évoluer que le réseau, et échantillonnons l'espace des paramètres de gouvernance. (\textit{Haut Gauche}) Distance $d_A$ au réseau cible (targetDistance), dans le cas du réseau réel, en fonction de la probabilité de décision régionale $\xi$ (regionalproba), pour les deux types de jeu (couleur). (\textit{Haut Droite}) Distance $d_A$ en fonction de la probabilité de collaboration observée (realcollab) ; la courbe rouge donne les moyennes avec les barres d'erreur. (\textit{Bas Gauche}) Distribution statistique de la distance en fonction du type de jeu, dans le cas du réseau réel ; (\textit{Bas Droite}) dans le cas du réseau planifié. La différence entre les types de jeux est plus grande dans le cas du réseau réelle en comparaison au réseau planifié.\label{fig:lutecia:calib}}
 \end{figure}
 %%%%%%%%%%%%%%%
 
@@ -586,7 +605,7 @@ Nous obtenons des résultats qualitativement similaires pour les deux expérienc
 
 Nous tirons donc de cette expérience les conclusions suivantes, à prendre bien sûr avec prudence :
 \begin{itemize}
-	\item Une compétition entre les acteurs est plus probable qu'un comportement égoïste dans le cas de décisions locales.
+	\item Une compétition entre les acteurs est plus probable qu'un comportement égoïste dans le cas de décisions locales, puisque le jeu par choix discrets donne de meilleures performances que le Nash pour les faibles valeurs de $\xi$.
 	\item Les compromis de collaboration forment des réseaux moins probables que les situations avec pleine collaboration ou avec aucun collaboration.
 \end{itemize}
 
@@ -608,7 +627,7 @@ Bien que le modèle ait encore à être exploré plus en profondeur et pour l'en
 \bpar{
 One interesting aspect to study would be the emergence of larger administrative zones, i.e. the emergence of new levels of governance in polycentric metropolitan areas. The reality is of course not as simple, as bottom-up initiatives such as collaboration between neighbor cities are interlaced with top-down decisions such as e.g. the ``M{\'e}tropole du Grand Paris'' which is a new administrative structure for Paris Area decided at the state level~\cite{gilli2009paris}. It would be however interesting to test conditions for emergence of governance patterns from the bottom-up in a conceptual way by extending the model and adding interactions and fusion between administrative entities.
 }{
-Une extension pertinente serait l'étude de l'émergence de zones administratives par agrégation, c'est à dire l'émergence de nouveaux niveaux de gouvernance dans une région métropolitaine polycentrique. L'exemple de la Métropole du Grand Paris en est une bonne illustration, puisqu'elle se situe entre les collectivités locales et la région ainsi que l'état~\cite{gilli2009paris}. Une extension du modèle avec des règles de fusion des entités est une direction potentielle pour étudier cette question.
+Une extension pertinente serait l'étude de l'émergence de zones administratives par agrégation, c'est à dire l'émergence de nouveaux niveaux de gouvernance dans une région métropolitaine polycentrique. L'exemple de la Métropole du Grand Paris en est une bonne illustration en la considérant de manière simplifiée, puisqu'elle se situe entre les collectivités locales et la région ainsi que l'état~\cite{gilli2009paris}. Une extension du modèle avec des règles de fusion des entités est une direction potentielle pour étudier cette question.
 }
 
 
@@ -623,10 +642,10 @@ L'influence des territoires extérieurs ou des externalités sur l'évolution d'
 
 
 
-Nous avons ainsi posé les premières briques de modèles visant à une intégration plus complexe des processus de co-évolution, en introduisant le modèle Lutetia qui a ensuite été validé de manière préliminaire et dont les potentialités ont été démontrée par l'application au cas d'étude du Delta de la Rivière des Perles.
+\stars
 
 
-
+Nous avons ainsi posé les premières briques de modèles visant à une intégration plus complexe des processus de co-évolution, en développant le modèle Lutecia qui a ensuite été validé de manière préliminaire et dont les potentialités ont été démontrées par l'application au cas d'étude du Delta de la Rivière des Perles.
 
 
 

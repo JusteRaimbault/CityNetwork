@@ -6,9 +6,12 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/InteractionGibrat'))
 source('setup.R')
 
 resmselog1 <- as.tbl(read.csv('calibration/20180203_gravitycalib_mselog/population4908.csv'))
+#resmselog2 <- as.tbl(read.csv('calibration/20180205_fullcalib_mselog_alpha4/population3818.csv'))
 resmselog2 <- as.tbl(read.csv('calibration/20180204_fullcalib_mselog/population4957.csv'))
 reslogmse1 <- as.tbl(read.csv('calibration/20180203_gravitycalib_logmse/population4962.csv'))
+#reslogmse2 <- as.tbl(read.csv('calibration/20180206_fullcalib_logmse_alpha4/population4994.csv'))
 reslogmse2 <- as.tbl(read.csv('calibration/20180205_fullcalib_logmse/population4897.csv'))
+
 
 
 #####
@@ -76,6 +79,12 @@ n2=length(resM2$df$populations);k2=7
 
 n1*mselog1 + 2*k1*n1/(n1-k1-1)
 n2*mselog2 + 2*k2*n2/(n2-k2-1)
+
+min(resmselog1$mselog)/min(resmselog2$mselog)
+min(reslogmse1$logmse)/min(reslogmse2$logmse)
+(n1*log(min(resmselog1$mselog)/n1) + 2*k1) - (n2*log(min(resmselog2$mselog)/n2) + 2*k2)
+(n1*log(min(reslogmse1$logmse)/n1) + 2*k1) - (n2*log(min(reslogmse2$logmse)/n2) + 2*k2)
+
 
 ##
 # Fit random statistical models with same parameter number
