@@ -1,0 +1,103 @@
+import interaction._
+
+import java.text.SimpleDateFormat
+import java.util.Date
+
+logger.level("FINE")
+
+
+// Parameters
+val growthRate = Val[Double]
+val gravityWeight = Val[Double]
+val gravityGamma = Val[Double]
+val gravityDecay = Val[Double]
+val gravityAlpha = Val[Double]
+val feedbackWeight = Val[Double]
+val feedbackGamma = Val[Double]
+val feedbackDecay = Val[Double]
+
+// Exploration
+val id=Val[Int]
+
+// Reporters
+val logmse=Val[Double]
+val mselog=Val[Double]
+
+// config files
+val popFile=Val[File]
+val distFile=Val[File]
+val fdistsFile=Val[File]
+val dateFile=Val[File]
+
+// Model
+val model =
+  ScalaTask(
+    """
+      | import interaction._
+      | val pop = ModelLauncher.main(input.popFile,input.distFile,input.fdistsFile,input.dateFile,input.growthRate,input.gravityWeight,input.gravityGamma,input.gravityDecay,input.gravityAlpha,input.feedbackWeight,input.feedbackGamma,input.feedbackDecay,input.id)
+      | val logmse = InteractionModel.logmse(pop)
+      | val mselog = InteractionModel.mselog(pop)
+    """.stripMargin
+  ) set (
+    plugins += pluginsOf(ModelLauncher),
+    //inputFiles += ((popFile, "popFileName"),(distFile,"distFileName"),(fdistsFile,"fdistsFileName")),
+    inputs += (popFile,distFile,fdistsFile,dateFile,growthRate,gravityWeight,gravityGamma,gravityDecay,gravityAlpha,feedbackWeight,feedbackGamma,feedbackDecay,id),
+    outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,gravityAlpha,feedbackWeight,feedbackGamma,feedbackDecay,id),
+    outputs += (logmse,mselog)
+  )
+val modelCapsule = Capsule(model)
+
+
+
+
+val fileSetting = ExplorationTask(
+  (popFile in Seq( workDirectory / "data" / "pop50.csv")) x
+  (distFile in Seq(workDirectory / "data"/ "dist50.csv")) x
+  (fdistsFile in Seq(workDirectory / "data" / "distMat_Ncities50_alpha04_n03.csv")) x (id in Seq(1)) x
+  (dateFile in Seq(workDirectory / "data" / "dates.csv")) x (gravityAlpha in Seq(0.0)) //x (feedbackWeight is 0.0) x (feedbackGamma is 1.0) x (feedbackDecay is 1.0)
+) set(
+  inputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay),
+  outputs += (growthRate,gravityWeight,gravityGamma,gravityDecay,feedbackWeight,feedbackGamma,feedbackDecay)
+)
+
+val eval = fileSetting -< model
+
+
+
+val datestr = (new SimpleDateFormat("yyyyMMdd")).format(new Date())
+val purpose = "fullcalib_mselog_alpha4"
+val resdir = datestr+"_"+purpose
+
+
+val evolution =
+  SteadyStateEvolution(
+    algorithm =
+      NSGA2(
+        mu = 200,
+        genome =
+          Seq(
+            growthRate in Range(0.0, 0.05),
+            gravityWeight in Range(0.0,0.05),
+            gravityGamma in Range(0.01,10.0),
+            gravityDecay in Range(0.01,20000.0),
+            feedbackWeight in Range(0.0,1.5),
+            feedbackGamma in Range(0.01,10.0),
+            feedbackDecay in Range(0.01,20000.0)
+          ),
+        objectives = Seq(mselog)
+      ),
+    evaluation = eval,
+    termination = 0.5 hours
+  )
+
+val island = IslandEvolution(evolution, parallelism = 500,termination=6 hours)
+//val island = IslandEvolution(evolution, parallelism = 20,termination=12 hours)
+
+// Define the hook to save the results
+val savePopulation = SavePopulationHook(island, workDirectory / "calib" / resdir)
+
+val grid = EGIEnvironment("vo.complex-systems.eu")
+//val local = LocalEnvironment(20)
+
+// Define the execution
+(island on grid hook savePopulation)
