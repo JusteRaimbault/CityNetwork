@@ -299,7 +299,8 @@ convert Figures/Density/Fig3.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/
 
 FIGNAME=5-2-2-fig-density-fig4
 echo $FIGNAME
-convert Figures/Density/Fig4.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+convert Figures/Density/bifurcations.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+#convert Figures/Density/Fig4.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 FIGNAME=5-2-2-fig-density-fig5
 echo $FIGNAME

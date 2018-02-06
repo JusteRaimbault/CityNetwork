@@ -49,8 +49,8 @@ ggsave('logmse-feedbackDecay_ZOOM.png',width=20,height=15,units='cm')
 
 p1="feedbackDecay";p2="rate";p3="feedbackGamma";p4="growthRate";err="mselog"
 g=ggplot(res)#[abs(res$growthRate-0.071)<0.0001,])#res[res$growthRate==0.07|res$growthRate==0.06,])
-g+geom_line(aes_string(x=p1,y=err,colour=p2,group=p2),alpha=0.7)+xlab(expression(d[N]))+ylab(expression(epsilon[G]))+
+g+geom_line(aes_string(x=p1,y=err,colour=p2,group=p2),alpha=0.7)+xlab(expression(d[N]))+ylab(expression(epsilon[L]))+
   scale_colour_continuous(name=expression(w[N]*'/'*r[0]))+stdtheme#+facet_grid(paste0(p3,"~",p4),scales="free")#)))+stat_smooth()#+facet_wrap(~gravityGamma,scales = "free")
-ggsave('logmse-feedbackDecay_ZOOM.png',width=20,height=15,units='cm')
+ggsave('mselog-feedbackDecay_ZOOM.png',width=20,height=15,units='cm')
 
 
