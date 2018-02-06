@@ -490,10 +490,11 @@ then
   # fig:mesocoevolmodel:causality
   FIGNAME=7-2-2-fig-mesocoevolmodel-causality
   echo $FIGNAME
-  convert Figures/MesoCoEvol/centertrajs.png -resize "$((3 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/centertrajs.jpg
-  convert Figures/MesoCoEvol/cluster-params-gridRoadPop.png -resize "$((2 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/cluster-params.jpg
-  montage Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
-  rm Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg
+  montage Figures/MesoCoEvol/centertrajs.png Figures/MesoCoEvol/cluster-params-gridRoadPop.png -resize "$WIDTH" -quality $JPGQUALITY -tile 1x2 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
+  #convert Figures/MesoCoEvol/centertrajs.png -resize "$((3 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/centertrajs.jpg
+  #convert Figures/MesoCoEvol/cluster-params-gridRoadPop.png -resize "$((2 * WIDTH / 5))"x -quality $JPGQUALITY Figures/MesoCoEvol/cluster-params.jpg
+  #montage Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 $FIGDIR/"$FIGNAME".jpg
+  #rm Figures/MesoCoEvol/centertrajs.jpg Figures/MesoCoEvol/cluster-params.jpg
 
 
   ###############
