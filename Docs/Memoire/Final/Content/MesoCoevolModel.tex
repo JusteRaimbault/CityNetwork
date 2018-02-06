@@ -38,7 +38,7 @@ A continuous diffusion of population completes the aggregation to translate repu
 The different network generation heuristics introduced in~\ref{sec:networkgrowth} are included in the model.
 We expect the different heuristics to be complementary since the gravity model would be more typical of planned top-down network evolution, whereas the biological model will translate bottom-up processes of network growth. 
 }{
-Les principes généraux du modèle sont les suivants. Avec un taux de croissance global fixé, une nouvelle population s'agrège préférentiellement à un potentiel local, dont la dépendance à diverses variables explicatives est contrôlé par des paramètres. Celles-ci sont la densité locale, la distance au réseau, les mesures de centralité dans le réseau et l'accessibilité généralisée. \cite{doi:10.1080/13658816.2014.893347} montre dans le cas de Stockholm la très forte corrélation entre les différents types de centralité et le type d'usage du sol, ce qui confirme l'importance de considérer les centralités comme variables explicatives pour le modèle à cette échelle. Nous généralisons ainsi le modèle de morphogenèse étudié dans~\ref{sec:densitygeneration}, avec des mécanismes d'agrégation similaires à ceux utilisés par~\cite{raimbault2014hybrid}. Une diffusion continue de la population complète l'agrégation pour traduire les processus de répulsion généralement dus à la congestion. A cause des différentes échelles de temps impliquées dans l'évolution de l'environnement urbain et des réseaux, le réseau croit à pas de temps fixes, suivant le sous-modèle développé en~\ref{sec:networkgrowth} : une première règle fixe assure la connectivité des patches nouvellement peuplés au réseau existant. Les différentes heuristiques de génération de réseau sont ensuite incluses dans le modèle. Nous nous attendons à une complémentarité de celles-ci, puisque par exemple le modèle gravitaire sera plus typique d'une évolution de réseau planifiée, tandis que le modèle biologique traduit des processus auto-organisés de croissance de réseau. La Fig.~\ref{fig:mesocoevolmodel:workflow} résume la structure générale du modèle de morphogenèse.
+Les principes généraux du modèle sont les suivants. Avec un taux de croissance global fixé, une nouvelle population s'agrège préférentiellement à un potentiel local, dont la dépendance à diverses variables explicatives est contrôlé par des paramètres. Celles-ci sont la densité locale, la distance au réseau, les mesures de centralité dans le réseau et l'accessibilité généralisée. \cite{doi:10.1080/13658816.2014.893347} montre dans le cas de Stockholm la très forte corrélation entre mesures de centralité et le type d'usage du sol, ce qui confirme l'importance de considérer les centralités comme variables explicatives pour le modèle à cette échelle. Nous généralisons ainsi le modèle de morphogenèse étudié dans~\ref{sec:densitygeneration}, avec des mécanismes d'agrégation similaires à ceux utilisés par~\cite{raimbault2014hybrid}. Une diffusion continue de la population complète l'agrégation pour traduire les processus de répulsion généralement dus à la congestion. A cause des différentes échelles de temps impliquées dans l'évolution de l'environnement urbain et des réseaux, le réseau croit à pas de temps fixes, suivant le sous-modèle développé en~\ref{sec:networkgrowth} : une première règle fixe assure la connectivité des patches nouvellement peuplés au réseau existant. Les différentes heuristiques de génération de réseau sont ensuite incluses dans le modèle. Nous nous attendons à une complémentarité de celles-ci, puisque par exemple le modèle gravitaire sera plus typique d'une évolution de réseau planifiée, tandis que le modèle biologique traduit des processus auto-organisés de croissance de réseau. La Fig.~\ref{fig:mesocoevolmodel:workflow} résume la structure générale du modèle de morphogenèse.
 }
 
 
@@ -46,7 +46,7 @@ Les principes généraux du modèle sont les suivants. Avec un taux de croissanc
 
 %%%%%%%%%%%%%%%
 \begin{figure}
-	\includegraphics[width=\linewidth]{Figures/MesoCoEvol/mesocoevol}
+	\includegraphics[width=\linewidth]{Figures/MesoCoEvol/mesocoevol_fr.pdf}
 	\caption[Morphogenesis at the mesoscopic scale][Morphogenèse mesoscopique]{\textbf{Structure of the co-evolution model at the mesoscopic scale.}\label{fig:mesocoevolmodel:workflow}}{\textbf{Structure du modèle de co-évolution à l'échelle mesoscopique.}\label{fig:mesocoevolmodel:workflow}}
 \end{figure}
 %%%%%%%%%%%%%%%
@@ -61,10 +61,10 @@ Le modèle est basé sur une grille carrée de population de côté $N$, dont le
 
 L'évolution des densités se base sur une fonction d'utilité, influencée par des caractéristiques locales de la forme et de la fonction urbaine, que l'on appelle \emph{variable explicative}. Soit $x_k(i)$ une variable explicative locale pour la cellule $i$, qui sera parmi les variables suivantes : 
 \begin{itemize}
-	\item population $P_i$
-	\item distance aux routes
-	\item centralité de chemin
-	\item centralité de proximité
+	\item population $P_i$ ;
+	\item proximité aux routes\footnote{Prise sous la forme $\exp (-d / d_n)$ avec $d$ distance par projection sur la route la plus proche, et $d_n =10$ fixé.} ;
+	\item centralité de chemin ;
+	\item centralité de proximité ;
 	\item accessibilité.
 \end{itemize}
 Pour les trois dernières, celles-ci sont définies comme précédemment pour les noeuds du réseau, puis associées aux cellules en prenant la valeur du noeud le plus proche, pondérée par une fonction décroissante en fonction de la distance à celui-ci\footnote{C'est à dire de la forme $x_k = x^{(n)}_k (\argmin_j d(i,j)) \cdot \exp \left( -  \min_j d(i,j) / d_0 \right)$, avec $x^{(n)}_k$ variable correspondante pour les noeuds, l'indice $j$ étant pris sur l'ensemble des noeuds, et le paramètre de décroissance $d_0$ étant dans notre cas fixé à $d_0 = 1$ pour garder la caractéristique que les variables de réseau sont essentiellement significatives proche de celui-ci.}. Nous considérons alors les variables explicatives normalisées définies par $\tilde{x}_k(i) = x_k(i) - \min_j x_k(j) / (\max_j x_k(j) - \min_j x_k(j))$. 
@@ -97,14 +97,14 @@ Les indicateurs de sortie du modèle sont les indicateurs de morphologie urbaine
 
 \subsubsection{Implementation}{Implémentation}
 
-Le modèle est implémenté en NetLogo, vu l'hétérogénéité des aspects à prendre en compte, et ce langage se montrant particulièrement efficace pour coupler une grille de cellules à un réseau. Les indicateurs de morphologie urbaine sont calculés grâce à une extension NetLogo spécifiquement développée (voir~\ref{app:tools}).
+Le modèle est implémenté en NetLogo, vu l'hétérogénéité des aspects à prendre en compte, et ce langage se montrant particulièrement efficace pour coupler une grille de cellules à un réseau. Les indicateurs de morphologie urbaine sont calculés grâce à une extension NetLogo spécifiquement développée (voir Annexe~\ref{app:tools}).
 
 
 \subsubsection{Experience plan}{Plan d'expérience}
 
 Nous proposons de nous concentrer sur la capacité du modèle à capturer les relations entre réseaux et territoires, et en particulier la co-évolution. Pour cela, nous chercherons si (i) le modèle est capable de reproduire, en plus des indicateurs de forme, les matrices de corrélation statiques calculées en~\ref{sec:staticcorrelations} ; et (ii) le modèle produit une variété de relations dynamiques au sens des régimes de causalité développés en~\ref{sec:causalityregimes}.
 
-Le modèle est initialisé sur configurations entièrement synthétiques, avec une taille de grille $50$. Les configurations sont générées par mélange d'exponentielle : $N_c = 8$ centres sont localisés de manière aléatoire, et une population leur est attribuée selon une loi d'échelle $P_i = P_0\cdot (i+1)^{-\alpha_S}$ avec $\alpha_S = 0.8$ et $P_0 = 200$. La population de chaque centre est distribuée à l'ensemble des cellules avec un noyau exponentiel de forme $d(r) = P_{max}\exp\left( - r / r_0\right)$ où le paramètre $r_0$ est déterminé pour fixer la population à $P_i$, avec $P_{max} = 20$ (densité au centre)\footnote{On a en effet $P_i = \iint d(r) = \int_{\theta=0}^{2\pi} \int_{r=0}^{\infty} d(r) rdrd\theta = 2 \pi P_{max} \int_r r\cdot \exp\left( - r / r_0\right) = 2 \pi P_{max} r_0^2$, et donc $r_0 = \sqrt{\frac{P_i}{2\pi P_{max}}}$.}. Le squelette de réseau initial est généré comme détaillé en~\ref{sec:networkgrowth}.
+Le modèle est initialisé sur configurations entièrement synthétiques, avec une taille de grille $50$. Les configurations sont générées par mélange d'exponentielle d'une manière similaire à \cite{anas1998urban} : $N_c = 8$ centres sont localisés de manière aléatoire, et une population leur est attribuée selon une loi d'échelle $P_i = P_0\cdot (i+1)^{-\alpha_S}$ avec $\alpha_S = 0.8$ et $P_0 = 200$. La population de chaque centre est distribuée à l'ensemble des cellules avec un noyau exponentiel de forme $d(r) = P_{max}\exp\left( - r / r_0\right)$ où le paramètre $r_0$ est déterminé pour fixer la population à $P_i$, avec $P_{max} = 20$ (densité au centre)\footnote{On a en effet $P_i = \iint d(r) = \int_{\theta=0}^{2\pi} \int_{r=0}^{\infty} d(r) rdrd\theta = 2 \pi P_{max} \int_r r\cdot \exp\left( - r / r_0\right) = 2 \pi P_{max} r_0^2$, et donc $r_0 = \sqrt{\frac{P_i}{2\pi P_{max}}}$.}. Le squelette de réseau initial est généré comme détaillé en~\ref{sec:networkgrowth}.
 
 Nous explorons un échantillonnage LHS de l'espace des paramètres, avec 10 répétitions pour environ 7000 points de paramètres, correspondant à un total autour de 70000 répétitions du modèle\footnote{Pour lesquelles les résultats de simulation sont disponibles également à \url{http://dx.doi.org/10.7910/DVN/OBQ4CS}.}, effectuées sur grille de calcul par l'intermédiaire d'OpenMole.
 
@@ -190,8 +190,8 @@ Les régimes obtenus apparaissent moins divers que ceux obtenus en~\ref{sec:caus
 \begin{figure}
 	%\includegraphics[width=0.53\linewidth]{Figures/MesoCoEvol/centertrajs}
 	%\includegraphics[width=0.44\linewidth]{Figures/MesoCoEvol/cluster-params}
-	\includegraphics[width=\linewidth]{Figures/Final/7-2-2-fig-mesocoevolmodel-causality}
-	\caption[Causality regimes][Régimes de causalité]{\textbf{Causality regimes for the co-evolution model.}\label{fig:mesocoevolmodel:causality}}{\textbf{Régimes de causalité pour le modèle de co-évolution.} (\textit{Gauche}) Trajectoire des centres des classes en termes de $\rho[\tau]$ entre les différentes variables explicatives. (\textit{Droite}) Diagramme de phase des régimes dans l'espace des paramètres $w_k$, représenté ici comme la variation des diagrammes pour $(w_{bw},w_{cl})$, selon les variations de $w_{road}$ (en ligne) et de $w_{pop}$ (en colonne). \label{fig:mesocoevolmodel:causality}}
+	\includegraphics[width=\linewidth,height=0.93\textheight]{Figures/Final/7-2-2-fig-mesocoevolmodel-causality}
+	\caption[Causality regimes][Régimes de causalité]{\textbf{Causality regimes for the co-evolution model.}\label{fig:mesocoevolmodel:causality}}{\textbf{Régimes de causalité pour le modèle de co-évolution.} (\textit{Haut}) Trajectoire des centres des classes en termes de $\rho[\tau]$ entre les différentes variables explicatives. (\textit{Bas}) Diagramme de phase des régimes dans l'espace des paramètres $w_k$, représenté ici comme la variation des diagrammes pour $(w_{bw},w_{cl})$, selon les variations de $w_{road}$ (en ligne) et de $w_{pop}$ (en colonne). \label{fig:mesocoevolmodel:causality}}
 \end{figure}
 %%%%%%%%%%%%%%%
 
@@ -207,16 +207,22 @@ Les régimes obtenus apparaissent moins divers que ceux obtenus en~\ref{sec:caus
 Nous avons ainsi proposé un modèle de co-évolution à l'échelle mesoscopique, se basant sur un paradigme de multi-modélisation pour l'évolution du réseau. Le modèle est capable de reproduire un certain nombre de situations observées au premier et au second ordre, capturant une représentation statique des interactions entre réseaux et territoires. Il dégage également différents régimes dynamiques de causalité, en étant toutefois moins riche que le modèle simple étudié plus tôt : ainsi, une structure plus élaborée en terme de processus se paie en flexibilité d'interaction entre ceux-ci. Cela suggère une tension entre ``performance statique'' et ``performance dynamique'' des modèles.
 
 
-Une question ouverte est dans quelle mesure un modèle de réseau pur avec attachement préférentiel des noeuds reproduirait des résultats proches des nôtres. Le couplage complexe entre agrégation et diffusion (montré en~\ref{sec:densitygeneration}) ne pourrait pas être inclut aisément, et le modèle ne pourrait dans tous les cas répondre à des problématiques concernant le couplage des dynamiques. Cette réflexion rejoint la question des représentations territoriales que nous aborderons en ouverture.
+Une question ouverte est dans quelle mesure un modèle de réseau pur avec attachement préférentiel des noeuds reproduirait des résultats proches des nôtres. Le couplage complexe entre agrégation et diffusion (montré en~\ref{sec:densitygeneration}) ne pourrait pas être inclut aisément, et le modèle ne pourrait dans tous les cas répondre à des problématiques concernant le couplage des dynamiques.
 
+%Cette réflexion rejoint la question des représentations territoriales que nous aborderons en ouverture.
 %\comment[JR]{develop on Elsa's comment, why just the network with prefatt ? more subtle and want to reproduce coupled dynamics. could suit at the first order ? surely as density-only model performs quite well on morphology only. question of territorial representations, what is necessary, what is an objective, what is both. dimension of urban system.}
 
 
-Nous proposons pour le moment une dernière incursion dans la co-évolution à l'échelle mesoscopique, en développant un nouveau modèle qui complexifie considérablement l'influence du territoire sur le réseau, en prenant en compte des processus de gouvernance. 
+\stars
 
+Nous avons ainsi exploré un modèle de co-évolution se reposant sur la morphogenèse et prenant en compte de multiples processus d'évolution du réseau. Nous avons étudié sa calibration sur données observées au premier et second ordre, et exploré les régimes de causalité qu'il produit.
+
+
+Nous proposons à présent une dernière incursion dans la co-évolution à l'échelle mesoscopique, en développant un modèle qui complexifie considérablement l'influence du territoire sur le réseau, en prenant en compte des processus de gouvernance. 
 
 
 \stars
+
 
 
 

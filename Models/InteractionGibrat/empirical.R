@@ -27,7 +27,7 @@ for(t in 2:ncol(delta_p)){boxplot(delta_p[,t],at=t,add=TRUE)}
 
 #par(mfrow=c(6,5))
 pops = as.matrix(cities[,4:ncol(cities)])
-rates=c()
+rates=c();quants=c()
 for(j in 2:ncol(pops)){
   show(dates[j])
   r = pops[,j]/pops[,j-1]
@@ -35,8 +35,11 @@ for(j in 2:ncol(pops)){
   delta_x = log(r)
   rates=append(rates,mean(delta_p))
   #print(cor.test(delta_x,pops[,j]))
-  #show(paste0("lognormal ",dates[j],": ",logLik(fitdistr(g,densfun = "lognormal"))))
-  #show(paste0("normal ",dates[j],": ",logLik(fitdistr(g,densfun = "normal"))))
+  #show(paste0("lognormal ",dates[j],": ",logLik(fitdistr(r,densfun = "lognormal"))))
+  show(paste0("lognormal ",dates[j],": ",logLik(fitdistr(log(r),densfun = "normal"))))
+  show(paste0("normal ",dates[j],": ",logLik(fitdistr(r,densfun = "normal"))))
+  show(which(quantile(r,(1:100)/100)>1)[1])
+  if(!dates[j]%in%c(1946,1872,1921)){quants=append(quants,which(quantile(r,(1:100)/100)>1)[1])}
   #hist(g,breaks=100,main=dates[j])
 }
 

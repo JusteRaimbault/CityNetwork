@@ -9,7 +9,7 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/exploration/full/20160912_gridfull/data'))
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/calibration/period/nofeedback/20170228_test'))
 #setwd(paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/exploration/nofeedback/20170218_1831-1851'))
-setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/calibration'))
+setwd(paste0(Sys.getenv('CN_HOME'),'/Models/InteractionGibrat/calibration'))
 
 
 
@@ -17,25 +17,31 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/c
 #res <- as.tbl(read.csv('data/2017_02_18_20_25_12_CALIBGRAVITY_GRID.csv'))
 
 periods = c("1831-1851","1841-1861","1851-1872","1881-1901","1891-1911","1921-1936","1946-1968","1962-1982","1975-1999")
-resdir = '20170725_calibperiod_full_nsga'
-#resdir = '20170224_calibperiod_nsga'
-params = c("growthRate","gravityGamma","gravityDecay","gravityWeight","feedbackGamma","feedbackDecay","feedbackWeight")
-#params = c("growthRate","gravityGamma","gravityDecay","gravityWeight")
+#resdir = '20170725_calibperiod_full_nsga'
+resdir = '20170224_calibperiod_nsga'
+#params = c("growthRate","gravityGamma","gravityDecay","gravityWeight","feedbackGamma","feedbackDecay","feedbackWeight")
+params = c("growthRate","gravityGamma","gravityDecay","gravityWeight")
+
+paramnames = list(growthRate=expression(r[0]),gravityGamma=expression(gamma[G]),gravityDecay=expression(d[G]),gravityWeight=expression(w[G]),feedbackGamma=expression(gamma[N]),feedbackDecay=expression(d[N]),feedbackWeight=expression(w[N]))
+
 figdir = paste0(Sys.getenv('CN_HOME'),'/Results/NetworkNecessity/InteractionGibrat/',resdir,'/');dir.create(figdir)
 
 plots=list()
+param="gravityDecay"
 for(param in params){
   cperiods = c();cparam=c();mselog=c();logmse=c()
   for(period in periods){
     latestgen = max(as.integer(sapply(strsplit(sapply(strsplit(list.files(paste0(resdir,'/',period)),"population"),function(s){s[2]}),".csv"),function(s){s[1]})))
     res <- as.tbl(read.csv(paste0(resdir,'/',period,'/population',latestgen,'.csv')))
-    #res=res[which(res$gravityWeight>0.0001&res$gravityDecay<500&res$feedbackDecay<500),]
+    res=res[which(res$gravityDecay<200&res$gravityWeight>0.0001),]#&&res$feedbackDecay<500),]
     show(paste0(period,' : dG = ',mean(res$gravityDecay),' +- ',sd(res$gravityDecay)))
     mselog=append(mselog,res$mselog);logmse=append(logmse,res$logmse)
     cperiods=append(cperiods,rep(period,nrow(res)));cparam=append(cparam,res[[param]])
   }
   g=ggplot(data.frame(mselog=mselog,logmse=logmse,param=cparam,period=cperiods),aes_string(x="logmse",y="mselog",colour="param"))
   plots[[param]]=g+geom_point()+scale_colour_gradient(low="blue",high="red",name=param)+facet_wrap(~period,scales = "free")
+  #g+geom_point()+scale_colour_gradient(low="blue",high="red",name=paramnames[[param]])+facet_wrap(~period,scales = "free")+xlab(expression(epsilon[G]))+ylab(expression(epsilon[L]))+stdtheme
+  #ggsave()
 }
 multiplot(plotlist = plots,cols=4)
 
@@ -43,13 +49,13 @@ multiplot(plotlist = plots,cols=4)
 ##### plot values of a given param
 getDate<-function(s){(as.integer(strsplit(s,"-")[[1]][1])+as.integer(strsplit(s,"-")[[1]][2]))/2}
 
-filtered=T # makes no sense to filter in full model.
+for(filtered in c(T,F)){ # makes no sense to filter in full model.
 for(param in params){
 decays=c();sdDecay=c();types=c();ctimes=c()
 for(period in periods){
   latestgen = max(as.integer(sapply(strsplit(sapply(strsplit(list.files(paste0(resdir,'/',period)),"population"),function(s){s[2]}),".csv"),function(s){s[1]})))
   res <- as.tbl(read.csv(paste0(resdir,'/',period,'/population',latestgen,'.csv')))
-  if(filtered){res=res[which(res$gravityWeight>0.0001&res$gravityDecay<200),]}#&res$gravityGamma<5),]}
+  if(filtered){if(resdir=='20170224_calibperiod_nsga'){res=res[which(res$gravityWeight>0.0001&res$gravityDecay<200&res$gravityGamma<5),]}else{res=res[which(res$gravityWeight>0.0001&res$gravityDecay<200),]}}
   decays = append(decays,mean(unlist(res[,param])));sdDecay = append(sdDecay,sd(unlist(res[,param])));types = append(types,"pareto")
   decays = append(decays,unlist(res[which(res$logmse==min(res$logmse))[1],param]));sdDecay=append(sdDecay,0);types = append(types,"logmse")
   decays = append(decays,unlist(res[which(res$mselog==min(res$mselog))[1],param]));sdDecay=append(sdDecay,0);types = append(types,"mselog")
@@ -57,12 +63,33 @@ for(period in periods){
 }
 g=ggplot(data.frame(decay=decays,sd=sdDecay,type=types,time=ctimes),aes(x=time,y=decay,colour=type,group=type))
 g+geom_point()+geom_line()+
-  geom_errorbar(aes(ymin=decay-sd,ymax=decay+sd))+ylab(param)+stdtheme
+  geom_errorbar(aes(ymin=decay-sd,ymax=decay+sd))+ylab(paramnames[[param]])+xlab(expression(t))+stdtheme+
+  scale_color_discrete(name="Type",labels = c(expression(epsilon[G]),expression(epsilon[L]),"Pareto"))+
+  theme(legend.text.align = 0)
 ggsave(file=paste0(figdir,param,'_filt',as.numeric(filtered),'.png'),width=20,height=15,units='cm')
 }
-
+}
 
 param='gravityWeight'
+decays=c();sdDecay=c();types=c();ctimes=c()
+for(period in periods){
+  latestgen = max(as.integer(sapply(strsplit(sapply(strsplit(list.files(paste0(resdir,'/',period)),"population"),function(s){s[2]}),".csv"),function(s){s[1]})))
+  res <- as.tbl(read.csv(paste0(resdir,'/',period,'/population',latestgen,'.csv')))
+  if(filtered){if(resdir=='20170224_calibperiod_nsga'){res=res[which(res$gravityWeight>0.0001&res$gravityDecay<200&res$gravityGamma<5),]}else{res=res[which(res$gravityWeight>0.0001&res$gravityDecay<200),]}}
+  decays = append(decays,mean(unlist(res[,param]))/mean(unlist(res[,"growthRate"])));sdDecay = append(sdDecay,sd(unlist(res[,param]))/mean(unlist(res[,"growthRate"])));types = append(types,"pareto")
+  decays = append(decays,unlist(res[which(res$logmse==min(res$logmse))[1],param])/unlist(res[which(res$logmse==min(res$logmse))[1],"growthRate"]));sdDecay=append(sdDecay,0);types = append(types,"logmse")
+  decays = append(decays,unlist(res[which(res$mselog==min(res$mselog))[1],param])/unlist(res[which(res$mselog==min(res$mselog))[1],"growthRate"]));sdDecay=append(sdDecay,0);types = append(types,"mselog")
+  ctimes = append(ctimes,rep(getDate(period),3))
+}
+g=ggplot(data.frame(decay=decays,sd=sdDecay,type=types,time=ctimes),aes(x=time,y=decay,colour=type,group=type))
+g+geom_point()+geom_line()+
+  geom_errorbar(aes(ymin=decay-sd,ymax=decay+sd))+xlab(expression(t))+stdtheme+ylab(expression(w[G]*'/'*r[0]))+
+  scale_color_discrete(name="Type",labels = c(expression(epsilon[G]),expression(epsilon[L]),"Pareto"))+
+  theme(legend.text.align = 0)
+ggsave(file=paste0(figdir,param,'_relativegrowthRate.png'),width=20,height=15,units='cm')
+
+
+param='feedbackWeight'
 decays=c();sdDecay=c();types=c();ctimes=c()
 for(period in periods){
   latestgen = max(as.integer(sapply(strsplit(sapply(strsplit(list.files(paste0(resdir,'/',period)),"population"),function(s){s[2]}),".csv"),function(s){s[1]})))
@@ -75,8 +102,11 @@ for(period in periods){
 }
 g=ggplot(data.frame(decay=decays,sd=sdDecay,type=types,time=ctimes),aes(x=time,y=decay,colour=type,group=type))
 g+geom_point()+geom_line()+
-  geom_errorbar(aes(ymin=decay-sd,ymax=decay+sd))+ylab(param)+stdtheme+ylab(paste0(param,'/growthRate'))
+  geom_errorbar(aes(ymin=decay-sd,ymax=decay+sd))+xlab(expression(t))+stdtheme+ylab(expression(w[N]*'/'*r[0]))+
+  scale_color_discrete(name="Type",labels = c(expression(epsilon[G]),expression(epsilon[L]),"Pareto"))+
+  theme(legend.text.align = 0)
 ggsave(file=paste0(figdir,param,'_relativegrowthRate.png'),width=20,height=15,units='cm')
+
 
 #
 #m = lm(logmse~gravityDecay+gravityGamma+gravityWeight+growthRate,res)

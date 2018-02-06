@@ -15,7 +15,7 @@ Ncities = 50
 d = loadData(Ncities)
 cities = d$cities;dates=d$dates;distances=d$distances
 
-alpha0=4;n0=3
+alpha0=3;n0=3
 load(paste0('data/distMat_Ncities',Ncities,'_alpha0',alpha0,'_n0',n0,'.RData'))
 dists[dists==0]=1e8
 
