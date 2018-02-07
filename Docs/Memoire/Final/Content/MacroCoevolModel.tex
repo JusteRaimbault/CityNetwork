@@ -18,9 +18,8 @@
 %----------------------------------------------------------------------------------------
 
 
-Nous pouvons à présent faire la synthèse d'une part des paradigmes d'intégration d'un système de ville et du réseau de transport, effectué de manière statique pour le comportement du réseau dans le modèle d'interaction développé et exploré en section~\ref{sec:interactiongibrat}, d'autre part des indicateurs pour la compréhension d'un modèle de co-évolution pour un système de villes,\comment[FL]{reprendre tous ces concepts : modele, indicateur etc sont ici trop mis au meme niveau} expérimentés dans la section précédente~\ref{sec:macrocoevolexplo}, ainsi que de manière indicative pour comparaison des comportements obtenus pour le modèle SimpopNet. Cette synthèse consiste en une première formulation d'un \emph{modèle de co-évolution macroscopique pour les systèmes de villes}, qui est un élément clé pour apporter un éclaircissement partiel de notre problématique générale.
+Nous pouvons à présent étendre la logique d'intégration d'un système de ville et du réseau de transport, effectuée de manière statique pour le comportement du réseau dans le modèle d'interaction développé et exploré en section~\ref{sec:interactiongibrat}, pour proposer une formulation d'un \emph{modèle de co-évolution macroscopique pour les systèmes de villes}.
 
-\comment[AB]{reformuler}
 
 
 %%%%%%%%%%%%%%%%%
@@ -35,10 +34,14 @@ Nous pouvons à présent faire la synthèse d'une part des paradigmes d'intégra
 \bpar{
 In a multi-modeling fashion, the model can take into account various processes such as between cities direct interactions, network-mediated interactions, feedback of network flows, and for the network demand-induced growth.
 }{
-Cette première approche se place dans une logique d'extension directe du modèle d'interactions au sein d'un système de villes présenté en chapitre~\ref{ch:evolutiveurban}, c'est à dire à une échelle macroscopique et avec une ontologie typique aux systèmes de villes. Toujours dans un choix de simplicité, nous gardons ici une description unidimensionnelle des villes par leur population. Concernant la croissance du réseau, nous proposons de nous placer également à un niveau relativement agrégé et simplifié, en permettant de tester des heuristiques de croissance à différents niveaux d'abstraction. Dans une logique de multi-modélisation,\comment[FL]{sens ?} le modèle peut prendre en compte divers processus comme les interactions directes entre les villes, les interactions intermédiaires par le réseau, la rétroaction des flux de réseau et une croissance du réseau induite par la demande. Les éléments empiriques mis en valeur pour le réseau ferré français par~\cite{thevenin2013mapping} suggèrent l'existence de retroactions de l'utilisation du réseau, ou des flux le traversant, sur sa persistence et son développement, dont les propriétés ont évolué dans le temps : une première phase de développement fort correspondrait à une réponse à des demandes\comment[FL]{?} même faibles, tandis que le renforcement des liens principaux et la disparition des liens faibles observés plus tard s'interpréterait comme une rétroaction dont le signe est fixé par seuil.\comment[AB]{?}\comment[AB]{pas super clair}
+Cette première approche se place dans une logique d'extension directe du modèle d'interactions au sein d'un système de villes présenté en chapitre~\ref{ch:evolutiveurban}, c'est à dire à une échelle macroscopique et avec une ontologie typique aux systèmes de villes. Toujours dans un choix de simplicité, nous gardons ici une description unidimensionnelle des villes par leur population.
+
+Concernant la croissance du réseau, nous proposons de nous placer également à un niveau relativement agrégé et simplifié, en permettant de tester des heuristiques de croissance à différents niveaux d'abstraction. Dans une logique de flexibilité des mécanismes du modèle, il peut prendre en compte divers processus comme les interactions directes entre les villes, les interactions intermédiaires par le réseau, la rétroaction des flux de réseau et une croissance du réseau induite par la demande.
+
+Les éléments empiriques mis en valeur pour le réseau ferré français par~\cite{thevenin2013mapping} suggèrent l'existence de retroactions de l'utilisation du réseau, ou des flux le traversant, sur sa persistence et son développement, dont les propriétés ont évolué dans le temps : une première phase de développement fort correspondrait à la réponse du réseau à une demande de forte couverture, suivie d'une phase de renforcement des liens principaux et la disparition des liens les plus faibles.
 }
 
-
+Le couplage entre réseau et ville sera fait par l'intermédiaire des flux entre villes dans le réseau : ceux-ci portent les interactions entre villes et ont simultanément une influence sur le réseau dans lequel ils circulent.
 
 
 
@@ -54,10 +57,9 @@ Cette première approche se place dans une logique d'extension directe du modèl
 \end{figure}
 %%%%%%%%%%%%%%%%%
 
-% \comment[AB]{couplage indirect villes/reseaux via les flux ?}\comment[FL]{donc tu as choisi l'echelle interurbaine ici, il faut absolument que ca ressorte clairement}
 
 
-Le système urbain est caractérisé par les populations $\mu_i(t)$ et le réseau $\mathbf{G}(t)$\comment[AB]{pas terrible, p 272 N = effectif, ce qui est plus logique} auquel on peut associer une matrice de distance $d^N_{ij}(t)$. Les flux entre villes $\phi_{ij}$ suivent les expressions données en~\ref{sec:interactiongibrat} avec la distance réseau. De la même manière, la variation des populations suit les spécifications du modèle de base. La Fig.~\ref{fig:macrocoevol:model} exprime le modèle sous forme schématisée.
+Le système urbain est caractérisé par les populations $\mu_i(t)$ et le réseau $\mathbf{G}(t)$ auquel on peut associer une matrice de distance $d^G_{ij}(t)$. Les flux entre villes $\phi_{ij}$ suivent les expressions données en~\ref{sec:interactiongibrat} avec la distance réseau. De la même manière, la variation des populations suit les spécifications du modèle de base. La Fig.~\ref{fig:macrocoevol:model} exprime le modèle sous forme schématisée.
 
 
 
@@ -69,11 +71,11 @@ Concernant le réseau, nous faisons l'hypothèse que celui-ci évolue suivant
 \[
 \mathbf{G}(t + 1) = F(\mathbf{G}(t),\phi_{ij}(t))
 \]
-de telle façon qu'une assignation des flux dans le réseau ainsi qu'une variation locale de ses éléments est possible. Nous proposons dans un premier temps de nous intéresser aux motifs liés à la distance uniquement, et de spécifier une relation sur un réseau abstrait uniquement par
+de telle façon qu'une assignation des flux dans le réseau ainsi qu'une variation locale de ses éléments est possible. Nous proposons dans un premier temps de nous intéresser aux motifs liés à la distance uniquement, et de spécifier une relation sur un réseau abstrait par
 \[
-d^N_{ij}(t+1) = F(d^N_{ij}(t),\phi_{ij}(t))
+d^G_{ij}(t+1) = F(d^G_{ij}(t),\phi_{ij}(t))
 \]
-, c'est à dire une évolution de la matrice de distance uniquement. Dans cette logique, nous restons dans un modèle d'interaction à l'échelle macroscopique uniquement, puisqu'une spatialisation précise du réseau implique la prise en compte d'une échelle plus fine, qui permet prendre en compte la forme locale du réseau qui détermine les plus court chemins.
+c'est à dire une évolution de la matrice de distance uniquement. Dans cette logique, nous restons dans un modèle d'interaction à l'échelle strictement macroscopique, puisqu'une spatialisation précise du réseau impliquerait la prise en compte d'une échelle plus fine qui comporte la forme locale du réseau déterminante des plus court chemins.
 
 Suivant l'heuristique de rétroaction par seuil, étant donné un flux $\phi$ dans un lien, on suppose que sa distance effective est mise à jour par :
 
@@ -98,11 +100,13 @@ avec $\gamma_s$ un paramètre de hiérarchie, $\phi_0$ le paramètre de seuil et
 
 \bpar{
 }{
-Le couplage du modèle d'interaction à une explicitation du réseau plus fine (par exemple encodage de l'ensemble de la structure du réseau) rend plus difficile l'intégration complète dans un plugin OpenMole comme c'était le cas pour le modèle étudié en~\ref{sec:interactiongibrat}, nécessitant une implémentation ad hoc. L'utilisation d'un workflow comme médiateur pour le couplage est une solution intéressante mais réaliste uniquement dans le cas d'un couplage faible. L'un des défis que devra relever la bibliothèque de méta-modélisation en cours de développement autour d'OpenMole, serait la possibilité de coupler fortement (par exemple au sens de dynamiquement dans l'évolution de la simulation) des composantes hétérogènes de manière transparente, permettant de tirer parti des avantages de différents langages ou d'implémentation déjà existantes.
+Le couplage du modèle d'interaction à une explicitation du réseau plus fine (par exemple encodage de l'ensemble de la structure du réseau) rend plus difficile l'intégration complète dans un plugin OpenMole comme c'était le cas pour le modèle étudié en~\ref{sec:interactiongibrat}, nécessitant une implémentation \emph{ad hoc}. L'utilisation d'un workflow comme médiateur pour le couplage est une solution intéressante mais réaliste uniquement dans le cas d'un couplage faible comme en~\ref{sec:correlatedsyntheticdata}. L'un des défis que devra relever la bibliothèque de méta-modélisation en cours de développement autour d'OpenMole, serait la possibilité de coupler fortement (par exemple au sens de dynamiquement dans l'évolution de la simulation) des composantes hétérogènes de manière transparente, permettant de tirer parti des avantages de différents langages ou d'implémentation déjà existantes.
 }
 
+% rq : // idee de Romain stopper dynamiquement les simulations.
+
 \bpar{}{
- Nous optons pour ce modèle pour une implémentation complète en NetLogo pour une simplicité de couplage des composantes. Une attention particulière est portée à la dualité de la représentation du réseau, à la fois sous forme de matrice de distance et sous forme physique, pour permettre facilement l'extension à des heuristiques de réseau physique.
+Nous optons ici pour une implémentation complète en NetLogo pour une simplicité de couplage des composantes. Une attention particulière est portée à la dualité de la représentation du réseau, à la fois sous forme de matrice de distance et sous forme physique, pour permettre facilement l'extension à des heuristiques de réseau physique.
 }
 
 
@@ -125,7 +129,9 @@ Le modèle est d'abord testé et exploré sur des systèmes de villes synthétiq
 \subsubsection{Synthetic data}{Données Synthétiques}
 
 
-Un système de villes synthétiques est généré, en suivant l'heuristique utilisée dans la section précédente : (i) des villes en nombre $N_S$ sont placées aléatoirement dans le plan euclidien; (ii) les populations sont attribuées aux villes selon une loi de puissance inverse, avec un paramètre de hiérarchie $\alpha_S$ et de telle façon que la plus grande ville ait une population $P_{max}$, c'est-à-dire suivant $P_i = P_{max} \cdot i^{-\alpha_S}$. Pour simplifier, nous fixons un certain nombre de méta-paramètres : le nombre de villes est fixé à $N_S = 30$, la population maximale à $P_{max} = 100000$ et la croissance maximale du réseau à $g_{max} = 0.005$. Le temps final est fixé à $t_f = 30$, ce qui correspond à des distances divisées par 5 environ\footnote{En effet, on peut calculer que le facteur multiplicatif minimal pour la distance est de $(1 - g_{max})^{t_f}$, ce qui donne pour ces valeurs $(1 - 0.05)^{30} \simeq 0.214$, c'est à dire une division par 5 du temps de trajet.}, afin de respecter un critère empirique : cela correspond à un passage du Paris-Lyon en une dizaine d'heures au début du 19ème siècle à deux heures aujourd'hui, mis en évidence par exemple par~\cite{thevenin2013mapping}. Nous négligeons aussi les effets de réseau au second ordre en fixant $w_N = 0$.
+Un système de villes synthétiques est généré, en suivant l'heuristique utilisée dans la section précédente : (i) des villes en nombre $N_S$ sont placées aléatoirement dans le plan euclidien; (ii) les populations sont attribuées aux villes selon une loi de puissance inverse, avec un paramètre de hiérarchie $\alpha_S$ et de telle façon que la plus grande ville ait une population $P_{max}$, c'est-à-dire suivant $P_i = P_{max} \cdot i^{-\alpha_S}$.
+
+Pour simplifier, nous fixons un certain nombre de méta-paramètres : le nombre de villes est fixé à $N_S = 30$, la population maximale à $P_{max} = 100000$ et la croissance maximale du réseau à $g_{max} = 0.005$. Le temps final est fixé à $t_f = 30$, ce qui correspond à des distances divisées par 5 environ\footnote{En effet, on peut calculer que le facteur multiplicatif minimal pour la distance est de $(1 - g_{max})^{t_f}$, ce qui donne pour ces valeurs $(1 - 0.05)^{30} \simeq 0.214$, c'est à dire une division par 5 du temps de trajet.}, afin de respecter un critère empirique : cela correspond à un passage du Paris-Lyon en une dizaine d'heures au début du 19ème siècle à deux heures aujourd'hui, mis en évidence par exemple par~\cite{thevenin2013mapping}. Nous négligeons aussi les effets de réseau au second ordre en fixant $w_N = 0$.
 
 
 %%%%%%%%%%
@@ -133,8 +139,9 @@ Un système de villes synthétiques est généré, en suivant l'heuristique util
 % sensibilite a \alpha_S 
 
 
-Nous explorons une grille de l'espace des paramètres $(\alpha_S,\phi_0,\gamma_s,w_G,d_G,\gamma_G)$. Nous utilisons les indicateurs introduits en~\ref{sec:macrocoevolexplo} pour quantifier le comportement du modèle dans l'espace des paramètres. En Fig.~\ref{fig:macrocoevol:behavior-time}, nous montrons l'évolution d'indicateurs dans le temps ainsi que des mesures agrégées, pour une grande partie de l'espace des paramètres couvert. Nous montrons les résultats pour $\alpha_S = 1$, valeur la plus proche d'un système de villes réel (par rapport à 0.5 et 1.5, voir la revue systématique des estimations de la loi rang-taille faite par~\cite{10.1371/journal.pone.0183919}).
+Nous explorons une grille de l'espace des paramètres $(\alpha_S,\phi_0,\gamma_s,w_G,d_G,\gamma_G)$. Nous utilisons les indicateurs introduits en~\ref{sec:macrocoevolexplo} pour quantifier le comportement du modèle dans l'espace des paramètres. Nous donnons les résultats pour $\alpha_S = 1$, valeur la plus proche pour la plupart des système de villes actuels (par rapport à 0.5 et 1.5, voir la revue systématique des estimations de la loi rang-taille faite par~\cite{10.1371/journal.pone.0183919}).
 
+% En Fig.~\ref{fig:macrocoevol:behavior-time}, nous montrons l'évolution d'indicateurs dans le temps ainsi que des mesures agrégées, pour une grande partie de l'espace des paramètres couvert.
 
 
 \subsubsection{Trajectories}{Trajectoires}
@@ -191,12 +198,19 @@ Nous pouvons dans un premier temps nous intéresser aux variations des corrélat
 \subsubsection{Causality regimes}{Régimes de causalité}
 
 
-Tournons nous à present vers les motifs de corrélation produits par le modèle, illustrés en Fig.~\ref{fig:macrocoevol:correlations}.
+Tournons nous finalement vers les motifs de corrélations retardées produits par le modèle, illustrés en Fig.~\ref{fig:macrocoevol:correlations}.
 
 
-Enfin, concernant les corrélations retardées, on observe toujours une corrélation synchronisée, et a priori l'existence de $\tau_+$ ou $\tau_-$ dans certains configurations, mais difficile à valider visuellement. Nous ajoutons donc ici un critère basé sur un test statistique : pour $\tau = \textrm{argmax} \rho_{\tau}$ ou $\tau = \textrm{argmin} \rho_{\tau}$ selon leur existence, un test de Kolmogorov-Smirnov est utilisé pour comparer les distributions de $\rho_{\tau}$ et de $\rho_0$. S'il donne une valeur inférieur à $0.01$, les distributions sont jugées similaires et il n'existe pas de relation entre les variables correspondantes.
+Enfin, concernant les corrélations retardées, on observe toujours une corrélation synchronisée, 
 
-On a systématiquement une déviation positive de la corrélation entre population et accessibilité pour les retards positifs, en croissance jusqu'au retard maximal, ce qui pourrait être un marqueur du renforcement des dynamiques de population par la centralité, fait stylisé exhibé pour le système de ville Français par~\cite{bretagnolle:tel-00459720}. La correlation entre population et accessibilité est constante, probablement par l'auto-corrélation, et n'entre pas en jeu dans la définition des régimes. Pour des valeurs intermédiaires de $d_G$ et les fortes valeurs de $\gamma_G$, on observe également une très légère déviation pour les retards négatifs : pour ces régimes, on a causalité circulaire et le modèle capture une co-évolution dans ce sens. L'accessibilité quant à elle cause fortement la centralité pour $d_G = 10$, puis la tendance s'inverse pour les grands $d_G$. Pour $d_G = 10$, cela va dans le sens du lien entre population et centralité, et il n'y a dans ce cas pas co-évolution mais adaptation des populations au réseau.\comment[FL]{il faut harmoniser les termes ici : relation univoque est plus generique ?} Pour les régimes intermédiaires, on a circularité directement entre population et centralité, tandis que pour $d_G > 110$ il y a ``circularité indirecte'', puisque accessibilité cause centralité qui cause population (qui entre en jeu dans la centralité).
+
+Un certain nombre de régimes présentent une déviation positive de la corrélation entre population et accessibilité pour les retards positifs, en croissance jusqu'au retard maximal, ce qui pourrait être un marqueur du renforcement des dynamiques de population par la centralité, fait stylisé exhibé pour le système de ville Français par~\cite{bretagnolle:tel-00459720}.
+
+La corrélation entre population et accessibilité est constante, probablement du fait de l'auto-corrélation, et n'entre pas en jeu dans la définition des régimes. Pour des valeurs intermédiaires de $d_G$ et les fortes valeurs de $\gamma_G$, on observe également une très légère déviation pour les retards négatifs : pour ces régimes, on a causalité circulaire et le modèle capture une co-évolution dans ce sens. L'accessibilité quant à elle cause fortement la centralité pour $d_G = 10$, puis la tendance s'inverse pour les grands $d_G$. Pour $d_G = 10$, cela va dans le sens du lien entre population et centralité, et il n'y a dans ce cas pas co-évolution mais adaptation des populations au réseau. Pour les régimes intermédiaires, on a circularité directement entre population et centralité, tandis que pour $d_G > 110$ il y a ``circularité indirecte'', puisque accessibilité cause centralité qui cause population (qui entre en jeu dans la centralité).
+% -> ce commentaire en annexe ; reprendre avec régimes "exhaustifs" puis pse.
+
+
+et a priori l'existence de $\tau_+$ ou $\tau_-$ dans certains configurations, mais difficile à valider visuellement. Nous ajoutons donc ici un critère basé sur un test statistique : pour $\tau = \textrm{argmax} \rho_{\tau}$ ou $\tau = \textrm{argmin} \rho_{\tau}$ selon leur existence, un test de Kolmogorov-Smirnov est utilisé pour comparer les distributions de $\rho_{\tau}$ et de $\rho_0$. S'il donne une valeur inférieur à $0.01$, les distributions sont jugées similaires et il n'existe pas de relation entre les variables correspondantes.
 
 
 % -- a modifier : signifs --
@@ -303,8 +317,7 @@ Les résultats attendus de la calibration sur données réelles concernent à la
 
 \paragraph{Model evaluation}{Evaluation du modèle}
 
-On peut ajouter aux indicateurs utilisés précédemment un indicateur de calibration pour la distance. L'aspect particulier de l'ajustement pour les populations, qui résidait dans la présence d'une loi de puissance pour les tailles de villes rendant négligeables les performances sur les villes moyennes et les petites villes dans le cas d'une erreur cumulée, et suggérait l'ajout de l'indicateur de l'erreur sur les logarithmes\comment[FL]{detail technique a ce stade ?}, n'est pas présent pour les distances qui suivent une distribution concentrée sur un ordre de grandeur unique. Nous utilisons ainsi le logarithme de l'erreur carré sur les distances, donnée par\comment[FL]{cela ne donne pas plus d'eclairage sur tes choix}
-
+On peut ajouter aux indicateurs utilisés précédemment un indicateur de calibration pour la distance. L'aspect particulier de l'ajustement pour les populations, qui résidait dans la présence d'une loi de puissance pour les tailles de villes rendant négligeables les performances sur les villes moyennes et les petites villes dans le cas d'une erreur cumulée, et suggérait l'ajout de l'indicateur de l'erreur sur les logarithmes, n'est pas présent pour les distances qui suivent une distribution concentrée sur un ordre de grandeur unique. Nous utilisons ainsi une mesure standard d'ajustement, donnée par
 \[
 \varepsilon_D = \log \left[ \sum_t \sum_{i,j} \left(d_{ij}(t) - \tilde{d}_{ij}(t)\right)^2\right]
 \]
@@ -335,7 +348,7 @@ Nous procédons à une calibration non-stationnaire, sur les objectifs $(\vareps
 On note la faible consistence des fronts de Pareto de manière générale, en comparaison avec ceux obtenus pour la population seule précédemment, ce qui suggère la difficulté d'optimiser conjointement trajectoire des populations et trajectoire des distances. Certaines périodes, comme 1851-1872 puis toutes celles après 1946, présentent un point optimal simultané pour les deux objectifs, ce qui pourrait aussi témoigner d'une mauvaise convergence de l'algorithme. Dans tous les cas, la très faible significativité des corrélations empiriques observées précédemment pouvait laisser présager de ces mauvais ajustements.
 
 
-Les valeurs des paramètres optimaux semblent toutefois contenir un certain signal. L'évolution de $w_G$ et $\gamma_G$ sont consistantes avec celles observées pour le modèle statique. Pour $d_G$, on observe des oscillations, une certaine stabilité, puis un pic pour la période 1962-1982. Il pourrait s'agir d'un ``effet TGV'', en cohérence avec le pic secondaire pour $\phi_0$ observé au même point, puisque la construction des LGV a raccourci les distances entre les villes au plus haut de la hiérarchie (une augmentation du seuil $\phi_0$ correspond à une augmentation de la sélectivité pour une diminution potentielle des distances). Le $g_{max}$ calibré est très représentatif de l'histoire du réseau ferré : un très fort accroissement dans les premières années, puis un accroissement stable plus tard (l'impact du TGV étant là noyé dans l'ensemble du réseau, le seul signe étant une augmentation de la déviation sur l'ensemble du front). Pour la calibration avec distance seule, la stabilisation à $g_{max}=0$ est un témoin de la rudimentarité du modèle. On a pu ainsi dans une certaine mesure indirectement quantifier les processus d'interaction par le réseau et ceux d'adaptation du réseau au flux, dans le cas d'un système réel.\comment[FL]{discussion interessante}
+Les valeurs des paramètres optimaux semblent toutefois contenir un certain signal. L'évolution de $w_G$ et $\gamma_G$ sont consistantes avec celles observées pour le modèle statique. Pour $d_G$, on observe des oscillations, une certaine stabilité, puis un pic pour la période 1962-1982. Il pourrait s'agir d'un ``effet TGV'', en cohérence avec le pic secondaire pour $\phi_0$ observé au même point, puisque la construction des LGV a raccourci les distances entre les villes au plus haut de la hiérarchie (une augmentation du seuil $\phi_0$ correspond à une augmentation de la sélectivité pour une diminution potentielle des distances). Le $g_{max}$ calibré est très représentatif de l'histoire du réseau ferré : un très fort accroissement dans les premières années, puis un accroissement stable plus tard (l'impact du TGV étant là noyé dans l'ensemble du réseau, le seul signe étant une augmentation de la déviation sur l'ensemble du front). Pour la calibration avec distance seule, la stabilisation à $g_{max}=0$ est un témoin de la rudimentarité du modèle. On a pu ainsi dans une certaine mesure indirectement quantifier les processus d'interaction par le réseau et ceux d'adaptation du réseau au flux, dans le cas d'un système réel.
 
 %%%%%%%%%%%%%%%%%%%
 \begin{figure}%\includegraphics[width=0.9\linewidth]{Figures/MacroCoEvol/pareto_nwGmax_filtTRUE.pdf}
@@ -369,10 +382,9 @@ Les valeurs des paramètres optimaux semblent toutefois contenir un certain sign
 \subsubsection{Physical network}{Modèle avec réseau physique}
 
 
-Nous esquissons à présent les contours d'une spécification du modèle avec réseau physique, qui correspondrait en un sens à un modèle hybride combinant plusieurs échelles comme nous l'avons déjà argumenté\comment[FL]{ce netait pas ressorti clairement pour moi}. L'idée d'une telle spécification serait d'une part d'étudier l'écart de trajectoire par rapport au réseau abstrait, c'est à dire quantifier l'importance des économies d'échelles (liées aux tronçons communs) et de la congestion, ainsi que les possibles compromis à effectuer liés à la spatialisation du réseau, et d'autre part d'étudier dans quelle mesure il est possible de reproduire des réseaux réalistes en comparaison à des modèles autonomes de croissance de réseau par exemple. Ces questions sont traitées à une autre échelle et pour d'autre spécifications ontologiques au chapitre~\ref{ch:mesocoevolution}. 
+Nous esquissons à présent les contours d'une spécification du modèle avec réseau physique, qui correspondrait en un sens à un modèle hybride combinant plusieurs échelles. L'idée d'une telle spécification serait d'une part d'étudier l'écart de trajectoire par rapport au réseau abstrait, c'est à dire quantifier l'importance des économies d'échelles (liées aux tronçons communs) et de la congestion, ainsi que les possibles compromis à effectuer liés à la spatialisation du réseau, et d'autre part d'étudier dans quelle mesure il est possible de reproduire des réseaux réalistes en comparaison à des modèles autonomes de croissance de réseau par exemple. Ces questions sont traitées à une autre échelle et pour d'autres spécifications ontologiques au chapitre~\ref{ch:mesocoevolution}. 
 
-
-similaire à \cite{li2014modeling}
+Une telle spécification rejoint la logique de \cite{li2014modeling}, qui modélise la co-évolution des couloirs de transport et de la croissance des principaux pôles à une échelle régionale.
 
 Le réseau physique que nous implémentons cherche à satisfaire un critère de gain de temps local. Plus précisément, on suppose un auto-renforcement à la manière de~\cite{tero2010rules}. Une specification analogue à celle utilisée précédemment suppose une croissance pour chaque lien, donnée également dans une logique d'auto-renforcement par :
 
@@ -380,10 +392,7 @@ Le réseau physique que nous implémentons cherche à satisfaire un critère de 
 d(t+1) = d(t)\cdot \left(1 + g_{max} \cdot \left[\frac{\phi}{\max \phi}\right]^{\gamma_s}\right)
 \]
 
-
-la specification par seuil utilisée précédemment ne permettant pas une bonne convergence dans le temps.
-
-\comment[FL]{repartition des pop pas differentes ?}
+la specification par seuil utilisée précédemment ne permettant pas une bonne convergence dans le temps, notamment par l'émergence de phénomènes d'oscillation locale.
 
 Nous générons un réseau initial aléatoire, en perturbant la position des sommets d'une grille dont une proportion fixée de liens a été supprimée (40\%) et en y reliant les villes au plus court. Les liens ont tous même impédance, puis celle-ci évolue selon l'équation ci-dessus. Un exemple de configuration obtenue par cette spécification est donné en Fig.~\ref{fig:macrocoevolution:slimemould}. Les bonnes propriétés de convergence (stabilisation visuelle de la structure du réseau lors d'expériences restreintes) suggèrent les potentialités offertes par cette spécification, dont l'exploration systématique est hors de notre portée ici.
 
@@ -435,7 +444,7 @@ L'étude de trajectoires particulières au sein du système de villes peut perme
 \bpar{
 Finally, a comparison between the urban systems in different geographical and political contexts and at different scales should unveil implications of planning on the interactions between networks and cities, for example by comparing the rather bottom-up growth of the French railway network to the top-down state-planned French highway and Chinese HSR networks.
 }{
-On s'attend finalement également à pouvoir par l'intermédiaire de ce modèle comparer des systèmes urbains dans des contextes géographiques et politiques différents, ainsi qu'à différentes échelles. Cela devrait permettre de révéler les implications des actions de planification sur les interactions entre réseaux et territoires. Par exemple, le réseau ferre français a émergé par l'intermédiaire de multiples opérateurs, au contraire du réseau ferré à grande vitesse Chinois, pour lequel un développement précis pourrait être envisagé.
+On s'attend finalement également à pouvoir par l'intermédiaire de ce modèle comparer des systèmes urbains dans des contextes géographiques et politiques différents, ainsi qu'à différentes échelles. Cela devrait permettre de révéler les implications des actions de planification sur les interactions entre réseaux et territoires. Par exemple, le réseau ferré français a émergé par l'intermédiaire de multiples opérateurs, au contraire du réseau ferré à grande vitesse Chinois, pour lequel un développement précis pourrait être envisagé.
 }
 
 

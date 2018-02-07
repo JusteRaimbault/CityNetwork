@@ -1,7 +1,7 @@
 extensions [nw table matrix]
 
 __includes[
-   
+
    "setup.nls"
    "main.nls"
    "network.nls"
@@ -9,14 +9,14 @@ __includes[
    "coevol.nls"
    "indicators.nls"
    "display.nls"
-   
+
    "experiments.nls"
-   
+
    ;;
    ; utils
-   
+
    "utils.nls"
-   
+
    "utils/LinkLocal.nls"
    "utils/Network.nls"
    "utils/List.nls"
@@ -26,56 +26,56 @@ __includes[
 globals[
   ; Because it does not exist natively in NetLogo
   infinity
-  
-  ; Global needed for the computation of city-picking (network-growth)         
-  sumlottery      
-  
-  ; Global needed for the computation of city-picking (network-growth)  
-  sumpop     
-  
-  ; the shortest possible time travel between two cities in the network at the tick t       
-  ;min-time-network  
+
+  ; Global needed for the computation of city-picking (network-growth)
+  sumlottery
+
+  ; Global needed for the computation of city-picking (network-growth)
+  sumpop
+
+  ; the shortest possible time travel between two cities in the network at the tick t
+  ;min-time-network
   system-pot-int    ;
-  
+
   gibrat-mean
   gibrat-std
-  
+
   ; cities populations
   populations
-  
+
   ;;;;;;;
   ;; crossing links variables
   ;;;;;;;
-  
+
   x-cross           ;
   y-cross           ;
   crossing-link1    ;
   crossing-link2    ;
-  
+
   ;;
   ; network
   techno-break-years
   network-speeds
   network-colors
-  
-  
+
+
   ;;
   ; indicators
   indicator-sample-cities
   indicator-sampling-time-step
   city-values-table
-  
+
   euclidian-distance-matrix
   distance-matrix
-  
+
   nw-relative-speeds
   pairs-total-weight
-  
+
   final-time-step
   initial-time-step
- 
+
   headless?
-   
+
 ]
 
 
@@ -84,49 +84,49 @@ breed [cities city]
 
 
 cities-own [
-  
-  
+
+
   ; population of the city
-  population            
-  
+  population
+
   ;
   index
-  
+
   ;;
   ; potential interaction of the city with all the other-city of the system
   ; @type list
   city-pot-int
-           
+
   ;;
   ; Normalized potential interaction of the city with all the other-city of the system
-  ; @type list 
-  N-city-pot-int  
-  
-  ; the journey time to go the nearest neighbor of this city      
-  min-time-neighbor     
-  
+  ; @type list
+  N-city-pot-int
+
+  ; the journey time to go the nearest neighbor of this city
+  min-time-neighbor
+
   ;;
   ; accessibility of the city (shimbel index)
-  ; 
-  accessibility   
-  
+  ;
+  accessibility
+
   ; temporary-attribut for the computation of lotery-potentiel
-  potentiel-interaction 
-  
+  potentiel-interaction
+
   ; temporary-attribut for the computation of city-growth
-  tmp-pop     
-  
-  ; force of attraction of the city over all the other in net migration of individuals          
-  attraction     
-  
-  ; only for the world creation       
-  categorie             
-  
+  tmp-pop
+
+  ; force of attraction of the city over all the other in net migration of individuals
+  attraction
+
+  ; only for the world creation
+  categorie
+
   network1
   network2
   network3
-  
- 
+
+
  ;; Outputs computation
  list-population
  list-accessibility
@@ -138,9 +138,9 @@ cities-own [
 
 
 links-own [
-  speed        ; 
+  speed        ;
   weight       ; length / speed
-  
+
   bw-centrality
 ]
 
@@ -151,7 +151,7 @@ crosses-own [
 ]
 
 
-  
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 474
@@ -928,7 +928,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.3.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

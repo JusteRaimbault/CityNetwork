@@ -366,10 +366,11 @@ then
   # fig:macrocoevolexplo:behavior
   FIGNAME=6-1-3-fig-macrocoevolexplo-behavior
   echo $FIGNAME
-  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2.5_networkSpeed110_gravityDecay0.016_networkThreshold11.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/fig1.jpg
-  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/rankCorrPop_networkSpeed110_networkThreshold11_networkGamma2.5.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/fig2.jpg
-  montage Figures/MacroCoEvolExplo/fig1.jpg Figures/MacroCoEvolExplo/fig2.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
-  rm Figures/MacroCoEvolExplo/fig1.jpg Figures/MacroCoEvolExplo/fig2.jpg
+  montage Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2.5_networkSpeed110_gravityDecay0.016_networkThreshold11.png Figures/MacroCoEvolExplo/rankCorrPop_networkSpeed110_networkThreshold11_networkGamma2.5.png -resize "$WIDTH" -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2.5_networkSpeed110_gravityDecay0.016_networkThreshold11.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/fig1.jpg
+  #convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/rankCorrPop_networkSpeed110_networkThreshold11_networkGamma2.5.pdf -resize "$((WIDTH / 2))"x -quality $JPGQUALITY Figures/MacroCoEvolExplo/fig2.jpg
+  #montage Figures/MacroCoEvolExplo/fig1.jpg Figures/MacroCoEvolExplo/fig2.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #rm Figures/MacroCoEvolExplo/fig1.jpg Figures/MacroCoEvolExplo/fig2.jpg
 
   # fig:macrocoevolexplo:correlations
   FIGNAME=6-1-3-fig-macrocoevolexplo-correlations
@@ -829,6 +830,30 @@ then
   montage Figures/CorrelatedSyntheticData/heatmap_maxabscorr.png Figures/CorrelatedSyntheticData/heatmap_amplitude.png -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$((WIDTH / 3))"x -quality $JPGQUALITY Figures/CorrelatedSyntheticData/heatmaps.jpg
   montage Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg Figures/CorrelatedSyntheticData/heatmaps.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm Figures/CorrelatedSyntheticData/heatmaps.jpg Figures/CorrelatedSyntheticData/pca_meanAbsCor_errorBars.jpg
+
+
+  #############
+  ## MacroCoEvolExplo
+
+  # fig:app:macrocoevolexplo:closeness
+  FIGNAME=A-macrocoevolexplo-closeness
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/closenessEntropies_networkGamma2_5_networkSpeed110.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:macrocoevolexplo:rankcorrpop
+  FIGNAME=A-macrocoevolexplo-rankcorrpop
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/rankCorrPop_synthRankSize0_5_networkSpeed10.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:macrocoevolexplo:distcorrs
+  FIGNAME=A-macrocoevolexplo-distcorrs
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/distcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:macrocoevolexplo:laggedcorrs
+  FIGNAME=A-macrocoevolexplo-laggedcorrs
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2_5_networkThreshold21_networkSpeed10.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
 

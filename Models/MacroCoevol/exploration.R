@@ -300,12 +300,14 @@ for(synthRankSize in unique(lagdata$synthRankSize)){
     tplus = ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumax])
     tminus = ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumin])
     signifs=rbind(signifs,data.frame(synthRankSize=synthRankSize,nwGmax=nwGmax,gravityWeight=gravityWeight,nwThreshold=nwThreshold,gravityGamma=gravityGamma,gravityDecay=gravityDecay,
-                  varcouple = k,signif = ifelse(tplus$p.value<0.01,ifelse(sdata$rho[sdata$tau==taumax]>0,1,-1),0),
+                  varcouple = k,signif = ifelse(tplus$p.value<0.01,ifelse(abs(sdata$rho[sdata$tau==taumax])>abs(rho0),
+                                                ifelse(sdata$rho[sdata$tau==taumax]>0,1,-1),0),0),
                   val = sdata$rho[sdata$tau==taumax],tau=abs(taumax)
                   ))
     k=k+1
     signifs=rbind(signifs,data.frame(synthRankSize=synthRankSize,nwGmax=nwGmax,gravityWeight=gravityWeight,nwThreshold=nwThreshold,gravityGamma=gravityGamma,gravityDecay=gravityDecay,
-                                     varcouple = k,signif = ifelse(tminus$p.value<0.01,ifelse(sdata$rho[sdata$tau==taumin]>0,1,-1),0),
+                                     varcouple = k,signif = ifelse(tminus$p.value<0.01,ifelse(abs(sdata$rho[sdata$tau==taumin])>abs(rho0),
+                                                                   ifelse(sdata$rho[sdata$tau==taumin]>0,1,-1),0),0),
                                      val = sdata$rho[sdata$tau==taumin],tau=abs(taumin)
                   ))
     k=k+1

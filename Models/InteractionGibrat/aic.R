@@ -47,19 +47,26 @@ mselog1 = sum((log(resM1$df$populations)-log(resM1$df$real_populations))^2);msel
 #diff(logmses)
 
 # iterative calib necessary here ?
-#logmses=c()
-#for(fd in seq(1,10000,100)){
-#for(fw in seq(-5,0,1)){
+logmses=c();fds=c();fws=c()
+for(fd in seq(0.1,10,0.5)){#seq(1,2000,100)){
+for(fw in c(-Inf,seq(-2.0,-1.2,0.05))){
 resM2=networkFeedbackModel(real_populations,distances,dists,dates,
-                     growthRate = 0.01230605,
-                     potentialWeight=0.0001718408,gammaGravity = 3.197045,decayGravity = 20000,
-                     betaFeedback =0.1616271,feedbackGamma = 8.234859,feedbackDecay = 0.01
+                     growthRate = 0.01236603,
+                     #potentialWeight=0.0001718408,
+                     potentialWeight=0.0,
+                     gammaGravity = 3.197045,decayGravity = 10,
+                     betaFeedback =exp(fw),
+                     #betaFeedback = fw,
+                     feedbackGamma = 8.234859,feedbackDecay = fd
                      )
 logmse2 = log(sum((resM2$df$populations-resM2$df$real_populations)^2))
 mse2 = sum((resM2$df$populations-resM2$df$real_populations)^2)
 mselog2 = sum((log(resM2$df$populations)-log(resM2$df$real_populations))^2);mselog2
-#logmses=append(logmses,mselog2)
-#}
+logmses=append(logmses,logmse2);fds=append(fds,fd);fws=append(fws,fw)
+}
+}
+g=ggplot(data.frame(fws,fds,logmses),aes(x=fds,y=logmses,colour=fws,group=fws))
+g+geom_line()
 #plot(seq(1,10000,100),logmses,type='l')
 #plot(seq(-5,0,1),logmses,type='l')
 

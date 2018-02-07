@@ -144,8 +144,9 @@ dir.create(paste0(resdir,'targeted'))
 networkThreshold=11;networkSpeed=110;networkGamma=2.5
 var = 'rankCorrPop'
 g=ggplot(currentdata[currentdata$networkThreshold==networkThreshold&currentdata$networkSpeed==networkSpeed&currentdata$networkGamma==networkGamma,],aes_string(x="gravityDecay",y=var,color="gravityGamma",group="gravityGamma"))
-g+geom_point()+stat_smooth(span = 1)+stdtheme
-ggsave(paste0(resdir,'targeted/',var,'_networkSpeed',networkSpeed,'_networkThreshold',networkThreshold,'_networkGamma',networkGamma,'.pdf'),width=30,height=20,units='cm')
+g+geom_point()+stat_smooth(span = 1)+xlab(expression(d[G]))+ylab(expression(rho[r]*'['*mu[i]*']'))+scale_color_continuous(name=expression(gamma[G]))+
+  stdtheme
+ggsave(paste0(resdir,'targeted/',var,'_networkSpeed',networkSpeed,'_networkThreshold',networkThreshold,'_networkGamma',networkGamma,'.png'),width=30,height=20,units='cm')
 
 
 ##################
@@ -187,8 +188,9 @@ var='closenessEntropies'
 g=ggplot(timedata[timedata$networkGamma==networkGamma&timedata$networkSpeed==networkSpeed&timedata$gravityDecay==gravityDecay,],
          aes_string(x="time",y=var,color="gravityGamma",group="gravityGamma")
 )
-g+geom_point(pch='.')+stat_smooth()+stdtheme
-ggsave(paste0(resdir,'targeted/',var,'_networkGamma',networkGamma,'_networkSpeed',networkSpeed,'_gravityDecay',gravityDecay,'_networkThreshold',networkThreshold,'.pdf'),width=30,height=20,units='cm')
+g+geom_point(pch='.')+stat_smooth()+xlab(expression(t))+ylab(expression(epsilon*'['*c[i]*']'*(t)))+scale_color_continuous(name=expression(gamma[G]))+
+  stdtheme
+ggsave(paste0(resdir,'targeted/',var,'_networkGamma',networkGamma,'_networkSpeed',networkSpeed,'_gravityDecay',gravityDecay,'_networkThreshold',networkThreshold,'.png'),width=30,height=20,units='cm')
 
 
 
