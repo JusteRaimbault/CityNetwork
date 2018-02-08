@@ -405,7 +405,7 @@ then
   # fig:macrocoevol:correlations
   FIGNAME=6-2-2-fig-macrocoevol-correlations
   echo $FIGNAME
-  convert Figures/MacroCoEvol/laggedregimes_nwGmax0_05.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  convert Figures/MacroCoEvol/laggedregimes_absrho_nwGmax0_05.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
   # fig:macrocoevol:empirical
@@ -857,6 +857,8 @@ then
 
 
 
+
+
   #############
   ## MacroCoEvol
 
@@ -878,13 +880,20 @@ then
   montage Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05.jpg Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.jpg -tile 1x2 -geometry +0+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   rm Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05.jpg Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05.jpg
 
+  # fig:app:macrocoevol:distcorrs
   FIGNAME=A-macrocoevol-distcorrs
   echo $FIGNAME
   convert -density $PDFRESOLUTION Figures/MacroCoEvol/distcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
+  # fig:app:macrocoevol:laggedcorrs
   FIGNAME=A-macrocoevol-laggedcorrs
   echo $FIGNAME
   convert -density $PDFRESOLUTION Figures/MacroCoEvol/laggedcorrs_gravityWeight5e-04_nwThreshold4_5.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # fig:app:macrocoevol:pse
+  FIGNAME=A-macrocoevol-pse
+  echo $FIGNAME
+  convert Figures/MacroCoEvol/scatterplot_colorgravityDecay.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
   # fig:app:macrocoevol:pareto
@@ -892,6 +901,8 @@ then
   echo $FIGNAME
   convert -density $PDFRESOLUTION Figures/MacroCoEvol/pareto_gravityDecay_filtTRUE.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
   # pareto_nwThreshold_filtTRUE.pdf
+
+
 
 
   #############

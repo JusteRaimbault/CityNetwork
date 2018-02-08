@@ -252,14 +252,15 @@ for(couple in c("ClosenessAccessibility","PopAccessibility","PopCloseness")){
 
 
 getSignif <- function(rho,tau){
-  #rho0 = mean(rho[tau==0])
-  sdata = as.tbl(data.frame(rho,tau))%>%group_by(tau)%>%summarise(rho=mean(rho))
+  rho0 = mean(rho[tau==0])
+  sdata = as.tbl(data.frame(rho,tau))%>%group_by(tau)%>%summarise(rho=mean(rho)-rho0)
   taumax = sdata$tau[abs(sdata$rho)==max(abs(sdata$rho[sdata$tau!=0]))]
   #taumin = sdata$tau[abs(sdata$rho)==max(abs(sdata$rho[sdata$tau<0]))]
   tplus = ks.test(rho[tau==0],rho[tau==taumax])
   #tminus = ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumin])
   rhomax = sdata$rho[sdata$tau==taumax]
-  return(ifelse(tplus$p.value<0.01,ifelse(abs(rhomax)<0.05,0,ifelse(rhomax>0,1,-1)),0))
+  return(ifelse(tplus$p.value<0.01,ifelse(abs(rhomax+rho0)<abs(rho0),0,ifelse(rhomax+rho0>0,1,-1)),0))
+  #return(ifelse(tplus$p.value<0.01,ifelse(abs(rhomax)<0.05,0,ifelse(rhomax>0,1,-1)),0))
 }
 
 signifneg = lagdata[lagdata$tau<=0,]%>%group_by(var,gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum)%>%summarise(

@@ -1080,7 +1080,7 @@ INPUTBOX
 365
 70
 conf-file
-setup/conf/synth_unbalanced_distant.conf
+setup/conf/synth_unbalanced_close.conf
 1
 0
 String

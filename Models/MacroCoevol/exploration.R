@@ -292,6 +292,7 @@ for(synthRankSize in unique(lagdata$synthRankSize)){
                   lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay&
                   lagdata$var==var,]
     #show(nrow(cdata))
+    #ggplot(cdata,aes(x=tau,y=rho,color=var))+geom_point(pch='.')+geom_smooth()
     #test=ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==2])
     rho0 = mean(cdata$rho[cdata$tau==0])
     sdata=cdata%>%group_by(tau)%>%summarise(rho=mean(rho)-rho0)
@@ -300,14 +301,14 @@ for(synthRankSize in unique(lagdata$synthRankSize)){
     tplus = ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumax])
     tminus = ks.test(cdata$rho[cdata$tau==0],cdata$rho[cdata$tau==taumin])
     signifs=rbind(signifs,data.frame(synthRankSize=synthRankSize,nwGmax=nwGmax,gravityWeight=gravityWeight,nwThreshold=nwThreshold,gravityGamma=gravityGamma,gravityDecay=gravityDecay,
-                  varcouple = k,signif = ifelse(tplus$p.value<0.01,ifelse(abs(sdata$rho[sdata$tau==taumax])>abs(rho0),
-                                                ifelse(sdata$rho[sdata$tau==taumax]>0,1,-1),0),0),
+                  varcouple = k,signif = ifelse(tplus$p.value<0.01,ifelse(abs(sdata$rho[sdata$tau==taumax]+rho0)>abs(rho0),
+                                                ifelse(sdata$rho[sdata$tau==taumax]+rho0>0,1,-1),0),0),
                   val = sdata$rho[sdata$tau==taumax],tau=abs(taumax)
                   ))
     k=k+1
     signifs=rbind(signifs,data.frame(synthRankSize=synthRankSize,nwGmax=nwGmax,gravityWeight=gravityWeight,nwThreshold=nwThreshold,gravityGamma=gravityGamma,gravityDecay=gravityDecay,
-                                     varcouple = k,signif = ifelse(tminus$p.value<0.01,ifelse(abs(sdata$rho[sdata$tau==taumin])>abs(rho0),
-                                                                   ifelse(sdata$rho[sdata$tau==taumin]>0,1,-1),0),0),
+                                     varcouple = k,signif = ifelse(tminus$p.value<0.01,ifelse(abs(sdata$rho[sdata$tau==taumin]+rho0)>abs(rho0),
+                                                                   ifelse(sdata$rho[sdata$tau==taumin]+rho0>0,1,-1),0),0),
                                      val = sdata$rho[sdata$tau==taumin],tau=abs(taumin)
                   ))
     k=k+1
@@ -316,26 +317,40 @@ for(synthRankSize in unique(lagdata$synthRankSize)){
 
 
 #save(signifs,file=paste0(resdir,"signifs.RData"))
-load(paste0(resdir,"signifs.RData"))
+#save(signifs,file=paste0(resdir,"signifs_absrho.RData"))
+#load(paste0(resdir,"signifs.RData"))
+load(paste0(resdir,"signifs_absrho.RData"))
+
 
 #signifs[signifs$synthRankSize==1&signifs$nwGmax==0.0&signifs$gravityWeight==0.00025&signifs$nwThreshold==0.5&signifs$gravityGamma==0.5&signifs$gravityDecay==160,]
 # no extrema without nw (expected)
 
-signs = signifs[signifs$nwGmax==0.05,]%>%group_by(synthRankSize,nwGmax,gravityWeight,nwThreshold,gravityGamma,gravityDecay)%>%summarise(
+nwGmax=0.05
+
+signs = signifs[signifs$nwGmax==nwGmax,]%>%group_by(synthRankSize,nwGmax,gravityWeight,nwThreshold,gravityGamma,gravityDecay)%>%summarise(
   sign = paste0(signif[varcouple==3],signif[varcouple==4],"/",signif[varcouple==1],signif[varcouple==2],"/",signif[varcouple==5],signif[varcouple==6]),
   #count=n(),
   strength=sum(abs(signif)),
   corrstrength = sum(abs(signif*val))
 )
 
-unique(signs$sign[signs$strength>4])
+unique(signs$sign[signs$strength>3])
 signs$corrstrength[signs$strength>4]
 signs[signs$strength>4,]
+
+unique(signs$sign)[grep('11',unique(signs$sign))]
+
+# coevol pop - centrality
+summary(signs[signs$sign=="11/00/11"|signs$sign=="10/10/11"|signs$sign=="00/11/11"|signs$sign=="10/01/11"|signs$sign=="10/11/11",])
+
+
+
+signs[signs$sign=="10/11/11",]# max number of links
 
 # plot these strongest regimes
 
 sdata=data.frame()
-for(r in which(signs$strength>4)[!duplicated(signs$sign[signs$strength>4])]){
+for(r in which(signs$strength>3)[!duplicated(signs$sign[signs$strength>3])]){
   synthRankSize=signs$synthRankSize[r];nwGmax=signs$nwGmax[r];gravityWeight=signs$gravityWeight[r];nwThreshold=signs$nwThreshold[r];gravityGamma=signs$gravityGamma[r];gravityDecay=signs$gravityDecay[r]
   sdata=rbind(sdata,data.frame(lagdata[lagdata$synthRankSize==synthRankSize&lagdata$nwGmax==nwGmax&lagdata$gravityWeight==gravityWeight&lagdata$nwThreshold==nwThreshold&lagdata$gravityGamma==gravityGamma&lagdata$gravityDecay==gravityDecay,],
                                id=paste0(synthRankSize,nwGmax,gravityWeight,nwThreshold,gravityGamma,gravityDecay),
@@ -345,8 +360,10 @@ for(r in which(signs$strength>4)[!duplicated(signs$sign[signs$strength>4])]){
 }
 
 g=ggplot(sdata,aes(x=tau,y=rho,colour=var,group=var))
-g+geom_point(pch='.')+geom_smooth()+facet_wrap(~reg,scales="free")+xlab(expression(tau))+ylab(expression(rho[tau]))+stdtheme
-ggsave(paste0(resdir,'targeted/laggedregimes_nwGmax',parstr(nwGmax),'.png'),width=30,height=25,units='cm')
+g+geom_point(pch='.')+geom_smooth()+facet_wrap(~reg,scales="free")+
+  xlab(expression(tau))+ylab(expression(rho[tau]))+stdtheme+
+  theme(legend.justification=c(1,0), legend.position=c(0.9,0.1))+scale_colour_discrete(name="Variables")
+ggsave(paste0(resdir,'targeted/laggedregimes_absrho_nwGmax',parstr(nwGmax),'.png'),width=30,height=30,units='cm')
 
 
 

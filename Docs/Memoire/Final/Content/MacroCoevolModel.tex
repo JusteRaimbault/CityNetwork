@@ -198,38 +198,91 @@ Nous pouvons dans un premier temps nous intéresser aux variations des corrélat
 \subsubsection{Causality regimes}{Régimes de causalité}
 
 
-Tournons nous finalement vers les motifs de corrélations retardées produits par le modèle, illustrés en Fig.~\ref{fig:macrocoevol:correlations}.
+Tournons nous finalement vers les motifs de corrélations retardées produits par le modèle, c'est-à-dire l'étude sa capacité à effectivement produire de la co-évolution comme nous l'avons définie.
+
+L'exploration de profils de $\rho_{\tau}$ selon les paramètres est illustrée en Annexe~\ref{app:sec:macrocoevol}, et suggère l'existence de régimes de causalité variés. La Fig.~\ref{fig:macrocoevol:correlations} donne des exemples de profils. Nous constatons cependant (i) l'existence systématique d'une corrélation constante à $\tau = 0$ et (ii) les faibles variations des corrélations qui nécessitent la mise en place d'un test statistique pour être certains d'isoler un effet significatif.
 
 
-Enfin, concernant les corrélations retardées, on observe toujours une corrélation synchronisée, 
+Nous ajoutons donc ici un critère basé sur un test statistique : pour $\tau_+ = \textrm{argmax}_{\tau>0} \left|\rho_{\tau} - \rho_0\right|$ et $\tau_- = \textrm{argmax}_{\tau<0} \left|\rho_{\tau} - \rho_0\right|$, un test de Kolmogorov-Smirnov est utilisé pour comparer les distributions de $\rho_{\tau_{\pm}}$ et de $\rho_0$. S'il les déclare différentes avec une \emph{p-value} inférieure à $0.01$, et si $\left|\rho_{\tau_{\pm}}\right| > \left|\rho_0\right|$, on convient d'un lien de causalité entre les variables dans le sens correspondant.
+
+Nous codons alors une configuration par une représentation de son graphe entre variables, donnée par les 6 variables discrètes valant 0 s'il n'y a pas de lien entre les variables (parmi l'ensemble des couples dirigés entre population, accessibilité et centralité) et 1 ou -1 selon le signe de la corrélation s'il existe un lien significatif statistiquement (en pratique toutes les corrélations sont positives).
+
+Nous obtenons au total 33 configurations de liens entre variables, sur les 64 possibles ($2^6$ choix possibles pour des corrélations uniquement positives). En comparaison, l'application de cette méthode sur les résultats de~\ref{sec:macrocoevolexplo} ne donne que 8 configurations distinctes\footnote{Parmi lesquelles deux correspondent à une causalité circulaire négative entre accessibilité et centralité, ce qui fait dire que le modèle Simpopnet peut produire une co-évolution entre variables, mais en nombre restreint par rapport aux configurations obtenues ici et uniquement entre deux variables de réseau.}.
+
+Les types de relations obtenues sont particulièrement éclairantes au regard de la co-évolution. On observe en effet :
+\begin{itemize}
+	\item une configuration sans lien entre variables ;
+	\item 13 configurations de type ``effet structurant'', c'est-à-dire dont le graphe ne possède aucune boucle ; 
+	\item une configuration de type ``co-évolution indirecte'', dont le graphe possède une boucle de longueur trois ($c_i \rightarrow X_i \rightarrow \mu_i \rightarrow c_i$)
+	\item 18 configurations de type ``co-évolution'', dans lesquelles il existe au moins une boucle de longueur deux (relation circulaire directe entre deux variables).
+\end{itemize}
+
+%unique(signs$sign)
+% [1] "01/00/00" "00/00/00" "11/00/00" "01/01/00" "11/00/10" "11/01/00" "11/01/10" "10/00/00" "10/00/10"
+%[10] "10/10/10" "00/10/00" "00/01/00" "00/01/01" "00/00/11" "10/00/11" "00/11/00" "00/11/10" "10/01/10"
+%[19] "00/01/11" "11/00/11" "01/00/10" "10/10/11" "00/11/11" "10/01/11" "00/01/10" "10/10/00" "10/11/00"
+%[28] "10/11/10" "11/10/10" "00/10/11" "00/00/10" "10/11/11" "10/01/00"
+
+%unique(signs$sign)[grep('11',unique(signs$sign))]
+% [1] "11/00/00" "11/00/10" "11/01/00" "11/01/10" "00/00/11" "10/00/11" "00/11/00" "00/11/10" "00/01/11"
+%[10] "11/00/11" "10/10/11" "00/11/11" "10/01/11" "10/11/00" "10/11/10" "11/10/10" "00/10/11" "10/11/11"
+
+%unique(signs$sign)[grep('10/10',unique(signs$sign))]
+%[1] "10/10/10" "10/10/11" "10/10/00" "11/10/10"
+
+% unique(signs$sign)[grep('01/01',unique(signs$sign))]
+% [1] "01/01/00" "00/01/01"
+
+% unique(signs$sign[signs$strength>3])
+%[1] "11/01/10" "11/00/11" "10/10/11" "00/11/11" "10/01/11" "10/11/10" "11/10/10" "10/11/11"
 
 
-Un certain nombre de régimes présentent une déviation positive de la corrélation entre population et accessibilité pour les retards positifs, en croissance jusqu'au retard maximal, ce qui pourrait être un marqueur du renforcement des dynamiques de population par la centralité, fait stylisé exhibé pour le système de ville Français par~\cite{bretagnolle:tel-00459720}.
-
-La corrélation entre population et accessibilité est constante, probablement du fait de l'auto-corrélation, et n'entre pas en jeu dans la définition des régimes. Pour des valeurs intermédiaires de $d_G$ et les fortes valeurs de $\gamma_G$, on observe également une très légère déviation pour les retards négatifs : pour ces régimes, on a causalité circulaire et le modèle capture une co-évolution dans ce sens. L'accessibilité quant à elle cause fortement la centralité pour $d_G = 10$, puis la tendance s'inverse pour les grands $d_G$. Pour $d_G = 10$, cela va dans le sens du lien entre population et centralité, et il n'y a dans ce cas pas co-évolution mais adaptation des populations au réseau. Pour les régimes intermédiaires, on a circularité directement entre population et centralité, tandis que pour $d_G > 110$ il y a ``circularité indirecte'', puisque accessibilité cause centralité qui cause population (qui entre en jeu dans la centralité).
-% -> ce commentaire en annexe ; reprendre avec régimes "exhaustifs" puis pse.
-
-
-et a priori l'existence de $\tau_+$ ou $\tau_-$ dans certains configurations, mais difficile à valider visuellement. Nous ajoutons donc ici un critère basé sur un test statistique : pour $\tau = \textrm{argmax} \rho_{\tau}$ ou $\tau = \textrm{argmin} \rho_{\tau}$ selon leur existence, un test de Kolmogorov-Smirnov est utilisé pour comparer les distributions de $\rho_{\tau}$ et de $\rho_0$. S'il donne une valeur inférieur à $0.01$, les distributions sont jugées similaires et il n'existe pas de relation entre les variables correspondantes.
+% SimpopNet
+%  unique(signs$sign)
+% [1] "00/00/00"   "00/00/-10"  "-1-1/00/00" "-10/00/00"  "00/00/10"   "-1-1/00/10" "00/10/00"   "0-1/00/00" 
 
 
-% -- a modifier : signifs --
-%Ainsi, le modèle capture au moins trois régimes de co-évolution distincts, en fonction de la distance d'interaction et du niveau de hiérarchie\footnote{Une analyse plus systématique par apprentissage non-supervisé comme en~\ref{sec:causalityregimes} et en~\ref{sec:mesocoevolmodel} est laissée pour de futures développements.}.
+Parmi toutes ces régimes, 8 correspondent à un graphe avec au moins 4 liens (qui sont alors nécessairement co-évolutive) : il s'agit des profils que nous représentons en Fig.~\ref{fig:macrocoevol:correlations}. Deux régimes présentent une déviation positive de la corrélation entre population et accessibilité pour les retards positifs, en croissance jusqu'au retard maximal, ce qui pourrait être un marqueur du renforcement des dynamiques de population par la centralité, fait stylisé exhibé pour le système de ville Français par~\cite{bretagnolle:tel-00459720}.
 
-\comment[AB]{trop abstrait}
+Les régimes où la centralité est en co-évolution avec la population correspondent à ceux où la co-évolution entre réseau et territoire est la plus marquée (puisque l'accessibilité relève des deux), et sont observés pour des grandes valeurs de $d_G$ (moyenne $d_G=183$ sur 62 points de paramètres). Ainsi, cette co-évolution est favorisée par de grandes portées d'interaction.
+
+Enfin, le régime avec le plus fort nombre de liens\footnote{Correspondant au régime codé ``10/11/11'', avec co-évolution de la population et de la centralité ainsi que de la population et de l'accessibilité, et une causalité de la centralité sur l'accessibilité.}, est obtenu pour une grande portée d'interaction $d_G = 160$, une forte hiérarchie d'interaction $\gamma_G = 1.5$, mais une faible hiérarchie du système de ville initial $\alpha_S$ : des interactions lointaines et hiérarchisée dans un système uniforme conduisent à un maximum d'imbrication entre variables.
+
 
 %%%%%%%%%%%%%
 \begin{figure}
 	%\includegraphics[width=\linewidth]{Figures/MacroCoEvol/laggedregimes_nwGmax0_05.png}
 	\includegraphics[width=\linewidth]{Figures/Final/6-2-2-fig-macrocoevol-correlations.jpg}
-\caption[Correlations in the abstract model][Correlations dans le modèle abstrait]{\textbf{Lagged correlations.} \label{fig:macrocoevol:correlations}}{\textbf{Corrélation retardées.} \label{fig:macrocoevol:correlations}}
+\caption[Correlations in the abstract model][Correlations dans le modèle abstrait]{\textbf{Lagged correlations.} \label{fig:macrocoevol:correlations}}{\textbf{Corrélations retardées.} Nous donnons ici pour les 8 configurations présentant au moins 4 liens entre variables (codées dans l'ordre des couples, par l'existence ou non d'un lien pour $\tau_+$ puis pour $\tau_-$), les profils des corrélations retardées $\rho_{\tau}$ en fonction de $\tau$, pour l'ensemble des couples de variables (couleur).\label{fig:macrocoevol:correlations}}
 \end{figure}
 %%%%%%%%%%%%%
 
 
+%summary(signs[signs$sign=="11/00/11"|signs$sign=="10/10/11"|signs$sign=="00/11/11"|signs$sign=="10/01/11"|signs$sign=="10/11/11",])
+% synthRankSize        nwGmax     gravityWeight        nwThreshold     gravityGamma    gravityDecay  
+% Min.   :0.5000   Min.   :0.05   Min.   :0.0002500   Min.   :2.500   Min.   :0.500   Min.   : 60.0  
+% 1st Qu.:0.5000   1st Qu.:0.05   1st Qu.:0.0002500   1st Qu.:3.500   1st Qu.:1.000   1st Qu.:160.0  
+% Median :0.5000   Median :0.05   Median :0.0005000   Median :4.000   Median :1.000   Median :210.0  
+% Mean   :0.7419   Mean   :0.05   Mean   :0.0005444   Mean   :3.984   Mean   :1.105   Mean   :183.4  
+% 3rd Qu.:1.0000   3rd Qu.:0.05   3rd Qu.:0.0007500   3rd Qu.:4.500   3rd Qu.:1.500   3rd Qu.:210.0  
+% Max.   :1.5000   Max.   :0.05   Max.   :0.0010000   Max.   :4.500   Max.   :1.500   Max.   :210.0  
+%     sign              strength      corrstrength   
+% Length:62          Min.   :4.000   Min.   :0.1621  
+% Class :character   1st Qu.:4.000   1st Qu.:0.2193  
+% Mode  :character   Median :4.000   Median :0.2415  
+%                    Mean   :4.016   Mean   :0.2397  
+%                    3rd Qu.:4.000   3rd Qu.:0.2686  
+%                    Max.   :5.000   Max.   :0.2914 
+
+
+%signs[signs$sign=="10/11/11",]# max number of links
+%  synthRankSize nwGmax gravityWeight nwThreshold gravityGamma gravityDecay     sign strength corrstrength
+%1           0.5   0.05       0.00075         4.5          1.5          160 10/11/11        5    0.2274599
+
+
 % plus resultats PSE
 
-
+Nous confirmons finalement ces résultats de variété des régimes de causalité produits par le modèle en appliquant l'algorithme \emph{Pattern Space Exploration}~\cite{10.1371/journal.pone.0138212} au modèle, avec comme objectifs les 6 corrélations étudiées précédemment (évaluées comme nulles le cas échéant). Une présentation graphique des résultats est donnée en Annexe~\ref{app:sec:macrocoevol}. Nous obtenons principalement une nombre de régimes produits par le modèles encore plus important que ceux obtenus précédemment (avec des corrélations négatives, 260 régimes réalisés sur $3^6 = 729$ possibles). Cette brève étude complémentaire confirme la capacité du modèle à produire une variété de régimes de co-évolution.
 
 
 
@@ -276,14 +329,10 @@ Avant de calibrer le modèle, observons les motifs de corrélation présents dan
 Ces résultats sont importants pour au moins deux raisons. Dans un premier temps, le comportement du nombre de corrélations significatives en fonction de $T_w$ et de $d_0$ permet la recherche d'échelles de stationnarité dans le système. On observe d'une part une échelle spatiale spécifique donnant un maximum pour l'ensemble des fenêtres temporelles, à $d_0 = 100km$, ce qui suggère l'existence de sous-systèmes régionaux cohérents, dont l'existence est stable dans le temps : en effet, cette valeur correspond à la distance d'interaction . Celle-ci coincide remarquablement avec l'échelle intermédiaire isolée dans le modèle synthétique. D'autre part, les grandes portées spatiales induisent une échelle temporelle optimale, pour $T_w = 4$ ce qui correspond à une vingtaine d'année : nous l'identifions comme l'échelle de stationnarité temporelle du système dans son ensemble et étudions les corrélations retardées pour cette valeur.
 
 
-Dans un second temps, le comportement des corrélations retardées apporte une mauvaise nouvelle pour la littérature existante et pour les potentialités d'application de notre modèle.\comment[AB]{trop abstrait} A l'échelle spatiale intermédiaire, les valeurs de $\rho_+,\rho_-$ n'exhibent aucune régularité. Sur l'ensemble du système, on a jusqu'en 1946 quasiment aucun effet significatif, puis aucune causalité entre 1946 et 1975 (maximum à $\tau = 0$, minimum non significatif), puis un décalage de 5 ans de l'accessibilité causant la population après 1968 (l'effet restant tout de même douteux). Nous ne reproduisons pas l'effet de corrélation entre centralité dans le réseau et place dans la hiérarchie urbaine défendu par~\cite{bretagnolle2003vitesse}\footnote{Tout comme~\cite{lemoy2017scaling} n'arrivent pas à reproduire, pour les profils de densité en fonction de la distance au centre des métropoles européennes, la transition permettant à \cite{guerois2008built} de définir le péri-urbain. Ces travaux plus ou moins anciens ne sont pas reproductibles, ne fournissant ni code, ni données et ne donnant qu'une description très succincte des méthodes, et il est ainsi impossible de connaitre l'origine de la divergence qualitative obtenue. Une bonne reproductibilité ainsi que la construction de comparaisons systématiques (\emph{benchmarks}) de modèles, analyses empiriques, récentes mais aussi en validation d'études passées, nous semble une bonne solution à ce genre de problèmes.}, ce qui amène à relativiser l'existence de la ``co-évolution structurelle'' sur le temps long décrite par \noun{Bretagnolle} dans~\cite{espacegeo2014effets}. Ce que trouve \cite{bretagnolle2003vitesse}, c'est une correspondance simultanée entre taux de croissance et niveau de connectivité aux réseaux (et non avec les dynamiques du réseau), mais pas à notre sens une co-évolution, d'autant plus qu'aucune relation statistique n'est exhibée.
+Dans un second temps, le comportement des corrélations retardées ne semble pas en accord avec la littérature existante. À l'échelle spatiale intermédiaire, les valeurs de $\rho_+,\rho_-$ n'exhibent aucune régularité. Sur l'ensemble du système, on a jusqu'en 1946 quasiment aucun effet significatif, puis aucune causalité entre 1946 et 1975 (maximum à $\tau = 0$, minimum non significatif), puis un décalage de 5 ans de l'accessibilité causant la population après 1968 (l'effet restant tout de même douteux). Nous ne reproduisons pas l'effet de corrélation entre centralité dans le réseau et place dans la hiérarchie urbaine défendu par~\cite{bretagnolle2003vitesse}\footnote{Tout comme~\cite{lemoy2017scaling} n'arrivent pas à reproduire, pour les profils de densité en fonction de la distance au centre des métropoles européennes, la transition permettant à \cite{guerois2008built} de définir le péri-urbain. Ces travaux plus ou moins anciens ne sont pas reproductibles, ne fournissant ni code, ni données et ne donnant qu'une description très succincte des méthodes, et il est ainsi impossible de connaitre l'origine de la divergence qualitative obtenue. Une bonne reproductibilité ainsi que la construction de comparaisons systématiques (\emph{benchmarks}) de modèles, analyses empiriques, récentes mais aussi en validation d'études passées, nous semble une bonne solution à ce genre de problèmes.}, ce qui amène à relativiser l'existence de la ``co-évolution structurelle'' sur le temps long décrite par \noun{Bretagnolle} dans~\cite{espacegeo2014effets}. Ce que trouve \cite{bretagnolle2003vitesse}, c'est une correspondance simultanée entre taux de croissance et niveau de connectivité aux réseaux (et non avec les dynamiques du réseau), mais pas à notre sens une co-évolution, d'autant plus qu'aucune relation statistique n'est exhibée.
 
 
 Nous rejoignons les résultats récents de~\cite{mimeur:hal-01616746} qui montrent le non-significativité statistique de la corrélation entre taux de croissance et évolution de la couverture du réseau ainsi que l'évolution de l'accessibilité, à délai nul. Nos résultats sont moins précis pour les classes de villes étudiées (ils différencient grandes villes et petites, et travaillent sur un panel plus grand), mais plus généraux car pour un délai et une portée de l'accessibilité variables, et donc complémentaires.
-
-
-
-\comment[FL]{develpper et hierarchiser ce que tu retires, c'est clairement un endroit important de ta these : - se raccrocher aux hypotheses sur la coevolution a cette echelle ; se raccrocher aux hypotheses sur la facon de modeliser ce phenomene}
 
 
 
@@ -345,10 +394,18 @@ où $d_{ij}(t)$ sont les distances observées et $\tilde{d}_{ij}(t)$ les distanc
 Nous procédons à une calibration non-stationnaire, sur les objectifs $(\varepsilon_P,\varepsilon_D)$, c'est à dire l'erreur carrée sur les population et celle sur les distances. L'estimation est faite par fenêtre mobile sur les périodes déjà utilisées en~\ref{sec:interactiongibrat}. Pour limiter la dimension à explorer, nous fixons $w_N = 0$ pour n'étudier les interactions qu'au premier ordre, sachant que les paramètres de réseau abstrait $(g_{max},\gamma_S,\varphi_0)$ sont pris en compte dans la calibration. La calibration est effectuée par algorithme génétique de façon similaire La Fig.~\ref{fig:macrocoevol:pareto} montre les fronts de Pareto obtenus, et la Fig.~\ref{fig:macrocoevol:parameters} l'évolution dans le temps des valeurs des paramètres pour les solution optimales.
 
 
-On note la faible consistence des fronts de Pareto de manière générale, en comparaison avec ceux obtenus pour la population seule précédemment, ce qui suggère la difficulté d'optimiser conjointement trajectoire des populations et trajectoire des distances. Certaines périodes, comme 1851-1872 puis toutes celles après 1946, présentent un point optimal simultané pour les deux objectifs, ce qui pourrait aussi témoigner d'une mauvaise convergence de l'algorithme. Dans tous les cas, la très faible significativité des corrélations empiriques observées précédemment pouvait laisser présager de ces mauvais ajustements.
+Nous observons une forte variabilité des formes des fronts de Pareto pour la calibration bi-objectif population et distance, ce qui témoigne d'une plus ou moins grande difficulté à ajuster simultanément population et distance. Certaines périodes, comme 1891-1911 et 1921-1936, sont proches de présenter un point optimal simultané pour les deux objectifs, ce qui correspondrait à une bonne adéquation du modèle à la fois aux trajectoires de villes et à celle du réseau sur ces périodes.
+
+En comparaison aux résultats de calibration sur le modèle avec réseau statique de~\ref{sec:interactiongibrat}, en regardant les performances pour l'objectif $\varepsilon_G$, nous trouvons des périodes où le statique est clairement meilleur (1831 et 1841 par exemple) et d'autres où le modèle co-évolutif est meilleur (1946 et 1962) : ainsi, la prise en compte de la co-évolution permet dans certains cas une meilleure reproduction des trajectoires de population.
 
 
-Les valeurs des paramètres optimaux semblent toutefois contenir un certain signal. L'évolution de $w_G$ et $\gamma_G$ sont consistantes avec celles observées pour le modèle statique. Pour $d_G$, on observe des oscillations, une certaine stabilité, puis un pic pour la période 1962-1982. Il pourrait s'agir d'un ``effet TGV'', en cohérence avec le pic secondaire pour $\phi_0$ observé au même point, puisque la construction des LGV a raccourci les distances entre les villes au plus haut de la hiérarchie (une augmentation du seuil $\phi_0$ correspond à une augmentation de la sélectivité pour une diminution potentielle des distances). Le $g_{max}$ calibré est très représentatif de l'histoire du réseau ferré : un très fort accroissement dans les premières années, puis un accroissement stable plus tard (l'impact du TGV étant là noyé dans l'ensemble du réseau, le seul signe étant une augmentation de la déviation sur l'ensemble du front). Pour la calibration avec distance seule, la stabilisation à $g_{max}=0$ est un témoin de la rudimentarité du modèle. On a pu ainsi dans une certaine mesure indirectement quantifier les processus d'interaction par le réseau et ceux d'adaptation du réseau au flux, dans le cas d'un système réel.
+Les valeurs des paramètres optimaux dans le temps, présentées en Fig.~\ref{fig:macrocoevol:parameters}, semblent toutefois contenir un certain signal. L'évolution de $w_G$ et $\gamma_G$ sont consistantes avec celles observées pour le modèle statique. Pour $d_G$, le modèle sature principalement sur une distance maximale et l'évolution est difficile à interpréter. 
+
+Par contre, l'évolution de $\phi_0$ pourrait témoigner d'un ``effet TGV'' dans les instants récents, par le pic secondaire pour la population après 1960. En effet, la construction des LGV a raccourci les distances entre les villes au plus haut de la hiérarchie, et une augmentation du seuil $\phi_0$ correspond à une augmentation de la sélectivité pour une diminution potentielle des distances).
+
+Le $g_{max}$ calibré peut enfin être interprété selon l'histoire du réseau ferré (du moins pour l'ensemble des points du font de Pareto) : un pic significatif dans les premières années, un creux dans les années de stabilisation du réseau (1900), puis une augmentation jusqu'à aujourd'hui liée à l'augmentation de la vitesse des trains puis l'ouverture des lignes à grande vitesse.
+
+Nous avons pu ainsi dans une certaine mesure indirectement quantifier les processus d'interaction par le réseau et ceux d'adaptation du réseau au flux, dans le cas d'un système réel.
 
 %%%%%%%%%%%%%%%%%%%
 \begin{figure}%\includegraphics[width=0.9\linewidth]{Figures/MacroCoEvol/pareto_nwGmax_filtTRUE.pdf}
@@ -432,7 +489,7 @@ Nous générons un réseau initial aléatoire, en perturbant la position des som
 \bpar{
 The role of medium-sized cities on the trajectories of the system can also be examined with the model.
 }{
-L'étude de trajectoires particulières au sein du système de villes peut permettre de répondre à des questions thématiques spécifiques : par exemple, l'influence des villes moyennes sur la trajectoire globale du système, ou les déterminants d'une plus ou moins bonne ``réussite'' pour ce type de profil. Dans le cas de l'application à un système réel, la cartographie des déviations au modèle dans le temps peut suggérer des particularités régionales.\comment[FL]{justement quels fait stylises a reproduire ?}
+L'étude de trajectoires particulières au sein du système de villes peut permettre de répondre à des questions thématiques spécifiques : par exemple, l'influence des villes moyennes sur la trajectoire globale du système, ou les déterminants d'une plus ou moins bonne ``réussite'' pour ce type de profil. Dans le cas de l'application à un système réel, la cartographie des déviations au modèle dans le temps peut suggérer des particularités régionales.
 }
 
 

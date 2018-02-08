@@ -53,6 +53,16 @@ g=ggplot(sres,aes(x=nwThreshold,y=value,colour=variable))
 g+geom_point(pch='.')+geom_smooth()
 
 
+####
+# variety of produced regimes
+
+regs=rep("",nrow(res))
+for(j in 8:13){
+  regs=paste0(regs,ifelse(res[,j]==0,0,ifelse(res[,j]>0,1,-1)))
+}
+
+unique(regs)
+
 
 
 
