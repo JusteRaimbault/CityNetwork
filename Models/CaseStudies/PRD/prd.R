@@ -45,7 +45,8 @@ dmat_bridge = distances(graph = trbridge,v = which(V(trbridge)$station==0&is.na(
 rownames(dmat_bridge)<-V(trbridge)$id[V(trbridge)$station==0&is.na(V(trbridge)$new)]
 colnames(dmat_bridge)<-V(trbridge)$id[V(trbridge)$station==1]
 
-save(dmat_base,dmat_bridge,file='processed/dmats.RData')
+#save(dmat_base,dmat_bridge,file='processed/dmats.RData')
+load('processed/dmats.RData')
 
 # compute node populations
 npop = colSums(Diagonal(x = poppoints$pop)%*%Matrix(t(apply(dmat_base,1,function(r){as.numeric(r==min(r))}))))
