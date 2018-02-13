@@ -164,7 +164,7 @@ accesspediff = accesspediff[accesspediff$id%in%iris$DCOMIRIS,]
 accesspediff$var = (accesspediff$var - mean(accesspediff$var))/sd(accesspediff$var)
 
 map(data=accesspediff,layer=iris,spdfid="DCOMIRIS",dfid="id",variable="var",
-    filename=paste0(resdir,'accesspdiff_metropole.png'),title=paste0("Gains d'accessibilite"),legendtitle = "Gain\nnormalise",extent=iris,
+    filename=paste0(resdir,'accesspdiff_metropole_2.png'),title=paste0("Gains d'accessibilite"),legendtitle = "Gain\nnormalise",extent=iris,
     nclass=8,
     width=15,height=12,palette='div',lwd=0.2,
     additionalPointlayers=list(list(readOGR('data/gis','grandparisexpress_gares'),'blue')),
