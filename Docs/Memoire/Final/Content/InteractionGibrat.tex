@@ -237,7 +237,7 @@ Nous donnons en Table~\ref{tab:interactiongibrat:parameters} la description des 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \begin{table}[ht]
-\caption[Model Parameters summary][Espace des paramètres du modèle d'interaction]{Model Parameters summary\label{tab:parameters}}{\textbf{Espace des paramètres du modèle d'interaction.} Nous donnons le nom du paramètre et sa notation, le processus du modèle qui lui est associé, une interprétation possible, et son domaine typique de variation.\label{tab:interactiongibrat:parameters}}
+\caption[Model Parameters summary][Espace des paramètres du modèle d'interaction]{\textbf{Interaction model parameters summary.} We give the parameters names, notations, associated processes, possible interpretations, typical variation ranges.\label{tab:parameters}}{\textbf{Espace des paramètres du modèle d'interaction.} Nous donnons le nom du paramètre et sa notation, le processus du modèle qui lui est associé, une interprétation possible, et son domaine typique de variation.\label{tab:interactiongibrat:parameters}}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
 Paramètre & Notation & Processus & Interpretation & Domaine\\
@@ -248,7 +248,7 @@ Gamma gravitaire & $\gamma_G$ & Interaction directe & Niveau de hiérarchie & $\
 Décroissance gravitaire & $d_G$ & Interaction directe & Portée d'interaction & $\left[ 0,+\infty\right]$ \\
 Poids de la rétroaction & $w_N$ & Effet des flux & Croissance maximale & $\left[ 0,1\right]$ \\
 Gamma de la rétroaction & $\gamma_N$ & Effet des flux & Niveau de hiérarchie & $\left[ 0,+\infty\right]$ \\
-Décroissance de la rétroaction & $r_0$ & Effet des flux & Portée de l'effet & $\left[ 0,+\infty\right]$ \\
+Décroissance de la rétroaction & $d_N$ & Effet des flux & Portée de l'effet & $\left[ 0,+\infty\right]$ \\
 \hline
 \end{tabular}
 \end{table}
@@ -281,7 +281,7 @@ Nous travaillons avec la base de données historique Pumain-INED pour les villes
 \bpar{
 As stated before, this modeling exercise focuses on exploring the role of physical flows, whatever the effective shape of the network. We choose for this reason not to use real network data which is furthermore not easily available at different time periods, and physical flows are assumed to take the geographical shortest path taking into account terrain slope. It avoids geographical absurdities such as cities with a difficult access having an overestimated growth rate. Using a 1km resolution Digital Elevation Model, we construct an impedance field of the form
 }{
-Comme rappelé précédemment, cet exercice de modélisation se concentre sur l'exploration du rôle des flux physiques, quelle que soit la forme effective du réseau. Nous choisissons pour cette raison de ne pas utiliser de vraies données de réseau qui sont de plus difficiles à obtenir à différentes périodes de temps, et nous supposons que les flux physiques prennent le plus court chemin géographique prenant en compte la pente du terrain. Cela évite des absurdités géographiques comme des villes difficilement accessibles ayant un taux de croissance surestimé. Utilisant le modèle d'élevation numérique de l'IGN à la résolution 1km, nous calculons les plus courts chemins de manière standard~\cite{collischonn2000direction}, par la construction d'un champ d'impédance de la forme
+Comme rappelé précédemment, cet exercice de modélisation se concentre sur l'exploration du rôle des flux physiques, quelle que soit la forme effective du réseau. Nous choisissons pour cette raison de ne pas utiliser de vraies données de réseau qui sont de plus difficiles à obtenir à différentes périodes de temps, et nous supposons que les flux physiques prennent le plus court chemin géographique prenant en compte la pente du terrain. Cela évite des absurdités géographiques comme des villes difficilement accessibles ayant un taux de croissance surestimé. Utilisant le modèle d'élévation numérique de l'IGN à la résolution 1km, nous calculons les plus courts chemins de manière standard~\cite{collischonn2000direction}, par la construction d'un champ d'impédance de la forme
 }
 
 \[
@@ -292,7 +292,7 @@ Z = \left(1 + \frac{\alpha}{\alpha_0}\right)^{n_0}
 \bpar{
 where $Z$ is the impedance of links of the 1km grid network in which each cell is connected to its eight neighbors. $\alpha$ is the terrain slope computed with elevation difference between the two cells. We take fixed parameter values $\alpha_0 = 3$ (corresponding to approximatively the real world value of a 5\% slope) and $n_0 = 3$ which yielded more realistic paths than smaller values.
 }{
-où $Z$ est l'impédance des liens du réseau de la grille de 1km dans laquelle chaque cellule est connectée à ses huit voisins. $\alpha$ est la pente du terrain calculée avec la différence d'altitude entre les deux cellules. Nous prenons des valeurs des paramètres fixes $\alpha_0 = 3$ (correspondant approximativement à la valeur réelle d'une pente de 5\%) et $n_0 = 3$ ce qui donne des chemins plus réalistes que des valeurs significativement plus petites ou plus grandes\footnote{Plus précisément, on a validé ``à dire d'expert'', en inspectant visuellement les chemins entre quelques destinations typiques (incluant Paris-Lyon, Lyon-Marseille, Lyon-Bordeaux par exemple), pour $\alpha_0 = 2,3,4$. Pour $\alpha_0 = 4$, le chemin est généralement trop rectiligne et coupe à travers des relief évités par les grands axes ; pour $\alpha_0 = 2$ le chemin est trop sinueux au contraire. On a testé $n_0 = 2,3$, le deuxième étant également plus crédible. Une calibration précise de ces paramètres nécessiterait l'ajustement par rapport au réseau autoroutier par exemple, mais est hors de portée de cet exercice ici.}.
+où $Z$ est l'impédance des liens du réseau de la grille de 1km dans laquelle chaque cellule est connectée à ses huit voisins. $\alpha$ est la pente du terrain calculée avec la différence d'altitude entre les deux cellules. Nous prenons des valeurs des paramètres fixes $\alpha_0 = 3$ (correspondant approximativement à la valeur réelle d'une pente de 5\%) et $n_0 = 3$ ce qui donne des chemins plus réalistes que des valeurs significativement plus petites ou plus grandes\footnote{Plus précisément, on a validé ``à dire d'expert'', en inspectant visuellement les chemins entre quelques destinations typiques (incluant Paris-Lyon, Lyon-Marseille, Lyon-Bordeaux par exemple), pour $\alpha_0 = 2,3,4$. Pour $\alpha_0 = 4$, le chemin est généralement trop rectiligne et coupe à travers des reliefs évités par les grands axes ; pour $\alpha_0 = 2$ le chemin est trop sinueux au contraire. On a testé $n_0 = 2,3$, le deuxième étant également plus crédible. Une calibration précise de ces paramètres nécessiterait l'ajustement par rapport au réseau autoroutier par exemple, mais est hors de portée de cet exercice ici.}.
 }
 
 

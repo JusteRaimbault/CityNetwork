@@ -42,6 +42,23 @@ T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \DeclareMathOperator*{\argmin}{\arg\!\min}
 
 
+% highlighting
+
+%\usepackage[normalem]{ulem} % use normalem to protect \emph
+%\newcommand\hl{\bgroup\markoverwith  {\textcolor{yellow}{\rule[-.5ex]{2pt}{2.5ex}}}\ULon}
+
+\usepackage{soul}
+\soulregister\cite7
+\soulregister\citep7
+\soulregister\ref7
+
+%\usepackage[final]{changes}
+\usepackage{changes}
+
+
+\setaddedmarkup{\hl{#1}}
+\setdeletedmarkup{\textcolor{red}{\sout{#1}}}
+
 
 %\DeclareDocumentCommand{\comment}{m o o o o}
 %{\ifthenelse{\draft=1}{
@@ -54,6 +71,7 @@ T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 %}
 
 \def \draft {1}
+\def \trackdiff {1}
 
 \newcommand{\com}[1]{
     \ifthenelse{\draft=1}{\textcolor{red}{\textbf{C : } #1}}{}
@@ -65,6 +83,12 @@ T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
     \ifthenelse{\draft=1}{\textcolor{red!50!blue}{\textbf{TODO : \textit{#1}}}}{}
 }
 
+
+
+% track changes
+%\newcommand{\change}[1]{
+%\ifthenelse{\trackdiff=1}{\hl{#1}}{#1}
+%}
 
 
 
@@ -131,7 +155,7 @@ We describe a simple spatial model of urban growth for systems of cities at the 
 \section*{Introduction}
 
 
-Cities are paradoxically both unsustainable and source of negative externalities, but also the best chance to reach sustainability and resilience to climate change~\citep{glaeser2011triumph}. The dynamics of Urban Systems at a macroscopic scale, and more precisely drivers of urban growth, are crucial to be understood to meet these potentialities. A better knowledge of how cities differentiate, interact and grow is thus a relevant topic both for policy application and from a theoretical perspective. \cite{pumain2009innovation} suggests that cities are incubators of social change, their fate being closely linked to the one of societies. Various disciplines have studied models of urban growth with different objectives and taking diverse aspects into account. For example, Economics are still reluctant to include spatial interactions in the models~\citep{krugman1998space} but are extremely detailed on market processes, even for models in Economic Geography, whereas Geography focuses more on territorial specificities and interactions in space but will produce general conclusion with more difficulty. The example of this two disciplines shows how it is difficult to make bridges, as it needed exceptional efforts to translate from one to the other (as P. Hall did for Von Thunen work~\citep{taylor2016polymath}), and therefore how it is far from evident to grasp the complexity of Urban Systems in an integrated way.
+Cities are paradoxically both unsustainable and source of negative externalities, but also the best chance to reach sustainability and resilience to climate change~\citep{glaeser2011triumph}. The dynamics of urban systems at a macroscopic scale, and more precisely drivers of urban growth, are crucial \added{processes that need} to be understood to meet these potentialities. A better knowledge of how cities differentiate, interact and grow is thus a relevant topic both for policy application and from a theoretical perspective. \cite{pumain2009innovation} suggests that cities are incubators of social change, their fate being closely linked to the one of societies. Various disciplines have studied models of urban growth with different objectives and taking diverse aspects into account. For example, Economics are still reluctant to include spatial interactions in the models~\citep{krugman1998space} but are extremely detailed on market processes, even for models in Economic Geography, whereas Geography focuses more on territorial specificities and interactions in space but will produce general conclusion with more difficulty. The example of this two disciplines shows how it is difficult to make bridges, as it needed exceptional efforts to translate from one to the other (as P. Hall did for Von Thunen work~\citep{taylor2016polymath}), and therefore how it is far from evident to grasp the complexity of urban systems in an integrated way.
 
 
 The simplest model to explain urban growth, the Gibrat model, that assumes random growth rates, has been shown by~\cite{gabaix1999zipf} to asymptotically produce the expected rank-size law (Zipf's law) for system of cities which is considered as one of the most regular stylized facts, at least in its generalized scaling law formulation~\citep{nitsch2005zipf}. Explaining urban scaling laws is closely related to the understanding of urban growth, as \cite{bettencourt2008large} suggests that these reflect underlying universal processes and that all cities are scaled version of each other. This approach however does not reflect the complex relation between economic agents for which~\cite{storper2009rethinking} advocates. Using a bottom reconstruction of urban areas using dynamical microscopic population data, \cite{rozenfeld2008laws} shows indeed that positive deviations to the rank-size law systematically exist, and that these must be an effect of spatial interaction between urban areas. Complexity approaches are good candidates to integrate these into models. \cite{andersson2006complex} introduce for example a model of urban economy as a growing complex network of relations. The Evolutive Urban Theory, introduced by~\cite{pumain1997pour}, focuses on cities as co-evolving entities and produces explanations for growth at the system of cities level. \cite{pumain2006evolutionary} shows that scaling laws could be due to functional differentiation and diffusion of innovation between cities. The positioning regarding universality of laws is more moderate than Scaling theories, as \cite{pumain2012urban} highlights that ergodicity can difficultly be assumed in the frame of complex territorial systems. One crucial feature of this paradigm is the importance of interactions between agents, generally the cities, to produce the emergent patterns at the scale of the system. \cite{pumain2013theoretical} has investigated the advantages of Agent-based models compared to more classical equation systems, and this methodological aspect is in accordance with the theoretical positioning, as it allows to take into account the heterogeneity of possible interactions, the geographical particularities, and to naturally translate emergence between levels and render multi-scale patterns.
@@ -192,13 +216,13 @@ V_{ij} = \left(\frac{\mu_i\mu_j}{\left(\sum_k{\mu_k}\right)^2}\right)^{\gamma_G}
 The network effect term $\vec{N}$ is given by $N_{i} = w_N \cdot \frac{W_i}{<W_i>}$ where the network flow potential $W_i$ reads
 
 \begin{equation}
-W_{i} = \sum_{k < l} \left(\frac{\mu_k\mu_l}{\left(\sum_j\mu_j\right)^2}\right)^{\gamma_N} \cdot \exp{\left(-d_{kl,i}\right)/d_N}
+W_{i} = \sum_{k < l} \left(\frac{\mu_k\mu_l}{\left(\sum_j\mu_j\right)^2}\right)^{\gamma_N} \cdot \exp{\left(-d_{kl,i}/d_N\right)}
 \end{equation}
 
 where $d_{kl,i}$ is the distance of city $i$ to the shortest path between $k,l$ computed in the geographical space, which can be through a transportation network or in an impedance field of the euclidian network. All seven model parameters are detailed below.
 
 
-The first component is the pure Gibrat model, that we obtain by setting the weights $w_G = w_N = 0$. The second component captures direct interdependencies between cities, under the form of a separable gravity potential such as the one used in~\cite{sanders1992systeme}. The rationale for the third term, aimed at capturing network effects by expressing a feedback of network flow between cities $k,l$ on the city $i$. Intuitively, a demographic and economic flow physically transiting through a city or in its surroundings is expected to influence its development (through intermediate stops e.g.), this effect being of course dependent on the transportation mode since a high speed line with few stops will skip most of the traversed territories. Note that we don't use exactly gravity flows in the network term, since there is no decay of interactions generating flows with distance, but a decay of the effect of the flow as a distance to the network: it is equivalent to assuming long-range use of the network on average in time, and is this way complementary to the first gravity term.
+The first component \added{corresponds to} the pure Gibrat model, that we obtain by setting the weights $w_G = w_N = 0$. The second component captures direct interdependencies between cities, under the form of a separable gravity potential such as the one used in~\cite{sanders1992systeme}. The rationale for the third term, aimed at capturing network effects by expressing a feedback of network flow between cities $k,l$ on the city $i$. Intuitively, a demographic and economic flow physically transiting through a city or in its surroundings is expected to influence its development (through intermediate stops e.g.), this effect being of course dependent on the transportation mode since a high speed line with few stops will skip most of the traversed territories. Note that we don't use exactly gravity flows in the network term, since there is no decay of interactions generating flows with distance, but a decay of the effect of the flow as a distance to the network: it is equivalent to assuming long-range use of the network on average in time, and is this way complementary to the first gravity term.
 
 
 \paragraph{Model Parameter Space}
@@ -210,18 +234,18 @@ We give in Table~\ref{tab:parameters} the description of model parameters, detai
 %%%%%%%%%%%%%%%%%%%%%%%%
 \begin{table}[ht]
 \small\sf\centering
-\caption{Model Parameters summary.}\label{tab:parameters}
-\begin{tabular}{|l|l|l|l|l|}
+\caption{\textbf{Model parameters summary.} We give the parameters names, notations, associated processes, possible interpretations, typical variation ranges and units.}\label{tab:parameters}
+\begin{tabular}{|l|l|l|l|l|l|}
 \toprule
-Parameter & Notation & Process & Interpretation & Range\\
+Parameter & Notation & Process & Interpretation & Range & Unit\\
 \midrule
-Growth Rate & $r_0$ & Endogenous growth & Growth rate & $\left[ 0,1\right]$ \\
-Gravity weight & $w_G$ & Direct interaction & Max average rate & $\left[ 0,1\right]$ \\
-Gravity gamma & $\gamma_G$ & Direct interaction & Level of hierarchy & $\left[ 0,+\infty\right]$ \\
-Gravity decay & $d_G$ & Direct interaction & Interaction range & $\left[ 0,+\infty\right]$ \\
-Feedback weight & $w_N$ & Flows effect & Max average rate & $\left[ 0,1\right]$ \\
-Feedback gamma & $\gamma_N$ & Flows effect & Level of hierarchy & $\left[ 0,+\infty\right]$ \\
-Feedback Decay & $r_0$ & Flows effect & Network effect range & $\left[ 0,+\infty\right]$ \\
+Growth Rate & $r_0$ & Endogenous growth & Growth rate & $\left[ 0,1\right]$ & 1 \\
+Gravity weight & $w_G$ & Direct interaction & Max average rate & $\left[ 0,1\right]$ & 1 \\
+Gravity gamma & $\gamma_G$ & Direct interaction & Level of hierarchy & $\left[ 0,+\infty\right]$ & 1 \\
+Gravity decay & $d_G$ & Direct interaction & Interaction range & $\left[ 0,+\infty\right]$ & km \\
+Feedback weight & $w_N$ & Flows effect & Max average rate & $\left[ 0,1\right]$  & 1\\
+Feedback gamma & $\gamma_N$ & Flows effect & Level of hierarchy & $\left[ 0,+\infty\right]$ & 1\\
+Feedback Decay & $d_N$ & Flows effect & Network effect range & $\left[ 0,+\infty\right]$ & km \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -235,14 +259,14 @@ Feedback Decay & $r_0$ & Flows effect & Network effect range & $\left[ 0,+\infty
 
 Our model is assumed as hybrid as it relies on semi-parametrization on real data. It could be possible to study it as a full toy-model, initial configuration and physical environment being constructed as synthetic data. We however aim at unveiling stylized facts on real data rather than on model behavior in itself, and setup therefore the model from the data we now describe.
 
-\paragraph{Population data}
+\subsubsection*{Population data}
 
-We work with the Pumain-INED historical database for French Cities~\citep{pumain1986fichier}, which give populations of \emph{Aires Urbaines} (INSEE definition) at time intervals of 5 years, from 1831 to 1999 (31 observations in time). The latest version of the database integrates Urban Areas, allowing to follow them on long time-period, according to Bretagnolle's long time cities ontology~\citep{bretagnolle:tel-00459720}, that constructs a functional definition of cities as entities with boundaries evolving in time. We work on the 50 bigger cities in 1999. We furthermore isolate periods of similar length excluding wars, obtaining 9 periods of 20 years on which semi-stationary in time fit of the model will be done. 
+We work with the Pumain-INED historical database for French Cities~\citep{pumain1986fichier}, which give populations of \emph{Aires Urbaines} (INSEE definition) at time intervals of 5 years, from 1831 to 1999 (31 observations in time). The latest version of the database integrates Urban Areas, allowing to follow them on long time-period, according to the long time ontology for cities given by \cite{bretagnolle:tel-00459720}, that constructs a functional definition of cities as entities with boundaries evolving in time. We work on the 50 bigger cities in 1999. We furthermore isolate periods of similar length excluding wars, obtaining 9 periods of 20 years\footnote{\added{The time periods are more precisely: 1831-1851, 1841-1861, 1851-1872, 1881-1901, 1891-1911, 1921-1936, 1946-1968, 1962-1982, 1975-1999.}} on which \added{adjustment} of the model will be done, \added{taking into account non-stationarity in time}.
 
 
 \paragraph{Physical flows}
 
-As stated before, this modeling exercise focuses on exploring the role of physical flows, whatever the effective shape of the network. We choose for this reason not to use real network data which is furthermore not easily available at different time periods, and physical flows are assumed to take the geographical shortest path taking into account terrain slope. It avoids geographical absurdities such as cities with a difficult access having an overestimated growth rate. Using a 1km resolution Digital Elevation Model, we construct an impedance field of the form
+As stated before, this modeling exercise focuses on exploring the role of physical flows, whatever the effective shape of the network. We choose for this reason not to use real network data which is furthermore not easily available at different time periods, and physical flows are assumed to take the geographical shortest path taking into account terrain slope. It avoids geographical absurdities such as cities with a difficult access having an overestimated growth rate. Using a 1km resolution Digital Elevation Model, we construct an impedance field, \added{following \cite{collischonn2000direction}, which is given by}
 
 \[
 Z = \left(1 + \frac{\alpha}{\alpha_0}\right)^{n_0}
@@ -250,10 +274,11 @@ Z = \left(1 + \frac{\alpha}{\alpha_0}\right)^{n_0}
 
 where $Z$ is the impedance of links the 1km grid network in which each cell is connected to its eight neighbors. $\alpha$ is the terrain slope computed with elevation difference between the two cells. We take fixed parameter values $\alpha_0 = 3$ (corresponding to approximatively the real world value of a 5\% slope) and $n_0 = 3$ which yielded more realistic paths than smaller values.
 
+% Plus précisément, on a validé ``à dire d'expert'', en inspectant visuellement les chemins entre quelques destinations typiques (incluant Paris-Lyon, Lyon-Marseille, Lyon-Bordeaux par exemple), pour $\alpha_0 = 2,3,4$. Pour $\alpha_0 = 4$, le chemin est généralement trop rectiligne et coupe à travers des reliefs évités par les grands axes ; pour $\alpha_0 = 2$ le chemin est trop sinueux au contraire. On a testé $n_0 = 2,3$, le deuxième étant également plus crédible. Une calibration précise de ces paramètres nécessiterait l'ajustement par rapport au réseau autoroutier par exemple, mais est hors de portée de cet exercice ici.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Model Evaluation}
+\subsection*{Indicators of model performance}
 
 We work on an explanatory rather than an exploratory model. Therefore, indicators to evaluate model outputs are not directly linked to intrinsic properties of trajectories or obtained final states, but rather to a distance to the phenomenon we want to explain, i.e. the data. Given real population $p_i(t)$ (historical realizations of $P_i(t)$) and simulated expected populations $\mu_i(t)$ obtained with $\vec{\mu}(t_0) = \vec{p}(t_0)$ on a period of length $T$, we can evaluate two complementary aspects of model performance:
 
@@ -282,13 +307,21 @@ Both are actually complementary, as using only $\varepsilon_G$ as it is generall
 
 \subsection*{Stylized facts}
 
-Basic stylized facts can be extracted from such a database, as it has already been widely explored in the literature~\cite{guerin1990150}. We retrieve better fits of log-normal distributions of growth rates at all dates compared to normal fits, and also the fact that growth rates are mainly positive, on the cities we consider and when removing wars. An interesting feature to look at in relation with our considerations on spatial interactions are correlations between time-series, and more particularly their variation as a function of distance. We consider 50 years overlapping time-windows to have enough temporal observation, finishing respectively in (1881,1906,1931,1962,1999), and estimate on each, for each couple of cities $(i,j)$, the correlation between log-returns $\hat{\rho}_{ij}=\rho\left[\Delta X_i, \Delta X_j\right]$ with a classical Pearson estimator, where $\Delta X_i = X_i(t) - X_i(t-1)$ and $X_i(t) = \ln\left(\frac{P_i(t)}{P_i(t_0)}\right)$. This method, used mainly in econophysics~\citep{mantegna1999introduction}, reveals dynamical interactions without being biased by sizes. We show in Figure~\ref{fig:ts-correlations} the smoothed correlations curves as a function of distance, for each time period. First of all, the strong differences between each confirms the non-stationarity of growth rates over the whole time period, and justifies the use of local fit in time for the model. We can also interpret these patterns in terms of historical events for the system of city and the transportation network. System dynamic begins with a flat correlation in 1881, around 0.2, that could be spurious due to simultaneous similar growth for all cities. It then stays flat but goes to zero, witnessing strong differentiations in growth patterns between 1856 and 1906. After 1931, the effect of the distance is clear with decreasing curves, starting between 0.4 and 0.5. We postulate that this evolution must be partly linked to transportation network evolution: considering railway network for example~\citep{thevenin2013mapping}, the initial overall development may have fostered long range interactions flattening thus the correlation curves, whereas its maturation over time has conducted to the return of more classical interactions decreasing quickly with distance.
+Basic stylized facts can be extracted from such a database, as it has already been widely explored in the literature~\cite{guerin1990150}. We retrieve better fits of log-normal distributions of growth rates at all dates compared to normal fits, and also the fact that growth rates are mainly positive, on the cities we consider and when removing wars.
+
+An interesting feature to look at in relation with our considerations on spatial interactions are correlations between time-series, and more particularly their variation as a function of distance. We consider 50 years overlapping time-windows to have enough temporal observation, finishing respectively in (1881,1906,1931,1962,1999), and estimate on each, for each couple of cities $(i,j)$, the correlation between log-returns $\hat{\rho}_{ij}=\rho\left[\Delta X_i, \Delta X_j\right]$ with a classical Pearson estimator, where
+\[\Delta X_i = X_i(t) - X_i(t-1)\]
+and
+\[X_i(t) = \ln\left(\frac{P_i(t)}{P_i(t_0)}\right)\]
+This method, used mainly in econophysics~\citep{mantegna1999introduction}, reveals dynamical interactions without being biased by sizes.
+
+We show in Figure~\ref{fig:ts-correlations} the smoothed correlations curves as a function of distance, for each time period. First of all, the strong differences between each confirms the non-stationarity of growth rates over the whole time period, and justifies the use of local fit in time for the model. We can also interpret these patterns in terms of historical events for the system of city and the transportation network. System dynamic begins with a flat correlation in 1881, around 0.2, that could be spurious due to simultaneous similar growth for all cities. It then stays flat but goes to zero, witnessing strong differentiations in growth patterns between \replaced{1881}{1856} and 1906. After 1931, the effect of the distance is clear with decreasing curves, starting between 0.4 and 0.5. We postulate that this evolution must be partly linked to transportation network evolution: considering railway network for example~\citep{thevenin2013mapping}, the initial overall development may have fostered long range interactions flattening thus the correlation curves, whereas its maturation over time has conducted to the return of more classical interactions decreasing quickly with distance.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{figures/Fig1}
+\includegraphics[width=\textwidth]{figures/Fig1.png}
 \caption{\textbf{Time-series correlations as a function of distance.} Solid line correspond to smoothed correlations, computed between each pairs of normalized log-returns of population time-series, on successive periods given by curve color.}
 \label{fig:ts-correlations}
 \end{figure}
@@ -313,7 +346,7 @@ Data preprocessing, result processing and models profiling are implemented in \t
 %%%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{figures/Fig2}
+\includegraphics[width=\textwidth]{figures/Fig2.png}
 \caption{Example of output of the model. The graphical interface allows to explore interactively on which cities changes operate after a parameter change, what is necessary to interpret raw calibration results.}
 \label{fig:interface}
 \end{figure}
@@ -362,7 +395,13 @@ First model explorations, by simply sweeping fixed grids of the parameter space,
 %%%%%%%%%%%%%%%%%%%%
 
 
-We now use the model to indirectly extract information on processes in time. Indeed under assumption of non-stationarity, temporal evolution of locally fitted parameters show the evolution of the corresponding aspect of the processes. In a first experiment, we set $w_N=0$ and calibrate the model with four parameters on the 9 successive 20 years time windows. The optimization problem associated to model calibration does not present features allowing an easy solving (closed-form of a likelihood function, convexity or sparsity of the optimization problem), we must rely on alternative techniques to solve it. Brute force grid search is rapidly limited by the dimensionality curse. Classical methods~\citep{batty1972calibration} such as gradient descent fail because of the rather complicated shape of the optimisation landscape. Calibration using Genetic Algorithms (GA) are an efficient solution to find approximate solutions in a reasonable time. OpenMole embeds a collection of such meta-heuristics fo different purposes: \cite{schmitt2014half} demonstrates the capabilities of these methods to calibrate models of simulation. In our case, it furthermore allow to do a bi-objective calibration on $(\varepsilon_G,\varepsilon_L)$. We use the standard steady state GA provided by OpenMole, distributed on 25 islands, with population of 200 and 100 generations. We show in Figure~\ref{fig:gravity-pareto} the calibration results on successive periods, by plotting final population in the indicator space. As expected, Pareto fronts that corresponds to compromises between the two opposite objectives are the rule. It means that the model cannot be accurate both globally and locally, and an intermediate solution has to be found. This may due to the fact that interaction range changes with city size (i.e. that terms in the potential are no longer separable), that we keep as a possible model development. The shape of the Pareto front are revealing the chaotic optimisation landscape, as for some periods such as 1921-1936 or 1962-1982 fronts are not regular and sparse. The change in shapes also translates different dynamical regimes across the periods: for 1881-1901, the quasi-vertical shape followed by an isolated front at high $\varepsilon_G$ values reveals a quasi-binary model behavior in the optimal regimes, in the sense that improving $\varepsilon_L$ under the limit is only possible through a qualitative jump at a high price for $\varepsilon_G$. The values taken by $d_G$ for periods 1892-1911 and 1921-1936 show that larger cities have longer interaction range, as high value give better values of $\varepsilon_G$. We show in Figure~\ref{fig:gravity-params} the values of fitted parameters in time, averaged over the Pareto front and for best single-objective solutions. First, the two peaks patterns for $r_0$ corresponds roughly to the patterns observed in average growth rates. The evolution of $w_G$ has a similar shape but lagged by 20 years: it can be interpreted as a repercussion of endogenous growth on interaction patterns in the following years, which is consistent with an interpretation of the interaction process in terms of migration. The values of $d_G$, with an increase until 1900 followed by a progressive decrease, is consistent with the behavior of empirical correlations commented above: the first 50 years windows have higher interaction range what corresponds to flat correlation curves. Finally, the level of hierarchy $\gamma_G$ has regularly decreased, corresponding to an attenuation of the power of large cities that can be understood in terms of progressive decentralization in France that has been fostered by the administration.
+We now use the model to indirectly extract information on processes in time. Indeed under assumption of non-stationarity, temporal evolution of locally fitted parameters show the evolution of the corresponding aspect of the processes.
+
+In a first experiment, we set $w_N=0$ and calibrate the model with four parameters on the 9 successive 20 years time windows. The optimization problem associated to model calibration does not present features allowing an easy solving (closed-form of a likelihood function, convexity or sparsity of the optimization problem), we must rely on alternative techniques to solve it. Brute force grid search is rapidly limited by the dimensionality curse. Classical methods~\citep{batty1972calibration} such as gradient descent fail because of the rather complicated shape of the optimisation landscape. Calibration using Genetic Algorithms (GA) are an efficient solution to find approximate solutions in a reasonable time. OpenMole embeds a collection of such meta-heuristics fo different purposes: \cite{schmitt2014half} demonstrates the capabilities of these methods to calibrate models of simulation. In our case, it furthermore allow to do a bi-objective calibration on $(\varepsilon_G,\varepsilon_L)$.
+
+We use the standard steady state GA provided by OpenMole, distributed on 25 islands, with \added{a} population of 200 \added{individuals} and 100 generations. We show in Figure~\ref{fig:gravity-pareto} the calibration results on successive periods, by plotting final population in the indicator space. As expected, Pareto fronts that corresponds to compromises between the two opposite objectives are the rule. It means that the model cannot be accurate both globally and locally, and an intermediate solution has to be found. This may due to the fact that interaction range changes with city size (i.e. that terms in the potential are no longer separable), that we keep as a possible model development. The shape of the Pareto front are revealing the chaotic optimisation landscape, as for some periods such as 1921-1936 or 1962-1982 fronts are not regular and sparse. The change in shapes also translates different dynamical regimes across the periods: for 1881-1901, the quasi-vertical shape followed by an isolated front at high $\varepsilon_G$ values reveals a quasi-binary model behavior in the optimal regimes, in the sense that improving $\varepsilon_L$ under the limit is only possible through a qualitative jump at a high price for $\varepsilon_G$. The values taken by $d_G$ for periods 1892-1911 and 1921-1936 show that larger cities have longer interaction range, as high value give better values of $\varepsilon_G$.
+
+We show in Figure~\ref{fig:gravity-params} the values of fitted parameters in time, averaged over the Pareto front and for best single-objective solutions. First, the two peaks patterns for $r_0$ corresponds roughly to the patterns observed in average growth rates. The evolution of $w_G$ has a similar shape but lagged by 20 years: it can be interpreted as a repercussion of endogenous growth on interaction patterns in the following years, which is consistent with an interpretation of the interaction process in terms of migrations. The values of $d_G$, with an increase until 1900 followed by a progressive decrease, is consistent with the behavior of empirical correlations commented above: the first 50 years windows have higher interaction range what corresponds to flat correlation curves. Finally, the level of hierarchy $\gamma_G$ has regularly decreased, corresponding to an attenuation of the power of large cities that can be understood in terms of progressive decentralization in France that has been fostered by the administration.
 
 
 
@@ -371,7 +410,9 @@ We now use the model to indirectly extract information on processes in time. Ind
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Unveiling Network Effects}
 
-We now turn to the calibration of the full model on successive periods, in order to interpret parameters linked to network flows and gain insight into network effects. The full calibration is done in a similar way with seven parameters being free. We plot in Figure~\ref{fig:feedback} the fitted values in time for some of these parameters. The behavior of growth rate and of the gravity weight relative to growth rate, that is similar to the gravity model only, confirms that network effects are well at the second order and that endogenous growth and direct interactions are main driver. Network effects are however not negligible, as they improve the fit as shown before in model exploration, capturing therein second order processes. The evolution of $d_N$, corresponding to the range on which network influences the territories it goes through, shows a minimum in 1921-1936 to stabilize again later, but at a value lower that past values. This could correspond to the ``tunnel effect'', when high-speed transportation do not stop much. Indeed, the evolution of railway has witnessed a high decrease in local lines at a date similar to the minimum, and later the emergence of specific High Speed lines, explaining this lower final value. Hierarchy of flows have slightly decreased as for gravity, but are extremely high. This means that only flows between larger cities have a significant effect. This way, the model gives indirect information on the processes linked to network effects.
+We now turn to the calibration of the full model on successive periods, in order to interpret parameters linked to network flows and gain insight into network effects. The full calibration is done in a similar way with seven parameters being free. We plot in Figure~\ref{fig:feedback} the fitted values in time for some of these parameters.
+
+The behavior of growth rate and of the gravity weight relative to growth rate, that is similar to the gravity model only, confirms that network effects are \replaced{indeed}{well} at the second order and that endogenous growth and direct interactions are main drivers. Network effects are however not negligible, as they improve the fit as shown before in model exploration, capturing therein second order processes. The evolution of $d_N$, corresponding to the range on which network influences the territories it goes through, shows a minimum in 1921-1936 to stabilize again later, but at a value lower that past values. This could correspond to the ``tunnel effect'', when high-speed transportation do not stop much. Indeed, the evolution of railway has witnessed a high decrease in local lines at a date similar to the minimum, and later the emergence of specific High Speed lines, explaining this lower final value. Hierarchy of flows have slightly decreased as for gravity, but are extremely high. This means that only flows between larger cities have a significant effect. This way, the model gives indirect information on the processes linked to network effects.
 
 
 
@@ -433,7 +474,9 @@ I\left( M^{(1)}, M^{(2)}\right) = \Delta AIC \left[S^{(1)},S^{(2)}\right]
 %
 
 
-In practice we calibrate the gravity only model and the full model on the full time span, and choose two intermediate solutions giving $M^{(1)}$ at $r_0=0.0133, d_G = 4.02e12, w_G = 1.28e-4, \gamma_G = 3.82$ with $\varepsilon_G=31.2375,\varepsilon_L=302.89$ and the full model $M^{(2)}$ at $r_0=0.0128, d_G = 8.43e14, w_G = 1.230e-4, \gamma_G = 3.81, w_N=0.60, d_N=7.47e14, \gamma_N = 1.15$ with $\varepsilon_G=31.2366,\varepsilon_L=302.93$. It is not clear how the empirical method is sensitive to the type of statistical model used, we use therefore severals for robustness, each time with the corresponding number of parameters (4 for the first and 7 for the second model): a polynomial model of the form $a_0 + \sum_{i>0} a_i X^i$, a mixture of logarithm and polynomial as $a_0 + a_1 \ln X + \sum_{i>1} a_i X^i$ and a generalized polynomial with real power coefficients that are optimized for model fit using a genetic algorithm $a_0 + \sum_{i>0} a_i X^{\alpha_i}$. We fit the statistical models using successive years as different realizations. Results for each are shown in Table~\ref{tab:empiricalaic}. We give the value of $s_k / \varepsilon_k$ and the $\Delta AIC$. We also provide the $\Delta BIC$ to check the robustness regarding the information criterion used. We find a positive value for 5 criteria out of 6, what means that information gain is indeed positive. The gain decreases when statistical model fit improves, and only the BIC for the optimized model fails to show an improvement. The assumption of negligible errors is always verified as the rate is always around 1\%. This approach is of course preliminary and further work should be done for a more systematic testing and more robust justification of the method. It suggests however that fit improvement in the model of simulation are effective, and that the model reveals therefore network effects.
+In practice we calibrate the gravity only model and the full model on the full time span, and choose two intermediate solutions giving $M^{(1)}$ at $r_0=0.0133, d_G = 4.02e12, w_G = 1.28e-4, \gamma_G = 3.82$ with $\varepsilon_G=31.2375,\varepsilon_L=302.89$ and the full model $M^{(2)}$ at $r_0=0.0128, d_G = 8.43e14, w_G = 1.230e-4, \gamma_G = 3.81, w_N=0.60, d_N=7.47e14, \gamma_N = 1.15$ with $\varepsilon_G=31.2366,\varepsilon_L=302.93$. It is not clear how the empirical method is sensitive to the type of statistical model used, we use therefore severals for robustness, each time with the corresponding number of parameters (4 for the first and 7 for the second model): a polynomial model of the form $a_0 + \sum_{i>0} a_i X^i$, a mixture of logarithm and polynomial as $a_0 + a_1 \ln X + \sum_{i>1} a_i X^i$ and a generalized polynomial with real power coefficients that are optimized for model fit using a genetic algorithm $a_0 + \sum_{i>0} a_i X^{\alpha_i}$. We fit the statistical models using successive years as different realizations.
+
+Results for each are shown in Table~\ref{tab:empiricalaic}. We give the value of $s_k / \varepsilon_k$ and the $\Delta AIC$. We also provide the $\Delta BIC$, \added{that correspond to the bayesian criterion differences on statistical models,} to check the robustness regarding the information criterion used. We find a positive value for 5 criteria out of 6, what means that information gain is indeed positive. The gain decreases when statistical model fit improves, and only the BIC for the optimized model fails to show an improvement. The assumption of negligible errors is always verified as the rate is always around 1\%. This approach is of course preliminary and further work should be done for a more systematic testing and more robust justification of the method. It suggests however that fit improvement in the model of simulation are effective, and that the model reveals therefore network effects.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -513,257 +556,8 @@ We have introduced a spatial model of growth for a system of cities at the macro
 %%%%%%%%%%%%%
 %% Biblio
 %%%%%%%%%%%%%
-%\bibliographystyle{SageH}
-%\bibliography{biblio,/Users/Juste/Documents/ComplexSystems/CityNetwork/Biblio/BibTeX/CityNetwork}
-
-
-\begin{thebibliography}{43}
-\providecommand{\natexlab}[1]{#1}
-\providecommand{\url}[1]{\texttt{#1}}
-\providecommand{\urlprefix}{URL }
-\expandafter\ifx\csname urlstyle\endcsname\relax
-  \providecommand{\doi}[1]{DOI:\discretionary{}{}{}#1}\else
-  \providecommand{\doi}{DOI:\discretionary{}{}{}\begingroup
-  \urlstyle{rm}\Url}\fi
-
-\bibitem[{Akaike(1998)}]{akaike1998information}
-Akaike H (1998) Information theory and an extension of the maximum likelihood
-  principle.
-\newblock In: \emph{Selected Papers of Hirotugu Akaike}. Springer, pp.
-  199--213.
-
-\bibitem[{Andersson et~al.(2006)Andersson, Frenken and
-  Hellervik}]{andersson2006complex}
-Andersson C, Frenken K and Hellervik A (2006) A complex network approach to
-  urban growth.
-\newblock \emph{Environment and Planning A} 38(10): 1941.
-
-\bibitem[{Baptiste(1999)}]{baptiste1999interactions}
-Baptiste H (1999) \emph{Interactions entre le syst{\`e}me de transport et les
-  syst{\`e}mes de villes: perspective historique pour une mod{\'e}lisation
-  dynamique spatialis{\'e}e}.
-\newblock PhD Thesis, Centre d'{\'e}tudes sup{\'e}rieures de l'am{\'e}nagement
-  (Tours).
-
-\bibitem[{{Bastani} et~al.(2017){Bastani}, {Kim} and
-  {Bastani}}]{2017arXiv170609773B}
-{Bastani} O, {Kim} C and {Bastani} H (2017) {Interpretability via Model
-  Extraction}.
-\newblock \emph{ArXiv e-prints} .
-
-\bibitem[{Batty and Mackie(1972)}]{batty1972calibration}
-Batty M and Mackie S (1972) The calibration of gravity, entropy, and related
-  models of spatial interaction.
-\newblock \emph{Environment and Planning A} 4(2): 205--233.
-
-\bibitem[{Bedau(2002)}]{bedau2002downward}
-Bedau M (2002) Downward causation and the autonomy of weak emergence.
-\newblock \emph{Principia: an international journal of epistemology} 6(1):
-  5--50.
-
-\bibitem[{Bettencourt et~al.(2008)Bettencourt, Lobo and
-  West}]{bettencourt2008large}
-Bettencourt LM, Lobo J and West GB (2008) Why are large cities faster?
-  universal scaling and self-similarity in urban organization and dynamics.
-\newblock \emph{The European Physical Journal B-Condensed Matter and Complex
-  Systems} 63(3): 285--293.
-
-\bibitem[{Biernacki et~al.(2000)Biernacki, Celeux and
-  Govaert}]{biernacki2000assessing}
-Biernacki C, Celeux G and Govaert G (2000) Assessing a mixture model for
-  clustering with the integrated completed likelihood.
-\newblock \emph{IEEE transactions on pattern analysis and machine intelligence}
-  22(7): 719--725.
-
-\bibitem[{Bigotte et~al.(2010)Bigotte, Krass, Antunes and
-  Berman}]{bigotte2010integrated}
-Bigotte JF, Krass D, Antunes AP and Berman O (2010) Integrated modeling of
-  urban hierarchy and transportation network planning.
-\newblock \emph{Transportation Research Part A: Policy and Practice} 44(7):
-  506--522.
-
-\bibitem[{Bretagnolle(2009)}]{bretagnolle:tel-00459720}
-Bretagnolle A (2009) \emph{{Villes et r{\'e}seaux de transport : des
-  interactions dans la longue dur{\'e}e, France, Europe, {\'E}tats-Unis}}.
-\newblock Hdr, Universit{\'e} Panth{\'e}on-Sorbonne - Paris I.
-\newblock \urlprefix\url{http://tel.archives-ouvertes.fr/tel-00459720}.
-
-\bibitem[{Bretagnolle et~al.(2000)Bretagnolle, Mathian, Pumain and
-  Rozenblat}]{bretagnolle2000long}
-Bretagnolle A, Mathian H, Pumain D and Rozenblat C (2000) Long-term dynamics of
-  european towns and cities: towards a spatial model of urban growth.
-\newblock \emph{Cybergeo: European Journal of Geography} .
-
-\bibitem[{Bretagnolle and Pumain(2010)}]{bretagnolle2010comparer}
-Bretagnolle A and Pumain D (2010) Comparer deux types de syst{\`e}mes de villes
-  par la mod{\'e}lisation multi-agents.
-\newblock \emph{Qu'appelle t-on aujourd'hui les sciences de la complexit{\'e}?
-  Langages, r{\'e}seaux, march{\'e}s, territoires} : 271--299.
-
-\bibitem[{Chang(2006)}]{chang2006models}
-Chang JS (2006) Models of the relationship between transport and land-use: A
-  review.
-\newblock \emph{Transport Reviews} 26(3): 325--350.
-
-\bibitem[{Cottineau(2014)}]{cottineau2014evolution}
-Cottineau C (2014) \emph{L'{\'e}volution des villes dans l'espace
-  post-sovi{\'e}tique. Observation et mod{\'e}lisations.}
-\newblock PhD Thesis, Universit{\'e} Paris 1 Panth{\'e}on-Sorbonne.
-
-\bibitem[{Dietterich(1995)}]{dietterich1995overfitting}
-Dietterich T (1995) Overfitting and undercomputing in machine learning.
-\newblock \emph{ACM computing surveys (CSUR)} 27(3): 326--327.
-
-\bibitem[{Favaro and Pumain(2011)}]{favaro2011gibrat}
-Favaro JM and Pumain D (2011) Gibrat revisited: An urban growth model
-  incorporating spatial interaction and innovation cycles.
-\newblock \emph{Geographical Analysis} 43(3): 261--286.
-
-\bibitem[{Gabaix(1999)}]{gabaix1999zipf}
-Gabaix X (1999) Zipf's law for cities: an explanation.
-\newblock \emph{Quarterly journal of Economics} : 739--767.
-
-\bibitem[{Glaeser(2011)}]{glaeser2011triumph}
-Glaeser E (2011) \emph{Triumph of the city: How our greatest invention makes us
-  richer, smarter, greener, healthier, and happier}.
-\newblock Penguin.
-
-\bibitem[{Gu{\'e}rin-Pace and Pumain(1990)}]{guerin1990150}
-Gu{\'e}rin-Pace F and Pumain D (1990) 150 ans de croissance urbaine.
-\newblock \emph{Economie et statistique} 230(1): 5--16.
-
-\bibitem[{Krugman(1998)}]{krugman1998space}
-Krugman P (1998) Space: the final frontier.
-\newblock \emph{The Journal of Economic Perspectives} 12(2): 161--174.
-
-\bibitem[{Mantegna and Stanley(1999)}]{mantegna1999introduction}
-Mantegna RN and Stanley HE (1999) \emph{Introduction to econophysics:
-  correlations and complexity in finance}.
-\newblock Cambridge university press.
-
-\bibitem[{Masucci et~al.(2013)Masucci, Serras, Johansson and
-  Batty}]{masucci2013gravity}
-Masucci AP, Serras J, Johansson A and Batty M (2013) Gravity versus radiation
-  models: On the importance of scale and heterogeneity in commuting flows.
-\newblock \emph{Physical Review E} 88(2): 022812.
-
-\bibitem[{Nitsch(2005)}]{nitsch2005zipf}
-Nitsch V (2005) Zipf zipped.
-\newblock \emph{Journal of Urban Economics} 57(1): 86--100.
-
-\bibitem[{{Pohle} et~al.(2017){Pohle}, {Langrock}, {van Beest} and
-  {Schmidt}}]{2017arXiv170108673P}
-{Pohle} J, {Langrock} R, {van Beest} F and {Schmidt} NM (2017) {Selecting the
-  Number of States in Hidden Markov Models - Pitfalls, Practical Challenges and
-  Pragmatic Solutions}.
-\newblock \emph{ArXiv e-prints} .
-
-\bibitem[{Pumain(1997)}]{pumain1997pour}
-Pumain D (1997) Pour une th{\'e}orie {\'e}volutive des villes.
-\newblock \emph{Espace g{\'e}ographique} 26(2): 119--134.
-
-\bibitem[{Pumain(2012{\natexlab{a}})}]{pumain2012multi}
-Pumain D (2012{\natexlab{a}}) Multi-agent system modelling for urban systems:
-  The series of simpop models.
-\newblock In: \emph{Agent-based models of geographical systems}. Springer, pp.
-  721--738.
-
-\bibitem[{Pumain(2012{\natexlab{b}})}]{pumain2012urban}
-Pumain D (2012{\natexlab{b}}) Urban systems dynamics, urban growth and scaling
-  laws: The question of ergodicity.
-\newblock In: \emph{Complexity Theories of Cities Have Come of Age}. Springer,
-  pp. 91--103.
-
-\bibitem[{Pumain et~al.(2009)Pumain, Paulus and
-  Vacchiani-Marcuzzo}]{pumain2009innovation}
-Pumain D, Paulus F and Vacchiani-Marcuzzo C (2009) Innovation cycles and urban
-  dynamics.
-\newblock \emph{Complexity perspectives in innovation and social change} :
-  237--260.
-
-\bibitem[{Pumain et~al.(2006)Pumain, Paulus, Vacchiani-Marcuzzo and
-  Lobo}]{pumain2006evolutionary}
-Pumain D, Paulus F, Vacchiani-Marcuzzo C and Lobo J (2006) An evolutionary
-  theory for interpreting urban scaling laws.
-\newblock \emph{Cybergeo: European Journal of Geography} .
-
-\bibitem[{Pumain and Reuillon(2017)}]{pumain2017simpoplocal}
-Pumain D and Reuillon R (2017) The simpoplocal model.
-\newblock In: \emph{Urban Dynamics and Simulation Models}. Springer, pp.
-  21--35.
-
-\bibitem[{Pumain and Riandey(1986)}]{pumain1986fichier}
-Pumain D and Riandey B (1986) Le fichier de l'ined.
-\newblock \emph{Espace, populations, soci{\'e}t{\'e}s} 4(2): 269--277.
-
-\bibitem[{Pumain and Sanders(2013)}]{pumain2013theoretical}
-Pumain D and Sanders L (2013) Theoretical principles in interurban simulation
-  models: a comparison.
-\newblock \emph{Environment and Planning A} 45(9): 2243--2260.
-
-\bibitem[{Raimbault(2016)}]{raimbault2016models}
-Raimbault J (2016) Models coupling urban growth and transportation network
-  growth: An algorithmic systematic review approach.
-\newblock \emph{arXiv preprint arXiv:1605.08888} .
-
-\bibitem[{Reuillon et~al.(2013)Reuillon, Leclaire and
-  Rey-Coyrehourcq}]{reuillon2013openmole}
-Reuillon R, Leclaire M and Rey-Coyrehourcq S (2013) Openmole, a workflow engine
-  specifically tailored for the distributed exploration of simulation models.
-\newblock \emph{Future Generation Computer Systems} 29(8): 1981--1990.
-
-\bibitem[{Rozenfeld et~al.(2008)Rozenfeld, Rybski, Andrade, Batty, Stanley and
-  Makse}]{rozenfeld2008laws}
-Rozenfeld HD, Rybski D, Andrade JS, Batty M, Stanley HE and Makse HA (2008)
-  Laws of population growth.
-\newblock \emph{Proceedings of the National Academy of Sciences} 105(48):
-  18702--18707.
-
-\bibitem[{Sanders(1992)}]{sanders1992systeme}
-Sanders L (1992) \emph{Syst{\`e}me de villes et synerg{\'e}tique}.
-\newblock Economica.
-
-\bibitem[{Sanders et~al.(1997)Sanders, Pumain, Mathian, Gu{\'e}rin-Pace and
-  Bura}]{sanders1997simpop}
-Sanders L, Pumain D, Mathian H, Gu{\'e}rin-Pace F and Bura S (1997) Simpop: a
-  multiagent system for the study of urbanism.
-\newblock \emph{Environment and Planning B} 24: 287--306.
-
-\bibitem[{Schmitt(2014)}]{schmitt2014modelisation}
-Schmitt C (2014) \emph{Mod{\'e}lisation de la dynamique des syst{\`e}mes de
-  peuplement: de SimpopLocal {\`a} SimpopNet.}
-\newblock PhD Thesis, Paris 1.
-
-\bibitem[{Schmitt et~al.(2014)Schmitt, Rey-Coyrehourcq, Reuillon and
-  Pumain}]{schmitt2014half}
-Schmitt C, Rey-Coyrehourcq S, Reuillon R and Pumain D (2014) Half a billion
-  simulations: Evolutionary algorithms and distributed computing for
-  calibrating the simpoplocal geographical model .
-
-\bibitem[{Storper and Scott(2009)}]{storper2009rethinking}
-Storper M and Scott AJ (2009) Rethinking human capital, creativity and urban
-  growth.
-\newblock \emph{Journal of economic geography} 9(2): 147--167.
-
-\bibitem[{Taylor(2016)}]{taylor2016polymath}
-Taylor PJ (2016) A polymath in city studies.
-\newblock In: \emph{Sir Peter Hall: Pioneer in Regional Planning, Transport and
-  Urban Geography}. Springer, pp. 11--20.
-
-\bibitem[{Th{\'e}venin et~al.(2013)Th{\'e}venin, Schwartz and
-  Sapet}]{thevenin2013mapping}
-Th{\'e}venin T, Schwartz R and Sapet L (2013) Mapping the distortions in time
-  and space: The french railway network 1830--1930.
-\newblock \emph{Historical Methods: A Journal of Quantitative and
-  Interdisciplinary History} 46(3): 134--143.
-
-\bibitem[{Xie and Levinson(2009)}]{xie2009modeling}
-Xie F and Levinson D (2009) Modeling the growth of transportation networks: A
-  comprehensive review.
-\newblock \emph{Networks and Spatial Economics} 9(3): 291--307.
-
-\end{thebibliography}
-
+\bibliographystyle{SageH}
+\bibliography{biblio,/Users/Juste/Documents/ComplexSystems/CityNetwork/Biblio/BibTeX/CityNetwork}
 
 
 
