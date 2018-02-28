@@ -174,6 +174,23 @@
 \usepackage{ragged2e}
 
 
+% changes
+
+\usepackage{soul}
+\soulregister\cite7
+\soulregister\citep7
+\soulregister\ref7
+
+%\usepackage[final]{changes}
+\usepackage{changes}
+
+
+\setaddedmarkup{\textcolor{black}{\hl{#1}}}
+\setdeletedmarkup{\textcolor{red}{\sout{#1}}}
+
+
+
+
 
 
 \begin{document}
@@ -250,7 +267,11 @@ At smaller scales, that can be understood as microscopic or mesoscopic depending
 
 Closely related to CA models but not exactly similar are Urban Morphogenesis models, which aim to simulate the growth of urban form from autonomous rules. \cite{frankhauser1998fractal} suggested that the fractal nature of cities is closely to the emergence of the form from the microscopic socio-economic interactions, namely urban morphogenesis. \cite{courtat2011mathematics} develops a morphogenesis model for urban roads alone, with growth rules based on geometrical considerations. These are shown sufficient to produce a broad range of patterns analog to existing ones. Similarly, \cite{raimbault2014hybrid} couples a CA with an evolving network to reproduce stylized urban form, from concentrated monocentric cities to sprawled suburbs. The Diffusion-Limited-Aggregation model, coming from physics, and which was first studied for cities by~\cite{batty1991generating}, can also be seen as a morphogenesis model. These kind of models, that sometimes can be classified as CA, have generally the particularity of being parsimonious in their structure.
 
-\change{\cite{bosch1990velocity}}
+\added{\cite{bosch1990velocity}}
+
+\added{\cite{sakieh2016treating}}
+
+\added{\cite{dietzel2005diffusion}}
 
 We study in this paper a morphogenesis model, at the mesoscopic scale, aimed at being simplistic in its rules and variables, but trying to be accurate in the reproduction of existing patterns. The underlying question is to explore the performance of simple mechanisms in reproducing complex urban patterns. We consider abstract processes, namely aggregation and diffusion, candidates as partially explanatory drivers of urban growth, based on population only, that will be detailed in model rationale below. An important aspect we introduce is the quantitative measure of urban form, based on a combination of morphological indicators, to quantify and compare model outputs and real urban patterns. Our contribution is significant on several points: (i) we compute local morphological characteristics on a large spatial extent (full European Union); (ii) we give significant insights into model behavior through extensive exploration of the parameter space; (iii) we show through calibration that the model is able to reproduce most of existing urban forms across Europe, and that these abstract processes are sufficient to explain urban form alone.
 
@@ -273,7 +294,9 @@ The rest of this paper is organized as follows: we first describe formally the m
 \paragraph*{Rationale}
 
 
-Our model is based on widely accepted ideas of diffusion-aggregation processes for Urban Processes. The combination of attraction forces with repulsion, due for example to congestion, already yield a complex outcome that has been shown under some simplifying assumptions to be representative of urban growth processes. A model capturing these processes was introduced by~\cite{batty2006hierarchy}, as a cell-based variation of the DLA model~\cite{batty1991generating}. Indeed, the tension between antagonist aggregation and sprawl mechanisms may be an important process in urban morphogenesis. For example \cite{fujita1996economics} opposes centrifugal forces with centripetal forces in the equilibrium view of urban spatial systems, what is easily transferable to non-equilibrium systems in the framework of self-organized complexity: a urban structure is a far-from-equilibrium system that has been driven to this point by these opposite forces. The two contradictory processes of urban concentration and urban sprawl are captured by the model, what allows to reproduce with a good precision a large number of existing morphologies. We can expect aggregation mechanisms such as preferential attachment to be good candidates in urban growth explanation, as it was shown that the Simon model based on them generates power-laws typical of urban systems (scaling laws for example)~\cite{2016arXiv160806313S}. The question at which scale is it possible and relevant to define and try to simulate urban form is rather open, and will in fact depend on which issues are being tackled. Working in a typical setting of morphogenesis, the processes considered are local and our model must have a resolution at the micro-level. We however want to quantify urban form on consistent urban entities, and will work therefore on spatial extents of order 50~100km. We sum up these two aspects by stating that the model is at the \emph{mesoscopic scale}.
+Our model is based on widely accepted ideas of diffusion-aggregation processes for urban processes. The combination of attraction forces with repulsion, due for example to congestion, already yield a complex outcome that has been shown under some simplifying assumptions to be representative of urban growth processes. A model capturing these processes was introduced by~\cite{batty2006hierarchy}, as a cell-based variation of the DLA model~\cite{batty1991generating}. Indeed, the tension between antagonist aggregation and sprawl mechanisms may be an important process in urban morphogenesis. For example \cite{fujita1996economics} opposes centrifugal forces with centripetal forces in the equilibrium view of urban spatial systems, what is easily transferable to non-equilibrium systems in the framework of self-organized complexity: a urban structure is a far-from-equilibrium system that has been driven to this point by these opposite forces.
+
+The two contradictory processes of urban concentration and urban sprawl are captured by the model, what allows to reproduce with a good precision a large number of existing morphologies. We can expect aggregation mechanisms such as preferential attachment to be good candidates in urban growth explanation, as it was shown that the Simon model based on them generates power-laws typical of urban systems (scaling laws for example)~\cite{2016arXiv160806313S}. The question at which scale \added{it is} possible and relevant to define and try to simulate urban form is rather open, and will in fact depend on which issues are being tackled. Working in a typical setting of morphogenesis, the processes considered are local and our model must have a resolution at the micro-level. We however want to quantify urban form on consistent urban entities, and will work therefore on spatial extents of order 50~100km. We sum up these two aspects by stating that the model is at the \emph{mesoscopic scale}.
 
 
 \paragraph*{Formalization}
@@ -327,16 +350,16 @@ We give now the formal definition of morphological indicators. Let write $M=N^2$
 \begin{equation}
 \mathcal{E} = \sum_{i=1}^{M}\frac{P_i}{P}\cdot \ln{\frac{P_i}{P}}
 \end{equation}
-$\mathcal{E}=0$ means that all the population is in one cell whereas $\mathcal{E}=0$ means that the population is uniformly distributed.
+$\mathcal{E}=0$ means that all the population is in one cell whereas $\mathcal{E}=1$ means that the population is uniformly distributed.
 \item Spatial-autocorrelation given by Moran index, with simple spatial weights given by $w_{ij} = 1/d_{ij}$
-\[
+\begin{equation}
 I = \frac{\sum_{i\neq j} w_{ij} \left(P_i - \bar{P}\right)\cdot\left(P_j - \bar{P}\right)}{\sum_{i\neq j} w_{ij} \sum_{i}{\left( P_i - \bar{P}\right)}^2}
-\]
+\end{equation}
 Positive values will imply aggregation spots (``density centers''), negative values strong local variations whereas $I=0$ corresponds to totally random population values.
 \item Mean distance between individuals, which captures population concentration
-\[
+\begin{equation}
 \bar{d} = \frac{1}{d_M}\cdot \sum_{i<j} \frac{P_i P_j}{P^2} \cdot d_{ij}
-\]
+\end{equation}
 where $d_M$ is a normalisation constant taken as the diagonal of the world in our case.
 \end{enumerate}
 
@@ -380,7 +403,7 @@ We compute the morphological measures given above on real urban density data, us
 \paragraph{Implementation}
 
 
-The model is implemented both in NetLogo~\cite{wilensky1999netlogo} for exploration and visualization purposes, and in \texttt{Scala} for performance reasons and easy integration into OpenMole~\cite{reuillon2013openmole}, which allows a transparent access to High Performance Computing environments. Computation of indicator values on geographical data is done in \texttt{R} using the \texttt{raster} package~\cite{hijmans2015geographic}. Source code and results are available on the open repository of the project at \texttt{https://github.com/JusteRaimbault/Density}. Raw datasets for real indicator values and simulation results are available on Dataverse at \texttt{http://dx.doi.org/10.7910/DVN/WSUSBA}.
+The model is implemented both in NetLogo~\cite{wilensky1999netlogo} for exploration and visualization purposes, and in \texttt{Scala} for performance reasons and easy integration into OpenMole~\cite{reuillon2013openmole}, which allows a transparent access to High Performance Computing environments. Computation of indicator values on geographical data is done in \texttt{R} using the \texttt{raster} package~\cite{hijmans2015geographic}. Source code and results are available on the open repository of the project at \url{https://github.com/JusteRaimbault/Density}. Raw datasets for real indicator values and simulation results are available on Dataverse at \url{http://dx.doi.org/10.7910/DVN/WSUSBA}.
 
 
 \paragraph{Generated Shapes}
@@ -525,7 +548,7 @@ We finally turn to the the calibration of the model, that is done on the morphol
 
 \paragraph{Calibration and model refinement}
 
-Further work on this simple model may consist in extracting the exact parameter space covering all real situations and provide interpretation of its shape, in particular through correlations between parameters and expressions of boundaries functions. Its volume in different directions should furthermore give the relative importance of parameters. Concerning the feasible space for the model of simulation itself, we tested a targeted exploration algorithm, giving promising results. More precisely, the Parameter Space Exploration (PSE) algorithm~\cite{10.1371/journal.pone.0138212} which is implemented in OpenMole, is aimed at determining all the possible outputs of a simulation models, i.e. samples its output space rather than input space. We obtain promising results as shown in Fig.~\ref{fig:fig6}: we find that the lower bound in Moran-entropy plan, confirmed by the algorithm, unexpectedly exhibit a scaling relationship. It would mean that at a given level of auto-correlation, that one could want to attain for sustainability reasons for example (optimality through co-location), imposes a minimal disorder in the configuration of activities. Other relations between indicators and as a function of parameters can be the object of similar future developments. The question of doing a dynamical calibration of the model, i.e. trying to reproduce configurations at successive times, is conditioned to the availability of population data at this resolution in time.
+Further work on this simple model may consist in extracting the exact parameter space covering all real situations and provide interpretation of its shape, in particular through correlations between parameters and expressions of boundaries functions. Its volume in different directions should furthermore give the relative importance of parameters. Concerning the feasible space for the model of simulation itself, we tested a targeted exploration algorithm, giving promising results. More precisely, the \replaced{Pattern}{Parameter} Space Exploration (PSE) algorithm~\cite{10.1371/journal.pone.0138212} which is implemented in OpenMole, is aimed at determining all the possible outputs of a simulation models, i.e. samples its output space rather than input space. We obtain promising results as shown in Fig.~\ref{fig:fig6}: we find that the lower bound in Moran-entropy plan, confirmed by the algorithm, unexpectedly exhibit a scaling relationship. It would mean that at a given level of auto-correlation, that one could want to attain for sustainability reasons for example (optimality through co-location), imposes a minimal disorder in the configuration of activities. Other relations between indicators and as a function of parameters can be the object of similar future developments. The question of doing a dynamical calibration of the model, i.e. trying to reproduce configurations at successive times, is conditioned to the availability of population data at this resolution in time.
 
 % application of Calibration Profile algo to check relative influence of parameters ? out of context not interesting
 
@@ -552,7 +575,7 @@ The question of the generic character of the model is also open: would it work a
 \section*{Conclusion}
 
 
-In conclusion, we have provided a calibrated spatial urban morphogenesis model at the mesoscopic scale that can reproduce any European urban pattern in terms of morphology. We demonstrate that the abstract processes of aggregation and diffusion are sufficient to capture urban growth processes at this scale. It is meaningful in terms of policies based on urban form such as energy efficiency, but also means that issues out of this scope must be tackled at other scales or through other dimensions of urban systems.
+In conclusion, we have provided a calibrated spatial urban morphogenesis model at the mesoscopic scale that can reproduce \added{a consequent proportion of} European urban pattern\added{s} in terms of morphology. We demonstrate that the abstract processes of aggregation and diffusion are sufficient to capture urban growth processes at this scale. It is meaningful in terms of policies based on urban form such as energy efficiency, but also means that issues out of this scope must be tackled at other scales or through other dimensions of urban systems.
 
 
 
@@ -571,17 +594,17 @@ In conclusion, we have provided a calibrated spatial urban morphogenesis model a
 \label{S2_Text}
 {\bf Semi-analytical Analysis.} Analytical and numerical developments for the simplified model.
 
-
+\subsection*{S3 Text}
+\label{S3_Text}
+{\bf \added{Real indicators sensitivity.}} \added{Sensitivity analysis of real indicators values to window size.}
 
 %\subsection*{S2 Text}
 %\label{S2_Text}
 %{\bf Extended empirical study of morphological indicators.} Contains maps of indicators for all Europe, statistical distributions of indicators, and some sensitivity analysis to grid size and typology parameters.
 
-
 %%%%%%%%
 % Potential supplementary material :
-%  - sensitivity to neighborhood
-%  - sensitivity of real values to window size
+%  - sensitivity to neighborhood shape
 
 
 
@@ -607,237 +630,8 @@ In conclusion, we have provided a calibrated spatial urban morphogenesis model a
 % 
 
 
-%\bibliographystyle{plos2015}
-%\bibliography{/Users/Juste/Documents/ComplexSystems/CityNetwork/Biblio/Bibtex/CityNetwork,biblio}
-
-
-
-
-\begin{thebibliography}{10}
-
-\bibitem{seto2012global}
-Seto KC, G{\"u}neralp B, Hutyra LR.
-\newblock Global forecasts of urban expansion to 2030 and direct impacts on
-  biodiversity and carbon pools.
-\newblock Proceedings of the National Academy of Sciences.
-  2012;109(40):16083--16088.
-
-\bibitem{batty2013new}
-Batty M.
-\newblock The new science of cities.
-\newblock Mit Press; 2013.
-
-\bibitem{gabaix1999zipf}
-Gabaix X.
-\newblock Zipf's law for cities: an explanation.
-\newblock Quarterly journal of Economics. 1999;p. 739--767.
-
-\bibitem{rozenfeld2008laws}
-Rozenfeld HD, Rybski D, Andrade JS, Batty M, Stanley HE, Makse HA.
-\newblock Laws of population growth.
-\newblock Proceedings of the National Academy of Sciences.
-  2008;105(48):18702--18707.
-
-\bibitem{bretagnolle2000long}
-Bretagnolle A, Mathian H, Pumain D, Rozenblat C.
-\newblock Long-term dynamics of European towns and cities: towards a spatial
-  model of urban growth.
-\newblock Cybergeo: European Journal of Geography. 2000;.
-
-\bibitem{favaro2011gibrat}
-Favaro JM, Pumain D.
-\newblock Gibrat Revisited: An Urban Growth Model Incorporating Spatial
-  Interaction and Innovation Cycles.
-\newblock Geographical Analysis. 2011;43(3):261--286.
-
-\bibitem{cottineau2014evolution}
-Cottineau C.
-\newblock L'{\'e}volution des villes dans l'espace post-sovi{\'e}tique.
-  Observation et mod{\'e}lisations.
-\newblock Universit{\'e} Paris 1 Panth{\'e}on-Sorbonne; 2014.
-
-\bibitem{andersson2002urban}
-Andersson C, Lindgren K, Rasmussen S, White R.
-\newblock Urban growth simulation from ``first principles''.
-\newblock Physical Review E. 2002;66(2):026204.
-
-\bibitem{makse1998modeling}
-Makse HA, Andrade JS, Batty M, Havlin S, Stanley HE, et~al.
-\newblock Modeling urban growth patterns with correlated percolation.
-\newblock Physical Review E. 1998;58(6):7054.
-
-\bibitem{makse1995modelling}
-Makse HA, Havlin S, Stanley H.
-\newblock Modelling urban growth.
-\newblock Nature. 1995;377(1912):779--782.
-
-\bibitem{batty1994cells}
-Batty M, Xie Y.
-\newblock From cells to cities.
-\newblock Environment and planning B: Planning and design. 1994;21(7):S31--S48.
-
-\bibitem{GEAN:GEAN940}
-Xie Y.
-\newblock A Generalized Model for Cellular Urban Dynamics.
-\newblock Geographical Analysis. 1996;28(4):350--373.
-\newblock Available from:
-  \url{http://dx.doi.org/10.1111/j.1538-4632.1996.tb00940.x}.
-
-\bibitem{ward2000stochastically}
-Ward DP, Murray AT, Phinn SR.
-\newblock A stochastically constrained cellular model of urban growth.
-\newblock Computers, Environment and Urban Systems. 2000;24(6):539--558.
-
-\bibitem{clarke1998loose}
-Clarke KC, Gaydos LJ.
-\newblock Loose-coupling a cellular automaton model and GIS: long-term urban
-  growth prediction for San Francisco and Washington/Baltimore.
-\newblock International journal of geographical information science.
-  1998;12(7):699--714.
-
-\bibitem{clarke2007decade}
-Clarke KC, Gazulis N, Dietzel C, Goldstein NC.
-\newblock A decade of SLEUTHing: Lessons learned from applications of a
-  cellular automaton land use change model.
-\newblock Classics in IJGIS: twenty years of the international journal of
-  geographical information science and systems. 2007;p. 413--427.
-
-\bibitem{frankhauser1998fractal}
-Frankhauser P.
-\newblock Fractal geometry of urban patterns and their morphogenesis.
-\newblock Discrete Dynamics in Nature and Society. 1998;2(2):127--145.
-
-\bibitem{courtat2011mathematics}
-Courtat T, Gloaguen C, Douady S.
-\newblock Mathematics and morphogenesis of cities: A geometrical approach.
-\newblock Physical Review E. 2011;83(3):036106.
-
-\bibitem{raimbault2014hybrid}
-Raimbault J, Banos A, Doursat R.
-\newblock A hybrid network/grid model of urban morphogenesis and optimization.
-\newblock In: Proceedings of the 4th International Conference on Complex
-  Systems and Applications (ICCSA 2014), June 23-26, 2014, Universit{\'e} de
-  Normandie, Le Havre, France; M. A. Aziz-Alaoui, C. Bertelle, X. Z. Liu, D.
-  Olivier, eds.: pp. 51-60.; 2014. .
-
-\bibitem{batty1991generating}
-Batty M.
-\newblock Generating urban forms from diffusive growth.
-\newblock Environment and Planning A. 1991;23(4):511--544.
-
-\bibitem{batty2006hierarchy}
-Batty M.
-\newblock Hierarchy in cities and city systems.
-\newblock In: Hierarchy in natural and social sciences. Springer; 2006. p.
-  143--168.
-
-\bibitem{fujita1996economics}
-Fujita M, Thisse JF.
-\newblock Economics of agglomeration.
-\newblock Journal of the Japanese and international economies.
-  1996;10(4):339--378.
-
-\bibitem{2016arXiv160806313S}
-{Sheridan Dodds} P, {Rushing Dewhurst} D, {Hazlehurst} FF, {Van Oort} CM,
-  {Mitchell} L, {Reagan} AJ, et~al.
-\newblock {Simon's fundamental rich-gets-richer model entails a dominant
-  first-mover advantage}.
-\newblock ArXiv e-prints. 2016 Aug;.
-
-\bibitem{guerois2008built}
-Gu{\'e}rois M, Pumain D.
-\newblock Built-up encroachment and the urban field: a comparison of forty
-  European cities.
-\newblock Environment and Planning A. 2008;40(9):2186--2203.
-
-\bibitem{2016arXiv160808839C}
-{Chen} Y.
-\newblock {Normalizing and Classifying Shape Indexes of Cities by Ideas from
-  Fractals}.
-\newblock ArXiv e-prints. 2016 Aug;.
-
-\bibitem{tsai2005quantifying}
-Tsai YH.
-\newblock Quantifying urban form: compactness versus' sprawl'.
-\newblock Urban studies. 2005;42(1):141--161.
-
-\bibitem{Schwarz201029}
-Schwarz N.
-\newblock Urban form revisited---Selecting indicators for characterising
-  European cities.
-\newblock Landscape and Urban Planning. 2010;96(1):29 -- 47.
-\newblock Available from:
-  \url{http://www.sciencedirect.com/science/article/pii/S0169204610000320}.
-
-\bibitem{le2015forme}
-Le~N{\'e}chet F.
-\newblock De la forme urbaine {\`a} la structure m{\'e}tropolitaine: une
-  typologie de la configuration interne des densit{\'e}s pour les principales
-  m{\'e}tropoles europ{\'e}ennes de l'Audit Urbain.
-\newblock Cybergeo: European Journal of Geography. 2015;.
-
-\bibitem{eurostat}
-EUROSTAT. Eurostat Geographical Data; 2014.
-\newblock Available from:
-  \url{http://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units}.
-
-\bibitem{wilensky1999netlogo}
-Wilensky U.
-\newblock NetLogo. 1999;.
-
-\bibitem{reuillon2013openmole}
-Reuillon R, Leclaire M, Rey-Coyrehourcq S.
-\newblock OpenMOLE, a workflow engine specifically tailored for the distributed
-  exploration of simulation models.
-\newblock Future Generation Computer Systems. 2013;29(8):1981--1990.
-
-\bibitem{hijmans2015geographic}
-Hijmans RJ.
-\newblock Geographic data analysis and modeling. 2015;.
-
-\bibitem{banos2013pour}
-Banos A.
-\newblock Pour des pratiques de mod{\'e}lisation et de simulation
-  lib{\'e}r{\'e}es en G{\'e}ographies et SHS.
-\newblock HDR Universit{\'e} Paris. 2013;1.
-
-\bibitem{arthur2015complexity}
-Arthur WB. Complexity and the Shift in Modern Science; 2015.
-\newblock Conference on Complex Systems, Tempe, Arizona.
-
-\bibitem{turing1952chemical}
-Turing AM.
-\newblock The chemical basis of morphogenesis.
-\newblock Philosophical Transactions of the Royal Society of London B:
-  Biological Sciences. 1952;237(641):37--72.
-
-\bibitem{tadmor2012review}
-Tadmor E.
-\newblock A review of numerical methods for nonlinear partial differential
-  equations.
-\newblock Bulletin of the American Mathematical Society. 2012;49(4):507--554.
-
-\bibitem{pumain2006evolutionary}
-Pumain D, Paulus F, Vacchiani-Marcuzzo C, Lobo J.
-\newblock An evolutionary theory for interpreting urban scaling laws.
-\newblock Cybergeo: European Journal of Geography. 2006;.
-
-\bibitem{10.1371/journal.pone.0138212}
-Ch{\'e}rel G, Cottineau C, Reuillon R.
-\newblock Beyond Corroboration: Strengthening Model Validation by Looking for
-  Unexpected Patterns.
-\newblock PLoS ONE. 2015 09;10(9):e0138212.
-\newblock Available from:
-  \url{http://dx.doi.org/10.1371%2Fjournal.pone.0138212}.
-
-\bibitem{zhang2013identifying}
-Zhang Z, Su S, Xiao R, Jiang D, Wu J.
-\newblock Identifying determinants of urban growth from a multi-scale
-  perspective: A case study of the urban agglomeration around Hangzhou Bay,
-  China.
-\newblock Applied Geography. 2013;45:193--202.
-
-\end{thebibliography}
+\bibliographystyle{plos2015}
+\bibliography{/Users/juste/ComplexSystems/CityNetwork/Biblio/Bibtex/CityNetwork,biblio}
 
 
 
