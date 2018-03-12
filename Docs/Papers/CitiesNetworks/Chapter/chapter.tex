@@ -1,0 +1,172 @@
+\input{header.tex}
+
+
+\title{Models for the Co-evolution of Cities and Networks}
+\author{\noun{Juste Raimbault}$^{1,2}$\\
+$^1$ UPS CNRS 3611 ISC-PIF\\
+$^2$ UMR CNRS 8504 G{\'e}ographie-cit{\'e}s
+}
+\date{}
+
+% current adress vs where the work was realized ?
+
+\maketitle
+
+\justify
+
+
+\textbf{Keywords : }\textit{Urban System; Co-evolution; Transportation Network}
+
+\medskip
+
+
+%The complexity of interactions between Networks and Territories has been widely acknowledged empirically, in particular through the existence of circular causal relations in their co-development. A relevant framework to understand this phenomenon is to view it as a \emph{co-evolution}, that we use for territorial systems within Pumain's Evolutive Urban Theory that understands urban systems as complex adaptive systems. Considering modeling as a primary source of indirect knowledge on processes and dynamics, we investigate models endogeneizing this co-evolution, in the particular case of cities and transportation networks. We first proceed to an extended systematic review, based on scientific disciplines mapping through citation network and semantic analysis, in order to shed a light on the existing modeling approaches that span in very diverse disciplines, from planning and urban geography to economics and physics, each having different research questions, ontologies and scales. This systematic review, when consolidated with models purpose, application case, scales and ontologies for objects and processes, yields a modelography including for example land-use Transport Interaction Models, Network growth models or Urban Systems models. This first stage lead us to identify two typical scales at which co-evolution models are relevant, with associated paradigms: the mesoscopic scale in an approach of Urban Morphogenesis, and the macroscopic scale in the context of Evolutive Urban Theory.
+
+%The mesoscopic model we develop has a fine resolution (under 1km) and intermediate spatial extent (50$\sim$100km). Given a fixed exogenous growth rate, population are dispatched following a preferential attachment that depends on a potential controlled by local urban form (density, distance to network) and network measures (centralities and generalized accessibilities), and then diffused in space to capture urban sprawl. Network growth is included through a multi-modeling paradigm: implemented heuristics include biological network generation and gravity potential breakdown. The model is calibrated on measures for Urban Form and network topology, computed on windows spanning full European Union and China, given population density data and OpenStreetMap road network. The calibration is static in the sense that fit is done on final configurations only, but is done at the first (measures) and second (correlations) order, the later capturing indirectly relations between the network and the urban frame. The model is able to reproduce most of existing configurations. The study of lagged correlations within synthetic model runs furthermore unveils a large variety of causality regimes, confirming the ability of the model to grasp the complexity of situations existing empirically.
+
+%At the macroscopic scale, growth rates are endogenous and interactions between cities are their main driver. As a deterministic extension of the Gibrat model, our model considers gravity-based flows within the network to determine growth rates. These have an effect at the first order (direct interaction) but also at the second order (effect of cumulated flows on traversed cities) what allows to capture centrality effects. Network growth follows a demand-induced thresholded growth scheme, that can occur at the global level or locally. The exploration of the model on synthetic city systems unveils patterns of complexity compared to a basic interaction model without co-evolution. We apply the model on the French city system, with population data spanning 1831-1999. We compare behaviors with different network data, namely dynamical railway network (1850-2000) and dynamical highway network (1950-2000). Proceeding to locally stationary in time calibrations, we find that cities population prediction are always more accurate than a static model, even when controlling on additional number of parameters with a specifically designed empirical AIC criterion. Concerning accuracy of generated network, the model is more performant with the highway network, probably because of the multiple regimes that existed in railway history.
+
+%These complementary modeling efforts pave the way for future research towards operational models, with applications in local and territorial planning by helping to design policies integrating transportation and urban development in a dynamical and strongly coupled way.
+
+
+
+
+
+
+%\begin{abstract}
+
+%\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section{Specification of co-evolution models}
+
+This section extends the logic of integrating a system of cities with a transportation network, which has been pursued in a static way for network behavior in the interaction model developed and explored in section~\ref{sec:interactiongibrat}, to propose a \emph{macroscopic model of co-evolution for systems of cities}.
+
+
+\subsection{Rationale}
+
+This first approach relies in a direct extension of the interaction model within a system of cities described in chapter~\ref{ch:evolutiveurban}, at a macroscopic scale with an ontology typical to systems of cities. For the sake of simplicity, we still stick to an unidimensional description of cities by their population.
+
+
+Concerning network growth, we propose also to stay at a relatively aggregated and simplified level, allowing to test growth heuristics at different levels of abstraction. In order to be flexible on model mechanisms, diverse processes can be taken into account, such as direct interactions between cities, intermediate interactions through the network, the feedback of network flows and a demand-induced network growth.
+
+
+Empirical characteristics emphasized by~\cite{thevenin2013mapping} for the French railway network suggest the existence of feedbacks of network use, or of flows traversing it, on its persistence and its development, whose properties have evolved in time: a first phase of strong development would correspond to an answer to a high need of coverage, followed by a reinforcement of main link and the disappearance of weakest links.
+
+
+The coupling between cities and the network will be achieved by the intermediate of flows between cities in the network: these capture the interactions between cities and have simultaneously an influence on the network in which they flow.
+
+
+%%%%%%%%%%%%%%%%%
+\begin{figure}
+\includegraphics[width=\linewidth]{figures/model}
+\caption[Schematic model representation]{\textbf{Abstract representation of the model.} Ellipses correspond to main ontological elements (cities, network, flows), whereas arrows translate processes for which associated parameters are given. The model is described in its broader ecosystem of initialisation and output indicators.\label{fig:macrocoevol:model}}
+\end{figure}
+%%%%%%%%%%%%%%%%%
+
+
+\subsection{Model description}
+
+The urban system is characterized by populations $\mu_i(t)$ and the network $\mathbf{G}(t)$, to which can be associated a distance matrix $d^G_{ij}(t)$. Flows between cities $\phi_{ij}$ follow the expression given in~\ref{sec:interactiongibrat} with network distance. The same way, the evolution of populations follows the specifications of the base model. The Fig.~\ref{fig:macrocoevol:model} shows the structure of the model.
+
+
+Concerning the network, we assume that it evolves following the equation
+\begin{equation}
+\mathbf{G}(t + 1) = F(\mathbf{G}(t),\phi_{ij}(t))
+\end{equation}
+such that the assignment of flows within the network and a local variation of its elements is possible. We propose in a first time to consider patterns linked to distance only, and to specify a relation on an abstract network as
+\begin{equation}
+d^G_{ij}(t+1) = F(d^G_{ij}(t),\phi_{ij}(t))
+\end{equation}
+i.e. an evolution of the distance matrix only. In this spirit, we keep an interaction model strictly at a macroscopic scale, since a precise spatialization of the network would imply to take into account a finer scale that includes the local shape of the network which determines shortest paths.
+
+
+
+Following a thresholded feedback heuristic, given a flow $\phi$ in a link, we assume its effective distance to be updated by:
+
+\begin{equation}
+d(t+1) = d(t)\cdot \left( 1 + g_{max} \cdot \left[\frac{1 - \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}{1 + \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}\right]\right)
+\end{equation}
+
+with $\gamma_s$ a hierarchy parameter, $\phi_0$ the threshold parameter and $g_{max}$ the maximal growth rate at each step. This auto-reinforcement function can be interpreted the following way: above a limit flow $\phi_0$, the travel conditions improve, whereas they deteriorate below. The hierarchy of gain is given by $\gamma_s$, and since $\frac{1 - \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}{1 + \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}} \rightarrow_{\phi\rightarrow \infty} -1$, $g_{max}$ is the maximal distance gain. This function is similar to the one used by \cite{tero2007mathematical}\footnote{Which uses $\Delta d = \Delta t \left[ \frac{\phi^\gamma}{1 + \phi^\gamma} - d\right]$. This function yield similarly a threshold effect, since the derivative vanishes at $\phi^{\ast} = \left(\frac{d}{1 - d}\right)^{1/\gamma}$, but it can not be adjusted.}.
+
+
+
+\subsection{Indicators}
+
+
+
+%
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+
+
+\subsection{Implementation}
+
+The coupling of the interaction model to a finer representation of the network (for example an encoding of the whole network structure) makes the full integration into an OpenMole plugin more difficult, as it was done for the model studied in~\ref{sec:interactiongibrat}. We need here an \emph{ad hoc} implementation. The use of a workflow as a mediator for coupling is an interesting solution but which is realistic only for a weak coupling as in~\ref{sec:correlatedsyntheticdata}. One of the issues that the meta-modeling library for OpenMole that is currently being developed around OpenMole will have to tackle is the possibility to allow strong coupling (for example in the sense of a dynamical coupling during the evolution of the simulation) of heterogeneous components in a transparent way, in order to benefit from the advantages of different languages or of already existing implementations. 
+
+We choose here a full implementation with NetLogo, for the simplicity of coupling between components. A particular care is taken for the duality of network representation, both as a distance matrix and as a physical network, in order to facilitate the extension to physical network heuristics.
+
+
+
+\subsection{Exploration on a synthetic system of cities}
+
+
+The model is first tested and explored on synthetic city systems, in order to understand some of its intrinsic properties. In this case, we consider the model with an abstract network as specified above, i.e. without spatial description of the network and with evolution rules acting directly on $d^G_{ij}$ given the previous specifications. 
+
+
+A synthetic city system is generated following the heuristic used in the previous section: (i) $N_S$ cities are randomly distributed in the euclidian plan; (ii) populations are attributed to cities following an inverse power law, with a hierarchy parameter $\alpha_S$ and such that the largest city has a population equal to $P_{max}$, i.e. following $P_i = P_{max} \cdot i^{-\alpha_S}$.
+
+
+To simplify, several meta-parameters are fixed: the number of cities is fixed at $N_S = 30$, the maximal population at $P_{max} = 100000$ and the maximal network growth to $g_{max} = 0.005$. Final time is fixed at $t_f = 30$, what corresponds to distances divided approximatively by 5\footnote{Indeed, we can compute that the minimal multiplicative factor for distance is $(1 - g_{max})^{t_f}$, what gives for these values $(1 - 0.05)^{30} \simeq 0.214$, i.e. a division by 5 of the travel time.}, in order to comply to an empirical constraint: this corresponds to the evolution of the travel time between Paris and Lyon from around ten hours at the beginning of the century to two hours today, showed for example by~\cite{thevenin2013mapping}. We also neglect network effects at the second order by taking $w_N = 0$.
+
+
+We explore a grid in the parameter space $\alpha_S$, $\phi_0$, $\gamma_s$, $w_G$, $d_G$, $\gamma_G$. We use the indicators introduced in~\ref{sec:macrocoevolexplo} to quantify model behavior in the parameter space. We describe the results for $\alpha_S = 1$, what is the closest to existing city systems (in comparison to 0.5 and 1.5, see the systematic review of the rank-size law estimations done by~\cite{10.1371/journal.pone.0183919}).
+
+
+
+L'évolution de la centralité de proximité moyenne dans le temps est visualisée en Fig.~\ref{fig:macrocoevol:behavior-time} (haut) pour $w_G = 0.001$, et à $(\gamma_G,\phi_0)$ variables. Le comportement n'est pas sensible à $d_G$ (voir graphique complet en~\ref{app:sec:macrocoevol}). Cette évolution témoigne d'une transition en fonction du niveau de hiérarchie : lorsque celui-ci décroit, on observe l'émergence de trajectoires où la centralité moyenne croît dans le temps, ce qui correspond à des situations où l'ensemble des villes bénéficie en moyenne d'accroissements d'accessibilité.
+
+
+Concerning the entropy of populations, for which the temporal trajectory is shown in Fig.~\ref{fig:macrocoevol:behavior-time} (bottom), all parameters give a decreasing entropy, i.e. a behavior of convergence of cities trajectories in time\footnote{Indeed, the entropy for the population variable gives the dispersion of the distribution of populations, and thus its decrease translate a trend to concentrate in time.}.
+
+
+Looking at the complexity of accessibility trajectories, we observe for values of $\phi_0 > 1.5$ a maximum of complexity as a function of interaction distance $d_G$, stable when $w_G$ and $\gamma_G$ vary (see also the exhaustive plots in Fig.~\ref{fig:app:macrocoevol:behavior-aggreg}, Appendix~\ref{app:sec:macrocoevol}). This intermediate scale can be interpreted as producing regional subsystems, large enough for each to develop a certain level of complexity, et isolated enough to avoid the convergence of trajectories over the whole system. We reconstruct therein a spatial non-stationarity, typically observed in~\ref{sec:staticcorrelations}, and rejoin the concept of the ecological niche\footnote{As it was already described in~\ref{sec:interdiscmorphogenesis}, an ecological niche in the sense of~\cite{holland2012signals} corresponds to the relatively independent ecosystem in which there is co-evolution between the species.} localized in space: the emergent subsystems that are relatively independent, are good candidates to contain processes of co-evolution. The emergence of this intermediate scale can be compared to the modularity of the French urban system showed by~\cite{berroir2017systemes}.
+
+
+
+Finally, the behavior of rank correlations for accessibility reveals that the interaction distance systematically increases the number of hierarchy inversions, what corresponds in a sense to an increase in overall system complexity. The hierarchy parameter diminishes this correlation, what means that a more hierarchical organization will impact a larger number of cities in the qualitative aspects of their trajectories. This effect is similar to the ``first mover advantage'' showed by \cite{levinson2011does}, which unveils a path dependency and an advantage to be rapidly connected to the network: in our case, the modifications in the hierarchy correspond to cities that benefit from their positioning in the network.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+%% Biblio
+%%%%%%%%%%%%%%%%%%%%
+
+
+\bibliographystyle{apalike}
+\bibliography{biblio}
+
+
+\end{document}
