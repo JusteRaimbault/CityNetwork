@@ -5,11 +5,11 @@ source('functions.R')
 source('mapFunctions.R')
 
 
-areasize=100;offset=50;factor=0.5
+areasize=200;offset=100;factor=0.5
 countrycode="FR"
 # load data
-#res = loadIndicatorData(paste0("res/europecoupled_areasize",areasize,"_offset",offset,"_factor",factor,"_temp.RData"))
-res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe csv
+res = loadIndicatorData(paste0("res/europecoupled_areasize",areasize,"_offset",offset,"_factor",factor,"_temp.RData"))
+#res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe csv
 #res = loadIndicatorData('res/chinacoupled_areasize100_offset50_factor0.1_temp.RData') # China
 
 # load spatial mask to select area
@@ -27,8 +27,8 @@ sdata = res[selectedpoints,]
 #g+geom_raster()+scale_fill_brewer(palette = "Spectral")+theme_bw()
 
 #resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/CN/')
-#resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'/')
-resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'_20160824/')
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'/')
+#resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'_20160824/')
 dir.create(resdir)
 
 figsuff = paste0('areasize',areasize,'_offset',offset,'_factor',factor)
@@ -38,8 +38,16 @@ figsuff = paste0('areasize',areasize,'_offset',offset,'_factor',factor)
 #    indicnames=c(expression("Indice de Moran (I)"),expression("Distance moyenne ("*bar(d)*")"),expression("Entropie ("*epsilon*")"),expression("Hierarchie ("*gamma*")"))) # FR
 #map(c(3,4,5,6),'indics_morpho.png',20,20,c(2,2)) # UK
 #map(c(8,9,10,6),'indics_morpho.png',40,22,c(2,2)) # CN
+
+# french
 map(indiccols = c(3,4,5,6),filename=paste0('indics_morpho_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
     indicnames=c(expression("Indice de Moran (I)"),expression("Distance moyenne ("*bar(d)*")"),expression("Entropie ("*epsilon*")"),expression("Hierarchie ("*gamma*")"))) # FR
+
+# english
+map(indiccols = c(3,4,5,6),filename=paste0('indics_morpho_en_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
+    indicnames=c(expression("Moran index (I)"),expression("Average distance ("*bar(d)*")"),expression("Entropy ("*epsilon*")"),expression("Hierarchy ("*gamma*")"))) # FR
+
+
 
 
 # all morpho
@@ -64,12 +72,20 @@ map(c(11:31),filename = paste0('indics_network_all_',figsuff,'.png'),60,30,c(3,7
 #                   )
 #    )
 
+
+# french
 map(c(10,13,19,20),filename=paste0('indics_network_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
     indicnames = c(expression("Betweenness moyenne ("*bar(bw)*")"),expression("Hierarchie de la proximite ("*alpha[cl]*")"),
                    expression("Clustering moyen ("*bar(c)*")"),expression("Nombre de noeuds (|V|)")
     )
 )
 
+# english
+map(c(10,13,19,20),filename=paste0('indics_network_en_',figsuff,'.png'),width=20,height=18,mfrow=c(2,2),sdata=sdata,
+    indicnames = c(expression("Average betweenness ("*bar(bw)*")"),expression("Closeness hierarchy ("*alpha[cl]*")"),
+                   expression("Average clustering ("*bar(c)*")"),expression("Network size (|V|)")
+    )
+)
 
 
 
