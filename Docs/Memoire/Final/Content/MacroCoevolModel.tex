@@ -433,34 +433,54 @@ Les faits stylisés marquants qui ressortent de l'exploration du modèle sur don
 
 
 \bpar{
-The model is applied to the French Urban System on long time dynamical data : Pumain-INED database for populations spanning between 1831 and 1999, with the evolving railway network from 1840 to 2000.
+The model is then applied to the French system of cities on long time dynamical data: the Pumain-INED database for populations, spanning from 1831 to 1999 \cite{pumain1986fichier}, with the evolving railway network from 1840 to 2000 \cite{thevenin2013mapping}. Such a time span can be associated with structural effect on long time, as developed in~\ref{sec:networkterritories}. This application aims on the one hand at testing the ability of the model to reproduce a real dynamic of co-evolution, and on the other hand at extracting thematic information on processes through calibrated parameter values.
 }{
-Le modèle est ensuite appliqué au système de villes français sur des données dynamiques sur le temps long : la base Pumain-INED pour les populations, couvrant de 1831 à 1999~\cite{pumain1986fichier}, avec le réseau ferré dynamique de 1840 à 2000~\cite{thevenin2013mapping}. Cette durée temporelle découle de la logique des effets de structure sur le temps long, comme développé en~\ref{sec:networkterritories}. Cette application vise d'une part à tester la capacité du modèle à reproduire une dynamique de co-évolution réelle, et d'autre part à extraire une information thématique sur les processus via les valeurs calibrées des paramètres.
+Le modèle est ensuite appliqué au système de villes français sur des données dynamiques sur le temps long : la base Pumain-INED pour les populations, couvrant de 1831 à 1999 \cite{pumain1986fichier}, avec le réseau ferré dynamique de 1840 à 2000 \cite{thevenin2013mapping}. Cette durée temporelle découle de la logique des effets de structure sur le temps long, comme développé en~\ref{sec:networkterritories}. Cette application vise d'une part à tester la capacité du modèle à reproduire une dynamique de co-évolution réelle, et d'autre part à extraire une information thématique sur les processus via les valeurs calibrées des paramètres.
 }
 
 
 
 \subsubsection{Network Data}{Données de réseau}
 
-Nous travaillons sur les données de réseau ferré construites par~\cite{thevenin2013mapping}. Le réseau ferré français est particulièrement intéressant en conjonction avec les données de population déjà présentées, puisque la période couverte est relativement similaire, et que comme le rappelle \cite{thevenin2013mapping}, ce moyen de transport a à toute période concrétisé l'implication d'acteurs publiques et privés importants, tout en correspondant à différents processus selon les époques, d'une gestion plutôt décentralisée à une centralisation très forte plus récemment, et différentes concrétisations technologiques avec par exemple l'émergence récente de la grande vitesse~\cite{zembri1997fondements}. Pour chaque date de la base de donnée de population, nous extrayons le graphe abstrait simplifié où toutes les gares et intersections de degré supérieur à deux sont reliés par les liens abstrait avec attributs de vitesse et distance traduisant la valeur réelle, à une granularité de 1km\footnote{Ce traitement est effectué grâce au package R pour l'analyse des réseaux de transport développé spécifiquement dans le cadre de cette thèse, voir~\ref{app:sec:packages}.}. Cela permet également de construire les matrices de distance-temps entre les villes considérées dans le modèle.
 
+\bpar{
+We work on railway network data constructed by~\cite{thevenin2013mapping}. The French railway network is particularly interesting jointly with population data already presented, since the covered time span is relatively close, and as \cite{thevenin2013mapping} recalls, this transportation mode has at any times materialized the implication of public and private actors. It corresponds to different processes depending on the period, from a more decentralized management to a more centralized recently, and different technological materializations with for example the recent emergence of high speed trains \cite{zembri1997fondements}. For each date in the population database, we extract the simplified abstract network in which all stations and intersections with a degree larger than two are linked with abstract links which speed and length attributes correspond to real values, at a granularity of 1km\footnote{This processing is achieved thanks to the R package for transportation network analysis specifically developed for this thesis, see~\ref{app:sec:packages}.}. This yields the time-distance matrices between the cities included in the model.
+}{
+Nous travaillons sur les données de réseau ferré construites par~\cite{thevenin2013mapping}. Le réseau ferré français est particulièrement intéressant en conjonction avec les données de population déjà présentées, puisque la période couverte est relativement similaire, et que comme le rappelle \cite{thevenin2013mapping}, ce moyen de transport a à toute période concrétisé l'implication d'acteurs publiques et privés importants, tout en correspondant à différents processus selon les époques, d'une gestion plutôt décentralisée à une centralisation très forte plus récemment, et différentes concrétisations technologiques avec par exemple l'émergence récente de la grande vitesse~\cite{zembri1997fondements}. Pour chaque date de la base de donnée de population, nous extrayons le graphe abstrait simplifié où toutes les gares et intersections de degré supérieur à deux sont reliés par les liens abstrait avec attributs de vitesse et distance traduisant la valeur réelle, à une granularité de 1km\footnote{Ce traitement est effectué grâce au package R pour l'analyse des réseaux de transport développé spécifiquement dans le cadre de cette thèse, voir~\ref{app:sec:packages}.}. Cela permet également de construire les matrices de distance-temps entre les villes considérées dans le modèle.
+}
 
 
 
 \subsubsection{Stylized facts}{Faits stylisés}
 
 
+\bpar{
+Before calibrating the model, we can observe the lagged correlation patterns in the dataset, by applying the causality regimes method. This empirical study should on the one hand allow us to verify well known stylized facts, and on the other hand to produce a preliminary knowledge of empirical system behavior. We compute as detailed above the closeness centrality through the network, given by $T_i = \sum_j \exp{-d_{ij}/d_0}$, and we study the lagged correlation between its derivative $\Delta T_i$ and the derivative of the population $\Delta P_i$, given by $\hat{\rho}_{\tau} = \hat{\rho}\left[\Delta P_i(t),\Delta T_i(t-\tau)\right]$ estimated on a moving window containing $T_w$ successive dates. We show in Fig.~\ref{fig:macrocoevol:empirical} the results obtained.
+}{
 Avant de calibrer le modèle, observons les motifs de corrélation présents dans les données, en appliquant la méthode des corrélations retardées. Cette étude empirique devrait permettre d'une part de vérifier des faits stylisés connus, d'autre part d'établir une connaissance préliminaire du comportement empirique du système. Nous calculons comme précisé ci-dessus la centralité de proximité via le réseau, donnée par $T_i = \sum_j \exp{-d_{ij}/d_0}$, et étudions la corrélation retardée entre sa dérivée $\Delta T_i$ et celle de la population $\Delta P_i$, donnée par $\hat{\rho}_{\tau} = \hat{\rho}\left[\Delta P_i(t),\Delta T_i(t-\tau)\right]$ estimée sur une fenêtre glissante comprenant $T_w$ dates successives. Nous montrons en Fig.~\ref{fig:macrocoevol:empirical} les résultats obtenus.
+}
 
 
-Ces résultats sont importants pour au moins deux raisons. Dans un premier temps, le comportement du nombre de corrélations significatives en fonction de $T_w$ et de $d_0$ permet la recherche d'échelles de stationnarité dans le système. Nous observons d'une part une échelle spatiale spécifique donnant un maximum pour l'ensemble des fenêtres temporelles, à $d_0 = 100km$, ce qui suggère l'existence de sous-systèmes régionaux cohérents, dont l'existence est stable dans le temps : en effet, cette valeur correspond à la distance d'interaction . Celle-ci coincide remarquablement avec l'échelle intermédiaire isolée dans le modèle synthétique. D'autre part, les grandes portées spatiales induisent une échelle temporelle optimale, pour $T_w = 4$ ce qui correspond à une vingtaine d'année : nous l'identifions comme l'échelle de stationnarité temporelle du système dans son ensemble et étudions les corrélations retardées pour cette valeur.
+\bpar{
+These results are important for at least two reasons. First, the behavior of the number of significant correlations as a function of $T_w$ and $d_0$ allows us to find stationarity scales in the system. We observe on the one hand a specific spatial scale that gives a maximum for all temporal windows, at $d_0 = 100km$, what suggests the existence of consistent regional subsystems, which existence is stable in time: indeed, this value corresponds to the interaction distance. It remarkably coincides with the intermediate scale isolated in the synthetic model. On the other hand, long spatial ranges induce an optimal temporal scale, for $T_w = 4$ what corresponds to around twenty years: we identify it as the overall temporal stationarity scale of the system and study the lagged correlations for this value.
+}{
+Ces résultats sont importants pour au moins deux raisons. Dans un premier temps, le comportement du nombre de corrélations significatives en fonction de $T_w$ et de $d_0$ permet la recherche d'échelles de stationnarité dans le système. Nous observons d'une part une échelle spatiale spécifique donnant un maximum pour l'ensemble des fenêtres temporelles, à $d_0 = 100km$, ce qui suggère l'existence de sous-systèmes régionaux cohérents, dont l'existence est stable dans le temps : en effet, cette valeur correspond à la distance d'interaction. Celle-ci coincide remarquablement avec l'échelle intermédiaire isolée dans le modèle synthétique. D'autre part, les grandes portées spatiales induisent une échelle temporelle optimale, pour $T_w = 4$ ce qui correspond à une vingtaine d'année : nous l'identifions comme l'échelle de stationnarité temporelle du système dans son ensemble et étudions les corrélations retardées pour cette valeur.
+}
 
 
+\bpar{
+Secondly, the behavior of lagged correlations does not seem to comply to the existing literature. At the intermediate spatial scale, the values of $\rho_+,\rho_-$ exhibit no regularity. On the whole system, there is until 1946 close to no significant effect, then no causality between 1946 and 1975 (maximum at $\tau = 0$, non-significant minimum), and a 5 years shift of accessibility causing population after 1968 (the effect staying however doubtful). We do not reproduce the correlation effect between network centrality and place in the urban hierarchy advocated by~\cite{bretagnolle2003vitesse}\footnote{As~\cite{lemoy2017scaling} is not able to reproduce, for density profiles as a function of the distance to the center of European metropolis, the transition that allows~\cite{guerois2008built} to define the peri-urban. These more or less recent works are not reproducible, producing neither code nor data, and giving only a superficial description of the methods, and it is thus impossible to know the origin of the qualitative divergence obtained. A good reproducibility together with the construction of systematic comparisons (\emph{benchmarks}) of models, empirical analysis, that are recent but also to validate old studies, seems to be a reasonable solution to this kind of issue.}, what lead us to question the existence of the ``structural co-evolution'' on long time described by \noun{Bretagnolle} in~\cite{espacegeo2014effets}. What \cite{bretagnolle2003vitesse} obtains is a simultaneous correspondence between growth rate and level of connectivity to the network (and not with network dynamic), but not in our sense a co-evolution, since no statistical relation is furthermore exhibited.
+}{
 Dans un second temps, le comportement des corrélations retardées ne semble pas en accord avec la littérature existante. À l'échelle spatiale intermédiaire, les valeurs de $\rho_+,\rho_-$ n'exhibent aucune régularité. Sur l'ensemble du système, on a jusqu'en 1946 quasiment aucun effet significatif, puis aucune causalité entre 1946 et 1975 (maximum à $\tau = 0$, minimum non significatif), puis un décalage de 5 ans de l'accessibilité causant la population après 1968 (l'effet restant tout de même douteux). Nous ne reproduisons pas l'effet de corrélation entre centralité dans le réseau et place dans la hiérarchie urbaine défendu par~\cite{bretagnolle2003vitesse}\footnote{Tout comme~\cite{lemoy2017scaling} n'arrivent pas à reproduire, pour les profils de densité en fonction de la distance au centre des métropoles européennes, la transition permettant à \cite{guerois2008built} de définir le péri-urbain. Ces travaux plus ou moins anciens ne sont pas reproductibles, ne fournissant ni code, ni données et ne donnant qu'une description très succincte des méthodes, et il est ainsi impossible de connaitre l'origine de la divergence qualitative obtenue. Une bonne reproductibilité ainsi que la construction de comparaisons systématiques (\emph{benchmarks}) de modèles, analyses empiriques, récentes mais aussi en validation d'études passées, nous semble une bonne solution à ce genre de problèmes.}, ce qui amène à relativiser l'existence de la ``co-évolution structurelle'' sur le temps long décrite par \noun{Bretagnolle} dans~\cite{espacegeo2014effets}. Ce que trouve \cite{bretagnolle2003vitesse}, c'est une correspondance simultanée entre taux de croissance et niveau de connectivité aux réseaux (et non avec les dynamiques du réseau), mais pas à notre sens une co-évolution, d'autant plus qu'aucune relation statistique n'est exhibée.
+}
 
 
-Nous rejoignons les résultats récents de~\cite{mimeur:hal-01616746} qui montrent le non-significativité statistique de la corrélation entre taux de croissance et évolution de la couverture du réseau ainsi que l'évolution de l'accessibilité, à délai nul. Nos résultats sont moins précis pour les classes de villes étudiées (ils différencient grandes villes et petites, et travaillent sur un panel plus grand), mais plus généraux car pour un délai et une portée de l'accessibilité variables, et donc complémentaires.
 
+\bpar{
+We rejoin the recent results of~\cite{mimeur:hal-01616746} that show the statistical non-significance of the correlation between growth rate and evolution of network coverage and accessibility, at a zero delay. Our results are less precise on the class of cities studied (they differentiate large and small cities, and work on a larger panel), but more general as they study variable delays and accessibility ranges, and are thus complementary.
+}{
+Nous rejoignons les résultats récents de~\cite{mimeur:hal-01616746} qui montrent la non-significativité statistique de la corrélation entre taux de croissance et évolution de la couverture du réseau ainsi que l'évolution de l'accessibilité, à délai nul. Nos résultats sont moins précis pour les classes de villes étudiées (ils différencient grandes villes et petites, et travaillent sur un panel plus grand), mais plus généraux car pour un délai et une portée de l'accessibilité variables, et donc complémentaires.
+}
 
 
 %%%%%%%%%%%%%
@@ -469,7 +489,7 @@ Nous rejoignons les résultats récents de~\cite{mimeur:hal-01616746} qui montre
 	%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvol/significantcorrs_d0.pdf}\\
 	%\includegraphics[width=\linewidth]{Figures/MacroCoEvol/laggedCorrs_time_Tw4.pdf}
 	\includegraphics[width=\linewidth]{Figures/Final/6-2-3-fig-macrocoevol-empirical.jpg}
-	\caption[Empirical Lagged Correlations for French City System][Corrélations empiriques pour le système de villes français]{\label{fig:macrocoevol:empirical}}{\textbf{Corrélations retardées empiriques pour le système de villes français.} Les corrélations sont calculées sur une fenêtre de taille $5\cdot T_w$, entre les taux de croissance des populations et ceux de centralité de proximité avec un paramètre de décroissance $d_0$ (voir texte). \textit{(Haut Gauche)} Nombre de corrélation significatives (prises telles que $p<0.1$ à 95\%) en fonction de $T_w$ pour $d_0$ variable ; \textit{(Haut droite)} Nombre de corrélations significatives en fonction de $d_0$ pour $T_w$ variable ; \textit{(Bas)} Pour la fenêtre ``optimale'' $T_w=4$, valeur de $\rho_{\tau}$ en fonction de $\tau$, pour l'ensemble des périodes successives.\label{fig:macrocoevol:empirical}}
+	\caption[Empirical lagged correlations for the French system of cities][Corrélations empiriques pour le système de villes français]{\textbf{Empirical lagged correlations for the French system of cities.} Correlations are estimated on a window of duration $5\cdot T_w$, between population growth rates and the variations of closeness centrality with a decay parameter $d_0$ (see text). \textit{(Top left)} Number of significant correlations (taken such that $p<0.1$ at 95\%) as a function of $T_w$ for $d_0$ variable; \textit{(Top right)} Number of significant correlations as a function of $d_0$ for $T_w$ variable; \textit{(Bottom)} For the ``optimal'' window $T_w = 4$, value of $\rho_{\tau}$ as a function of $\tau$, for all successive periods.\label{fig:macrocoevol:empirical}}{\textbf{Corrélations retardées empiriques pour le système de villes français.} Les corrélations sont calculées sur une fenêtre de durée $5\cdot T_w$, entre les taux de croissance des populations et ceux de centralité de proximité avec un paramètre de décroissance $d_0$ (voir texte). \textit{(Haut Gauche)} Nombre de corrélation significatives (prises telles que $p<0.1$ à 95\%) en fonction de $T_w$ pour $d_0$ variable ; \textit{(Haut droite)} Nombre de corrélations significatives en fonction de $d_0$ pour $T_w$ variable ; \textit{(Bas)} Pour la fenêtre ``optimale'' $T_w=4$, valeur de $\rho_{\tau}$ en fonction de $\tau$, pour l'ensemble des périodes successives.\label{fig:macrocoevol:empirical}}
 \end{figure}
 %%%%%%%%%%%%%
 
@@ -481,11 +501,11 @@ Nous rejoignons les résultats récents de~\cite{mimeur:hal-01616746} qui montre
 
 
 
-\subsubsection{Abstract model calibration}{Calibration du modèle abstrait}
+\subsubsection{Calibration of the abstract model}{Calibration du modèle abstrait}
 
 
 \bpar{
-Expected results concern both accurate city population growth reproduction, and network patterns, i.e. how does taking into account dynamical networks can introduce further exploratory power in such models for population trajectories, and also how realistic network distance evolution is.
+Expected results of the calibration on real data concern both the more or less accurate reproduction of real city population growth dynamics, i.e. to what extent the inclusion of a dynamical network can increase the explanatory power for trajectories, and also how realistic the evolution of network distance is. We still work with the abstract model.
 }{
 Les résultats attendus de la calibration sur données réelles concernent à la fois la reproduction plus ou moins précise des dynamiques réelles de croissance de population, c'est-à-dire dans quelle mesure la prise en compte d'un réseau dynamique peut augmenter le pouvoir explicatif pour les trajectoires, et aussi quel est le niveau de réalisme de l'évolution de la distance par le réseau. Nous travaillons toujours avec le modèle abstrait.
 }
@@ -493,12 +513,20 @@ Les résultats attendus de la calibration sur données réelles concernent à la
 
 \paragraph{Model evaluation}{Evaluation du modèle}
 
+
+\bpar{
+We can add to the indicators used before a calibration indicator for distance. The particular property of adjustment for populations, that resides in the existence of a power law for the sizes of cities that made negligible the performance on medium and small cities in the case of a cumulated error, and suggested the addition of the indicator on the error on logarithms, is not present for distances that follow a distribution concentrated on a single order of magnitude. We use therefore a standard measure of fit, given by
+\[
+\varepsilon_D = \log \left[ \sum_t \sum_{i,j} \left(d_{ij}(t) - \tilde{d}_{ij}(t)\right)^2\right]
+\]
+where $d_{ij}(t)$ are observed distances and $\tilde{d}_{ij}(t)$ the simulated distances. It is simply a cumulated squared-error, as used for the comparison of origin-destination matrices in a similar case of simulation of a transportation network in~\cite{jacobs2016transport}.
+}{
 On peut ajouter aux indicateurs utilisés précédemment un indicateur de calibration pour la distance. L'aspect particulier de l'ajustement pour les populations, qui résidait dans la présence d'une loi de puissance pour les tailles de villes rendant négligeables les performances sur les villes moyennes et les petites villes dans le cas d'une erreur cumulée, et suggérait l'ajout de l'indicateur de l'erreur sur les logarithmes, n'est pas présent pour les distances qui suivent une distribution concentrée sur un ordre de grandeur unique. Nous utilisons ainsi une mesure standard d'ajustement, donnée par
 \[
 \varepsilon_D = \log \left[ \sum_t \sum_{i,j} \left(d_{ij}(t) - \tilde{d}_{ij}(t)\right)^2\right]
 \]
 où $d_{ij}(t)$ sont les distances observées et $\tilde{d}_{ij}(t)$ les distances simulées. Il s'agit simplement d'une erreur carré cumulée, comme utilisée pour la comparaison de matrices origine-destination dans un cas similaire de simulation d'un réseau de transport dans~\cite{jacobs2016transport}.
-
+}
 
 %%%%%%%%%%%%%
 %% ON HOLD : benchmark static model with real network distances
@@ -518,27 +546,59 @@ où $d_{ij}(t)$ sont les distances observées et $\tilde{d}_{ij}(t)$ les distanc
 \paragraph{Results}{Résultats}
 
 
+\bpar{
+We proceed to a non-stationary calibration, on the $(\varepsilon_P,\varepsilon_D)$ objectives, i.e. the squared-error on populations and on distances. The estimation is done with a moving window with the periods already used in~\ref{sec:interactiongibrat}. In order to have a limited dimension to explore, we take a fixed $w_N = 0$ to study the interactions only at the first order, knowing that the abstract network parameters $(g_{max},\gamma_S,\varphi_0)$ are taken into account in the calibration. The calibration is done with a genetic algorithm in a way similar as in~\ref{sec:interactiongibrat}. The Fig.~\ref{fig:macrocoevol:pareto} shows the obtained Pareto fronts, and the Fig.~\ref{fig:macrocoevol:parameters} the evolution in time of parameter values for the optimal solutions.
+}{
 Nous procédons à une calibration non-stationnaire, sur les objectifs $(\varepsilon_P,\varepsilon_D)$, c'est-à-dire l'erreur carrée sur les population et celle sur les distances. L'estimation est faite par fenêtre mobile sur les périodes déjà utilisées en~\ref{sec:interactiongibrat}. Pour limiter la dimension à explorer, nous fixons $w_N = 0$ pour n'étudier que les interactions au premier ordre, sachant que les paramètres de réseau abstrait $(g_{max},\gamma_S,\varphi_0)$ sont pris en compte dans la calibration. La calibration est effectuée par algorithme génétique de façon similaire à~\ref{sec:interactiongibrat}. La Fig.~\ref{fig:macrocoevol:pareto} montre les fronts de Pareto obtenus, et la Fig.~\ref{fig:macrocoevol:parameters} l'évolution dans le temps des valeurs des paramètres pour les solution optimales.
+}
 
-
+\bpar{
+We observe a large variability of the shape of Pareto fronts for the bi-objective calibration on population and distance, what witnesses more or less difficulty to simultaneously adjust population and distance. Some periods, such as 1891-1911 and 1921-1936, are close to have a simultaneous objective point for the two objectives, what would correspond to a good correspondence of the model to both trajectories of cities and trajectory of the network on these periods.  
+}{
 Nous observons une forte variabilité des formes des fronts de Pareto pour la calibration bi-objectif population et distance, ce qui témoigne d'une plus ou moins grande difficulté à ajuster simultanément population et distance. Certaines périodes, comme 1891-1911 et 1921-1936, sont proches de présenter un point optimal simultané pour les deux objectifs, ce qui correspondrait à une bonne adéquation du modèle à la fois aux trajectoires de villes et à celle du réseau sur ces périodes.
+}
 
+
+\bpar{
+In comparison with calibration results of the model with static network of~\ref{sec:interactiongibrat}, when comparing the performances for the objective $\varepsilon_G$, we find periods where the static is clearly better (1831 and 1841 for example) and others where the co-evolutive model is better (1946 and 1962): thus, taking into account the co-evolution helps in some cases to have a better reproduction of population trajectories.
+}{
 En comparaison aux résultats de calibration sur le modèle avec réseau statique de~\ref{sec:interactiongibrat}, en regardant les performances pour l'objectif $\varepsilon_G$, nous trouvons des périodes où le statique est clairement meilleur (1831 et 1841 par exemple) et d'autres où le modèle co-évolutif est meilleur (1946 et 1962) : ainsi, la prise en compte de la co-évolution permet dans certains cas une meilleure reproduction des trajectoires de population.
+}
 
 
+\bpar{
+The values of optimal parameters in time, shown in Fig.~\ref{fig:macrocoevol:parameters}, seem to contain some signal. The evolution of $w_G$ and $\gamma_G$ are coherent with the evolutions observed for the static model. For $d_G$, the model principally saturates on the maximal distance and the evolution is difficult to interpret. 
+}{
 Les valeurs des paramètres optimaux dans le temps, présentées en Fig.~\ref{fig:macrocoevol:parameters}, contiennent un certain signal. L'évolution de $w_G$ et $\gamma_G$ sont consistantes avec celles observées pour le modèle statique. Pour $d_G$, le modèle sature principalement sur une distance maximale et l'évolution est difficile à interpréter. 
+}
 
+
+\bpar{
+However, the evolution of $\phi_0$ could be a sign of a ``TGV effect'' in recent periods, through the secondary peak for population after 1960. Indeed, the construction of high speed lines has shortened distances between cities on top of the hierarchy, and an increase of the threshold $\phi_0$ corresponds to an increase of the selectivity for a potential diminution of distances.
+}{
 Par contre, l'évolution de $\phi_0$ pourrait témoigner d'un ``effet TGV'' dans les instants récents, par le pic secondaire pour la population après 1960. En effet, la construction des LGV a raccourci les distances entre les villes au plus haut de la hiérarchie, et une augmentation du seuil $\phi_0$ correspond à une augmentation de la sélectivité pour une diminution potentielle des distances.
+}
 
+
+\bpar{
+The calibrated $g_{max}$ can finally be interpreted according to the history of the railway network (at least of all points in the Pareto front): a significant secondary peak in the first years, a minimum in the years corresponding to the stabilization of the network (1900), and an increase until today linked to the increase of train speeds and the opening of high speed lines. 
+}{
 Le $g_{max}$ calibré peut enfin être interprété selon l'histoire du réseau ferré (du moins pour l'ensemble des points du font de Pareto) : un pic significatif dans les premières années, un creux dans les années de stabilisation du réseau (1900), puis une augmentation jusqu'à aujourd'hui liée à l'augmentation de la vitesse des trains puis l'ouverture des lignes à grande vitesse.
+}
 
+
+\bpar{
+We have this way in a certain extent indirectly quantify interaction processes through the network and the processes of network adaptation to flows, in the case of a real system.
+}{
 Nous avons pu ainsi dans une certaine mesure indirectement quantifier les processus d'interaction par le réseau et ceux d'adaptation du réseau au flux, dans le cas d'un système réel.
+}
+
 
 %%%%%%%%%%%%%%%%%%%
 \begin{figure}
 %\includegraphics[width=0.9\linewidth]{Figures/MacroCoEvol/pareto_nwGmax_filtTRUE.pdf}
 	\includegraphics[width=\linewidth]{Figures/Final/6-2-3-fig-macrocoevol-pareto.jpg}
-	\caption[Pareto fronts][Fronts de Pareto pour la calibration sur population et distance]{\label{fig:macrocoevol:pareto}}{\textbf{Fronts de Pareto pour la calibration bi-objectif population et distance.} Les fronts sont donnés pour chaque période de calibration, et colorés en fonction de $g_{max}$.\label{fig:macrocoevol:pareto}}
+	\caption[Pareto fronts for the calibration on population and distance][Fronts de Pareto pour la calibration sur population et distance]{\textbf{Pareto fronts for the bi-objective calibration between population and distance.} Fronts are given for each calibration period and are colored according to $g_{max}$.\label{fig:macrocoevol:pareto}}{\textbf{Fronts de Pareto pour la calibration bi-objectif population et distance.} Les fronts sont donnés pour chaque période de calibration, et colorés en fonction de $g_{max}$.\label{fig:macrocoevol:pareto}}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%
 
@@ -553,7 +613,7 @@ Nous avons pu ainsi dans une certaine mesure indirectement quantifier les proces
 	%\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_nwThreshold_filt1}
 	%\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_nwGmax_filt1}
 	\includegraphics[width=\linewidth]{Figures/Final/6-2-3-fig-macrocoevol-parameters.jpg}
-	\caption[Evolution of optimal parameters][Évolution des paramètres calibrés]{\label{fig:macrocoevol:parameters}}{\textbf{Evolution temporelle des paramètres optimaux.} Dans l'ordre de gauche à droite et de haut en bas, valeurs des paramètres $(r_0,w_G,d_G,\gamma_G,\phi_0,g_{max})$, respectivement pour l'ensemble du front de Pareto (bleu), pour le point optimal au sens de la distance (rouge) et pour le point optimal au sens de la population (vert).\label{fig:macrocoevol:parameters}}
+	\caption[Evolution of calibrated parameters][Évolution des paramètres calibrés]{\textbf{Temporal evolution of optimal parameters.} From left to right and top to bottom, values of parameters $(r_0,w_G,d_G,\gamma_G,\phi_0,g_{max})$, respectively for the full Pareto front (blue), for the optimal point in the sense of the distance (red) and the optimal point in the sense of the population (green). \label{fig:macrocoevol:parameters}}{\textbf{Evolution temporelle des paramètres optimaux.} Dans l'ordre de gauche à droite et de haut en bas, valeurs des paramètres $(r_0,w_G,d_G,\gamma_G,\phi_0,g_{max})$, respectivement pour l'ensemble du front de Pareto (bleu), pour le point optimal au sens de la distance (rouge) et pour le point optimal au sens de la population (vert).\label{fig:macrocoevol:parameters}}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%
 
@@ -564,22 +624,47 @@ Nous avons pu ainsi dans une certaine mesure indirectement quantifier les proces
 
 
 
-\subsubsection{Physical network}{Modèle avec réseau physique}
+\subsubsection{Model with a physical network}{Modèle avec réseau physique}
 
 
+\bpar{
+We now sketch the outline of a specification of the model with a physical network, what would in a sense correspond to an hybrid model combining different scales. The objective of such a specification would be on the one hand to study the difference in trajectories compared to the abstract network, i.e. to quantify the importance of economies of scale (due to common links), of congestion and also the possible compromises to take in order to spatialize the network. On the other hand, it would help to understand to what extent it is possible to produce realistic networks in comparison to autonomous network growth models for example. These issues are tackled at an other scale and for other ontological specifications in chapter~\ref{ch:mesocoevolution}.
+}{
 Nous esquissons à présent les contours d'une spécification du modèle avec réseau physique, qui correspondrait en un sens à un modèle hybride combinant plusieurs échelles. L'idée d'une telle spécification serait d'une part d'étudier l'écart de trajectoire par rapport au réseau abstrait, c'est-à-dire quantifier l'importance des économies d'échelles (liées aux tronçons communs) et de la congestion, ainsi que les possibles compromis à effectuer liés à la spatialisation du réseau, et d'autre part d'étudier dans quelle mesure il est possible de reproduire des réseaux réalistes en comparaison à des modèles autonomes de croissance de réseau par exemple. Ces questions sont traitées à une autre échelle et pour d'autres spécifications ontologiques au chapitre~\ref{ch:mesocoevolution}. 
+}
 
-Une telle spécification rejoint la logique de \cite{li2014modeling}, qui modélise la co-évolution des couloirs de transport et de la croissance des principaux pôles à une échelle régionale.
 
+\bpar{
+Such a specification follows the frame of \cite{li2014modeling}, which model the co-evolution between transportation corridors and the growth of main poles at a regional scale.
+}{
+Une telle spécification rejoint la logique de \cite{li2014modeling}, qui modélisent la co-évolution des couloirs de transport et de la croissance des principaux pôles à une échelle régionale.
+}
+
+
+\bpar{
+The physical network we implement aims at satisfying a greedy criteria of local time gain. More precisely, we assume a self-reinforcement similar to~\cite{tero2010rules} A specification analog to the one used before assumes a growth for each link, given also in a logic of self-reinforcement by:
+}{
 Le réseau physique que nous implémentons cherche à satisfaire un critère de gain de temps local. Plus précisément, on suppose un auto-renforcement à la manière de~\cite{tero2010rules}. Une specification analogue à celle utilisée précédemment suppose une croissance pour chaque lien, donnée également dans une logique d'auto-renforcement par :
+}
+
 
 \[
 d(t+1) = d(t)\cdot \left(1 + g_{max} \cdot \left[\frac{\phi}{\max \phi}\right]^{\gamma_s}\right)
 \]
 
+\bpar{
+if $\phi$ is the flow in the link and $d(t)$ its effective distance. The threshold specification used before does indeed not allow a good convergence in time, in particular with the emergence of local oscillation phenomena.
+}{
 si $\phi$ est le flux dans le lien et $d(t)$ sa distance effective. La specification par seuil utilisée précédemment ne permet en effet pas une bonne convergence dans le temps, notamment par l'émergence de phénomènes d'oscillation locale.
+}
 
+
+\bpar{
+We generate a random initial network, by perturbing the position of vertices of a grid for which a fixed proportion of links has been removed (40\%) and by linking cities to the network through the shortest path. Links have all the same impedance, which then evolves according to the equation above. An example of a configuration obtained with this specification is given in Fig.~\ref{fig:macrocoevolution:slimemould}. The good convergence properties (visual stabilization of network structure during restricted experiments) suggest the potentialities offered by this specification, which systematic exploration is out of the scope of this work.
+}{
 Nous générons un réseau initial aléatoire, en perturbant la position des sommets d'une grille dont une proportion fixée de liens a été supprimée (40\%) et en y reliant les villes au plus court. Les liens ont tous même impédance, puis celle-ci évolue selon l'équation ci-dessus. Un exemple de configuration obtenue par cette spécification est donné en Fig.~\ref{fig:macrocoevolution:slimemould}. Les bonnes propriétés de convergence (stabilisation visuelle de la structure du réseau lors d'expériences restreintes) suggèrent les potentialités offertes par cette spécification, dont l'exploration systématique est hors de notre portée ici.
+}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -587,7 +672,7 @@ Nous générons un réseau initial aléatoire, en perturbant la position des som
 	%\includegraphics[width=0.45\linewidth]{Figures/MacroCoEvol/example_slimemould_1_t0}
 	%\includegraphics[width=0.45\linewidth]{Figures/MacroCoEvol/example_slimemould_1_tf}
 	\includegraphics[width=\linewidth]{Figures/Final/6-2-3-fig-macrocoevol-slimemould}
-	\caption[Example of self-reinforcing network][Example d'application du modèle macroscopique avec réseau auto-renforçant]{\textbf{Example of configuration obtained with a self-reinforcing network.}\label{fig:macrocoevolution:slimemould}}{\textbf{Example de configuration obtenue avec réseau auto-renforçant.} \textit{(Gauche)} Configuration initiale aléatoire, capacités égales ; \textit{(Droite)} Configuration finale obtenue après 100 itérations.\label{fig:macrocoevolution:slimemould}}
+	\caption[Example of application of the macroscopic model with a self-reinforcing network][Exemple d'application du modèle macroscopique avec réseau auto-renforçant]{\textbf{Example of configuration obtained with a self-reinforcing network.} \textit{(Left)} Inital random configuration, with uniform impedances; \textit{(Right)} Final configuration obtained after 100 iterations.\label{fig:macrocoevolution:slimemould}}{\textbf{Example de configuration obtenue avec réseau auto-renforçant.} \textit{(Gauche)} Configuration initiale aléatoire, capacités uniformes ; \textit{(Droite)} Configuration finale obtenue après 100 itérations.\label{fig:macrocoevolution:slimemould}}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%
 
@@ -615,7 +700,7 @@ Nous générons un réseau initial aléatoire, en perturbant la position des som
 
 
 \bpar{
-The role of medium-sized cities on the trajectories of the system can also be examined with the model.
+The study of particular trajectories within a system of cities can allow to answer to specific thematic questions: for example, the influence of medium-sized cities on the global trajectory of the system, or the drivers of a more or less ``successful'' trajectory for this type of profile. In the case of the application to a real system, the mapping of deviation to the model in time can suggest regional particularities.
 }{
 L'étude de trajectoires particulières au sein du système de villes peut permettre de répondre à des questions thématiques spécifiques : par exemple, l'influence des villes moyennes sur la trajectoire globale du système, ou les déterminants d'une plus ou moins bonne ``réussite'' pour ce type de profil. Dans le cas de l'application à un système réel, la cartographie des déviations au modèle dans le temps peut suggérer des particularités régionales.
 }
@@ -623,11 +708,11 @@ L'étude de trajectoires particulières au sein du système de villes peut perme
 
 
 
-\paragraph{Comparison of Urban Systems}{Comparaison de systèmes urbains}
+\paragraph{Comparison of urban systems}{Comparaison de systèmes urbains}
 
 
 \bpar{
-Finally, a comparison between the urban systems in different geographical and political contexts and at different scales should unveil implications of planning on the interactions between networks and cities, for example by comparing the rather bottom-up growth of the French railway network to the top-down state-planned French highway and Chinese HSR networks.
+We also finally expect to be able through the model to compare urban systems in different geographical and political contexts, and at different scales. This should foster the understanding the implications of planning actions on the interactions between networks and territories. For example, French railway network has emerged through multiple operators, on the contrary to the Chinese high speed railway network, for which a more precise development could be considered.
 }{
 Nous nous attendons finalement également à pouvoir par l'intermédiaire de ce modèle comparer des systèmes urbains dans des contextes géographiques et politiques différents, ainsi qu'à différentes échelles. Cela devrait permettre de révéler les implications des actions de planification sur les interactions entre réseaux et territoires. Par exemple, le réseau ferré français a émergé par l'intermédiaire de multiples opérateurs, au contraire du réseau ferré à grande vitesse Chinois, pour lequel un développement précis pourrait être envisagé.
 }
