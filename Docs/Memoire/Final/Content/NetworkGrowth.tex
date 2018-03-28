@@ -8,7 +8,7 @@
 \newpage
 
 %\section[Network Growth Models][Modèles de Croissance de Réseau]{Network Growth Models : Explicative power for various approaches}{Modèles de Croissance de Réseau}
-\section{Network Growth Models}{Modèles de croissance de réseau}
+\section{Network growth models}{Modèles de croissance de réseau}
 
 
 \label{sec:networkgrowth}
@@ -16,36 +16,67 @@
 
 %--------------------------------------
 
-Nous proposons dans un premier temps d'étudier en détails les processus de croissance de réseau pour l'échelle mesoscopique. L'idée est de comprendre les propriétés intrinsèques des différentes heuristiques de croissance de réseau. Cet exercice est d'une part intéressant en lui-meme puisqu'il n'existe pas à notre connaissance de comparaison systématique de modèles de morphogenèse des réseaux spatiaux : si~\cite{xie2009modeling} propose par exemple une revue du point de vue de l'économie des réseaux, celle-ci ne prend pas en compte certaines disciplines d'une part (voir chapitre~\ref{ch:modelinginteractions}), et ne compare pas les performances des modèles sur des implémentations dédiées comparables. 
+
+\bpar{
+We propose first to study with more details processes of network growth for the mesoscopic sclae. The idea is to understand intrinsic properties of different network growth heuristics. This exercise is interesting in itself since there is to the best of our knowledge no systematic comparison of spatial networks morphogenesis models: \cite{xie2009modeling} propose for example a review from the point of view of network economics, it does not include on the one hand some disciplines (see chapter~\ref{ch:modelinginteractions}), and on the other hand does not compare performances of models on dedicated comparable implementations.
+}{
+Nous proposons dans un premier temps d'étudier en détails les processus de croissance de réseau pour l'échelle mesoscopique. L'idée est de comprendre les propriétés intrinsèques des différentes heuristiques de croissance de réseau. Cet exercice est intéressant en lui-meme puisqu'il n'existe pas à notre connaissance de comparaison systématique de modèles de morphogenèse des réseaux spatiaux : si~\cite{xie2009modeling} proposent par exemple une revue du point de vue de l'économie des réseaux, celle-ci ne prend pas en compte certaines disciplines d'une part (voir chapitre~\ref{ch:modelinginteractions}), et ne compare d'autre part pas les performances des modèles sur des implémentations dédiées comparables. 
+}
+
 
 
 %--------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%
-\subsection{Benchmarking Network growth heuristics}{Comparer les heuristiques de croissance de réseau}
+\subsection{Benchmarking network growth heuristics}{Comparer les heuristiques de croissance de réseau}
 
 
 \bpar{
-Considering Network Growth in itself, many heuristics are available to generate a network under some constraints. As already developed, from economic network growth approach to local optimization heuristics, geographical mechanisms or biological network growth, each has its advantages and particularities.
+Considering network growth in itself, several heuristics exist in order to generate a network under some constraints. As already developed especially in~\ref{sec:modelingsa}, from economic network growth approaches to local optimization heuristics, geographical mechanisms or biological network growth, each has its own advantages and particularities. We already tested in~\ref{sec:correlatedsyntheticdata} an heuristic based on interaction potential breakdown. In order to be able to compare different network growth heuristics ``everything else being equal'', it is necessary to explore them at fixed density, although the thematic meaning of results will not have any value, neither on long times nor for co-evolution.
 }{
 Pour la croissance du réseau en tant que telle, de nombreuses heuristiques existent pour générer un réseau sous certaines contraintes. Comme déjà développé précédemment notamment en~\ref{sec:modelingsa}, des modèles économiques de croissance de réseau aux heuristiques d'optimisation locale, aux mécanismes géographiques ou à la croissance de réseau biologique, chacun a ses avantages et particularités propres. Nous avons déjà testé en~\ref{sec:correlatedsyntheticdata} une heuristique basée sur la rupture de potentiel d'interaction. Pour pouvoir comparer ``toutes choses égales par ailleurs'' les différentes heuristiques de génération de réseau, il est nécessaire de les explorer à densité fixée, même si le sens thématique des résultats ne peut avoir de valeur ni sur le temps long, ni pour la co-évolution.
 }
 
 
+\bpar{
+The importance of heuristics capturing a topological structure allowing a certain compromise between performance, congestion and cost, is shown by empirical analyses such as \cite{2012arXiv1202.1747W} for metropolitan networks, which shows that patterns of evolution for correlations between degrees witness an evolution of networks towards such a topology.
+}{
 L'importance d'heuristiques pouvant capturer une structure topologique permettant un certain compromis entre performance, congestion et coût, est montrée par des analyses empiriques comme \cite{2012arXiv1202.1747W} pour les réseaux de métro, qui montre que les motifs d'évolution des corrélations entre degrés témoignent d'une évolution des réseaux vers une telle topologie.
+}
 
 
+\bpar{
+We precise in the following the core of the network growth model together with several heuristics from diverse origins, compared in similar conditions through their integration within the common basis.
+}{
 Nous précisons par la suite le coeur du modèle de croissance de réseau ainsi qu'un certain nombre d'heuristiques aux origines variées, comparées dans des conditions similaires par leur intégration à la base commune.
+}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Network growth model core}{Base du modèle de croissance de réseau}
+\subsubsection{Core of the network growth model}{Base du modèle de croissance de réseau}
 
 
+\bpar{
+A common process to the different heuristics constitutes the core of the network growth model, and bridges population density distribution with the network. In concrete terms, the aim is to attribute new centers according to this density, and we make the choice of specifying this process exogenously to network growth itself\footnote{This intermediate stage is close in our case to the idea of procedural modeling, since the implemented rule aims at reproducing a shape without needing the actual processes. This raises the issue of equifinality and of the potential existence of equivalent models for this submodel or for the full model capturing a real process corresponding to it. The use of multi-modeling also at this stage could be a solution, but frameworks allowing to tackle an arbitrary number of stationarity levels or even allowing the model to be autonomous on these choices do not exist yet.}.
+}{
 Un processus commun aux différentes heuristiques constitue le coeur du modele de croissance de réseau, et fait le pont entre la distribution de densité de population et le réseau. Concrètement, il s'agit d'attribuer des nouveaux centres en fonction de cette densité, et nous faisons le choix de specifier ce processus de manière exogène à la croissance de réseau elle-même\footnote{Cette étape intermédiaire se rapproche dans notre cas d'un esprit de modélisation procédurale, puisque la règle implémentée cherche à reproduire une forme sans besoin des processus réels. Cela pose la question de l'équifinalité et de l'existence potentielle de modèles equivalents pour ce sous-modèle ou pour le modèle complet capturant un processus réel correspondant à celle-ci. L'utilisation de multi-modélisation également sur cette étape pourrait être une solution mais les cadres permettant de s'extraire d'un nombre arbitraire de niveaux de stationnarité ou même permettant une autonomie du modèle sur ces choix n'existent pas encore.}.
+}
 
 
+\bpar{
+We recall the context used in~\ref{sec:correlatedsyntheticdata}, i.e. a grid of cells characterized by their population $P_i$, on which a network composed of nodes and links develops. The population distribution will here be fixed in time $P_i(t) = P_i(0)$, and the network evolves sequentially starting from an initial network.
+}{
 Reprenons le contexte utilisé en~\ref{sec:correlatedsyntheticdata}, c'est-à-dire une grille de cellules caractérisées par leur population $P_i$, sur laquelle un réseau composé de noeuds et de liens se développe. La distribution de la population sera ici fixe dans le temps $P_i(t) = P_i(0)$, et le réseau évolue séquentiellement à partir d'un réseau initial.
+}
+
+
+
+%%%%%%%%%%%%%
+%% -- TRAD --
+%%%%%%%%%%%%%
+
+
 
 Une étape de croissance de réseau est réalisée à intervalles de temps $t_N$ (paramètre permettant d'ajuster les vitesses respectives d'évolution pour la population et pour le réseau). Elle correspond aux étapes suivantes, dont les deux premières raffinent la logique de~\cite{raimbault2014hybrid} (qui stipule que des centres de peuplement doivent être connectés au réseau existant de manière basique).
 
@@ -201,7 +232,8 @@ Le modèle est initialisé sur configurations synthétiques ou semi-synthétique
 
 \subsubsection{Generated networks}{Réseaux générés}
 
-Une illustration visuelle des différentes topologies générées est donnée en Fig~\ref{fig:networkgrowth:examples} pour une configuration de densité synthétique. Cela permet de comparer les particularités de chacune des heuristiques. Par exemple, les liens formés par la rupture aléatoire en comparaison à la rupture déterministe témoignent de la dépendance au chemin et produisent un réseau moins redondant, tandis que la rupture déterministe renforce le lien le plus fort entre les deux grandes villes proches. L'heuristique basée sur le coût donne des réseaux denses de manière très localisées, mais évite les liens trop longs. Enfin, l'heuristique biologique produit un maillage dense dans la sous-région où les interactions sont les plus fortes.
+Une illustration visuelle des différentes topologies générées est donnée en Fig~\ref{fig:networkgrowth:examples} pour une configuration de densité synthétique. Cela permet de comparer les particularités de chacune des heuristiques. Par exemple, les liens formés par la rupture aléatoire en comparaison à la rupture déterministe témoignent de la dépendance au chemin et produisent un réseau moins redondant, tandis que la rupture déterministe renforce le lien le plus fort entre les deux grandes villes proches. L'heuristique basée sur le coût donne des réseaux denses de manière très localisées, mais évite les liens trop longs. Enfin, l'heuristique biologique produit un maillage dense dans la sous-région où les interactions sont les plus fortes.
+
 
 
 %%%%%%%%%%%%%%%%%
