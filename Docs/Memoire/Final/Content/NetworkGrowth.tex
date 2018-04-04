@@ -470,25 +470,32 @@ Pour mieux comprendre la complémentarité des approches, nous pouvons quantifie
 %%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%
-%% -- TRAD --
-%%%%%%%%%%%
-
 
 
 \bpar{
-We use the measures on real road networks obtained in~\ref{sec:staticcorrelations} to compute a distance of generated configurations to observed configurations, by considering real networks 
-% rq : should be only one point, the corresponding network ?
+We use the measures on real road networks obtained in~\ref{sec:staticcorrelations} to compute a distance of generated configurations to observed configurations, by considering real networks corresponding to density configurations used for initialization. We take for a given parameter point the minimum of the euclidian distance on vectors of indicators for all real points\footnote{What means that if $d(1,2) = \sqrt{(\bar{bw}_1 - \bar{bw}_2)^2 + (\bar{cl}_1 - \bar{cl}_2)^2 + (\bar{l}_1 - \bar{l}_2)^2}$, we consider $d_{min} = \min_j d(S,R_j)$ if $S$ is the simulated point and $R_j$ the set of real points. We keep here only the indicators $\bar{bw}$, $\bar{cl}$ and $\bar{l}$, for normalization reasons.}. This comparison is made possible since indicators are normalized, and indicators on real networks are comparable to indicators on synthetic networks.
 }{
 Nous utilisons les mesures sur réseaux routiers réels obtenues en~\ref{sec:staticcorrelations} pour calculer une distance des configurations générées aux configurations observées, en considérant les réseaux réels correspondant aux configurations de densité utilisées pour l'initialisation. Nous prenons pour un point de paramètre le minimum de distance euclidienne sur les vecteurs d'indicateurs pour l'ensemble des points réels\footnote{C'est-à-dire si $d(1,2) = \sqrt{(\bar{bw}_1 - \bar{bw}_2)^2 + (\bar{cl}_1 - \bar{cl}_2)^2 + (\bar{l}_1 - \bar{l}_2)^2}$, on considère $d_{min} = \min_j d(S,R_j)$ si $S$ est le point simulé et $R_j$ l'ensemble des points réels. Nous conservons ici uniquement les indicateurs $\bar{bw}$, $\bar{cl}$ et $\bar{l}$, pour des raisons de normalisation.}. Cette comparaison est possible car les indicateurs sont normalisés, et les indicateurs sur réseaux réels sont comparables aux indicateurs sur réseaux synthétiques.
 }
 
 
-Les résultats de comparaison aux points réels sont donnés en Fig.~\ref{fig:networkgrowth:realdistance}. Nous donnons une représentation en nuage de points et les histogrammes de distribution des distances, sur l'ensemble des grilles et par classe morphologique. On constate qu'une dizaine de configurations réelles (1/5ème) se retrouvent à grande distance du nuage de points simulés, mais que les autres tombent à distance faible ou à l'intérieur du nuage de point. Encore une fois, les différentes heuristiques sont complémentaires pour approcher un plus grand nombre de points. Concernant les distances, l'aléatoire est le plus mauvais en termes de mode et de moyenne, suivi par le biologique, la référence (connection), la rupture déterministe puis la rupture aléatoire et le coût qui sont à peu près équivalentes. Elles réalisent toutes des distances minimales très faibles.
+%%%%%%%
+% rq : should be only one point, the corresponding network ?
+%%%%%%%
 
 
+\bpar{
+Comparison results to real points are given in Fig.~\ref{fig:networkgrowth:realdistance}. We give a representation as a point cloud and histograms for distributions of distances, on all grids and by morphological class. We observe that around ten real configuration (one fifth) fall far outside the point cloud. Once again, heuristics are complementary to approach a larger number of points. Concerning distances, the random heuristic is the worse in terms of mode and average, followed by the biological, the reference (connexion only), the deterministic breakdown and finally teh random-breakdown and the cost which are approximatively equivalent. All realize very low minimal distances.
+}{
+Les résultats de comparaison aux points réels sont donnés en Fig.~\ref{fig:networkgrowth:realdistance}. Nous donnons une représentation en nuage de points et les histogrammes de distribution des distances, sur l'ensemble des grilles et par classe morphologique. On constate qu'une dizaine de configurations réelles (1/5ème) se retrouvent à grande distance du nuage de points simulés, mais que les autres tombent à distance faible ou à l'intérieur du nuage de points. Encore une fois, les différentes heuristiques sont complémentaires pour approcher un plus grand nombre de points. Concernant les distances, l'aléatoire est le plus mauvais en termes de mode et de moyenne, suivi par le biologique, la référence (connection), la rupture déterministe puis la rupture aléatoire et le coût qui sont à peu près équivalentes. Elles réalisent toutes des distances minimales très faibles.
+}
+
+
+\bpar{
+When conditioning by morphological classes, we see that classes 3, 4 and 5 give the most difficulties for all heuristics in terms of minima - they are indeed the configurations with very localized settlements or a diffuse population (see~\ref{app:sec:networkgrowth}): it is therefore easier to reproduce real network configurations in the case of polycentric structures. In all cases, the biological heuristic is not very efficient, but it is not directly possible to know if this is a consequence of its under-exploitation and its fixed parameters, or of its intrinsic dynamics.
+}{
 En conditionnant par les classes morphologiques, nous voyons que les classes 3, 4 et 5 donnent le plus de difficultés à l'ensemble des heuristiques en termes de minimum - or il s'agit des configurations avec établissements très localisés ou population diffuse (voir~\ref{app:sec:networkgrowth}) : il est donc plus facile de reproduire les configurations réelles de réseau dans le cas de structures polycentriques. Dans tous les cas, l'heuristique biologique est peu performante, mais il n'est pas directement possible de savoir si cela est dû à sa sous-exploration et aux paramètres fixés ou à sa dynamique intrinsèque.
-
+}
 
 
 
@@ -541,21 +548,35 @@ En conditionnant par les classes morphologiques, nous voyons que les classes 3, 
 \subsection{Discussion}{Discussion}
 
 
-
+\bpar{
+If the slime-mould model is able to generate robust networks in a simplified way, its use for planning has been questioned, in particular because it does not take into account external factors and the urban environment~\cite{adamatzky2010road}. Our results seem to confirm these analyses, since this heuristic is the least performing in terms of distance to real networks.
+}{
 Si le modèle slime-mould est capable de conduire de manière simplifiée à une génération de réseaux robustes, son utilisation pour la planification a été mise en question, notamment pour sa non prise en compte de facteurs extérieurs et de l'environnement urbain~\cite{adamatzky2010road}. Nos résultats semblent confirmer ces analyses, puisque cette heuristique est la moins performante au sens de la distance aux réseaux réels.
+}
 
 
+\bpar{
+We have thus explored and compared different network generation heuristics, at a fixed density. We note the following points.
+\begin{itemize}
+	\item Different models produce networks that appear as complementary in an indicator space.
+	\item Similarly, they are complementary to resemble configurations of real networks, while showing different performances. Very localized or diffuse density configurations correspond to networks that are more difficult to reproduce, in comparison to polycentric structures. 
+\end{itemize}
+}{
 Nous avons donc exploré et comparé différentes heuristiques de génération de réseau, à densité fixée. Nous en retirons les enseignements suivants.
 \begin{itemize}
 	\item Les différents modèles produisent des réseaux qui apparaissent complémentaires dans un espace d'indicateurs.
 	\item De même, ils sont complémentaires pour s'approcher des configurations des réseaux réels, tout en présentant des performances différentes. Des configurations de densité très localisées ou diffuses correspondent à des réseaux plus difficiles à reproduire, en comparaison aux structures polycentriques.
 \end{itemize}
-
+}
 
 \stars
 
-Disposant de ces modèles de croissance de réseau, nous allons pouvoir les utiliser en couplage avec un modèle de densité, afin de développer un modèle de co-évolution à l'échelle mesoscopique, qui fera l'objet de la section suivante.
 
+\bpar{
+Armed with these network growth models, we will be able to couple them to a density model, in order to develop a co-evolution model at the mesoscopic scale, which will be the subject of the following section.
+}{
+Disposant de ces modèles de croissance de réseau, nous allons pouvoir les utiliser en couplage avec un modèle de densité, afin de développer un modèle de co-évolution à l'échelle mesoscopique, qui fera l'objet de la section suivante.
+}
 
 
 \stars
