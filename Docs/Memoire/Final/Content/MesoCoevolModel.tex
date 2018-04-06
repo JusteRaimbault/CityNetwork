@@ -82,37 +82,67 @@ Pour les trois dernières, celles-ci sont définies comme précédemment pour le
 }
 
 
-%%%%%%%%
-%% -- TRAD 
-%%%%%%%%
 
-
-
-
+\bpar{
+The utility of a cell is then given by a linear aggregation\footnote{An alternative could be for example a Cobb-Douglas function, which is equivalent to a linear aggregation on the logarithms of variables.}
+\begin{equation}
+U_i = \sum_k w_k \cdot \tilde{x}_k(i)
+\end{equation}
+where $\tilde{x}_k$ are the normalized local explicative variables, and $w_k$ are weight parameters, which allow to weight between the different influences.
+}{
 L'utilité d'une cellule est alors donnée par une agrégation linéaire\footnote{Une alternative étant par exemple une fonction de Cobb-Douglas, qui revient à une agrégation linéaire sur les logarithmes des variables.}
 \begin{equation}
 U_i = \sum_k w_k \cdot \tilde{x}_k(i)
 \end{equation}
 où les $\tilde{x}_k$ sont les variables explicatives locales normalisées, et $w_k$ des paramètres de poids, qui permettent de pondérer les différentes influences.
+}
 
 
+
+\bpar{
+A time step of model evolution includes then the following stages.
+\begin{enumerate}
+	\item Evolution of the population following rules similar to the morphogenesis model developed in~\ref{sec:densitygeneration}. Given an exogenous growth rate $N_G$, individuals are added independently following an aggregation done with a probability $U_i^\alpha/\sum_k U_k^\alpha$, followed by a diffusion of strength $\beta$ to neighbor cells, done $n_d$ times.
+	\item Network growth following the rules described in~\ref{sec:networkgrowth}, knowing that this takes place is the time step is a multiple of a parameter $t_N$, which allows to integrate a differential between temporal scales for population growth and for network growth.
+\end{enumerate}
+}{
 Un pas de temps d'évolution du modèle comporte alors les étapes suivantes.
 \begin{enumerate}
 	\item Évolution de la population selon des règles similaires au modèle de morphogenèse développé en~\ref{sec:densitygeneration}. Étant donné un taux de croissance exogène $N_G$, les individus sont ajoutés de manière indépendante suivant une agrégation faite selon la probabilité $U_i^\alpha/\sum_k U_k^\alpha$, suivie d'une diffusion aux voisins de force $\beta$, effectuée $n_d$ fois.
 	\item Croissance du réseau selon les règles décrites en~\ref{sec:networkgrowth}, sachant que celle-ci a lieu si le pas de temps est un multiple d'un paramètre $t_N$, qui permet d'intégrer un différentiel d'échelles temporelles entre la croissance de la population et celle du réseau.
 \end{enumerate}
+}
 
-L'agrégation selon une puissance de l'utilité permet une flexibilité dans le problème d'optimisation sous-jacent, puisque comme le rappelle \cite{josselin2013revisiting} l'utilisation de différentes normes dans les problèmes de localisation spatiale optimale correspond à des logiques d'optimisation différentes.
+
+\bpar{
+The aggregation following a power of the utility yields a flexibility in the underlying optimization problem, since as \cite{josselin2013revisiting} recall, the use of different norms in spatial optimal location problems corresponds to different logics of optimization.
+}{
+L'agrégation selon une puissance de l'utilité permet une flexibilité dans le problème d'optimisation sous-jacent, puisque comme le rappellent \cite{josselin2013revisiting} l'utilisation de différentes normes dans les problèmes de localisation spatiale optimale correspond à des logiques d'optimisation différentes.
+}
 
 
+\bpar{
+The parameters of the model that we will make vary are then:
+\begin{itemize}
+	\item aggregation-diffusion parameters $\alpha,\beta,N_g,n_d$, summarized in Table~\ref{tab:density:parameters};
+	\item the four weight parameters $w_k$ for the explicative variables, which vary in $[0;1]$;
+	\item network growth parameters for the different heuristics, summarized in Table~\ref{tab:networkgrowth:parameters}.
+\end{itemize}
+}{
 Les paramètres du modèle que nous ferons varier sont donc :
 \begin{itemize}
 	\item les paramètres d'agrégation-diffusion $\alpha,\beta,N_g,n_d$, résumés en Table~\ref{tab:density:parameters} ;
 	\item les paramètres de poids des variables explicatives $w_k$, au nombre de 4, compris dans $[0;1]$ ;
 	\item les paramètres de croissance de réseau des différentes heuristiques, résumés en Table~\ref{tab:networkgrowth:parameters}.
 \end{itemize}
+}
 
+
+\bpar{
+Output model indicators are the urban morphology indicators, topological network indicators, and lagged correlations between the different explicative variables.
+}{
 Les indicateurs de sortie du modèle sont les indicateurs de morphologie urbaine, les indicateurs topologiques du réseau, et les corrélations retardées entre les différentes variables explicatives.
+}
 
 
 %%%%%%%%%%%%%%%%%%%
@@ -120,20 +150,40 @@ Les indicateurs de sortie du modèle sont les indicateurs de morphologie urbaine
 
 \subsubsection{Implementation}{Implémentation}
 
+\bpar{
+The model is implemented in NetLogo, given the heterogeneity of aspects that have to be taken into account, and this language being particularly suitable to couple a grid of cells with a network. Urban morphology indicators are computed thanks to a NetLogo extension specially developed (see Appendix~\ref{app:tools}).
+}{
 Le modèle est implémenté en NetLogo, vu l'hétérogénéité des aspects à prendre en compte, et ce langage se montrant particulièrement efficace pour coupler une grille de cellules à un réseau. Les indicateurs de morphologie urbaine sont calculés grâce à une extension NetLogo spécifiquement développée (voir Annexe~\ref{app:tools}).
+}
+
 
 
 \subsubsection{Experience plan}{Plan d'expérience}
 
+
+\bpar{
+We propose to focus on the ability of the model to capture relations between networks and territories, and more particularly the co-evolution. Therefore, we will try to establish if (i) the model is able to reproduce, beyond the form indicators, the static correlation matrices computed in~\ref{sec:staticcorrelations}; and (ii) the model produces a variety of dynamical relations in the sense of causality regimes developed in~\ref{sec:causalityregimes}.
+}{
 Nous proposons de nous concentrer sur la capacité du modèle à capturer les relations entre réseaux et territoires, et en particulier la co-évolution. Pour cela, nous chercherons si (i) le modèle est capable de reproduire, en plus des indicateurs de forme, les matrices de corrélations statiques calculées en~\ref{sec:staticcorrelations} ; et (ii) le modèle produit une variété de relations dynamiques au sens des régimes de causalité développés en~\ref{sec:causalityregimes}.
+}
 
+
+\bpar{
+The model is initialized on fully synthetic configurations, with a grid of size $50$. Configurations are generated through an exponential mixture in a way similar to \cite{anas1998urban}: $N_c = 8$ centers are randomly located, to which a population is attributed following a scaling law $P_i = P_0\cdot (i+1)^{-\alpha_S}$ with $\alpha_S = 0.8$ and $P_0 = 200$. The population of each center is distributed to all cells with an exponential kernel of shape $d(r) = P_{max}\exp\left( - r / r_0\right)$ where the parameter $r_0$ is determined to fix the population at $P_i$, with $P_{max} = 20$ (density at the center)\footnote{We have indeed $P_i = \iint d(r) = \int_{\theta=0}^{2\pi} \int_{r=0}^{\infty} d(r) rdrd\theta = 2 \pi P_{max} \int_r r\cdot \exp\left( - r / r_0\right) = 2 \pi P_{max} r_0^2$, and therefore $r_0 = \sqrt{\frac{P_i}{2\pi P_{max}}}$.}. The initial network skeleton is generated as detailed in~\ref{sec:networkgrowth}.
+}{
 Le modèle est initialisé sur configurations entièrement synthétiques, avec une taille de grille $50$. Les configurations sont générées par mélange d'exponentielles d'une manière similaire à \cite{anas1998urban} : $N_c = 8$ centres sont localisés de manière aléatoire, et une population leur est attribuée selon une loi d'échelle $P_i = P_0\cdot (i+1)^{-\alpha_S}$ avec $\alpha_S = 0.8$ et $P_0 = 200$. La population de chaque centre est distribuée à l'ensemble des cellules avec un noyau exponentiel de forme $d(r) = P_{max}\exp\left( - r / r_0\right)$ où le paramètre $r_0$ est déterminé pour fixer la population à $P_i$, avec $P_{max} = 20$ (densité au centre)\footnote{On a en effet $P_i = \iint d(r) = \int_{\theta=0}^{2\pi} \int_{r=0}^{\infty} d(r) rdrd\theta = 2 \pi P_{max} \int_r r\cdot \exp\left( - r / r_0\right) = 2 \pi P_{max} r_0^2$, et donc $r_0 = \sqrt{\frac{P_i}{2\pi P_{max}}}$.}. Le squelette de réseau initial est généré comme détaillé en~\ref{sec:networkgrowth}.
+}
 
+
+\bpar{
+We explore a Latin Hypercube Sampling of the parameter space, with 10 repetitions for around 7000 parameter points, corresponding to a total of around 70000 model repetitions\footnote{For which simulation results are also available at \url{http://dx.doi.org/10.7910/DVN/OBQ4CS}.}, realized on a computation grid by using OpenMole.
+}{
 Nous explorons un échantillonnage LHS de l'espace des paramètres, avec 10 répétitions pour environ 7000 points de paramètres, correspondant à un total autour de 70000 répétitions du modèle\footnote{Pour lesquelles les résultats de simulation sont disponibles également à \url{http://dx.doi.org/10.7910/DVN/OBQ4CS}.}, effectuées sur grille de calcul par l'intermédiaire d'OpenMole.
+}
 
 
 
-\subsubsection{Static and Dynamical calibration}{Calibration statique et dynamique}
+\subsubsection{Static and dynamical calibration}{Calibration statique et dynamique}
 
 
 
