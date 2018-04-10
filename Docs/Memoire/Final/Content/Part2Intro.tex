@@ -213,33 +213,55 @@ AICc = 2\cdot\left(k + \frac{k^2 + k}{n-k -1} - \ln{\mathcal{L}}\right)
 }
 
 
-%%%%%%%%%%%%%
-%% -- TRAD --
-%%%%%%%%%%%%%
 
-
+\bpar{
+A similar criteria but derived within a bayesian framework is the \emph{Bayesian Information Criterion} (BIC)~\cite{burnham2003model}, which leads to a stronger penalty for the number of parameters: $BIC = \ln n \cdot k - 2 \ln{\mathcal{L}}$.
+}{
 Un critère similaire mais dérivé dans un cadre bayésien est le \emph{Critère d'Information Bayésien} (BIC)~\cite{burnham2003model}, qui conduit à une pénalisation plus forte du nombre de paramètres : $BIC = \ln n \cdot k - 2 \ln{\mathcal{L}}$.
+}
 
-
+\bpar{
+These criteria are applied to model selection by studying their differences between models (only differences have a meaning, since they are defined with an arbitrary constant): the ``best'' model is the one having the lowest criterion. In the case of models with comparable performances, it can be more relevant to combine models with the Akaike weights $w_i = \exp (- \Delta AIC / 2)$.
+}{
 Ces critères sont appliqués pour la sélection de modèles en étudiant leur différences entre modèles (seules les différences ont un sens, ceux-ci étant définis à une constante près) : le ``meilleur'' modèle est celui ayant le critère le plus faible. Dans le cas de modèles de performance comparables, il peut être pertinent de combiner les modèles par les poids d'Akaike $w_i = \exp (- \Delta AIC / 2)$.
+}
 
 
+\bpar{
+This issue of overfitting is also implicit in the case of simulation models, but to the best of our knowledge there does not exist an established method allowing to tackle it.
+}{
 Cette question du sur-ajustement est également sous-jacente dans le cas des modèles de simulation, mais il n'existe à notre connaissance pas de méthode établie permettant de la traiter.
+}
 
 
-
-\subsection*{Stochastic Processes}{Processus stochastiques : stationnarité}
+\subsection*{Stochastic processes: stationarity}{Processus stochastiques : stationnarité}
 
 %\subsubsection*{Stationarity}{Stationnarité}
 
-Les propriétés de stationnarité informent sur la variabilité de la distribution d'un processus stochastique. Soit $(\vec{X}_i)_{i\in I}$ un processus stochastique multidimensionnel. Il sera dit fortement stationnaire si sa loi ne dépend pas de $i$, c'est-à-dire si $\Pb{\vec{X}_i} = \Pb{\vec{X}_{i+1}}$. La stationnarité forte implique l'égalité de tous les moments pour tout $i$.
 
+\bpar{
+Stationarity properties inform on the variability of the distribution of a stochastic process. Let $(\vec{X}_i)_{i\in I}$ a multidimensional stochastic process. It will be said to be strongly stationary if its law does not depends on $i$, i.e. if $\Pb{\vec{X}_i} = \Pb{\vec{X}_{i+1}}$. Strong stationarity implies the equality of all moments for all $i$.
+}{
+Les propriétés de stationnarité informent sur la variabilité de la distribution d'un processus stochastique. Soit $(\vec{X}_i)_{i\in I}$ un processus stochastique multidimensionnel. Il sera dit fortement stationnaire si sa loi ne dépend pas de $i$, c'est-à-dire si $\Pb{\vec{X}_i} = \Pb{\vec{X}_{i+1}}$. La stationnarité forte implique l'égalité de tous les moments pour tout $i$.
+}
+
+
+\bpar{
+We will use a wealer notion of stationarity for stochastic processes, or \emph{Weak Stationarity}, which uses the first two moments: $(\vec{X}_i)_{i\in I}$ is weakly stationary if
+\begin{enumerate}
+	\item $\Eb{\vec{X}_i} = \Eb{\vec{X}_0}$ for all $i$
+	\item $\Covb{\vec{X}_i}{\vec{X}_j}$ depends only on $i-j$
+\end{enumerate}
+We can have a weak stationarity at the first order if only the condition on the expectation is verified, and at the second order if there is also the condition on autocovariance~\cite{zhang2014test}.
+}{
 Nous utiliserons une notion plus faible de la stationnarité des processus stochastiques, ou \emph{Weak Stationarity}, qui utilise les deux premiers moments : $(\vec{X}_i)_{i\in I}$ est faiblement stationnaire si
 \begin{enumerate}
 	\item $\Eb{\vec{X}_i} = \Eb{\vec{X}_0}$ pour tout $i$
 	\item $\Covb{\vec{X}_i}{\vec{X}_j}$ ne dépend que de $i-j$
 \end{enumerate}
 On peut parler de stationnarité faible du premier ordre si seulement la condition sur l'espérance est vérifiée, et du second ordre si on a aussi la condition sur l'autocovariance~\cite{zhang2014test}.
+}
+
 
 % on spatial stationarity / spatio-temporal stationarity ? -> better be in 4.1
 
@@ -272,23 +294,52 @@ On peut parler de stationnarité faible du premier ordre si seulement la conditi
 
 
 
-\subsection*{Model Exploration}{Exploration de modèles de simulation}
-
-Nous désignerons par modèle de simulation tout algorithme associant une réalisation $\mathcal{M}\left[\vec{x},\vec{\alpha}\right]$ à des données $\vec{x}$ étant donné des paramètres $\alpha$. L'enjeu est alors de comprendre le comportement du modèle de manière empirique, en le simulant, possiblement avec plusieurs répétitions pour des mêmes paramètres si celui-ci est stochastique. Il est alors par exemple possible de calibrer le modèle, c'est-à-dire trouver un jeu de paramètres permettant de remplir des objectifs donnés (qui peuvent être des distances à des données observées).
+\subsection*{Exploration of simulation models}{Exploration de modèles de simulation}
 
 
-\subsubsection*{Experience plan by Sampling}{Plan d'expérience par échantillonnage}
+\bpar{
+We will designate by simulation model any algorithm that associates a realization $\mathcal{M}\left[\vec{x},\vec{\alpha}\right]$ to data $\vec{x}$ given parameters $\vec{\alpha}$. The question is then to understand the behavior of the model in an empirical way, by simulating it, possibly with several repetitions for the same parameters if it is stochastic. It is then for example possible to calibrate the model, i.e. find a set of parameters allowing to fulfill given objectives (that can be distances to observed data). 
+}{
+Nous désignerons par modèle de simulation tout algorithme associant une réalisation $\mathcal{M}\left[\vec{x},\vec{\alpha}\right]$ à des données $\vec{x}$ étant donnés des paramètres $\vec{\alpha}$. L'enjeu est alors de comprendre le comportement du modèle de manière empirique, en le simulant, possiblement avec plusieurs répétitions pour des mêmes paramètres si celui-ci est stochastique. Il est alors par exemple possible de calibrer le modèle, c'est-à-dire trouver un jeu de paramètres permettant de remplir des objectifs donnés (qui peuvent être des distances à des données observées).
+}
 
+
+\subsubsection*{Experience plan by sampling}{Plan d'expérience par échantillonnage}
+
+
+\bpar{
+The dimensionality curse corresponds to the fact that the size of the parameter space is exponential in the number of parameters. When it increases but we want to keep an overview of the behavior of a model on a large variety of input parameters, we can sample the space with a given number of points.
+}{
 Le sort de la dimension (\emph{Dimensionality Curse}) correspond simplement au fait que la taille de l'espace des paramètres est exponentielle en le nombre de paramètres. Lorsque celle-ci grandit mais qu'on veut garder un aperçu du comportement d'un modèle sur des valeurs très variées des paramètres d'entrée, on peut alors échantillonner l'espace par un nombre donné de points.
+}
 
 
+\bpar{
+The Latin Hypercube Sampling (LHS) allows to ensure that for each dimension, the full range of values is covered when generated points are projected on the dimension. The Sobol sampling allows to generate point clouds with a weak discrepancy (see~\ref{app:sec:robustness} for a precise definition of discrepancy, that should be understood as a covering of space), and is particularly suited for the computation of integrals.
+}{
 L'échantillonnage par Hypercube Latin (LHS) permet d'assurer que pour chaque dimension, l'ensemble de la plage des valeurs est couverte lorsqu'on projette les points générés sur la dimension. L'échantillonnage par suite de Sobol permet de générer des points de discrépance faible (voir~\ref{app:sec:robustness} pour une définition précise de la discrépance, qu'il faut comprendre comme une couverture de l'espace), et est particulièrement adapté au calcul d'intégrales.
+}
 
 
+\bpar{
+Sampling can become cumbersome is the model is very irregular, or for a precise calibration objective. Therefore, there exists specific algorithms for exploration and calibration, for which we can give some examples.
+}{
 L'échantillonnage peut devenir laborieux si le modèle est très irrégulier, ou pour un objectif précis de calibration. Pour cela, il existe des algorithmes spécifiques d'exploration et de calibration pour lesquels nous pouvons donner des exemples.
+}
+
 
 \subsubsection*{Genetic algorithm calibration}{Calibration par algorithme génétique}
 
+
+\bpar{
+Genetic algorithms are an alternative largely used in optimization, and are more generally a case of evolutionary computation meta-heuristics~\cite{rey2015plateforme}. We will generally use for the calibration of models the standard algorithm implemented in OpenMole, described in details by~\cite{pumain2017evaluation}. It is a stochastic extension of the NSGA2 algorithm for multi-objective optimization. It has the following main characteristics:
+\begin{itemize}
+	\item given a population of parameters that are candidates as solutions of the multi-objective problem, the Pareto front is determined as the non-dominated points;
+	\item a set is constructed from this front by taking a constraint of diversity into account;
+	\item an offspring is generated from this set by crossovers and mutations, and evaluated for its performance;
+	\item the algorithm iterates on the new population. 
+\end{itemize}
+}{
 Les algorithmes génétiques sont une alternative largement utilisée en optimisation, et font plus généralement partie des méta-heuristiques de computation évolutionnaire~\cite{rey2015plateforme}. Nous utiliserons généralement pour la calibration des modèles l'algorithme standard implémenté dans OpenMole, décrit en détails par~\cite{pumain2017evaluation}. Il s'agit d'une extension stochastique de l'algorithme NSGA2 pour l'optimisation multi-objectif. Il possède les caractéristiques principales suivantes :
 \begin{itemize}
 	\item étant donné une population de paramètres candidats comme solution au problème multi-objectif, le front de Pareto est déterminé comme les points non-dominés ;
@@ -296,14 +347,23 @@ Les algorithmes génétiques sont une alternative largement utilisée en optimis
 	\item une descendance est générée à partir de cet ensemble par croisements et mutations et évaluée pour sa performance ;
 	\item l'algorithme itère sur la nouvelle population.
 \end{itemize}
+}
 
+
+\bpar{
+\cite{pumain2017evaluation} adds the objective of the number of replications to the objectives of the algorithm, in order to take into account stochasticity and find a compromise between optimality and robustness of solutions.
+}{
 \cite{pumain2017evaluation} ajoute l'objectif du nombre de réplications aux objectifs de l'algorithme, afin de prendre en compte la stochasticité et trouver un compromis entre optimalité et robustesse des solutions.
+}
 
 
 \subsubsection*{Specific algorithms}{Algorithmes spécifiques}
 
+\bpar{
+Based on genetic algorithms, various algorithms have been proposed to refine model exploration. We can mention two examples developed in the frame of OpenMole: the \emph{Pattern Space Exploration} algorithm (PSE)~\cite{10.1371/journal.pone.0138212} aims at discovering the set of outputs of a model, in the idea of a search for all feasible behaviors. The \emph{Calibration Profile} algorithm~\cite{reuillon2015} aims on the other hand at establishing the necessary character of a parameter to fulfill an objective, independently of other parameters.
+}{
 Se basant sur des algorithmes génétiques, divers algorithmes ont été proposés pour raffiner l'exploration des modèles. Mentionnons deux exemples développés dans le cadre d'OpenMole : l'algorithme PSE (\emph{Pattern Space Exploration})~\cite{10.1371/journal.pone.0138212} vise à découvrir l'ensemble de l'espace des sorties d'un modèle, dans l'idée d'une recherche de l'ensemble des comportements possibles. L'algorithme \emph{Calibration Profile}~\cite{reuillon2015} vise quant à lui à établir le caractère nécessaire d'un paramètre pour arriver à un objectif, indépendamment des autres paramètres.
-
+}
 
 
 
