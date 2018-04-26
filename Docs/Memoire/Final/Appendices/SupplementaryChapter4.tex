@@ -38,38 +38,75 @@ Nous calculons pour la Chine, à partir de la grille de population à 1km~\cite{
 \end{figure}
 %%%%%%%%%%%%%%
 
+
+
+
+
+%%%%%%%
+%% -- TRAD:begin --
+%%%%%%%
+
+
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Road network}{Réseau routier}
 
 
 
-
 %%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Network Simplification Algorithm}{Algorithme de Simplification du Réseau}
+\subsubsection{Network Simplification Algorithm}{Algorithme de simplification du réseau}
 
 % data collected from http://download.geofabrik.de/europe.html : bosse pas sur le fichier world, huge.
 
+\bpar{
+We detail here the road network simplification algorithm from OpenStreetMap data. The general workflow is the following: (i) data import by selection and spatial aggregation at the raster resolution; (ii) simplification to keep only the topological network, processed in parallel through \emph{split/merge}.
+}{
 Nous détaillons ici l'algorithme de simplification du réseau routier à partir des données OpenStreetMap. La logique générale est la suivante : (i) import des données par sélection et agrégation spatiale à la résolution du raster ; (ii) simplification pour conserver le réseau topologique uniquement, opérée en parallèle par \emph{split/merge}.
+}
 
 
-Les données OSM sont importées dans une base de données \texttt{pgsql} (extension \texttt{Postgis} pour la gestion des géométries et avoir des index spatiaux. L'import est fait en utilisant le logiciel \texttt{osmosis}~\cite{osmosis}, à partir d'une image en format compressé \texttt{pbf} de la base OpenStreetMap\footnote{Les dumps ont été récupérés à partir de \url{http://download.geofabrik.de}, en juillet 2016 pour l'Europe, et juillet 2017 pour la Chine.}. Nous filtrons à cette étape les liens (\texttt{ways}) qui possèdent le tag \texttt{highway}, et conservons les noeuds correspondants.
+\bpar{
+OSM data are imported into a \texttt{pgsql} database (\texttt{Postgis} extension for the management of geometries and to have spatial indexes). The import is done using the software \texttt{osmosis}~\cite{osmosis}, from an image in compressed \texttt{pbf} format of the OpenStreetMap database\footnote{Dumps were retrieved from \url{http://download.geofabrik.de}, in July 2016 for Europe, and July 2017 for China.}. We filter at this stage the links (\texttt{ways}) which posses the tag \texttt{highway}, and keep the corresponding nodes.
+}{
+Les données OSM sont importées dans une base de données \texttt{pgsql} (extension \texttt{Postgis} pour la gestion des géométries et avoir des index spatiaux). L'import est fait en utilisant le logiciel \texttt{osmosis}~\cite{osmosis}, à partir d'une image en format compressé \texttt{pbf} de la base OpenStreetMap\footnote{Les dumps ont été récupérés à partir de \url{http://download.geofabrik.de}, en juillet 2016 pour l'Europe, et juillet 2017 pour la Chine.}. Nous filtrons à cette étape les liens (\texttt{ways}) qui possèdent le tag \texttt{highway}, et conservons les noeuds correspondants.
+}
 
 
+\bpar{
+The network is first aggregated at a 100m granularity in order to be consistently used with population grids. It furthermore allows to be robust to local coding imperfections or to very local missing data. For this step, roads are filtered on a relevant subset of tags\footnote{That we take within \texttt{motorway,trunk,primary,secondary,tertiary,unclassified,residential}.}. For the set of segments of corresponding lines, a link is created between the origin and the destination cell, with a real length computed between the center of cells and a speed taken as the speed of the line if it is available.
+}{
 Le réseau est d'abord agrégé à une granularité de 100m pour pouvoir être utilisé de manière cohérente avec les grilles de population. Cela permet par ailleurs d'être robuste aux imperfections locales de codage ou données très locales manquantes. Pour cette étape, les routes sont filtrées sur un sous-ensemble de tags pertinents\footnote{Que nous prenons dans \texttt{motorway,trunk,primary,secondary,tertiary,unclassified,residential}.}. Pour l'ensemble des segments des lignes correspondantes, un lien est créé entre la cellule d'origine et de destination, avec longueur réelle calculée entre les centres des cellules et vitesse prise comme la vitesse de la ligne si elle est disponible.
+}
+
   
+\bpar{
+The simplification is then operated the following way:
+\begin{enumerate}
+\item The whole geographical coverage is cut into areas on which computations will be partly done through parallel computation (\emph{split} paradigm). Areas have a fixed size in number of cells of the base raster (200 cells).
+\item On each sub-area, a simplification algorithm is applied the following way: as long as there still are vertices of degree 2, successive sequences of such vertices are determined, and corresponding links are replaced by a unique link with real length and speed computed by cumulation on the deleted links.
+\item As the simplification algorithm keeps the links having an intersection with the border of areas, a fusion followed by a simplification of resulting graphs is necessary. To keep a reasonable computational cost, the size of merged areas has to stay low: we take merge areas composed by two contiguous areas. A paving by four sequences of independent merging allows then to cover the full set of joints between areas\footnote{In the very rare cases of a link between two non-contiguous areas, the remaining link is not simplified. This case was not observed in practice in our data.}, these sequences being executed sequentially. The Frame \ref{frame:app:staticcorrelations:merging} shows the covering of joints by merging areas.
+\end{enumerate}
+}{
 La simplification est alors opérée de la façon suivante :
 \begin{enumerate}
 \item L'ensemble de la couverture géographique est découpée en zones sur lesquelles les traitement seront effectués en partie par du calcul parallèle (paradigme \emph{split}). Les zones sont de côté fixe en nombre de cellules du raster de base (200 cellules).
 \item Sur chaque sous-zone, un algorithme de simplification est effectué de la façon suivante : tant qu'il reste des sommets de degré 2, les séquences successives de tels sommets sont déterminées, et les liens correspondants sont remplacés par un lien unique avec longueur et vitesse réels calculés par cumul sur les liens supprimés.
 \item Comme l'algorithme de simplification conserve les liens ayant une intersection avec la bordure des zones, une fusion puis simplification des graphes fusionnés est nécessaire. Pour garder un coût computationnel raisonnable, la taille des zones fusionnées doit rester modeste : nous prenons des zones de fusion composées de deux zones contiguës. Un pavage par quatre séquences de fusion indépendantes permet alors de couvrir l'ensemble des jointures entre zones\footnote{Dans les cas très rares d'un lien entre deux zones non contiguës, le lien restant n'est pas simplifié. Ce cas n'a pas été observé en pratique dans nos données.}, ces séquences pouvant être exécutées à la suite. L'encadré \ref{frame:app:staticcorrelations:merging} montre le recouvrement des jointures par les zones de fusion.
 \end{enumerate}
+}
 
 
-Nous disposons alors d'un graphe topologique donné par les liens entre cellules du raster de base, ayant des attributs de distance et de vitesse correspondant au liens réels sous-jacents.
+\bpar{
+We have then at our disposition a topological graph given by the links between cells of the base raster, having distance and speed attributes corresponding to the underlying real links.
+}{
+Nous disposons alors d'un graphe topologique donné par les liens entre cellules du raster de base, ayant des attributs de distance et de vitesse correspondant aux liens réels sous-jacents.
+}
 
 
+\bpar{
+Graphs for Europe and China are available as open databases (see Appendix~\ref{app:data}).
+}{
 Les graphes pour l'Europe et la Chine sont disponibles en base de données ouverte (voir Annexe~\ref{app:data}).
-
+}
 
 
 
@@ -81,7 +118,7 @@ Les graphes pour l'Europe et la Chine sont disponibles en base de données ouver
 
 	\medskip
 
-	\framecaption{\textbf{Schema of merging sequences.}\label{frame:app:staticcorrelations:merging}}{\textbf{Illustration des séquences de fusion.} Les quatre séquences indépendantes (horizontales et verticales) permettent le recouvrement de l'ensemble des jointures entre zones.\label{frame:app:staticcorrelations:merging}}
+	\framecaption{\textbf{Illustration of merging sequences.} The four independent sequences (horizontally and vertically) allow the coverage of all joints between areas.\label{frame:app:staticcorrelations:merging}}{\textbf{Illustration des séquences de fusion.} Les quatre séquences indépendantes (horizontales et verticales) permettent le recouvrement de l'ensemble des jointures entre zones.\label{frame:app:staticcorrelations:merging}}
 \end{mdframed}
 \end{figure}
 %%%%%%%%%%%%%
@@ -106,6 +143,11 @@ Les graphes pour l'Europe et la Chine sont disponibles en base de données ouver
 % example of simpl stage
  %\includegraphics[width=\textwidth,height=0.5\textheight]{figures/ex_nw}
 
+
+
+%%%%%%%
+%% -- TRAD:end --
+%%%%%%%
 
 
 
@@ -298,7 +340,8 @@ Nous évaluons ici la sensibilité des divers indicateurs à la taille de la gri
 %%%%%%%%%%%%
 \begin{figure}
 	% Figures/StaticCorrelations/indics_morpho_areasize60_offset30_factor0.5.png
-	% Figures/StaticCorrelations/indics_morpho_areasize200_offset100_factor0.5.png	\includegraphics[width=\linewidth,height=0.95\textheight]{Figures/Final/A-staticcorrelations-sensitivity-maps-morpho.jpg}
+	% Figures/StaticCorrelations/indics_morpho_areasize200_offset100_factor0.5.png
+	\includegraphics[width=\linewidth,height=0.95\textheight]{Figures/Final/A-staticcorrelations-sensitivity-maps-morpho.jpg}
 	\appcaption{\textbf{Morphological indicators for different grid sizes.} The first four maps show the indicators computed on a window of size 30km, the last four maps with a window of size 100km.\label{fig:app:staticcorrelations:sensitivity-maps-morpho}}{\textbf{Indicateurs morphologiques pour différentes tailles de grille.} Les 4 premières cartes montrent les indicateurs calculés avec une fenêtre de taille 30km, les 4 dernières avec une fenêtre de taille 100km.\label{fig:app:staticcorrelations:sensitivity-maps-morpho}}
 \end{figure}
 %%%%%%%%%%%%
@@ -306,7 +349,8 @@ Nous évaluons ici la sensibilité des divers indicateurs à la taille de la gri
 
 %%%%%%%%%%%%
 \begin{figure}
-	% Figures/StaticCorrelations/indics_network_areasize60_offset30_factor0.5.png	% Figures/StaticCorrelations/indics_network_areasize200_offset100_factor0.5.png
+	% Figures/StaticCorrelations/indics_network_areasize60_offset30_factor0.5.png
+	% Figures/StaticCorrelations/indics_network_areasize200_offset100_factor0.5.png
 	\includegraphics[width=\linewidth,height=0.95\textheight]{Figures/Final/A-staticcorrelations-sensitivity-maps-network.jpg}
 	\appcaption{\label{fig:app:staticcorrelations:sensitivity-maps-network}}{\textbf{Echantillon des indicateurs de réseau pour différentes tailles de grille.} Les 4 premières cartes montrent les indicateurs calculés avec une fenêtre de taille 30km, les 4 dernières avec une fenêtre de taille 100km.\label{fig:app:staticcorrelations:sensitivity-maps-network}}
 \end{figure}
@@ -342,10 +386,14 @@ La Fig.~\ref{fig:app:staticcorrelations:sensitivity-corrs} donne les variations 
 %% smoothed correlation
 
 %%%%%%%%%%%%
-\begin{figure}	% Figures/StaticCorrelations/sensit_morpho_low60_high100.png
-	% Figures/StaticCorrelations/sensit_network_low60_high100.png	% Figures/StaticCorrelations/sensit_morpho_low60_high200.png
-	% Figures/StaticCorrelations/sensit_network_low60_high200.png	% Figures/StaticCorrelations/sensit_morpho_low100_high200.png
-	% Figures/StaticCorrelations/sensit_network_low100_high200.png	% Figures/StaticCorrelations/sensit_morpho_crossed.png
+\begin{figure}
+	% Figures/StaticCorrelations/sensit_morpho_low60_high100.png
+	% Figures/StaticCorrelations/sensit_network_low60_high100.png
+	% Figures/StaticCorrelations/sensit_morpho_low60_high200.png
+	% Figures/StaticCorrelations/sensit_network_low60_high200.png
+	% Figures/StaticCorrelations/sensit_morpho_low100_high200.png
+	% Figures/StaticCorrelations/sensit_network_low100_high200.png
+	% Figures/StaticCorrelations/sensit_morpho_crossed.png
 	% Figures/StaticCorrelations/sensit_network_crossed.png
 	\includegraphics[width=\linewidth,height=0.9\textheight]{Figures/Final/A-staticcorrelations-sensitivity-corrs.jpg}
 	\appcaption{\textbf{Correlations between indicators computed at different scales.} From top to bottom (left column giving morphological indicators and right column network indicators), $(d=30,D=50)$, $(d=30,D=100)$, $(d=50,D=100)$, and the last row gives the correlation between the two fields $d_1=30$ and $d_2=50$ both smoothed at the characteristic distance of $d_0$.\label{fig:app:staticcorrelations:sensitivity-corrs}}{\textbf{Corrélations entre indicateurs à différentes échelles.} Dans l'ordre de haut en bas (colonne de gauche indicateurs morphologiques, colonne de droite indicateurs de réseau), $(d=30,D=50)$, $(d=30,D=100)$, $(d=50,D=100)$, et la dernière ligne donne la corrélation entre les deux champs $d_1=30$ et $d_2=50$ tous les deux lissés à la taille $d_0$.\label{fig:app:staticcorrelations:sensitivity-corrs}}
