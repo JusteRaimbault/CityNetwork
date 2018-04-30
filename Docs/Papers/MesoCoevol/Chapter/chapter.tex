@@ -1,0 +1,489 @@
+\input{header.tex}
+
+
+\title{An Urban Morphogenesis Model Capturing Interactions between Networks and Territories}
+\author{\noun{Juste Raimbault}$^{1,2}$\\
+$^1$ UPS CNRS 3611 ISC-PIF\\
+$^2$ UMR CNRS 8504 G{\'e}ographie-cit{\'e}s
+}
+\date{}
+
+\maketitle
+
+\justify
+
+% The strong coupling between urban development and transportation networks has been largely documented in the empirical literature, yet few models to simulate urban growth include it. We postulate that these two dimensions are complementary aspects of urban morphogenesis, and introduce accordingly a generative model of urban growth. The model is at a mesoscopic scale, in the sense of a fine resolution (under 1km) and intermediate spatial extent (50$\sim$100km). Given a fixed exogenous growth rate, population are dispatched following a preferential attachment that depends on a potential controlled by local urban form (density, distance to network) and network measures (centralities and generalized accessibilities), and then diffused in space to capture urban sprawl. Network growth is included through a multi-modeling paradigm: implemented heuristics include biological network generation and gravity potential breakdown.
+
+%Besides, we introduce a typology of territories, based on coupled urban form and network topology measures. It is established on windows spanning full European Union, given population density data and OpenStreetMap road network. This typology is used to calibrate the model: we proceed to a static calibration, in the sense that final configurations only are fitted, but both at the first (measures) and second (correlations) order. The later captures indirectly relations between the network and the urban frame. The model is able to reproduce most of existing configurations. The study of lagged correlations within synthetic model runs furthermore unveils a large variety of Granger causality regimes, confirming the ability of the model to grasp the complexity of situations existing empirically.
+
+
+\begin{abstract}
+
+\end{abstract}
+
+\textbf{Keywords : }\textit{Urban Morphogenesis; Reaction-diffusion; Population distribution; Transportation Network; Co-evolution}
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+
+
+Through relocation processes, sometimes induced by networks, we can expect the latest to influence the distribution of populations in space. Reciprocally, network characteristics can be influenced by this distribution. We propose here to study these potential links by the intermediate of characterizations given by synthetic indicators for these two subsystems, and by correlations between these indicators.
+
+At the scale of the system of cities, the spatial nature of the urban system is captured by cities position, associated with aggregated city variables. We will work here at the mesoscopic scale, at which the precise spatial distribution of activities is necessary to understand the spatial structure of the territorial system. We will therefore use the term of morphological characteristics for population density and the road network.
+
+The choice of ``relevant'' boundaries for the territory or the city is a relatively open problem which will often depend on the question we are trying to answer \cite{paez2005spatial}. This way, \cite{guerois2002commune} show that the entities obtained are different if we consider an entry by the continuity of the built environment (morphological), by urban functions (employment area for example) or by administrative boundaries. We choose here the mesoscopic scale of a metropolitan center, of an order of one hundred kilometers, first for the relevance of the spatial field computed, and secondly because smaller scales become less relevant for the notion of urban form, whereas larger scales induce a too large variability.
+
+
+At this scale, we can assume that territorial characteristics, for population and network, are locally defined et vary in an approximatively continuous way in space. Thus, the construction of fields of morphological indicators will allow to endogenously reconstruct territorial entities through the emergent spatial structure of indicators at larger scales. For examples, cities should be distinguishable within non-urban spaces. The aim of this section is thus to study properties of these indicators and their interactions, and thus indirectly interactions between the territory and the network.  
+
+
+% TODO : why coupled ? 
+%  - interactions network terriotries
+%  - topo morphogenesis form/function
+% 
+
+
+
+\section{Measuring morphology}
+
+\subsection{Urban morphology}{Morphologie Urbaine}
+
+%% TODO : check here overlap with DensityPaper
+
+The approaches to quantify and qualify \emph{urban form} at the considered scale, and by extension to any population distribution in space what we can call \emph{territorial form}, are numerous.
+
+We need however quantities having a certain level of invariance to extract typical shapes. For example, two monocentric cities, i.e. concentrated around a given point, should be measured as morphologically close by a monocentricity indicator, whereas a direct comparison of population distributions can give a very high distance\footnote{Spatial distributions can be compared by an euclidian distance between corresponding matrices, or by more elaborated distances such as the Monge distance which solves a minimal transport problem and gives the quantity of displacements necessary to go from one distribution to the other.} between configurations depending on the position of centers.
+
+We choose here to refer to the literature in urban morphology which proposes various set of indicators to describe urban form~\cite{tsai2005quantifying}. \cite{le2009quantifier} recalls the necessity of a multi-dimensional measure of the urban form. It is possible to obtain a robust description with a small number of independant indicators by a reduction of the dimension~\cite{Schwarz201029}.
+
+Other solutions exist to quantify urban form\footnote{In operational urbanism, urban morphology is defined as ``the characteristics of the material form of cities and fabrics''~\cite{paquot2010abc}. We use this term here for fabrics at a mesoscopic scale, seen through the spatial distribution of populations.}. \cite{guerois2008built} study the form of European cities using a simple measure of density slopes from the center to the periphery. It is also possible to use indexes from fractal analysis, such as for example systematically applied by~\cite{2016arXiv160808839C} to classify urban forms. The link between urban morphology and topology of the underlying relational network has been suggested in a theoretical approach by~\cite{badariotti2007conception}. Other more original indexes can be proposed, such as by~\cite{lee2017morphology} which use the variations of trajectories for routes going through a city to establish a classification and show that it is strongly correlated with socio-economic variables.
+
+Note that we consider here indicators on the spatial distribution of population density only, and that more elaborated considerations on urban form can include for example the distribution of economic opportunities and the combination of these two fields through accessibility measures. For the choice of indicators, we follow the analysis done in~\cite{le2015forme} where a morphological typology of large European cities is obtained. Its consistence suggests the ability of the indicator set used to capture urban form at this scale. We work at a comparable scale and must capture diverse aspects such as hierarchy, concentration, level of acentrism of the population distribution, hence the use of similar indicators.
+
+
+We give now the formal definition of morphological indicators. We consider gridded population data $(P_i)_{1\leq i \leq N^2}$, write $M=N^2$ the number of cells, $d_{ij}$ the distance between cells $i,j$, and $P=\sum_{i=1}^{M} P_i$ total population. We measure urban form using:
+
+% TODO : here repetition
+\begin{enumerate}
+\item Rank-size slope $\gamma$, expressing the degree of hierarchy in the distribution, computed by fitting with Ordinary Least Squares a power law distribution by $\ln \left( P_{\tilde{i}}/P_0\right) \sim k + \gamma\cdot \ln \left(\tilde{i}/i_0\right)$ where $\tilde{i}$ are the indexes of the distribution sorted in decreasing order (the constant $k$ of the adjustment does not play a role in hierarchy). It is always negative, and values close to zero mean a flat distribution.
+\item Entropy of the distribution~\cite{le2015forme}, which expresses how uniform the distribution is, what is a way to capture a level of concentration:
+\begin{equation}
+\mathcal{E} = \sum_{i=1}^{M}\frac{P_i}{P}\cdot \ln{\frac{P_i}{P}}
+\end{equation}
+$\mathcal{E}=0$ means that all the population is in one cell whereas $\mathcal{E}=1$ means that the population is uniformly distributed.
+\item Spatial-autocorrelation given by Moran index~\cite{tsai2005quantifying}, with simple spatial weights given by $w_{ij} = 1/d_{ij}$
+\[
+I = M \cdot \frac{\sum_{i\neq j} w_{ij} \left(P_i - \bar{P}\right)\cdot\left(P_j - \bar{P}\right)}{\sum_{i\neq j} w_{ij} \sum_{i}{\left( P_i - \bar{P}\right)}^2}
+\]
+Its theoretical bounds are -1 and 1, and positive values will imply aggregation spots (``density centers''), negative values strong local variations, whereas $I=0$ corresponds to totally random population values.
+\item Average distance between individuals~\cite{le2009quantifier}, which captures a spatial dispersion of population and quantifies a level of acentrism (distance to a monocentric model):
+\[
+\bar{d} = \frac{1}{d_M}\cdot \sum_{i<j} \frac{P_i P_j}{P^2} \cdot d_{ij}
+\]
+where $d_M$ is a normalisation constant taken as the diagonal of the area on which the indicator is computed in our case.
+\end{enumerate}
+
+
+The first two indexes are not spatial, and are completed by the last two that take space into account. Following \cite{schwartz2011spatial}, the effective dimension of the urban form justifies the use of all.
+
+
+\subsection{Network Measures}
+
+
+We consider network aggregated indicators as a way to characterize transportation network properties on a given territory, the same way morphological indicators yielded information on urban structure. We propose to compute some simple indicators on same extents as for morphology, to be able to explore relations between these static measures.
+
+Static network analysis has been extensively documented in the literature, such as for example \cite{louf2014typology} for a cross-sectional study of cities or \cite{2015arXiv151201268L} for the exploration of new measures for the road network. \cite{2017arXiv170902939M} uses techniques from deep learning to establish a typology of urban road networks for a large number of cities across the world.
+
+% TODO : add literature on space syntax here
+
+The questions behind such approaches are multiple: they can aim at finding typologies or at characterizing spatial networks, at understanding underlying dynamical processes in order to model morphogenesis, or even at being applied in urban planning such as \emph{Space Syntax} approaches~\cite{hillier1989social}. We are positioned here more within the two first logics since we aim at characterizing the shape of networks in a first step, and then to include their dynamics in models in a second step. Our significant contribution is the characterization of the road network on large spatial extents, covering Europe and China.
+
+
+We introduce indicators to have a broad idea of the form of the network, using a certain number of indicators to capture the maximum of dimensions of properties of networks, more or less linked to their use. These indicators summarize the mesoscopic structure of the network and are computed on topological networks obtained through simplification steps that will be detailed later. If we denote the network with $N=(V,E)$, nodes have spatial positions $\vec{x}(V)$ and populations $p(v)$ obtained through an aggregation of population in the corresponding Voronoï polygon\footnote{A Voronoï diagram is a partition of the plan, constructed from a point cloud. The cell associated to each point is composed by the set of points closer to it than other points of the cloud. The graph of a Voronoï diagram is the dual of the associated Delaunay triangulation.}, and edges $E$ have \emph{effective distances} $l(E)$ taking into account impedances and real distances (to include the primary network hierarchy). We then use:
+
+\begin{itemize}
+\item Characteristics of the graph, obtained from graph theory, as defined by~\cite{haggett1970network}: number of nodes $\left|V\right|$, number of links $\left|E\right|$, density $d$, average length of links $\bar{d_l}$, average clustering coefficient $\bar{c}$, number of components $c_0$.
+\item Measures linked to shortest paths: diameter $r$, euclidian performance $v_0$ (defined by~\cite{banos2012towards}), average length of shortest paths $\bar{l}$.
+\item Centrality measures: these are aggregated at the level of the network by taking their average and their level of hierarchy, computed by an ordinary least squares of a rank-size law, for the following centrality measures:
+\begin{itemize}
+\item Betweenness centrality~\cite{crucitti2006centrality}, average $\bar{bw}$ and hierarchy $\alpha_{bw}$: given the distribution of centrality on all nodes, we take the slope of a rank-size adjustment and the average of the distribution.
+\item Closeness centrality~\cite{crucitti2006centrality}, average $\bar{cl}$ and hierarchy $\alpha_{cl}$.
+\item Accessibility~\cite{hansen1959accessibility}, which is in our case computed as a closeness centrality weighted by populations: average $\bar{a}$ and hierarchy $\alpha_{a}$.
+\end{itemize}
+\end{itemize}
+
+The concept of accessibility is measured here by a network indicator, since its computation implies to attribute weights to the nodes with a corresponding population, and can be interpreted than as a potential of access to the rest of the population (as we did in chapter~\ref{ch:thematic}). This indicator is interesting a priori since it lies at the interface between the urban form and network topology, since the distribution of population on nodes is taken into account.
+
+Network performance is close to the rectilinearity measure (\emph{straightness}) proposed by \cite{josselin2016straightness}, which show that it efficiently differentiate rectilinear networks and radio-concentric networks, that are both recurring urban networks.
+
+
+Our indicators are conceived around network topology but not its use: developments with suited data could extend these analyses to the functional aspect of networks, such as for example performance measures computed by~\cite{trepanier2009calculation} using massive data for a public transportation network.
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+
+\subsection{Urban morphology}
+
+% We compute the morphological measures given above on real urban density data, using the population density grid of the European Union at 100m resolution provided openly by Eurostat~\cite{eurostat}\footnote{This database has some precision details that have been recognized~\cite{bretagnolle2016ville} but the aggregation at a larger resolution should allow to remove possible bias.}. The choice of the resolution, the spatial range, and the shape of the window on which indicators are computed, is made according to the thematic specifications given before. We consider 50km wide square windows. As it also does not make sense to have a too detailed resolution because of data quality\footnote{According to \cite{batista2013high} which details the construction of the dataset, good results were obtained after validation for seven countries on samples with a grid of resolution 1km. We are thus closer of this resolution with a resolution of 500m.}, we take $N=100$ and aggregate the initial raster data at a 500m resolution to meet this size on real windows of size 50km. To have a rather continuous distribution of indicators in space, we overlap windows by setting an offset of 10km between each, what induces a smoothing of values and allows to limit bord effects due to the shape. We have furthermore tested the sensitivity to window size by computing samples with 30km and 100km window sizes and obtained rather similar spatial distributions, and also strong correlations between the fields and their smoothing at a finer resolution, as detailed in Appendix~\ref{app:sec:staticcorrelations}.
+% -> reformulate
+
+The implementation of indicators must be done carefully, since computational complexities can reach $O(N^4)$ for the Moran index for example: we use convolution through Fast Fourier Transform, which is a technique allowing the computation of the Moran index with a complexity in $O(\log^2 N \cdot N^2)$\footnote{I.e. having an execution time bounded by $\log^2 N \cdot N^2$ if $N$ is the data size, what is a considerable gain compared to $N^4$: to process a grid of width 100, the asymptotic gain factor will be approximatively $10000$.}.
+
+%We show in Fig.~\ref{fig:staticcorrelations:empirical} maps giving values of indicators, for France only to ease maps readability. The first striking feature is the diversity of morphological patterns across the full territory. The auto-correlation is naturally high in Metropolitan areas (Paris, Lyon, Marseille for example), with the Parisian surroundings clearly detached. When looking at other indicators, it is interesting, regarding possible areas in which a co-evolution could happen, to denote regional regimes: rural areas have much less hierarchy in the South than in the North, whereas the average distance is rather uniformly distributed except for mountain areas. Regions of very high entropy are observed in the Center and South-West.
+
+% To have a better insight into existing morphological classes, we use unsupervised classification\footnote{Which consists in partitioning the data space according to their endogenous structure.} with a simple k-means algorithm\footnote{Given the distribution of points which have a relatively homogenous density, alternative methods such as the DBScan algorithm are relatively equivalent. We take here a number of repetitions $b=100$ of the algorithm to have a result robust to stochasticity.}. The number of clusters $k=5$ witnesses a transition in inter-cluster variance, what means that a variation of structure occurs at this number, that we then choose as the number of clusters. The split between classes is plotted in Fig.~\ref{fig:staticcorrelations:empirical}, bottom-left panel, where we show measures projected on the two first components of a Principal Component Analysis (explaining 71\% of variance, what is relatively large). The map of morphological classes confirms a North-South opposition in a background rural regime (clear green against blue), the existence of mountainous (red) and metropolitan (dark green) regimes. Such a variety of settlements forms will be the target for the model in~\ref{sec:densitygeneration}. A similar computation of morphological indicators was done for China using the gridded population data from~\cite{fu1km}. Maps are available in Appendix~\ref{app:sec:staticcorrelations}.
+
+
+\subsection{Network Topology}
+
+\subsubsection{Data preprocessing}
+
+We work here with the road network, which structure is finely conditioned to territorial configuration of population densities. Furthermore, data for the current road network is openly available through the OpenStreetMap (OSM) project~\cite{openstreetmap}. Its quality was investigated for different countries such as England~\cite{haklay2010good} and France~\cite{girres2010quality}. It was found to be of a quality equivalent to official surveys for the primary road network. Concerning China, although \cite{zheng2014assessing} underlined a quick acceleration of OSM road data completeness and accuracy, its use for computation of network indicators may be questioned at a very fine scale. \cite{zhang2015density} highlights different regimes of data quality, partitioning China into regions among which qualitative behavior of OSM data varies. We will have to keep in mind this variability, and to ensure the robustness of results, we will simplify the network at a sufficient level of aggregation.
+
+
+The network constituted by primary road segments is aggregated at the fixed granularity of the density grid to create a graph. It is then simplified to keep only the topological structure of the network, normalized indicators being relatively robust to this operation. This step is necessary for a simple computation of indicators and a thematic consistence with the density layer. We keep only the nodes with a degree strictly greater or smaller than two, and corresponding links, by taking care to aggregate the real geographical distance when constructing the corresponding topological link. Given the order of magnitude of data size (for Europe, the initial database has $\simeq 44.7\cdot 10^6$ links, and the final simplified database $\simeq 20.4\cdot 10^6$), a specific parallel algorithm is used, with a \emph{split-merge} structure. It separates the space into areas that can be independently processed and then merged. It is detailed in Appendix~\ref{app:sec:staticcorrelations}.
+
+
+\subsubsection{Network Simplification Algorithm}
+
+
+We detail here the road network simplification algorithm from OpenStreetMap data. The general workflow is the following: (i) data import by selection and spatial aggregation at the raster resolution; (ii) simplification to keep only the topological network, processed in parallel through \emph{split/merge}.
+
+OSM data are imported into a \texttt{pgsql} database (\texttt{Postgis} extension for the management of geometries and to have spatial indexes). The import is done using the software \texttt{osmosis}~\cite{osmosis}, from an image in compressed \texttt{pbf} format of the OpenStreetMap database\footnote{Dumps were retrieved from \url{http://download.geofabrik.de}, in July 2016 for Europe, and July 2017 for China.}. We filter at this stage the links (\texttt{ways}) which posses the tag \texttt{highway}, and keep the corresponding nodes.
+
+
+The network is first aggregated at a 100m granularity in order to be consistently used with population grids. It furthermore allows to be robust to local coding imperfections or to very local missing data. For this step, roads are filtered on a relevant subset of tags\footnote{That we take within \texttt{motorway,trunk,primary,secondary,tertiary,unclassified,residential}.}. For the set of segments of corresponding lines, a link is created between the origin and the destination cell, with a real length computed between the center of cells and a speed taken as the speed of the line if it is available.
+
+The simplification is then operated the following way:
+\begin{enumerate}
+\item The whole geographical coverage is cut into areas on which computations will be partly done through parallel computation (\emph{split} paradigm). Areas have a fixed size in number of cells of the base raster (200 cells).
+\item On each sub-area, a simplification algorithm is applied the following way: as long as there still are vertices of degree 2, successive sequences of such vertices are determined, and corresponding links are replaced by a unique link with real length and speed computed by cumulation on the deleted links.
+\item As the simplification algorithm keeps the links having an intersection with the border of areas, a fusion followed by a simplification of resulting graphs is necessary. To keep a reasonable computational cost, the size of merged areas has to stay low: we take merge areas composed by two contiguous areas. A paving by four sequences of independent merging allows then to cover the full set of joints between areas\footnote{In the very rare cases of a link between two non-contiguous areas, the remaining link is not simplified. This case was not observed in practice in our data.}, these sequences being executed sequentially. The Frame \ref{frame:app:staticcorrelations:merging} shows the covering of joints by merging areas.
+\end{enumerate}
+
+We have then at our disposition a topological graph given by the links between cells of the base raster, having distance and speed attributes corresponding to the underlying real links.
+
+Graphs for Europe and China are available as open databases (see Appendix~\ref{app:data}).
+
+%\includegraphics[width=\linewidth]{Figures/Theory/nwsimplification.pdf}
+%\framecaption{\textbf{Illustration of merging sequences.} The four independent sequences (horizontally and vertically) allow the coverage of all joints between areas.\label{frame:app:staticcorrelations:merging}}
+
+
+
+
+
+
+\subsubsection{Results}
+
+
+Network indicators have been computed on the same areas than urban form indicators, in order to put them in direct correspondance and later compute the correlations. We show in Fig.~\ref{fig:staticcorrs:network} a sample for France.
+
+The spatial behavior of indicators unveils local regimes as for the urban form (urban, rural, metropolitan), but also strong regional regimes. They can be due to the different agricultural practices depending on the region for the rural for example, implying a different partition of parcels and also a particular organization of their serving. For network size, Brittany is a clear outlier and rejoins urban regions, witnessing very fragmented parcels (and a fortiori also of a land property fragmentation in the simplifying assumption of corresponding parcels and properties). This is partly correlated to a low hierarchy of accessibility. The South and the East of the extended \emph{Bassin Parisien} are distinguishable by a strong average betweenness centrality, in accordance with a strong hierarchy of the network.
+
+The same way as for urban form, this spatial variability suggests the search of variables regimes of interactions between indicators, as we will do for later through their correlations.
+
+
+%For China, for which a selection of indicators is also given in~\ref{app:sec:staticcorrelations}, we observe even stronger local and regional variations. Highly populated urban areas detach themselves, corresponding to a particular regime.
+
+%The accessibility indicator is finally strongly correlated with the same unweighted indicator, i.e. closeness centrality: we obtain a correlation of $\rho = 0.86$ estimated on all measure points for China.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\includegraphics[width=\linewidth]{figures/4-1-2-fig-staticcorrs-network}
+%\includegraphics[width=\linewidth]{Figures/StaticCorrelations/FR_indics_network_selected_2_discrquantiles}
+\caption{\textbf{Spatial distribution of network indicators.} We show indicators for France, in correspondance with morphological indicators described previously. We give here the average betweenness centrality $\bar{bw}$, the hierarchy of closeness centrality $\alpha_cl$, the average clustering coefficient $\bar{c}$ and the number of nodes $\left|V\right|$.\label{fig:staticcorrs:network}}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsection{Effective static correlations and non-stationarity}
+
+
+\subsubsection{Spatial correlations}
+
+Local spatial correlations are computed on windows gathering a certain number of observations, and thus of windows on which indicators have been computed. We denote by $l_0$ (which is equal to 10km in preceding results) the resolution of the distribution of indicators. The estimation of correlations in then done on squares of size $\delta\cdot l_0$ (with $\delta$ which can vary typically from 4 to 100). $\delta$ gives simultaneously the number of observations used for the local estimation of correlation, and the spatial range of the corresponding window. Its value thus directly influences the confidence of the estimation.
+
+
+We show in Fig.~\ref{fig:staticcorrs:mapscorrs} examples of correlations estimated with $\delta = 12$ in the case of France. With 20 indicators, the correlation matrix is significantly large in size, but the effective dimension (the number of components required to reach the majority of variance) is reduced:  principal components analysis shows that 10 components already capture 62\% of variance, and the first component already captures 17\%, what is considerable in a space where the dimension is 190\footnote{This corresponds to the dimension of the correlation matrix between 20 indicators, i.e. the number of elements of its half without the diagonal. If correlations were randomly distributed, the first component would capture $1/190 = 0.5\%$ only, and the 10 first 5\%, since the variance is equally shared between independent dimensions.}.
+
+
+It is possible to examine the bloc for urban form, for the network, or for crossed correlations, which directly express a link between properties of the urban form and of the network. For example, the relation between average betweenness centrality and morphological hierarchy that we visualize allows to understand the process corresponding to the correspondance of hierarchies: a hierarchical population can induce a hierarchical network or the opposite direction, but it can also induce a distributed network or such a network create a population hierarchy - this must be well understood in terms of correspondence and not causality, but this correspondance informs on different urban regimes. Metropolitan areas seem to exhibit a positive correlation for these two indicators, as shows the Fig.~\ref{fig:staticcorrs:mapscorrs}, and rural spaces a negative correlation.
+
+
+In order to give a picture of global relations between indicators, we can refer to the full correlation matrix in Fig.~\ref{fig:app:staticcorrelations:overallcorrs} (Appendix~\ref{app:sec:staticcorrelations}): for example, a strong population hierarchy is linked to a high and hierarchical betweenness centrality, but is negatively correlated to the number of edges (a diffuse population requires a more spread network to serve all the population). However, it is not possible this way to systematically link indicators, since they especially strongly vary in space. We give also in Appendix~\ref{app:sec:staticcorrelations}, Fig.~\ref{fig:app:staticcorrelations:europe-correlations}, maps for different correlation coefficients for all Europe.
+
+
+This suggests a very high variety of interaction regimes. The spatial variation of the first component of the reduced matrix confirms it, what clearly reveals the spatial non-stationarity of interaction processes between forms, since the first and second moments vary in space. The statistical significance of stationarity can be verified in different ways\footnote{There does not exist to the best of our knowledge a generic test for spatial non-stationarity. \cite{zhang2014test} develops for example a test for rectangular regions of any dimension, but in the specific case of \emph{point processes}.}. We use here the method of \cite{leung2000statistical} which consists in estimating through bootstrap the robustness of Geographically Weighted Regression models. These will be developed below, but we obtain for all tested models a significant non-stationarity without doubt ($p<10^{-3}$).
+
+
+Furthermore, the statistical distribution of correlations given in Fig.~\ref{fig:app:staticcorrelations:corr-distribs} in Appendix~\ref{app:sec:staticcorrelations} follows an asymmetric law for the morphology alone, and rather symmetric for the network and the cross-correlations, what would mean that some areas have rather strong morphological constraints whereas the shape of the network is rather free. Finally, we observe on the point clouds of the same figure, relating the values of correlations in the different blocs, that configurations for which cross-correlations are the strongest correspond to the ones for which morphological and network correlations are also strong, confirming the intrication of processes in that case.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\includegraphics[width=\linewidth]{figures/4-1-3-fig-staticcorrs-mapscorrs}
+%\includegraphics[width=0.48\linewidth]{Figures/StaticCorrelations/FR_corr_meanBetweenness_slope_rhoasize12}
+%\includegraphics[width=0.48\linewidth]{Figures/StaticCorrelations/FR_corr_PCA_rhoasize12}
+\caption{\textbf{Examples of spatial correlations.} For France, the maps give $\rho\left[\bar{bw},\gamma\right]$, correlation between the average betweenness centrality and the hierarchy of population (\textit{Left}) and the first component of the reduced matrix (\textit{Right}).\label{fig:staticcorrs:mapscorrs}}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%
+
+
+\subsubsection{Variations of the estimated correlations}
+
+
+We show in Fig.~\ref{fig:staticcorrs:corrsdistrib} the variation of the estimation of correlation as a function of window size. More precisely, we observe a strong variation of correlations as a function of $\delta$, what is reflected in the average value of the matrix given here (which extends for example from $\rho(4)=0.22$ to $\rho(80)=0.12$ for average absolute cross-correlations). An increase of $\delta$ leads for all measures a shift towards positive values, but also a narrowing of the distribution, these two effects resulting in a decrease of average absolute correlations, which approximatively stabilize for large values of $\delta$. Such a variation could be a clue of a multi-scalar behavior: a change in window size should not influence the estimation if a single process would be implied, it should only change the robustness of the estimation. The development in Appendix~\ref{app:sec:staticcorrelations} illustrates this link in the case of processes superposed at two scales, and demonstrates that this structure of process implies a variation of the estimated correlation as a function of $\delta$, at least in low values, which is what we observe here in Fig.~\ref{fig:staticcorrs:corrsdistrib}.
+
+
+
+Furthermore, the variation of the normalized size of the confidence interval for correlations, which in theory under an assumption of normality should lead $\delta\cdot \left|\rho_+ - \rho -\right|$ to remain constant, since bounds vary asymptotically as $1/\sqrt{N}\sim 1/\sqrt{\delta^2}$ (the demonstration is given in Appendix~\ref{app:sec:staticcorrelations}), follows the direction of this hypothesis of processes superposed at different scales as proposed previously.
+
+
+Thus, processes are both non-stationary, and clues suggest that they result of the superposition of processes at different scales\footnote{The notion of multi-scalar process is otherwise very broad, and can manifest itself in scaling laws for example~\cite{west2017scale}. An approach closer to the one we took is given by~\cite{Chodrow31102017} which measures intrinsic scales to segregation phenomenons by using measures from Information Theory.}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+%\includegraphics[width=0.48\linewidth]{Figures/StaticCorrelations/corrs-summary-meanabs_varyingdelta_bytype}\\
+%\includegraphics[width=0.48\linewidth]{Figures/StaticCorrelations/normalized_CI_delta}
+\includegraphics[width=\linewidth,height=0.85\textheight]{figures/4-1-3-fig-staticcorrs-corrsdistrib}
+\caption{\textbf{Variation of correlations with scale, for correlations computed on Europe.} (\textit{Top}) Average absolute correlations and their standard deviations, for the different blocs, as a function of $\delta$; (\textit{Bottom}) Normalized size of the confidence interval $\delta\cdot \left|\rho_{+} - \rho_{-}\right|$ (confidence interval $\left[\rho_{-} , \rho_{+}\right]$ estimated by the Fisher method) as a function of $\delta$.\label{fig:staticcorrs:corrsdistrib}}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsubsection{Typical scales}
+
+
+We also propose to explore the possible property of multi-scalar processes by the extraction of endogenous scales which are present in the data. A Geographically Weighted Principal Component Analysis (GWRPCA)~\cite{harris2011geographically} in exploration suggests weights and importances that vary in space, what is in consistence with the non-stationarity of correlation structures obtained above. There is no reason a priori that the scales of variation of the different indicators are strictly the same. We propose thus to extract typical scales for crossed relations between the urban form and network topology.
+
+We implement therefore the following method: we consider a typical sample of indicators (four for each aspect, see the list in Table~\ref{tab:staticcorrelations:gwr}), and for each indicator we formulate all the possible linear models as a function of opposite indicators (network for a morphological indicator, morphological for a network indicator), aiming at directly capturing the interaction without controlling on the type of form or of network. These models are then adjusted by a Geographically Weighted Regression (GWR) with an optimal range determined by a corrected information criteria (AICc)\footnote{By using the R package GWModel~\cite{gollini2013gwmodel}.}. For each indicator, we keep the model with the best value of the information criteria. We adjust the models on data for France, with a \emph{bisquare} kernel and an adaptative bandwidth in number of neighbors.
+
+
+Results are presented in Table~\ref{tab:staticcorrelations:gwr}. It is first interesting to note that all models have only one variable, suggesting relatively direct correspondances between topology and morphology. All morphological indicators are explained by network performance, i.e. the quantity of detours it includes. On the contrary, network topology is explained by Moran index for centralities, and by entropy for performance and the number of vertices. There is thus a dissymmetry in relations, the network being conditioned in a more complex way to the morphology than the morphology to the network. The adjustments are rather good ($R^2 > 0.5$) for most indicators, and \emph{p-values} obtained for all models (for the constant and the coefficient) are lower than $10^{-3}$. Concerning the scales corresponding to the optimal model, they are very localized, of the order of magnitude of ten kilometers, i.e a larger variation than the one obtained the correlations. This analysis confirms thus statistically on the one hand the non-stationarity, and on the other hand give a complementary point of view on the question of endogenous scales.
+
+\begin{table}
+\caption{\textbf{Interrelations between network indicators and morphological indicators.} Each relation is adjusted by a Geographically Weighted Regression, for the optimal range adjusted by AICc.\label{tab:staticcorrelations:gwr}}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Indicator & Model & Range (km) & Adjustment ($R^2$) \\ \hline
+Average distance $\bar{d}$ & $\bar{d} \sim v_0$ & 11.6 & 0.31 \\
+Entropy $\mathcal{E}$  & $\mathcal{E} \sim v_0$ &  8.8  &0.75 \\
+Moran $I$ & $I \sim v_0$ & 8.8 & 0.49 \\
+Hierarchy $\gamma$ & $\gamma \sim v_0$ & 8.8  & 0.68 \\\hline
+Average betweenness $\bar{bw}$ & $\bar{bw} \sim I$ & 12.3 & 0.58 \\
+Average closeness $\bar{cl}$ & $\bar{cl}\sim I$ & 13.9 & 0.26 \\
+Performance $v_0$ & $v_0 \sim \mathcal{E}$ & 8.6  & 0.86 \\
+Number of nodes $\left|V\right|$ & $\left|V\right| \sim \mathcal{E}$ & 8.6  & 0.88 \\\hline
+\end{tabular}
+\end{table}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section{Urban morphogenesis model}
+
+
+\subsection{Model rationale}
+
+Urban settlements and transportation networks have been shown to be co-evolving, in the different thematic, empirical  and modeling studies of territorial systems developed up to here. As we saw, modeling approaches of such dynamical interactions between networks and territories are poorly developed. We propose in this section to realize a first entry at an intermediate scale, focusing on morphological and functional properties of the territorial system in a stylized way. We introduce a stochastic dynamical model of urban morphogenesis which couples the evolution of population density within grid cells with a growing road network.
+
+
+The general principles of the model are the following. With an overall fixed growth rate, new population aggregate preferentially to a local potential, for which parameters control the dependance to various explicative variables. These are in particular local density, distance to the network, centrality measures within the network and generalized accessibility. \cite{doi:10.1080/13658816.2014.893347} shows in the case of Stockholm the very strong correlation between centrality measures in the network and the type of land-use, what confirms the inportance to consider centralities as explicative variables for the model at this scale. We generalize thus the morphogenesis model studied in~\ref{sec:densitygeneration}, with aggregation mechanisms similar to the ones used by~\cite{raimbault2014hybrid}. A continuous diffusion of population completes the aggregation to translate repulsion processes generally due to congestion. Because of the different time scales of evolution for the urban environment and for networks, the network grows at fixed time steps, following the submodel developed in~\ref{sec:networkgrowth}: a first fixed rule ensures connectivity of newly populated patches to the existing network. The different network generation heuristics are then included in the model. We expect the different heuristics to be complementary since for example the gravity model would be more typical of planned top-down network evolution, whereas the biological model will translate bottom-up processes of network growth. The Fig.~\ref{fig:mesocoevolmodel:workflow} summarizes the general structure of the morphogenesis model.
+
+
+
+%%%%%%%%%%%%%%%
+\begin{figure}
+	\includegraphics[width=\linewidth]{figures/mesocoevol.pdf}
+	\caption{\textbf{Structure of the co-evolution model at the mesoscopic scale.}\label{fig:mesocoevolmodel:workflow}}
+\end{figure}
+%%%%%%%%%%%%%%%
+
+\subsection{Model description}
+
+
+The model is based on a squared population grid of size $N$, which cells are defined by poulations $(P_i)$. A road network is included in a way similar as in~\ref{sec:networkgrowth}. We assume at the initial state a given population distribution and a network.
+
+The evolution of densities is based on a utility function, influenced by local characteristics of the urban form and function, that we call \emph{explicative variables}. Let $x_k(i)$ a local explicative variable for cell $i$, which will be among the following variables:
+\begin{itemize}
+	\item population $P_i$;
+	\item proximity to roads\footnote{Taken as $\exp (-d / d_n)$ where $d$ is the distance by projection on the closest road, and $d_n=10$ is fixed.};
+	\item betweenness centrality
+	\item closeness centrality;
+	\item accessibility.
+\end{itemize}
+For the last three, they are defined as previously for network nodes, and then associated to cells by taking the value of the closest node, weighted by a decreasing function of the distance to it\footnote{I.e. of the form $x_k = x^{(n)}_k (\argmin_j d(i,j)) \cdot \exp \left( -  \min_j d(i,j) / d_0 \right)$, with $x^{(n)}_k$ the corresponding variable for nodes, the index $j$ being taken on all nodes, and the decay parameter $d_0$ is in our case fixed at $d_0=1$ to keep the property that network variables are essentially significant at close distances from the network.}. We consider then normalized explicative variables defined by $\tilde{x}_k(i) = x_k(i) - \min_j x_k(j) / (\max_j x_k(j) - \min_j x_k(j))$.
+
+The utility of a cell is then given by a linear aggregation\footnote{An alternative could be for example a Cobb-Douglas function, which is equivalent to a linear aggregation on the logarithms of variables.}
+\begin{equation}
+U_i = \sum_k w_k \cdot \tilde{x}_k(i)
+\end{equation}
+where $\tilde{x}_k$ are the normalized local explicative variables, and $w_k$ are weight parameters, which allow to weight between the different influences.
+
+
+A time step of model evolution includes then the following stages.
+\begin{enumerate}
+	\item Evolution of the population following rules similar to the morphogenesis model developed in~\ref{sec:densitygeneration}. Given an exogenous growth rate $N_G$, individuals are added independently following an aggregation done with a probability $U_i^\alpha/\sum_k U_k^\alpha$, followed by a diffusion of strength $\beta$ to neighbor cells, done $n_d$ times.
+	\item Network growth following the rules described in~\ref{sec:networkgrowth}, knowing that this takes place is the time step is a multiple of a parameter $t_N$, which allows to integrate a differential between temporal scales for population growth and for network growth.
+\end{enumerate}
+
+% TODO : minimal description of network growth. (cit. ?)
+
+
+The aggregation following a power of the utility yields a flexibility in the underlying optimization problem, since as \cite{josselin2013revisiting} recall, the use of different norms in spatial optimal location problems corresponds to different logics of optimization.
+
+
+
+The parameters of the model that we will make vary are then:
+\begin{itemize}
+	\item aggregation-diffusion parameters $\alpha,\beta,N_g,n_d$, summarized in Table~\ref{tab:density:parameters};
+	\item the four weight parameters $w_k$ for the explicative variables, which vary in $[0;1]$;
+	\item network growth parameters for the different heuristics, summarized in Table~\ref{tab:networkgrowth:parameters}.
+\end{itemize}
+
+
+Output model indicators are the urban morphology indicators, topological network indicators, and lagged correlations between the different explicative variables.
+
+
+\subsection{Simulation results}
+
+The model is implemented in NetLogo, given the heterogeneity of aspects that have to be taken into account, and this language being particularly suitable to couple a grid of cells with a network. Urban morphology indicators are computed thanks to a NetLogo extension specially developed (see Appendix~\ref{app:tools}).
+
+We propose to focus on the ability of the model to capture relations between networks and territories, and more particularly the co-evolution. Therefore, we will try to establish if (i) the model is able to reproduce, beyond the form indicators, the static correlation matrices computed in~\ref{sec:staticcorrelations}; and (ii) the model produces a variety of dynamical relations in the sense of causality regimes developed in~\ref{sec:causalityregimes}.
+
+
+The model is initialized on fully synthetic configurations, with a grid of size $50$. Configurations are generated through an exponential mixture in a way similar to \cite{anas1998urban}: $N_c = 8$ centers are randomly located, to which a population is attributed following a scaling law $P_i = P_0\cdot (i+1)^{-\alpha_S}$ with $\alpha_S = 0.8$ and $P_0 = 200$. The population of each center is distributed to all cells with an exponential kernel of shape $d(r) = P_{max}\exp\left( - r / r_0\right)$ where the parameter $r_0$ is determined to fix the population at $P_i$, with $P_{max} = 20$ (density at the center)\footnote{We have indeed $P_i = \iint d(r) = \int_{\theta=0}^{2\pi} \int_{r=0}^{\infty} d(r) rdrd\theta = 2 \pi P_{max} \int_r r\cdot \exp\left( - r / r_0\right) = 2 \pi P_{max} r_0^2$, and therefore $r_0 = \sqrt{\frac{P_i}{2\pi P_{max}}}$.}. The initial network skeleton is generated as detailed in~\ref{sec:networkgrowth}.
+
+
+We explore a Latin Hypercube Sampling of the parameter space, with 10 repetitions for around 7000 parameter points, corresponding to a total of around 70000 model repetitions\footnote{For which simulation results are also available at \url{http://dx.doi.org/10.7910/DVN/OBQ4CS}.}, realized on a computation grid by using OpenMole.
+
+
+% TODO : add model run examples.
+
+
+
+\subsubsection{Static and dynamical calibration}
+
+
+%%%%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=0.48\linewidth]{Figures/MesoCoEvol/pca_allobjs}
+	%\includegraphics[width=0.48\linewidth]{Figures/MesoCoEvol/corrs-distrib_rhoasize4.png}\\
+	%\includegraphics[width=0.48\linewidth]{Figures/MesoCoEvol/pca_morpho_byheuristic}
+	%\includegraphics[width=0.48\linewidth]{Figures/MesoCoEvol/pca_network_byheuristic}
+	\includegraphics[width=\linewidth]{figures/7-2-2-fig-mesocoevolmodel-calibration.jpg}
+	\caption[Calibration of the morphogenesis model][Calibration du modèle de morphogenèse]{\textbf{Calibration of the morphogenesis model at the first and second order.} (\textit{Top Left}) Simulated and observed point clouds in a principal plan for urban morphology indicators. (\textit{Top Right}) Simulated and observed could points in a principal plan for network indicators. (\textit{Bottom Left}) Simulated and observed point clouds in a principal plan for all indicators. (\textit{Bottom Right}) Distributions of distances on correlations $d_{\rho}$, for the different heuristics.\label{fig:mesocoevolmodel:calibration}}
+\end{figure}
+%%%%%%%%%%%%%%%
+
+
+The model is calibrated at the first order, on indicators for the urban form and network measures, and at the second order on correlations between these. Real data used are still the same as introduced in~\ref{sec:staticcorrelations}, which as we recall it are based on Eurostat population grid and the road network from OpenStreetMap. We use here the full set of points from Europe.
+
+
+We introduce an \emph{ad hoc} calibration procedure in order to take into account the first two moments, that we detail below. More elaborated procedures are used for example in economics, such as \cite{watson1993measures} which uses the noise of the difference between two variables to obtain the same covariance structure for the two corresponding models, or in finance, such as \cite{frey2001copulas} which define a notion on equivalence between latent variables models which incorporates the equality of the interdependence structure between variables. We avoid here to add supplementary models, and consider simply a distance on correlation matrices. The procedure is the following.
+\begin{itemize}
+	\item Simulated points are the ones obtained through the sampling, with average values on repetitions.
+	\item In order to be able to estimate correlation matrices between indicators for simulated data, we make the assumption that second moments are continuous as a function of model parameters, and split for each heuristic the parameter space into areas to group parameter points\footnote{Each parameter being binned into $15 / k$ equal segments, where $k$ is the number of parameters: we empirically observed that this allowed to always have a minimal number of points in each area.}, what allows to estimate for each group indicators and the correlation matrix.
+	\item For each estimation done this way, that we write $\bar{S}$ (indicators) and $\rho [S]$ (correlations), we can then compute the distance to real points on indicators $d_I (R_j) = d(\bar{S},R_j)$ and on correlation matrices $d_{\rho} (R_j) = d(\rho [S],\rho[R_j])$ where $R_j$ are the real points with their corresponding correlations\footnote{That are estimated in~\ref{sec:staticcorrelations} as we recall, with a square window centered around the point, that we take here for $\delta = 4$.}, and $d$ an euclidian distance normalized by the number of components.
+	\item We consider then the aggregated distance defined as $d_A^2 (R_j) = d_I^2 (R_j) + d_{\rho}^2 (R_j)$. Indeed, as developed empirically and analytically in Appendix~\ref{app:sec:mesocoevolmodel}, the shape of Pareto fronts for the two distances considered suggests the relevance of this aggregation. The real point closest to a simulated point is then the one in the sense of this distance.
+\end{itemize}
+
+
+The Fig.~\ref{fig:mesocoevolmodel:calibration} summarizes calibration results. Morphological indicators are easier to approach than network indicators, for which a part of the simulated clouds does not superpose with observed points. We find again a certain complementarity between network heuristics. When considering the full set of indicators, few simulated points are situated far from the observed points, but a significant proportion of these is beyond the reach of simulation. Thus, the simultaneous capture of morphology and topology is obtained at the price of less precision.
+
+
+We however obtain a good reproduction of correlation matrices as shown in Fig.~\ref{fig:mesocoevolmodel:calibration} (histogram for $d_{\rho}$, bottom right). The worse heuristic for correlations is the biological one in terms of maximum, whereas the random produces rather good results: this could be due for example to the reproduction of very low correlations, which accompany a structure effect due to the initial addition of nodes which imposes already a certain correlation. On the contrary, the biological heuristic introduces supplementary processes which can possibly be beneficial to the network in terms of independence (or following the opposed viewpoint be detrimental in terms of correlations). In any case, this application shows that our model is able to resemble real configurations both for indicators and their correlations.
+
+
+
+\subsubsection{Causality regimes}
+
+
+We furthermore study dynamical lagged correlations between the variations of the different explicative variables for cells (population, distance to the network, closeness centrality, betweenness centrality, accessibility). We apply the method of causality regimes introduced in~\ref{sec:causalityregimes}. The Fig.~\ref{fig:mesocoevolmodel:causality} summarizes the results obtained with the application of this method on simulation results of the co-evolution model. The number of classes inducing a transition is smaller than for the RDB model, translating a smaller degree of freedom, and we fix in that case $k=4$. Centroid profiles allow to understand to ability of the model to more or less capture a co-evolution.
+
+
+The regimes obtained appear to be less diverse than the ones obtained in~\ref{sec:causalityregimes} or for the macroscopic co-evolution in~\ref{sec:macrocoevol}. Some variables have naturally a strong simultaneous correlation, spurious from their definitions, such as closeness centrality and accessibility, or the distance to the road and the closeness centrality. For all regimes, population significantly determines the accessibility. The regime 1 corresponds to a full determination of the network by the population. The second is partly circular, through the effect of roads on populations. The regime 3 is more interesting, since closeness centrality negatively causes the accessibility: this means that in this configuration, the coupled evolution of the network and the population follow the direction of a diminution of congestion. Furthermore, as population causes the closeness centrality, there is also circularity and thus co-evolution in that case. When we locate it in the phase diagram, this regime is rather sparse and rare, contrary for example to the regime 1 which occupies a large portion of space for a low importance of the road ($w_{road} \leq 0.3$). This confirms that the co-evolution produced by the model is localized and not a characteristic always verified, but that it is however able to generate some in particular regimes.
+
+
+%%%%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=0.53\linewidth]{Figures/MesoCoEvol/centertrajs}
+	%\includegraphics[width=0.44\linewidth]{Figures/MesoCoEvol/cluster-params}
+	\includegraphics[width=\linewidth,height=0.93\textheight]{figures/7-2-2-fig-mesocoevolmodel-causality}
+	\caption{\textbf{Causality regimes for the co-evolution model.} (\textit{Top}) Trajectories of classes centers in terms of $\rho[\tau]$ between the different explicative variables. (\textit{Bottom}) Phase diagram of regimes in the parameter space for $w_k$, represented here as the variation of diagrams for $(w_{bw},w_{cl})$, along the variations of $w_{road}$ (in rows) and of $w_{pop}$ (in columns).\label{fig:mesocoevolmodel:causality}}
+\end{figure}
+%%%%%%%%%%%%%%%%%
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section{Discussion}
+
+\subsection{Correlations}
+
+We have thus shown empirically the non-stationarity of interactions between the morphology of the distribution of populations and the topology of the road network. Various developments of this analysis are possible.
+
+Population density grids exist for all regions of the workd, such as for example the ones provided by~\cite{10.1371/journal.pone.0107042}\footnote{Available at \url{http://www.worldpop.org.uk/}. The potential variability of data quality depending on the areas should however lead to stay cautious on their use.}. The analysis may be repeated with other regions of the world, to compare the correlation regimes and test if urban system properties stay the same, keeping in mind the difficulties linked to the differences in data quality.
+
+The research of local scales, i.e. with an adaptative estimation window in terms of size and shape for correlations, would allow to better understand the way processes locally influence their neighborhood. The validation criteria for window size would still be to determine: it can be as above an optimal range for explicative models that are locally adjusted.
+
+The question of ergodicity should also be explored from a dynamical point of view, by comparing time and spatial scales of the evolution of processes, or more precisely the correlations between variations in time and variations in space, but the issue of the existence of databases precise enough in time appears to be problematic. The study of a link between the derivative of the correlation as a function of window size and of the derivatives of the processes is also a direction to obtain indirect informations on dynamics from static data.
+
+
+Finally, the search of classes of processes on which it is possible to directly establish the relation between spatial correlations and temporal correlations, is a possible research direction. It stays out of the scope of this present work, but would open relevant perspectives on co-evolution, since it implies evolution in time and an isolation in space, and therefore a complex relation between spatial and temporal covariances.
+
+\subsection{Modeling}
+
+We have thus proposed a co-evolution model at the mesoscopic scale, based on a multi-modeling paradigm for the evolution of the network. The model is able to reproduce a certain number of observed situations at the first and second order, capturing thus a static representation of interactions between networks and territories. It also yields different dynamical causality regimes, being however less diverse than the simple model studied before: therefore, a more elaborated structure in terms of processes must be paid in flexibility of interaction between these. This suggests a tension between a ``static performance'' and a ``dynamical performance'' of models.
+
+
+An open question is to what extent a pure network model with preferential attachment for nodes would reproduce results close to what we obtained. The complex coupling between aggregation and diffusion (shown in~\ref{sec:densitygeneration}) could not be easily included, and the model could in any case not answer to questions on the coupling of the dynamics.
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section*{Conclusion}
+
+We have thus explored a co-evolution model based on morphogenesis that takes into account multiple processes for the evolution of the network. We studied its calibration on observed data at the first and the second order, and explored the causality regimes it produces.
+
+
+
+\section*{Acknowledgements}
+
+Results obtained in this paper were computed on the vo.complex-system.eu virtual organization of the European Grid Infrastructure ( http://www.egi.eu ). We thank the European Grid Infrastructure and its supporting National Grid Initiatives (France-Grilles in particular) for providing the technical support and infrastructure.
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+%% Biblio
+%%%%%%%%%%%%%%%%%%%%
+
+
+\bibliographystyle{apalike}
+\bibliography{/home/raimbault/ComplexSystems/CityNetwork/Biblio/Bibtex/CityNetwork,biblio}
+
+
+
+
+
+
+
+\end{document}

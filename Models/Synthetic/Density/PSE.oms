@@ -1,0 +1,77 @@
+
+
+import java.text.SimpleDateFormat
+import java.util.Date
+import density._
+
+logger.level("FINE")
+
+// Parameters
+val diffusion = Val[Double]
+val diffusionsteps = Val[Double]
+val alphalocalization = Val[Double]
+val growthrate = Val[Double]
+val population = Val[Double]
+
+// Exploration
+val replication = Val[Int]
+val id=Val[Int]
+
+// Reporters
+val moran=Val[Double]
+val distance=Val[Double]
+val entropy=Val[Double]
+val slope=Val[Double]
+val rsquared=Val[Double]
+
+// Model
+val model =
+  ScalaTask(
+    """
+      | val config = newFile()
+      | val gen = new density.PADGeneratorLauncher
+      | gen.main(100,input.population,input.diffusion,input.diffusionsteps,input.growthrate,input.alphalocalization,input.replication,config)
+      | val moran = gen.moran
+      | val distance = gen.distance
+      | val entropy = gen.entropy
+      | val slope = gen.slope
+      | val rsquared = gen.rsquared
+    """.stripMargin
+  ) set (
+    //imports += "density._",
+    plugins += pluginsOf[density.PADGeneratorLauncher],
+    inputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication),
+    outputs += (diffusion,diffusionsteps,alphalocalization,growthrate,population,replication),
+    outputs += (moran,distance,entropy,slope,rsquared)
+  )
+
+
+  val evolution =
+    SteadyStateEvolution(
+      algorithm = PSE(
+        genome = Seq(
+          diffusion in (0.0, 0.5),
+          alphalocalization in (0.1,4.0),
+          growthrate in (500.0,30000.0),
+          population in (10000.0,1000000.0),
+          diffusionsteps in (1.0,5.0)),
+        objectives =  Seq(
+          moran in (-1.0 to 1.0 by 0.01),
+          distance in (0.0 to 2.0 by 0.01),
+          entropy in (0.0 to 1.0 by 0.01),
+          slope in (-5.0 to 0.0 by 0.1)),
+        stochastic = Stochastic(seed = replication)
+      ),
+      evaluation = model,
+      termination = 30 minutes
+    )
+
+  val island = IslandEvolution(evolution, parallelism = 500,termination=24 hours)
+
+  val savePopulationHook = SavePopulationHook(island, workDirectory /  "exploration" / ((new SimpleDateFormat("yyyyMMdd_HHmm")).format(new Date()))+"_"+purpose)
+
+  val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 4000 megabytes)
+
+  val run = (island on grid hook savePopulationHook)
+
+  run
