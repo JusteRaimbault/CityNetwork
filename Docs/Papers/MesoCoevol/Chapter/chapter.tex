@@ -18,7 +18,7 @@ $^2$ UMR CNRS 8504 G{\'e}ographie-cit{\'e}s
 
 
 \begin{abstract}
-Urban systems are composed by complex couplings of several components, and more particularly by the built environment and transportation networks. Their interactions is involved in the emergence of the urban form and corresponding functions. We propose in this chapter 
+Urban systems are composed by complex couplings of several components, and more particularly by the built environment and transportation networks. Their interactions is involved in the emergence of the urban form. We propose in this chapter to introduce an approach to urban morphology grasping both aspects and their interactions. We first define complementary measures and study their empirical values on European territorial systems. We then introduce a generative model of urban growth at a mesoscopic scale. Given a fixed exogenous growth rate, population are dispatched following a preferential attachment that depends on a potential controlled by local urban form (density, distance to network) and network measures (centralities and generalized accessibilities), and then diffused in space to capture urban sprawl. Network growth is included through a multi-modeling paradigm: implemented heuristics include biological network generation and gravity potential breakdown. The model is calibrated both at the first (measures) and second (correlations) order, the later capturing indirectly relations between networks and the urban form.
 \end{abstract}
 
 \textbf{Keywords : }\textit{Urban Morphogenesis; Reaction-diffusion; Population distribution; Transportation Network; Co-evolution}
@@ -28,24 +28,23 @@ Urban systems are composed by complex couplings of several components, and more 
 %%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 
+\subsection{Urban morphology}
 
 
-
-
-\subsection{}
+\subsection{Urban form and interactions between networks and territories}
 
 Through relocation processes, sometimes induced by networks, we can expect the latest to influence the distribution of populations in space. Reciprocally, network characteristics can be influenced by this distribution. We propose here to study these potential links by the intermediate of characterizations given by synthetic indicators for these two subsystems, and by correlations between these indicators.
 
 At the scale of the system of cities, the spatial nature of the urban system is captured by cities position, associated with aggregated city variables. We will work here at the mesoscopic scale, at which the precise spatial distribution of activities is necessary to understand the spatial structure of the territorial system. We will therefore use the term of morphological characteristics for population density and the road network.
 
-The choice of ``relevant'' boundaries for the territory or the city is a relatively open problem which will often depend on the question we are trying to answer \cite{paez2005spatial}. This way, \cite{guerois2002commune} show that the entities obtained are different if we consider an entry by the continuity of the built environment (morphological), by urban functions (employment area for example) or by administrative boundaries. We choose here the mesoscopic scale of a metropolitan center, of an order of one hundred kilometers, first for the relevance of the spatial field computed, and secondly because smaller scales become less relevant for the notion of urban form, whereas larger scales induce a too large variability.
+The choice of ``relevant'' boundaries for the territory or the city is a relatively open problem which will often depend on the question we are trying to answer \citep{paez2005spatial}. This way, \cite{guerois2002commune} show that the entities obtained are different if we consider an entry by the continuity of the built environment (morphological), by urban functions (employment area for example) or by administrative boundaries. We choose here the mesoscopic scale of a metropolitan center, of an order of one hundred kilometers, first for the relevance of the spatial field computed, and secondly because smaller scales become less relevant for the notion of urban form, whereas larger scales induce a too large variability.
 
 
 At this scale, we can assume that territorial characteristics, for population and network, are locally defined et vary in an approximatively continuous way in space. Thus, the construction of fields of morphological indicators will allow to endogenously reconstruct territorial entities through the emergent spatial structure of indicators at larger scales. For examples, cities should be distinguishable within non-urban spaces. The aim of this chapter is thus to study properties of these indicators and their interactions, and thus indirectly interactions between the territory and the network.  
 
 
 % TODO : why coupled ? 
-%  - interactions network terriotries
+%  - interactions network territories
 %  - topo morphogenesis form/function
 % 
 
@@ -68,7 +67,7 @@ At this scale, we can assume that territorial characteristics, for population an
 %Note that we consider here indicators on the spatial distribution of population density only, and that more elaborated considerations on urban form can include for example the distribution of economic opportunities and the combination of these two fields through accessibility measures. For the choice of indicators, we follow the analysis done in~\cite{le2015forme} where a morphological typology of large European cities is obtained. Its consistence suggests the ability of the indicator set used to capture urban form at this scale. We work at a comparable scale and must capture diverse aspects such as hierarchy, concentration, level of acentrism of the population distribution, hence the use of similar indicators.
 
 
-We recall here the formal definition of morphological indicators, taken from . We consider gridded population data $(P_i)_{1\leq i \leq N^2}$, write $M=N^2$ the number of cells, $d_{ij}$ the distance between cells $i,j$, and $P=\sum_{i=1}^{M} P_i$ total population. We measure urban form using:
+We recall here the formal definition of morphological indicators, taken from \cite{2017arXiv170806743R}. We consider gridded population data $(P_i)_{1\leq i \leq N^2}$, write $M=N^2$ the number of cells, $d_{ij}$ the distance between cells $i,j$, and $P=\sum_{i=1}^{M} P_i$ total population. We measure urban form using:
 
 \begin{enumerate}
 \item Rank-size slope $\gamma$, expressing the degree of hierarchy in the distribution, computed by fitting with Ordinary Least Squares a power law distribution by $\ln \left( P_{\tilde{i}}/P_0\right) \sim k + \gamma\cdot \ln \left(\tilde{i}/i_0\right)$ where $\tilde{i}$ are the indexes of the distribution sorted in decreasing order (the constant $k$ of the adjustment does not play a role in hierarchy). It is always negative, and values close to zero mean a flat distribution.
@@ -90,7 +89,7 @@ where $d_M$ is a normalisation constant taken as the diagonal of the area on whi
 \end{enumerate}
 
 
-The first two indexes are not spatial, and are completed by the last two that take space into account. Following \cite{schwartz2011spatial}, the effective dimension of the urban form justifies the use of all.
+The first two indexes are not spatial, and are completed by the last two that take space into account. Following \cite{Schwarz201029}, the effective dimension of the urban form justifies the use of all.
 
 
 \subsection{Network Measures}
@@ -102,19 +101,21 @@ Static network analysis has been extensively documented in the literature, such 
 
 % TODO : add literature on space syntax here
 
-The questions behind such approaches are multiple: they can aim at finding typologies or at characterizing spatial networks, at understanding underlying dynamical processes in order to model morphogenesis, or even at being applied in urban planning such as \emph{Space Syntax} approaches~\cite{hillier1989social}. We are positioned here more within the two first logics since we aim at characterizing the shape of networks in a first step, and then to include their dynamics in models in a second step. Our significant contribution is the characterization of the road network on large spatial extents, covering Europe and China.
+The questions behind such approaches are multiple: they can aim at finding typologies or at characterizing spatial networks, at understanding underlying dynamical processes in order to model morphogenesis, or even at being applied in urban planning such as \emph{Space Syntax} approaches~\citep{hillier1989social}. We are positioned here more within the two first logics since we aim at characterizing the shape of networks in a first step, and then to include their dynamics in models in a second step. Our significant contribution is the characterization of the road network on large spatial extents, covering Europe and China.
 
 
-We introduce indicators to have a broad idea of the form of the network, using a certain number of indicators to capture the maximum of dimensions of properties of networks, more or less linked to their use. These indicators summarize the mesoscopic structure of the network and are computed on topological networks obtained through simplification steps that will be detailed later. If we denote the network with $N=(V,E)$, nodes have spatial positions $\vec{x}(V)$ and populations $p(v)$ obtained through an aggregation of population in the corresponding Voronoï polygon\footnote{A Voronoï diagram is a partition of the plan, constructed from a point cloud. The cell associated to each point is composed by the set of points closer to it than other points of the cloud. The graph of a Voronoï diagram is the dual of the associated Delaunay triangulation.}, and edges $E$ have \emph{effective distances} $l(E)$ taking into account impedances and real distances (to include the primary network hierarchy). We then use:
+We introduce indicators to have a broad idea of the form of the network, using a certain number of indicators to capture the maximum of dimensions of properties of networks, more or less linked to their use. These indicators summarize the mesoscopic structure of the network and are computed on topological networks obtained through simplification steps that will be detailed later. If we denote the network with $N=(V,E)$, nodes have spatial positions $\vec{x}(V)$ and populations $p(v)$ obtained through an aggregation of population in the corresponding Voronoï polygon, and edges $E$ have \emph{effective distances} $l(E)$ taking into account impedances and real distances (to include the primary network hierarchy). We then use:
+
+% \footnote{A Voronoï diagram is a partition of the plan, constructed from a point cloud. The cell associated to each point is composed by the set of points closer to it than other points of the cloud. The graph of a Voronoï diagram is the dual of the associated Delaunay triangulation.}
 
 \begin{itemize}
 \item Characteristics of the graph, obtained from graph theory, as defined by~\cite{haggett1970network}: number of nodes $\left|V\right|$, number of links $\left|E\right|$, density $d$, average length of links $\bar{d_l}$, average clustering coefficient $\bar{c}$, number of components $c_0$.
 \item Measures linked to shortest paths: diameter $r$, euclidian performance $v_0$ (defined by~\cite{banos2012towards}), average length of shortest paths $\bar{l}$.
 \item Centrality measures: these are aggregated at the level of the network by taking their average and their level of hierarchy, computed by an ordinary least squares of a rank-size law, for the following centrality measures:
 \begin{itemize}
-\item Betweenness centrality~\cite{crucitti2006centrality}, average $\bar{bw}$ and hierarchy $\alpha_{bw}$: given the distribution of centrality on all nodes, we take the slope of a rank-size adjustment and the average of the distribution.
-\item Closeness centrality~\cite{crucitti2006centrality}, average $\bar{cl}$ and hierarchy $\alpha_{cl}$.
-\item Accessibility~\cite{hansen1959accessibility}, which is in our case computed as a closeness centrality weighted by populations: average $\bar{a}$ and hierarchy $\alpha_{a}$.
+\item Betweenness centrality~\citep{crucitti2006centrality}, average $\bar{bw}$ and hierarchy $\alpha_{bw}$: given the distribution of centrality on all nodes, we take the slope of a rank-size adjustment and the average of the distribution.
+\item Closeness centrality~\citep{crucitti2006centrality}, average $\bar{cl}$ and hierarchy $\alpha_{cl}$.
+\item Accessibility~\citep{hansen1959accessibility}, which is in our case computed as a closeness centrality weighted by populations: average $\bar{a}$ and hierarchy $\alpha_{a}$.
 \end{itemize}
 \end{itemize}
 
@@ -190,9 +191,7 @@ The simplification is then operated the following way:
 \item As the simplification algorithm keeps the links having an intersection with the border of areas, a fusion followed by a simplification of resulting graphs is necessary. To keep a reasonable computational cost, the size of merged areas has to stay low: we take merge areas composed by two contiguous areas. A paving by four sequences of independent merging allows then to cover the full set of joints between areas\footnote{In the very rare cases of a link between two non-contiguous areas, the remaining link is not simplified. This case was not observed in practice in our data.}, these sequences being executed sequentially. The Frame \ref{frame:app:staticcorrelations:merging} shows the covering of joints by merging areas.
 \end{enumerate}
 
-We have then at our disposition a topological graph given by the links between cells of the base raster, having distance and speed attributes corresponding to the underlying real links.
-
-Graphs for Europe and China are available as open databases (see Appendix~\ref{app:data}).
+We have then at our disposition a topological graph given by the links between cells of the base raster, having distance and speed attributes corresponding to the underlying real links. Topological graphs for Europe and China are available as open databases on the dataverse repository at \url{https://doi.org/10.7910/DVN/RKDZMV}.
 
 %\includegraphics[width=\linewidth]{Figures/Theory/nwsimplification.pdf}
 %\framecaption{\textbf{Illustration of merging sequences.} The four independent sequences (horizontally and vertically) allow the coverage of all joints between areas.\label{frame:app:staticcorrelations:merging}}
@@ -291,6 +290,7 @@ Results are presented in Table~\ref{tab:staticcorrelations:gwr}. It is first int
 
 \begin{table}
 \caption{\textbf{Interrelations between network indicators and morphological indicators.} Each relation is adjusted by a Geographically Weighted Regression, for the optimal range adjusted by AICc.\label{tab:staticcorrelations:gwr}}
+\begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
 Indicator & Model & Range (km) & Adjustment ($R^2$) \\ \hline
@@ -303,6 +303,7 @@ Average closeness $\bar{cl}$ & $\bar{cl}\sim I$ & 13.9 & 0.26 \\
 Performance $v_0$ & $v_0 \sim \mathcal{E}$ & 8.6  & 0.86 \\
 Number of nodes $\left|V\right|$ & $\left|V\right| \sim \mathcal{E}$ & 8.6  & 0.88 \\\hline
 \end{tabular}
+\end{center}
 \end{table}
 
 
@@ -334,28 +335,25 @@ The general principles of the model are the following. With an overall fixed gro
 \subsection{Model description}
 
 
-The model is based on a squared population grid of size $N$, which cells are defined by poulations $(P_i)$. A road network is included in a way similar as in~\ref{sec:networkgrowth}. We assume at the initial state a given population distribution and a network.
+The model is based on a squared population grid of size $N$, which cells are defined by populations $(P_i)$. A road network is included as a vectorial layer on top of the grid, similarly to \cite{raimbault2014hybrid}. We assume at the initial state a given population distribution and a network.
 
-The evolution of densities is based on a utility function, influenced by local characteristics of the urban form and function, that we call \emph{explicative variables}. Let $x_k(i)$ a local explicative variable for cell $i$, which will be among the following variables:
-\begin{itemize}
-	\item population $P_i$;
-	\item proximity to roads\footnote{Taken as $\exp (-d / d_n)$ where $d$ is the distance by projection on the closest road, and $d_n=10$ is fixed.};
-	\item betweenness centrality
-	\item closeness centrality;
-	\item accessibility.
-\end{itemize}
-For the last three, they are defined as previously for network nodes, and then associated to cells by taking the value of the closest node, weighted by a decreasing function of the distance to it\footnote{I.e. of the form $x_k = x^{(n)}_k (\argmin_j d(i,j)) \cdot \exp \left( -  \min_j d(i,j) / d_0 \right)$, with $x^{(n)}_k$ the corresponding variable for nodes, the index $j$ being taken on all nodes, and the decay parameter $d_0$ is in our case fixed at $d_0=1$ to keep the property that network variables are essentially significant at close distances from the network.}. We consider then normalized explicative variables defined by $\tilde{x}_k(i) = x_k(i) - \min_j x_k(j) / (\max_j x_k(j) - \min_j x_k(j))$.
+The evolution of densities is based on a utility function, influenced by local characteristics of the urban form and function, that we call \emph{explicative variables}. Let $x_k(i)$ a local explicative variable for cell $i$, which will be among the following variables: population $P_i$; proximity to roads, taken as $\exp (-d / d_n)$ where $d$ is the distance by projection on the closest road, and $d_n=10$ is fixed; betweenness centrality; closeness centrality; accessibility.
 
-The utility of a cell is then given by a linear aggregation\footnote{An alternative could be for example a Cobb-Douglas function, which is equivalent to a linear aggregation on the logarithms of variables.}
+For the last three, they are defined as previously for network nodes, and then associated to cells by taking the value of the closest node, weighted by a decreasing function of the distance to it, i.e. of the form $x_k = x^{(n)}_k (\argmin_j d(i,j)) \cdot \exp \left( -  \min_j d(i,j) / d_0 \right)$, with $x^{(n)}_k$ the corresponding variable for nodes, the index $j$ being taken on all nodes, and the decay parameter $d_0$ is in our case fixed at $d_0=1$ to keep the property that network variables are essentially significant at close distances from the network. We consider then normalized explicative variables defined by $\tilde{x}_k(i) = x_k(i) - \min_j x_k(j) / (\max_j x_k(j) - \min_j x_k(j))$.
+
+The utility of a cell is then given by a linear aggregation
+%\footnote{An alternative could be for example a Cobb-Douglas function, which is equivalent to a linear aggregation on the logarithms of variables.}
+
 \begin{equation}
 U_i = \sum_k w_k \cdot \tilde{x}_k(i)
 \end{equation}
+
 where $\tilde{x}_k$ are the normalized local explicative variables, and $w_k$ are weight parameters, which allow to weight between the different influences.
 
 
 A time step of model evolution includes then the following stages.
 \begin{enumerate}
-	\item Evolution of the population following rules similar to the morphogenesis model developed in~\ref{sec:densitygeneration}. Given an exogenous growth rate $N_G$, individuals are added independently following an aggregation done with a probability $U_i^\alpha/\sum_k U_k^\alpha$, followed by a diffusion of strength $\beta$ to neighbor cells, done $n_d$ times.
+	\item Evolution of the population following rules similar to \cite{2017arXiv170806743R}. Given an exogenous growth rate $N_G$, individuals are added independently following an aggregation done with a probability $U_i^\alpha/\sum_k U_k^\alpha$, followed by a diffusion of strength $\beta$ to neighbor cells, done $n_d$ times.
 	\item Network growth following the rules described in~\ref{sec:networkgrowth}, knowing that this takes place is the time step is a multiple of a parameter $t_N$, which allows to integrate a differential between temporal scales for population growth and for network growth.
 \end{enumerate}
 
@@ -404,7 +402,7 @@ We explore a Latin Hypercube Sampling of the parameter space, with 10 repetition
 	%\includegraphics[width=0.48\linewidth]{Figures/MesoCoEvol/pca_morpho_byheuristic}
 	%\includegraphics[width=0.48\linewidth]{Figures/MesoCoEvol/pca_network_byheuristic}
 	\includegraphics[width=\linewidth]{figures/7-2-2-fig-mesocoevolmodel-calibration.jpg}
-	\caption[Calibration of the morphogenesis model][Calibration du modèle de morphogenèse]{\textbf{Calibration of the morphogenesis model at the first and second order.} (\textit{Top Left}) Simulated and observed point clouds in a principal plan for urban morphology indicators. (\textit{Top Right}) Simulated and observed could points in a principal plan for network indicators. (\textit{Bottom Left}) Simulated and observed point clouds in a principal plan for all indicators. (\textit{Bottom Right}) Distributions of distances on correlations $d_{\rho}$, for the different heuristics.\label{fig:mesocoevolmodel:calibration}}
+	\caption{\textbf{Calibration of the morphogenesis model at the first and second order.} (\textit{Top Left}) Simulated and observed point clouds in a principal plan for urban morphology indicators. (\textit{Top Right}) Simulated and observed could points in a principal plan for network indicators. (\textit{Bottom Left}) Simulated and observed point clouds in a principal plan for all indicators. (\textit{Bottom Right}) Distributions of distances on correlations $d_{\rho}$, for the different heuristics.\label{fig:mesocoevolmodel:calibration}}
 \end{figure}
 %%%%%%%%%%%%%%%
 
