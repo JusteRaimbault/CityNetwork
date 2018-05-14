@@ -5,11 +5,12 @@ source('functions.R')
 source('mapFunctions.R')
 
 
-areasize=200;offset=100;factor=0.5
+#areasize=200;offset=100;factor=0.5
+areasize=100;offset=50;factor=0.5
 countrycode="FR"
 # load data
-res = loadIndicatorData(paste0("res/europecoupled_areasize",areasize,"_offset",offset,"_factor",factor,"_temp.RData"))
-#res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe csv
+#res = loadIndicatorData(paste0("res/europecoupled_areasize",areasize,"_offset",offset,"_factor",factor,"_temp.RData"))
+res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe csv
 #res = loadIndicatorData('res/chinacoupled_areasize100_offset50_factor0.1_temp.RData') # China
 
 # load spatial mask to select area
@@ -27,8 +28,8 @@ sdata = res[selectedpoints,]
 #g+geom_raster()+scale_fill_brewer(palette = "Spectral")+theme_bw()
 
 #resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/CN/')
-resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'/')
-#resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'_20160824/')
+#resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'/')
+resdir = paste0(Sys.getenv('CN_HOME'),'/Results/StaticCorrelations/Morphology/Coupled/Maps/',countrycode,'/areasize',areasize,'_offset',offset,'_factor',factor,'_20160824/')
 dir.create(resdir)
 
 figsuff = paste0('areasize',areasize,'_offset',offset,'_factor',factor)
