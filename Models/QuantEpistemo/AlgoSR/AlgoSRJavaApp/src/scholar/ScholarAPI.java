@@ -352,7 +352,7 @@ public class ScholarAPI {
 		Log.stdout("Request : "+request);
 		try{dom=request("scholar.google.com",request);}
 		catch(Exception e){e.printStackTrace();}
-		//Log.stdout(dom.html());
+		Log.stdout(dom.html());
 		try{Log.stdout(dom.getElementsByClass("gs_rt").first().text());}catch(Exception e){}
 		try{Log.stdout(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
 		
