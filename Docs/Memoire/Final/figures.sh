@@ -21,6 +21,63 @@ VERTICALPADDING=10
 mkdir -p $FIGDIR
 
 
+
+#############
+## Specific figures soutenance
+
+if [ "$TARGET" == "--S" ]
+then
+
+  # specific figdir
+  FIGDIR=Soutenance/Communication/figures
+
+  FIGNAME=1-tangjia
+  echo $FIGNAME
+  montage Figures/Qualitative/tangjia.jpg Figures/Qualitative/zhuhai.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  FIGNAME=1-schema
+  echo $FIGNAME
+  cp Figures/Qualitative/tod_fr.pdf $FIGDIR/"$FIGNAME".pdf
+
+  # 2_gameoflife.png
+  # 2_intro_RBD_lattice.png
+  # 2_slimemould_reseauFinal.png
+
+  FIGNAME=2-networks
+  echo $FIGNAME
+  convert -density $PDFRESOLUTION Figures/GrandParisRealEstate/reseaux.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+
+  # slide 4
+  FIGNAME=4-southafrica
+  echo $FIGNAME
+  cp Figures/CausalityRegimes/laggedCorrs_time_Tw3.png $FIGDIR/"$FIGNAME".png
+
+  FIGNAME=4-grdparis
+  echo $FIGNAME
+  convert Figures/CaseStudies/accesspdiff_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # slide 5
+  FIGNAME=5-method
+  echo $FIGNAME
+  cp Figures/Theory/causality_twovars.pdf $FIGDIR/"$FIGNAME".pdf
+
+
+
+  # slide 7
+  FIGNAME=7-graph
+  echo $FIGNAME
+  cp Figures/QuantEpistemo/rawcore_labs36.png $FIGDIR/"$FIGNAME".png
+
+
+
+fi
+
+
+
+
+
+
 ###############
 ## Chapitre 1
 
