@@ -119,7 +119,29 @@ then
 
 
 
+  # slide 10
 
+  FIGNAME=10-lutecia
+  echo $FIGNAME
+  cp Figures/Final/7-3-3-fig-lutecia-governance.jpg $FIGDIR/"$FIGNAME".jpg
+
+  FIGNAME=10-nwgrowth
+  echo $FIGNAME
+  #cp Figures/Final/7-1-2-fig-networkgrowth-examples.jpg $FIGDIR/"$FIGNAME".jpg
+  montage Figures/NetworkGrowth/example_comp_nwSize200_bio.png Figures/NetworkGrowth/example_comp_nwSize200_cost.png -tile 1x2 -resize 1000x -border 1 -bordercolor Black $FIGDIR/"$FIGNAME".png
+
+
+  FIGNAME=10-calib
+  echo $FIGNAME
+  cp Figures/Final/7-2-2-fig-mesocoevolmodel-calibration.jpg $FIGDIR/"$FIGNAME".jpg
+
+
+  # slide 11
+  FIGNAME=11-meta
+  echo $FIGNAME
+  cp Figures/Theory/metacadre_norefs.pdf $FIGDIR/"$FIGNAME".pdf
+
+  # slide 12 : pas de figs
 
 
 fi
