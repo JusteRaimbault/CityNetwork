@@ -131,7 +131,7 @@ public class ScholarAPI {
 			 Element el = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
 			 try{Log.stdout("Accepted : "+(el.getElementsByClass("gs_r").size()>0));}catch(Exception e){e.printStackTrace();}
 
-			 //System.out.println(el.html());
+			 System.out.println(el.html());
 
 			 //System.out.println("Connected to scholar, persistent through cookies. ");
 			 //for(int i=0;i<cookieStore.getCookies().size();i++){System.out.println(cookieStore.getCookies().get(0).toString());}
