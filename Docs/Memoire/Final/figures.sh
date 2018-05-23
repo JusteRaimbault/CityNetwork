@@ -35,39 +35,90 @@ then
   echo $FIGNAME
   montage Figures/Qualitative/tangjia.jpg Figures/Qualitative/zhuhai.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
-  FIGNAME=1-schema
-  echo $FIGNAME
-  cp Figures/Qualitative/tod_fr.pdf $FIGDIR/"$FIGNAME".pdf
 
-  # 2_gameoflife.png
-  # 2_intro_RBD_lattice.png
-  # 2_slimemould_reseauFinal.png
+  # slide 2
+
+  FIGNAME=2-gameoflife
+  echo $FIGNAME
+  cp Soutenance/Communication/figuresraw/intro_gameoflife.png $FIGDIR/"$FIGNAME".png
+
+  FIGNAME=2-intro_RBD_lattice
+  echo $FIGNAME
+  cp Soutenance/Communication/figuresraw/intro_RBD_lattice.png $FIGDIR/"$FIGNAME".png
+
+  FIGNAME=2-slimemould_reseauFinal
+  echo $FIGNAME
+  cp Soutenance/Communication/figuresraw/slimemould_reseauFinal.png $FIGDIR/"$FIGNAME".png
 
   FIGNAME=2-networks
   echo $FIGNAME
   convert -density $PDFRESOLUTION Figures/GrandParisRealEstate/reseaux.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
-
   # slide 4
-  FIGNAME=4-southafrica
-  echo $FIGNAME
-  cp Figures/CausalityRegimes/laggedCorrs_time_Tw3.png $FIGDIR/"$FIGNAME".png
 
-  FIGNAME=4-grdparis
+  FIGNAME=4-schema
   echo $FIGNAME
-  convert Figures/CaseStudies/accesspdiff_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  cp Figures/Qualitative/tod_fr.pdf $FIGDIR/"$FIGNAME".pdf
 
-  # slide 5
-  FIGNAME=5-method
+  FIGNAME=4-modeling
+  echo $FIGNAME
+  cp Figures/InteractionGibrat/Fig2.png $FIGDIR/"$FIGNAME".png
+
+  FIGNAME=4-empirical
+  echo $FIGNAME
+  cp Figures/CaseStudies/accessp_withbridge_prd.png $FIGDIR/"$FIGNAME".png
+
+  FIGNAME=4-data
+  echo $FIGNAME
+  cp Figures/Theory/nwsimplification.pdf $FIGDIR/"$FIGNAME".pdf
+
+  FIGNAME=4-tools
+  echo $FIGNAME
+  cp Figures/Cybergeo/Fig1.pdf $FIGDIR/"$FIGNAME".pdf
+
+  FIGNAME=4-methods
+  echo $FIGNAME
+  cp Figures/QuantEpistemo/schema_algo.pdf $FIGDIR/"$FIGNAME".pdf
+
+  # slide 4 bis
+  FIGNAME=4b-organisation
+  echo $FIGNAME
+  cp Figures/Theory/orga.pdf $FIGDIR/"$FIGNAME".pdf
+
+  # slide 5 : no figures
+
+
+  # slide 6
+  FIGNAME=6-method
   echo $FIGNAME
   cp Figures/Theory/causality_twovars.pdf $FIGDIR/"$FIGNAME".pdf
 
-
-
   # slide 7
-  FIGNAME=7-graph
+  FIGNAME=7-southafrica
+  echo $FIGNAME
+  cp Figures/CausalityRegimes/laggedCorrs_time_Tw3.png $FIGDIR/"$FIGNAME".png
+
+  FIGNAME=7-grdparis
+  echo $FIGNAME
+  convert Figures/CaseStudies/accesspdiff_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+
+  # slide 8
+  FIGNAME=8-graph
   echo $FIGNAME
   cp Figures/QuantEpistemo/rawcore_labs36.png $FIGDIR/"$FIGNAME".png
+
+  # slide 9
+
+  FIGNAME=9-regimes
+  echo $FIGNAME
+  cp Figures/MacroCoEvol/laggedregimes_absrho_nwGmax0_05.png $FIGDIR/"$FIGNAME".png
+
+  FIGNAME=9-calib
+  echo $FIGNAME
+  cp Figures/MacroCoEvol/pareto_nwThreshold_filtTRUE.pdf $FIGDIR/"$FIGNAME".pdf
+
+
+
 
 
 
