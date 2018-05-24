@@ -58,7 +58,8 @@ then
 
   FIGNAME=4-schema
   echo $FIGNAME
-  cp Figures/Qualitative/tod_fr.pdf $FIGDIR/"$FIGNAME".pdf
+  #cp Figures/Qualitative/tod_fr.pdf $FIGDIR/"$FIGNAME".pdf
+  cp Figures/Theory/processes_acteurs.pdf $FIGDIR/"$FIGNAME".pdf
 
   FIGNAME=4-modeling
   echo $FIGNAME
