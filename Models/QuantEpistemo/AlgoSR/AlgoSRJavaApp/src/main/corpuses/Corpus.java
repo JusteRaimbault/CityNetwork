@@ -102,6 +102,7 @@ public abstract class Corpus implements Iterable<Reference> {
 	public void csvExport(String prefix,boolean withAbstract){
 		LinkedList<String[]> datanodes = new LinkedList<String[]>();
 		LinkedList<String[]> dataedges = new LinkedList<String[]>();
+		if(!withAbstract){String[] header = {"title","id","year"};datanodes.add(header);}else{String[] header = {"title","id","year","abstract","year"};datanodes.add(header);}
 		for(Reference r:references){
 			String[] row = {""};
 			if(!withAbstract){String[] tmp = {r.title.title,r.scholarID,r.year};row=tmp;}
@@ -125,6 +126,13 @@ public abstract class Corpus implements Iterable<Reference> {
 	public Iterator<Reference> iterator(){
 		return references.iterator();
 	}
-	
+
+
+	@Override
+	public String toString() {
+		return("Corpus "+name+" ("+references.size()+" refs)");
+	}
+
+
 	
 }

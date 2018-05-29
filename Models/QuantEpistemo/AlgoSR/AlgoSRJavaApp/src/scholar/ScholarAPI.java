@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package scholar;
 
@@ -13,6 +13,8 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLContext;
@@ -72,37 +74,37 @@ public class ScholarAPI {
 
 	public static DefaultHttpClient client;
 	public static HttpContext context;
-	
+
 	public static TorThread tor;
-	
-	
-	
-	
+
+
+
+
 	/**
-	 * 
+	 *
 	 * TODO
-	 * 
+	 *
 	 *   - more robust archi for requests : any request (initial, or citations ?) must go through
 	 *   scholarRequest function to ensureConnection ; request and ensureConnection being called only in scholarRequest
-	 *   
-	 * 
+	 *
+	 *
 	 */
-	
-	
-	
+
+
+
 	/**
 	 * Init a scholar client
-	 * 
-	 * Independent from TorPool initialization ; 
+	 *
+	 * Independent from TorPool initialization ;
 	 * TODO : clarify setup function ¡¡
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public static void init(){
 		try{
-			
+
 			Log.stdout("(Re)-initializing scholar API...");
-			
+
 		    client = new DefaultHttpClient();
 
 		    //context
@@ -111,7 +113,7 @@ public class ScholarAPI {
 		    CookieStore cookieStore = new BasicCookieStore();
 			context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
 		    //System.out.println(cookieStore.getCookies().size());
-			
+
 			//set timeout
 			HttpParams params = client.getParams();
 			HttpConnectionParams.setConnectionTimeout(params, 10000);
@@ -131,19 +133,19 @@ public class ScholarAPI {
 			 Element el = Jsoup.parse(resp.getEntity().getContent(),"UTF-8","");
 			 try{Log.stdout("Accepted : "+(el.getElementsByClass("gs_r").size()>0));}catch(Exception e){e.printStackTrace();}
 
-			 System.out.println(el.html());
+			 //System.out.println(el.html());
 
 			 //System.out.println("Connected to scholar, persistent through cookies. ");
 			 //for(int i=0;i<cookieStore.getCookies().size();i++){System.out.println(cookieStore.getCookies().get(0).toString());}
-				
+
 			 EntityUtils.consumeQuietly(resp.getEntity());
-			 
-			}catch(Exception e){e.printStackTrace();}	
+
+			}catch(Exception e){e.printStackTrace();}
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * @param references
 	 */
@@ -163,83 +165,86 @@ public class ScholarAPI {
 
 	}
 
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * Get references from a scholar request - citations not filled for more flexibility.
-	 * 
-	 * 
+	 *
+	 *
 	 * @param request : either title, keywords, or ID in citing case
 	 * @param maxNumResponses
 	 * @param requestType "direct" or "cites"
 	 * @return
 	 */
-	public static HashSet<Reference> scholarRequest(String request,int maxNumResponses,String requestType){
-		HashSet<Reference> refs = new HashSet<Reference>();
-		
+	public static List<Reference> scholarRequest(String request, int maxNumResponses, String requestType){
+		//HashSet<Reference> refs = new HashSet<Reference>();
+		LinkedList<Reference> refs = new LinkedList<Reference>();
+
 		String query = "";
-		
+
 		// encode query here ?
 		try{request = URIUtil.encodePath(request);}catch(Exception e){}
-		
+
 		switch (requestType){
 		   case "direct": query="scholar?q="+request;break;
 		   case "exact" : query="scholar?as_q="+request;break;
 		   //case "exact" : query="scholar?q=\""+request+"\"";break;
 		   case "cites": query="scholar?cites="+request;break;
 		}
-		
-		
+
+
 		try{
-			
-			
+
+
 		    addPage(refs,ensureConnection(query+"&lookup=0&start=0"),maxNumResponses);
 			int resultsNumber = refs.size();
-		    
+
 			 for(int l=10;l<maxNumResponses;l=l+10){
 			     addPage(refs,ensureConnection(query+"&lookup=0&start="+l),maxNumResponses-resultsNumber);
 			     if(refs.size()==resultsNumber){break;}
 			     resultsNumber = refs.size();
 			 }
 		}catch(Exception e){e.printStackTrace();}
-		
+
+		System.out.println("req : "+refs.size()+" results");
+
 		return refs;
 	}
-	
-	
+
+
 	/**
 	 * Get the ref constructed from scholar ; null if no result.
-	 * 
+	 *
 	 * @param title
 	 * @return
 	 */
 	public static Reference getScholarRef(String title,String author,String year){
-		
+
 		// first need to format title (html tags eg)
 		title = Jsoup.parse(title).text();
-		
+
 		Reference res = null;
 		// go up to 5 refs in case of an unclustered ref (cf Roger Dion paper !)
 		res=matchRef(title,author,year,scholarRequest(title.replace(" ", "+" ),5,"exact"));
-		
+
 		//try direct if no result
 		if(res==null){
 			res=matchRef(title,author,year,scholarRequest(title.replace(" ", "+" ),5,"direct"));
-		}	
-		
+		}
+
 		// try exact pattern with "title"
 		if(res==null){
 			res=matchRef(title,author,year,scholarRequest("\""+title.replace(" ", "+" )+"\"",5,"direct"));
-		}	
-	
+		}
+
 		return res;
 	}
-	
+
 	/**
 	 * Overload the method : call on title and concatenated authors.
-	 * 
+	 *
 	 * @param ref
 	 * @return
 	 */
@@ -255,15 +260,15 @@ public class ScholarAPI {
 		}
 		return res;
 	}
-	
-	
+
+
 	/**
 	 * Match a ref to a set, looking at title and if refs have sch ids
-	 * 
+	 *
 	 * @param refs
 	 * @return
 	 */
-	public static Reference matchRef(String title,String author,String year,HashSet<Reference> refs){
+	public static Reference matchRef(String title,String author,String year,List<Reference> refs){
 		Reference res = null;
 		for(Reference nr:refs){
 			Log.stdout(nr.year+"  --  "+year);
@@ -277,19 +282,19 @@ public class ScholarAPI {
 		};
 		return res;
 	}
-	
-	
+
+
 	/*
 	public static void fillIdAndCitingRefs(Corpus corpus){
 		fillIdAndCitingRefs(corpus,"");
 	}
 	*/
-	
+
 	/**
 	 * Queries and constructs citing refs for a set of refs, and fills scholar id.
-	 * 
+	 *
 	 * Alters refs in place.
-	 * 
+	 *
 	 * @param corpus
 	 */
 	public static void fillIdAndCitingRefs(Corpus corpus){
@@ -304,43 +309,43 @@ public class ScholarAPI {
 				else{
 					try{
 						// first get scholar ID
-						
+
 						/**
 						 * TODO : some refs are only in VO (eg french -> must have both titles and try request on list of titles)
-						 * 
+						 *
 						 * TODO : write a generic distance function, binary, taking title and authors, title being compared on
 						 * non special characters (-> levenstein on non special ?)
 						 * AND with good language title
-						 * 
+						 *
 						 */
-						
+
 						Reference rr;
 						if(r.scholarID==null||r.scholarID==""){rr = getScholarRef(r);}else{rr=r;}
-						
+
 						if(rr!=null){
 							Log.stdout("ID : "+rr.scholarID);
 							//r.scholarID=rr.scholarID;//no need as rr and r should be same pointer ?
 							if(!rr.equals(r)){Reference.references.remove(r);}
 							r=rr; //contradiction with hashconsing here : should delete the old one here
-							HashSet<Reference> citing = scholarRequest(r.scholarID,10000,"cites"); // TODO ; limit of max cit number ?
+							List<Reference> citing = scholarRequest(r.scholarID,10000,"cites"); // TODO ; limit of max cit number ?
 							for(Reference c:citing){r.citing.add(c);}
 						}
-						
+
 						r.citingFilled = true;
-						
+
 						Log.stdout("Citing refs : "+r.citing.size());
-						
+
 					}catch(Exception e){e.printStackTrace();}
 				}
-				
+
 				Log.purpose("progress","Corpus "+corpus.name+" : citing refs : "+(100.0 * (1.0*p) / (1.0*totalRefs))+ " % ; ref "+r.toString());p++;
-				
+
 			}
 		}catch(Exception e){e.printStackTrace();}
 	}
 	
-	
-	
+
+
 	/**
 	 * Switch TOR port to ensure scholar connection (google blocking).
 	 *
@@ -352,10 +357,10 @@ public class ScholarAPI {
 		Log.stdout("Request : "+request);
 		try{dom=request("scholar.google.com",request);}
 		catch(Exception e){e.printStackTrace();}
-		Log.stdout(dom.html());
+		//Log.stdout(dom.html());
 		try{Log.stdout(dom.getElementsByClass("gs_rt").first().text());}catch(Exception e){}
 		try{Log.stdout(dom.getElementsByClass("gs_alrt").first().text());}catch(Exception e){}
-		
+
 		try{
 			//if(dom.getElementById("gs_res_bdy")==null){
 				//System.out.println(dom.html());
@@ -363,13 +368,13 @@ public class ScholarAPI {
 				while(dom==null||dom.getElementById("gs_res_ccl")==null){
 					// swith TOR port
 					Log.stdout("Current IP blocked by ggl fuckers ; switching currentTorThread.");
-				    
+
 				    // TODO : write ip in file for systematic stats of blocked adress (may have patterns in google-fuckers blocking policy)
-				    
+
 				    //TorPool.switchPort(true);
 				    // use TorPoolManager instead
 				    TorPoolManager.switchPort();
-				    
+
 					// reinit scholar API
 					init();
 					//update the request
@@ -381,16 +386,16 @@ public class ScholarAPI {
 		}catch(Exception e){e.printStackTrace();}
 		return dom;
 	}
-	
-	
+
+
 	/**
 	 * Local function parsing a scholar response.
-	 * 
+	 *
 	 * @param refs
 	 * @param dom
 	 * @param remResponses
 	 */
-	private static void addPage(HashSet<Reference> refs,Document dom,int remResponses){
+	private static void addPage(List<Reference> refs,Document dom,int remResponses){
 		int resultsNumber = 0;
 		Elements e = dom.getElementsByClass("gs_ri");
 		for(Element r:e){
@@ -403,10 +408,10 @@ public class ScholarAPI {
 	    	}
 	    }
 	}
-	
+
 	/**
 	 * Get cluster from an element
-	 * 
+	 *
 	 * @param e
 	 */
 	private static String getCluster(Element e){
@@ -414,17 +419,17 @@ public class ScholarAPI {
 		try{
 		   cluster = e.getElementsByAttributeValueContaining("href", "/scholar?cites=").first().attr("href").split("scholar?")[1].split("cites=")[1].split("&")[0];
 		}catch(NullPointerException nu){
-			
+
 			//null pointer -> not cited, try "versions" link to get cluster
 			try{cluster = e.getElementsByAttributeValueContaining("href", "/scholar?cluster=").first().attr("href").split("scholar?")[1].split("cluster=")[1].split("&")[0];}
 			catch(Exception nu2){}
 		}
 		return cluster;
 	}
-	
+
 	/**
 	 * Get title given the element.
-	 * 
+	 *
 	 * @param e
 	 * @return
 	 */
@@ -433,11 +438,11 @@ public class ScholarAPI {
 		  return new Title(e.getElementsByClass("gs_rt").text().replaceAll("\\[(.*?)\\]",""));
 		}catch(Exception ex){ex.printStackTrace();return Title.EMPTY;}
 	}
-	
-	
+
+
 	/**
 	 * Get year
-	 * 
+	 *
 	 * @param e
 	 * @return
 	 */
@@ -452,23 +457,23 @@ public class ScholarAPI {
 		}catch(Exception ex){ex.printStackTrace();return "";}
 	}
 
-	
+
 	/**
 	 * Simple HTTP Get request to host, url.
-	 * 
+	 *
 	 * @param host
 	 * @param url
 	 * @return org.jsoup.nodes.Document dom
 	 */
-	public static Document request(String host,String url){	
+	public static Document request(String host,String url){
 		Document res = null;
 		try {
-			
+
 			//String encodedURL = URIUtil.encodeWithinPath("http://"+host+"/"+url);
 			// needs to be done before.
-			
+
 			String encodedURL = "http://"+host+"/"+url;
-			
+
 			Log.stdout("Request : "+encodedURL);
 
 			HttpGet httpGet = new HttpGet(encodedURL);
@@ -490,8 +495,8 @@ public class ScholarAPI {
 		init();
 	}
 
-	
-	
-	
+
+
+
 
 }
