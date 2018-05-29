@@ -31,114 +31,118 @@ then
   # specific figdir
   FIGDIR=Soutenance/Communication/figures
 
-  FIGNAME=1-tangjia
+  FIGNAME=example-tangjia
   echo $FIGNAME
   montage Figures/Qualitative/tangjia.jpg Figures/Qualitative/zhuhai.jpg -tile 2x1 -geometry +"$HORIZONTALPADDING"+0 -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
 
-  # slide 2
+  # slide parcours
 
-  FIGNAME=2-gameoflife
+  FIGNAME=parcours-gameoflife
   echo $FIGNAME
   cp Soutenance/Communication/figuresraw/intro_gameoflife.png $FIGDIR/"$FIGNAME".png
 
-  FIGNAME=2-intro_RBD_lattice
+  FIGNAME=parcours-intro_RBD_lattice
   echo $FIGNAME
   cp Soutenance/Communication/figuresraw/intro_RBD_lattice.png $FIGDIR/"$FIGNAME".png
 
-  FIGNAME=2-slimemould_reseauFinal
+  FIGNAME=parcours-slimemould_reseauFinal
   echo $FIGNAME
   cp Soutenance/Communication/figuresraw/slimemould_reseauFinal.png $FIGDIR/"$FIGNAME".png
 
-  FIGNAME=2-networks
+  FIGNAME=parcours-networks
   echo $FIGNAME
   convert -density $PDFRESOLUTION Figures/GrandParisRealEstate/reseaux.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
-  # slide 4
+  # slide domconn
 
-  FIGNAME=4-schema
+  FIGNAME=domconn-schema
   echo $FIGNAME
   #cp Figures/Qualitative/tod_fr.pdf $FIGDIR/"$FIGNAME".pdf
   cp Figures/Theory/processes_acteurs.pdf $FIGDIR/"$FIGNAME".pdf
 
-  FIGNAME=4-modeling
+  FIGNAME=domconn-modeling
   echo $FIGNAME
   cp Figures/InteractionGibrat/Fig2.png $FIGDIR/"$FIGNAME".png
 
-  FIGNAME=4-empirical
+  FIGNAME=domconn-empirical
   echo $FIGNAME
   cp Figures/CaseStudies/accessp_withbridge_prd.png $FIGDIR/"$FIGNAME".png
 
-  FIGNAME=4-data
+  FIGNAME=domconn-data
   echo $FIGNAME
   cp Figures/Theory/nwsimplification.pdf $FIGDIR/"$FIGNAME".pdf
 
-  FIGNAME=4-tools
+  FIGNAME=domconn-tools
   echo $FIGNAME
   cp Figures/Cybergeo/Fig1.pdf $FIGDIR/"$FIGNAME".pdf
 
-  FIGNAME=4-methods
+  FIGNAME=domconn-methods
   echo $FIGNAME
   cp Figures/QuantEpistemo/schema_algo.pdf $FIGDIR/"$FIGNAME".pdf
 
   # slide 4 bis
-  FIGNAME=4b-organisation
+  FIGNAME=domconn-organisation
   echo $FIGNAME
   cp Figures/Theory/orga.pdf $FIGDIR/"$FIGNAME".pdf
 
-  # slide 5 : no figures
+  # slide theoretical : no figures
 
 
-  # slide 6
-  FIGNAME=6-method
+  # slide causality
+  FIGNAME=causality-method
   echo $FIGNAME
   cp Figures/Theory/causality_twovars.pdf $FIGDIR/"$FIGNAME".pdf
 
-  # slide 7
-  FIGNAME=7-southafrica
+  # slide empirical
+  FIGNAME=empirical-southafrica
   echo $FIGNAME
   cp Figures/CausalityRegimes/laggedCorrs_time_Tw3.png $FIGDIR/"$FIGNAME".png
 
-  FIGNAME=7-grdparis
+  FIGNAME=empirical-grdparis
   echo $FIGNAME
   convert Figures/CaseStudies/accesspdiff_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
-  # slide 8
-  FIGNAME=8-graph
+  # slide quantep
+  FIGNAME=quantep-graph
   echo $FIGNAME
   cp Figures/QuantEpistemo/rawcore_labs36.png $FIGDIR/"$FIGNAME".png
 
-  # slide 9
+  # slide macro
 
-  FIGNAME=9-regimes
+  FIGNAME=macro-regimes
   echo $FIGNAME
-  cp Figures/MacroCoEvol/laggedregimes_absrho_nwGmax0_05.png $FIGDIR/"$FIGNAME".png
+  #cp Figures/MacroCoEvol/laggedregimes_absrho_nwGmax0_05.png $FIGDIR/"$FIGNAME".png
+  # cropped figures
+  cp Soutenance/Communication/figuresraw/macro-regimes-cropped.png $FIGDIR/"$FIGNAME".png
 
-  FIGNAME=9-calib
+  FIGNAME=macro-calib
   echo $FIGNAME
   cp Figures/MacroCoEvol/pareto_nwThreshold_filtTRUE.pdf $FIGDIR/"$FIGNAME".pdf
 
 
 
-  # slide 10
+  # slide meso
 
-  FIGNAME=10-lutecia
+  FIGNAME=meso-lutecia
   echo $FIGNAME
-  cp Figures/Final/7-3-3-fig-lutecia-governance.jpg $FIGDIR/"$FIGNAME".jpg
+  #cp Figures/Final/7-3-3-fig-lutecia-governance.jpg $FIGDIR/"$FIGNAME".jpg
+  # cropped figure
+  cp Soutenance/Communication/figuresraw/lutecia-cropped.png $FIGDIR/"$FIGNAME".jpg
 
-  FIGNAME=10-nwgrowth
+  FIGNAME=meso-nwgrowth
   echo $FIGNAME
   #cp Figures/Final/7-1-2-fig-networkgrowth-examples.jpg $FIGDIR/"$FIGNAME".jpg
   montage Figures/NetworkGrowth/example_comp_nwSize200_bio.png Figures/NetworkGrowth/example_comp_nwSize200_cost.png -tile 1x2 -resize 1000x -border 1 -bordercolor Black $FIGDIR/"$FIGNAME".png
 
 
-  FIGNAME=10-calib
+  FIGNAME=meso-calib
   echo $FIGNAME
   cp Figures/Final/7-2-2-fig-mesocoevolmodel-calibration.jpg $FIGDIR/"$FIGNAME".jpg
 
 
-  # slide 11
-  FIGNAME=11-meta
+  # slide opening
+  FIGNAME=opening-meta
   echo $FIGNAME
   cp Figures/Theory/metacadre_norefs.pdf $FIGDIR/"$FIGNAME".pdf
 
