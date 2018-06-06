@@ -114,7 +114,7 @@ then
   echo $FIGNAME
   #cp Figures/MacroCoEvol/laggedregimes_absrho_nwGmax0_05.png $FIGDIR/"$FIGNAME".png
   # cropped figures
-  cp Soutenance/Communication/figuresraw/macro-regimes-cropped.png $FIGDIR/"$FIGNAME".png
+  cp Soutenance/Communication/figuresraw/macro-regimes-cropped-2.png $FIGDIR/"$FIGNAME".png
 
   FIGNAME=macro-calib
   echo $FIGNAME
