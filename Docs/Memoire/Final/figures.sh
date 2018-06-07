@@ -101,9 +101,9 @@ then
   # hand custom labels (not reproducible)
   cp Soutenance/Communication/figuresraw/laggedCorrs_time_Tw3.png $FIGDIR/"$FIGNAME".png
 
-  FIGNAME=empirical-grdparis
-  echo $FIGNAME
-  convert Figures/CaseStudies/accesspdiff_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
+  #FIGNAME=empirical-grdparis
+  #echo $FIGNAME
+  #convert Figures/CaseStudies/accesspdiff_metropole.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/"$FIGNAME".jpg
 
   # slide quantep
   FIGNAME=quantep-graph
@@ -117,31 +117,32 @@ then
   echo $FIGNAME
   #cp Figures/MacroCoEvol/laggedregimes_absrho_nwGmax0_05.png $FIGDIR/"$FIGNAME".png
   # cropped figures
+  # + edited -> not reproducible
   cp Soutenance/Communication/figuresraw/macro-regimes-cropped-2.png $FIGDIR/"$FIGNAME".png
 
-  FIGNAME=macro-calib
-  echo $FIGNAME
-  cp Figures/MacroCoEvol/pareto_nwThreshold_filtTRUE.pdf $FIGDIR/"$FIGNAME".pdf
+  #FIGNAME=macro-calib
+  #echo $FIGNAME
+  #cp Figures/MacroCoEvol/pareto_nwThreshold_filtTRUE.pdf $FIGDIR/"$FIGNAME".pdf
 
 
 
   # slide meso
 
-  FIGNAME=meso-lutecia
-  echo $FIGNAME
+  #FIGNAME=meso-lutecia
+  #echo $FIGNAME
   #cp Figures/Final/7-3-3-fig-lutecia-governance.jpg $FIGDIR/"$FIGNAME".jpg
   # cropped figure
-  cp Soutenance/Communication/figuresraw/lutecia-cropped.png $FIGDIR/"$FIGNAME".jpg
+  #cp Soutenance/Communication/figuresraw/lutecia-cropped.png $FIGDIR/"$FIGNAME".jpg
 
-  FIGNAME=meso-nwgrowth
-  echo $FIGNAME
+  #FIGNAME=meso-nwgrowth
+  #echo $FIGNAME
   #cp Figures/Final/7-1-2-fig-networkgrowth-examples.jpg $FIGDIR/"$FIGNAME".jpg
-  montage Figures/NetworkGrowth/example_comp_nwSize200_bio.png Figures/NetworkGrowth/example_comp_nwSize200_cost.png -tile 1x2 -resize 1000x -border 1 -bordercolor Black $FIGDIR/"$FIGNAME".png
+  #montage Figures/NetworkGrowth/example_comp_nwSize200_bio.png Figures/NetworkGrowth/example_comp_nwSize200_cost.png -tile 1x2 -resize 1000x -border 1 -bordercolor Black $FIGDIR/"$FIGNAME".png
 
 
-  FIGNAME=meso-calib
-  echo $FIGNAME
-  cp Figures/Final/7-2-2-fig-mesocoevolmodel-calibration.jpg $FIGDIR/"$FIGNAME".jpg
+  #FIGNAME=meso-calib
+  #echo $FIGNAME
+  #cp Figures/Final/7-2-2-fig-mesocoevolmodel-calibration.jpg $FIGDIR/"$FIGNAME".jpg
 
 
   # slide opening
