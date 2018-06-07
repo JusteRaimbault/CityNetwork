@@ -97,7 +97,9 @@ then
   # slide empirical
   FIGNAME=empirical-southafrica
   echo $FIGNAME
-  cp Figures/CausalityRegimes/laggedCorrs_time_Tw3.png $FIGDIR/"$FIGNAME".png
+  #cp Figures/CausalityRegimes/laggedCorrs_time_Tw3.png $FIGDIR/"$FIGNAME".png
+  # hand custom labels (not reproducible)
+  cp Soutenance/Communication/figuresraw/laggedCorrs_time_Tw3.png $FIGDIR/"$FIGNAME".png
 
   FIGNAME=empirical-grdparis
   echo $FIGNAME
@@ -106,7 +108,8 @@ then
   # slide quantep
   FIGNAME=quantep-graph
   echo $FIGNAME
-  cp Figures/QuantEpistemo/rawcore_labs36.png $FIGDIR/"$FIGNAME".png
+  #cp Figures/QuantEpistemo/rawcore_labs36.png $FIGDIR/"$FIGNAME".png
+  cp Soutenance/Communication/figuresraw/knowledgemap_simpl.png $FIGDIR/"$FIGNAME".png
 
   # slide macro
 
