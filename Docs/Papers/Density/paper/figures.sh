@@ -2,11 +2,11 @@
 
 # fig 1
 montage figuresraw/cluster_pca_k5_morpho.png figuresraw/cluster_map_k5_morpho.png -tile 2x1 -geometry +40+5 figuresraw/fig1tmp.png
-montage figuresraw/indics_morpho_discrquantiles.png figuresraw/fig1tmp.png -tile 1x2 -geometry +5+5 figures/Fig2.png
+montage figuresraw/indics_morpho_discrquantiles.png figuresraw/fig1tmp.png -tile 1x2 -geometry +5+5 figures/Fig1.png
 rm figuresraw/fig1tmp.png
 
 # Fig 2
-convert -density 1000 figuresraw/flowchart.pdf -resize 2000 figures/Fig1.png
+convert -density 1000 figuresraw/flowchart.pdf -resize 3000 figures/Fig2.png
 
 
 # fig 3
