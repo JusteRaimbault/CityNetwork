@@ -9,8 +9,8 @@ source('mapFunctions.R')
 areasize=100;offset=50;factor=0.5
 countrycode="FR"
 # load data
-#res = loadIndicatorData(paste0("res/europecoupled_areasize",areasize,"_offset",offset,"_factor",factor,"_temp.RData"))
-res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe csv
+res = loadIndicatorData(paste0("res/europecoupled_areasize",areasize,"_offset",offset,"_factor",factor,"_temp.RData"))
+#res = loadIndicatorData("res/res/europe_areasize100_offset50_factor0.5_20160824.csv") # Europe csv
 #res = loadIndicatorData('res/chinacoupled_areasize100_offset50_factor0.1_temp.RData') # China
 
 # load spatial mask to select area
@@ -164,6 +164,17 @@ for(type in names(indics)){
   
 }
 
+
+
+
+#####
+# cluster to get typoical target values for OSE
+cdata=res[apply(res[,indics[[type]]],1,function(r){prod(as.numeric(!is.na(r)))>0}),]
+m=cdata[,indics[[type]]]
+km = kmeans(m,k,iter.max = 1000,nstart=100)
+write.table(cbind(1:k,km$centers),
+            file = paste0(Sys.getenv('CS_HOME'),'/ReactionDiffusion/Models/Density/data/centers.csv'),
+            row.names = F,col.names = F,sep=";")
 
 
 ######
