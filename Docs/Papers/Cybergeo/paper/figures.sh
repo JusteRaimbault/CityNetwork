@@ -38,10 +38,13 @@ convert figuresraw/semantic.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/F
 convert -density $PDFRESOLUTION figuresraw/synththemcyb.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig8.jpg
 
 # Fig9
-convert figuresraw/compo_proportion.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig9.jpg
+convert figuresraw/modsens_removal.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig9.jpg
 
 # Fig10
-montage figuresraw/originalities_citclass.png figuresraw/citation_originalities_citclass.png -tile 1x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig10.jpg
+convert figuresraw/compo_proportion.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig10.jpg
+
+# Fig11
+montage figuresraw/originalities_citclass.png figuresraw/citation_originalities_citclass.png -tile 1x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig11.jpg
 
 
 
