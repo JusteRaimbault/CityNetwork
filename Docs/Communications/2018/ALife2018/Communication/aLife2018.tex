@@ -46,6 +46,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
+\usepackage{multirow}
 
 
 \makeatother
@@ -129,8 +130,9 @@ July 26th 2018
 
 \sframe{Morphogenesis of transportation networks}{
 
-\large
 \justify
+
+\vspace{-0.5cm}
 
 \textit{Is the city alive ? } \textbf{No}
 
@@ -146,7 +148,19 @@ $\rightarrow$ Cities (territorial systems) are morphogenetic \cite{doursat2012mo
 
 % The growth of transportation networks in territorial sys- tems bears stunning similarities with biological networks, and the understanding of processes driving their spatial ex- tension can both have practical planning applications but also bring theoretical insights into complex morphogenetic systems. Network growth models have been proposed in several disciplines, of which Xie and Levinson (2009) give a large overview, taking into account diverse processes such as economical, geometrical, geographical processes for ex- ample. There exists to our knowledge no systematic compar- ison of different network generation heuristics. We develop here such a comparison in a multi-modeling paradigm.
 
-\vspace{1.5cm}
+%\vspace{1.5cm}
+
+\medskip
+
+\centering
+
+\includegraphics[width=0.3\textwidth]{figures/rbd_corbuLinearCiudad.png}\hspace{0.1cm}\includegraphics[width=0.3\textwidth]{figures/rbd_corbuRadiant.png}\hspace{0.1cm}\includegraphics[width=0.3\textwidth]{figures/rbd_TreeLikeCity.png}
+
+\textit{Stylized urban forms \cite{raimbault2014hybrid}}
+
+\bigskip
+
+\raggedright
 
 \textbf{Research objective: } \textit{Understand the morphogenesis of transportation networks (road network), taking into account multiple concurrent processes through multi-modeling}
 
@@ -267,13 +281,19 @@ Computationally intensive: high-dimensional parameter space and possible spatial
 
 \medskip
 
-$\rightarrow$ use of grid computing, made transparent with the OpenMOLE software
+$\rightarrow$ use of grid computing, made smooth with the OpenMOLE software \url{https://next.openmole.org/}
 
-\url{https://next.openmole.org/}
+\centering
 
-openmole.png
+\smallskip
 
-\footnotesize \textit{OpenMOLE: (i)}
+\includegraphics[height=0.35\textheight]{figures/openmole.png}
+
+\smallskip
+
+\raggedright
+
+\footnotesize \textit{OpenMOLE: (i) embed any model as a black box; (ii) transparent access to main High Performance Computing environments; (iii) model exploration and calibration methods.}
 
 }
 
@@ -304,13 +324,17 @@ openmole.png
 
 \centering
 
+\hspace{-0.2cm}
 \includegraphics[width=0.53\textwidth]{figures/7-1-2-fig-networkgrowth-feasiblespace.jpg}
+\includegraphics[width=0.53\textwidth]{figures/feasible_space_withreal_pca.png}
 
-Feasible spaces by network heuristic
+\footnotesize \textit{Simulated points obtained with a LHS sampling. (Left) Feasible points cloud in a reduced network indicator space; (Right) Same points with a sample of real points}
+
+%Feasible spaces by network heuristic
 
 }
 
-
+
 
 
 
@@ -318,11 +342,26 @@ Feasible spaces by network heuristic
 
 \centering
 
-\includegraphics[height=0.8\textheight]{figures/7-1-2-fig-networkgrowth-realdistance.jpg}
+%\includegraphics[height=0.8\textheight]{figures/7-1-2-fig-networkgrowth-realdistance.jpg}
 
-Distribution of distances to topologies of real networks
+\includegraphics[height=0.8\textheight]{figures/distance_real.png}
+
+\footnotesize \textit{Distribution of distances to topologies of real networks}
 
 }
+
+\sframe{Distance to real networks by density morphology}{
+
+\centering
+
+%\includegraphics[height=0.8\textheight]{figures/7-1-2-fig-networkgrowth-realdistance.jpg}
+
+\includegraphics[height=0.8\textheight]{figures/distance_real_bymorph.png}
+
+\footnotesize \textit{Distribution of distances to topologies of real networks, conditioned by classes of population density morphology}
+
+}
+
 
 
 
@@ -344,9 +383,13 @@ Distribution of distances to topologies of real networks
 
 \textbf{Implications}
 
+$\rightarrow$ Simple processes sufficient to produce reasonable networks: evidence for morphogenesis ? % implications for morphogenesis ?
+
+\smallskip
+
 $\rightarrow$ Complementary of various processes to cover the feasible space and produce existing topologies.
 
-$\rightarrow$ % implications for morphogenesis ?
+
 
 
 
@@ -360,7 +403,11 @@ $\rightarrow$ % implications for morphogenesis ?
 
 $\rightarrow$ Dynamical calibration requires (quasi-inexistent) data.
 
+\smallskip
+
 $\rightarrow$ Targeted calibrations to establish potential correspondances between processes and network topology.
+
+\smallskip
 
 $\rightarrow$ Compare network generation heuristics in a ``fair'' way (correcting for additional parameters, open question for models of simulation).
 
@@ -427,6 +474,80 @@ Raimbault, J. (2018). An Urban Morphogenesis Model Capturing Interactions betwee
 %% Morphogenesis
 
 
+
+\sframe{Model parameters}{
+
+\centering
+
+\vspace{-0.2cm}
+\begin{tabular}{|p{1.5cm}|c|c|c|c|c|}
+  \hline
+Heuristic & Param. & Name & Process & Domain & Default\\
+  \hline
+\multirow{5}{*}{Base}& $l_m$ & added links & growth & $[0;100]$ & $10$ \\\cline{2-6}
+ & $d_G$ & gravity distance & potential & $]0;5000]$ & $500$ \\\cline{2-6}
+ & $d_0$ & gravity shape & potential & $]0;10]$ & $2$ \\\cline{2-6}
+ & $k_h$ & gravity weight & potential & $[0;1]$ & $0.5$ \\\cline{2-6}
+ & $\gamma_G$ & gravity hierarchy & potential & $[0.1;4]$ & $1.5$ \\\hline
+\multirow{2}{*}{Random}& $\gamma_R$ & random selection  & hierarchy & $[0.1;4]$ & $1.5$ \\\cline{2-6}
+& $\theta_R$ & random threshold & breakdown & $[1;5]$ & $2$ \\\hline
+Cost-benefits & $\lambda$ & compromise & compromise & $[0;0.1]$ & $0.05$ \\\hline
+\multirow{2}{*}{Biological}& $n_b$ & iterations & convergence & $[40;100]$ & $50$ \\\cline{2-6}
+& $\theta_b$ & biological th.& threshold & $[0.1;1.0]$ & $0.5$ \\\hline
+\end{tabular}
+
+}
+
+
+
+\sframe{Model setup}{
+
+\textbf{Synthetic setup: } rank-sized monocentric cities, simple connection with bord nodes to avoid bord effects 
+
+\textbf{Real setup: } Population density raster at 500m resolution (European Union, from Eurostat)
+
+\bigskip
+
+\centering
+\frame{\includegraphics[width=0.35\textwidth]{figures/coevol_example_synthsetup}}\hspace{0.1cm}
+\frame{\includegraphics[width=0.35\textwidth]{figures/coevol_example-realsetup}}
+
+\textbf{Stopping conditions: } fixed final time; fixed total population; fixed network size.
+
+}
+
+
+\sframe{Network Indicators}{
+
+Network Topology measured by:
+
+\begin{itemize}
+	\item Betweenness and Closeness centralities: average and hierarchy
+	\item Accessibility (weighted closeness)
+	\item Efficiency (network pace relative to euclidian distance)
+	\item Mean path length, diameter
+\end{itemize}
+
+}
+
+
+
+\sframe{Network nodes}{
+
+\textbf{Network baseline extension:}
+
+Adding a fixed number $n_N$ of new nodes : for patches such that $d_r < d_0$, probability to receive a node is
+
+% note : not a proba for the last ? no pb as soon as in 0,1, realized anyway.
+\[
+p = P/P_{max} \cdot (\delta_M - \delta)/\delta_M
+\]
+% \cdot \exp\left(-((d_r - d_0)/\sigma_r)^2\right)
+
+
+Nodes connected the shortest way to existing network.
+
+}
 
 
 
@@ -501,19 +622,6 @@ Behavior of the model evaluated with performance indicators for generated networ
 
 
 
-\sframe{Network Indicators}{
-
-Network Topology measured by:
-
-\begin{itemize}
-	\item Betweenness and Closeness centralities: average and hierarchy
-	\item Accessibility (weighted closeness)
-	\item Efficiency (network pace relative to euclidian distance)
-	\item Mean path length, diameter
-\end{itemize}
-
-}
-
 
 
 \sframe{Deterministic breakdown Network generation}{
@@ -529,24 +637,6 @@ V_{ij}(d) = \left[ (1 - k_h) + k_h \cdot \left( \frac{P_i P_j}{P^2} \right)^{\ga
 \end{enumerate}
 }
 
-
-
-
-\sframe{Model setup}{
-
-\textbf{Synthetic setup: } rank-sized monocentric cities, simple connection with bord nodes to avoid bord effects 
-
-\textbf{Real setup: } Population density raster at 500m resolution (European Union, from Eurostat)
-
-\bigskip
-
-\centering
-\frame{\includegraphics[width=0.35\textwidth]{figures/coevol_example_synthsetup}}\hspace{0.1cm}
-\frame{\includegraphics[width=0.35\textwidth]{figures/coevol_example-realsetup}}
-
-\textbf{Stopping conditions: } fixed final time; fixed total population; fixed network size.
-
-}
 
 
 
