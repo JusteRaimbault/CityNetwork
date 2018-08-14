@@ -20,18 +20,22 @@ res <- as.tbl(read.csv(file = '20180205_localsynth/data/20180205_113455_local_sy
 #finalTime = 50
 #finalTime = 10
 finalTime = 20
-names(res)<-namesTS(c("accessibilityTS","betaDC","centreActivesPropTS","centreEmploymentsPropTS"
-              ,"collcost","constrcost","entropyActivesTS","entropyEmploymentsTS",
-              "euclpace","evolveLanduse","evolveNetwork","expcollab","failed","finalTime","game","gametype",
-              "gammaCDA","gammaCDE","id","lambdaAcc","maxFlowTS","meanDistanceActivesTS",
-              "meanDistanceCentreActivesTS","meanDistanceCentreEmploymentsTS","meanDistanceEmploymentsTS",
-              "meanFlowTS","minFlowTS","moranActivesTS","moranEmploymentsTS","nwBetweenness",
-              "nwCloseness","nwDiameter","nwLength","nwPathLength","nwRelativeSpeed","realcollab",
-              "regionalproba","relDiffActivesTS","relDiffEmploymentsTS","replication","setupType",
-              "slopeActivesTS","slopeEmploymentsTS","slopeRsquaredActivesTS",
-              "slopeRsquaredEmploymentsTS","stabilityTS","synthConfFile","targetDistance","targetNetwork",
-              "traveldistanceTS","wantedcollab"
-              ),finalTime)
+
+# NAMES IF NOT DEFINED
+# names(res)<-namesTS(c("accessibilityTS","betaDC","centreActivesPropTS","centreEmploymentsPropTS"
+#              ,"collcost","constrcost","entropyActivesTS","entropyEmploymentsTS",
+#              "euclpace","evolveLanduse","evolveNetwork","expcollab","failed","finalTime","game","gametype",
+#              "gammaCDA","gammaCDE","id","lambdaAcc","maxFlowTS","meanDistanceActivesTS",
+#              "meanDistanceCentreActivesTS","meanDistanceCentreEmploymentsTS","meanDistanceEmploymentsTS",
+#              "meanFlowTS","minFlowTS","moranActivesTS","moranEmploymentsTS","nwBetweenness",
+#              "nwCloseness","nwDiameter","nwLength","nwPathLength","nwRelativeSpeed","realcollab",
+#              "regionalproba","relDiffActivesTS","relDiffEmploymentsTS","replication","setupType",
+#              "slopeActivesTS","slopeEmploymentsTS","slopeRsquaredActivesTS",
+#              "slopeRsquaredEmploymentsTS","stabilityTS","synthConfFile","targetDistance","targetNetwork",
+#              "traveldistanceTS","wantedcollab"
+#              ),finalTime)
+
+
 
 #
 # 19 TS variables + 29 others -> 219 ?
@@ -132,19 +136,24 @@ res[res$cumreldiffactives==min(res$cumreldiffactives),params]
 #######
 ## metropolisation
 
-res$evolveLanduse = ifelse(res$evolveLanduse==1,"Avec usage du sol","Sans usage du sol")
+#res$evolveLanduse = ifelse(res$evolveLanduse==1,"Avec usage du sol","Sans usage du sol")
+res$evolveLanduse = ifelse(res$evolveLanduse==1,"With land-use","Without land-use")
+
 g=ggplot(res,aes(x=regionalproba,y=accessibilityBalanceTS19/accessibilityBalanceTS0,colour = synthConfFile,group=synthConfFile))
 g+geom_point(pch='.')+geom_smooth()+facet_wrap(~evolveLanduse,scales = 'free')+xlab(expression(xi))+
   ylab(expression(frac(X[0](t[f]),X[1](t[f]))%.%frac(X[1](t[0]),X[0](t[0]))))+
-  scale_color_discrete(name='Configuration',labels=c('Proche','Distante'))+stdtheme
-ggsave(file=paste0(resdir,'accessbalance.png'),width=30,height=15,units='cm')
+  #scale_color_discrete(name='Configuration',labels=c('Proche','Distante'))+stdtheme
+  scale_color_discrete(name='Configuration',labels=c('Close','Distant'))+stdtheme
+#ggsave(file=paste0(resdir,'accessbalance.png'),width=30,height=15,units='cm')
+ggsave(file=paste0(resdir,'accessbalance_en.png'),width=30,height=15,units='cm')
 
 g=ggplot(res,aes(x=regionalproba,y=accessibilityTS19/accessibilityTS0,colour = synthConfFile,group=synthConfFile))
 g+geom_point(pch='.')+geom_smooth()+facet_wrap(~evolveLanduse,scales = 'free')+xlab(expression(xi))+
   ylab(expression(frac(X(t[f]),X(t[0]))))+
-  scale_color_discrete(name='Configuration',labels=c('Proche','Distante'))+stdtheme
-ggsave(file=paste0(resdir,'accesstot.png'),width=30,height=15,units='cm')
-
+  #scale_color_discrete(name='Configuration',labels=c('Proche','Distante'))+stdtheme
+  scale_color_discrete(name='Configuration',labels=c('Close','Distant'))+stdtheme
+#ggsave(file=paste0(resdir,'accesstot.png'),width=30,height=15,units='cm')
+ggsave(file=paste0(resdir,'accesstot_en.png'),width=30,height=15,units='cm')
 
 
 
