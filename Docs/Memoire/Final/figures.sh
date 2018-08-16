@@ -5,6 +5,9 @@
 TARGET=$1
 
 # general
+#LANGUAGE="FR"
+LANGUAGE="EN"
+
 FIGDIR=Figures/Final
 
 # quality
@@ -655,7 +658,16 @@ then
   # fig:lutecia:coevol
   FIGNAME=7-3-3-fig-lutecia-coevol
   echo $FIGNAME
+  if [ "$LANGUAGE" == "FR" ]
+  then
+    cp ../../../Results/Governance/20180205_localsynth/accessbalance.png Figures/Lutecia/accessbalance.png
+    cp ../../../Results/Governance/20180205_localsynth/accesstot.png Figures/Lutecia/accesstot.png
+  else
+    cp ../../../Results/Governance/20180205_localsynth/accessbalance_en.png Figures/Lutecia/accessbalance.png
+    cp ../../../Results/Governance/20180205_localsynth/accesstot_en.png Figures/Lutecia/accesstot.png
+  fi
   montage Figures/Lutecia/accessbalance.png Figures/Lutecia/accesstot.png -resize "$WIDTH"x -quality $JPGQUALITY -tile 1x2 -geometry +0+"$VERTICALPADDING" $FIGDIR/"$FIGNAME".jpg
+
 
   # fig:lutecia:ex-prd
   FIGNAME=7-3-3-fig-lutecia-ex-prd

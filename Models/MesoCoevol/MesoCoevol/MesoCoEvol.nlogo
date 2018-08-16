@@ -378,7 +378,7 @@ population-growth-rate
 population-growth-rate
 0
 3000
-1796
+0
 1
 1
 NIL
@@ -615,7 +615,7 @@ INPUTBOX
 732
 160
 seed
-3
+20
 1
 0
 Number
@@ -1079,7 +1079,7 @@ cost-tradeoff
 cost-tradeoff
 0
 0.1
-0.009
+0.018
 0.001
 1
 NIL
