@@ -497,45 +497,78 @@ En substituant les expressions des utilités à partir de la matrice de gain, on
 \subsubsection{Discrete choice coordination}{Coordination par choix discrets}
 
 
-%%%%%%%%
-%% -- TRAD --
-%%%%%%%%
-
-
+\bpar{
+To determine the probability to cooperate in the discrete choice case, we have to solve $f(p_i) = 0$ with
+}{
 Pour déterminer la probabilité de coopération dans le cas des choix discrets, il s'agit de résoudre $f(p_i) = 0$ avec
+}
+
 \[
 f(x) = \frac{1}{1+\exp\left[-\beta_{DC}\frac{\Delta_i}{1 + \exp(-\beta_{DC}(x \Delta_{1-i} - J))} - J\right]} - x
 \]
+
+\bpar{
+where we wrote $\Delta_i = \Delta X_{i}(Z^{\star}_{C}) - \Delta X_{\bar{i}}(Z^{\star}_{i})$.
+}{
 où nous avons noté $\Delta_i = \Delta X_{i}(Z^{\star}_{C}) - \Delta X_{\bar{i}}(Z^{\star}_{i})$.
+}
 
+\bpar{
+We immediately have $f(0) > 0 $ and $f(1) < 0$ and $f$ is continuous, there therefore always exists a solution $x\in [0,1]$ by the theorem of intermediate values.
+}{
 On a immédiatement $f(0) > 0 $ et $f(1) < 0$ et $f$ est continue, il existe donc toujours une solution $x\in [0,1]$ par le théorème des valeurs intermédiaires.
+}
 
+\bpar{
+Regarding uniqueness, it can be shown under some assumptions. A computation of $\frac{\partial f}{\partial x}$ gives
+}{
 Concernant l'unicité, il est possible de la montrer sous certaines conditions. Un calcul de $\frac{\partial f}{\partial x}$ donne 
+}
+
 \[
 \frac{\partial f}{\partial x} = 2 (\cosh u(x) - 1) + \beta^2 \Delta_i \Delta_{1-i} \frac{\exp(-\beta_{DC}(x \Delta_{1-i} - J))}{(1 + \exp(-\beta_{DC}(x \Delta_{1-i} - J)))^2}
 \]
 
+\bpar{
+where $u(x) = -\beta_{DC} (\frac{\Delta_i}{1 + \exp(-\beta_{DC}(x \Delta_{1-i} - J))} - J)$.
+}{
 où $u(x) = -\beta_{DC} (\frac{\Delta_i}{1 + \exp(-\beta_{DC}(x \Delta_{1-i} - J))} - J)$.
+}
 
+\bpar{
+As $\cosh u \geq 1$, we have $\frac{\partial f}{\partial x} > 0$ if $\Delta_i \Delta_{1-i} > 0$. The function is in this case strictly increasing and we have a unique solution.
+}{
 Comme $\cosh u \geq 1$, on a $\frac{\partial f}{\partial x} > 0$ si $\Delta_i \Delta_{1-i} > 0$. La fonction est dans ce cas strictement croissante et on a une unique solution.
+}
 
+
+\bpar{
+In practice, the solution is determined with the Brent algorithm, with boundaries $[0,1]$ and a tolerance of $0.01$.
+}{
 En pratique, la solution est déterminée par algorithme de Brent, avec les bornes $[0,1]$ et une tolérance de $0.01$.
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Implementation details}{Détails d'implémentation}
 
 
-\paragraph{Distance Matrix}{Matrice des distances}
+\subsubsection{Distance matrix}{Matrice des distances}
 
 \bpar{
-Distance via network are updated in a dynamical programming fashion for efficiency purposes (because of the numerous network updates), the following way :
+The distance matrix is updated in a dynamical way because of execution time issues (given the number of network updates), and the following way:
 \begin{enumerate}
-\item Euclidian distance matrix $d(i,j)$ is computed analytically
-%\item Network shortest paths between network intersections (rasterized network) updated in a dynamic way (addition of new paths and update or change of old paths if needed when a link is added), correspondance between network patches and closest intersection also updated dynamically ; $O(N_{inters}^3)$
-%\item Weak component clusters and distance between clusters updated ; $O(N_{nw}^2)$
-%\item Network distances between network patches updated, through the heuristic of only minimal connexions between clusters ; $O(N_{nw}^2)$
-%\item Effective distances (taking paces/congestion into account) updated as minimum between euclidian time and \[\min_{C,C'}{d(i,C)+d_{nw}(p_C(i),p_C'(j))+d(C',j)}\], complexity in $O(N_{clusters}^2\cdot N^2)$ (Approximated with $\min_C$ only in the implementation, consistent within the interaction ranges $\sim$ 5 patches taken in the model). 
+	\item The euclidian distance matrix $d(i,j)$ is computed analytically
+	\item The shortest paths between intersections of links (between cells of the corresponding raster network) are updated in a dynamical way (step of complexity $O(N_{inters}^3$):
+	\begin{itemize}
+		\item For each new intersection, shortest paths towards all other intersections are computed using the old matrix and the new link.
+		\item For all former shortest paths, they are updated if needed after checking potential shortcuts using the new link.
+		\item The correspondence between basic network cells and intersections is updated.
+% TODO note it is not totally clear to what extent this correspondence is useful, and also how the raster representation is crucial.
+	\end{itemize}
+	\item Connected components and the distances between them are updated (complexity in $O(N_{nw}^2)$)
+	\item Distances within the network between network cells are updated, with the heuristic of minimal connections only (a unique shortest link between each cluster) (complexity in $O(N_{nw}^2)$)
+	\item Effective distances between all cells (taking speed into account and congestion if it is implemented) are computed as the minimum between euclidian distance and \[\min_{C,C'}{d(i,C)+d_{nw}(p_C(i),p_C'(j))+d(C',j)}\] that we approximate by taking $\min_C$ only in the implementation, what is consistent with relatively interaction ranges that we consider. The complexity is in $O(N_{clusters}^2\cdot N^2)$.
 \end{enumerate}
 }{
 La matrice des distances est mise à jour de manière dynamique pour des questions de rapidité d'execution (vu le nombre de mises à jour du réseau), de la façon suivante :
@@ -556,10 +589,15 @@ La matrice des distances est mise à jour de manière dynamique pour des questio
 }
 
 
-\paragraph{Network growth}{Croissance du réseau}
+\subsubsection{Network growth}{Croissance du réseau}
 
 
+
+\bpar{
+The potential infrastructures, with a count of $N_I$ during the heuristic search of an optimal infrastructure, are randomly drawn among all possible infrastructures having an extremity at the center of a cell. If the extremity is at a distance lower than a threshold of an already existing link of the network, it is replaced by its projection on the corresponding link. This is a snapping step which allows to obtain a network with a reasonable form locally. In correspondance with the raster representation of the network, we take $\theta_I = 1$, what corresponds to the size of a cell.
+}{
 Les infrastructures potentielles, au nombre de $N_I$ lors de la recherche heuristique d'une infrastructure optimale, sont tirées aléatoirement parmi l'ensemble des infrastructures possibles ayant une extrémité au centre d'une cellule. Si l'extrémité est à une distance inférieure à un seuil $\theta_I$ d'un lien déjà existant du réseau, celle-ci est remplacée par sa projection sur le lien correspondant. Il s'agit de l'étape d'accrochage permettant d'obtenir un réseau de forme raisonnable localement. En cohérence avec la représentation raster du réseau, nous prenons $\theta_I = 1$, ce qui correspond à la taille d'une cellule. 
+}
 
 
 
@@ -573,14 +611,14 @@ Les infrastructures potentielles, au nombre de $N_I$ lors de la recherche heuris
 \subsubsection{Synthetic setup}{Initialisation synthétique}
 
 \bpar{
-This section describes the setup in the case of synthetic configurations of MCR.
+We describe here the details of the synthetic setup.
 }{
 Nous décrivons ici les détails de l'initialisation synthétique.
 }
 
 
 \bpar{
-Initial distribution of Actives and Employments is done around governance centers at positions $\vec{x}_i$ using exponential kernels by
+Initial distributions of actives and employments in the synthetic setup are taken around governance centers (mayors) at positions $\vec{x}_i$ using exponential kernels by
 }{
 Les distributions initiales des actifs et des emplois dans la configuration synthétique sont pris autour des centres de gouvernance (maires) aux positions $\vec{x}_i$ avec des noyaux exponentiels par
 }
@@ -594,11 +632,20 @@ E(\vec{x}) = E_{max} \cdot \exp{\left(\frac{\norm{\vec{x}-\vec{x}_i}}{r_E}\right
 
 \subsubsection{Setup on a real configuration}{Initialisation sur configuration réelle}
 
+
+\bpar{
+We show in Fig.~\ref{fig:app:lutecia:realsetup} the population and networks on which experiments on real data are done: with a fixed land-use,
+\begin{itemize}
+	\item an experiment without initial network, and with target calibration network the network in 2010;
+	\item an experiment with the initial network of 2010, and with target network the planned network.
+\end{itemize}
+}{
 Nous montrons en Fig.~\ref{fig:app:lutecia:realsetup} la population et les réseaux sur lesquels les expériences sur données réelles sont menées : à usage du sol fixe,
 \begin{itemize}
 	\item une expérience sans réseau initial, et avec pour réseau cible de calibration le réseau de 2010 ;
 	\item une expérience avec le réseau initial de 2010, et pour réseau cible le réseau planifié.
 \end{itemize} 
+}
 
 
 %%%%%%%%%%%%%
@@ -606,7 +653,7 @@ Nous montrons en Fig.~\ref{fig:app:lutecia:realsetup} la population et les rése
 	%\includegraphics[width=\linewidth]{Figures/Lutecia/ex_real_filesetup.png}
 	%\includegraphics[width=\linewidth]{Figures/Lutecia/realnonw_nolu.png}
 	\includegraphics[width=\linewidth]{Figures/Final/A-lutecia-realsetup.jpg}
-	\appcaption{\textbf{Setup on real data used for model application.}\label{fig:app:lutecia:realsetup}}{\textbf{Initialisation sur données réelles utilisée lors de l'application.} Pour des raisons de performances computationnelle, le nombre de cellules est ici diminué par rapport à l'illustration en texte principal. (\textit{Gauche}) Réseaux à l'initialisation, en rouge le réseau initial correspondant au réseau en 2010, en violet fin le réseau cible pour la calibration, correspondant au réseau planifié. (\textit{Droite}) Résultat obtenu avec $\alpha = 0$ à $t_f = 11$ après une initialisation sans réseau ; en bleu le réseau cible, qui correspond au réseau de 2010.\label{fig:app:lutecia:realsetup}}
+	\appcaption{\textbf{Setup on real data used for model application.} Because of computational performance issues, the number of cells is here lower in comparison to the illustration in main text. (\textit{Left}) Initial networks, in red the initial network corresponding to the network in 2010, in purple and tight the target network for calibration, corresponding to the planned network. (\textit{Right}) Result obtained with $\alpha = 0$ at $t_f = 11$ after a setup without network; in blue the target network, which corresponds to the network in 2010.\label{fig:app:lutecia:realsetup}}{\textbf{Initialisation sur données réelles utilisée lors de l'application.} Pour des raisons de performances computationnelle, le nombre de cellules est ici diminué par rapport à l'illustration en texte principal. (\textit{Gauche}) Réseaux à l'initialisation, en rouge le réseau initial correspondant au réseau en 2010, en violet fin le réseau cible pour la calibration, correspondant au réseau planifié. (\textit{Droite}) Résultat obtenu avec $\alpha = 0$ à $t_f = 11$ après une initialisation sans réseau ; en bleu le réseau cible, qui correspond au réseau de 2010.\label{fig:app:lutecia:realsetup}}
 \end{figure}
 %%%%%%%%%%%%%
 
