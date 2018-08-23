@@ -18,7 +18,8 @@ to indicators:compute-indicators
   output-print (word "accessibility-summaries = " accessibility-summaries) 
   output-print (word "lagged pop clos = " lagged-corrs "city-population" "city-closeness-centrality" 6 0) 
   output-print (word "lagged pop acc = " lagged-corrs "city-population" "city-accessibility" 6 0) 
-  output-print (word "lagged clos acc = " lagged-corrs "city-closeness-centrality" "city-accessibility" 6 0)  
+  output-print (word "lagged clos acc = " lagged-corrs "city-closeness-centrality" "city-accessibility" 6 0)
+  output-print (word "lagged-minmax pop clos = " lagged-cor-minmax-rel "city-population" "city-closeness-centrality" 6 true)  
   output-print (word "dist pop clos = " distance-correlation "city-population" "city-closeness-centrality")  
   output-print (word "dist pop acc = " distance-correlation "city-population" "city-accessibility")  
   output-print (word "dist clos acc = " distance-correlation "city-closeness-centrality" "city-accessibility")  
@@ -162,6 +163,60 @@ to-report lagged-corrs [var1 var2 abstaumax t0]
   ]
   report res
 end
+
+
+
+
+;;
+; specific way to get max/min lagged corrs (used in rough PSE)
+to-report lagged-cor-minmax [var1 var2 abstaumax tau-pos?]
+  let lc lagged-corrs var1 var2 abstaumax 0
+  ifelse tau-pos? = true [
+    let clc sublist lc (abstaumax + 1) (length lc)
+    ifelse mean clc > 0 [report max clc][report min clc]
+  ][
+    let clc sublist lc 0 abstaumax ifelse mean clc > 0 [report max clc][report min clc]
+  ]
+end
+
+
+;;
+; Specific way to get max/min lagged corrs (used in PSE algo)
+;  relative to rho0
+;
+; @param var1 variable1
+; @param var2 variable2
+; @param asbtaumax maximal absolute lag
+; @param tau-pos? get correlation max for tau>0 or tau<0
+to-report lagged-cor-minmax-rel [var1 var2 abstaumax tau-pos?]
+  let lc lagged-corrs var1 var2 abstaumax 0
+  let rho0 item abstaumax lc let clc []
+  ifelse tau-pos? = true [
+    set clc (sublist lc (abstaumax + 1) (length lc))    
+  ][
+    set clc (sublist lc 0 abstaumax)
+  ]
+  let rhominus min clc let rhoplus max clc
+  
+  ; max and min are smaller in absolute than rho0 : not significant
+  if abs rhoplus < abs rho0 and abs rhominus < abs rho0 [report 0]
+  
+  ; min in absolute is larger
+  if abs rhoplus < abs rho0 and abs rhominus > abs rho0 [report rhominus - rho0]
+  
+  ; max in absolute is larger
+  if abs rhoplus > abs rho0 and abs rhominus < abs rho0 [report rhoplus - rho0]
+  
+  ; both are, take the largest in absolute
+  if abs rhoplus > abs rho0 and abs rhominus > abs rho0 [
+    ifelse abs rhoplus > abs rhominus [report rhoplus - rho0][report rhominus - rho0]
+  ]
+  
+end
+
+
+
+
 
 
 ;;

@@ -1,0 +1,94 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
+logger.level("FINE")
+
+//parameters
+val gravityDecay = Val[Double]
+val gravityGamma = Val[Double]
+val networkGamma = Val[Double]
+val networkThreshold = Val[Double]
+val networkSpeed = Val[Double]
+
+// meta-parameters
+val synthRankSize = Val[Double]
+val synthCities = Val[Double]
+val synthShortcut = Val[Double]
+val synthMaxDegree = Val[Double]
+val synthShortcutNum = Val[Double]
+
+// lagged corrs
+val rhoPopClosenessPos = Val[Double]
+val rhoPopClosenessNeg = Val[Double]
+val rhoPopAccessibilityPos = Val[Double]
+val rhoPopAccessibilityNeg = Val[Double]
+val rhoClosenessAccessibilityPos = Val[Double]
+val rhoClosenessAccessibilityNeg = Val[Double]
+
+
+val replication = Val[Int]
+
+val cmds = Seq("setup-experiment ${gravityDecay} ${gravityGamma} ${networkGamma} ${networkThreshold} ${networkSpeed} ${synthRankSize} ${synthCities} ${synthShortcut} ${synthMaxDegree} ${synthShortcutNum} ${replication}","run-experiment")
+
+
+val model = NetLogo5Task(workDirectory,"HEADLESS_SimpopNet.nlogo",cmds,embedWorkspace=true,reuseWorkspace=true) set(
+    inputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication),
+    outputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication),
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-closeness-centrality\" 6 true",rhoPopClosenessPos),
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-closeness-centrality\" 6 false",rhoPopClosenessNeg),
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-accessibility\" 6 true",rhoPopAccessibilityPos),
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-accessibility\" 6 false",rhoPopAccessibilityNeg),
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-closeness-centrality\" \"city-accessibility\" 6 true",rhoClosenessAccessibilityPos),
+    netLogoOutputs += ("lagged-cor-minmax-rel \"city-closeness-centrality\" \"city-accessibility\" 6 false",rhoClosenessAccessibilityNeg)
+)
+
+
+val datestr = (new SimpleDateFormat("yyyyMMdd")).format(new Date())
+val purpose = "PSE_GRID"
+val resdir = datestr+"_"+purpose
+
+val varSetting = ExplorationTask(
+  (synthCities is 60.0)
+  x (synthShortcut is 8.0)
+  x (synthMaxDegree is 5.0)
+  x (synthShortcutNum is 50)
+) set(
+  inputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,replication),
+  outputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,replication)
+)
+
+val eval = varSetting -< model
+
+
+val island =
+    PSEEvolution (
+      genome =
+        Seq(
+          gravityDecay in (0.0001,0.01)
+          ,gravityGamma in (0.1,5.0)
+          ,networkGamma in (0.1,5.0)
+          ,networkThreshold in (1.0,30.0)
+          ,networkSpeed in (1.0,200.0)
+          ,synthRankSize in (0.5,1.5)
+        ),
+      objectives =
+        Seq(
+          rhoPopClosenessPos in (-0.2 to 0.2 by 0.01),
+          rhoPopClosenessNeg in (-0.2 to 0.2 by 0.01),
+          rhoPopAccessibilityPos in (-0.2 to 0.2 by 0.01),
+          rhoPopAccessibilityNeg in (-0.2 to 0.2 by 0.01),
+          rhoClosenessAccessibilityPos in (-0.2 to 0.2 by 0.01),
+          rhoClosenessAccessibilityNeg in (-0.2 to 0.2 by 0.01)
+          ),
+      stochastic = Stochastic(seed = replication),
+      evaluation = eval,
+      termination = 50000,
+      parallelism = 500,
+      distribution = Island(100)
+    )
+
+val savePopulation = SavePopulationHook(island, workDirectory / "calibration" / resdir)
+
+val grid = EGIEnvironment("vo.complex-systems.eu",openMOLEMemory = 2000 megabytes)
+
+(island on grid hook savePopulation)
