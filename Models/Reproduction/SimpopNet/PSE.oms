@@ -31,15 +31,15 @@ val replication = Val[Int]
 val cmds = Seq("setup-experiment ${gravityDecay} ${gravityGamma} ${networkGamma} ${networkThreshold} ${networkSpeed} ${synthRankSize} ${synthCities} ${synthShortcut} ${synthMaxDegree} ${synthShortcutNum} ${replication}","run-experiment")
 
 
-val model = NetLogo5Task(workDirectory,"HEADLESS_SimpopNet.nlogo",cmds,embedWorkspace=true,reuseWorkspace=true) set(
+val model = NetLogo5Task("HEADLESS_SimpopNet.nlogo",cmds,embedWorkspace=true,reuseWorkspace=true) set(
     inputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication),
     outputs += (gravityDecay,gravityGamma,networkGamma,networkThreshold,networkSpeed,synthRankSize,synthCities,synthShortcut,synthMaxDegree,synthShortcutNum,replication),
-    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-closeness-centrality\" 6 true",rhoPopClosenessPos),
-    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-closeness-centrality\" 6 false",rhoPopClosenessNeg),
-    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-accessibility\" 6 true",rhoPopAccessibilityPos),
-    netLogoOutputs += ("lagged-cor-minmax-rel \"city-population\" \"city-accessibility\" 6 false",rhoPopAccessibilityNeg),
-    netLogoOutputs += ("lagged-cor-minmax-rel \"city-closeness-centrality\" \"city-accessibility\" 6 true",rhoClosenessAccessibilityPos),
-    netLogoOutputs += ("lagged-cor-minmax-rel \"city-closeness-centrality\" \"city-accessibility\" 6 false",rhoClosenessAccessibilityNeg)
+    outputs += rhoPopClosenessPos mapped "lagged-cor-minmax-rel \"city-population\" \"city-closeness-centrality\" 6 true",
+    outputs += rhoPopClosenessNeg mapped "lagged-cor-minmax-rel \"city-population\" \"city-closeness-centrality\" 6 false",
+    outputs += rhoPopAccessibilityPos mapped "lagged-cor-minmax-rel \"city-population\" \"city-accessibility\" 6 true",
+    outputs += rhoPopAccessibilityNeg mapped "lagged-cor-minmax-rel \"city-population\" \"city-accessibility\" 6 false",
+    outputs += rhoClosenessAccessibilityPos mapped "lagged-cor-minmax-rel \"city-closeness-centrality\" \"city-accessibility\" 6 true",
+    outputs += rhoClosenessAccessibilityNeg mapped "lagged-cor-minmax-rel \"city-closeness-centrality\" \"city-accessibility\" 6 false"
 )
 
 
