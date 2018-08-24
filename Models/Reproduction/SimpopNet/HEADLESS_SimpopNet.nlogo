@@ -172,7 +172,6 @@ crosses-own [
 ]
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 22
