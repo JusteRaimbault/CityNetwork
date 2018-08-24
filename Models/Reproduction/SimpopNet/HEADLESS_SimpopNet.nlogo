@@ -171,7 +171,6 @@ crosses-own [
   me?
 ]
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 22
@@ -199,6 +198,23 @@ GRAPHICS-WINDOW
 1
 ticks
 30.0
+
+BUTTON
+547
+54
+693
+87
+NIL
+test-experiment
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 
