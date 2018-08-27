@@ -37,12 +37,14 @@ to setup:setup-globals
   set crossing-link1 false
   set crossing-link2 false
   
+  ; useless params (gibrat process deactivated)
   set gibrat-mean 0.01
   set gibrat-std 0.005
   
   set indicator-sampling-time-step 5
   
   ifelse setup-type = "stylized" [
+    ; THIS SHOULDNT BE HARDCODED
     set initial-time-step 1800
     set final-time-step 2000
   
@@ -128,7 +130,9 @@ to setup:setup-cities
   if setup-type = "synthetic" [
     create-cities synthetic-cities-number [
       ;setxy random-xcor random-ycor
-      move-to one-of patches with [count cities in-radius 3 = 0]
+      let dest one-of patches with [count cities in-radius 3 = 0] ; can be nobody if too much cities
+      if dest = nobody [set dest one-of patches]
+      move-to dest
       new-city
      ]
     let i 1 ask cities [set population synthetic-max-pop / (i ^ synthetic-rank-size-exp) set i i + 1]
