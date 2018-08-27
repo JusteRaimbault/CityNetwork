@@ -130,7 +130,9 @@ to setup:setup-cities
   if setup-type = "synthetic" [
     create-cities synthetic-cities-number [
       ;setxy random-xcor random-ycor
-      move-to one-of patches with [count cities in-radius 3 = 0]
+      let dest one-of patches with [count cities in-radius 3 = 0] ; can be nobody if too much cities
+      if dest = nobody [set dest one-of patches]
+      move-to dest
       new-city
      ]
     let i 1 ask cities [set population synthetic-max-pop / (i ^ synthetic-rank-size-exp) set i i + 1]
