@@ -151,7 +151,6 @@ crosses-own [
 ]
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 474
@@ -522,7 +521,7 @@ synthetic-shortcut-number
 synthetic-shortcut-number
 0
 100
-50
+70
 1
 1
 NIL
@@ -537,7 +536,7 @@ synthetic-shortcut-radius
 synthetic-shortcut-radius
 0
 20
-7
+8
 1
 1
 NIL
