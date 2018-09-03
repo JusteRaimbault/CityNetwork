@@ -170,7 +170,6 @@ breed [crosses cross]
 crosses-own [
   me?
 ]
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 22

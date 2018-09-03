@@ -59,40 +59,45 @@ The rest of this chapter is organized as follows: we first briefly review co-evo
 \subsection{Co-evolution within systems of cities}
 
 
-Co-evolution within system of cities, in the sense of complex intricate dynamics in space and time, is a central feature of the evolutive urban theory \cite{pumain2010theorie}. Evolutionary economic geography has also developed an extensive literature using this concept for spatial economic systems \cite{schamp201020}, for example for the location of firms and networks \cite{doi:10.1080/00343400802662658}. We use the definition of this concept proposed by \cite{raimbault:tel-01857741}, which can be synthesized as the statistical existence of causal relationships within spatio-temporal niches, for which a practical characterization method uses a weak causality based on lagged correlations \cite{raimbault2017identification}.
+Co-evolution within system of cities, in the sense of complex intricate dynamics in space and time, is a central feature of the evolutive urban theory \cite{pumain2010theorie}. \cite{paulus2004coevolution} has for example applied this concept to the study of economic trajectories of French urban areas. Evolutionary economic geography has also developed an extensive literature using this concept for spatial economic systems \cite{schamp201020}, for example for the location of firms and networks \cite{doi:10.1080/00343400802662658}. We use the definition of this concept proposed by \cite{raimbault:tel-01857741}, which can be synthesized as the statistical existence of causal relationships within spatio-temporal niches, for which a practical characterization method uses a weak causality based on lagged correlations \cite{raimbault2017identification}.
 
-Considering more precisely the co-evolution of transportation networks and territories, which is of particular interest because of potential ``structuring effects'' of transportation infrastructures 
-The SimpopNet model introduced by~\cite{schmitt2014modelisation}, which is to our knowledge the only co-evolution model in the perspective of the evolutive urban theory. Its behavior was however not systematically explored, what makes it a good candidate for our approach.
+Considering more precisely the co-evolution of transportation networks and territories, which is of particular interest because of potential ``structuring effects'' of transportation infrastructures~\cite{pumain2014effets}, some empirical investigations have been proposed by \cite{bretagnolle2003vitesse} and \cite{bretagnolle:tel-00459720} for the French system of cities. The validity of these results was however recently questioned by more thorough data analysis in \cite{mimeur:hal-01616746} and \cite{2018arXiv180409430R}. For this reason, models of co-evolution are crucial to gain further insight into this concept.
+
+These kind of models are however rare for cities and transportation networks, as \cite{raimbault2017models} suggested that this could be due to the fact that this object of study is at the crossroad of several disciplines with different interests and underlying questions. We can give a few examples of such models (see \cite{raimbault:tel-01857741} for a more thorough review). At microscopic and mesoscopic scales, \cite{achibet2014model} describes a model of the co-evolution of buildings and roads, whereas \cite{2018arXiv180505195R} develops a morphogenesis model coupling multi-modeling of road network growth with a reaction-diffusion model for population density. At the scale of systems of cities, \cite{baptistemodeling} proposed a reinforcement co-evolution model. \cite{blumenfeld2010network} has focused on topological breakdown of the network of cities. The SimpopNet model introduced by~\cite{schmitt2014modelisation}, is to the best of our knowledge the only co-evolution model in the perspective of the evolutive urban theory. 
+
+This last model was however not systematically explored, and the question remains if it actually produces patterns of co-evolution at an aggregated level. This makes it a good candidate for our approach. We will in the next section briefly recall the structure of this model.
 
 
 
 \subsection{Description of the SimpopNet model}
 
 
-We briefly reformulate the model, following the notations for the formalization of the interaction model introduced by \cite{raimbault2018indirect}, since a certain number of parameters and processes are similar. Cities grow following a specification such that
+We reformulate here the SimpopNet model~\cite{schmitt2014modelisation}, following the notations for the formalization of the interaction model introduced by \cite{raimbault2018indirect}, since a certain number of parameters and processes are similar. Cities grow following a specification for their populations $\mu_i(t)$ such that
 
 \begin{equation}
-\mu_i(t+1) - \mu_i (t) = \mu_i (t) \cdot \frac{\lambda^{\beta}}{N} \sum_{j} \frac{V_{ij}}{<V_{ij}>}
+\mu_i(t+1) - \mu_i (t) = \mu_i (t) \cdot \frac{d_G^{\gamma_G}}{N} \sum_{j} \frac{V_{ij}}{<V_{ij}>}
 \end{equation}
 
-where the potential is of the form $V_{ij} = \mu_j / d_{ij}^\beta$ and $V_{ii}=0$, and $\beta$ is a parameter for the distance decay and $\lambda$ shape parameter for the decay function. We thus find our formulation, with $r_0 = 0$ and $w_G = \lambda^\beta \cdot N$. Since $\lambda$ gives the typical distance of interaction, it will be noted $d_G$ in the following, and $\beta$ will be noted $\gamma_G$ (it is indeed a level of hierarchy as a function of distance).
+where the potential $V_{ij}$ is of the form 
 
-The network growths at each time step through a process that can be seen as a potential breakdown (as described by \cite{raimbault:tel-01857741}): a couple of cities is chosen, the first according to populations with a hierarchy $\gamma_N$ (i.e. with a probability proportional to ${\mu_i}^{\gamma_N}$) and the second following interaction forces $\mu_i \mu_j / d_{ij}^\beta$ with the same hierarchy $\gamma_N$. A link is then created if the network is not efficient enough, i.e. if $d_{ij}/d^{(N)}_{ij}> \theta_N$. The links created at a date $t$ have a speed $v(t)$, which will depend on current transportation technologies. The creation of new intersections to yield a planar graph is only done for links with a similar speed.
+\begin{equation}
+V_{ij} = \mu_j / d_{ij}^{\gamma_G}
+\end{equation}
 
-In order to study a stylized version of the model, we consider a configuration such that $v(t > 0) = v_0$ and $v(0) = 1$ (the initial model considers three values for speed that correspond to the reality of transportation technologies between 1830 and 2000).
+such that $V_{ii}=0$, $\gamma_G$ is a parameter for the distance decay (which gives indeed a level of hierarchy as a function of distance) and $d_G$ a shape parameter for the decay function which gives the typical distance of interaction.
 
+% not really useful
+%The formulation of the potential, given above, as $(\lambda / d_{ij})^\beta$, implies that $\lambda$ captures both the weight of the potential and the shape of the decreasing function, but imposes a dependence between these two effects, on the contrary to the specification we use previously. It furthermore does not allow an interpretation in terms of limit flows. The weight parameter in the model in~\cite{raimbault2018indirect} gives indeed the value of the flow when the distance attenuation goes to infinity and for all the population.
 
+The network growths at each time step through a process that can be seen as a potential breakdown (as described by \cite{raimbault:tel-01857741}):
+\begin{enumerate}
+	\item two cities are chosen, the first according to populations with a hierarchy $\gamma_N$ (i.e. with a probability proportional to ${\mu_i}^{\gamma_N}$) and the second following interaction forces $\mu_i \mu_j / d_{ij}^\beta$ with the same hierarchy $\gamma_N$;
+	\item a link is then created if the network is not efficient enough given a threshold parameter $\theta_N$, i.e. if $d_{ij}/d^{(N)}_{ij}> \theta_N$;
+	\item the links created at a date $t$ have a speed $v(t)$, which will depend on current transportation technologies;
+	\item a creation of new intersections to yield a planar graph is done, but only for links with a similar speed.
+\end{enumerate}
 
-\subsection{Perspectives}
-
-We can put the structure of this model into perspective. Some modeling choices are not in direct consistency with the application it is used for: for example, such a precision in the parametrization of dates and speeds (historical dates from 1800 to 2000 and speed that approximatively corresponds to transportation technologies) makes it a hybrid model, and should correspond to an application on a real spatial configuration. In a synthetic configuration as used in the model, these parameters have a sense only if we know the behavior of simulated dynamics, and in particular the role of the spatial configuration, i.e. if we are able to differentiate effects linked to the dynamics from effects linked to the initial spatial configuration.
-
-
-Furthermore, the use of the interaction model without the endogenous Gibrat term would be difficultly adaptable to an application of the model on real data since the values we obtained in the precedent studies of interaction models, but stays relevant in a stylized model, in order to understand the interaction processes in an isolated way, as we will do later (keeping in mind that this knowledge does not necessarily describes the coupled behavior, since the interaction between processes can lead to the emergence of new behaviors).
-
-The formulation of the potential, given above, as $(\lambda / d_{ij})^\beta$, implies that $\lambda$ captures both the weight of the potential and the shape of the decreasing function, but imposes a dependence between these two effects, on the contrary to the specification we use previously. It furthermore does not allow an interpretation in terms of limit flows. The weight parameter in the model in~\cite{raimbault2018indirect} gives indeed the value of the flow when the distance attenuation goes to infinity and for all the population.
-
-Finally, rules allowing variable values for $v(t)$ and the non-planarity mechanism (when a new link is constructed, it does create intersections only with links of similar speed), allows the introduction of a tunnel effect, which is as we recall is the absence of interaction of an infrastructure traversing a territory with it. The effect is however exogenous since explicitly specified in model rules, on the contrary to the interaction model with feedback of flows, in which the variations of $w_N$ and $d_N$ should capture an endogenous tunnel effect. The introduction of specific indicators to measure it would be an interesting development direction, but we stay here at considering the hierarchy of centralities which is already a good indicator for it. Indeed, a highly hierarchical distribution of accessibilities means that there exists a small number of cities very accessible and a large number with a low accessibility. If main cities reasonably cover the space, then their links necessarily ignore the overflown cities with low accessibility, otherwise the distribution would be less hierarchical.
+In order to study a stylized version of the model, we consider a configuration such that $v(t > 0) = v_0$ and $v(0) = 1$ (the initial model considers three values for speed that correspond to the reality of transportation technologies between 1830 and 2000). Indeed, the initial precision in the parametrization of dates and speeds makes it a hybrid model, and should correspond to an application on a real spatial configuration. In a synthetic configuration as used in the model, these parameters have a sense only if we know the behavior of simulated dynamics, and in particular the role of the spatial configuration, i.e. if we are able to differentiate effects linked to the dynamics from effects linked to the initial spatial configuration.
 
 
 
@@ -103,17 +108,15 @@ Finally, rules allowing variable values for $v(t)$ and the non-planarity mechani
 \subsection{Generation of synthetic setup configurations}
 
 
-An important aspect for understanding co-evolution processes implied in this model is the role of the initial spatial configuration in emerging patterns observed. We therefore apply the methodology developed by \cite{cottineau2017initial}, which allows to extend the sensitivity analysis of a model to spatial meta-parameters (in our case a meta-parameter is a parameter allowing to generate an initial configuration upstream of the model).
+An important aspect for studying the behavior of such a simulation model is the role of the initial spatial configuration in emerging patterns observed. We therefore apply the methodology developed by \cite{cottineau2017initial}, which allows to extend the sensitivity analysis of a model to spatial meta-parameters (in our case a meta-parameter is a parameter allowing to generate an initial configuration upstream of the model).
 
 
+A synthetic system of cities is constructed the following way (see \cite{raimbault2016generation} for the notion of synthetic data, calibrated at the first and the second order). A fixed number $N$ of cities is uniformly distributed in space, under the constraint of a minimal distance between each, and their population is attributed following a rank-size law which parameters $P_{m}$ and $\alpha$ can be adjusted (the distribution of city sizes in the original model corresponds to $\alpha\simeq 0.68$ with $R^2=0.98$).
 
-A synthetic system of cities is constructed the following way (see \cite{raimbault2016generation} for the notion of synthetic data, calibrated at the first and the second order). A fixed number $N$ of cities is uniformly distributed in space, under the constraint of a minimal distance between each, and their population is attributed following a rank-size law which parameters $P_{m}$ and $\alpha$ can be adjusted (the distribution of city sizes in the initial model corresponds to $\alpha\simeq 0.68$ with $R^2=0.98$).
-
-
-A skeleton of network is created by progressive connection: the algorithm connects cities two by two by closest neighbour in terms of euclidian distance, and then iteratively selects randomly a cluster and connects it perpendicularly to the closest link outside the cluster. The network is then extended by the creation of local shortcuts, through a repetition $n_s$ times of the random selection of a city according to populations, and its connection to a neighbour in a radius $r_s$ under conditions of a maximal degree $d_s$. The final network is then made planar.
+A skeleton of network is created by progressive connection (similar to a percolation algorithm): the algorithm connects cities two by two by closest neighbour in terms of euclidian distance, and then iteratively selects randomly a cluster and connects it perpendicularly to the closest link outside the cluster. The network is then extended by the creation of local shortcuts, through a repetition $n_s$ times of the random selection of a city with a probability proportional to populations, and its connection to a random neighbour in a radius $r_s$ under conditions of a maximal degree $d_s$. The final network is then made planar.
 
 
-This process creates networks that visually correspond (in terms of the order of magnitude of the number of loops, and their spatial range) to the initialization of the model, knowing that a single instance of the network does not allow to determine distributions of topological parameters for which a more precise calibration could be done.
+This process creates networks that visually correspond (in terms of the order of magnitude of the number of loops, and their spatial range) to the initialization of the model, knowing that a single instance of the network does not allow to determine distributions of topological parameters for which a more precise calibration could be done. We show in Fig.~\ref{fig:exsetup} examples of synthetic setups compared to the original model setup.
 
 
 %%%%%%%%%%%
@@ -123,7 +126,7 @@ This process creates networks that visually correspond (in terms of the order of
 	\includegraphics[width=0.49\textwidth]{figures/setup_synth_0.png}\\\vspace{0.1cm}
 	\includegraphics[width=0.49\textwidth]{figures/setup_synth_1.png}\hspace{0.1cm}
 	\includegraphics[width=0.49\textwidth]{figures/setup_synth_1_tick100.png}
-	\caption{\textbf{Examples of model setup.} (\textit{Top Left}) Unique stylized setup provided in the initial implementation of the model \cite{schmitt2014modelisation}; (\textit{Top Right})}
+	\caption{\textbf{Examples of model setup.} (\textit{Top Left}) Unique stylized setup provided in the original implementation of the model \cite{schmitt2014modelisation}; (\textit{Top Right}) Example of a synthetic setup (generator parameters $N=100$, $\alpha=0.8$, $P_m =1.57e5$, $n_s = 10$, $r_s=7$, $d_s = 5$) with a network close to a tree, obtained with a very low number of shortcuts; (\textit{Bottom Left}) Example of a synthetic setup (generator parameters $N=100$, $\alpha=0.8$, $P_m =1.57e5$, $n_s = 70$, $r_s=8$, $d_s = 5$) with a higher number of local connections; (\textit{Bottom Right}) Outcome of the model after $t_f = 100$ time steps on the second synthetic configuration. City size gives the population and color the closeness centrality.\label{fig:exsetup}}
 \end{figure}
 %%%%%%%%%%%
 
@@ -143,9 +146,11 @@ A crucial aspect of the study of simulation models is the definition of relevant
 \end{itemize}
 
 
-In order to concentrate on the ability of the model to produce trajectories that are both diverse and complex, and for example its ability to produce bifurcations that would manifest as inversions in ranks, and also its ability to capture different aspects of co-evolutive dynamics, we propose a set of indicators, including for example lagged correlation measures in the spirit of causality regimes introduced by~\cite{raimbault2017identification}, or a correlation measure as a function of distance, to understand the role of spatial interactions in the coupling of trajectories. Given a variable $X_i(t)$ defined for each city and in time (that will be the population or centrality measures for example), we define the following indicators.
+In order to concentrate on the ability of the model to produce trajectories that are both diverse and complex, and for example its ability to produce bifurcations that would manifest as inversions in ranks, and also its ability to capture different aspects of co-evolutive dynamics, we propose a set of indicators, including for example lagged correlation measures in the spirit of causality regimes introduced by~\cite{raimbault2017identification}, or a correlation measure as a function of distance, to understand the role of spatial interactions in the coupling of trajectories.
 
 \subsubsection{Indicators}
+
+Given a variable $X_i(t)$ defined for each city and in time (that will be the population or centrality measures for example), we define the following indicators.
 
 \paragraph{Summary statistics}
 
@@ -153,7 +158,7 @@ Simple but crucial indicators characterize the distribution of $X_i$ in time:
 \begin{itemize}
 	\item hierarchy (slope of the least squares adjustment of $X_i$ as a function of rank) $\alpha (t)$
 	\item entropy of the distribution $\varepsilon (t)$
-	\item descriptive statistics (average $\hat{\Eb{X}} (t)$ and standard deviation $\hat{\sigma} (t)$)
+	\item descriptive statistics (average $\hat{\mathbb{E}}\left[X\right] (t)$ and standard deviation $\hat{\sigma} (t)$)
 \end{itemize}
 
 
@@ -181,13 +186,12 @@ The L2-norm can be generalized by any Minkovski distance, as done in~\cite{raimb
 
 \paragraph{Shape of trajectories}
 
-We quantify the shape of temporal trajectories through the changes in direction of these $\mathcal{C}\left[X_i\right]$, that we take as the number of inflexion points, detected by a change of sign of the second derivative. % TODO check what is exactly implemented
-In the context of such a type of model, which mainly produces monotonous trajectories, this indicator witnesses in a certain way of a ``complexity'' of trajectories. In the case of more elaborated shapes, measures such as permutation entropy would be better candidates \cite{scarpino2017predictability}.
+We quantify the shape of temporal trajectories through the changes in direction of these $\mathcal{C}\left[X_i\right]$, that we take as the number of local extrema, detected by a change of sign of the derivative. In the context of such a type of model, which mainly produces monotonous trajectories, this indicator witnesses in a certain way of a ``complexity'' of trajectories. In the case of more elaborated shapes, measures such as permutation entropy would be better candidates \cite{scarpino2017predictability}.
 	
 	
 \paragraph{Distance correlations}
 
-Correlations as a function of distance, to understand the way the effect of distance is translated at the macroscopic scale. The profile of this function, regarding interaction distance parameters included in the model, will translate the tendency of the model to lead to the emergence of one level of interaction or the other. It is computed as
+We also introduce the correlations as a function of distance, to understand the way the effect of distance is translated at the macroscopic scale. The profile of this function, regarding interaction distance parameters included in the model, will translate the tendency of the model to lead to the emergence of one level of interaction or the other. It is computed as
 
 \begin{equation}
 \rho_d = \hat{\rho}\left[(X(\vec{x}_k,Y(\vec{x}_{k'}))\right]
@@ -206,8 +210,9 @@ Lagged correlations between the variations of variables, to identify causality p
 
 
 
-We furthermore introduce diverse indicators for network topology, to understand the final forms produced by the heuristic: diameter, average path length, average betweenness centrality and its level of hierarchy, average performance, total length, as they have been defined to quantify urban form in~\cite{2018arXiv180505195R}.
-% TODO not needed as not described in results
+% not needed as not described in results
+%We furthermore introduce diverse indicators for network topology, to understand the final forms produced by the heuristic: diameter, average path length, average betweenness centrality and its level of hierarchy, average performance, total length, as they have been defined to quantify urban form in~\cite{2018arXiv180505195R}.
+
 
 
 \subsubsection{Variables}
@@ -222,7 +227,7 @@ These indicators are used in our case on the following variables:
 	\item accessibilities \[X_i = \frac{1}{\sum_k \mu_k}\sum_{i\neq j} P_j \exp{\left(- d_{ij}(t)/d_G\right)}\] which capture the insertion within the urban system.
 \end{itemize}
 
-They capture both city trajectories, network trajectories, and the coupling of both with accessibility.
+They capture both city trajectories, network trajectories, and the coupling of both with accessibility. The application of above operators to these state variables will thus inform on trajectories of cities, trajectories of the network and trajectories of their coupling, whereas operators based on correlations will inform on interactions between the two aspects.
 
 
 
@@ -241,31 +246,43 @@ We modified and extended the NetLogo implementation of the model provided by \ci
 %%%%%%%%%%%%%%%
 \subsection{Experience plan}
 
-Given an initial spatial configuration (i.e. a value of meta-parameters), we establish the behavior of indicators by exploring a grid of the parameter space. The number of parameters being low and the objective being a first grasp of the model behavior, in particular if it is able to produce co-evolution dynamics, we do not use more elaborated exploration methods. The parameters are $(d_G,\gamma_G,\gamma_N,\theta_N,v_0)$ and meta-parameters $(N_S,\alpha_S,d_S,n_S)$. We take also the meta-parameters into account in order to understand the sensitivity of the model to space.
+Given an initial spatial configuration (i.e. a value of meta-parameters for the initial city system and network generator), we establish the behavior of indicators by exploring a grid of the parameter space. The number of parameters being relatively and the objective being a first grasp of the model behavior, in particular if it is able to produce co-evolution dynamics, we do not use more elaborated exploration methods. The parameters are $(d_G,\gamma_G,\gamma_N,\theta_N,v_0)$ and the meta-parameters $(N_S,\alpha_S,d_S,n_S)$. We take also the meta-parameters into account in order to understand the sensitivity of the model to space.
+
+We explore a grid of 16 configurations of meta-parameters (see Table~\ref{tab:macrocoevolexplo:spacematters} for all values), 324 configurations of parameters (such that $d_G \in \left[0.001, \ldots , 0.016\right]$ by $0.005$, $\gamma_G \in \left[0.5 , \ldots 2.5\right]$ by $1.0$, $\gamma_N \in \left[0.5 , \ldots 2.5\right]$ by $1.0$, $\theta_N \in \left[1.0 , \ldots , 21.0\right]$ by $10.0$ and $v_0 \in \left[10.0, \ldots , 110.0\right]$ by $50.0$), and 30 random replications, what corresponds to $155520$ simulations. They are executed on a computation grid with the intermediary of OpenMole. Simulation results are available at \url{http://dx.doi.org/10.7910/DVN/RW8S36}.
 
 
-We explore a grid of 16 configurations of meta-parameters, 324 configurations of parameters, and 30 random replications, what corresponds to $155520$ simulations. They are executed on a computation grid with the intermediary of OpenMole. Simulation results are available at \url{http://dx.doi.org/10.7910/DVN/RW8S36}.
+% (gravityDecay in (0.001 to 0.02 by 0.005)) x
+%    (gravityGamma in (0.5 to 2.5 by 1.0)) x
+%    (networkGamma in (0.5 to 2.5 by 1.0)) x
+%    (networkThreshold in (1.0 to 21.0 by 10.0)) x
+%    (networkSpeed in (10.0 to 110.0 by 50.0)) x
+%    (synthRankSize in (0.5 to 1.5 by 1.0)) x
+%    (synthCities in (40.0 to 80.0 by 40.0)) x
+%    (synthShortcut in (5.0 to 10.0 by 5.0)) x
+%    (synthMaxDegree is 5.0) x
+%    (synthShortcutNum in (10.0 to 30.0 by 20.0))
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%
 \subsection{Convergence}
 
-Since the model is stochastic, it is important to control the convergence of indicators, that will be more or less easy depending on their variability. To quantify the variability of an indicator $X$ regarding stochasticity, we use a measure similar to the one used by~\cite{raimbault2018calibration}, given by $v\left[X\right] = \hat{\mathbb{E}}\left[X\right]/\hat{\sigma}\left[X\right]$ with basic estimators for the expectancy and the standard deviation. On the full set of replications, we obtain for all indicators given previously, a median for the ratio $v\left[X\right]$ estimated within replications, estimated on all parameter values, which takes a minimal value of $3.94$, for the average accessibility at final time, what witnesses a low stochastic variability. We can furthermore use this value to estimate the level of convergence: it corresponds to a 95\% confidence interval around the mean of relative size $0.18$ (under the assumption of a normal distribution of the average), i.e. a good convergence. This aspect is crucial for the robustness of results.
+Since the model is stochastic, it is important to control the convergence of indicators, that will be more or less easy depending on their variability. To quantify the variability of an indicator $X$ regarding stochasticity, we use a measure similar to the one used by~\cite{raimbault2018calibration}, given by $v\left[X\right] = \hat{\mathbb{E}}\left[X\right]/\hat{\sigma}\left[X\right]$ with basic estimators for the expectancy and the standard deviation. On the full set of replications, we obtain for all indicators given previously, a median for the ratio $v\left[X\right]$ estimated within the 30 replications, estimated on all parameter values, which takes a minimal value of $3.94$, for the average accessibility at final time, what witnesses a low stochastic variability. We can furthermore use this value to estimate the level of convergence: it corresponds to a 95\% confidence interval around the mean of relative size $0.18$ (under the assumption of a normal distribution of the average), i.e. a good convergence. This aspect is crucial for the robustness of results, as this experiment shows that working with this number of repetitions and aggregate averages is consistent.
 
 
 %%%%%%%%%%%%%%%%%%%%%%
-\subsection{Sensitivity to space}
+\subsection{Sensitivity to spatial initial conditions}
 
-The Table~\ref{tab:macrocoevolexplo:spacematters} give values of $\tilde{d}$ for 16 configurations of meta-parameters. The definition of the relative measure of sensitivity, given by~\cite{cottineau2017initial}, is for two phase diagrams $f_1,f_2$ and $d$ euclidian distance, 
+We quantify the sensitivity to spatial initial conditions by using the definition of the relative measure of sensitivity, given by~\cite{cottineau2017initial}. This measure is for two phase diagrams $f_1,f_2$ and $d$ euclidian distance, 
 
 \begin{equation}
-\tilde{d} = 2 d(f_1,f_2)/(\Varb{f_1}+\Varb{f_2})
+\tilde{d} = 2 \cdot \frac{d(f_1,f_2)}{(\Varb{f_1}+\Varb{f_2})}
 \end{equation}
 
-These are given in comparison to an arbitrary reference configuration (first column). The hierarchy within the initial system of cities appears as the stronger determinant of variability, since all configurations with $\alpha_S = 1.5$ give values larger than $1.7$, what witnesses a very strong sensitivity relative to this hierarchy.
+The Table~\ref{tab:macrocoevolexplo:spacematters} gives values of $\tilde{d}$ for the 16 configurations of meta-parameters. These are given in comparison to an arbitrary reference configuration (first column). The hierarchy within the initial system of cities appears as the stronger determinant of variability, since all configurations with $\alpha_S = 1.5$ give values larger than $1.7$, what witnesses a very strong sensitivity relative to this hierarchy.
 
-Then, the number of cities plays a non negligible secondary role , giving the stronger effects of space. Thus, it is crucial to keep in mind this role of the initial configuration during the analysis of phase diagrams. To stay within the same spirit than the model that was initially proposed, we will however comment a phase diagram for a given spatial configuration. The study of the extended model with integration of meta-parameters to which it is sensitive at their full extent is beyond the reach of this auxiliary analysis.
-
+Then, the number of cities plays a non negligible secondary role, giving the stronger effects of space. Thus, it is crucial to keep in mind this role of the initial configuration during the analysis of phase diagrams. To stay within the same spirit than the model that was initially proposed, we will however comment a phase diagram for a given spatial configuration. The study of the extended model with integration of meta-parameters to which it is sensitive at their full extent is however beyond the reach of this first analysis.
 
 
 
@@ -286,19 +303,6 @@ $\tilde{d}$ & 0 & 0.05 & 0.26 & 0.21 & 1.79 & 1.80 & 1.79 & 1.72 & 0.44 & 0.36 &
 %%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Model behavior}
-
-The Fig.~\ref{fig:macrocoevolexplo:behavior} reports the behavior of the model according to a selection among the diverse indicators given above. We comment a particular spatial configuration which corresponds to a low hierarchical system with a network having only local shortcuts, given by meta-parameters $N_S=80,\alpha_S=0.5,d_S=10,n_S=30$, which are the values giving configurations that are the most similar to the one of the initial model. More exhaustive plots for this parameter configuration are available in~\cite{raimbault:tel-01857741} (Appendix A.7).
-
-
-The values taken by the entropy for centralities (first panel of Fig.~\ref{fig:macrocoevolexplo:behavior}), as a function of time, for $\gamma_N = 2.5$ and $v_0 = 110$, exhibit different regimes depending on $d_G$ and $\gamma_G$. A low hierarchy leads to an entropy stabilizing in time, what corresponds to a certain uniformization of distances. On the contrary, a strong hierarchy produces a regime with a minimum, and then an increase of disparities in time.
-
-
-This variety of behaviors can be found again with the rank correlation $\rho_R$, that we show here for the population variable, as a function of $d_G$. It has a low sensitivity to $\theta_N$ and $\gamma_N$ (see~\cite{raimbault:tel-01857741}, Appendix A.7), but strongly varies as a function of $d_G$ and $\gamma_G$: interactions at a higher distance induce systematically a larger number of changes in the hierarchy of populations. These can occur when the hierarchy of distance is low. To summarize, the increase of the range of interactions will diminish the inertia of trajectories of the system of cities, whereas the increase of their hierarchy will increase it. This is relatively credible from a thematic point of view: longer and uniform interactions have more chances to make individual trajectories change.
-
-
-
 
 %%%%%%%%%%%%%%%%
 \begin{figure}
@@ -309,15 +313,37 @@ This variety of behaviors can be found again with the rank correlation $\rho_R$,
 \end{figure}
 %%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Model behavior}
+
+The Fig.~\ref{fig:macrocoevolexplo:behavior} reports the behavior of the model according to a selection among the diverse indicators given above. We comment a particular spatial configuration which corresponds to a low hierarchical system with a network having only local shortcuts, given by meta-parameters $N_S=80,\alpha_S=0.5,d_S=10,n_S=30$, which are the values giving configurations that are the most similar to the one of the original model. More exhaustive plots for this parameter configuration are available in~\cite{raimbault:tel-01857741} (Appendix A.7).
+
+
+
+The values taken by the entropy for centralities (first panel of Fig.~\ref{fig:macrocoevolexplo:behavior}), as a function of time, for $\gamma_N = 2.5$ and $v_0 = 110$, exhibit different regimes depending on $d_G$ and $\gamma_G$. A low hierarchy leads to an entropy stabilizing in time, what corresponds to a certain uniformization of distances. On the contrary, a strong hierarchy produces a regime with a minimum, and then an increase of disparities in time. More hierarchical interactions produce more hierarchical systems on the long terms, what could have been naturally expected, but with a transient behavior in which the system goes through a point with a maximum of equality between cities in terms of centralities. This confirms that taking into account dynamics in systems of cities is crucial for their understanding.
+
+
+This variety of behaviors can be found again with the rank correlation $\rho_R$, that we show here for the population variable, as a function of $d_G$. It has a low sensitivity to $\theta_N$ and $\gamma_N$ (see~\cite{raimbault:tel-01857741}, Appendix A.7), but strongly varies as a function of $d_G$ and $\gamma_G$ as shiwn in Fig.~\ref{fig:macrocoevolexplo:behavior} (second panel): interactions at a higher distance induce systematically a larger number of changes in the hierarchy of populations. These can occur when the hierarchy of distance is low. To summarize, the increase of the range of interactions will diminish the inertia of trajectories of the system of cities, whereas the increase of their hierarchy will increase it. This is relatively credible from a thematic point of view: longer and uniform interactions have more chances to make individual trajectories change.
+
+
 
 The behavior of correlation indicators is shown in Fig.~\ref{fig:macrocoevolexplo:correlations}. Concerning the effect of distance on correlations between variables, i.e. the evolution of $\rho_d$, it is interesting to note that an increase of $d_G$ systematically diminishes the levels of correlation, what corresponds to the complexification that we previously showed. As expected, $\rho_d\left[d\right]$ decreases as a function of distance, and exhibits non zero values for the correlation between population and centrality for a high hierarchy $\gamma_G$, what shows that simultaneous adaptation regimes are rare in this model.
 
+
+%%%%%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/distcorrs_networkGamma2.5_networkSpeed110_gravityDecay0.016_networkThreshold11.pdf}
+	%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2.5_networkSpeed10_gravityDecay0.016_networkThreshold21.pdf}
+\includegraphics[width=\linewidth,height=0.9\textheight]{figures/6-1-3-fig-macrocoevolexplo-correlations.jpg}
+	\caption{\textbf{Correlations in the model for the spatial configuration $N_S=80,\alpha_S=0.5,d_S=10,n_S=30$.} (\textit{Top}) Correlations as a function of distance, for couples of variables (color), for $\gamma_N = 2.5$, $\theta_N = 21$, $v_0 = 10$, and for $d_G$ (columns) and $\gamma_G$ (rows) variables; (\textit{Bottom}) Lagged correlations for the same parameters. \label{fig:macrocoevolexplo:correlations}}
+\end{figure}
+%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Causality regimes}
 
 
-Finally, by studying $\rho_{\tau}$ (Fig.~\ref{fig:macrocoevolexplo:correlations}, bottom panel), we observe that causality regimes in the sense of~\cite{raimbault2017identification} are not very varied (see~\cite{raimbault:tel-01857741}, Appendix A.7, for the confirmation for a broader range of parameters). The population is systematically caused by the centrality, but there exists no regime in which we observe the contrary. This is a logic of an effect of reinforcement of hierarchy by centrality, but not a configuration with circular causalities, and thus not a co-evolution properly speaking as we defined in the statistical sense.
+Finally, by studying $\rho_{\tau}$ (Fig.~\ref{fig:macrocoevolexplo:correlations}, bottom panel), we observe that causality regimes in the sense of~\cite{raimbault2017identification} are relatively restrained (see~\cite{raimbault:tel-01857741}, Appendix A.7, for the confirmation for a broader range of parameters). The population is systematically caused by the centrality, but there exists no regime in which we observe the contrary. This is a logic of an effect of reinforcement of hierarchy by centrality. This exploration does not provide a configuration with circular causalities, and thus not a co-evolution properly speaking as we defined in the statistical sense.
 
 
 
@@ -335,35 +361,29 @@ Finally, by studying $\rho_{\tau}$ (Fig.~\ref{fig:macrocoevolexplo:correlations}
 
 
 
-%%%%%%%%%%%%%%%%
-\begin{figure}
-	%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/distcorrs_networkGamma2.5_networkSpeed110_gravityDecay0.016_networkThreshold11.pdf}
-	%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvolExplo/laggedcorrs_networkGamma2.5_networkSpeed10_gravityDecay0.016_networkThreshold21.pdf}
-\includegraphics[width=\linewidth,height=0.9\textheight]{figures/6-1-3-fig-macrocoevolexplo-correlations.jpg}
-	\caption{\textbf{Correlations in the model for the spatial configuration $N_S=80,\alpha_S=0.5,d_S=10,n_S=30$.} (\textit{Top}) Correlations as a function of distance, for couples of variables (color), for $\gamma_N = 2.5$, $\theta_N = 21$, $v_0 = 10$, and for $d_G$ (columns) and $\gamma_G$ (rows) variables; (\textit{Bottom}) Lagged correlations for the same parameters. \label{fig:macrocoevolexplo:correlations}}
-\end{figure}
-%%%%%%%%%%%%%%%%
-
-
-This brief exploration allows us to say that this model captures urban trajectories of a certain complexity, but that it does apparently not reproduces co-evolution regimes.
+%This brief exploration allows us to say that this model captures urban trajectories of a certain complexity, but that it does apparently not reproduces co-evolution regimes.
 
 
 
 %%%%%%%%%%%%%%%%%%%
 \subsection{PSE algorithm}
 
-
-
-
-The Fig.~\ref{fig:pse} gives the results as a scatterplot of diversity targets of the algorithm.
-
-
 %%%%%%%%%%%%%%
 \begin{figure}
 	\includegraphics[width=\textwidth]{figures/scatterplot_colornwThreshold.png}
-	\caption{\textbf{Feasible space of lagged correlation obtained with the PSE algorithm.}\label{fig:pse}}
+	\caption{\textbf{Feasible space of lagged correlation obtained with the PSE algorithm.} We give as a scatterplot the six objectives of the algorithm. Color level gives $\theta_N$, which does not seems to be a simple driver of correlation values.\label{fig:pse}}
 \end{figure}
 %%%%%%%%%%%%%%
+
+
+The last conclusion is crucial regarding the thematic questions that one can ask to the model, and was obtained with a limited experiment (simple grid sampling). However, because precisely of non-linearities, such simple sampling may miss regions of the parameter space in which dramatic changes occurs in the phase diagram of the model, as \cite{cherel2015beyond} showed on toy models and on the Marius model. We apply here therefore the Pattern Space Exploration algorithm, which is precisely designed to unveil such unexpected behavior, what can be abstracted as a sampling of the image space of the model instead of its parameter space.
+
+We use here the following indicators as targets on which the algorithm must find diverse patterns. Given all couples of variables $(X,Y)$ and for $\tau > 0$ and $\tau < 0$, we consider $\max_{\tau} \rho_{\tau}\left[X,Y\right]$ and $\min_{\tau} \rho_{\tau}\left[X,Y\right]$, and report the one with the largest absolute value which absolute value is larger than correlation at the origin, and 0 otherwise. This adaptation of the method of \cite{raimbault2017identification} has been proposed by \cite{2018arXiv180409430R} for a similar models, for which simultaneous correlations are high as a consequence of model structure.
+
+The Fig.~\ref{fig:pse} gives the results as a scatterplot of diversity targets of the algorithm. We obtain in particular a point cloud within positive correlations for both negative and positive delays for population and centrality, what actually witnesses a co-evolution (circular causality between the two). We have a similar pattern in negative correlations for centrality and accessibility, the point cloud being however more constrained on the diagonal, what may due to a direct repercussion of one variable on the other as they are structurally linked.
+
+
+
 
 
 
@@ -372,8 +392,17 @@ The Fig.~\ref{fig:pse} gives the results as a scatterplot of diversity targets o
 %%%%%%%%%%%%%%%%%%%%
 
 
-In comparison, the co-evolution model introduced by \cite{2018arXiv180409430R} is less constraints for network dynamics and produces more varied interaction regimes.
 
+In comparison, the co-evolution model introduced by \cite{2018arXiv180409430R} is less constrained for network dynamics and produces more varied interaction regimes.
+
+
+\paragraph{Quantifying the tunnel effect}
+
+Finally, rules allowing variable values for $v(t)$ and the non-planarity mechanism (when a new link is constructed, it does create intersections only with links of similar speed), allows the introduction of a tunnel effect, which is as we recall is the absence of interaction of an infrastructure traversing a territory with it. The effect is however exogenous since explicitly specified in model rules, on the contrary to the interaction model with feedback of flows, in which the variations of $w_N$ and $d_N$ should capture an endogenous tunnel effect. The introduction of specific indicators to measure it would be an interesting development direction, but we stay here at considering the hierarchy of centralities which is already a good indicator for it. Indeed, a highly hierarchical distribution of accessibilities means that there exists a small number of cities very accessible and a large number with a low accessibility. If main cities reasonably cover the space, then their links necessarily ignore the overflown cities with low accessibility, otherwise the distribution would be less hierarchical.
+
+\paragraph{Application to real systems}
+
+Furthermore, the use of the interaction model without the endogenous Gibrat term would be difficultly adaptable to an application of the model on real data since the values we obtained in the precedent studies of interaction models, but stays relevant in a stylized model, in order to understand the interaction processes in an isolated way, as we will do later (keeping in mind that this knowledge does not necessarily describes the coupled behavior, since the interaction between processes can lead to the emergence of new behaviors).
 
 
 
