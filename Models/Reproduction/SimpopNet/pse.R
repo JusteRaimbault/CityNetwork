@@ -17,11 +17,31 @@ paramnames = list("gravityGamma"=expression(gamma[G]),"gravityDecay"=expression(
                   "synthRankSize"=expression(alpha)
 )
 
+indics=c("rhoPopClosenessPos","rhoPopClosenessNeg","rhoPopAccessibilityPos","rhoPopAccessibilityNeg","rhoClosenessAccessibilityPos","rhoClosenessAccessibilityNeg")
+
 figdir = paste0(Sys.getenv('CN_HOME'),'/Results/Reproduction/SimpopNet/PSE/',resdir,'/');dir.create(figdir,recursive = T)
 
-
-latestgen = max(as.integer(sapply(strsplit(sapply(strsplit(list.files(paste0(resdir)),"population"),function(s){s[2]}),".csv"),function(s){s[1]})))
+gens = as.integer(sapply(strsplit(sapply(strsplit(list.files(paste0(resdir)),"population"),function(s){s[2]}),".csv"),function(s){s[1]}))
+latestgen = max(gens)
 res <- as.tbl(read.csv(paste0(resdir,'/population',latestgen,'.csv')))
+
+
+frontDist <- function(f1,f2){
+  if(nrow(f1)==0||nrow(f2)==0){return(0)}
+  totalDist = 0
+  #for(i1 in 1:nrow(f1)){for(i2 in 1:nrow(f2)){totalDist=totalDist+sum((f1[i1,] - f2[i2,])^2)}}
+  return(sum(apply(f1,1,function(r){sum(rowSums((f2 - matrix(rep(r,nrow(f2))))^2))})))
+  #return(totalDist)
+}
+
+counts=c();newpop = data.frame();dists=c()
+for(gen in sort(gens)){show(gen)
+  prevpop <- newpop
+  newpop <- as.tbl(read.csv(paste0(resdir,'/population',gen,'.csv')));counts=append(counts,nrow(res))
+  if(nrow(prevpop)>0){dists=append(dists,frontDist(prevpop[,indics],newpop[,indics]))}
+}
+plot(sort(gens),counts,type='l')
+plot(sort(gens)[2:length(gens)],dists,type='l')
 
 #res=res[res$evolution.samples>3,]
 
