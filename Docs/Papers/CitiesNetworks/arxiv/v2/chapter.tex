@@ -1,0 +1,1143 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Standard header for working papers
+%
+% WPHeader.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[11pt]{article}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TEMPLATES
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Simple Tabular
+
+%\begin{tabular}{ |c|c|c| } 
+% \hline
+% cell1 & cell2 & cell3 \\ 
+% cell4 & cell5 & cell6 \\ 
+% cell7 & cell8 & cell9 \\ 
+% \hline
+%\end{tabular}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% encoding 
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+
+% general packages without options
+\usepackage{amsmath,amssymb,amsthm,bbm}
+
+% graphics
+\usepackage{graphicx,transparent,eso-pic}
+
+% text formatting
+\usepackage[document]{ragged2e}
+\usepackage{pagecolor,color}
+%\usepackage{ulem}
+\usepackage{soul}
+
+
+% conditions
+\usepackage{ifthen}
+
+
+\usepackage{natbib}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Maths environment
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{proposition}[theorem]{Proposition}
+%\newtheorem{corollary}[theorem]{Corollary}
+
+%\newenvironment{proof}[1][Proof]{\begin{trivlist}
+%\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+%\newenvironment{definition}[1][Definition]{\begin{trivlist}
+%\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+%\newenvironment{example}[1][Example]{\begin{trivlist}
+%\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+%\newenvironment{remark}[1][Remark]{\begin{trivlist}
+%\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+
+%\newcommand{\qed}{\nobreak \ifvmode \relax \else
+%      \ifdim\lastskip<1.5em \hskip-\lastskip
+%      \hskip1.5em plus0em minus0.5em \fi \nobreak
+%      \vrule height0.75em width0.5em depth0.25em\fi}
+
+
+
+%% Commands
+
+\newcommand{\noun}[1]{\textsc{#1}}
+
+
+%% Math
+
+% Operators
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\Proba}{\mathbb{P}}
+
+\newcommand{\Covb}[2]{\ensuremath{\Cov\!\left[#1,#2\right]}}
+\newcommand{\Eb}[1]{\ensuremath{\E\!\left[#1\right]}}
+\newcommand{\Pb}[1]{\ensuremath{\Proba\!\left[#1\right]}}
+\newcommand{\Varb}[1]{\ensuremath{\Var\!\left[#1\right]}}
+
+% norm
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+
+
+
+% argmin
+\DeclareMathOperator*{\argmin}{\arg\!\min}
+
+
+% amsthm environments
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\newtheorem{assumption}{Assumption}
+
+%% graphics
+
+% renew graphics command for relative path providment only ?
+%\renewcommand{\includegraphics[]{}}
+
+
+\usepackage{url}
+
+
+
+
+
+% geometry
+\usepackage[margin=2cm]{geometry}
+
+
+
+% change
+
+
+
+
+% layout : use fancyhdr package
+%\usepackage{fancyhdr}
+%\pagestyle{fancy}
+%
+%\makeatletter
+%
+%\renewcommand{\headrulewidth}{0.4pt}
+%\renewcommand{\footrulewidth}{0.4pt}
+%\fancyhead[RO,RE]{}
+%\fancyhead[LO,LE]{Models for the co-evolution of cities and networks}
+%\fancyfoot[RO,RE] {\thepage}
+%\fancyfoot[LO,LE] {}
+%\fancyfoot[CO,CE] {}
+%
+%\makeatother
+%
+
+%%%%%%%%%%%%%%%%%%%%%
+%% Begin doc
+%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+
+
+
+
+
+\title{Modeling the co-evolution of cities and networks}
+\author{\noun{Juste Raimbault}$^{1,2}$\\
+$^1$ UPS CNRS 3611 ISC-PIF\\
+$^2$ UMR CNRS 8504 G{\'e}ographie-cit{\'e}s
+}
+\date{}
+
+
+\maketitle
+
+\justify
+
+
+\begin{abstract}
+The complexity of interactions between networks and territories has been widely acknowledged empirically, in particular through the existence of circular causal relations in their co-development, that can be understood as a co-evolution. This contribution aims at investigating models that endogenize this co-evolution, in the particular case of cities and transportation networks. We introduce a family of models of co-evolution for systems of cities at the macroscopic scale. Interactions between cities are the main driver of population growth rates, capturing a network effect at the first order (direct interactions). Network growth follows a demand-induced thresholded growth scheme, that can occur at the global level or locally. The exploration of the model on synthetic systems of cities shows the ability of the model to capture co-evolutive patterns. We apply the model on the French system of cities, with population data spanning 1831-1999 and a dynamical railway network (1850-2000). The model is calibrated on successive time-windows, assuming local temporal stationarity. We extract therein indirect knowledge on underlying processes and find that the prediction for city populations are in some cases improved in comparison to a static model.
+\end{abstract}
+
+\textbf{Keywords : }\textit{Urban System; Co-evolution; Transportation Network; Model calibration; French System of Cities}
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+\subsection{Structuring effects of transportation networks}
+
+The idea of possible causal relationships between territorial characteristics and transportation networks has fed a scientific debate that is still active nowadays. The underlying assumptions can be synthesized as more or less deterministic attributions of impacts of transportation infrastructures or of a new transportation mode on territorial transformations. Precursors of such a reasoning can be tracked back in the twenties: \cite{burgess1925city} mentions for example some ``modifications of forms of transportation and communication as determining factors of growth and decline cycles [of territories]'' (p.~69). Methodologies to identify what is then called \emph{structuring effects} of transportation networks have been developed for planning in the seventies: \cite{bonnafous1974methodologies} situate the concept of structuring effects in the perspective of using the transportation offer as a planning tool (the alternatives are the development of an offer to answer to a congestion of the network, and the simultaneous development of associated offer and planning). These authors identify from an empirical viewpoint direct effects of a novel offer on the behavior of agents, on transportation flows and possible inflexions on socio-economic trajectories of concerned territories. \cite{bonnafous1974detection} develop a method to identify such effects through the modification of the class of cities in a typology established a posteriori. More recently, \cite{bonnafous2014observatoires} recalls that the institution of \emph{permanent observatories} for territories makes such analyses more robust, allowing a continuous monitoring of the territories that are the most concerned by the extent of a new infrastructure.
+
+According to \cite{offner1993effets} which reformulates ideas already given by~\cite{franccois1977autoroutes} for example, a not reasoned and out-of-context use of these methods has then been developed by planners and politicians which generally used them to justify transportation projects in a technocratic manner: through the argument of a direct effect of a new infrastructure on local development (for example economic), politics are able to ask for subsidies and to legitimate their action in front of the people. \cite{offner1993effets} insists on the necessity of a critical positioning on these issues, recalling that there exists no scientific demonstration of an effect that would be systematic. A special issue of the journal \emph{L'Espace Géographique}~\citep{espacegeo2014effets} on that debate recalled that on the one hand misconceptions and misuses were still greatly present in operational and planning communities, which can be explained for example by the need to justify public actions, and on the other hand that a scientific understanding of relations between networks and territories is still in construction. 
+
+
+%\noun{A. Bonnafous} (interview on the 09/01/2018, see Appendix~\ref{app:sec:interviews}) gives the current example of the project of the Seine-Nord-Europe canal\footnote{The canal project links the Oise at Compiègne to the Dunkerque-Escault canal in the north, see \url{https://www.canal-seine-nord-europe.fr/Projet}.} as a transportation project for which traffic previsions were largely overestimated and that politics of concerned territories have largely instrumentalized.
+
+%An other concrete illustration in the actuality gives an idea of this instrumentalization: debates in July of 2017 concerning the opening of the \emph{LGV Bretagne} and the \emph{LGV Sud-Ouest} have shown the full ambiguity of positions, conceptions, imaginaries both of politics but also of the public: worries on the speculation on real estate in stations neighborhoods, questionings on daily mobility but also social mobility\footnote{See for example \url{http://www.liberation.fr/futurs/2017/07/02/immobilier-plus-de-parisiens-comment-les-bordelais-voient-l-arrivee-de-la-lgv_1580776}, or \url{http://www.lemonde.fr/big-browser/article/2017/10/24/a-bordeaux-une-fronde-anti-parisiens-depuis-l-ouverture-de-la-ligne-a-grande-vitesse_5205282_4832693.html} for an immediate reaction of diverse local actors, witnessing at least an impact on representations. For example, people in Bordeaux seem to fear the arrival of Parisians searching for cheaper housing and better living conditions, what could increase prices in the surroundings of the station.}. The complexity and the reach of these subjects show well the difficulty of a systematic understanding of effects of transportation on territories.
+
+
+
+
+\subsection{Co-evolution of cities and networks}
+
+
+An alternative approach to relations between transportation networks and territories is to consider them as \emph{co-evolving}. The evolutive urban theory considers systems of cities as systems of systems at multiple scale, from the intra-urban microscopic level, to the macroscopic level of the whole system, through the mesoscopic level of the city~\citep{pumain2008socio}. These systems are complex, dynamical, and adaptive: their components \emph{co-evolve} and the system answers to internal or external perturbations by modifying its structure and its dynamics. Interactions between cities are the main drivers of these evolutionary patterns. These interactions consist in material or informational exchanges, and the diffusion of innovation is therein a crucial component~\citep{pumain2010theorie}. These are necessarily carried by physical networks, and more particularly transportation networks. We expect thus from a theoretical point of view strong interdependencies between cities and transportation networks at these scales, i.e. a co-evolution.
+
+From the empirical point of view, it has already been suggested by some studies: \cite{bretagnolle2003vitesse} reveals an increasing correlation in time between urban hierarchy and the hierarchy of temporal accessibility for the French railway network (which is a priori clearer for this measure than for integrated measures of accessibility that are prone to auto-correlation). This correlation is a clue of positive feedbacks between urban ranks and network centralities. According to \cite{bretagnolle:tel-00459720}, different regimes of interactions between cities and transportation networks have been identified: for the evolution of the French railway network, a first phase of adaptation of the network to the existing urban configuration was followed by a phase of co-evolution, in the sense that causal relations became difficult to identify. The impact of the contraction of space-time by networks on patterns of growth potential had already been shown for Europe with an exploratory analysis in~\citep{bretagnolle1998space}.
+
+Modeling results by~\cite{bretagnolle2010comparer}, and more particularly the different parametrizations of the Simpop2 model, unveil different regimes of interactions between networks and cities. The generic structure of the Simpop2 model is the following~\citep{pumain2008socio}: cities are characterized by their population ad their wealth; they product goods according to their economic profile; interactions between cities produce exchanges, determined by the offer and demand functions; populations evolve according to wealth after exchanges. The application of this model shows that the evolution of the railway network in the United States has followed a rather different dynamic, without hierarchical diffusion, shaping locally urban growth in some cases. This particular context of conquest of a space empty of infrastructures implies a specific regime for the territorial system. Other contexts reveal different impacts of the network at short and long term: \cite{berger2017locomotives} study the impact of the construction of the Swedish railway network on the growth of urban populations, from 1800 to 2010, and find an immediate causal effect of the accessibility increase on population growth, followed on long times of a strong inertia for population hierarchy. In each case, we indeed observe the existence of \emph{structural dynamics} on long times, which correspond to the slow dynamics of the urban system structure, and witness in that sense of \emph{structuring effects on long times} as~\cite{pumain2014effets} puts it.
+
+We however differentiate the latest from the structuring effects previously mentioned which are subject to debates. At the level of the urban system, it is relevant to globally follow trajectories that were possible, and locally the effect has necessarily a probabilistic aspect. Moreover, we insist on the role of path-dependency for trajectories of urban systems: for example the existence in France of a previous system of cities and network (postal roads) has strongly influenced the development of the railway network, or as \cite{berger2017locomotives} showed for Sweden. The same way, \cite{doi:10.1068/b39089} highlight the importance of historical events in coupled dynamics of the road network and territories, historical shocks that can be seen as exogenous and inducing bifurcations of the system that accentuate the effect of path-dependency. Therefore, for these structural dynamics on long times, forecasting can difficultly be considered.
+
+
+\subsection{Models of co-evolution}
+
+Considering models as a fundamental component for the production of knowledge, in the sense of a knowledge domain in itself \citep{raimbault2017applied}, this chapter will focus on simulation models concerned with the co-evolution of cities and networks. We now propose to review models that integrate dynamically a strong coupling between territorial components and transportation networks, in the sense that a clear conditioning of one by the other can not be identified. We will broadly designate by model of co-evolution simulation models that include a coupling of urban growth dynamics and transportation network growth dynamics. These are relatively rare, and for most of them still at the stage of stylized models. The efforts being relatively sparse and in very different domains, there is not much unity in these approaches, beside the abstraction of the assumption of an interdependency between networks and territorial characteristics in time. This sparsity may be due to a high compartmentalization of related disciplines \citep{raimbault2017models}. We propose now to review them through the prism of scales.
+
+%The ontologies used, as we will see, often couple network elements with territorial components, but this positioning is not necessary and some elements may be hybrid (for example a governance structure for the transportation network may simultaneously belong to both aspects). In our reading of models, these different specifications will naturally arise.
+%\footnote{We recall the definition of model coupling, which corresponds to the one of system or process coupling given in introduction: it is the construction of a model that is simultaneously the extension of each initial model.}
+
+
+\subsubsection{Microscopic and mesoscopic scales}
+
+
+\paragraph{Geometrical Models}
+
+\cite{achibet2014model} describes a co-evolution model at a very large scale (scale of the building), in which evolution of both network and buildings are ruled by a same agent, influenced differently by network topology and population density, and that can be understood as an agent of urban development. The model allows to simulate an auto-organized urban extension and to produce district configurations. Even if it strongly couples territorial components (buildings) and the road network, described results do not imply any conclusion on the processes of co-evolution themselves.
+
+A generalization of a geometrical local optimization model for network growth yield a co-evolution model for network topology and the density of its nodes \citep{barthelemy2009co}. The localization of new nodes is simultaneously influenced by density and centrality, yielding the looping of the strong coupling. More precisely, the global behavior of the model is the same, as the network extension behavior. Centers then localize following a utility function that is a linear combination of average betweenness centrality in a neighborhood and of the opposite of density (dispersion due to higher price as a function of density). This utility is used to compute the probability of localization of new centers following a discrete choices model. The model allows to show that the influence of centrality reinforces aggregation phenomena (in particular through an analytical resolution on a one-dimensional version of the model), and furthermore reproduces exponentially decreasing density profiles (Clarcke's law) which are observed empirically.  
+
+
+\cite{ding2017heuristic} introduce a model of co-evolution between different layers of the transportation network, and show the existence of an optimal coupling parameter in terms of inequalities for the centrality in network conception: if the road network is assimilated at a fine granularity to a population distribution, this model can be compared with the precedent model of co-evolution between the transportation network and the territory.
+
+
+
+
+\paragraph{Economic models}
+
+
+
+\cite{levinson2007co} take an economic approach, which is richer from the point of view of network development processes implied, similar to a four step model (i.e. including the generation of origin-destination flows and the assignment of traffic in the network) which takes into account travel cost and congestion, coupled with a road investment module simulating toll revenues for constructing agents, and a land-use evolution module updating actives and employments through discrete choice modeling. The exploration experiments show that co-evolving network and land uses lead to positive feedbacks reinforcing hierarchies. These are however far from satisfying, since network topology does not evolve as only capacities and flows change within the network, what implies that more complex mechanisms (such as the planning of new infrastructures) on longer time scales are not taken into account. \cite{li2016integrated} have recently extended this model by adding endogenous real estate prices and an optimization heuristic with a genetic algorithm for deciding agents.
+
+
+From an other point of view, \citep{levinson2005paving} is also presented as a model of co-evolution, but corresponds more to a predictive model based on Markov chains, and thus closer to a statistical analysis than a simulation model based on these processes. \cite{rui2011urban} describe a model in which the coupling between land-use and network topology is done with a weak paradigm, land-use and accessibility having no feedback on network topology, the land-use model being conditioned to the growth of the autonomous network.
+
+
+
+
+\paragraph{Cellular automatons}
+
+
+A simple hybrid model explored and applied to a stylized planning example of the functionnal distribution of a new district in~\citep{raimbault2014hybrid}, relies on mechanisms of accessibility to urban activities for the growth of settlements with a network adapting to the urban shape. The rules for network growth are too simple to capture more elaborated processes than just a simple systematic connection (such as potential breakdown for example), but the model produces at a large scale a broad range of urban shapes reproducing typical patterns of human settlements. This model is inspired by~\citep{moreno2012automate} for its core mechanisms but yield a much broader generation of forms by taking into account urban functions.
+
+
+At these relatively large scales, spanning from the urban to the metropolitan scale, mechanisms of population localization influenced by accessibility coupled to mechanisms of network growth optimizing some particular functions seem to be the rule for this kind of models: in the same way, \cite{wu2017city} couple a cellular automaton for population diffusion to a network optimizing local cost that depends on the geometry and on population distribution.
+
+
+Models answering to more remote questions can furthermore be linked to our problem: for example, in a conceptual way, a certain form of strong coupling is also used in \citep{bigotte2010integrated} which by an approach of operational research propose a network design algorithm to optimize the accessibility to amenities, taking into account both network hierarchy and the hierarchy of connected centers.
+
+
+This way, co-evolution models at the microscopic and mesoscopic scales globally have the following structure: (i) processes of localization or relocalization of activities (actives, buildings) influenced by their own distribution and network characteristics; (ii) network evolution, that can be topological or not, answering to very diverse rules: local optimization, fixed rules, planning by deciding agents. This diversity suggests the necessity to take into account the superposition of multiple processes ruling network evolution.
+
+
+\subsubsection{Urban systems modeling}
+
+At a macroscopic scale, co-evolution can be taken into account in models of urban systems. \cite{baptiste1999interactions} propose to couple an urban growth model based on migrations (introduced by the application of synergetics to systems of cities by~\citep{sanders1992systeme}) with a mechanism of self-reinforcement of capacities for the road network without topological modification. More precisely, the general principles of the model are the following: (i) attractivity and repulsion indicators allow for each city to determine emigration and immigration rates and to make populations evolve; (ii) network topology is fixed in time, but capacities of links evolve. The rule is an increase in capacity when the flow becomes greater given a fixed parameter threshold during a given number of iterations. Flows are affected with a gravity model of interaction between cities. The last version of this model is presented by~\cite{baptistemodeling}. General conclusions that can be obtained from this work are that this coupling yield a hierarchical configuration and that the addition of the network produces a less hierarchical space, allowing medium-sized cities to benefit from the feedback of the transportation network. These conclusions remain limited as simpler models without co-evolution such as the one developed by \cite{raimbault2018indirect} also produce hierarchical urban systems.
+
+
+The model proposed by~\cite{blumenfeld2010network} can be seen as a bridge between the mesoscopic scale and the approaches of urban systems, since it simulates migrations between cities and network growth induced by potential breakdown when detours are too large. In the continuity of Simpop models for systems of cities, \cite{schmitt2014modelisation} describes the SimpopNet model which aims at precisely integrating co-evolution processes in systems of cities on long time scales, typically via rules for hierarchical network development as a function of the dynamics of cities, coupled with these that depends on network topology. Unfortunately the model was not explored nor further studied, and furthermore stayed at a toy-level. \cite{cottineau2014evolution} proposes an endogenous transportation network growth as the last building brick of the Marius modeling framework, but it stays at a conceptual level since this brick has not been specified nor implemented yet. To the best of our knowledge, there exists no model which is empirical or applied to a concrete case based on an approach of co-evolution by urban systems from the point of view of the evolutive urban theory.
+
+We must note here the epistemological opposition of these geographical approaches inspired by the evolutive urban theory \citep{pumain1997pour} to principles of economic geography: \cite{fujita1999evolution} introduce for example an evolutionary model able to reproduce and urban hierarchy and an organization typical of central place theory~\citep{banos2011christaller}, but that still relies on the notion of successive equilibriums, and moreover considers a ``Krugman-like'' model, i.e. a one dimensional and isotropic space, in which agents are homogeneously distributed. This approach can be instructive on economic processes in themselves but more difficultly on geographical processes, since these imply the embedding of economic processes in the geographical space which spatial particularities not taken into account in this approach are crucial. Our work will focus on demonstrating to what extent this structure of space can be important and also explicative, since networks, and even more physical networks induce spatio-temporal processes that are path-dependent and thus sensitive to local singularities and prone to bifurcations induced by the combination of these with processes at other scales (for example the centrality inducing a flow).
+
+
+We can mention several other streams of research which are concerned with modeling co-evolution in systems of cities, such as economic geography \citep{schamp201020}. For example, \cite{doi:10.1080/00343400802662658} models the co-evolution of firms and networks. \cite{liu2013exploring} empirically study the co-evolution of air transportation networks and companies networks. \cite{neal2012structural} uses network models to investigate the concept of interlocking of firms and cities, of which dynamics can be understood as co-evolutive. Closer to the fields of planning and transportation, Land-use Transport Interaction (LUTI) models do not explicitly include co-evolution but are concerned with coupling aspects of both \citep{wegener2004land}. These class of models can be generalized at the macroscopic scale to model larger systems of cities \citep{russo2012unifying}.
+
+To synthesize the approaches at the macroscopic scale, existing models are mostly based on the evolution of agents (generally cities) as a consequence of their interactions, carried by the network, whereas the evolution of the network can follow different rules: self-reinforcement, potential breakdown. The general structure is globally the same than at larger scales, but ontologies are fundamentally different.
+
+
+
+\subsection{Proposed approach}
+
+This literature review confirms the rarity of co-evolution models for cities and transportation networks at the macroscopic scale of a system of cities. Concerning the existing examples, \cite{baptistemodeling} is too specific on the processes included and the case study to which it is applied, whereas \cite{schmitt2014modelisation} does not include other network growth processes than topological breakdown and exogenously conditions link speeds. A generic family of models that can both apply to stylized and real systems of cities, and with a certain flexibility in processes included, would therefore fill this gap in the literature.
+
+We propose in this chapter to introduce such a family of co-evolution models. Our contribution is significant on several points: (i) this is to the best of our knowledge that such a generic model is introduced to model the co-evolution of cities and transportation networks; (ii) we systematically explore a specification of the model on synthetic systems of cities and unveil its ability to produce co-evolutive regimes; (iii) we calibrate it on the French system of cities with population and railway network data.
+
+The rest of this chapter is organized as follows: we first formalize the family of models and the specification studied in the following; we then systematically explore its behavior on synthetic systems of cities, and describe its calibration for the French system of cities. We finally briefly present an alternative specification for network growth and discuss possible developments and applications of this work.
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section{A family of co-evolution models}
+
+We introduce in this section the family of models we propose for the co-evolution of cities and networks at a macroscopic scale.
+
+
+\subsection{Rationale}
+
+Our approach relies in a direct extension of the interaction model within a system of cities described by \cite{raimbault2018indirect}, at a macroscopic scale with an ontology typical to systems of cities. For the sake of simplicity, we similarly stick to an unidimensional description of cities by their population.
+
+
+Concerning network growth, we propose also to stay at a relatively aggregated and simplified level, allowing to test growth heuristics at different levels of abstraction. In order to be flexible on model mechanisms, diverse processes can be taken into account, such as direct interactions between cities, intermediate interactions through the network, the feedback of network flows and a demand-induced network growth. Empirical characteristics emphasized by~\cite{thevenin2013mapping} for the French railway network suggest the existence of feedbacks of network use, or of flows traversing it, on its persistence and its development, whose properties have evolved in time: a first phase of strong development would correspond to an answer to a high need of coverage, followed by a reinforcement of main links and the disappearance of weakest links.
+
+
+The coupling between cities and the network is achieved by the intermediate of flows between cities in the network: these capture the interactions between cities and have simultaneously an influence on the network in which they flow. The Fig.~\ref{fig:macrocoevol:model} shows the structure of the model in terms of geographical objects and processes included and their relations.
+
+
+%%%%%%%%%%%%%%%%%
+\begin{figure}
+\includegraphics[width=\linewidth]{model.pdf}
+\caption{\textbf{Abstract representation of the model.} Ellipses correspond to main ontological elements (cities, network, flows), whereas arrows translate processes for which associated parameters are given. The model is described in its broader ecosystem of initialisation and output indicators.\label{fig:macrocoevol:model}}
+\end{figure}
+%%%%%%%%%%%%%%%%%
+
+
+\subsection{Model description}
+
+
+\subsubsection{Generic formulation}
+
+The urban system is characterized by populations $\mu_i(t)$ and the network $\mathbf{G}(t)$, to which can be associated a distance matrix $d^G_{ij}(t)$. Flows between cities $V_{ij}$ are given by a gravity interaction which writes
+
+\begin{equation}
+V_{ij} = \left(\frac{\mu_i\mu_j}{\left(\sum_k{\mu_k}\right)^2}\right)^{\gamma_G}\cdot \exp{\left(-d_{ij}/d_G\right)}
+\end{equation}
+
+with $d_ij$ network distance.
+
+The evolution of populations then follows the specifications of \cite{raimbault2018indirect}, i.e.
+
+\begin{equation}
+\vec{\mu}(t+1)=\Delta t\cdot \left[ r_0\cdot \mathbf{Id}\cdot \vec{\mu} + w_G\cdot \sum_j \frac{V_{ij}}{<V_{ij}>}\right]
+\end{equation}
+
+Concerning the network, we assume that it evolves following the equation
+\begin{equation}
+\mathbf{G}(t + 1) = F(\mathbf{G}(t),\phi_{ij}(t))
+\end{equation}
+such that the assignment of flows within the network and a local variation of its elements can be taken into account through the function $F$.
+
+This most generic form describes our family of models, which can yield different specifications of models, in particular by describing the network growth heuristic. Note that this model could be easily extended similarly to \cite{raimbault2018indirect}, by adding second-order effects of network centralities on population growth for example.
+
+\subsubsection{Distance-based network growth specification}
+
+We propose in a first time to consider patterns linked to distance only, and to specify a relation on an abstract network as
+\begin{equation}
+d^G_{ij}(t+1) = F(d^G_{ij}(t),\phi_{ij}(t))
+\end{equation}
+i.e. an evolution of the distance matrix only. In this spirit, we keep an interaction model strictly at a macroscopic scale, since a precise spatialization of the network would imply to take into account a finer scale that includes the local shape of the network which determines shortest paths.
+
+
+Following a thresholded feedback heuristic, given a flow $\phi$ in a link, we assume its effective distance to be updated by:
+
+\begin{equation}
+d(t+1) = d(t)\cdot \left( 1 + g_{max} \cdot \left[\frac{1 - \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}{1 + \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}\right]\right)
+\end{equation}
+
+with $\gamma_s$ a hierarchy parameter, $\phi_0$ the threshold parameter and $g_{max}$ the maximal growth rate at each step. This auto-reinforcement function can be interpreted the following way: above a limit flow $\phi_0$, the travel conditions improve, whereas they deteriorate below. The hierarchy of gain is given by $\gamma_s$, and since $\frac{1 - \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}}{1 + \left(\frac{\phi}{\phi_0}\right)^{\gamma_s}} \rightarrow_{\phi\rightarrow \infty} -1$, $g_{max}$ is the maximal distance gain. This function is similar to the one proposed by \cite{tero2007mathematical}, which uses $\Delta d = \Delta t \left[ \frac{\phi^\gamma}{1 + \phi^\gamma} - d\right]$. This function yield similarly a threshold effect, since the derivative vanishes at $\phi^{\ast} = \left(\frac{d}{1 - d}\right)^{1/\gamma}$, but this value depends on the distance and can more difficultly be adjusted to a value that can be interpreted.
+
+
+Our specification is summarized in Fig.~\ref{fig:macrocoevol:model} as a model workflow. We indeed have a double feedback of populations and network on themselves, but also the interplay of one on the other, through the mediation of network flows. As interaction potentials depends on populations and network at a given time, the full history of both is crucial to determine it, and the model takes thus into account path-dependancy of the system.
+
+
+\subsection{Indicators}
+
+To quantify the behavior of the model, we use different indicators, that give a grasp on typical properties of systems of cities produced by the model and on typical properties of temporal trajectories. These have been introduced by \cite{2018arXiv180900861R} precisely to study the behavior of a macroscopic model of co-evolution for cities and transportation networks, in a very similar context.
+\begin{itemize}
+	\item summary statistics of trajectories, taken as hierarchy $\alpha\left[\cdot\right]$, entropy $\varepsilon\left[\cdot\right]$ and average $\bar{\cdot}$ of distributions;
+	\item rank correlations $\rho\left[\cdot\right]$ between initial state and final state;
+	\item diversity $D\left[\cdot\right]$ and complexity $C\left[\cdot\right]$ of temporal trajectories.
+\end{itemize}
+
+These indicators are applied on variables representing both cities and the transportation network: populations $\mu_i(t)$, closeness centralities $c_i (t)$ and generalized accessibilities $Z_i (t)$.
+
+
+\subsection{Parameter space}
+
+The parameter space of the specific model is composed of 7 parameters, namely $r_0$ the endogenous growth rate, $w_G$ the weight of interactions, $d_G$ the spatial range of interactions, $\gamma_G$ the hierarchy of interactions, $g_{max}$ the maximal network growth, $\phi_0$ the network threshold and $\gamma_S$ the network growth hierarchy. We summarize in Table~\ref{tab:parameters} these parameters with the corresponding processes and theoretical ranges.
+
+
+
+%%%%%%%%%%%%%
+\begin{table}
+\caption{\textbf{Parameters of the model.} We give the parameters of the model that vary in experiments, with the corresponding processes, interpretation and theoretical ranges.\label{tab:parameters}}	
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Parameter & Notation & Process & Interpretation & Range\\
+\hline
+Growth rate & $r_0$ & Endogenous growth & Urban growth & $\left[ 0,1\right]$ \\
+Gravity weight & $w_G$ & Direct interaction & Maximal growth & $\left[ 0,1\right]$ \\
+Gravity gamma & $\gamma_G$ & Direct interaction & Level of hierarchy & $\left[ 0,+\infty\right]$ \\
+Gravity decay & $d_G$ & Direct interaction & Interaction range & $\left[ 0,+\infty\right]$ \\
+Maximal network growth & $g_{max}$ & Network growth & Speed improvement & $\left[ 0,+\infty\right]$ \\
+Network threshold & $\phi_0$ & Network growth & Use threshold & $\left[ 0,+\infty\right]$ \\
+Network growth hierarchy & $\gamma_S$ & Network growth & Reinforcement strength & $\left[ 0,+\infty\right]$ \\
+\hline
+\end{tabular}
+\end{table}
+%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+
+
+%\subsection{Implementation}
+
+%The coupling of the interaction model to a finer representation of the network (for example an encoding of the whole network structure) makes the full integration into an OpenMole plugin more difficult, as it was done for the model studied in~\ref{sec:interactiongibrat}. We need here an \emph{ad hoc} implementation. The use of a workflow as a mediator for coupling is an interesting solution but which is realistic only for a weak coupling as in~\ref{sec:correlatedsyntheticdata}. One of the issues that the meta-modeling library for OpenMole that is currently being developed around OpenMole will have to tackle is the possibility to allow strong coupling (for example in the sense of a dynamical coupling during the evolution of the simulation) of heterogeneous components in a transparent way, in order to benefit from the advantages of different languages or of already existing implementations. 
+
+The model is fully implemented in NetLogo, for the simplicity of coupling between heterogeneous components. A particular care is taken for the duality of network representation, both as a distance matrix and as a physical network, in order to facilitate the extension to physical network heuristics. Source code, data and results are openly available on the git repository of the project at \url{https://github.com/JusteRaimbault/CityNetwork/tree/master/Models/MacroCoevol}. Simulation results are available on the dataverse data repository at \url{http://dx.doi.org/10.7910/DVN/TYBNFQ}.
+
+The model was explored and calibrated using the OpenMole workflow engine \citep{reuillon2013openmole}, which provide exploration methods and allows a transparent distribution of computation jobs on a computation grid.
+
+
+
+\subsection{Exploration on a synthetic system of cities}
+
+\subsubsection{Synthetic setup}
+
+The model is first tested and explored on synthetic systems of cities as it is done by \cite{favaro2011gibrat}, in order to understand some of its intrinsic properties. In this case, we consider the model with an abstract network as specified above, i.e. without spatial description of the network and with evolution rules acting directly on $d^G_{ij}$ given the previous specifications. A synthetic city system is generated following the heuristic used in the previous section: (i) $N_S$ cities are randomly distributed in a homogeneous geographical space; (ii) populations are attributed to cities following an inverse power law, with a hierarchy parameter $\alpha_S$ and such that the largest city has a population equal to $P_{max}$, i.e. following $P_i = P_{max} \cdot i^{-\alpha_S}$.
+
+
+To simplify, several meta-parameters are fixed: the number of cities is fixed at $N_S = 30$, the maximal population at $P_{max} = 100000$ and the maximal network growth to $g_{max} = 0.005$. Final time is fixed at $t_f = 30$, what corresponds to distances divided approximatively by 5, in order to comply to an empirical constraint: this corresponds to the evolution of the travel time between Paris and Lyon from around ten hours at the beginning of the century to two hours today, showed for example by~\cite{thevenin2013mapping}. We also neglect network effects at the second order by taking $w_N = 0$. We explore a grid in the extended parameter space $\alpha_S$, $\phi_0$, $\gamma_s$, $w_G$, $d_G$, $\gamma_G$. We describe the results for $\alpha_S = 1$, what is the closest to existing city systems (in comparison to 0.5 and 1.5, see the systematic review of the rank-size law estimations done by~\cite{10.1371/journal.pone.0183919}).
+
+
+\subsubsection{Model behavior}
+
+
+%%%%%%%%%%%%%
+\begin{figure}
+%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvol/closenessSummaries_mean_synthRankSize1_gravityWeight0_001_gravityDecay10.png}\\
+%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvol/populationEntropies_synthRankSize1_gravityWeight0_001_gravityGamma0_5.png}
+\includegraphics[width=\linewidth,height=0.9\textheight]{6-2-2-fig-macrocoevol-behavior-time.jpg}
+\caption{\textbf{Temporal behavior of the co-evolution model with abstract network on a synthetic system of cities.} \textit{(Top)} Average closeness centralities, as a function of time, for $\gamma_G$ (rows) and $\phi_0$ (color) variable, at fixed $w_G = 0.001$ and $d_G = 10$; \textit{(Bottom)} Entropy of populations, as a function of time, for $d_G$ (columns) and $\phi_0$ (color) variable, at fixed $w_G = 0.001$ and $\gamma_G = 0.5$. See main text for interpretation.\label{fig:macrocoevol:behavior-time}}
+\end{figure}
+%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%
+\begin{figure}
+%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvol/complexityAccessibility_synthrankSize1_nwGmax0_05_gravityWeight0_001.png}\\
+% \includegraphics[width=0.48\linewidth]{Figures/MacroCoEvol/rankCorrAccessibility_synthrankSize1_nwGmax0_05_gravityWeight0_001.png}
+\includegraphics[width=\linewidth]{6-2-2-fig-macrocoevol-behavior-aggreg.jpg}
+\caption{\textbf{Agregated behavior of the co-evolution model.} \textit{(Top)} Complexity of accessibilities, as a function of $d_G$, for $\phi_0$ (columns) and $\gamma_G$ (color) variable, at fixed $w_G = 0.001$; \textit{(Bottom)} Rank correlations of accessibilities as a function of $d_G$, for the same parameters.\label{fig:macrocoevol:behavior-aggreg}}
+\end{figure}
+%%%%%%%%%%%%%
+
+
+The evolution of the average closeness centrality in time is shown in Fig.~\ref{fig:macrocoevol:behavior-time} (top) for $w_G = 0.001$, and with variables $(\gamma_G,\phi_0)$ (the behavior is not sensitive to $d_G$). This evolution witnesses a transition as a function of the level of hierarchy: when it decreases, we observe the emergence of trajectories for which the average centrality increases in time, what corresponds to configurations in which all cities profit in average from accessibility gains. This transition can be understood in the sense of \cite{sanders2017peupler}, i.e. a change of the dynamical regime of the urban system, as the qualititative behavior of indicators changes when parameters change.
+
+
+Concerning the entropy of populations, for which the temporal trajectory is shown in Fig.~\ref{fig:macrocoevol:behavior-time} (bottom), all parameters give a decreasing entropy, i.e. a behavior of convergence of cities trajectories in time. This could be analog to the phenomenon of economic convergence \citep{sachs1995economic}, but at the scale of cities and for populations.
+
+
+
+Looking at the complexity of accessibility trajectories, we observe for values of $\phi_0 > 1.5$ a maximum of complexity as a function of interaction distance $d_G$, stable when $w_G$ and $\gamma_G$ vary. This intermediate scale can be interpreted as producing regional subsystems, large enough for each to develop a certain level of complexity, et isolated enough to avoid the convergence of trajectories over the whole system. We reconstruct therein a spatial non-stationarity, and rejoin the concept of the ecological niche (a rather independent ecosystem in which there is co-evolution between the species \citep{holland2012signals}) localized in space: the emergent subsystems that are relatively independent, are good candidates to contain processes of co-evolution. The emergence of this intermediate scale can be compared to the modularity of the French urban system showed by~\cite{berroir2017systemes}. This is to the best of our knowledge the first time that this niche analogy has been identified in a model of a system of cities, although similar conceptualizations in neighbor fields exist such as in political science \citep{monstadt2009conceptualizing} or in the study of technological change \citep{geels2005processes} in which the concept of technological niche is central.
+
+
+
+Finally, the behavior of rank correlations for accessibility reveals that the interaction distance systematically increases the number of hierarchy inversions (in the sense of a switch between two cities in their population ranks), what corresponds in a sense to an increase in overall system complexity. The hierarchy parameter diminishes this correlation, what means that a more hierarchical organization will impact a larger number of cities in the qualitative aspects of their trajectories. This effect is similar to the ``first mover advantage'' showed by \cite{levinson2011does}, which unveils a path dependency and an advantage to be rapidly connected to the network: in our case, the modifications in the hierarchy correspond to cities that benefit from their positioning in the network.
+
+
+
+\subsubsection{Co-evolutive behavior}
+
+
+
+% -- not needed --
+%We can in a first time focus on the variations of correlations between variables as a function of distance. Profiles of $\rho_d$ for the three couples of variables show that intermediate and large values of the interaction distance ($d_G > 50$) induce populations totally uncorrelated with centralities and accessibilities (Fig.~\ref{fig:app:macrocoevol:distcorrs}, Appendix~\ref{app:sec:macrocoevol}). For small values of $d_G$, a decreasing then vanishing profile confirms the existence of strong local effects, where very close cities will have a strong reciprocal influence. The behavior of the correlation between accessibility and centrality is more difficult to interpret, and may be due to autocorrelation phenomenons\footnote{These can not be computed, as it implies to decompose $\rho\left[\sum_{i\neq j} \frac{1}{d_{ij}}; \sum_{i\neq j} P_j \exp{\left(-d_{ij}/d_G\right)}\right]$. It is for example possible to approximate $\rho\left[X+Y;Z\right]$ under the condition that $\varepsilon = \sigma_Y / \sigma_X \ll 1$ at the first order by $\rho\left[ X+Y;Z \right] \simeq \left(\rho\left[ X;Z \right]  + \varepsilon \rho\left[Y;Z\right]\right)\cdot\left(1 - \frac{1}{2}\rho\left[X;Y\right]\varepsilon - \frac{\varepsilon^2}{2})\right)$, by this assumption is too restrictive to be used for all terms in the sum.}. Its level does not depend on distance but on $d_G$, and decreases to end at a negative correlation.
+
+
+We can now study the ability of the model to effectively produce co-evolutive dynamics. This property of the model is crucial for several reasons: (i) being based on a strong coupling at the process level (or microscopic level) does not imply that effective statistical patterns of co-evolution (in the sense of the characterization proposed by \cite{raimbault2018caracterisation}) emerge from model behavior at the macroscopic level; (ii) there is indeed no example in the literature in which such a link was made; (iii) the spectrum of dynamical regimes the model can produce will inform on the actual existence of structuring effects (direct causality without co-evolution) or of more intricate relation in the case of co-evolution.
+
+To characterize co-evolutive dynamics, we apply a simple but generic method, particularly suited for the study of spatio-temporal causality patterns in territorial systems, which was recently introduced by \cite{raimbault2017identification}. This method uses a weak version of Granger causality, by classifying profiles of lagged correlations between variables. If an absolute maximum of correlations for a strictly positive or negative lag exists, then we have a direct causal link between the variables. A co-evolution between two variables $X,Y$ in that sense will correspond to the existence of circular causal links $X\rightarrow Y$ and $Y\rightarrow X$. We denote here by $\rho_{\tau}\left[X,Y\right]$ the lagged correlation with delay $\tau$.
+
+
+The exploration of profiles for $\rho_\tau$ for varying parameter values suggests the existence of multiple causality regimes. We however observe (i) the systematic existence of a constant correlation at $\tau = 0$ and (ii) the small variations of correlations that impose the need for a statistical test to ensure that we isolate a significant effect. Therefore, we extend the original method and impose here an additional statistical test: for $\tau_+ = \textrm{argmax}_{\tau>0} \left|\rho_{\tau} - \rho_0\right|$ and $\tau_- = \textrm{argmax}_{\tau<0} \left|\rho_{\tau} - \rho_0\right|$, a Kolmogorov-Smirnov test is used to compare the distributions of $\rho_{\tau_{\pm}}$ and of $\rho_0$. If they are declared different with a p-value smaller than $0.01$, and if $\left|\rho_{\tau_{\pm}}\right| > \left|\rho_0\right|$, we accept the causality link between variables in the corresponding direction. A configuration is then coded by a representation of its graph between variables, given by the six discrete variables equal to 0 if there is no link between the variables (within all directed couples between population, accessibility and centrality) and 1 or -1 depending on the sign of the correlation if there exists a statistically significant link (in practice we observe only positive correlations).
+
+
+
+
+%In comparison, the application of this method on the results of~\ref{sec:macrocoevolexplo} give only 8 distinct configurations\footnote{In which two configurations correspond to a negative circular causality between accessibility and centrality, what suggests that the SimpopNet model can produce a co-evolution between variables, but in a restricted number compared to the configurations obtained here and only between two network variables.}.
+
+
+%%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=\linewidth]{Figures/MacroCoEvol/laggedregimes_nwGmax0_05.png}
+	\includegraphics[width=\linewidth]{6-2-2-fig-macrocoevol-correlations.jpg}
+\caption{\textbf{Lagged correlations.} We give here for the 8 configurations showing at least 4 links between variables (coded in the order of couples, by the existence or not of a link for $\tau_+$ and for $\tau_-$), the lagged correlation profiles $\rho_{\tau}$ as a function of $\tau$, for all couples of variables (color).\label{fig:macrocoevol:correlations}}
+\end{figure}
+%%%%%%%%%%%%%
+
+
+We obtain overall 33 different configurations of links between variables, out of the 64 possible configurations ($2^6$ possible choices for positive correlations only). The type of relations we obtain are particularly interesting regarding co-evolution. We indeed observe:
+\begin{itemize}
+\item a configuration without any link between variables;
+\item 13 configurations of type ``structuring effect'', i.e. for which the graph does not have any loop;
+\item a configuration of type ``indirect co-evolution'', for which the graph has a loop of length three ($c_i \rightarrow X_i \rightarrow \mu_i \rightarrow c_i$) ;
+\item 18 configurations of type ``co-evolution'', in which there exists at least a loop of length two (direct circular relation between two variables).
+\end{itemize}
+
+
+Among all these regimes, 8 correspond to a graph with at least 4 links (which are then necessarily co-evolutive): we show these profiles in Fig.~\ref{fig:macrocoevol:correlations}. Two regimes witness a positive deviation of the correlation between population and accessibility for positive delays, increasing up to the maximal delay, what could be a clue of a reinforcement of population dynamics through centrality, stylized fact shown for the French system of cities by~\cite{bretagnolle:tel-00459720}.
+
+
+The regimes in which the centrality is co-evolving with population correspond to the ones where the co-evolution between the network and the territory is the strongest (since the accessibility depends on both), and are observed for large values of $d_G$ (average $d_G=183$ on 62 parameter points). This way, this co-evolution is favored by long interaction ranges. 
+
+
+Finally, the regime with the largest number of links (which corresponds to the regime coded by ``10/11/11'', with co-evolution of population and centrality and of population and accessibility, and a causality of centrality on accessibility), is obtained for a long interaction range $d_G = 160$, a strong interaction hierarchy $\gamma_G = 1.5$, but a low hierarchy of the initial system of cities $\alpha_S$: far-reaching but hierarchical interactions in an uniform system of cities lead to a maximum of entanglement between variables.  
+
+
+
+
+
+We finally confirm these results of variety in causality regimes produced by the model by applying the \emph{Pattern Space Exploration} algorithm~\citep{10.1371/journal.pone.0138212} to the model, with objectives the six correlations studied above (evaluated as zero in the case of a non-significance). We mainly obtain a number of regimes produced by the model larger than the ones obtained before (with negative correlations, 260 realized regimes out of $3^6 = 729$ possible). This short complementary study confirms the ability of the model to produce a large number of co-evolution regimes. 
+
+
+% The algorithm has been precisely applied with the objectives $\rho_{\tau_{\pm}}\left[x_i,x_j\right] - \rho_0$ with $x_i$ the 3 variables we considered and $i<j$, the estimated correlation being zero if it is non-significant or lower than $\rho_0$ in absolute value. Objectives vary in $\left[-0.2,0.2\right]$ with a step of $0.01$ (in practice, the quasi-totality of obtained values are lower in absolute value to 0.1, since the first and last centiles are lower, except two cases at 0.12 and 0.16).
+
+% The algorithm is launched on the grid with 300 parallel islands, each island having a lifetime of 2 hours, for a total of 616 generations.
+
+% Results of the population obtained are shown as a point cloud in Fig.~\ref{fig:app:macrocoevol:pse}. We observe that the correlation for which the distribution is the most dispersed is $\rho_{\tau_+}\left[\mu_i,c_i\right]$. Furthermore, each couple of correlations has non-reachable quadrants, suggesting impossible behaviors in the model: for example, there is close to no point with a negative causality between population and centrality and a negative causality between centrality and accessibility, these two links being thus not compatible. The couple with which it seems the hardest to extend direct circularities is accessibility and centrality, what suggests a domination of centrality in comparison to population in the expression of accessibility since the link with population has a higher range of freedom.
+
+% Basically, the algorithm unveils a richness of behaviors, extending again the one obtained with the simple exploration.
+
+%%%%%%%%%%%%%
+%\begin{figure}
+	%\includegraphics[width=\linewidth]{Figures/MacroCoEvol/scatterplot_colorgravityDecay.png}
+%	\includegraphics[width=\linewidth]{figures/A-macrocoevol-pse.jpg}
+%	\appcaption{\textbf{Application of the PSE algorithm to the macroscopic model}. We give point clouds of optimal lagged correlations, for each couple of variables and the sign of the delay. The color of points gives the value of the $d_G$ parameter, numerical inserts the stratified values of correlations between correlations, and histograms the statistical distribution of each correlation.\label{fig:app:macrocoevol:pse}}
+%\end{figure}
+%%%%%%%%%%%%%
+
+
+
+
+
+% TODO : add pse fig ? / detail indic, a bit different ?
+
+%\subsubsection{Synthesis}
+
+%The important stylized facts that can be drawn from the exploration of the model on synthetic data are the following.
+
+%\begin{enumerate}
+%\item We observe the existence of an intermediate spatial scale allowing the evolution of relatively independent niches, corresponding to a maximal level of complexity for cities trajectories.
+%\item Lagged correlations unveil at least three different types of interaction regimes, that we interpret as an adaptation regime, a direct co-evolution regime, and an indirect co-evolution regime.
+%\end{enumerate}
+
+
+
+
+
+
+\subsection{Application to the French system of cities}
+
+
+The model is then applied to the French system of cities on long time dynamical data: the Pumain-INED database for populations, spanning from 1831 to 1999 \citep{pumain1986fichier}, with the evolving railway network from 1840 to 2000 \citep{thevenin2013mapping}. Such a time span can be associated with structural effect on long time. This application aims on the one hand at testing the ability of the model to reproduce a real dynamic of co-evolution, and on the other hand at extracting thematic information on processes through calibrated parameter values.
+
+\subsubsection{Data}
+
+We work on railway network data constructed by~\cite{thevenin2013mapping}. The French railway network is particularly interesting jointly with population data already presented, since the covered time span is relatively close, and this transportation mode has at any times materialized the implication of public and private actors. It corresponds to different processes depending on the period, from a more decentralized management to a more centralized recently, and different technological materializations with for example the recent emergence of high speed trains \citep{zembri1997fondements}. For each date in the population database, we extract the simplified abstract network in which all stations and intersections with a degree larger than two are linked with abstract links which speed and length attributes correspond to real values, at a granularity of 1km. This yields the time-distance matrices between the cities included in the model.
+
+% \footnote{This processing is achieved thanks to the R package for transportation network analysis specifically developed for this thesis, see~\ref{app:sec:packages}.}
+
+
+\subsubsection{Stylized facts}
+
+
+Before calibrating the model, we can observe the lagged correlation patterns in the dataset, by applying the causality regimes method \citep{raimbault2017identification}. This empirical study should on the one hand allow us to verify well known stylized facts, and on the other hand to produce a preliminary knowledge of empirical system behavior. We compute as detailed above the closeness centrality through the network, given by $T_i = \sum_j \exp{-d_{ij}/d_0}$, and we study the lagged correlation between its derivative $\Delta T_i$ and the derivative of the population $\Delta P_i$, given by $\hat{\rho}_{\tau} = \hat{\rho}\left[\Delta P_i(t),\Delta T_i(t-\tau)\right]$ estimated on a moving window containing $T_w$ successive dates. We show in Fig.~\ref{fig:macrocoevol:empirical} the results obtained.
+
+
+These results are important for at least two reasons. First, the behavior of the number of significant correlations as a function of $T_w$ and $d_0$ allows us to find stationarity scales in the system. We observe on the one hand a specific spatial scale that gives a maximum for all temporal windows, at $d_0 = 100km$, what suggests the existence of consistent regional subsystems, which existence is stable in time: indeed, this value corresponds to the interaction distance. It remarkably coincides with the intermediate scale isolated in the synthetic model. On the other hand, long spatial ranges induce an optimal temporal scale, for $T_w = 4$ what corresponds to around twenty years: we identify it as the overall temporal stationarity scale of the system and study the lagged correlations for this value.
+
+
+
+Secondly, the behavior of lagged correlations does not seem to comply to the existing literature. At the intermediate spatial scale, the values of $\rho_+,\rho_-$ exhibit no regularity. On the whole system, there is until 1946 close to no significant effect, then no causality between 1946 and 1975 (maximum at $\tau = 0$, non-significant minimum), and a 5 years shift of accessibility causing population after 1968 (the effect staying however doubtful). We do not reproduce the correlation effect between network centrality and place in the urban hierarchy advocated by~\cite{bretagnolle2003vitesse}, what lead us to question the existence of the ``structural co-evolution'' on long time described by \noun{Bretagnolle} in~\citep{espacegeo2014effets}. What \cite{bretagnolle2003vitesse} obtains is a simultaneous correspondence between growth rate and level of connectivity to the network (and not with network dynamic), but not in our sense a co-evolution, since no statistical relation is furthermore exhibited.
+
+% \footnote{As~\cite{lemoy2017scaling} is not able to reproduce, for density profiles as a function of the distance to the center of European metropolis, the transition that allows~\cite{guerois2008built} to define the peri-urban. These more or less recent works are not reproducible, producing neither code nor data, and giving only a superficial description of the methods, and it is thus impossible to know the origin of the qualitative divergence obtained. A good reproducibility together with the construction of systematic comparisons (\emph{benchmarks}) of models, empirical analysis, that are recent but also to validate old studies, seems to be a reasonable solution to this kind of issue.}
+
+
+We rejoin the recent results of~\cite{mimeur:hal-01616746} that show the statistical non-significance of the correlation between growth rate and evolution of network coverage and accessibility, at a zero delay. Our results are less precise on the class of cities studied (they differentiate large and small cities, and work on a larger panel), but more general as they study variable delays and accessibility ranges, and are thus complementary.
+
+
+%%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvol/significantcorrs_Tw.pdf}
+	%\includegraphics[width=0.48\linewidth]{Figures/MacroCoEvol/significantcorrs_d0.pdf}\\
+	%\includegraphics[width=\linewidth]{Figures/MacroCoEvol/laggedCorrs_time_Tw4.pdf}
+	\includegraphics[width=\linewidth]{6-2-3-fig-macrocoevol-empirical.jpg}
+	\caption[Empirical lagged correlations for the French system of cities]{\textbf{Empirical lagged correlations for the French system of cities.} Correlations are estimated on a window of duration $5\cdot T_w$, between population growth rates and the variations of closeness centrality with a decay parameter $d_0$ (see text). \textit{(Top left)} Number of significant correlations (taken such that $p<0.1$ at 95\%) as a function of $T_w$ for $d_0$ variable; \textit{(Top right)} Number of significant correlations as a function of $d_0$ for $T_w$ variable; \textit{(Bottom)} For the ``optimal'' window $T_w = 4$, value of $\rho_{\tau}$ as a function of $\tau$, for all successive periods.\label{fig:macrocoevol:empirical}}
+\end{figure}
+%%%%%%%%%%%%%
+
+
+\subsubsection{Calibration of the abstract model}
+
+
+Expected results of the calibration on real data concern both the more or less accurate reproduction of real city population growth dynamics, i.e. to what extent the inclusion of a dynamical network can increase the explanatory power for trajectories, and also how realistic the evolution of network distance is. We still work with the abstract model.
+
+
+\paragraph{Model evaluation}
+
+
+The population trajectories are evaluated similarly to \cite{raimbault2018indirect}, with the logarithm of the mean square error on cities and on time for populations. We add a calibration indicator for distance, given by
+\[
+\varepsilon_D = \log \left[ \sum_t \sum_{i,j} \left(d_{ij}(t) - \tilde{d}_{ij}(t)\right)^2\right]
+\]
+where $d_{ij}(t)$ are observed distances and $\tilde{d}_{ij}(t)$ the simulated distances. It is simply a cumulated squared-error, as used for the comparison of origin-destination matrices in a similar case of simulation of a transportation network in~\cite{jacobs2016transport}.
+
+% The particular property of adjustment for populations, that resides in the existence of a power law for the sizes of cities that made negligible the performance on medium and small cities in the case of a cumulated error, and suggested the addition of the indicator on the error on logarithms, is not present for distances that follow a distribution concentrated on a single order of magnitude
+
+
+\paragraph{Results}
+
+We proceed to a non-stationary calibration, on the $(\varepsilon_P,\varepsilon_D)$ objectives, i.e. the squared-error on populations and on distances. The estimation is done with a moving window on periods with a duration of 20 years. The calibration is done with a standard genetic algorithm (NSGA2) provided by the model exploration platform OpenMole \citep{reuillon2013openmole}. The Fig.~\ref{fig:macrocoevol:pareto} shows the obtained Pareto fronts, and the Fig.~\ref{fig:macrocoevol:parameters} the evolution in time of parameter values for the optimal solutions.
+
+We observe a large variability of the shape of Pareto fronts for the bi-objective calibration on population and distance, what witnesses more or less difficulty to simultaneously adjust population and distance. Some periods, such as 1891-1911 and 1921-1936, are close to have a simultaneous objective point for the two objectives, what would correspond to a good correspondence of the model to both trajectories of cities and trajectory of the network on these periods. 
+
+In comparison with calibration results of the model with static network of \cite{raimbault2018indirect}, when comparing the performances for the objective $\varepsilon_G$, we find periods where the static is clearly better (1831 and 1841 for example) and others where the co-evolutive model is better (1946 and 1962): thus, taking into account the co-evolution helps in some cases to have a better reproduction of population trajectories.
+
+
+The values of optimal parameters in time, shown in Fig.~\ref{fig:macrocoevol:parameters}, seem to contain some signal. The evolution of $w_G$ and $\gamma_G$ are coherent with the evolutions observed for the static model. For $d_G$, the model principally saturates on the maximal distance and the evolution is difficult to interpret. However, the evolution of $\phi_0$ could be a sign of a ``TGV effect'' in recent periods, through the secondary peak for population after 1960. Indeed, the construction of high speed lines has shortened distances between cities on top of the hierarchy, and an increase of the threshold $\phi_0$ corresponds to an increase of the selectivity for a potential diminution of distances.
+
+
+The calibrated $g_{max}$ can finally be interpreted according to the history of the railway network (at least of all points in the Pareto front): a significant secondary peak in the first years, a minimum in the years corresponding to the stabilization of the network (1900), and an increase until today linked to the increase of train speeds and the opening of high speed lines. 
+
+
+We have this way in a certain extent indirectly quantify interaction processes through the network and the processes of network adaptation to flows, in the case of a real system.
+
+
+%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+%\includegraphics[width=0.9\linewidth]{Figures/MacroCoEvol/pareto_nwGmax_filtTRUE.pdf}
+	\includegraphics[width=\linewidth]{6-2-3-fig-macrocoevol-pareto.jpg}
+	\caption[Pareto fronts for the calibration on population and distance]{\textbf{Pareto fronts for the bi-objective calibration between population and distance.} Fronts are given for each calibration period and are colored according to $g_{max}$.\label{fig:macrocoevol:pareto}}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_gravityWeight_filt1}
+	%\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_gravityDecay_filt1}
+	%\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_gravityGamma_filt1}\\
+	%\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_nwExponent_filt1}
+	%\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_nwThreshold_filt1}
+	%\includegraphics[width=0.32\linewidth]{Figures/MacroCoEvol/param_nwGmax_filt1}
+	\includegraphics[width=\linewidth]{6-2-3-fig-macrocoevol-parameters.jpg}
+	\caption[Evolution of calibrated parameters]{\textbf{Temporal evolution of optimal parameters.} From left to right and top to bottom, values of parameters $(r_0,w_G,d_G,\gamma_G,\phi_0,g_{max})$, respectively for the full Pareto front (blue), for the optimal point in the sense of the distance (red) and the optimal point in the sense of the population (green). \label{fig:macrocoevol:parameters}}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%
+
+
+\subsubsection{Model with a physical network}
+
+
+We finally sketch the outline of a specification of the model with a physical network, what would in a sense correspond to an hybrid model combining different scales. The objective of such a specification would be on the one hand to study the difference in trajectories compared to the abstract network, i.e. to quantify the importance of economies of scale (due to common links), of congestion and also the possible compromises to take in order to spatialize the network. On the other hand, it would help to understand to what extent it is possible to produce realistic networks in comparison to autonomous network growth models (see \cite{xie2009modeling}) for example. This specification follows the frame of \cite{li2014modeling}, which model the co-evolution between transportation corridors and the growth of main poles at a regional scale. Note that possible ontologies for fully mesoscopic co-evolution models seem to be very different from the one we used here, closer to cellular automata urban morphogenesis models \citep{2018arXiv180505195R}. They can in particular include multiple processes for the growth of transportation infrastructure networks \citep{raimbault2018multi}.
+
+
+
+
+The physical network we implement aims at satisfying a greedy criteria of local time gain. More precisely, we assume a self-reinforcement similar to~\cite{tero2010rules} A specification analog to the one used before assumes a growth for each link, given also in a logic of self-reinforcement by:
+
+\[
+d(t+1) = d(t)\cdot \left(1 + g_{max} \cdot \left[\frac{\phi}{\max \phi}\right]^{\gamma_s}\right)
+\]
+
+if $\phi$ is the flow in the link and $d(t)$ its effective distance. The threshold specification used before does indeed not allow a good convergence in time, in particular with the emergence of local oscillation phenomena.
+
+We generate a random initial network, by perturbing the position of vertices of a grid for which a fixed proportion of links has been removed (40\%) and by linking cities to the network through the shortest path. Links have all the same impedance, which then evolves according to the equation above. An example of a configuration obtained with this specification is given in Fig.~\ref{fig:macrocoevolution:slimemould}. The good convergence properties (visual stabilization of network structure during restricted experiments) suggest the potentialities offered by this specification, which systematic exploration is out of the scope of this work.
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+	%\includegraphics[width=0.45\linewidth]{Figures/MacroCoEvol/example_slimemould_1_t0}
+	%\includegraphics[width=0.45\linewidth]{Figures/MacroCoEvol/example_slimemould_1_tf}
+	\includegraphics[width=\linewidth]{6-2-3-fig-macrocoevol-slimemould}
+	\caption[Example of application of the macroscopic model with a self-reinforcing network]{\textbf{Example of configuration obtained with a self-reinforcing network.} \textit{(Left)} Inital random configuration, with uniform impedances; \textit{(Right)} Final configuration obtained after 100 iterations. Circles are cities distributed in space, which relative size gives the population and color level the total population growth. Physical transportation links are in grey and their thickness gives the flow traversing them.\label{fig:macrocoevolution:slimemould}}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\section{Discussion}
+
+
+
+The study of particular trajectories within a system of cities can allow to answer to specific thematic questions: for example, the influence of medium-sized cities on the global trajectory of the system can be assessed through this model. More precisely, depending on parameters, a given city can more or less influence the trajectories of all cities and the network evolution. Very high hierarchy parameter will favor only the biggest cities, but lower values will give more importance to the rest of the distribution, in particular medium-sized cities. The quantification of their contribution in indicator variance could for example inform on their role in the system. The drivers of a more or less ``successful'' trajectory for such medium-sized cities can also be investigated, i.e. if a higher population growth or connectivity is obtained thanks to a higher centrality or thanks to the proximity of a large city for example. In the case of the application to a real system, the mapping of deviation to the model in time can suggest regional particularities, i.e. local factors exogenous to the model that have a high impact on population growth patterns.
+
+
+We also finally expect to be able through the model to compare urban systems in different geographical and political contexts, and at different scales. This should foster the understanding the implications of planning actions on the interactions between networks and territories. For example, French railway network has emerged through multiple operators, on the contrary to the Chinese high speed railway network, for which a more precise development could be considered.
+
+
+An other development would be to superpose different layers of the transportation network as different multi-modeling components, with for example a dynamical highway database for the case study we took. This would allow to make the model more complex and compare which transportation mode fits better within co-evolutionary dynamics. In a broader perspective, the family of models we introduced could be used for a more general benchmark of models of growth for systems of cities based on interactions, that would also include for example the Favaro-Pumain model focusing on innovation \citep{favaro2011gibrat}, or the Marius model family focusing on economic dynamics \citep{cottineau2014evolution}. A systematic comparison of such models on various systems of cities would shed light on concurrent explanations for city growth and possible superposition of processes.
+
+
+\section*{Conclusion}
+
+We have given a first insight into models of co-evolution for cities and networks at the macroscopic scales, by introducing a family of models and studying the properties of a specification on synthetic data and on the French system of cities. This work paves the way for a finer understanding of entangled interactions in systems of cities.
+
+Going back to the question of structuring effects of transportation networks, we have confirmed from the modeling and empirical perspective that the issue is highly complex: (i) our empirical analysis for the French system of cities does not reveal any possible effect, in contradiction with previous results in the literature; (ii) our modeling experiments show that there exist theoretically some dynamical regimes in which these effects actually exist, and others in which interactions are more intricate, in particular when there is co-evolution. The empirical identification of these on real systems, e.g. through a correspondance between model regimes and calibrated parameters, remains an open issue out of the scope of this work, for example due to issues of equifinality for which efficient inverse problem heuristic for simulation models must be established.
+
+
+
+
+
+
+\section*{Acknowledgements}
+
+Results obtained in this paper were computed on the vo.complex-system.eu virtual organization of the European Grid Infrastructure ( http://www.egi.eu ). We thank the European Grid Infrastructure and its supporting National Grid Initiatives (France-Grilles in particular) for providing the technical support and infrastructure.
+
+
+
+\begin{thebibliography}{}
+
+\bibitem[Achibet et~al., 2014]{achibet2014model}
+Achibet, M., Balev, S., Dutot, A., and Olivier, D. (2014).
+\newblock A model of road network and buildings extension co-evolution.
+\newblock {\em Procedia Computer Science}, 32:828--833.
+
+\bibitem[Banos et~al., 2011]{banos2011christaller}
+Banos, A., Moreno, D., Pivano, C., and Taillandier, P. (2011).
+\newblock Christaller, toujours vivant!
+\newblock {\em Cybergeo: European Journal of Geography}.
+
+\bibitem[Baptiste, 1999]{baptiste1999interactions}
+Baptiste, H. (1999).
+\newblock {\em Interactions entre le syst{\`e}me de transport et les
+  syst{\`e}mes de villes: perspective historique pour une mod{\'e}lisation
+  dynamique spatialis{\'e}e}.
+\newblock PhD thesis, Centre d'{\'e}tudes sup{\'e}rieures de l'am{\'e}nagement
+  (Tours).
+
+\bibitem[Baptiste, 2010]{baptistemodeling}
+Baptiste, H. (2010).
+\newblock Modeling the evolution of a transport system and its impacts on a
+  french urban system.
+\newblock {\em Graphs and Networks: Multilevel Modeling, Second Edition}, pages
+  67--89.
+
+\bibitem[Barthelemy and Flammini, 2009]{barthelemy2009co}
+Barthelemy, M. and Flammini, A. (2009).
+\newblock Co-evolution of density and topology in a simple model of city
+  formation.
+\newblock {\em Networks and spatial economics}, 9(3):401--425.
+
+\bibitem[Berger and Enflo, 2017]{berger2017locomotives}
+Berger, T. and Enflo, K. (2017).
+\newblock Locomotives of local growth: The short-and long-term impact of
+  railroads in sweden.
+\newblock {\em Journal of Urban Economics}, 98:124--138.
+
+\bibitem[Berroir et~al., 2017]{berroir2017systemes}
+Berroir, S., Cattan, N., Dobruszkes, F., Gu{\'e}rois, M., Paulus, F., and
+  Vacchiani-Marcuzzo, C. (2017).
+\newblock Les syst{\`e}mes urbains fran{\c{c}}ais: une approche relationnelle.
+\newblock {\em Cybergeo: European Journal of Geography}.
+
+\bibitem[Bigotte et~al., 2010]{bigotte2010integrated}
+Bigotte, J.~F., Krass, D., Antunes, A.~P., and Berman, O. (2010).
+\newblock Integrated modeling of urban hierarchy and transportation network
+  planning.
+\newblock {\em Transportation Research Part A: Policy and Practice},
+  44(7):506--522.
+
+\bibitem[Blumenfeld-Lieberthal and Portugali, 2010]{blumenfeld2010network}
+Blumenfeld-Lieberthal, E. and Portugali, J. (2010).
+\newblock Network cities: A complexity-network approach to urban dynamics and
+  development.
+\newblock In {\em Geospatial Analysis and Modelling of Urban Structure and
+  Dynamics}, pages 77--90. Springer.
+
+\bibitem[Bonnafous, 2014]{bonnafous2014observatoires}
+Bonnafous, A. (2014).
+\newblock Les observatoires permanents comme instruments d'{\'e}valuation ex
+  post: Le cas fran{\c{c}}ais.
+\newblock International Transport Forum Discussion Paper.
+
+\bibitem[Bonnafous and Plassard, 1974]{bonnafous1974methodologies}
+Bonnafous, A. and Plassard, F. (1974).
+\newblock Les m{\'e}thodologies usuelles de l'{\'e}tude des effets structurants
+  de l'offre de transport.
+\newblock {\em Revue {\'e}conomique}, pages 208--232.
+
+\bibitem[Bonnafous et~al., 1974]{bonnafous1974detection}
+Bonnafous, A., Plassard, F., and Soum, D. (1974).
+\newblock La detection des effets structurants d'autoroute: Application {\`a}
+  la vall{\'e}e du rh{\^o}ne.
+\newblock {\em Revue {\'e}conomique}, 25(2):pp. 233--256.
+
+\bibitem[Bretagnolle, 2003]{bretagnolle2003vitesse}
+Bretagnolle, A. (2003).
+\newblock Vitesse et processus de s{\'e}lection hi{\'e}rarchique dans le
+  syst{\`e}me des villes fran{\c{c}}aises.
+\newblock {\em Donn{\'e}es urbaines}, 4.
+
+\bibitem[Bretagnolle, 2009]{bretagnolle:tel-00459720}
+Bretagnolle, A. (2009).
+\newblock {\em {Villes et r{\'e}seaux de transport : des interactions dans la
+  longue dur{\'e}e, France, Europe, {\'E}tats-Unis}}.
+\newblock Hdr, Universit{\'e} Panth{\'e}on-Sorbonne - Paris I.
+
+\bibitem[Bretagnolle and Pumain, 2010]{bretagnolle2010comparer}
+Bretagnolle, A. and Pumain, D. (2010).
+\newblock Comparer deux types de syst{\`e}mes de villes par la mod{\'e}lisation
+  multi-agents.
+\newblock {\em Qu'appelle t-on aujourd'hui les sciences de la complexit{\'e}?
+  Langages, r{\'e}seaux, march{\'e}s, territoires}, pages 271--299.
+
+\bibitem[Bretagnolle et~al., 1998]{bretagnolle1998space}
+Bretagnolle, A., Pumain, D., and Rozenblat, C. (1998).
+\newblock Space-time contraction and the dynamics of urban systems.
+\newblock {\em Cybergeo: European Journal of Geography}.
+
+\bibitem[Burgess et~al., 1925]{burgess1925city}
+Burgess, E.~W., McKenzie, R.~D., and Wirth, L. (1925).
+\newblock {\em The city}.
+\newblock University of Chicago Press.
+
+\bibitem[{Chaudhuri, G. and Clarke, Keith C.}, 2015]{doi:10.1068/b39089}
+{Chaudhuri, G. and Clarke, Keith C.} ({2015}).
+\newblock {On the Spatiotemporal Dynamics of the Coupling between Land Use and
+  Road Networks: Does Political History Matter?}
+\newblock {\em {Environment and Planning B: Planning and Design}},
+  42(1):133--156.
+
+\bibitem[Ch{\'e}rel et~al., 2015]{10.1371/journal.pone.0138212}
+Ch{\'e}rel, G., Cottineau, C., and Reuillon, R. (2015).
+\newblock Beyond corroboration: Strengthening model validation by looking for
+  unexpected patterns.
+\newblock {\em PLoS ONE}, 10(9):e0138212.
+
+\bibitem[Cottineau, 2014]{cottineau2014evolution}
+Cottineau, C. (2014).
+\newblock {\em L'{\'e}volution des villes dans l'espace post-sovi{\'e}tique.
+  Observation et mod{\'e}lisations.}
+\newblock PhD thesis, Universit{\'e} Paris 1 Panth{\'e}on-Sorbonne.
+
+\bibitem[Cottineau, 2017]{10.1371/journal.pone.0183919}
+Cottineau, C. (2017).
+\newblock Metazipf. a dynamic meta-analysis of city size distributions.
+\newblock {\em PLOS ONE}, 12(8):1--22.
+
+\bibitem[Ding et~al., 2017]{ding2017heuristic}
+Ding, R., Ujang, N., bin Hamid, H., Manan, M. S.~A., Li, R., and Wu, J. (2017).
+\newblock Heuristic urban transportation network design method, a multilayer
+  coevolution approach.
+\newblock {\em Physica A: Statistical Mechanics and its Applications},
+  479:71--83.
+
+\bibitem[Favaro and Pumain, 2011]{favaro2011gibrat}
+Favaro, J.-M. and Pumain, D. (2011).
+\newblock Gibrat revisited: An urban growth model incorporating spatial
+  interaction and innovation cycles.
+\newblock {\em Geographical Analysis}, 43(3):261--286.
+
+\bibitem[Fujita et~al., 1999]{fujita1999evolution}
+Fujita, M., Krugman, P., and Mori, T. (1999).
+\newblock On the evolution of hierarchical urban systems.
+\newblock {\em European Economic Review}, 43(2):209--251.
+
+\bibitem[Geels, 2005]{geels2005processes}
+Geels, F.~W. (2005).
+\newblock Processes and patterns in transitions and system innovations:
+  refining the co-evolutionary multi-level perspective.
+\newblock {\em Technological forecasting and social change}, 72(6):681--696.
+
+\bibitem[Holland, 2012]{holland2012signals}
+Holland, J.~H. (2012).
+\newblock {\em Signals and boundaries: Building blocks for complex adaptive
+  systems}.
+\newblock MIT Press.
+
+\bibitem[Jacobs-Crisioni and Koopmans, 2016]{jacobs2016transport}
+Jacobs-Crisioni, C. and Koopmans, C.~C. (2016).
+\newblock Transport link scanner: simulating geographic transport network
+  expansion through individual investments.
+\newblock {\em Journal of Geographical Systems}, 18(3):265--301.
+
+\bibitem[Levinson and Chen, 2005]{levinson2005paving}
+Levinson, D. and Chen, W. (2005).
+\newblock Paving new ground: a markov chain model of the change in
+  transportation networks and land use.
+\newblock In {\em Access to destinations}, pages 243--266. Emerald Group
+  Publishing Limited.
+
+\bibitem[Levinson and Xie, 2011]{levinson2011does}
+Levinson, D. and Xie, F. (2011).
+\newblock Does first last? the existence and extent of first mover advantages
+  on spatial networks.
+\newblock {\em Journal of Transport and Land Use}.
+
+\bibitem[Levinson et~al., 2007]{levinson2007co}
+Levinson, D.~M., Xie, F., and Zhu, S. (2007).
+\newblock The co-evolution of land use and road networks.
+\newblock {\em Transportation and traffic theory}, pages 839--859.
+
+\bibitem[Li et~al., 2016]{li2016integrated}
+Li, T., Wu, J., Sun, H., and Gao, Z. (2016).
+\newblock Integrated co-evolution model of land use and traffic network design.
+\newblock {\em Networks and Spatial Economics}, 16(2):579--603.
+
+\bibitem[Li et~al., 2014]{li2014modeling}
+Li, Y., Lu, D., and Tian, Y. (2014).
+\newblock Modeling corridor and growth pole coevolution in regional
+  transportation network.
+\newblock {\em Transportation Research Record: Journal of the Transportation
+  Research Board}, (2466):144--152.
+
+\bibitem[Liu et~al., 2013]{liu2013exploring}
+Liu, X., Derudder, B., and Garc{\'\i}a, C.~G. (2013).
+\newblock Exploring the co-evolution of the geographies of air transport
+  aviation and corporate networks.
+\newblock {\em Journal of Transport Geography}, 30:26--36.
+
+\bibitem[Mimeur et~al., 2017]{mimeur:hal-01616746}
+Mimeur, C., Queyroi, F., Banos, A., and Th{\'e}venin, T. (2017).
+\newblock {Revisiting the structuring effect of transportation infrastructure:
+  an empirical approach with the French Railway Network from 1860 to 1910}.
+\newblock {\em {Historical Methods: A Journal of Quantitative and
+  Interdisciplinary History}}.
+
+\bibitem[Monstadt, 2009]{monstadt2009conceptualizing}
+Monstadt, J. (2009).
+\newblock Conceptualizing the political ecology of urban infrastructures:
+  insights from technology and urban studies.
+\newblock {\em Environment and planning A}, 41(8):1924--1942.
+
+\bibitem[Moreno et~al., 2012]{moreno2012automate}
+Moreno, D., Badariotti, D., and Banos, A. (2012).
+\newblock Un automate cellulaire pour exp{\'e}rimenter les effets de la
+  proximit{\'e} dans le processus d'{\'e}talement urbain: le mod{\`e}le
+  raumulus.
+\newblock {\em Cybergeo: European Journal of Geography}.
+
+\bibitem[Neal, 2012]{neal2012structural}
+Neal, Z. (2012).
+\newblock Structural determinism in the interlocking world city network.
+\newblock {\em Geographical Analysis}, 44(2):162--170.
+
+\bibitem[Offner, 1993]{offner1993effets}
+Offner, J.-M. (1993).
+\newblock Les "effets structurants" du transport: mythe politique,
+  mystification scientifique.
+\newblock {\em Espace g{\'e}ographique}, 22(3):233--242.
+
+\bibitem[Offner et~al., 2014]{espacegeo2014effets}
+Offner, J.-M., Beaucire, F., Delaplace, M., Fr{\'e}mont, A., Ninot, O.,
+  Bretagnolle, A., and Pumain, D. (2014).
+\newblock Les effets structurants des infrastructures de transport.
+\newblock {\em Espace Geographique}, (42):p--51.
+
+\bibitem[Plassard, 1977]{franccois1977autoroutes}
+Plassard, F. (1977).
+\newblock {\em Les autoroutes et le d{\'e}veloppement r{\'e}gional}.
+\newblock Presses Universitaires de Lyon.
+
+\bibitem[Pumain, 1997]{pumain1997pour}
+Pumain, D. (1997).
+\newblock Pour une th{\'e}orie {\'e}volutive des villes.
+\newblock {\em L'Espace g{\'e}ographique}, pages 119--134.
+
+\bibitem[Pumain, 2008]{pumain2008socio}
+Pumain, D. (2008).
+\newblock The socio-spatial dynamics of systems of cities and innovation
+  processes: a multi-level model.
+\newblock {\em The Dynamics of Complex Urban Systems}, pages 373--389.
+
+\bibitem[Pumain, 2010]{pumain2010theorie}
+Pumain, D. (2010).
+\newblock Une th{\'e}orie g{\'e}ographique des villes.
+\newblock {\em Bulletin de la Soci{\'e}t{\'e} g{\'e}ographie de Li{\`e}ge},
+  (55):5--15.
+
+\bibitem[Pumain, 2014]{pumain2014effets}
+Pumain, D. (2014).
+\newblock Les effets structurants ou les raccourcis de l'explication
+  g{\'e}ographique.
+\newblock {\em Espace g{\'e}ographique}, 43(1):65--67.
+
+\bibitem[Pumain and Riandey, 1986]{pumain1986fichier}
+Pumain, D. and Riandey, B. (1986).
+\newblock Le fichier de l'ined.
+\newblock {\em Espace, populations, soci{\'e}t{\'e}s}, 4(2):269--277.
+
+\bibitem[Raimbault, 2017a]{raimbault2017applied}
+Raimbault, J. (2017a).
+\newblock An applied knowledge framework to study complex systems.
+\newblock In {\em Complex Systems Design \& Management}, pages 31--45.
+
+\bibitem[Raimbault, 2017b]{raimbault2017identification}
+Raimbault, J. (2017b).
+\newblock Identification de causalit{\'e}s dans des donn{\'e}es
+  spatio-temporelles.
+\newblock In {\em Spatial Analysis and GEOmatics 2017}.
+
+\bibitem[Raimbault, 2017c]{raimbault2017models}
+Raimbault, J. (2017c).
+\newblock Models coupling urban growth and transportation network growth: An
+  algorithmic systematic review approach.
+\newblock {\em Plurimondi}, (17).
+
+\bibitem[{Raimbault}, 2018]{2018arXiv180505195R}
+{Raimbault}, J. (2018).
+\newblock {An Urban Morphogenesis Model Capturing Interactions between Networks
+  and Territories}.
+\newblock {\em ArXiv e-prints}.
+
+\bibitem[Raimbault, 2018a]{raimbault2018caracterisation}
+Raimbault, J. (2018a).
+\newblock {\em Caract{\'e}risation et mod{\'e}lisation de la co-{\'e}volution
+  des r{\'e}seaux de transport et des territoires}.
+\newblock PhD thesis, Univerist{\'e} Paris 7 Denis Diderot.
+
+\bibitem[Raimbault, 2018b]{raimbault2018indirect}
+Raimbault, J. (2018b).
+\newblock Indirect evidence of network effects in a system of cities.
+\newblock {\em Environment and Planning B: Urban Analytics and City Science},
+  page 2399808318774335.
+
+\bibitem[Raimbault, 2018c]{raimbault2018multi}
+Raimbault, J. (2018c).
+\newblock Multi-modeling the morphogenesis of transportation networks.
+\newblock In {\em Artificial Life Conference Proceedings}, pages 382--383. MIT
+  Press.
+
+\bibitem[{Raimbault}, 2018]{2018arXiv180900861R}
+{Raimbault}, J. (2018).
+\newblock {Unveiling co-evolutionary patterns in systems of cities: a
+  systematic exploration of the SimpopNet model}.
+\newblock {\em ArXiv e-prints}.
+
+\bibitem[Raimbault et~al., 2014]{raimbault2014hybrid}
+Raimbault, J., Banos, A., and Doursat, R. (2014).
+\newblock A hybrid network/grid model of urban morphogenesis and optimization.
+\newblock In {\em 4th International Conference on Complex Systems and
+  Applications}, pages 51--60.
+
+\bibitem[Reuillon et~al., 2013]{reuillon2013openmole}
+Reuillon, R., Leclaire, M., and Rey-Coyrehourcq, S. (2013).
+\newblock Openmole, a workflow engine specifically tailored for the distributed
+  exploration of simulation models.
+\newblock {\em Future Generation Computer Systems}, 29(8):1981--1990.
+
+\bibitem[Rui and Ban, 2011]{rui2011urban}
+Rui, Y. and Ban, Y. (2011).
+\newblock Urban growth modeling with road network expansion and land use
+  development.
+\newblock In {\em Advances in Cartography and GIScience. Volume 2}, pages
+  399--412. Springer.
+
+\bibitem[Russo and Musolino, 2012]{russo2012unifying}
+Russo, F. and Musolino, G. (2012).
+\newblock A unifying modelling framework to simulate the spatial economic
+  transport interaction process at urban and national scales.
+\newblock {\em Journal of Transport Geography}, 24:189--197.
+
+\bibitem[Sachs and Warner, 1995]{sachs1995economic}
+Sachs, J.~D. and Warner, A.~M. (1995).
+\newblock Economic convergence and economic policies.
+\newblock Technical report, National Bureau of Economic Research.
+
+\bibitem[Sanders, 1992]{sanders1992systeme}
+Sanders, L. (1992).
+\newblock {\em Syst{\`e}me de villes et synerg{\'e}tique}.
+\newblock Economica.
+
+\bibitem[Sanders, 2017]{sanders2017peupler}
+Sanders, L. (2017).
+\newblock {\em Peupler la terre - De la pr{\'e}histoire {\`a} l'{\`e}re des
+  m{\'e}tropoles.}
+\newblock Presses Universitaires Francois Rabelais.
+
+\bibitem[Schamp, 2010]{schamp201020}
+Schamp, E.~W. (2010).
+\newblock 20 on the notion of co-evolution in economic geography.
+\newblock {\em The handbook of evolutionary economic geography}, page 432.
+
+\bibitem[Schmitt, 2014]{schmitt2014modelisation}
+Schmitt, C. (2014).
+\newblock {\em Mod{\'e}lisation de la dynamique des syst{\`e}mes de peuplement:
+  de SimpopLocal {\`a} SimpopNet.}
+\newblock PhD thesis, Paris 1.
+
+\bibitem[Tero et~al., 2007]{tero2007mathematical}
+Tero, A., Kobayashi, R., and Nakagaki, T. (2007).
+\newblock A mathematical model for adaptive transport network in path finding
+  by true slime mold.
+\newblock {\em Journal of theoretical biology}, 244(4):553--564.
+
+\bibitem[Tero et~al., 2010]{tero2010rules}
+Tero, A., Takagi, S., Saigusa, T., Ito, K., Bebber, D.~P., Fricker, M.~D.,
+  Yumiki, K., Kobayashi, R., and Nakagaki, T. (2010).
+\newblock Rules for biologically inspired adaptive network design.
+\newblock {\em Science}, 327(5964):439--442.
+
+\bibitem[Th{\'e}venin et~al., 2013]{thevenin2013mapping}
+Th{\'e}venin, T., Schwartz, R., and Sapet, L. (2013).
+\newblock Mapping the distortions in time and space: The french railway network
+  1830--1930.
+\newblock {\em Historical Methods: A Journal of Quantitative and
+  Interdisciplinary History}, 46(3):134--143.
+
+\bibitem[Wal and Boschma, 2011]{doi:10.1080/00343400802662658}
+Wal, A. L. J.~T. and Boschma, R. (2011).
+\newblock Co-evolution of firms, industries and networks in space.
+\newblock {\em Regional Studies}, 45(7):919--933.
+
+\bibitem[Wegener and F{\"u}rst, 2004]{wegener2004land}
+Wegener, M. and F{\"u}rst, F. (2004).
+\newblock Land-use transport interaction: state of the art.
+\newblock {\em Available at SSRN 1434678}.
+
+\bibitem[Wu et~al., 2017]{wu2017city}
+Wu, J., Li, R., Ding, R., Li, T., and Sun, H. (2017).
+\newblock City expansion model based on population diffusion and road growth.
+\newblock {\em Applied Mathematical Modelling}, 43:1--14.
+
+\bibitem[Xie and Levinson, 2009]{xie2009modeling}
+Xie, F. and Levinson, D. (2009).
+\newblock Modeling the growth of transportation networks: A comprehensive
+  review.
+\newblock {\em Networks and Spatial Economics}, 9(3):291--307.
+
+\bibitem[Zembri, 1997]{zembri1997fondements}
+Zembri, P. (1997).
+\newblock Les fondements de la remise en cause du sch{\'e}ma directeur des
+  liaisons ferroviaires {\`a} grande vitesse: des faiblesses avant tout
+  structurelles.
+\newblock In {\em Annales de g{\'e}ographie}, pages 183--194. JSTOR.
+
+\end{thebibliography}
+
+
+
+\end{document}
