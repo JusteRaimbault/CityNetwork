@@ -988,7 +988,7 @@ CHOOSER
 density-setup-method
 density-setup-method
 "synthetic" "empty" "real"
-0
+2
 
 CHOOSER
 855
@@ -998,7 +998,7 @@ CHOOSER
 network-setup-method
 network-setup-method
 "synthetic" "real"
-0
+1
 
 TEXTBOX
 688
