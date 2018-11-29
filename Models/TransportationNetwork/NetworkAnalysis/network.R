@@ -77,7 +77,17 @@ addFootLinks<-function(g,walking_speed=1,snap=100){
 #'
 #' @name addTransportationLayer 
 #' @description Construct tarnsportation graph by adding layers successively
-addTransportationLayer<-function(stations_layer=NULL,link_layer,g=empty_graph(0)$fun(0),speed=1,snap=100){
+#' 
+#' @param 
+#' 
+addTransportationLayer<-function(stations_layer=NULL,
+                                 link_layer,
+                                 g=empty_graph(0)$fun(0),
+                                 speed=1,
+                                 snap=100,
+                                 e_attr_names=NULL,
+                                 reprojection=NULL
+                                 ){
   show(paste0('Adding transportation network : stations = ',stations_layer,' ; links = ',link_layer))
   
   # construct vertex set
@@ -93,6 +103,11 @@ addTransportationLayer<-function(stations_layer=NULL,link_layer,g=empty_graph(0)
       spath = strsplit(strsplit(stations_layer,'.shp')[[1]][1],'/')[[1]]
       stations <- readOGR(paste(spath[1:(length(spath)-1)],collapse="/"),spath[length(spath)])
     }else{stations <- stations_layer}
+    
+    
+    if(!is.null(reprojection)){
+      stations <- spTransform(stations, reprojection)
+    }
     
     if(length(V(g))>0){
       coords=stations@coords
@@ -118,10 +133,15 @@ addTransportationLayer<-function(stations_layer=NULL,link_layer,g=empty_graph(0)
     links <- readOGR(paste(lpath[1:(length(lpath)-1)],collapse="/"),lpath[length(lpath)])
   }else{links <- link_layer}
   
+  if(!is.null(reprojection)){
+    links <- spTransform(links, reprojection)
+  }
+  
   edges = data.frame()
-  show(g)
+  #show(g)
   if(length(E(g))>0){
     edges = data.frame(from=tail_of(g,E(g))$name,to=head_of(g,E(g))$name,speed=E(g)$speed,length=E(g)$length)
+    for(attrname in e_attr_names){edges=cbind(edges,get.edge.attribute(trgraph,attrname));colnames(edges)[ncol(edges)]=attrname}
   }
   
   currentvid = ifelse(nrow(vertexes)>0,as.numeric(as.character(vertexes$id))[nrow(vertexes)] + 1,1)
@@ -129,7 +149,9 @@ addTransportationLayer<-function(stations_layer=NULL,link_layer,g=empty_graph(0)
   edges$from=as.character(edges$from);edges$to=as.character(edges$to)
   
   for(l in 1:length(links)){
-    show(l)
+    #show(l)
+    currentAdditionalAttrs=as.numeric(as.character(links@data[l,e_attr_names]))
+    #show(currentAdditionalAttrs)
     for(i in 1:length(links@lines[[l]]@Lines)){
       coords = links@lines[[l]]@Lines[[i]]@coords
       vids = c()
@@ -153,14 +175,25 @@ addTransportationLayer<-function(stations_layer=NULL,link_layer,g=empty_graph(0)
       }
       # add edges
       for(k in 2:nrow(coords)){
-        edges=rbind(edges,c(from=vids[k-1],to=vids[k],speed=speed,length=sqrt((coords[k-1,1]-coords[k,1])^2+(coords[k-1,2]-coords[k,2])^2)))
+        addedge=c(from=vids[k-1],
+                    to=vids[k],
+                    speed=speed,
+                    length=sqrt((coords[k-1,1]-coords[k,1])^2+(coords[k-1,2]-coords[k,2])^2),
+                    currentAdditionalAttrs
+                  )
+        #show(addedge)
+        edges=rbind(edges,addedge)
       }
     }
   }
   
-  names(edges)<-c("from","to","speed","length")
+  #show(edges)
+  names(edges)<-c("from","to","speed","length",e_attr_names)
   
-  res = simplify(graph_from_data_frame(edges,directed=FALSE,vertices = vertexes),edge.attr.comb = list(speed="mean",length="sum"))
+  
+  comblist=list(speed="mean",length="sum")
+  for(attrname in e_attr_names){comblist[[attrname]]="min"}
+  res = simplify(graph_from_data_frame(edges,directed=FALSE,vertices = vertexes),edge.attr.comb = comblist)
   
   g = induced_subgraph(res,which(degree(res)>0))
   
