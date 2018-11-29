@@ -10,7 +10,12 @@ library(rgeos)
 
 #' 
 #' 
-addAdministrativeLayer<-function(g,admin_layer,connect_speed=1,attributes=list("CP"="INSEE_COMM")){
+addAdministrativeLayer<-function(g=empty_graph(0)$fun(0),
+                                 admin_layer,
+                                 connect_speed=1,
+                                 attributes=list("CP"="INSEE_COMM"),
+                                 empty_graph_heuristic="nearest-neighbor"
+                                 ){
   if(is.character(admin_layer)){
     spath = strsplit(strsplit(admin_layer,'.shp')[[1]][1],'/')[[1]]
     admin <- readOGR(paste(spath[1:(length(spath)-1)],collapse="/"),spath[length(spath)])
@@ -21,7 +26,7 @@ addAdministrativeLayer<-function(g,admin_layer,connect_speed=1,attributes=list("
   centroids = gCentroid(admin,byid = TRUE)
   attrvals = list()
   for(attr in names(attributes)){attrvals[[attr]]=as.character(admin@data[,attributes[[attr]]])}
-  return(addPoints(g,centroids@coords,attrvals,list(speed=rep(connect_speed,length(admin)))))
+  return(addPoints(g,centroids@coords,attrvals,list(speed=rep(connect_speed,length(admin))),empty_graph_heuristic))
 }
 
 #testadmin = addAdministrativeLayer(trgraph,"data/gis/communes.shp")
@@ -36,7 +41,12 @@ addPointsLayer<-function(g,points_layer,connect_speed=1){
 
 #' 
 #' add vertices, connecting to closest stations
-addPoints<-function(g,coords,v_attr_list,e_attr_list){
+addPoints<-function(g,
+                    coords,
+                    v_attr_list,
+                    e_attr_list,
+                    empty_graph_heuristic
+                    ){
   currentvid = max(as.numeric(V(g)$name)) + 1
   attrs = v_attr_list
   attrs[["name"]] = as.character(currentvid:(currentvid+nrow(coords)-1))
