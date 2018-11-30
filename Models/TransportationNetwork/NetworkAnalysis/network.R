@@ -14,7 +14,7 @@ addAdministrativeLayer<-function(g=empty_graph(0)$fun(0),
                                  admin_layer,
                                  connect_speed=1,
                                  attributes=list("CP"="INSEE_COMM"),
-                                 empty_graph_heuristic="nearest-neighbor"
+                                 empty_graph_heuristic=NULL
                                  ){
   if(is.character(admin_layer)){
     spath = strsplit(strsplit(admin_layer,'.shp')[[1]][1],'/')[[1]]
@@ -45,23 +45,43 @@ addPoints<-function(g,
                     coords,
                     v_attr_list,
                     e_attr_list,
-                    empty_graph_heuristic
+                    empty_graph_heuristic=NULL
                     ){
-  currentvid = max(as.numeric(V(g)$name)) + 1
+  currentvid = ifelse(length(V(g))>0,max(as.numeric(V(g)$name)) + 1,1)
   attrs = v_attr_list
   attrs[["name"]] = as.character(currentvid:(currentvid+nrow(coords)-1))
   attrs[["station"]] = rep(FALSE,nrow(coords))
   attrs[["x"]] = coords[,1];attrs[["y"]] = coords[,2]
   currentg = add_vertices(graph = g,nv=nrow(coords),attr = attrs)
+  
+  # add connectors
   etoadd = c();elengths=c()
   for(k in 1:nrow(coords)){
     if(k%%1000==0){show(k)}
-    stationscoords = data.frame(id=V(currentg)$name[V(currentg)$station==TRUE],x=V(currentg)$x[V(currentg)$station==TRUE],y=V(currentg)$y[V(currentg)$station==TRUE])
-    stationscoords$id=as.character(stationscoords$id)
-    dists = sqrt((stationscoords$x - coords[k,1])^2 + (stationscoords$y - coords[k,2])^2)
-    closest_station_id = stationscoords$id[which(dists==min(dists))[1]]
-    etoadd = append(etoadd,c(attrs[["name"]][k],closest_station_id))
-    elengths=append(elengths,min(dists))
+    if(length(which(V(currentg)$station==TRUE))>0){
+      stationscoords = data.frame(id=V(currentg)$name[V(currentg)$station==TRUE],x=V(currentg)$x[V(currentg)$station==TRUE],y=V(currentg)$y[V(currentg)$station==TRUE])
+      stationscoords$id=as.character(stationscoords$id)
+      dists = sqrt((stationscoords$x - coords[k,1])^2 + (stationscoords$y - coords[k,2])^2)
+      closest_station_id = stationscoords$id[which(dists==min(dists))[1]]
+      etoadd = append(etoadd,c(attrs[["name"]][k],closest_station_id))
+      elengths=append(elengths,min(dists))
+    }
+      
+    if(empty_graph_heuristic=="nearest-neighbor"){
+      xcoords=coords$x[-k];ycoords=coords$y[-k];ids=attrs[["name"]][-k]
+      dists = sqrt((xcoords - coords[k,1])^2 + (ycoords - coords[k,2])^2)
+      #neigh = c(xcoords[which(dists==min(dists))[1]],ycoords[which(dists==min(dists))[1]])
+      etoadd = append(etoadd,c(attrs[["name"]][k],ids[which(dists==min(dists))[1]]))
+      elengths=append(elengths,min(dists))
+    }
+    if(empty_graph_heuristic=="full"){
+      for(l in 1:nrow(coords)){
+         if(k!=l){
+           etoadd = append(etoadd,c(attrs[["name"]][k],attrs[["name"]][l]))
+           elengths = append(elengths,sqrt((coords[l,1] - coords[k,1])^2 + (coords[l,2] - coords[k,2])^2))
+         }
+      }
+    }
   }
   attrs = e_attr_list
   attrs[["length"]] = elengths
@@ -151,16 +171,20 @@ addTransportationLayer<-function(stations_layer=NULL,
   #show(g)
   if(length(E(g))>0){
     edges = data.frame(from=tail_of(g,E(g))$name,to=head_of(g,E(g))$name,speed=E(g)$speed,length=E(g)$length)
-    for(attrname in e_attr_names){edges=cbind(edges,get.edge.attribute(trgraph,attrname));colnames(edges)[ncol(edges)]=attrname}
+    for(attrname in e_attr_names){edges=cbind(edges,get.edge.attribute(g,attrname));colnames(edges)[ncol(edges)]=attrname}
   }
   
   currentvid = ifelse(nrow(vertexes)>0,as.numeric(as.character(vertexes$id))[nrow(vertexes)] + 1,1)
   
   edges$from=as.character(edges$from);edges$to=as.character(edges$to)
   
+  # convert shitty factor types
+  for(j in 1:ncol(links@data)){links@data[,j]=as.numeric(as.character(links@data[,j]))}
+  
   for(l in 1:length(links)){
     #show(l)
-    currentAdditionalAttrs=as.numeric(as.character(links@data[l,e_attr_names]))
+    #currentAdditionalAttrs=as.numeric(as.character(links@data[l,e_attr_names]))
+    currentAdditionalAttrs=links@data[l,e_attr_names]
     #show(currentAdditionalAttrs)
     for(i in 1:length(links@lines[[l]]@Lines)){
       coords = links@lines[[l]]@Lines[[i]]@coords
