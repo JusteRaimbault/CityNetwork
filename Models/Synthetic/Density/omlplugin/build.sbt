@@ -1,29 +1,23 @@
+scalaVersion := "2.12.6"
+
 name := "density"
 
 version := "1.0"
 
-scalaVersion := "2.11.6"
-
-osgiSettings
+enablePlugins(SbtOsgi)
 
 OsgiKeys.exportPackage := Seq("density.*")
 
 OsgiKeys.importPackage := Seq("*;resolution:=optional")
 
-OsgiKeys.privatePackage := Seq("*")
+OsgiKeys.privatePackage := Seq("!scala.*,*")
 
-scalariformSettings
+OsgiKeys.requireCapability := """osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))""""
 
-resolvers += "ISC-PIF Release" at "http://maven.iscpif.fr/public/"
-
-//val openMOLEVersion = "5.0-SNAPSHOT"
-
-//libraryDependencies += "org.openmole" %% "org-openmole-core-dsl" % openMOLEVersion
-
-//libraryDependencies += "org.openmole" %% "org-openmole-plugin-task-scala" % openMOLEVersion
+resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers += Resolver.sonatypeRepo("staging")
+resolvers += Resolver.mavenCentral
 
 libraryDependencies += "org.apache.commons" % "commons-math3" % "3.5"
-
 libraryDependencies += "org.scalaforge" % "scalax" % "0.1"
-
 libraryDependencies += "org.jaitools" % "jt-all" % "1.2.0"
