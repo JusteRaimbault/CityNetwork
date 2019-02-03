@@ -4,7 +4,7 @@ setwd(paste0(Sys.getenv('CN_HOME'),'/Models/DataProcessing/Train'))
 library(rgdal)
 
 source(paste0(Sys.getenv('CN_HOME'),'/Models/TransportationNetwork/NetworkSimplification/nwSimplFunctions.R'))
-source(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/functions.R'))
+source(paste0(Sys.getenv('CN_HOME'),'/Models/InteractionGibrat/functions.R'))
 
 # load raw data
 troncons=readOGR(paste0(Sys.getenv('CN_HOME'),'/Data/Train/data'),'troncon')
@@ -16,12 +16,13 @@ years = c(1831,1836,1841,1846,1851,1856,1861,1866,1872,1876,1881,
           1886,1891,1896,1901,1906,1911,1921,1926,1931,1936,
           1946,1954,1955,1962,1968,1975,1982,1990,1999)
 
-resolution = 1000
-
+#resolution = 1000
+resolution = 10000
 
 
 # cities
-Ncities = 300
+#Ncities = 300
+Ncities = 50
 citydata = loadData(Ncities)
 # coordinates are LambertII, hectometrique.
 # LII +proj=lcc +lat_1=46.8 +lat_0=46.8 +lon_0=0 +k_0=0.99987742 +x_0=600000 +y_0=2200000 +a=6378249.2 +b=6356515 +towgs84=-168,-60,320,0,0,0,0 +pm=paris +units=m +no_defs 
@@ -71,6 +72,7 @@ for(year in years){
   # save all
   save(distmat,file=paste0('processed/',year,'_dmat_res',resolution,'_cities',Ncities,'.RData'))
   save(gcities,file=paste0('processed/',year,'_graph_res',resolution,'_cities',Ncities,'.RData'))
+  # load(file=paste0('processed/',year,'_graph_res',resolution,'_cities',Ncities,'.RData'))
   write.table(distmat,col.names = F,row.names = F,file=paste0('processed/',year,'_dmat_res',resolution,'_cities',Ncities,'.csv'))
   
   # simplify -> can do without.
