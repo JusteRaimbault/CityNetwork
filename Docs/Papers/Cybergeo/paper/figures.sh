@@ -12,39 +12,44 @@ VERTICALPADDING=10
 
 
 # Fig1
-#convert -density $PDFRESOLUTION figuresraw/archi.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig1.jpg
-cp figuresraw/archi.pdf $FIGDIR/Fig1.pdf
+#convert -density $PDFRESOLUTION figuresraw/archi.pdf -resize "$WIDTH"x -quality $JPGQUALITY -background white $FIGDIR/Fig1.jpg
+#cp figuresraw/archi.pdf $FIGDIR/Fig1.pdf
+# pdf -> png with screenshot (black background)
+convert figures/Fig1.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig1.jpg
+
 
 # Fig2
-#convert -density $PDFRESOLUTION figuresraw/citnw.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig2.jpg
-cp figuresraw/citnw.pdf $FIGDIR/Fig2.pdf
+#convert -density $PDFRESOLUTION figuresraw/citnw.pdf -resize "$WIDTH"x -quality $JPGQUALITY -background white $FIGDIR/Fig2.jpg
+#cp figuresraw/citnw.pdf $FIGDIR/Fig2.pdf
+# idem
+convert figures/Fig2.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig2.jpg
 
 # Fig3
-convert -density $PDFRESOLUTION figuresraw/ranksize.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig3.jpg
+#convert -density $PDFRESOLUTION figuresraw/ranksize.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig3.jpg
 
 # Fig4
-convert figuresraw/cybclic.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig4.jpg
+#convert figuresraw/cybclic.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig4.jpg
 
 # Fig5
-convert figuresraw/core.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig5.jpg
+#convert figuresraw/core.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig5.jpg
 
 # Fig6
-montage figuresraw/sensitivity_balance_freqmin50_freqmax10000.png figuresraw/sensitivity_communities_freqmin50_freqmax10000.png figuresraw/sensitivity_modularity_freqmin50_freqmax10000.png figuresraw/sensitivity_vertices_freqmin50_freqmax10000.png -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig6.jpg
+#montage figuresraw/sensitivity_balance_freqmin50_freqmax10000.png figuresraw/sensitivity_communities_freqmin50_freqmax10000.png figuresraw/sensitivity_modularity_freqmin50_freqmax10000.png figuresraw/sensitivity_vertices_freqmin50_freqmax10000.png -tile 2x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig6.jpg
 
 # Fig7
-convert figuresraw/semantic.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig7.jpg
+#convert figuresraw/semantic.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig7.jpg
 
 # Fig8
-convert -density $PDFRESOLUTION figuresraw/synththemcyb.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig8.jpg
+#convert -density $PDFRESOLUTION figuresraw/synththemcyb.pdf -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig8.jpg
 
 # Fig9
-convert figuresraw/modsens_removal.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig9.jpg
+#convert figuresraw/modsens_removal.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig9.jpg
 
 # Fig10
-convert figuresraw/compo_proportion.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig10.jpg
+#convert figuresraw/compo_proportion.png -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig10.jpg
 
 # Fig11
-montage figuresraw/originalities_citclass.png figuresraw/citation_originalities_citclass.png -tile 1x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig11.jpg
+#montage figuresraw/originalities_citclass.png figuresraw/citation_originalities_citclass.png -tile 1x2 -geometry +"$HORIZONTALPADDING"+"$VERTICALPADDING" -resize "$WIDTH"x -quality $JPGQUALITY $FIGDIR/Fig11.jpg
 
 
 
