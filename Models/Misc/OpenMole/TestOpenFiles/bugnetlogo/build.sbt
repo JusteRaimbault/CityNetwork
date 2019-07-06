@@ -1,2 +1,4 @@
 
-scalaVersion := "2.9.3"
+scalaVersion := "2.12.7"
+
+resolvers +=  Resolver.mavenCentral
