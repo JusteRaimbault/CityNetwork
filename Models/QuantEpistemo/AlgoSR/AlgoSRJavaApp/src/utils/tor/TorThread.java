@@ -3,11 +3,7 @@
  */
 package utils.tor;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -54,20 +50,21 @@ public class TorThread extends Thread {
 	 */
 	public void run(){
 		try{
-			new File("tmp/.torpid"+port).delete();
-			Process p=Runtime.getRuntime().exec("/opt/local/bin/tor --SOCKSPort "+port+" --DataDirectory ~/.tor_tmp_"+port+" --PidFile tmp/.torpid"+port);
+			new File(".tor_tmp/torpid"+port).delete();
+			Process p=Runtime.getRuntime().exec("/opt/local/bin/tor --SOCKSPort "+port+" --DataDirectory ~/.tor_tmp/"+port+" --PidFile ~/.tor_tmp/torpid"+port);
 			InputStream s = p.getInputStream();
 			BufferedReader r = new BufferedReader(new InputStreamReader(s));
-
-			// must run in background
-			
-			// Really necessary ?
-			
 			
 			while(true){
 				sleep(100);
 				String l= r.readLine();
 				if(l!= null&&TorPool.verbose)System.out.println(l);
+
+				// concurrently write in ports when the up signal is received
+				if(l.contains("Bootstrapped 100")){
+					appendWithLock(new Integer(port).toString(),".tor_tmp/ports",".tor_tmp/lock");
+				}
+
 				if(!running){
 					break;
 				}
@@ -87,7 +84,7 @@ public class TorThread extends Thread {
 		try{
 			running=false;
 			try{
-				String pid = new BufferedReader(new FileReader(new File("tmp/.torpid"+port))).readLine();
+				String pid = new BufferedReader(new FileReader(new File(".tor_tmp/.torpid"+port))).readLine();
 				System.out.println("running: "+running+" ; sending SIGTERM to tor... PID : "+pid);
 				Process p=Runtime.getRuntime().exec("kill -SIGTERM "+pid);p.waitFor();
 			}catch(Exception e){e.printStackTrace();}
@@ -103,9 +100,32 @@ public class TorThread extends Thread {
 			
 		}catch(Exception e){e.printStackTrace();}
 	}
-	
-	
-	
+
+
+	/**
+	 * Append string line to a locked file
+	 *
+	 * @param s
+	 * @param file
+	 * @param lock
+	 */
+	private static void appendWithLock(String s,String file,String lock){
+		try{
+			boolean locked = true;
+			while(locked){
+				System.out.println("Waiting for lock on "+lock);
+				Thread.sleep(200);
+				locked = (new File(lock)).exists();
+			}
+			File lockfile = new File(".tor_tmp/lock");lockfile.createNewFile();
+			BufferedWriter r = new BufferedWriter(new FileWriter(new File(file),true));
+			r.write(s);
+			r.newLine();
+			lockfile.delete();
+		}catch(Exception e){e.printStackTrace();}
+	}
+
+
 	
 
 	

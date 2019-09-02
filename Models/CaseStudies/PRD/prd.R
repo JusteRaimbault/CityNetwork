@@ -104,6 +104,24 @@ map(data=accesstimediff,layer=spdf,spdfid="id",dfid="id",variable="var",
     legendPosition = "bottomright"
 )
 
+map(data=accesstimediff,layer=spdf,spdfid="id",dfid="id",variable="var",
+    filename=paste0(resdir,'accesstimediff_prd_EN.png'),title=paste0("Accessibility gains"),
+    legendtitle = "Normalized\ngain",extent=readOGR('data','networkBaidu'),
+    nclass=4,
+    width=15,height=15,palette='div',lwd=0.01,
+    additionalLinelayers=list(
+      list(readOGR('data','networkBaidu'),'blue'),
+      list(readOGR('data','networkPlannedBaidu'),'purple')#,
+      #list(readOGR('data','counties'),'black')
+    ),
+    withScale=NULL,
+    legendPosition = "bottomright"
+)
+
+
+########
+
+
 map(data=accesspdiff,layer=spdf,spdfid="id",dfid="id",variable="var",
     filename=paste0(resdir,'accesspdiff_prd.png'),title=paste0("Gains d'accessibilite"),
     legendtitle = "Gain\nnormalise",extent=readOGR('data','networkBaidu'),
@@ -118,6 +136,22 @@ map(data=accesspdiff,layer=spdf,spdfid="id",dfid="id",variable="var",
     withScale=NULL,
     legendPosition = "bottomright"
 )
+
+map(data=accesspdiff,layer=spdf,spdfid="id",dfid="id",variable="var",
+    filename=paste0(resdir,'accesspdiff_prd_EN.png'),title=paste0("Accessibility gains"),
+    legendtitle = "Normalized\ngain",extent=readOGR('data','networkBaidu'),
+    nclass=4,breaks = c(min(accesspdiff$var),quantile(accesspdiff$var[accesspdiff$var>0],c(0,0.33,0.66,1.0))),
+    width=15,height=15,palette='div',lwd=0.01,
+    additionalLinelayers=list(
+      list(readOGR('data','networkBaidu'),'blue'),
+      list(readOGR('data','networkPlannedBaidu'),'purple')#,
+      #list(readOGR('data','counties'),'black')
+    ),
+    additionalLabelLayers=list(list(readOGR('data','cities'),'black','Nom')),
+    withScale=NULL,
+    legendPosition = "bottomright"
+)
+
 
 accessp_withbridge$var = accessp_withbridge$var / sum(nodespop$var)
 
@@ -136,6 +170,23 @@ map(data=accessp_withbridge,layer=spdf,spdfid="id",dfid="id",variable="var",
     legendPosition = "bottomright"
 )
 
+map(data=accessp_withbridge,layer=spdf,spdfid="id",dfid="id",variable="var",
+    filename=paste0(resdir,'accessp_withbridge_prd_EN.png'),title=paste0("Accessibility (with bridge)"),
+    legendtitle = "Accessibility",extent=readOGR('data','networkBaidu'),
+    nclass=8,
+    width=15,height=15,palette='div',lwd=0.01,
+    additionalLinelayers=list(
+      list(readOGR('data','networkBaidu'),'blue'),
+      list(readOGR('data','networkPlannedBaidu'),'purple')#,
+      #list(readOGR('data','counties'),'black')
+    ),
+    additionalLabelLayers=list(list(readOGR('data','cities'),'black','Nom')),
+    withScale=NULL,
+    legendPosition = "bottomright"
+)
+
+
+
 accessp_withoutbridge$var = accessp_withoutbridge$var / sum(nodespop$var)
 
 map(data=accessp_withoutbridge,layer=spdf,spdfid="id",dfid="id",variable="var",
@@ -152,6 +203,19 @@ map(data=accessp_withoutbridge,layer=spdf,spdfid="id",dfid="id",variable="var",
     legendPosition = "bottomright"
 )
 
+map(data=accessp_withoutbridge,layer=spdf,spdfid="id",dfid="id",variable="var",
+    filename=paste0(resdir,'accessp_withoutbridge_prd_EN.png'),title=paste0("Accessibility (without bridge)"),
+    legendtitle = "Accessibility",extent=readOGR('data','networkBaidu'),
+    nclass=8,
+    width=15,height=15,palette='div',lwd=0.01,
+    additionalLinelayers=list(
+      list(readOGR('data','networkBaidu'),'blue')
+      #list(readOGR('data','counties'),'black')
+    ),
+    additionalLabelLayers=list(list(readOGR('data','cities'),'black','Nom')),
+    withScale=NULL,
+    legendPosition = "bottomright"
+)
 
 # same without hk
 
@@ -165,6 +229,21 @@ accesspdiff_nohk$var = (accesspdiff_nohk$var - mean(accesspdiff_nohk$var))/sd(ac
 map(data=accesspdiff_nohk,layer=spdf,spdfid="id",dfid="id",variable="var",
     filename=paste0(resdir,'accesspdiff_prd_nohk.png'),title=paste0("Gains d'accessibilite"),
     legendtitle = "Gain\nnormalise",extent=readOGR('data','networkBaidu'),
+    nclass=4,breaks = c(min(accesspdiff$var),quantile(accesspdiff$var[accesspdiff$var>0],c(0,0.33,0.66,1.0))),
+    width=15,height=15,palette='div',lwd=0.01,
+    additionalLinelayers=list(
+      list(readOGR('data','networkBaidu'),'blue'),
+      list(readOGR('data','networkPlannedBaidu'),'purple')#,
+      #list(readOGR('data','counties'),'black')
+    ),
+    additionalLabelLayers=list(list(readOGR('data','cities'),'black','Nom')),
+    withScale=NULL,
+    legendPosition = "bottomright"
+)
+
+map(data=accesspdiff_nohk,layer=spdf,spdfid="id",dfid="id",variable="var",
+    filename=paste0(resdir,'accesspdiff_prd_nohk_EN.png'),title=paste0("Accessibility gains"),
+    legendtitle = "Normalized\ngain",extent=readOGR('data','networkBaidu'),
     nclass=4,breaks = c(min(accesspdiff$var),quantile(accesspdiff$var[accesspdiff$var>0],c(0,0.33,0.66,1.0))),
     width=15,height=15,palette='div',lwd=0.01,
     additionalLinelayers=list(
@@ -194,11 +273,40 @@ map(data=accessp_withbridge_nohk,layer=spdf,spdfid="id",dfid="id",variable="var"
     legendPosition = "bottomright"
 )
 
+map(data=accessp_withbridge_nohk,layer=spdf,spdfid="id",dfid="id",variable="var",
+    filename=paste0(resdir,'accessp_withbridge_prd_nohk_EN.png'),title=paste0("Accessibility (with bridge)"),
+    legendtitle = "Accessibility",extent=readOGR('data','networkBaidu'),
+    nclass=8,
+    width=15,height=15,palette='div',lwd=0.01,
+    additionalLinelayers=list(
+      list(readOGR('data','networkBaidu'),'blue'),
+      list(readOGR('data','networkPlannedBaidu'),'purple')#,
+      #list(readOGR('data','counties'),'black')
+    ),
+    additionalLabelLayers=list(list(readOGR('data','cities'),'black','Nom')),
+    withScale=NULL,
+    legendPosition = "bottomright"
+)
+
 accessp_withoutbridge_nohk$var = accessp_withoutbridge_nohk$var / sum(nodespop$var)
 
 map(data=accessp_withoutbridge_nohk,layer=spdf,spdfid="id",dfid="id",variable="var",
     filename=paste0(resdir,'accessp_withoutbridge_prd_nohk.png'),title=paste0("Accessibilite (sans pont)"),
     legendtitle = "Accessibilite",extent=readOGR('data','networkBaidu'),
+    nclass=8,
+    width=15,height=15,palette='div',lwd=0.01,
+    additionalLinelayers=list(
+      list(readOGR('data','networkBaidu'),'blue')
+      #list(readOGR('data','counties'),'black')
+    ),
+    additionalLabelLayers=list(list(readOGR('data','cities'),'black','Nom')),
+    withScale=NULL,
+    legendPosition = "bottomright"
+)
+
+map(data=accessp_withoutbridge_nohk,layer=spdf,spdfid="id",dfid="id",variable="var",
+    filename=paste0(resdir,'accessp_withoutbridge_prd_nohk_EN.png'),title=paste0("Accessibility (without bridge)"),
+    legendtitle = "Accessibility",extent=readOGR('data','networkBaidu'),
     nclass=8,
     width=15,height=15,palette='div',lwd=0.01,
     additionalLinelayers=list(
