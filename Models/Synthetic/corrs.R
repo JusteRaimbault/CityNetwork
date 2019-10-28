@@ -1,9 +1,11 @@
+
 library(dplyr)
 library(ggplot2)
 library(reshape2)
 library(boot)
 
-source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
+#source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
+source(paste0(Sys.getenv('CS_HOME'),'/Organisation/Models/Utils/R/plots.R'))
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Synthetic/Network'))
 
@@ -150,22 +152,36 @@ crosscormat <- gres  %>% filter(idpar %in% glength$idpar[glength$groupLength==nr
 
 #summary(cormat[1,8:17])
 
-cormat = crosscormat[,2:ncol(crosscormat)]
+crosscornames = paste0('cor',c(paste0('1',5:8),paste0('2',5:8),paste0('3',5:8),paste0('4',5:8)))
+
+#cormat = crosscormat[,2:ncol(crosscormat)]
+cormat = melt(crosscormat[,crosscornames],measure.vars = crosscornames,value.name = 'rho',variable.name = 'correlation')
 
 # histograms of correlations
 # -> log normal ? COMPARE WITH NULL MODEL ? which one ?
-par(mfrow=c(4,4))
-for(j in (seq(from=1,to=ncol(cormat),by=3)+2)){
-  d=cormat[,j]
-  hist(unlist(d),breaks=50,main=colnames(cormat)[j],xlab="")
-  abline(v=mean(unlist(d)),col="red")
-  
-  #corj = cormat[[colnames(cormat)[j]]];show(mean(corj))
-  #rho = mean(corj)
-  # simulate correlated vectors of same size
-  #corrs = c();for(k in 1:1000){x1 = rnorm(1000,mean=0);corrs=append(corrs,cor(x1,rho*x1 +sqrt(1 - rho^2)*rnorm(1000,mean=0)))}
-  #ggplot(vegLengths, aes(length, fill = veg)) + geom_histogram(alpha = 0.5, aes(y = ..density..), position = 'identity')
-}
+#par(mfrow=c(4,4),mar=c(1,1,1,1))
+#for(j in (seq(from=1,to=ncol(cormat),by=3)+2)){
+#  d=cormat[,j]
+#  hist(unlist(d),breaks=50,main=colnames(cormat)[j],xlab="")
+#  abline(v=mean(unlist(d)),col="red")
+#  
+#  #corj = cormat[[colnames(cormat)[j]]];show(mean(corj))
+#  #rho = mean(corj)
+#  # simulate correlated vectors of same size
+#  #corrs = c();for(k in 1:1000){x1 = rnorm(1000,mean=0);corrs=append(corrs,cor(x1,rho*x1 +sqrt(1 - rho^2)*rnorm(1000,mean=0)))}
+#  #ggplot(vegLengths, aes(length, fill = veg)) + geom_histogram(alpha = 0.5, aes(y = ..density..), position = 'identity')
+#}
+
+# reconstruct accurate names
+morphonames = c("r","d","ε","a");nwnames=c("c","l","s","δ")
+cormat$cornames = sapply(as.character(cormat$correlation),function(s){paste0("ϱ[",morphonames[as.numeric(substr(s,4,4))],",",nwnames[as.numeric(substr(s,5,5))-4],"]")})
+                                                                             
+# redo with ggplot
+g=ggplot(cormat,aes(x=rho))
+g+geom_histogram(bins=30)+facet_wrap(~cornames,nrow = 4)+
+  geom_vline(data=cormat%>%group_by(cornames)%>%summarize(rho=mean(rho)),aes(xintercept=rho),color='red')+
+  xlab("")+ylab("")+stdtheme+ theme(plot.margin =margin(0.5,0.5,0,0,unit = 'cm'))
+ggsave(file=paste0(figdir,'/crosscor/hist_crossCorMat_breaks30.png'),width=20,height=20,units='cm')
 
 
 # test : pairwise correlations of subvectors ?
