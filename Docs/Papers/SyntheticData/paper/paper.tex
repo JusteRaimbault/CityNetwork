@@ -136,28 +136,37 @@ Reproducing data patterns at the first order, in the sense of distribution momen
 
 Some specific examples where interdependency structure is controlled can be found. \cite{ye2011investigation} investigates the sensitivity of discrete choices models to the distributions of inputs and to their dependance structure. \cite{birkin1988synthesis} develop a generic framework to generate synthetic micro-data from heterogenous aggregated data sources, which in particular can include second-order effects in the models considered. \cite{li2014differentially} propose to reconstruct multi-dimensional synthetic data using copulas, which capture the dependancy structure between marginal distributions. It is also possible to interpret complex networks generative models~\cite{newman2003structure} as the production of an interdependence structure for a system, contained within link topology. Most methods yielding a high level of accuracy on synthetic covariance structure depend on sampling or data reconstruction methods, and need therefore large datasets.
 
-\subsection*{Synthetic data and territorial systems}
+\subsection*{Synthetic data and socio-spatial systems}
 
-Synthetic data with a spatial dimension, in the sense of spatial coordinates of generated data points, or more complicated spatial structures, require proper methods and paradigms. Such approaches have been proposed in disciplines such as geostatistics or Earth sciences. \cite{robin1993cross} describe a method to generate cross-correlated random spatial fields using Fourier transforms. \cite{osborn2017multilevel} introduce a multilevel sampling technique to produce correlated random fields. Concrete applications of such spatial synthetic data include atmospheric circulation models \cite{gourdji2010regional}, rainfall-runoff simulations \cite{robin1993cross}
+Synthetic data with a spatial dimension, in the sense of spatial coordinates of generated data points, or more complicated spatial structures, require proper methods and paradigms. Such approaches have been proposed in disciplines such as geostatistics or Earth sciences. \cite{robin1993cross} describe a method to generate cross-correlated random spatial fields using Fourier transforms. \cite{osborn2017multilevel} introduce a multilevel sampling technique to produce correlated random fields. Concrete applications of such spatial synthetic data include atmospheric circulation models \cite{gourdji2010regional}, rainfall-runoff simulations \cite{robin1993cross}, or engineering \cite{zhao2018simulation}. % TODO check the last paper
 
 
-geosimulation \cite{benenson2004geosimulation}
+In the case of socio-spatial systems, these kind of methods is less developed. Simulation approaches to spatialized social systems are already well studied by disciplines such as geosimulation \cite{benenson2004geosimulation}, urban analytics \cite{batty2013new} or theoretical and quantitative geography \cite{pumain2018evolutionary}. The use of synthetic data in these contexts is however systematically reduced to the generation of synthetic populations within agent-based models or microsimulation models, applied for example to mobility \cite{banos2005simulating}, land-use transport interaction models~\cite{pritchard2009advances}, or demography microsimulation models \cite{birkin1988synthesis}.
 
-Regarding the study of socio-spatial systems, these kind of methods is less developed. The use of synthetic data in geography is generally directed towards the generation of synthetic populations within agent-based models (mobility, land-use transport interaction models)~\cite{pritchard2009advances}. We can make a weak link with some techniques in spatial analysis. The extrapolation of a continuous spatial field from a discrete spatial sample through a kernel density estimation for example can be understood as the creation of a synthetic dataset (even if it is not generally the initial view, as in Geographically Weighted Regression~\cite{brunsdon1998geographically} in which variable size kernels do not reconstruct data in a strict sense but extrapolate abstract variables representing interaction between explicit variables).
 
-In the field of modeling in quantitative geography, \emph{toy-models} or hybrid models require a consistent initial spatial configuration. A set of possible initial configurations becomes a synthetic dataset on which the model is tested. The first Simpop model~\cite{sanders1997simpop}, precursor of a large family of models later parametrized with real data \cite{pumain2012multi}, could enter that frame but was studied on an unique synthetic spatialization. Similarly underlined was the difficulty to generate an initial transportation infrastructure in the case of the SimpopNet model~\cite{schmitt2014modelisation} although it was admitted as a cornerstone of knowledge on the behavior of the model.
+%We can make a weak link with some techniques in spatial analysis. The extrapolation of a continuous spatial field from a discrete spatial sample through a kernel density estimation for example can be understood as the creation of a synthetic dataset (even if it is not generally the initial view, as in Geographically Weighted Regression~\cite{brunsdon1998geographically} in which variable size kernels do not reconstruct data in a strict sense but extrapolate abstract variables representing interaction between explicit variables).
 
-A systematic control of spatial configuration effects on the behavior of simulation models was recently proposed~\cite{raimbault2018space}, approach that can be interpreted as a statistical control on spatial data. The aim is to be able to distinguish proper effects due to intrinsic model dynamics from particular effects due to the geographical structure of the case study. Such results are essential for the validation of conclusions obtained with modeling and simulation practices in quantitative geography. \cite{arentze2012modeling} introduce a method to generate realistic social networks associated to a synthetic population in the geographical space. 
+While several examples of stylized models initialized on synthetic configurations can be found in the literature, such as the first Simpop model~\cite{sanders1997simpop} to simulate the dynamics of settlements at a macroscopic scale, or the SimpopNet model \cite{schmitt2014modelisation} for the co-evolution of cities and transportation networks, these are run on a single stylized synthetic configuration. There is to the best of our knowledge very few examples of works coupling a synthetic data generator with a model at an other scale than the microscopic scale of the population. 
+
+%In the field of modeling in quantitative geography, \emph{toy-models} or hybrid models require a consistent initial spatial configuration. A set of possible initial configurations becomes a synthetic dataset on which the model is tested. The simpop1, precursor of a large family of models later parametrized with real data \cite{pumain2012multi}, could enter that frame but was studied on an unique synthetic spatialization. Similarly underlined was the difficulty to generate an initial transportation infrastructure in the case of the SimpopNet model~\cite{schmitt2014modelisation} although it was admitted as a cornerstone of knowledge on the behavior of the model.
+
+Recently, a systematic control of the effects of the initial spatial configuration on the behavior of simulation models was proposed by~\cite{raimbault2018space}. The aim is to be able to distinguish proper effects due to intrinsic model dynamics from particular effects due to the geographical structure of the case study. \cite{arentze2012modeling} introduce a method to generate realistic social networks associated to a synthetic population in the geographical space. Such results are essential for the validation of conclusions obtained with modeling and simulation practices in quantitative geography. Being able to generate correlated synthetic configurations of territorial systems is thus an important development remaining to be investigated.
+% TODO argue why this is important to do, and why *correlated* synth data is even more important for territorial systems
 
 
 \subsection*{Proposed approach}
 
-We introduce here a generic method taking into account dependance structure for the generation of synthetic datasets, more precisely with the mean of controlled correlation matrices. It can be applied to cases where microscopic data on the studied system is not available and system similarity is targeted on aggregated indicators.
-%Our contribution relies in this generic methodology, and its application to two very different kind of complex systems.
-Our contribution is twofold: (i) we implement a generation of spatial synthetic data for territorial systems, which to the best of our knowledge has never been done in that context; (ii) the method introduced is generic and can be applied to different kinds of complex systems, and we illustrate its application on financial time-series.
+This literature review on different aspects of synthetic data generation unveils at least two gaps: (i) a lack of attention on controlling covariance structures when generating synthetic data; and (ii) an absence of such methods applied to the study of socio-spatial systems at aggregated scales. As spatio-temporal dependencies structures are essential in driving the dynamics of such systems \cite{pigozzi1980interurban}, the combination of these two aspects appears as an unexplored research problem.
 
+We propose in this paper to study the generation of correlated synthetic data, and more particularly in the case of socio-spatial systems. We introduce here a generic methodology taking into account the dependance structure for the generation of synthetic datasets, more precisely by controlling the average of correlation matrices. It is suited to be applied on cases where microscopic data is not available and system similarity is expected on aggregated indicators.
 
-The rest of the paper is organized as follows. The generic method is formally described, to be then applied on two very different examples, namely financial time-series and territorial spatial configurations. Each example can be read independently and illustrates potentialities of the method and possible technical limitations. We discuss then possible further developments and applications, in particular for the geographical system.
+We investigate thus the question of how to generate correlated synthetic data at aggregated levels, where constraints on macroscopic indicators are fulfilled and correlation structure is controlled. We focus on this problem in the particular case of socio-spatial systems, but keep in mind the genericity of the approach.
+
+Our contribution is twofold: (i) we implement a generation of spatial synthetic data for socio-spatial systems, which to the best of our knowledge has never been done in that context; (ii) the method introduced is generic, and we illustrate it with an application to financial time-series.
+
+The rest of the paper is organized as follows. The generic method to generate correlated synthetic data is formally described. We then apply it to a generative model of territorial configurations, composed by the sequential coupling of a reaction-diffusion model for population density with a road network generation model, and study the produced correlation patterns. We then illustrate the genericity of the method by applying it to financial time-series. 
+%We finally discuss
+%to be then applied on two very different examples, namely financial time-series and territorial spatial configurations. Each example can be read independently and illustrates potentialities of the method and possible technical limitations. We discuss then possible further developments and applications, in particular for the geographical system.
 
 
 
@@ -183,17 +192,161 @@ where the standard deviation diagonal matrix $\Sigma$ is estimated on the synthe
 
 The second requirement will generally be conditional to parameter values determining generation procedure, either generation models being simple or complex ($R$ itself is a parameter). Formally, synthetic processes are parametric families $\tilde{X}_i[\vec{\alpha}]$.
 
-We propose to apply the methodology on very different examples, both typical of complex systems: financial high-frequency time-series and territorial systems. We illustrate the flexibility of the method, and claim to help building interdisciplinary bridges by methodology transposition and reasoning analogy. In the first case, proximity to data is the equality of signals at a fundamental frequency, to which higher frequency synthetic components with controlled correlations are superposed. It follows a logic of hybrid data for which hypothesis or model testing is done on a more realistic context than on purely synthetic data. In the second case, morphological calibration of a population density distribution model allows to respect real data proximity. Correlations of urban form with transportation network measures are empirically obtained by exploration of coupling with a network morphogenesis model. The control is in this case indirect as feasible space is empirically determined.
+We propose to apply the methodology on very different examples, both typical of complex systems: territorial systems and financial high-frequency time-series. We illustrate the flexibility of the method, and claim to help building interdisciplinary bridges by methodology transposition and reasoning analogy. In the first case, morphological calibration of a population density distribution model allows to respect real data proximity. Correlations of urban form with transportation network measures are empirically obtained by exploration of coupling with a network morphogenesis model. The control is in this case indirect as feasible space is empirically determined. In the second case, proximity to data is the equality of signals at a fundamental frequency, to which higher frequency synthetic components with controlled correlations are superposed. It follows a logic of hybrid data for which hypothesis or model testing is done on a more realistic context than on purely synthetic data.
 
 %  : explicit the fact that real data may come out of different parameter values ?
+
+
+
+
+
+%%%%%%%%%%%%%%%%
+\section*{Correlated population density and road network}
+
+We now apply the method to territorial systems of human settlements, in the particular case here of population distribution in correlation with road network. In this application, simulation appears as a crucial step to implement the method.
+% no theoretical derivation can be done previously to correlated data generation,
+
+\subsection*{Territorial configuration model}
+
+We propose in our case to generate territorial systems summarized in a simplified way as a spatial population density $d(\vec{x})$ and a transportation network $n(\vec{x})$. Correlations we aim to control are correlations between urban morphological measures and network measures. The question of interactions between territories and networks is already well-studied~\cite{offner1996reseaux} but remains highly complex and difficult to quantify~\cite{offner1993effets}. A dynamical modeling of implied processes should shed light on these interactions \cite{bretagnolle:tel-00459720}. We develop in that frame a simple coupling (i.e. without any feedback loop) between a density distribution model and a network morphogenesis model.
+
+
+
+
+\subsubsection*{Density model}
+
+We use a model $D$ similar to aggregation-diffusion models~\cite{batty2006hierarchy} to generate a discrete spatial distribution of population density. A generalization of the basic model is proposed in~\cite{raimbault2018calibration}, providing a calibration on morphological objectives (entropy, hierarchy, spatial auto-correlation, mean distance) against real values computed on the set of 50km sized grid extracted from European density grid~\cite{eurostat}. We recall here rapidly the processes in the model. An square grid of width $W$, initially empty, is represented by population $(P_i(t))_{1\leq i\leq W^2}$. At each time step, until the total population reaches a fixed parameter $P_m$,
+\begin{itemize}
+\item total population is increased of a fixed number $N_G$ (growth rate), following a preferential attachment such that 
+\begin{equation} 
+\Pb{P_i(t+1)=P_i(t)+1|P(t+1)=P(t)+1}=\frac{(P_i(t)/P(t))^{\alpha}}{\sum(P_i(t)/P(t))^{\alpha}}
+\end{equation}
+\item a fraction $\beta$ of population is diffused to four closest neighbors is operated $n_d$ times
+\end{itemize}
+
+
+The two opposite processes of urban concentration and urban sprawl are captured by the model, what allows to reproduce with a good precision a large number of existing morphologies regarding macroscopic urban form indicators.
+
+
+\subsubsection*{Network model}
+
+
+On the other hand, we are able to generate a planar transportation network by a model $N$, at a similar scale and given a density distribution. Because of the conditional nature to the density of the generation process, we will first have conditional estimators for network indicators, and secondly natural correlations between network and urban shapes should appear as processes are not independent. The nature and modularity of these correlations as a function of model parameters are still to determine by exploration of the coupled model.
+
+
+
+The heuristic network generation procedure is the following :
+\begin{enumerate}
+\item A fixed number $N_c$ of centers that will be first nodes of the network si distributed given density distribution, following a similar law to the aggregation process, i.e. the probability to be distributed in a given patch is $\frac{(P_i/P)^{\alpha}}{\sum (P_i/P)^{\alpha}}$. Population is then attributed according to Voronoi areas of centers, such that a center cumulates population of patches within its extent.
+\item Centers are connected deterministically by percolation between closest clusters : as soon as network is not connected, two closest connected components in the sense of minimal distance between each vertices are connected by the link realizing this distance. It yields a tree-shaped network.
+\item Network is modulated by potential breaking in order to be closer from real network shapes. More precisely, a generalized gravity potential between two centers $i$ and $j$ is defined by
+\begin{equation}
+V_{ij}(d) = \left[ (1 - k_h) + k_h \cdot \left( \frac{P_i P_j}{P^2} \right)^{\gamma} \right]\cdot \exp{\left( -\frac{d}{r_g (1 + d/d_0)} \right)}
+\end{equation}
+where $d$ can be euclidian distance $d_{ij}=d(i,j)$ or network distance $d_N(i,j)$, $k_h \in [0,1]$ a weight to modulate role of populations, $\gamma$ giving shape of the hierarchy across population values, $r_g$ characteristic interaction distance and $d_0$ distance shape parameter.
+\item A fixed number $K\cdot N_L$ of potential new links is taken among couples having greatest euclidian distance potential ($K=5$ is fixed).
+\item Among potential links, $N_L$ are effectively realized, that are the one with smallest rate $\tilde{V}_{ij} = V_{ij}(d_N)/V_{ij}(d_{ij})$. At this stage only the gap between euclidian and network distance is taken into account : $\tilde{V}_{ij}$ does indeed not depend on populations and is increasing with $d_N$ at constant $d_{ij}$.
+\item Planarity of the network is imposed by creating nodes at possible intersections formed by new links.
+\end{enumerate}
+
+
+We insist on the fact that the network generation procedure is entirely heuristic and result of thematic assumptions (connected initial network, gravity-based link creation) combined with trial-and-error during first explorations. Other model types could be used as well, such as biological self-generated networks~\cite{tero2010rules}, local network growth based on geometrical constraints optimization~\cite{courtat2011mathematics}, or a more complex percolation model than the initial one that would allow the creation of loops for example. We could thus in the frame of a modular architecture, in which the choice between different implementations of a functional brick can be seen as a meta-parameter~\cite{cottineau2015growing}, choose network generation function adapted to a specific need (as e.g. proximity to real data, constraints on output indicators, variety if generated forms, etc. ).
+
+
+
+%\paragraph{Parameter space}
+
+Parameter space for the coupled model is constituted by density generation parameters $\vec{\alpha}_D = (P_m/N_G , \alpha,\beta , n_d)$ (we study for the sake of simplicity the rate between population and growth rate instead of both varying, i.e. the number of steps needed to generate the distribution) and network generation parameters $\vec{\alpha}_N=(N_C,k_h,\gamma , r_g , d_0)$. We denote $\vec{\alpha} = (\vec{\alpha}_D,\vec{\alpha}_N)$. 
+
+% \footnote{Weak coupling allows to limit the total number of parameters as a strong coupling would involve retroaction loops and consequently associated parameters to determine their structure and intensity. In order to diminish it, an integrated model would be preferable to a strong coupling, what is slightly different in the sense where it is not possible in the integrated model to freeze one of the subsystems to obtain a model of the other subsystem that would correspond to the non-coupled model.}
+
+
+%\paragraph{Indicators}
+
+Urban form and network structure are quantified by numerical indicators in order to modulate correlations between these. Morphology is defined as a vector $\vec{M}=(r,d,\varepsilon,a)$ giving spatial auto-correlation (Moran index), mean distance, entropy and hierarchy (see~\cite{le2015forme} for a precise definition of these indicators). Network measures $\vec{G} = (c,l,s,\delta)$ are with network denoted $(V,E)$
+\begin{itemize}
+\item Mean centrality $c$ defined as average \emph{betweeness-centrality} (normalized in $[0,1]$) on all links.
+\item Mean path length $l$ given by $\frac{1}{d_m}\frac{2}{|V|\cdot (|V|-1)}\sum_{i<j}d_N(i,j)$ with $d_m$ normalization distance taken here as world diagonal $d_m=\sqrt{2}N$.
+\item Mean network speed~\cite{banos2012towards} which corresponds to network performance compared to direct travel, defined as $s = \frac{2}{|V|\cdot (|V|-1)}\sum_{i<j}{\frac{d_{ij}}{d_N(i,j)}}$.
+\item Network diameter $\delta = \max_{ij}d_N(i,j)$.
+\end{itemize}
+
+
+
+We study the cross-correlation matrix $\Covb{\vec{M}}{\vec{G}}$ between morphology and network. We estimate it on a set of $n$ realizations at fixed parameter values $(\vec{M}\left[D(\vec{\alpha})\right],\vec{G}\left[N(\vec{\alpha})\right])_{1\leq i\leq n}$ with standard unbiased estimator. We estimate correlation with associated Pearson estimator. 
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Results}
+
+
+The coupling of generative models is done both in a formal and operational way. We indeed loosely couple independent implementations. The OpenMOLE software~\cite{reuillon2013openmole} for model exploration offers a proper framework for this. Its modular workflow language allows to compose model tasks and integrate these into diverse numerical experiments. For the population density generation, we use the \texttt{scala} implementation provided by \cite{raimbault2018calibration}. The network generation model is implemented in NetLogo~\cite{wilensky1999netlogo}, which offers a good compromise between performance and interactive model validation and exploration. The two models are coupled with a specific OpenMOLE script. Source code is available at \url{https://github.com/JusteRaimbault/CityNetwork/tree/master/Models/Synthetic}.
+
+
+%%%%%%%%%%%%%%
+\begin{figure}[h!]
+\includegraphics[width=\linewidth]{figures/Fig1.png}
+	\caption{\csentence{Configurations obtained for parameters giving the four emphasized points in Fig.~\ref{fig:densnwcor}, in order from left to right and top to bottom.} We recognize polycentric city configurations (2 and 4), diffuse rural settlements (3) and aggregated weak density area (1). See appendice for exhaustive parameter values, indicators and corresponding correlations. For example $\bar{d}$ is highly correlated with $\bar{l},\bar{s}$ ($\simeq$0.8) in (1) but not for (3) although both correspond to rural environments ; in the urban case we observe also a broad variability : $\rho[\bar{d},\bar{c}]\simeq 0.34$ for (4) but $\simeq-0.41$ for (2), what is explained by a stronger role of gravitation hierarchy in (2) $\gamma=3.9,k_h=0.7$ (for (4), $\gamma=1.07,k_h=0.25$), whereas density parameters are similar.\label{fig:configexamples}}
+\end{figure}
+%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%
+\begin{figure}[h!]
+\includegraphics[width=\linewidth]{figures/Fig2.png}
+\caption{\csentence{Exploration of feasible space for correlations between urban morphology and network structure.} \textbf{(Top left)} Statistical distribution of crossed-correlations between vectors $\vec{M}$ of morphological indicators (in numbering order Moran index, mean distance, entropy, hierarchy) and $\vec{N}$ of network measures (centrality, mean path length, speed, diameter). \textbf{(Top right)} Heatmaps for amplitude of correlations, defined as $a_{ij}=\max_k{\rho_{ij}^{(k)}}-\min_k{\rho_{ij}^{(k)}}$ and maximal absolute correlation, defined as $c_{ij}=\max_k\left| \rho_{ij}^{k} \right|$. \textbf{(Bottom left)} Projection of correlation matrices in a principal plan obtained by Principal Component Analysis on matrix population (cumulated variances: PC1=38\%, PC2=68\%). Error bars are initially computed as 95\% confidence intervals on each matrix element (by standard Fisher asymptotic method), and upper bounds after transformation are taken in principal plan. Scale color gives mean absolute correlation on full matrices. \textbf{(Botton right)} Representation in the principal plan, scale color giving proximity to real data defined as $1 - \min_r \norm{\vec{M}-\vec{M}_r}$ where $\vec{M}_r$ is the set of real morphological measures, point size giving mean absolute correlation. The points highlighted in blue correspond to the configurations shown in Fig.~\ref{fig:configexamples}.\label{fig:densnwcor}}
+\end{figure}
+%%%%%%%%%%%%%%
+
+
+
+\subsubsection*{Results}
+
+The study of the density model alone is developed in~\cite{raimbault2018calibration}. It is in particular calibrated on European density grid data, on 50km width square areas with 500m resolution for which real indicator values have been computed on whole Europe. Furthermore, a grid exploration of model behavior yields feasible output space in reasonable parameters bounds (roughly $\alpha \in [0.5,2],N_G\in [500,3000], P_m \in [10^4,10^5],\beta\in [0,0.2], n_d \in \{ 1, \ldots , 4\}$). The reduction of indicators space to a two dimensional plan through a Principal Component Analysis (variance explained with two components $\simeq 80\%$) allows to isolate a set of output points that covers reasonably precisely real point cloud. It confirms the ability of the model to reproduce morphologically the set of real configurations.
+
+
+
+With a fixed population density, the conditional exploration of network generation model parameter space suggest a good flexibility on global indicators $\vec{G}$, together with good convergence properties.
+%For a precise study of model behavior, see appendice giving regressions analysis capturing the behavior of coupled model. %! never provided the supplementary material.
+In order to illustrate synthetic data generation method, the exploration has been oriented towards the study of cross-correlations.
+
+
+
+Given the large relative dimension of the parameter space, an exhaustive grid exploration is not possible. We use a Latin Hypercube sampling procedure with bounds given above for $\vec{\alpha}_D$ and for $\vec{\alpha}_N$, we take $N_C \in [50,120], r_g \in [1,100] , d_0 \in [0.1,10] , k_h \in [0,1] , \gamma \in [0.1,4],N_L\in [4,20]$. For number of model replications for each parameter point, less than 50 are enough to obtain confidence intervals at 95\% on indicators of width less than standard deviations. For correlations a hundred give confidence intervals (obtained with Fisher method) of size around 0.4, we take thus $n=80$ for experiments. Simulation results are available on the dataverse at \url{http://dx.doi.org/10.7910/DVN/UIHBC7}.
+
+We show in Fig.~\ref{fig:configexamples} examples of generated territorial configurations. This visualization and some values of associated correlations already suggest that the method application yields a broad spectrum of generated correlation patterns.
+% TODO bla bla configs
+
+
+Fig.~\ref{fig:densnwcor} gives details of experiment results. Regarding the subject of correlated synthetic data generation, we can summarize the results as follows:
+\begin{itemize}
+\item Empirical distributions of correlation coefficients between morphology and network indicators are not simple and some are bimodal (for example $\rho_{46}=\rho[r,\bar{l}]$  between Moran index and mean path length).
+\item it is possible to modulate up to a relatively high level of correlation for all indicators, maximal absolute correlation varying between 0.6 and 0.9. Amplitude of correlations varies between 0.9 and 1.6, allowing a broad spectrum of values. Point cloud in principal plan has a large extent but is not uniform: it is not possible to modulate at will any coefficient as they stay themselves correlated because of underlying generation processes. A more refined study at higher orders (correlation of correlations) would be necessary to precisely understand degrees of freedom in correlation generation.
+\item Most correlated points are also the closest to real data, what confirms the intuition and stylized fact of a strong interdependence in reality.
+\item Concrete examples taken on particular points in the principal plan show that similar density profiles can yield very different correlation profiles.
+\end{itemize}
+
+
+
+
+This case study could be refined by extending correlation control method. A precise knowledge of $N$ behavior (statistical distributions on an exhaustive grid of parameter space) conditional to $D$ would allow to determine $N^{<-1>} | D$ and have more latitude in correlation generation. We could also apply specific exploration algorithms to reach exceptional configurations realizing an expected correlation level, or at least to obtain a better knowledge of the feasible space of correlations~\cite{10.1371/journal.pone.0138212}.
+
+
+
+
 
 
 \section*{Correlated financial time-series}
 
 
-\subsection*{Context}
+%\subsection*{Context}
 
-Our first field of application are financial complex systems, of which captured signals, financial time-series, are heterogeneous, multi-scalar and highly non-stationary~\cite{mantegna2000introduction}. Correlations have already been the object of a broad part of related literature. For example, Random Matrix Theory allows to distinguish signal from noise, or at least to estimate the proportion of information undistinguishable from noise, for a correlation matrix computed for a large number of asset with low-frequency signals (daily returns mostly)~\cite{2009arXiv0910.1205B}. Similarly, Complex Network Analysis on networks constructed from correlations, by methods such as Minimal Spanning Tree~\cite{2001PhyA..299...16B} or more refined extensions developed for this purpose~\cite{tumminello2005tool}, yielded promising results such as the reconstruction of economic sectors structure. At high frequency, the precise estimation of interdependence parameters in the framed of fixed assumptions on asset dynamics, has been extensively studied from a theoretical point of view aimed at refinement of models and estimators~\cite{barndorff2011multivariate}. Theoretical results must be tested on synthetic datasets as they ensure a control of most parameters in order to check that a predicted effect is indeed observable all things being otherwise equal. Empirical confirmation of estimator improvement is obtained on a synthetic dataset at a fixed correlation level.
+
+We also apply the method to a totally different type of system, namely financial complex systems. Financial time-series are heterogeneous, multi-scalar and non-stationary~\cite{mantegna2000introduction}. Correlations are broadly explored in that field. For example, Random Matrix Theory allows to distinguish signal from noise for a correlation matrix computed for a large number of asset with low-frequency signals %(daily returns mostly)
+ \cite{2009arXiv0910.1205B}.
+ Similarly, Complex Network Analysis on networks constructed from correlations, with methods such as Minimal Spanning Tree~\cite{2001PhyA..299...16B} or more refined topologically constrained network generation methods~\cite{tumminello2005tool}, provide reconstructions of economic  sector structure. At high frequencies, the precise estimation of interdependence parameters in the framed of fixed assumptions on asset dynamics, has been extensively studied from a theoretical point of view aimed at refinement of models and estimators~\cite{barndorff2011multivariate}. Theoretical results must be tested on synthetic datasets as they ensure a control of most parameters in order to check that a predicted effect is indeed observable all things being otherwise equal. Empirical confirmation of the improvement of estimators is obtained on a synthetic dataset at a fixed correlation level.
 
 
 We consider a network of assets $(X_i(t))_{1\leq i \leq N}$ sampled at high-frequency (typically 1s). We use a multi-scalar framework (used e.g. in wavelet analysis approaches~\cite{ramsey2002wavelets} or in multi-fractal signal processing~\cite{bouchaud2000apparent}) to interpret observed signals as the superposition of components at different time scales : $X_i=\sum_{\omega}{X_i^{\omega}}$. We denote by $T_i^{\omega} = \sum_{\omega' \leq \omega} X_i^{\omega}$ the filtered signal at a given frequency $\omega$. A recurrent problem in the study of complex systems is the prediction of a trend at a given scale. It can be viewed as the identification of regularities and their distinction from components considered as random. For the sake of simplicity, we represent such a process as a trend prediction model at a given temporal scale $\omega_1$, formally an estimator $M_{\omega_1} : (T_i^{\omega_1}(t'))_{t'<t} \mapsto \hat{T_i}^{\omega_1}(t)$ which aims to minimize error on the real trend $\norm{T_i^{\omega_1} - \hat{T}_i^{\omega_1}}$. In the case of autoregressive multivariate estimators, the performance will depend among other parameters on respective correlations between assets. It is thus interesting to apply the method to the evaluation of performance as a function of correlation at different scales. We assume a Black-Scholes dynamic for assets~\cite{jarrow1999honor}, i.e. $dX = \sigma\cdot dW$, with $W$ Wiener process. Such a dynamic model allows an easy modulation of correlation levels.
@@ -202,7 +355,7 @@ We consider a network of assets $(X_i(t))_{1\leq i \leq N}$ sampled at high-freq
       
 %%%%%%%%%%%%%%%%%%%
 \begin{figure}[h!]
-\includegraphics[width=\columnwidth]{figures/Fig1}
+\includegraphics[width=\columnwidth]{figures/Fig3.png}
 \caption{\csentence{Example of the multi-scalar structure of the signal, basis of the construction of synthetic signals.} \emph{Log-prices} are represented on a time window of around 3h for November 1st 2015 for asset EUR/USD, with 10min (purple) and 30min trends.\label{fig:example_signal}}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%
@@ -221,8 +374,6 @@ is such that $\rho(dW_1,dW_2)=\rho_{12}$. Signals for other components can be co
 \end{equation}
 
 
-
-\subsection*{Methodology}
 
 The method is tested on an example with two assets from foreign exchange market (EUR/USD and EUR/GBP), on a six month period from June 2015 to November 2015. Data was obtained from \url{http://www.histdata.com/}. The data cleaning procedure, starting from original series sampled at a frequency around 1s, consists in a first step to the determination of the minimal common temporal range (missing sequences being ignored, by vertical translation of series, i.e. $S(t):=S(t)\cdot \frac{S(t_{n})}{S(t_{n-1})}$ when $t_{n-1},t_n$ are extremities of the ``hole'' and $S(t)$ value of the asset, what is equivalent to keep the constraint to have returns at similar temporal steps between assets). We study then \emph{log-prices} and \emph{log-returns} \cite{mantegna1999introduction}, defined by $X(t):=\log{\frac{S(t)}{S_0}}$ and $\Delta X (t) = X(t) - X(t-1)$. Raw data are filtered at a maximal frequency $\omega_m = 10\textrm{min}$ (which will be the maximal frequency for following treatments) for concerns of computational efficiency. As time-series are then sampled at $3\cdot\omega_m$ to avoid aliasing, a day of size 86400 for 1s sampling is reduced to a much smaller size of 432. We use a non-causal gaussian filter of total width $\omega$. We fix the fundamental frequency $\omega_0=24\textrm{h}$ and we propose to construct synthetic data at frequencies $\omega_1 = 30\textrm{min},1\textrm{h},2\textrm{h}$. We show in Fig.~\ref{fig:example_signal} an example of signal structure at the scales $\omega_m$ and $\omega_1 = 30\textrm{min}$, compared with the non-filtered raw signal.
 
@@ -273,7 +424,7 @@ Experiments are implemented in the \texttt{R} language, using in particular the 
 %%%%%%%%%%%%%%%%%%%
 \begin{figure}[h!]
 \centering
-\includegraphics[width=\linewidth]{figures/Fig2}
+\includegraphics[width=\linewidth]{figures/Fig4.png}
 \caption{\csentence{Effective correlations obtained on synthetic data.} Dots represent estimated correlations on a synthetic dataset corresponding to 6 months between June and November 2015 (error-bars give 95\% confidence intervals obtained with standard Fisher method) ; scale color gives filtering frequency $\omega_1=10\textrm{min},30\textrm{min},1\textrm{h},2\textrm{h},4\textrm{h}$; solid lines give theoretical values for $\rho_e$ obtained by~\ref{eq:eff_corr} with estimated volatilities (dotted-line diagonal for reference); vertical red line position is the theoretical value such that $\rho = \rho_e$ with mean values for $\varepsilon_i$ on all points. We observe for high absolute correlations values a deviation from corrected values, what should be caused by non-verified independence and centered returns assumptions. Asymmetry is caused by the high value of $\rho_0 \simeq 0.71$.}
 \label{fig:effective_corrs}
 \end{figure}
@@ -282,174 +433,25 @@ Experiments are implemented in the \texttt{R} language, using in particular the 
 
 %%%%%%%%%%%%%%%%%%%
 \begin{figure}[h!]
-\includegraphics[width=\linewidth]{figures/Fig3}
+\includegraphics[width=\linewidth]{figures/Fig5.png}
 \caption{\csentence{Performance of a predictive model as a function of simulated correlations.} From left to right and top to bottom, three first graphs show for each asset the normalized performance of an ARMA model ($p=2,q=0$), defined as $\pi = \left(\frac{1}{T}\sum_t\left(\tilde{X}_i(t) - M_{\omega_1}\left[\tilde{X}_i\right](t)\right)^2 \right) / \sigma \left[ \tilde{X}_i \right]^2$ (95\% confidence intervals computed by $\pi = \bar{\pi} \pm (1.96\cdot \sigma [\pi])/\sqrt{T}$, local polynomial smoothing to ease reading). It is interesting to note the U-shape for EUR/USD, due to interference between components at different scales. Correlation between simulated noises deteriorates predictive power. The study of lagged correlations (here $\rho [\Delta X_{\textrm{EURUSD}}(t),\Delta X_{\textrm{EURGBP}}(t-\tau)]$) on real data clarifies this phenomenon: the fourth graph show an asymmetry in curves at any scale compared to zero lag $(\tau = 0)$ what leads fundamental components to increase predictive power for the dollar, amelioration then perturbed by correlations between simulated components. Dashed lines show time steps (in equivalent $\tau$ units) used by the ARMA at each scale, what allows to read the corresponding lagged correlation on fundamental component.\label{fig:model_perf}}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%
 
 
 
-\subsection*{Results}
-
-
 
 Fig.~\ref{fig:effective_corrs} shows the effective correlations computed on synthetic data. For standard parameter values (for example $\omega_0=24\textrm{h}$, $\omega_1=2\textrm{h}$ and $\rho=-0.5$), we find $\rho_0\simeq 0.71$ et $\varepsilon_i \simeq 0.3$ what yields $\left| \rho_e - \rho \right|\simeq 0.05$. We observe a good agreement between observed $\rho_e$ and values predicted by Equation~\ref{eq:eff_corr} in the interval $\rho \in [-0.5,0.5]$. On the contrary, for larger absolute values, a deviation increasing with $\left|\rho\right|$ and as $\omega_1$ decreases : it confirms the intuition that when frequency decreases and becomes closer to $\omega_0$, interferences between the two components are not negligible anymore and invalidate independence assumptions for example.
 
 
+\subsection*{Application}
 
-We apply then the predictive model described above to synthetic data, in order to study its mean performance as a function of correlation between signals. Results for $\omega_1 = 1\textrm{h},1\textrm{h}30,2\textrm{h}$ are shown in Fig.~\ref{fig:model_perf}. The a priori counter-intuitive result of a maximal performance at vanishing correlation for one of the assets confirms the role of synthetic data to better understand system mechanisms : the study of lagged correlations shows an asymmetry in the real data that we can understand at a daily scale as an increased influence of EUR/GBP on EUR/USD with a rough two hours lag. The existence of this \emph{lag} allows a ``good'' prediction of EUR/USD thanks to fundamental component. This predictive power is perturbed by added noises in a way that increases with their correlation. The more noises correlated are, the more he model will take them into account and will make false predictions because of the markovian character of simulated brownian (note that the model used has theoretically no predictive power at all on pure brownians).
+
+We apply then the predictive model described above to synthetic data, in order to study its mean performance as a function of correlation between signals. Results for $\omega_1 = 1\textrm{h},1\textrm{h}30,2\textrm{h}$ are shown in Fig.~\ref{fig:model_perf}. The a priori counter-intuitive result of a maximal performance at vanishing correlation for one of the assets confirms the role of synthetic data to better understand system mechanisms : the study of lagged correlations shows an asymmetry in the real data that we can understand at a daily scale as an increased influence of EUR/GBP on EUR/USD with a rough two hours lag. The existence of this \emph{lag} allows a ``good'' prediction of EUR/USD thanks to fundamental component. This predictive power is perturbed by added noises in a way that increases with their correlation. The more noises correlated are, the more he model will take them into account and will make false predictions because of the Markovian character of simulated brownian (note that the model used has theoretically no predictive power at all on pure brownians).
 
 
 This case study on a \emph{toy-model} illustrates the relevance of using simulated synthetic data. Further developments can be directed towards the simulation of more realistic data (presence of consistent \emph{lagged correlation} patterns, more realistic models than Black-Scholes) and apply it on more operational predictive models.
 
-
-
-
-
-%%%%%%%%%%%%%%%%
-\section*{Geographical data: correlated population density and road network}
-
-We now turn to a different type of system, namely geographical systems of human settlements, in the particular case here of population distribution in correlation with road network. In this exemple, no theoretical derivation can be done previously to correlated data generation, and simulation appears as a crucial step to implement the method.
-
-
-\subsection*{Territorial configuration model}
-
-We propose in our case to generate territorial systems summarized in a simplified way as a spatial population density $d(\vec{x})$ and a transportation network $n(\vec{x})$. Correlations we aim to control are correlations between urban morphological measures and network measures. The question of interactions between territories and networks is already well-studied~\cite{offner1996reseaux} but remains highly complex and difficult to quantify~\cite{offner1993effets}. A dynamical modeling of implied processes should shed light on these interactions \cite{bretagnolle:tel-00459720}. We develop in that frame a simple coupling (i.e. without any feedback loop) between a density distribution model and a network morphogenesis model.
-
-
-
-
-\subsubsection*{Density model}
-
-We use a model $D$ similar to aggregation-diffusion models~\cite{batty2006hierarchy} to generate a discrete spatial distribution of population density. A generalization of the basic model is proposed in~\cite{raimbault2018calibration}, providing a calibration on morphological objectives (entropy, hierarchy, spatial auto-correlation, mean distance) against real values computed on the set of 50km sized grid extracted from European density grid~\cite{eurostat}. We recall here rapidly the processes in the model. An square grid of width $N$, initially empty, is represented by population $(P_i(t))_{1\leq i\leq N^2}$. At each time step, until the total population reaches a fixed parameter $P_m$,
-\begin{itemize}
-\item total population is increased of a fixed number $N_G$ (growth rate), following a preferential attachment such that $\Pb{P_i(t+1)=P_i(t)+1|P(t+1)=P(t)+1}=\frac{(P_i(t)/P(t))^{\alpha}}{\sum(P_i(t)/P(t))^{\alpha}}$
-\item a fraction $\beta$ of population is diffused to four closest neighbors is operated $n_d$ times
-\end{itemize}
-
-
-The two opposite processes of urban concentration and urban sprawl are captured by the model, what allows to reproduce with a good precision a large number of existing morphologies regarding macroscopic urban form indicators.
-
-
-\subsubsection*{Network model}
-
-
-On the other hand, we are able to generate a planar transportation network by a model $N$, at a similar scale and given a density distribution. Because of the conditional nature to the density of the generation process, we will first have conditional estimators for network indicators, and secondly natural correlations between network and urban shapes should appear as processes are not independent. The nature and modularity of these correlations as a function of model parameters are still to determine by exploration of the coupled model.
-
-
-
-The heuristic network generation procedure is the following :
-\begin{enumerate}
-\item A fixed number $N_c$ of centers that will be first nodes of the network si distributed given density distribution, following a similar law to the aggregation process, i.e. the probability to be distributed in a given patch is $\frac{(P_i/P)^{\alpha}}{\sum (P_i/P)^{\alpha}}$. Population is then attributed according to Voronoi areas of centers, such that a center cumulates population of patches within its extent.
-\item Centers are connected deterministically by percolation between closest clusters : as soon as network is not connected, two closest connected components in the sense of minimal distance between each vertices are connected by the link realizing this distance. It yields a tree-shaped network.
-\item Network is modulated by potential breaking in order to be closer from real network shapes. More precisely, a generalized gravity potential between two centers $i$ and $j$ is defined by
-\begin{equation}
-V_{ij}(d) = \left[ (1 - k_h) + k_h \cdot \left( \frac{P_i P_j}{P^2} \right)^{\gamma} \right]\cdot \exp{\left( -\frac{d}{r_g (1 + d/d_0)} \right)}
-\end{equation}
-where $d$ can be euclidian distance $d_{ij}=d(i,j)$ or network distance $d_N(i,j)$, $k_h \in [0,1]$ a weight to modulate role of populations, $\gamma$ giving shape of the hierarchy across population values, $r_g$ characteristic interaction distance and $d_0$ distance shape parameter.
-\item A fixed number $K\cdot N_L$ of potential new links is taken among couples having greatest euclidian distance potential ($K=5$ is fixed).
-\item Among potential links, $N_L$ are effectively realized, that are the one with smallest rate $\tilde{V}_{ij} = V_{ij}(d_N)/V_{ij}(d_{ij})$. At this stage only the gap between euclidian and network distance is taken into account : $\tilde{V}_{ij}$ does indeed not depend on populations and is increasing with $d_N$ at constant $d_{ij}$.
-\item Planarity of the network is imposed by creating nodes at possible intersections formed by new links.
-\end{enumerate}
-
-
-We insist on the fact that the network generation procedure is entirely heuristic and result of thematic assumptions (connected initial network, gravity-based link creation) combined with trial-and-error during first explorations. Other model types could be used as well, such as biological self-generated networks~\cite{tero2010rules}, local network growth based on geometrical constraints optimization~\cite{courtat2011mathematics}, or a more complex percolation model than the initial one that would allow the creation of loops for example. We could thus in the frame of a modular architecture, in which the choice between different implementations of a functional brick can be seen as a meta-parameter~\cite{cottineau2015growing}, choose network generation function adapted to a specific need (as e.g. proximity to real data, constraints on output indicators, variety if generated forms, etc. ).
-
-
-
-%\paragraph{Parameter space}
-
-Parameter space for the coupled model is constituted by density generation parameters $\vec{\alpha}_D = (P_m/N_G , \alpha,\beta , n_d)$ (we study for the sake of simplicity the rate between population and growth rate instead of both varying, i.e. the number of steps needed to generate the distribution) and network generation parameters $\vec{\alpha}_N=(N_C,k_h,\gamma , r_g , d_0)$. We denote $\vec{\alpha} = (\vec{\alpha}_D,\vec{\alpha}_N)$. 
-
-% \footnote{Weak coupling allows to limit the total number of parameters as a strong coupling would involve retroaction loops and consequently associated parameters to determine their structure and intensity. In order to diminish it, an integrated model would be preferable to a strong coupling, what is slightly different in the sense where it is not possible in the integrated model to freeze one of the subsystems to obtain a model of the other subsystem that would correspond to the non-coupled model.}
-
-
-%\paragraph{Indicators}
-
-Urban form and network structure are quantified by numerical indicators in order to modulate correlations between these. Morphology is defined as a vector $\vec{M}=(r,\bar{d},\varepsilon,a)$ giving spatial auto-correlation (Moran index), mean distance, entropy and hierarchy (see~\cite{le2015forme} for a precise definition of these indicators). Network measures $\vec{G} = (\bar{c},\bar{l},\bar{s},\delta)$ are with network denoted $(V,E)$
-\begin{itemize}
-\item Mean centrality $\bar{c}$ defined as average \emph{betweeness-centrality} (normalized in $[0,1]$) on all links.
-\item Mean path length $\bar{l}$ given by $\frac{1}{d_m}\frac{2}{|V|\cdot (|V|-1)}\sum_{i<j}d_N(i,j)$ with $d_m$ normalization distance taken here as world diagonal $d_m=\sqrt{2}N$.
-\item Mean network speed~\cite{banos2012towards} which corresponds to network performance compared to direct travel, defined as $\bar{s} = \frac{2}{|V|\cdot (|V|-1)}\sum_{i<j}{\frac{d_{ij}}{d_N(i,j)}}$.
-\item Network diameter $\delta = \max_{ij}d_N(i,j)$.
-\end{itemize}
-
-
-
-%\paragraph{Covariance and correlation}
-
-We study the cross-correlation matrix $\Covb{\vec{M}}{\vec{G}}$ between morphology and network. We estimate it on a set of $n$ realizations at fixed parameter values $(\vec{M}\left[D(\vec{\alpha})\right],\vec{G}\left[N(\vec{\alpha})\right])_{1\leq i\leq n}$ with standard unbiased estimator. We estimate correlation with associated Pearson estimator. 
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Results}
-
-
-Coupling of generative models is done both at formal and operational levels. We interface therefore independent implementations. The OpenMole software~\cite{reuillon2013openmole} for intensive model exploration offers for that the ideal frame thanks to its modular language allowing to construct \emph{workflows} by task composition and interfacing with diverse experience plans and outputs. For operational reasons, density model is implemented in \texttt{scala} language as an OpenMole plugin, whereas network generation is implemented in agent-oriented language \texttt{NetLogo}~\cite{wilensky1999netlogo} because of its possibilities for interactive exploration and heuristic model construction. Source code is available for reproducibility on an open git repository at \url{https://github.com/JusteRaimbault/CityNetwork/tree/master/Models/Synthetic}.
-
-
-%%%%%%%%%%%%%%
-\begin{figure}[h!]
-\includegraphics[width=0.45\linewidth]{figuresraw/configs/1_param71861_seed0}
-   \includegraphics[width=0.45\linewidth]{figuresraw/configs/2_param71913_seed10}\\
-   \includegraphics[width=0.45\linewidth]{figuresraw/configs/3_param71918_seed0}
-   \includegraphics[width=0.45\linewidth]{figuresraw/configs/4_param71945_seed0}
-	\caption{\csentence{Configurations obtained for parameters giving the four emphasized points in Fig.~\ref{fig:densnwcor}, in order from left to right and top to bottom.} We recognize polycentric city configurations (2 and 4), diffuse rural settlements (3) and aggregated weak density area (1). See appendice for exhaustive parameter values, indicators and corresponding correlations. For example $\bar{d}$ is highly correlated with $\bar{l},\bar{s}$ ($\simeq$0.8) in (1) but not for (3) although both correspond to rural environments ; in the urban case we observe also a broad variability : $\rho[\bar{d},\bar{c}]\simeq 0.34$ for (4) but $\simeq-0.41$ for (2), what is explained by a stronger role of gravitation hierarchy in (2) $\gamma=3.9,k_h=0.7$ (for (4), $\gamma=1.07,k_h=0.25$), whereas density parameters are similar.\label{fig:configexamples}}
-\end{figure}
-%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%
-\begin{figure}[h!]
-\begin{minipage}{0.55\linewidth}
-\includegraphics[width=\textwidth]{figuresraw/hist_crossCorMat_breaks30}
-\end{minipage}
-\begin{minipage}{0.34\linewidth}
-\includegraphics[width=\textwidth]{figuresraw/heatmap_maxAbsCor}\\
-\includegraphics[width=\textwidth]{figuresraw/heatmap_amplCor}
-\end{minipage}\\
-\begin{minipage}{0.45\linewidth}
-\includegraphics[width=\textwidth]{figuresraw/pca_meanAbsCor_errorBars}
-\end{minipage}
-\begin{minipage}{0.45\linewidth}
-\includegraphics[width=\textwidth]{figuresraw/pca_realDistCol_meanAbsCorSize_withSpecificPoints}
-\end{minipage}
-\caption{\csentence{Exploration of feasible space for correlations between urban morphology and network structure.} \textbf{(Top left)} Statistical distribution of crossed-correlations between vectors $\vec{M}$ of morphological indicators (in numbering order Moran index, mean distance, entropy, hierarchy) and $\vec{N}$ of network measures (centrality, mean path length, speed, diameter). \textbf{(Top right)} Heatmaps for amplitude of correlations, defined as $a_{ij}=\max_k{\rho_{ij}^{(k)}}-\min_k{\rho_{ij}^{(k)}}$ and maximal absolute correlation, defined as $c_{ij}=\max_k\left| \rho_{ij}^{k} \right|$. \textbf{(Bottom left)} Projection of correlation matrices in a principal plan obtained by Principal Component Analysis on matrix population (cumulated variances: PC1=38\%, PC2=68\%). Error bars are initially computed as 95\% confidence intervals on each matrix element (by standard Fisher asymptotic method), and upper bounds after transformation are taken in principal plan. Scale color gives mean absolute correlation on full matrices. \textbf{(Botton right)} Representation in the principal plan, scale color giving proximity to real data defined as $1 - \min_r \norm{\vec{M}-\vec{M}_r}$ where $\vec{M}_r$ is the set of real morphological measures, point size giving mean absolute correlation. The points highlighted in blue correspond to the configurations shown in Fig.~\ref{fig:configexamples}.\label{fig:densnwcor}}
-\end{figure}
-%%%%%%%%%%%%%%
-
-
-
-\subsubsection*{Results}
-
-The study of the density model alone is developed in~\cite{raimbault2018calibration}. It is in particular calibrated on European density grid data, on 50km width square areas with 500m resolution for which real indicator values have been computed on whole Europe. Furthermore, a grid exploration of model behavior yields feasible output space in reasonable parameters bounds (roughly $\alpha \in [0.5,2],N_G\in [500,3000], P_m \in [10^4,10^5],\beta\in [0,0.2], n_d \in \{ 1, \ldots , 4\}$). The reduction of indicators space to a two dimensional plan through a Principal Component Analysis (variance explained with two components $\simeq 80\%$) allows to isolate a set of output points that covers reasonably precisely real point cloud. It confirms the ability of the model to reproduce morphologically the set of real configurations.
-
-
-
-With a fixed population density, the conditional exploration of network generation model parameter space suggest a good flexibility on global indicators $\vec{G}$, together with good convergence properties. For a precise study of model behavior, see appendice giving regressions analysis capturing the behavior of coupled model. In order to illustrate synthetic data generation method, the exploration has been oriented towards the study of cross-correlations.
-
-
-
-Given the large relative dimension of the parameter space, an exhaustive grid exploration is not possible. We use a Latin Hypercube sampling procedure with bounds given above for $\vec{\alpha}_D$ and for $\vec{\alpha}_N$, we take $N_C \in [50,120], r_g \in [1,100] , d_0 \in [0.1,10] , k_h \in [0,1] , \gamma \in [0.1,4],N_L\in [4,20]$. For number of model replications for each parameter point, less than 50 are enough to obtain confidence intervals at 95\% on indicators of width less than standard deviations. For correlations a hundred give confidence intervals (obtained with Fisher method) of size around 0.4, we take thus $n=80$ for experiments. Simulation results are available on the dataverse at \url{http://dx.doi.org/10.7910/DVN/UIHBC7}.
-
-We show in Fig.~\ref{fig:configexamples} examples of generated territorial configurations. This visualization and some values of associated correlations already suggest that the method application yields a broad spectrum of generated correlation patterns.
-% TODO bla bla configs
-
-
-Fig.~\ref{fig:densnwcor} gives details of experiment results. Regarding the subject of correlated synthetic data generation, we can summarize the results as follows:
-\begin{itemize}
-\item Empirical distributions of correlation coefficients between morphology and network indicators are not simple and some are bimodal (for example $\rho_{46}=\rho[r,\bar{l}]$  between Moran index and mean path length).
-\item it is possible to modulate up to a relatively high level of correlation for all indicators, maximal absolute correlation varying between 0.6 and 0.9. Amplitude of correlations varies between 0.9 and 1.6, allowing a broad spectrum of values. Point cloud in principal plan has a large extent but is not uniform: it is not possible to modulate at will any coefficient as they stay themselves correlated because of underlying generation processes. A more refined study at higher orders (correlation of correlations) would be necessary to precisely understand degrees of freedom in correlation generation.
-\item Most correlated points are also the closest to real data, what confirms the intuition and stylized fact of a strong interdependence in reality.
-\item Concrete examples taken on particular points in the principal plan show that similar density profiles can yield very different correlation profiles.
-\end{itemize}
-
-
-
-
-This case study could be refined by extending correlation control method. A precise knowledge of $N$ behavior (statistical distributions on an exhaustive grid of parameter space) conditional to $D$ would allow to determine $N^{<-1>} | D$ and have more latitude in correlation generation. We could also apply specific exploration algorithms to reach exceptional configurations realizing an expected correlation level, or at least to obtain a better knowledge of the feasible space of correlations~\cite{10.1371/journal.pone.0138212}.
 
 
 
@@ -460,8 +462,9 @@ This case study could be refined by extending correlation control method. A prec
 
 \subsection*{Contributions}
 
+We investigated in this paper the possibility of generating synthetic data at a macrosopic level with a controlled correlation structure. The generic method we introduce can be applied to any complex system, where the proximity to real data is measured on aggregated indicators. The method was designed more particularly for socio-spatial systems. We show in the case of transportation network and territories, by exploring a weak coupled model for population density and road network generation, that varying model parameters yield a broad output space of effective correlations. Two configurations with the same first order indicator values can capture very different underlying correlations. This means that future applications to the study of upstream models to the sensitivity of spatial initial configuration, such as the one done by \cite{raimbault2018space}, should be made possible.
 
-
+We postulate that the method can be also applied in other fields where similar constraints can be of interest.
 
 
 \subsection*{Future work}
