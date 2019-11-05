@@ -382,24 +382,23 @@ ggsave(file=paste0(figdir,'crosscor/pca_meanAbsCor_errorBars.png'),width=20.3,he
 #for(p in parnames){
 #  plots=list()
 #  for(i in 1:length(indicnames)){
-#    g=ggplot(data.frame(aggres,params),aes_string(x=p,y=indicnames[i]))
+#   g=ggplot(data.frame(aggres,params),aes_string(x=p,y=indicnames[i]))
 #    plots[[indicnames[i]]]=g+geom_point()+geom_errorbar(aes_string(ymin=paste0(indicnames[i],"-",indicsdnames[i]),ymax=paste0(indicnames[i],"+",indicsdnames[i])),width=(max(params[,p])-min(params[,p]))/40)
 #  }
 #  multiplot(plotlist = plots,cols = 3)
 #}
 
-
 ###
 # param influence on raw corrs
 
-#cornames = c("cor15","cor16","cor17","cor18",
-#              "cor25","cor26","cor27","cor28",
-#              "cor35","cor36","cor37","cor38",
-#              "cor45","cor46","cor47","cor48"   
-#            )
-#
-#corminnames = paste0(cornames,"min")
-#cormaxnames = paste0(cornames,"max")
+cornames = c("cor15","cor16","cor17","cor18",
+              "cor25","cor26","cor27","cor28",
+              "cor35","cor36","cor37","cor38",
+              "cor45","cor46","cor47","cor48"   
+            )
+
+corminnames = paste0(cornames,"min")
+cormaxnames = paste0(cornames,"max")
 
 #for(p in parnames){
 #  plots=list()
@@ -411,6 +410,56 @@ ggsave(file=paste0(figdir,'crosscor/pca_meanAbsCor_errorBars.png'),width=20.3,he
 #}
 #
 
+i=8 # average path length / slope
+g=ggplot(data.frame(crosscormat,params),aes_string(x="alphalocalization",y=cornames[i]))
+g+geom_point()+geom_smooth()+facet_grid(cut(gravityInflexion,2)~cut(gravityRadius,2))+
+  ylab(expression(rho*"[l,a]"))+xlab(expression(alpha))+stdtheme
+ggsave(file=paste0(figdir,'/params/rho-pathLength-slope_alphalocalization_facet-gravityInflexion-gravityRadius.png'),width=25,height=20,units='cm')
+
+g=ggplot(data.frame(crosscormat,params),aes_string(x="gravityHierarchyExponent",y=cornames[i]))
+g+geom_point()+geom_smooth()+facet_grid(cut(gravityInflexion,2)~cut(gravityRadius,2))+
+  ylab(expression(rho*"[l,a]"))+xlab(expression(gamma))+stdtheme
+ggsave(file=paste0(figdir,'/params/rho-pathLength-slope_gravityHierarchyExponent_facet-gravityInflexion-gravityRadius.png'),width=25,height=20,units='cm')
+
+
+g=ggplot(data.frame(crosscormat,params),aes_string(x="hierarchyRole",y=cornames[i]))
+g+geom_point()+geom_smooth()+facet_grid(cut(gravityInflexion,2)~cut(gravityRadius,2))+
+  ylab(expression(rho*"[l,a]"))+xlab(expression(k[h]))+stdtheme
+ggsave(file=paste0(figdir,'/params/rho-pathLength-slope_hierarchyRole_facet-gravityInflexion-gravityRadius.png'),width=25,height=20,units='cm')
+
+
+
+g=ggplot(data.frame(crosscormat,params),aes_string(x="gravityRadius",y=cornames[i]))
+g+geom_point()+geom_smooth()+facet_grid(cut(alphalocalization,2)~cut(diffusion,2))+
+  ylab(expression(rho*"[l,a]"))+xlab(expression(r[g]))+stdtheme
+ggsave(file=paste0(figdir,'/params/rho-pathLength-slope_gravityRadius_facet-alphalocalization-diffusion.png'),width=25,height=20,units='cm')
+
+
+g=ggplot(data.frame(crosscormat,params,aggres),aes_string(x="gravityRadius",y=cornames[i]))
+g+geom_point()+geom_smooth()+facet_grid(cut(moranIndex,2)~cut(rslope,2))+
+  ylab(expression(rho*"[l,a]"))+xlab(expression(r[g]))+stdtheme
+ggsave(file=paste0(figdir,'/params/rho-pathLength-slope_gravityRadius_facet-moranIndex-rslope.png'),width=25,height=20,units='cm')
+
+
+g=ggplot(data.frame(crosscormat,params,aggres),aes_string(x="gravityRadius",y=cornames[i]))
+g+geom_point()+geom_smooth()+facet_grid(cut(moranIndex,2)~cut(distanceMean,2))+
+  ylab(expression(rho*"[l,a]"))+xlab(expression(r[g]))+stdtheme
+ggsave(file=paste0(figdir,'/params/rho-pathLength-slope_gravityRadius_facet-moranIndex-distanceMean.png'),width=25,height=20,units='cm')
+
+
+g=ggplot(data.frame(crosscormat,params,aggres),aes_string(x="alphalocalization",y=cornames[i]))
+g+geom_point()+geom_smooth()+facet_wrap(~cut(moranIndex,2))+
+  ylab(expression(rho*"[l,a]"))+xlab(expression(alpha))+stdtheme
+ggsave(file=paste0(figdir,'/params/rho-pathLength-slope_alphalocalization_facet-moranIndex.png'),width=25,height=20,units='cm')
+
+g=ggplot(data.frame(crosscormat,params,aggres),aes_string(x="rslope",y=cornames[i]))
+g+geom_point()+geom_smooth()+facet_wrap(~cut(moranIndex,2))+
+  ylab(expression(rho*"[l,a]"))+xlab(expression(a))+stdtheme
+ggsave(file=paste0(figdir,'/params/rho-pathLength-slope_rslope_facet-moranIndex.png'),width=25,height=20,units='cm')
+
+
+
+# Q : algo automatique to isolate "meaningful" plots ? - interesting variations -> variance / monotony based ?
 
 
 ##########
