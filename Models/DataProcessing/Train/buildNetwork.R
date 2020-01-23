@@ -2,6 +2,7 @@
 setwd(paste0(Sys.getenv('CN_HOME'),'/Models/DataProcessing/Train'))
 
 library(rgdal)
+library(igraph)
 
 source(paste0(Sys.getenv('CN_HOME'),'/Models/TransportationNetwork/NetworkSimplification/nwSimplFunctions.R'))
 source(paste0(Sys.getenv('CN_HOME'),'/Models/InteractionGibrat/functions.R'))
@@ -12,12 +13,14 @@ stations=readOGR(paste0(Sys.getenv('CN_HOME'),'/Data/Train/data'),'stations')
 stations$ouverture=as.numeric(as.character(stations$ouverture))
 stations$fermeture=as.numeric(as.character(stations$fermeture))
 
+##
+# 20200123 in macrocoevol model dates: 1912? copy file as 1912 (consecutive years: ? - model not used on full dates)
 years = c(1831,1836,1841,1846,1851,1856,1861,1866,1872,1876,1881,
           1886,1891,1896,1901,1906,1911,1921,1926,1931,1936,
           1946,1954,1955,1962,1968,1975,1982,1990,1999)
 
-#resolution = 1000
-resolution = 10000
+resolution = 1000
+#resolution = 10000
 
 
 # cities
@@ -85,9 +88,10 @@ for(year in years){
 ############
 ###
 
-source(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/functions.R'))
+source(paste0(Sys.getenv('CN_HOME'),'/Models/InteractionGibrat/functions.R'))
 
 for(year in years){
+  # year = 1876
   show(year)
   load(paste0('processed/',year,'_graph_res',resolution,'_cities',Ncities,'.RData'))
   E(gcities)$weight=E(gcities)$length*E(gcities)$speed
