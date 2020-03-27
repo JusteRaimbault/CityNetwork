@@ -168,17 +168,17 @@
 %\setmainfont[]{Garamond Premier Pro}
 %\setsansfont[Scale=MatchLowercase]{Myriad Pro}
 %\setmonofont[Scale=MatchLowercase]{Letter Gothic Std}
-\newfontfamily\semibfsf[Scale=MatchLowercase]{Myriad Pro Semibold}
-\newfontfamily\sesffamily[Scale=MatchLowercase]{MyriadPro-SemiCn}
+%\newfontfamily\semibfsf[Scale=MatchLowercase]{Myriad Pro Semibold}
+%\newfontfamily\sesffamily[Scale=MatchLowercase]{MyriadPro-SemiCn}
 
 %% ========== Set up fonts for various parts of document (from paper.cls) =========== %%
-\titlefont{\LARGE\bf\sffamily}
-\authorfont{\Large\sffamily}
-\sectionfont{\Large\semibfsf}
-\subsectionfont{\large\semibfsf}
-\subsubsectionfont{\large\sffamily}
-\subtitlefont{\LARGE\sffamily}
-\captionsetup{labelfont={bf,sf}}
+%\titlefont{\LARGE\bf\sffamily}
+%\authorfont{\Large\sffamily}
+%\sectionfont{\Large\semibfsf}
+%\subsectionfont{\large\semibfsf}
+%\subsubsectionfont{\large\sffamily}
+%\subtitlefont{\LARGE\sffamily}
+%\captionsetup{labelfont={bf,sf}}
 
 %% =========== Page layout and running heads ======= %%
 \setlength{\columnsep}{2.5em}

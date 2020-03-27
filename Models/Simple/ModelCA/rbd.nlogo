@@ -368,7 +368,7 @@ density-coefficient
 density-coefficient
 0
 1
-0.5
+0
 0.1
 1
 NIL
@@ -517,7 +517,7 @@ distance-to-activities-coefficient
 distance-to-activities-coefficient
 0
 1
-0
+0.5
 0.1
 1
 NIL
