@@ -88,36 +88,45 @@ public class TorPoolManager {
 			}
 			
 			//waiting for lock to read new available port
-			boolean locked = true;int t=0;
+			/*boolean locked = true;int t=0;
 			while(locked){
 				Log.stdout("Waiting for lock on .tor_tmp/lock");
 				Thread.sleep(200);
 				locked = (new File(".tor_tmp/lock")).exists();t++;
-			}
+			}*/
 			
 			// make the next step concurrent
 			// -> also lock ports file
 			// create the lock
-			File lock = new File(".tor_tmp/lock");lock.createNewFile();
+			//File lock = new File(".tor_tmp/lock");lock.createNewFile();
 			
 			// read new port - delete taken port from communication file
-			BufferedReader r = new BufferedReader(new FileReader(new File(".tor_tmp/ports")));
-			
-			changePortFromFile(r);
-			
+			//BufferedReader r = new BufferedReader(new FileReader(new File(".tor_tmp/ports")));
+			String portpath = ".tor_tmp/ports";
+			String lockfile = ".tor_tmp/lock";
+
+			changePortFromFile(portpath,lockfile);
+
+
+			/*
 			LinkedList<String> queue = new LinkedList<String>();
 			String currentLine = r.readLine();
 			while(currentLine!=null){
 				queue.add(currentLine);currentLine = r.readLine();
 			}
+			*/
+
 			//now rewrite the port file
+			// FIXME change the concurrence architecture -> available ports should be written server-side
+			/*
 			(new File(".tor_tmp/ports")).delete();
 			BufferedWriter w = new BufferedWriter(new FileWriter(new File(".tor_tmp/ports")));
 			for(String p:queue){w.write(p);w.newLine();}
 			w.close();
-			
+			*/
+
 			// release the lock
-			lock.delete();
+			//lock.delete();
 			
 			// show ip to check
 			showIP();
@@ -126,20 +135,44 @@ public class TorPoolManager {
 	}
 	
 	/**
-	 * 
-	 * 
-	 * @param r
+	 *
+	 * @param portpath
+	 * @param lockfile
 	 */
-	private static void changePortFromFile(BufferedReader r){
-		String newPort = "9050";
-		try{
-		   newPort = r.readLine();
-		}catch(Exception e){e.printStackTrace();}
+	private static void changePortFromFile(String portpath,String lockfile){
+		//String newPort = "9050";
+		String newPort = "";
+
+		// assumes ports with 4 digits
+		// and that the file always has a content
+		while(newPort.length()<4) {
+			try{
+				newPort = readLineWithLock(portpath,lockfile);
+				if(newPort.length()<4){System.out.println("Waiting for an available tor port");Thread.sleep(1000);}
+			}catch(Exception e){e.printStackTrace();}
+		}
 		
 		// set the new port
 		System.setProperty("socksProxyPort",newPort);
 		currentPort = Integer.parseInt(newPort);
 		Log.stdout("Current Port set to "+newPort);
+	}
+
+	private static String readLineWithLock(String portpath,String lockfile){
+		String res = "";
+		try{
+			boolean locked = true;int t=0;
+			while(locked){
+				Log.stdout("Waiting for lock on "+lockfile);
+				Thread.sleep(200);
+				locked = (new File(lockfile)).exists();t++;
+			}
+			File lock = new File(".tor_tmp/lock");lock.createNewFile();
+			BufferedReader r = new BufferedReader(new FileReader(new File(portpath)));
+			res=r.readLine();
+			lock.delete();
+		}catch(Exception e){e.printStackTrace();}
+		return(res);
 	}
 	
 	

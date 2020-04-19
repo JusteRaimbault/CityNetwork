@@ -5,20 +5,20 @@
 
 globals [
   coef
-  
+
   lambda
   beta
-  
+
   ;; res variable
   res
-  
+
 ]
 
 links-own[l-length]
 
 to setup
   set coef random 10
-  
+
   set lambda 0.5
   set beta 10
 end
@@ -92,6 +92,100 @@ test
 1
 NIL
 HORIZONTAL
+
+SLIDER
+26
+126
+198
+159
+variable-e-e-e-e
+variable-e-e-e-e
+0
+100
+50
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+23
+173
+195
+206
+%-varaibel-%%-test
+%-varaibel-%%-test
+0
+100
+50
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+29
+220
+204
+253
+?-variable-??-?-test
+?-variable-??-?-test
+0
+100
+50
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+31
+263
+226
+296
+%-?-shitty-variable-???
+%-?-shitty-variable-???
+0
+100
+50
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+32
+343
+98
+376
+NIL
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+40
+385
+149
+418
+forrreeeever
+setup
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -436,7 +530,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.3.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

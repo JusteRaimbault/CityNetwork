@@ -69,12 +69,11 @@
 \usepackage{natbib}
 
 
+% 
 
-
-
-% Cover Letter
-
-
+\usepackage{amsmath}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Var}{Var}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -103,7 +102,7 @@
 \maketitle
 
 \begin{abstract}
-Patterns of interdisciplinarity in science can be quantified through diverse complementary dimensions. This paper studies as a case study the scientific environment of a generalist journal in Geography, \emph{Cybergeo}, in order to introduce a novel methodology combining citation network analysis and semantic analysis. We collect a large corpus of around 200,000 articles with their abstracts and the corresponding citation network that provides a first citation classification. Relevant keywords are extracted for each article through text-mining, allowing us to construct a semantic classification. We study the qualitative patterns of relations between endogenous disciplines within each classification, and finally show the complementarity of classifications and of their associated interdisciplinarity measures. The tools we develop accordingly are open and reusable for similar large scale studies of scientific environments.
+Patterns of interdisciplinarity in science can be quantified through complementary dimensions. This paper studies as a case study the scientific environment of a generalist journal in Geography, \emph{Cybergeo}, in order to introduce a novel methodology combining citation network analysis and semantic analysis. We collect a large corpus of around 200,000 articles with their abstracts and the corresponding citation network that provides a first citation classification. Relevant keywords are extracted for each article through text-mining, allowing us to construct a semantic classification. We study the qualitative patterns of relations between endogenous disciplines within each classification, and finally show the complementarity of classifications and of their associated interdisciplinarity measures. The tools we develop accordingly are open and reusable for similar large scale studies of scientific environments. Our contribution therefore provides, besides the methodology, a new way to construct open databases and study journals for which data are difficult to obtain.
 \keywords{Citation Network \and Semantic Network \and Interdisciplinarity \and Geography}
 % \PACS{PACS code1 \and PACS code2 \and more}
 % \subclass{MSC code1 \and MSC code2 \and more}
@@ -115,36 +114,71 @@ Patterns of interdisciplinarity in science can be quantified through diverse com
 %%%%%%%%%%%%%%%%%%%%%%%
 
 
-\cite{gerow2018measuring} : topics / citations framework
 
-The development of interdisciplinary approaches is increasingly necessary for most of disciplines, both for further knowledge discovery but also societal impact of discoveries, as it was recently coined by the special issue of Nature~\citep{natureInterdisc}. \cite{banos2013pour} suggests that the development of such approaches must occur within a subtle spiral between and inside disciplines. An other way to understand this phenomenon is to understand it as the emergence of vertically integrated fields conjointly with horizontal questions as detailed in the Complex Systems roadmap (\cite{2009arXiv0907.2221B}). There are naturally multiple views on what is exactly interdisciplinarity (many other terms such as trans-disciplinarity, cross-disciplinarity also exist) and it actually depends on involved domains : recent hybrid disciplines (see e.g. the ones underlined  by \cite{bais2010praise} such as astro-biology) are a good illustration of the case where entanglement is strong and new discoveries are vertically deep, whereas more loose fields such as ``urbanism'', which have no precise definition and where integration is by essence horizontal, are an other illustration of how transversal knowledge can be produced. Interaction between disciplines are not always smooth, as shows the misunderstandings when urban issues were recently introduced to physicists as \cite{dupuy2015sciences} recalls.
-
-
-These concerns are part of an understanding of processes of knowledge production, i.e. the \emph{Knowledge of the knowledge} as \cite{morin1986methode} puts it, in which evidence-based perspectives, involving quantitative approaches, play an important role. These paradigms can be understood as a \emph{quantitative epistemology}. Quantitative measures of interdisciplinarity would therefore be part of a multidimensional approach of the study of science that is in a way ``beyond bibliometrics''~\citep{cronin2014beyond}. The focus of this paper is positioned within this stream of research. We first review existing approaches to the measure of interdisciplinarity.
+The development of interdisciplinary approaches is increasingly necessary for most of disciplines, both for further knowledge discovery but also societal impact of discoveries, as it was for example recently coined by the special issue of Nature~\citep{natureInterdisc}. Interdisciplinary research has furthermore a higher citation impact as shown by \cite{CHEN20151034}, but traditional research institutions such as the Nobel price still fail to foster interdisciplinarity~\citep{szell2018nobel}. \cite{banos2013pour} suggests that the development of such approaches must occur within a subtle spiral between and inside disciplines. An other way to interpret this phenomenon is to read it as the emergence of vertically integrated fields conjointly with horizontal questions as detailed in the Complex Systems roadmap \citep{2009arXiv0907.2221B}. There are naturally multiple views on what exactly interdisciplinarity is and it actually depends on the domains involved: recent hybrid disciplines (see e.g. the ones exhibited by \cite{bais2010praise} such as astro-biology) are a good illustration of the case where entanglement is strong and new discoveries are vertically deep, whereas more loose fields such as ``urbanism'', which have no precise definition and where integration is by essence horizontal, is an example of how transversal knowledge can be produced. Interactions between disciplines are not always smooth, as shows the misunderstandings when urban issues were recently introduced to physicists as \cite{dupuy2015sciences} recalls.
 
 
-The possible methods for quantitative insights into epistemology are numerous. A good illustration of the variety of approaches is given by network analysis Using citation network features, a good predicting power for citation patterns is for example obtained by~\cite{2013arXiv1310.8220N}. Co-authorship networks can also be used for predictive models~\citep{2014arXiv1402.7268S}. A multilayer network approach was proposed in~\cite{omodei2017evaluating}, using bipartites networks of papers and scholars, in order to produce measures of interdisciplinarity using generalized centrality measures. Disciplines can be stratified into layers to reveal communities between them and therein collaboration patterns~\citep{2015arXiv150601280B}. Keyword networks are used in other fields such as economics of innovation: for example, \cite{choi2014patent} proposes a method to identify technological opportunities by detecting important keywords from the point of view of topological measures. In a similar manner, \cite{shibata2008detecting} uses topological analysis of the citation network to detect emerging research fronts.
+\subsection*{Quantitative studies of knowledge}
+
+These concerns are part of an understanding of processes of knowledge production in which evidence-based perspectives, involving quantitative approaches, play an important role. These paradigms can be understood as a \emph{quantitative epistemology} following \cite{chavalarias2013phylomemetic}. Quantitative measures of interdisciplinarity would therefore be part of a multidimensional approach of the study of science that is in a way ``beyond bibliometrics''~\citep{cronin2014beyond}. The focus of this paper is positioned within this stream of research.
+
+The possible methods for quantitative insights into epistemology are numerous. A good illustration of the variety of approaches is given by network analysis. Using citation network features, a good predicting power for citation patterns is for example obtained by~\cite{2013arXiv1310.8220N}. The visualisation of citation networks can help to identify qualitative changes in the structure of disciplines \citep{chen2004searching}. Visual analytics indeed play a crucial role in the study of knowledge \citep{borner2003visualizing}.
+
+Co-authorship networks can also be used for predictive models ~\citep{2014arXiv1402.7268S}. Disciplines can be stratified into layers to reveal communities between them and therein collaboration patterns~\citep{2015arXiv150601280B}. Networks analysis are used in other fields such as economics of innovation: for example, \cite{choi2014patent} proposes a method to identify technological opportunities by detecting important keywords from the point of view of topological measures. In political science, \cite{gaumont2017methods} uses the gargantext platform to offer a clear view of political debates seen from the proxy of twitter.
+
+Such works allow to understand the dynamics of knowledge. For example, \cite{shibata2008detecting} use topological analysis of the citation network to detect emerging research fronts. Citation and co-citations patterns are at the basis of the generic framework developed by \cite{chen2006citespace} to detect emerging trends in science. The case of Nanoscience is studied by \cite{bonaccorsi2010proliferation} as a case of an emerging field exhibiting proliferating patterns for the keywords used.
+
+Large scale initiatives to map science, such as the UCSD map of science \citep{borner2012design}, are crucial both for the understanding of scientific environments, for scientific policies, and for social and technological transfers. \cite{leydesdorff2009global} describe a global map with nested discipline maps.
+
+An other important quantitative insight into science is the modeling of its dynamics \citep{borner2011modeling,scharnhorst2012models}, aimed at understanding processes through which collective scientific intelligence and its structures do emerge. This can include the modeling of social processes \citep{edmonds2011simulating}, of research institutions~\citep{Rouse12582}, or of the dynamics of competing theories themselves~\citep{Akerlof13228}.
+
+
+We now review with more details the different approaches to define and measure interdisciplinarity.
+
+
+\subsection*{Defining and measuring interdisciplinarity}
+
+Definitions of interdisciplinarity itself and indicators to measure it have already been tackled by a large body of literature. \cite{huutoniemi2010analyzing} recall the difference between \emph{multidisciplinary} (an aggregate of works from different disciplines) and \emph{interdisciplinary} (implying a certain level of integration) approaches. They construct a qualitative framework to classify types of interdisciplinarity, and for example distinguish empirical, theoretical and methodological interdisciplinarities.
+
+
+\cite{wagner2011approaches} find that knowledge integration is crucial for interdisciplinarity, and that it can occur at different levels, from the single scientist to the research team or the field. \cite{hall2008collaboration} confirm the role of the social aspect in potential interdisciplinary collaborations, by proposing to include the readiness to collaborate in the evaluation of corresponding research units. The multidimensionnal aspect of interdisciplinarity is confirmed even within a specific field such as literature~\citep{austin1996defining}.
+
+Beside these different conceptual approaches to interdisciplinarity, there exist several methodological means to measure it, of which we now give an overview. A first way to quantify interdisciplinarity of a set of publications is to look at the proportion of disciplines outside a main discipline in which they are published, as~\cite{rinia2002impact} do for the evaluation of projects in physics, complementary with judgement of experts. \cite{porter2007measuring} designate this measure as \emph{specialization}, and compare it with a measure of \emph{integration}, also called the \emph{Rao-Stirling} index, which is given by the spread of citations done by a paper within the different Subject Categories (classification of the Web of Knowledge).\cite{lariviere2010relationship} use it on a Web of Science corpus to show the existence of an optimal intermediate level of interdisciplinarity for the citation impact within a five year window. A similar work is done in~\citep{lariviere201410}, focusing on the evolution of measures on a long time range. The influence of missing data on this index is studied by \cite{moreno2016uncertainty}, providing an extended framework taking into account uncertainty.
+
+Other indices based on citation practices have been introduced, such as by \cite{rodriguez2017disciplinarity} which proposes an entropy-based index to classify the behavior of journal regarding knowledge import or export. \cite{zhang2016diversity} recall mathematical properties that need to be verified by diversity indices (such as symmetry or scale-invariance), and proposes that \emph{Hill-type} indices are more relevant than entropy.
+
+\cite{mugabushaka2016bibliometric} show that most of existing indices are a particular cases of \emph{Leinster-Cobbold diversity indices}, which correspond to a third generation of indices to measure diversity in ecology. \cite{leydesdorff2011indicators} compare different indices at the level of journals, and show that they appear to capture different dimensions of this phenomenon in a complementary way.
+
+
+The use of bottom-up network measures has also been proposed to quantify interdisciplinary research: \cite{porter2009science} combine the integration index with a mapping technique which consists in visualisation of synthetic networks constructed by co-citations between disciplines. \cite{leydesdorff2007betweenness} shows that the betweenness centrality is a relevant indicator of interdisciplinarity, when considering appropriate citation neighborhood. A multilayer network approach was proposed in~\cite{omodei2017evaluating}, using bipartites networks of papers and scholars, in order to produce measures of interdisciplinarity using generalized centrality measures. \cite{rafols2009diversity} combine diversity indices with measures of network coherence, which capture the integration of knowledge.
+
+
+\subsection*{Semantic analysis and interdisciplinarity}
+
+A particular entry to the quantification of interdisciplinarity is semantic analysis of documents. \cite{nichols2014topic} uses Latent Dirichlet Allocation topic modeling to characterize interdisciplinarity of awards in particular sciences. \cite{palchykov2016ground} do the same for papers in physics based on concept extraction from full texts, and show that the endogenous classes differ from the top-down subjects classification. Semantic networks are otherwise well studied in social sciences, such as for example \cite{2015arXiv151003797G} which analyze semantic networks of political debates. \cite{bouveyron2016stochastic} introduce a block model for network clustering which includes textual information of nodes. \cite{10.1371/journal.pone.0018029} benchmark several text-based clustering methods.
+
+Semantic analysis can be coupled with other dimensions, and in particular citation network analysis. \cite{bras2017oncology} study oncology by coupling the semantic aspects with institutional aspects. \cite{zhang2010journal} describe cross-journals citation clusters in terms of their semantic content, but does not produce an endogenous semantic classification. \cite{gerow2018measuring} finds that the citation influence and the discursive influence of scholars are complementary dimensions of academic success, by using topic modeling for the semantic classification of their work.
 
 
 
-Definitions of interdisciplinarity itself and indicators to measure it have already been tackled by a large body of literature. \cite{huutoniemi2010analyzing} recall the difference between \emph{multidisciplinary} (an aggregate of works from different disciplines) and \emph{interdisciplinary} (implying a certain level of integration) approaches. They construct a qualitative framework to classify types of interdisciplinarity, and for example distinguish empirical, theoretical and methodological interdisciplinarities. The multidimensionnal aspect of interdisciplinarity is confirmed even within a specific field such as literature~\citep{austin1996defining}. A first way to quantify interdisciplinarity of a set of publications is to look at the proportion of disciplines outside a main discipline in which they are published, as~\cite{rinia2002impact} do for the evaluation of projects in physics, complementary with judgement of experts. \cite{porter2007measuring} designate this measure as \emph{specialization}, and compares it with a measure of \emph{integration}, given by the spread of citations  done by a paper within the different Subject Categories (classification of the Web of Knowledge), which is also called the \emph{Rao-Stirling} index. \cite{lariviere2010relationship} uses it on a Web of Science corpus to show the existence of an optimal intermediate level of interdisciplinarity for the citation impact within a five year window. A similar work is done in~\citep{lariviere201410}, focusing on the evolution of measures on a long time range. The influence of missing data on this index is studied by \cite{moreno2016uncertainty}, providing an extended framework taking into account uncertainty. The use of networks has also been proposed : \cite{porter2009science} combine the integration index with a mapping technique which consists in visualisation of synthetic networks constructed by co-citations between disciplines. \cite{leydesdorff2007betweenness} shows that the betweenness centrality is a relevant indicator of interdisciplinarity, when considering appropriate citation neighborhood.
+\subsection*{Proposed approach and case study}
+
+We develop in this paper a case study coupling citation network exploration and analysis with text-mining, aiming at mapping the scientific landscape in the neighborhood of a particular journal. Our aim is twofold: (i) introduce a methodology coupling the two aspects; (ii) introduce tools which allow the analysis of journals for which data is difficult to obtain, when e.g. not referenced in main databases.
+
+We study an electronic journal in Geography, namely \textit{Cybergeo}\footnote{\texttt{https://journals.openedition.org/cybergeo/}}, that publishes articles within all subfields of Geography and is in that way multidisciplinary. The choice is initially due to data availability, but ensures several constraints making it highly relevant to the objectives given above. First of all, the ``discipline'' of Geography is very broad and by essence interdisciplinary~\citep{bracken2016interdisciplinarity}: the spectrum ranges from Human and Critical geography to physical geography and geomorphology, and interactions between these subfields are numerous. Secondly, bibliographical data is difficult to obtain, raising the concern of how the perception of a scientific landscape may be shaped by actors of the dissemination and thus far from objective, and making technical solutions as the ones we will consequently develop here crucial tools for an open and neutral science. Finally it makes a particularly interesting case study as the editorial policy is generalist and concerned with open science issues such as peer-review ethics transparency~\citep{10.1371/journal.pone.0147913}, open data and model practices, as recalled by~\cite{pumain2015adapting}, and this work contributes to these by fostering the opening of reflexivity.
 
 
+Our approach combine semantic communities analysis with citation network to extract features such as interdisciplinarity measures. Our contribution is original regarding previous works quantifying interdisciplinarity since it uses bottom-up community reconstruction both in the citation and in the semantic dimension. Our work naturally differ from studies in which the classification mapped is exogenous, such as institutional thesaurus as mapped by \cite{boyack2017thesaurus}. \cite{zhang2010journal} combines citation cluster with semantic analysis, but the semantic clusters are exogenous. We also differ from several previous work using endogenous semantic information, as \cite{vugteveen2014dynamics} for example only uses titles and combine them with references for the proximity measure, whereas we use more textual information with abstracts and a more refined method to extract keywords. \cite{bouveyron2016stochastic} uses both information simultaneously for the classification, capturing thus orthogonal dimensions with more difficulty.
 
-We develop in this paper a case study coupling citation network exploration and analysis with text-mining, aiming at mapping the scientific landscape in the neighborhood of a particular journal. We choose to study an electronic journal in Geography, named \textit{Cybergeo}\footnote{\texttt{http://cybergeo.revues.org/}}, that publishes articles within all subfields of Geography and is in that way multidisciplinary. The choice is initially due to data availability, but ensures several constraints making it highly relevant to the context given above. First of all, the ``discipline'' of Geography is very broad and by essence interdisciplinary~\cite{bracken2016interdisciplinarity} : the spectrum ranges from Human and Critical geography to physical geography and geomorphology, and interactions between these subfields are numerous. Secondly, bibliographical data is difficult to obtain, raising the concern of how the perception of a scientific landscape may be shaped by actors of the dissemination and thus far from objective, and making technical solutions as the ones we will consequently develop here crucial tools for an open and neutral science. Finally it makes a particularly interesting case study as the editorial policy is generalist and concerned with open science issues such as peer-review ethics transparency~\citep{10.1371/journal.pone.0147913}, open data and model practices, as recalled by~\cite{pumain2015adapting}, and this work contributes to these by fostering the opening of reflexivity.
-
-
-Our approach combine semantic communities analysis with citation network to extract features such as interdisciplinarity measures. Our contribution differs from the previous works quantifying interdisciplinarity as it does not assume predefined domains nor classification of the considered papers, but reconstructs from the bottom-up the fields with the endogenous semantic information. \cite{nichols2014topic} already introduced a close approach, using Latent Dirichlet Allocation topic modeling to characterize interdisciplinarity of awards in particular sciences. \cite{palchykov2016ground} takes a similar approach for papers in physics based on concept extraction from full texts, and show that the endogenous classes differ from the top-down subjects classification. Semantic networks are otherwise well studied in social sciences, such as for example \cite{2015arXiv151003797G} that analyze semantic networks of political debates.
 
 
 Our contribution is original and significant on at least two aspects :
 \begin{enumerate}
-	\item we combine endogenous classifications in a network multilayer fashion, using semantic information ;
+	\item we combine endogenous classifications in a network multilayer fashion;
 	\item a large dataset is constructed from scratch to study a journal not referenced in main databases, tackling both data retrieval and large scale data processing issues.
 \end{enumerate}
 
-\comment{\cite{bouveyron2016stochastic} : topic block modeling ; similar to paper by Moore}
-
+\cite{light2014open} already introduced a large scale open database and associated tools for the study of science. Our work is complementary as our tool allow the retrieval of targeted data which may not be referenced in such databases.
 
 The rest of the paper is organized as follows : we describe in the next section the dataset used and the data collection procedure. We then study properties of the citation network and describe the procedure to construct the semantic classification through text-mining. We finally study complementary measures of interdisciplinarity obtained with the different classifications.
 
@@ -158,13 +192,12 @@ The rest of the paper is organized as follows : we describe in the next section 
 
 
 
-Our approach imposes some requirements on the dataset used, namely: (i) cover a certain neighborhood of the studied journal in the citation network in order to have a consistent view on the scientific landscape; (ii) have at least a textual description for each node. For these to be met, we need to gather and compile data from heterogeneous sources. We use therefore an application specifically designed, which general architecture is given in Fig.~\ref{fig:datacollection}. Source code of the application and all scripts used in this paper are available on the open \texttt{git} repository of the project\footnote{at \texttt{https://github.com/JusteRaimbault/HyperNetwork}}. Raw and processed data are also openly available on Dataverse\footnote{at \texttt{http://dx.doi.org/10.7910/DVN/VU2XKT}}. We recall that an important contribution of this paper is the construction of such an hybrid dataset from heterogeneous sources, and the development of associated tools that can be reused and further developed for similar purposes.
+Our approach imposes some requirements on the dataset used, namely: (i) cover a certain neighborhood of the studied journal in the citation network in order to have a consistent view on the scientific landscape; (ii) have at least a textual description for each node. For these to be met, we need to gather and compile data from heterogeneous sources. We use therefore an application specifically designed, which general architecture is given in Fig.~\ref{fig:datacollection}. Source code of the application and all scripts used in this paper are available on the open \texttt{git} repository of the project\footnote{at \texttt{https://github.com/JusteRaimbault/HyperNetwork}}. The data collection application is written in \texttt{Java}, natural language processing in \texttt{python}, and network analyses in \texttt{R} using the \texttt{igraph} package. Network visualisation are done with the \texttt{Gephi} software. Database used are \texttt{MySql} (production base of the journal) and \texttt{MongoDB} (semantic network construction). Raw and processed data are also openly available on Dataverse\footnote{at \texttt{http://dx.doi.org/10.7910/DVN/VU2XKT}}. We recall that an important contribution of this paper is the construction of such an hybrid dataset from heterogeneous sources, and the development of associated tools that can be reused and further developed for similar purposes.
 
 
 
 %%%%%%%%%%%%%%%%%%
 \begin{figure}
-%\includegraphics[width=\textwidth]{figuresraw/archi}
 \includegraphics[width=\textwidth]{figures/Fig1.pdf}
 \caption{\textbf{Heterogeneous Bibliographical Data Collection and processing.} Architecture of the application for content (semantic data), metadata and citation data collection. The heterogeneity of tasks requires the use of multiple languages : data collection and management is done in Java, and data stored in databases (Mysql and MongoDB) ; data processing is done in python for Natural Language Processing and in R for statistical and network analyses; graph visualizations are done with Gephi software.}
 \label{fig:datacollection}
@@ -187,7 +220,7 @@ The production database of \textit{Cybergeo} (snapshot taken in February 2016, p
 Citation data is collected from \texttt{Google Scholar}, that is the only source for incoming citations~\citep{noruzi2005google} in our case as the journal is poorly referenced in other databases\footnote{or was just added as in the case of \textit{Web of Science}, indexing \textit{Cybergeo} since May 2016 only}. We are aware of the possible biaises using this single source (see e.g.~\cite{bohannon2014scientific})\footnote{or \texttt{http://iscpif.fr/blog/2016/02/the-strange-arithmetic-of-google-scholars}}, but these critics are more directed towards search results or possible targeted manipulations than the global structure of the citation network. The automatic collection requires the use of a crawling software to pipe requests, namely \texttt{TorPool}~\citep{torpool} that provides a Java API allowing an easy integration into our application of data collection. A crawler can therethrough retrieve html pages and get backward citation data, i.e. all citing articles for a given initial article. We retrieve that way two sub-corpuses: references citing papers in \textit{Cybergeo} and references \emph{citing the ones cited} by \textit{Cybergeo}. At this stage, the full corpus contains around $4\cdot10^5$ references.
 
 
-For the sake of simplicity, we will denote by \emph{reference} any standard scientific production that can be cited by another (journal paper, book, book chapter, conference paper, communication, etc.) and contains basic records (title, abstract, authors, publication year). We work in the following on networks of references, linked by citations.
+For the sake of simplicity, we will denote by \emph{reference} any standard scientific production that can be cited by another (journal paper, book, book chapter, conference paper, communication, etc.) and contains basic fields (title, abstract, authors, publication year). We work in the following on networks of references, linked by citations.
 
 
 
@@ -197,14 +230,9 @@ For the sake of simplicity, we will denote by \emph{reference} any standard scie
 A textual description for all references is necessary for a complete semantic analysis. We use for this an other source of data, that is the online catalog of \textit{Mendeley} reference manager software~\cite{mendeley}. It provides a free API allowing to get various records under a structured format. Although not complete, the catalog provides a reasonable coverage in our case, around 55\% of the full citation network. This yields a final corpus with full abstracts of size $2.1\cdot 10^5$. The structure and descriptive statistics of the corresponding citation network is recalled in Fig.~\ref{fig:citationnetwork}.
 
 
-%\cite{moreno2016uncertainty} no pb of uncertainty : endogenous classification
-
-
-
 %%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-%\includegraphics[width=0.6\textwidth]{figuresraw/citnw}
 \includegraphics[width=\textwidth]{figures/Fig2.pdf}
 \caption{\textbf{Structure and content of the citation network.} The original corpus of \emph{Cybergeo} is composed by 927 articles, themselves cited by a slightly larger corpus (yielding a stationary impact factor of around 3.18), cite $\simeq 6600$ references, themselves co-cited by more than $2\cdot 10^5$ works for which we have a textual description.}
 \label{fig:citationnetwork}
@@ -231,16 +259,13 @@ A textual description for all references is necessary for a complete semantic an
 
 \subsubsection*{Properties}
 
-% mean(degree(gcitation,which(degree(gcitation,mode="in")>0),mode="in"))
-%[1] 121.5615
 
-As detailed above, we are able by the reconstruction of the citation network at depth $\pm 1$ from the original $927$ references of the journal to retrieve around $45\cdot 10^6$ references, on which $2.1\cdot 10^5$ have an abstract text allowing semantic analysis. A first glance on citation network properties provides useful insights. Mean in-degree (that can be interpreted as a stationary integrated impact factor) on references for which it can be defined has a value of $\bar{d}=121.6$, whereas for articles in \textit{Cybergeo} we have $\bar{d}=3.18$. This difference suggests a variety for status of references, from old classical works (the most cited has 1051 incoming citations) to recent less influential works.
+As detailed above, we are able by the reconstruction of the citation network at depth $\pm 1$ from the original $927$ references of the journal to retrieve around $45\cdot 10^6$ references, on which $2.1\cdot 10^5$ have an abstract text allowing semantic analysis. A first glance on citation network properties provides useful insights. Average in-degree (which gives the cumulated number of citations since a reference was published) on references for which it can be defined has a value of $\bar{d}=121.6$, whereas for articles in \textit{Cybergeo} we have $\bar{d}=3.18$. This difference suggests a variety for status of references, from old classical works (the most cited has 1051 incoming citations) to recent less influential works.
 
 
 %%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-%\includegraphics[width=\textwidth]{figures/ranksize.pdf}
 \includegraphics[width=\textwidth]{figures/Fig3.jpg}
 \caption{\textbf{Rank-size plot of citations received.} The plot unveils three superposed citations regimes, corresponding to power laws with different levels of hierarchy. The references in \textit{Cybergeo} (inset plot) are themselves in the tail and less hierarchical.}
 \label{fig:ranksize}
@@ -248,17 +273,18 @@ As detailed above, we are able by the reconstruction of the citation network at 
 %%%%%%%%%%%%%%%%%
 
 
-This diversity is confirmed by the hierarchical organisation examined in Fig.~\ref{fig:ranksize} that unveils three superposed regimes. More precisely, we look at the rank-size plot, given by the logarithm of the number of citations received as a function of the rank of the paper. We find, as expected~\citep{redner1998popular}, localized power-law behaviors. A first set of around 150 references shows a very low hierarchy (rank-size exponent $\alpha = 0.01$) and corresponds to classical references in different disciplines. A second regime ($\alpha = 1.56$) is much more hierarchized, followed by a last regime less hierarchical ($\alpha = 0.75$) containing more recent papers (average publication year mid-2005, against mid-1998 for the second and 1983 for the first).
+This diversity is confirmed by the hierarchical organisation examined in Fig.~\ref{fig:ranksize} that unveils three superposed regimes. More precisely, we look at the rank-size plot, given by the logarithm of the number of citations received as a function of the rank of the paper. Scaling properties, which emerge in several models of network growth and are pervasive in real-world networks, are a powerful tool to understand the organisation of complex systems \citep{Barabasi509}.
+
+We find, as expected~\citep{redner1998popular}, localized power-law behaviors. A first set of around 150 references shows a very low hierarchy (rank-size exponent $\alpha = 0.01$) and corresponds to classical references in different disciplines. A second regime ($\alpha = 1.56$) is much more hierarchized, followed by a last regime less hierarchical ($\alpha = 0.75$) containing more recent papers (average publication year mid-2005, against mid-1998 for the second and 1983 for the first).
 
 
 
-Other topological properties reveal typical patterns of citation practices: for example, the existence of high-order cliques (complete sub-networks) implies citation practices which compatibility with the cumulative nature of knowledge may be questionable~\cite{pumain2005cumulativite}, since these need always to source back the production of knowledge in the most recent works. An exemple of such a clique in shown in Fig.~\ref{fig:cliques}.
+Other topological properties reveal typical patterns of citation practices, as for example the existence of high-order cliques. Cliques are subset of nodes between which all possible connections exist. Their existence implies citation practices in which all previous papers are systematically cited in new works. The compatibility of this process with the cumulative nature of knowledge may be questionable~\citep{pumain2005cumulativite}, since the previous knowledge production process is reconstructed each time instead on relying only on the most recent state of knowledge. An exemple of such a clique in shown in Fig.~\ref{fig:cliques}, where 6 publications studying the fractal nature of urban structures all cite the previous publications in the clique.
 
 
 
 %%%%%%%%%%%%%%%%%
 \begin{figure}
-%\includegraphics[width=\textwidth]{figures/cybclic.png}
 \includegraphics[width=\textwidth]{figures/Fig4.jpg}
 \caption{Example of a maximal clique in the citation network, paper of \texttt{cybergeo} being in blue. Such topological structure reveal citation practices such as here a systematic citation of previous works in the research niche.}
 \label{fig:cliques}
@@ -269,271 +295,27 @@ Other topological properties reveal typical patterns of citation practices: for 
 
 \subsubsection*{Citation communities}
 
-The citation network is a first opportunity to construct endogenous disciplines, by extracting citation communities. More precisely, this step aims at finding recurrent patterns in citations that would define a field by its citation practices. In order to be consistent with the particular data structure we have (missing incoming citations for sub-corpuses at maximal depth), we filter the network by removing all nodes with degree smaller than one. This ensures that kept nodes are either at least cited by an other node (and thus there are no missing edges for these nodes) or cite at least two other nodes, what can make ``bridges'' between sub-communities. The resulting network has a size of $\left|V\right| = 107164$ nodes and $\left|E\right| = 309778$ edges. It is visualized in Fig.~\ref{fig:citnw}.
+The citation network is a first opportunity to construct endogenous disciplines, by extracting citation communities. More precisely, this step aims at finding recurrent patterns in citations that would define a field by its citation practices. In order to be consistent with the particular data structure we have (missing incoming citations for sub-corpuses at maximal depth), we filter the network by removing all nodes with degree smaller than one. This ensures that the nodes kept are either at least cited by an other node (and thus there are no missing edges for these nodes) or cite at least two other nodes, what can make ``bridges'' between sub-communities. The resulting network has a size of $\left|V\right| = 107164$ nodes and $\left|E\right| = 309778$ edges. The citation network is visualized in Fig.~\ref{fig:citnw}.
 
 
 
 %%%%%%%%%%%%%%%%%
 \begin{figure}
 \hspace{-2cm}
-%\includegraphics[width=\textwidth]{figures/cybclic.png}
 \includegraphics[width=1.6\textwidth]{figures/Fig5.jpg}
-\caption{\textbf{Citation Network.} We show only the ``core'' of the citation network, composed by references with a degree larger than one ($\left|V\right| = 107164$ and $\left|E\right| = 309778$). The community detection algorithm provides 29 communities with a modularity of 0.71. Nodes and edges color gives the main community (for example ecology in magenta, GIS in orange, Socio-ecology in turquoise, Social geography in green, Spatial analysis in blue). Node labels give shortened titles of most cited papers, size is scaled according to their in-degree. The graph is spatialized using a Force-Atlas algorithm.}
+\caption{\textbf{Citation Network.} The directed citation network is composed by references as nodes and citation links between these. We show only the ``core'' of the citation network, composed by references with a degree larger than one ($\left|V\right| = 107164$ and $\left|E\right| = 309778$). Nodes and edges color gives the main community (for example ecology in magenta, GIS in orange, Socio-ecology in turquoise, Social geography in green, Spatial analysis in blue). Node labels give shortened titles of most cited papers, size is scaled according to their in-degree. The graph is spatialized using a Force-Atlas algorithm.}
 \label{fig:citnw}
 \end{figure}
 %%%%%%%%%%%%%%%%%
 
 
-We use a standard modularity optimization algorithm to identify communities~\citep{blondel2008fast} in this citation network. It provides 29 communities with a modularity of 0.71. In comparison, a bootstrap of 100 randomisations of links in the network gives an average modularity of $-1.0\cdot 10^{-4} \pm 4.4\cdot 10^{-4}$ which means that communities are highly significant.
+
+We use a standard modularity optimization algorithm to identify communities~\citep{blondel2008fast} in the citation network. This Louvain algorithm is applied on the corresponding undirected network following the elementary solution for community detection in directed networks \citep{malliaros2013clustering}. It provides 29 communities with a modularity of 0.71, which means that communities are highly integrated (generally, values above 0.4 are already considered as strongly clustered \citep{newman2006modularity}). In comparison, a bootstrap of 100 randomisations of links in the network gives an average modularity of $-1.0\cdot 10^{-4} \pm 4.4\cdot 10^{-4}$. This bootstrap gives statistical significance to the value we obtained, as the observed modularity is larger by more than four order of magnitude than the standard deviation of this null model.
 
 
-We name the communities by inspection of the titles of most cited references in each. The 14 communities that have a size larger than 2.5\% of the network are : Complex Networks, Ecology, Social Geography, Sociology, GIS, Spatial Analysis, Agent-based Modeling and Simulation (ABMS), Socio-ecology, Urban Networks, Urban Simulation, Urban Studies, Economic Geography, Accessibility/Land-use, Time Geography. These categories do not directly correspond to well-defined disciplines, as some correspond more to methods (ABMS), objects of study (Urban Studies), or paradigms (Complex Networks). Some are ``specializations'' of others : most papers in Urban Studies can also be classified as Critical and Social geography. This way, we construct endogenous disciplines that correspond to \emph{scientific practices} (what is cited) more than their representation (the ``official'' disciplines). The relative positioning of communities in Fig.~\ref{fig:citnw}, obtained with a Force-Atlas algorithm, tells a lot about their respective relations : for example, social geography makes a bridge between Urban Studies and Economic Geography, whereas the connection between Socio-ecology and Urban simulations is done by GIS (what can be expected as geomatics is an interdisciplinary field). GIS also separates and connects two subfield of Ecology, on one side more thematic studies on ecological habitats, and on the other sides statistical methods. These relations already inform qualitatively patterns of interdisciplinarity, in the sense of integration measures. We will also in the following use these communities to situate the semantic classification.
+We name the communities by inspection of the titles of most cited references in each. This naming process was done under the supervision of the editorial head of the journal. The 14 communities that have a size larger than 2.5\% of the network are : Complex Networks, Ecology, Social Geography, Sociology, GIS, Spatial Analysis, Agent-based Modeling and Simulation (ABMS), Socio-ecology, Urban Networks, Urban Simulation, Urban Studies, Economic Geography, Accessibility/Land-use, Time Geography. These categories do not directly correspond to well-defined disciplines, as some correspond more to methods (ABMS), objects of study (Urban Studies), or paradigms (Complex Networks). Some are ``specializations'' of others : most papers in Urban Studies can also be classified as Critical and Social geography. This way, we construct endogenous disciplines that correspond to \emph{scientific practices} (what is cited) more than their representation (the ``official'' disciplines). The relative positioning of communities in Fig.~\ref{fig:citnw}, obtained with a Force-Atlas algorithm, tells a lot about their respective relations : for example, social geography makes a bridge between Urban Studies and Economic Geography, whereas the connection between Socio-ecology and Urban simulations is done by GIS (what can be expected as geomatics is an interdisciplinary field). GIS also separates and connects two subfield of Ecology, on one side more thematic studies on ecological habitats, and on the other sides statistical methods. These relations already inform qualitatively patterns of interdisciplinarity, in the sense of integration measures. We will also in the following use these communities to situate the semantic classification.
 
-
-
-
-
-%%%%
-% Core properties :
-% |V| = 107164
-% |E| = 309778
-% Modularity = 0.694
-
-
-
-% "Community 24 ; corpus prop 2.12291441155612"
-%17103773263010692469                                             Shock waves on the highway    704
-%5930190645967036557                              Traffic dynamics: studies in car following    531
-%6454619432004957861  On kinematic waves. II. A theory of traffic flow on long crowded roads    671
-%15823582570548231219         Dynamical model of traffic congestion and numerical simulation    673
-%[1] "Community 10 ; corpus prop 4.16557799260946"
-%15243168274213127296                  Social network analysis: Methods and applications    658
-%10638755925462666384                            Emergence of scaling in random networks    756
-%4992186057191694547  Collective dynamics of \342\200\231small-world\342\200\231networks    758
-%12945060519911641528                     The structure and function of complex networks    687
-%[1] "Community 16 ; corpus prop 4.81318353178306"
-%13398523337335518206                         Predictive habitat distribution models in ecology    566
-%13467121252331935431                                               Generalized additive models    418
-%11029642873510533673 Predicting species distribution: offering more than simple habitat models    562
-%13831040667378725133                                       Estimating the dimension of a model    454
-%[1] "Community 17 ; corpus prop 11.8743234668359"
-%6052144816936635558                                        Pour une g\303\251ographie du pouvoir    478
-%9980715752622498273                      Les mots de la g\303\251ographie: dictionnaire critique    590
-%14304156646457097003                    De la justification: les \303\251conomies de la grandeur    440
-%2870436522105960522   Les m\303\251tamorphoses de la question sociale: une chronique du salariat    458
-%[1] "Community 18 ; corpus prop 5.57556642155948"
-%6414662845457641721   The constitution of society: Outline of the theory of structuration    593
-%4337430435041504651  Modernity and self-identity: Self and society in the late modern age    493
-%7898783771677764446                                        The condition of postmodernity    658
-%7835092538327027347     Economic action and social structure: the problem of embeddedness    516
-%[1] "Community 6 ; corpus prop 3.60475532828189"
-%                                                          titles degree
-%12482866708510596998                           The power of maps    575
-%1164911542533093357      GIS and multicriteria decision analysis    463
-%16457974396311846489  Spatial behavior: A geographic perspective    552
-%2954521275884877195                       Deconstructing the map    631
-%[1] "Community 3 ; corpus prop 5.13885259975365"
-%11531103519383816169 The structure and growth of residential neighborhoods in American cities    692
-%62057246354689685                                                        The nature of cities    713
-%3545913291616437667                                   Locational analysis in human geography.    627
-%17899222184184316747                                       Central places in southern Germany    740
-%[1] "Community 14 ; corpus prop 6.66735097607405"
-%12954335397668543979  Cellular automata and fractal urban form: a cellular modelling approach to the evolution of urban land-use patterns
-%4133663650988164381                                                                       Fractal cities: a geometry of form and function
-%1594743421920318397                                                       Growing artificial societies: social science from the bottom up
-%14559759739366955015                                   Multi-agent systems for the simulation of land-use and land-cover change: a review
-%                     degree
-%12954335397668543979    743
-%4133663650988164381     747
-%1594743421920318397     604
-%14559759739366955015    778
-%[1] "Community 9 ; corpus prop 1.9829420327722"
-%1594126764449801706                                                               Quantitative analysis of watershed geomorphology
-%8328827169345207094  Erosional development of streams and their drainage basins; hydrophysical approach to quantitative morphology
-%8539006751955791402                                                                              Statistical law of stream numbers
-%12081487864131557751                                                  Hypsometric (area-altitude) analysis of erosional topography
-%                     degree
-%1594126764449801706     382
-%8328827169345207094     536
-%8539006751955791402     391
-%12081487864131557751    408
-%[1] "Community 27 ; corpus prop 0.851032063006233"
-%10726714213083688457                                Transmission dynamics of the etiological agent of SARS in Hong Kong: impact of public health interventions
-%3970869213781401070  Impact of climatic change on the northern latitude limit and population density of the disease-transmitting European tick Ixodes ricinus.
-%2455775719744402150                                   Epidemiological determinants of spread of causal agent of severe acute respiratory syndrome in Hong Kong
-%8395695762893339661                                                                     Transmission dynamics and control of severe acute respiratory syndrome
-%                     degree
-%10726714213083688457    475
-%3970869213781401070     116
-%2455775719744402150     216
-%8395695762893339661     430
-%[1] "Community 8 ; corpus prop 0.733455264827741"
-%932712685133827561   The physiological equivalent temperature\342\200\223a universal index for the biometeorological assessment of the thermal environment
-%1480142480183496272                                                                                                                      The urban climate
-%17024728103875347383                             A field study of thermal comfort in outdoor and semi-outdoor environments in subtropical Sydney Australia
-%833745332327046870                                                         Applications of a universal thermal index: physiological equivalent temperature
-%                     degree
-%932712685133827561      391
-%1480142480183496272     173
-%17024728103875347383    153
-%833745332327046870      293
-%[1] "Community 21 ; corpus prop 6.45272666193871"
-%12312403172976436756                                          Social and ecological resilience: are they related?
-%932477214288257460   Resilience: The emergence of a perspective for social\342\200\223ecological systems analyses
-%5340448582567072501                                     From metaphor to measurement: resilience of what to what?
-%1509391713535671469           Navigating social-ecological systems: building resilience for complexity and change
-%                     degree
-%12312403172976436756    665
-%932477214288257460      646
-%5340448582567072501     651
-%1509391713535671469     579
-%[1] "Community 13 ; corpus prop 3.00474039789482"
-%                                                           titles degree
-%12568908445725112885                             The world cities    629
-%14432190559149797085                     A roster of world cities    581
-%3966620121471250312   World city network: a global urban analysis    716
-%7479248257935000396                     The world city hypothesis    760
-%
-%[1] "Community 23 ; corpus prop 5.62875592549737"
-%3553655105619346230                                                                  The modifiable areal unit problem
-%14305556346317738837  A million or so correlation coefficients: three experiments on the modifiable areal unit problem
-%15192663253141002697                                    A computer movie simulating urban growth in the Detroit region
-%2556056281630746501                                                       Local indicators of spatial association-LISA
-%                     degree
-%3553655105619346230     741
-%14305556346317738837    661
-%15192663253141002697    643
-%2556056281630746501     724
-%[1] "Community 2 ; corpus prop 9.9660333694151"
-%                                                                        titles degree
-%12738968557765837578                                    The cultures of cities    732
-%13746171706822239563     Postmetropolis Critical studies of cities and regions    715
-%2116873643451406893   Fortress America: gated communities in the United States    704
-%14292387866086321708                                   Place and placelessness    760
-%[1] "Community 22 ; corpus prop 7.13579187040424"
-%                                                                              
-%11080283063311825032  The regional world: territorial development in a global economy    740
-%3554088320531351693                                        Location and space-economy    719
-%7086787680145296542       Deconstructing clusters: chaotic concept or policy panacea?    726
-%[1] "Community 28 ; corpus prop 1.4379829047068"
-%
-%16044574669948655149     Saharan dust contributions to PM10 and TSP levels in Southern and Eastern Spain
-%8425362340869409578   Climats, for\303\252ts et d\303\251sertification de l\342\200\231Afrique tropicale
-%1129714354835431503                                                    Nonparametric tests against trend
-%1135676043916984792                                A non-parametric approach to the change-point problem
-%                     degree
-%16044574669948655149    144
-%8425362340869409578     160
-%1129714354835431503     181
-%1135676043916984792     203
-%[1] "Community 1 ; corpus prop 1.67500279944758"
-%                                                               titles degree
-%1627107393903704279         The dimensions of residential segregation    724
-%4099483990695182730                             Models of segregation    466
-%747074237233961749          Dynamic models of segregation\342\200\240    622
-%18105468109972109903 A methodological analysis of segregation indexes    506
-%[1] "Community 5 ; corpus prop 9.77847038184465"
-%                                                                           titles degree
-%13956442331799241731 Location and land use. Toward a general theory of land rent.    748
-%15575741556156415962                            How accessibility shapes land use    782
-%13897256231045447464                                      Urban spatial structure    783
-%5192159686471589942                 Are compact cities a desirable planning goal?    741
-%[1] "Community 26 ; corpus prop 1.98760777873166"
-%12131824341349033633                                              Connectivity is a vital element of landscape structure
-%15969739511774356860      The application of \342\200\231least-cost\342\200\231modelling as a functional landscape model
-%3875238890909508946  Promoting ecosystem and human health in urban areas using green infrastructure: a literature review
-%15970185536531379583                                                                   Ecosystem services in urban areas
-%                     degree
-%12131824341349033633    343
-%15969739511774356860    262
-%3875238890909508946     265
-%15970185536531379583    319
-%[1] "Community 4 ; corpus prop 1.24575417117689"
-%                                                                      titles degree
-%17518815146409301085                       Visual methods in social research    309
-%3130282044894438080                 Image as a factor in tourism development    222
-%6005112106352993762   Understanding and measuring tourist destination images    211
-%17773583015280146421    Talking about pictures: A case for photo elicitation    412
-%
-%[1] "Community 11 ; corpus prop 2.66134149527827"
-%15987432381426193038                                                                                           Time in geographic information systems
-%4916773650386052166  It\342\200\231s about time: A conceptual framework for the representation of temporal dynamics in geographic information systems
-%10741249551199253506                                                                                 A spatial logic based on regions and connection.
-%1707686457311089380                                       An event-based spatiotemporal data model (ESTDM) for temporal analysis of geographical data
-%                     degree
-%15987432381426193038    557
-%4916773650386052166     399
-%10741249551199253506    339
-%1707686457311089380     388
-%[1] "Community 12 ; corpus prop 0.0541226531297824"
-%
-%320633167171028945   \342\200\231Unite Unite Europe\342\200\231The political and cultural structures of Europe as reflected in the Eurovision Song Contest
-%8402251348308572830          Comparison of Eurovision Song Contest simulation with actual results reveals shifting patterns of collusive voting alliances.
-%2610553645533349879                                                       Save the last dance for me: Unwanted serial position effects in jury evaluations
-%10488781352782564265                                                  Save the last dance II: Unwanted serial position effects in figure skating judgments
-%                     degree
-%320633167171028945       25
-%8402251348308572830      24
-%2610553645533349879      32
-%10488781352782564265     18
-%[1] "Community 25 ; corpus prop 0.747452502706133"
-%                                                         titles degree
-%5749645930528845292           Theorising the rise of regionness     89
-%16110139515439702034          The geographical pivot of history    232
-%18249508238183354137                            Arctic meltdown     57
-%15128616333100707022  Geography and politics in a world divided    112
-%[1] "Community 29 ; corpus prop 0.570154156246501"
-%
-%17875356408399137122 The second demographic transition in Western countries: An interpretation    361
-%9773560585688720648                          Europe\342\200\231s second demographic transition    422
-%4173326927865475733              La famille en Europe occidentale: divergences et convergences     79
-%5987517425216101496                        Family ties in Western Europe: persistent contrasts    248
-%[1] "Community 20 ; corpus prop 0.0718524877757456"
-%                                                                                                                                    
-%18395417624936874618                                                                The development crisis in Vietnam\342\200\231s mountains
-%269325805179871458    Doi Moi in the mountains: land use changes and farmers\342\200\231 livelihood strategies in Bac Kan Province, Viet Nam
-%8071930996413902082                                                                   Choosing rural road investments to help reduce poverty
-%5647127754479004480                                           The spatial distribution of poverty in Vietnam and the potential for targeting
-%                     degree
-%18395417624936874618     29
-%269325805179871458       37
-%8071930996413902082      34
-%5647127754479004480      17
-%
-%[1] "Community 7 ; corpus prop 0.0261281773729984"
-%5883716409547177886 All or none: no stable hybrid or half-way solutions for launching the learned periodical literature into the postGutenberg galaxy
-%9133434386405239110                                                                                         Web journals publishing: a UK perspective
-%6281042621755024923                                                                                                 The invisible hand of peer review
-%2432100162443594098                                                                             Electronic publishing takes journals into a new realm
-%                    degree
-%5883716409547177886     19
-%9133434386405239110      5
-%6281042621755024923     18
-%2432100162443594098      4
-%
-%[1] "Community 15 ; corpus prop 0.0083983427270352"
-%[1] titles degree
-%<0 rows> (or 0-length row.names)
-%
-%[1] "Community 19 ; corpus prop 0.0177298346459632"
-%15912331793517931633 Les discriminations selon l\342\200\231origine dans l\342\200\231acc\303\250s aux soins
-%2939440609801692906                          Etat de sant\303\251 des populations immigr\303\251es en France
-%695207205763025392                                         Entre droit aux soins et qualit\303\251 des soins
-%1837393795895317408               Sant\303\251 et immigration. Les v\303\251rit\303\251s politiques du corps
-%                     degree
-%15912331793517931633      7
-%2939440609801692906       5
-%695207205763025392        5
-%1837393795895317408       5
-%
-%
-
-
-
-
-
-
-
+Regarding the validity of the map we obtained, the content and structure of our dataset does not allow us to give an exogenous validation using existing techniques \cite{boyack2005mapping}. We rely for the validity of our approach (i) first on the expert knowledge used to name the communities; (ii) secondly on the high values of the modularity which witness a strong endogenous relevance; (iii) the fact that we do not aim to produce exhaustive maps of the discipline, but only to explore the neighborhood of the origin journal; and (iv) the low sensitivity to network perturbations as it is developed below in the sensitivity analysis section.
 
 
 
@@ -551,13 +333,13 @@ We recall that our corpus with available text consists of around $2\cdot 10^5$ a
 To summarize, the keyword extraction workflow goes through the following steps :
 
 \begin{enumerate}
-\item Language detection is done using \textit{stop-words}
+\item Language detection is done using \textit{stop-words}, by selecting the language which \texttt{nltk} stop-words dictionary has the most words in common with the current text.
 \item Pos-tagging (detection of word functions) and stemming (extraction of the \emph{stem}) are done differently depending on language :
 \begin{itemize}
 \item English : \texttt{nltk} built-in pos-tagger, combined to a \emph{PorterStemmer}
 \item French or other : use of \texttt{TreeTagger}~\citep{schmid1994probabilistic}
 \end{itemize}
-\item Selection of potential \textit{n-grams} (keywords of length $n$ with $1 \leq n \leq 4$) following the given grammatical rules: for English $\bigcap \{NN \cup VBG \cup JJ \}$, and for French $\bigcap \{NOM \cup ADJ\}$. Other languages are a negligible proportion of the corpus and are discarded.
+\item Selection of potential \textit{n-grams} (keywords of length $n$ with $1 \leq n \leq 4$) following the given grammatical rules to identify noun phrases: for English $\bigcap \{NN \cup VBG \cup JJ \}$ (which correspond respectively to noun, gerund verb, adjective), and for French $\bigcap \{NOM \cup ADJ\}$ (respectively noun, adjective). More elaborated procedures to infer grammatical rules for noun phrases by learning from corpuses do exist \citep{cardie1998error}, but are devised to gain knowledge on grammar specifically. We follow the simple procedure of \cite{chavalarias2013phylomemetic} with these simple fixed rules for noun phrases, similarly to \cite{kumar2008automatic} without the use of heavy additional dictionaries for filtering. Other languages are a negligible proportion of the corpus and are discarded.
 \item Estimation of the relevance \textit{n-grams}, by attributing a score following the deviation of the statistical distribution of co-occurrences to a random distribution.
 \end{enumerate}
 
@@ -575,21 +357,17 @@ We keep at this stage a fixed number $K_W$ of \textit{n-grams}, based on their r
 
 We observe the same phenomenon than in~\cite{bergeaud2017classifying}, that is the existence of nodes with large degree and not specific to a particular field : for example \texttt{model} and \texttt{space} are used in most of subfields of Geography. We also adapt the original filtering procedure, as we do not have here an exogenous information to calibrate parameters. We assume the highest degree terms do not carry specific information on particular classes and can be thus filtered given a maximal degree threshold $k_{max}$. We keep the second filter on a minimal edge weight threshold $\theta_w$. We add the supplementary constraint that keywords are also filtered on a document frequency window $\left[ f_{min},f_{max} \right]$ (number of references in which they appear), what is slightly different from network filtering.
 
-A sensitivity analysis of resulting network topology to these four parameters is presented in Fig.~\ref{fig:sensitivity}. Given a filtered network, we detect communities using modularity optimization as before for the citation network. Various properties of the network can be optimized, and we look in particular at its size (number of keywords after filtering), the optimal modularity, the number of communities, and the balance between their sizes (defined as a concentration index $\sum_k s_k^2 / (\sum_k s_k)^2$). This multi-objective optimization problem does not have a unique solution as objectives are contradictory in a complex way, and a compromise point must be chosen. We take a compromise point between modularity and network size, with a high balance and a reasonable number of communities, given by $k_{max} = 1200, \theta_w = 100, f_{min} = 50, f_{max} = 10000$. These values give a network of size 2868, with 18 communities and a modularity of 0.57.
+A sensitivity analysis of resulting network topology to these four parameters is presented in Fig.~\ref{fig:sensitivity}. Given a filtered network, we detect communities using modularity optimization as before for the citation network. Various properties of the network can be optimized, and we look in particular at its size (number of keywords after filtering), the optimal modularity, the number of communities, and the balance between their sizes (defined as a concentration index $\sum_k s_k^2 / (\sum_k s_k)^2$). This multi-objective optimization problem does not have a unique solution as objectives are contradictory in a complex way, and a compromise point must be chosen. Indeed, one can obtain a very high modularity but with a small network which will finally cover only a small fraction of the corpus, whereas a large network yields lower modularity values as shown in Fig.\ref{fig:sensitivity}. The process is similar for other indicators.
+
+We take a compromise point between modularity and network size, with a high balance and a reasonable number of communities, given by $k_{max} = 1200, \theta_w = 100, f_{min} = 50, f_{max} = 10000$. This point was taken on the compromise line between modularity and network size (roughly around the line linking $(\theta_w=50,k_{max}=400)$ with $(\theta_w=100,k_{max}=1200)$), with a high balance (taking $k_{max}\geq 1000$) and not too much communities. These values give a network of size 2868, with 18 communities and a modularity of 0.57.
 
 
 Note that the small proportion of keywords in French is always separated from the rest of the network as they cannot co-occur with English keywords, and that with these parameter settings no French keywords are kept. All communities described in the following therefore contain only keywords in English.
-
-% values of indicators for this setting
-% degree_max edge_th vertices components modularity communities     density   balance freqmin freqmax
-%  1200     100     2868         45  0.5723701          18 0.001896004 0.1039183      50   10000
-
 
 
 %%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-%\includegraphics[width=\textwidth]{figures/sensitivity_facet_allindics}
 \includegraphics[width=\linewidth]{figures/Fig6.jpg}
 \caption{\textbf{Sensitivity analysis of network indicators to filtering parameters.} We show here 4 indicators (balance between community sizes, modularity of the decomposition, number of communities, number of vertices), as a function of parameters $k_{max}$ and $\theta_w$, at fixed $f_{min} = 50, f_{max} = 10000$. Close values for these two last parameters (in a reasonable range) give similar behavior.}
 \label{fig:sensitivity}
@@ -640,7 +418,6 @@ Crime & 17 & \texttt{crimin justic system, social disorgan, crime} \\
 %%%%%%%%%%%%%%%%%%
 \begin{figure}
 \hspace{-2cm}
-%\includegraphics[width=1.6\textwidth]{figuresraw/semantic.png}
 \includegraphics[width=1.6\textwidth]{figures/Fig7.jpg}
 \caption{\textbf{Visualization of the semantic network.} Network is constructed by co-occurrences of most relevant keywords. Filtering parameters are here taken according to the multi-objective optimization done in Fig.~\ref{fig:sensitivity}, i.e. $(k_{max}=1200,\theta_w=100,f_{min}=50,f_{max}=10000)$. The graph spatialization algorithm (Fruchterman-Reingold), despite its stochastic and path-dependent character, unveils information on the relative positioning of communities.}
 \label{fig:semanticnw}
@@ -652,12 +429,11 @@ Crime & 17 & \texttt{crimin justic system, social disorgan, crime} \\
 %%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-%\includegraphics[width=\textwidth]{figuresraw/synththemcyb.pdf}
 \includegraphics[width=\textwidth]{figures/Fig8.jpg}
-\caption{\textbf{Synthesis of semantic communities and their links.} Weights of links are computed as probabilities of co-occurrences of corresponding keywords within references.}
+\caption{\textbf{Synthesis of semantic communities and their links.} Weights of links are computed as probabilities of co-occurrences of corresponding keywords within references. Once these weights have been calculated with the composition of references in terms of semantic probabilities (see below), the graph is spatialized using a Fruchterman-Reingold algorithm with the Gephi software.}
 \label{fig:comsynthesis}
 \end{figure}
-%%%%%%%%%%%%%%%%%%
+
 
 Table~\ref{tab:domains} summarizes the communities, giving their names, sizes, and corresponding keywords. The most important community is related to issues in political science and critical geography, what could have been expected as several previously obtained citations communities (Social geography, Urban studies) deal with these issues. We then obtain a large cluster of terms related to biogeography, that must correspond to publications in Ecology and Socio-ecology identified before, together with a community in Environment and Climate.
 
@@ -665,7 +441,7 @@ Table~\ref{tab:domains} summarizes the communities, giving their names, sizes, a
 In a way similar to the citation communities, but more pronounced here, we obtain endogenous ``disciplines'' that can correspond to real disciplines, to methodologies, to object of studies. This classification thus also unveil \emph{effective scientific practices}, here in terms of semantic content. A class here related to complex systems can be associated to a paradigm and various approaches that were separated in the citation communities : agent-based models and complex networks for example. On the contrary, some studies that were gathered in a large domain before can be precisely differentiated in the semantic network, such as microbiology and health here that are used by studies related to socio-ecology or ecology in the citation network. Some very specific domains appear here as they have very few connections in their actual semantic content : for example, Geography of crime is very precise and disconnected from other communities.
 
 
-We show in Fig.~\ref{fig:semanticnw} a visualisation of the semantic network, in which the positioning of communities, induced by a Fruchterman-Reingold algorithm (that we use here to have a more precise layout in the relative positioning compared to Force Atlas~\citep{jacomy2014forceatlas2}). The bridging between distant disciplines is done quite differently compared to the citation network, and reveals thus qualitatively an other dimension of interdisciplinarity, i.e. the semantics shared by disciplines. Here, the communities corresponding to Economic Geography (blue) and to Critical Geography (red) are close as in the citation network, but are linked to ecology and geomorphology (green and brown) by Complex Systems (magenta), although these were not present as a community in the citation network. Complexity methodologies such as Fractals, Scaling~\citep{west2017scale} or Networks~\citep{newman2003structure} are indeed widely used both in social sciences and in physics or biology. The semantic analysis reveals thus that very distant disciplines, that are distant in their citation patterns, are finally close in terms of actual content.
+We show in Fig.~\ref{fig:semanticnw} a visualisation of the semantic network, in which the positioning of communities, induced by a Fruchterman-Reingold algorithm (that we use here to have a more precise layout in the relative positioning compared to Force Atlas~\citep{jacomy2014forceatlas2}). The bridging between distant disciplines is done quite differently compared to the citation network, and reveals thus qualitatively an other dimension of interdisciplinarity, i.e. the semantics shared by disciplines. Here, the communities corresponding to Economic Geography (blue) and to Critical Geography (red) are close as in the citation network, but are linked to ecology and geomorphology (green and brown) by Complex Systems (magenta), although these were not present as a community in the citation network. Complexity methodologies such as Fractals, Scaling~\citep{west2017scale} or Networks~\citep{newman2003structure} are indeed widely used both in social sciences and in physics or biology. The semantic analysis reveals thus that very distant disciplines, that are distant in their citation patterns, are finally close in terms of actual content. This conclusion can naturally subject to the bias that similar terms can correspond to very different ontologies in each disciplines. This actual meaning is partly captured in the embedding of the term in the semantic network, and how it relates to other terms in the semantic network. To what extent ontological proximities can be associated to semantic proximities or reconstructed from the network structure is an open question out of the scope of this work. Terms must thus not be dissociated from their context, which in our case is given by the citation network, thus the interest of the analysis below on the relation between classifications.
 
 
 
@@ -674,8 +450,27 @@ In terms of overlaps between communities, in the sense of co-occurrences of corr
 
 
 
+%%%%%%%%%%%%%%%%%%
+\subsection*{Sensitivity to corpus definition}
+
+To give a stronger confidence in the results we obtain, we need to study the influence of corpus choice, since (i) our case study is a narrow part of the related disciplines; and (ii) the interaction between missing data and the methodology introduced may play a role in the result obtained, that then could be solely due to spurious effects between both. However, our data collection process and classification method were conceived to be used together: using both layers increase the information that can be extracted, since the collected data has less information than classical datasets.
+
+Our positioning regarding data, i.e. working only with the open dataset in a case of a low data availability, does not allow us to proceed to ``ground truth'' validations with an exogenous classification. We can however study endogenously the sensitivity of the community structure to the corpus definition, by studying the sensitivity to data removal. This controls the process used by data quality and contributes to the validation of the method, rather independently to the dataset used.
+
+The procedure is the following, according to classical approaches to the study of network robustness \citep{trajanovski2013robustness}: working on the citation network, we test the sensitivity of the community structure to entity removal. A fixed proportion $r$ of nodes or edges are removed randomly, and modularity is estimated in the resulting network. This procedure is bootstrapped $N_b = 1000$ times for each value. Results are shown in Fig.~\ref{fig:modsens}, for $0.05 \leq r \leq 0.5$. We obtain similar qualitative patterns for node and edge removal regarding the form of distributions, but the median modularity slightly decreases for nodes whereas it oscillates for edges. Extreme values are higher for nodes, up to 0.02 difference in absolute value. This remains a very low absolute value, and we find that the community structure has a low sensitivity to data removal, in terms of missing reference (node) or citation link (edge), when going up to 50\% of missing data. This gives confidence in the fact that our method is stable relatively independently of the choice of the origin corpus.
 
 
+%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/Fig9.jpg}
+\caption{\textbf{Sensitivity of the modularity to network modifications.} We give the statistical distribution of modularity as boxplots, as a function of the proportion of entities affected $r$, for edge removal (left) and node removal (right).}
+\label{fig:modsens}
+\end{figure}
+%%%%%%%%%%%%%%%%%%
+
+
+We also tested the influence of the time window used, since our origin corpus spans between 1996 and 2016. We filter the citation network on fiver-year sliding windows covering this span. The size of corresponding subnetworks is relatively stable ($\left| V\right| \in \left[ 27866 ; 60474 \right]$ and $\left| E\right| \in \left[ 18839 ; 33892 \right]$) and the modularities are higher than the full network (between 0.84 and 0.88) and stable. This suggests that the community structure is stable in time.
 
 
 %%%%%%%%%%%%%%%%%%
@@ -685,8 +480,7 @@ In terms of overlaps between communities, in the sense of co-occurrences of corr
 %%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-%\includegraphics[width=\textwidth]{figuresraw/compo_proportion.png}
-\includegraphics[width=\textwidth]{figures/Fig9.jpg}
+\includegraphics[width=\textwidth]{figures/Fig10.jpg}
 \caption{\textbf{Composition of citation communities in terms of semantic content.} For each citation class (horizontally), the bar is decomposed as the proportions of each semantic class (given by color).}
 \label{fig:citationcontent}
 \end{figure}
@@ -703,14 +497,14 @@ But the study of patterns that could have not been expected is very informative,
 
 %%%%%%%%%%%%%%%%%%
 \subsection*{Measuring interdisciplinarity}
+\label{subsec:interdisc}
 
 
 %%%%%%%%%%%%%%%%%%
 \begin{figure}
 \centering
-%\includegraphics[width=\textwidth]{figures/firstorderint_withNull}
-\includegraphics[width=1.3\textwidth]{figures/Fig10.jpg}
-\caption{\textbf{Statistical distribution of originalities.} We show the smoothed probability densities of originality indexes, by citation class (given by color), for the Semantic originiality $o^{(Semantic)}$ (top plot) and for the Citation originality $o^{(Citation)}$ (bottom plot). Dashed lines give the mean for each distribution, with the corresponding color.}
+\includegraphics[width=1.3\textwidth]{figures/Fig11.jpg}
+\caption{\textbf{Statistical distribution of originalities.} We show the smoothed probability densities of originality indexes, by citation class (given by color), for the Semantic originality $o^{(Semantic)}$ (top plot) and for the Citation originality $o^{(Citation)}$ (bottom plot). Dashed lines give the mean for each distribution, with the corresponding color.}
 \label{fig:firstorderint}
 \end{figure}
 %%%%%%%%%%%%%%%%%%
@@ -720,11 +514,12 @@ We had up to now a qualitative view on interdisciplinarity patterns, by looking 
 
 
 More precisely, for a given classification $C \in \{ Citation,Semantic\}$ a reference $i$ can be viewed as a probability vector $(p_{ij}^{(C)})_j$ on classes $j$ that give for each class the probability to belong to it. Given this setting, we measure interdisciplinarity of one reference using Herfindhal concentration index~\citep{porter2009science}, that can also be called an originality index. We define originality as
-\[
+\begin{equation}
 o_i^{(C)} = 1 - \sum_j {p_{ij}^{(C)}}^2
-\]
+\label{eq:interdisc}
+\end{equation}
 
-For the semantic classification, probabilities are defined as the proportion of keywords of the abstract within each semantic class. With the deterministic citation classification, each reference has only one class and the originality index is always 0. Therefore in order to be able to compare the two classification, we associate a probability to each citation class for each article as the proportion of citations received from this class. The induced index is original, and measures interdisciplinarity as \emph{how a reference is used} by different disciplines in its lifetime.
+For the semantic classification, probabilities are defined as the proportion of keywords of the abstract within each semantic class. With the deterministic citation classification, each reference has only one class and the originality index is always 0. Therefore in order to be able to compare the two classification, we associate a probability to each citation class for each article as the proportion of citations received from this class. The index introduced is original, and measures interdisciplinarity as \emph{how a reference is used} by different disciplines in its lifetime. Indeed, Eq.~\ref{eq:interdisc} yields higher values for more evenly distributed probabilities. When used with semantic probabilities, it translates the originality in terms of language used, whereas with the citation probabilities, it gives the originality in terms of domains using the reference.
 
 
 We show in Fig.~\ref{fig:firstorderint} the statistical distribution for both indexes $o^{(Semantic)}$ and $o^{(Citation)}$, stratified by citation class. This allow a direct comparison between the two and also an indirect comparison by the variation of semantic distribution between citation classes. For the distribution of semantic originalities, all citation classes exhibit a similar pattern, that is a peak around large values and a smaller peak at zero. It means that either references are highly specialized and have keywords in one class only, or they use keywords from different classes in a quite even manner (for comparison, an abstract with half keywords in a class and half in an other gives an originality of 0.5). The most original, i.e. the most mixed, citation class, is Complex Networks, with a distribution clearly detached from others, what would confirm their use as a method with a lot of different problems. Social Geography is from far the less original, with a large number of single class references, and an average far lower than other classes, what would mean an increased presence of compartmentalization within the associated disciplines.
@@ -742,95 +537,16 @@ To summarize, we show (i) different patterns of interdisciplinarity, depending o
 
 
 In order to strengthen the idea of a complementarity of classifications, that would each capture different dimensions of processes of knowledge production, we finally look at the correlation matrix between classifications. We use this time effective class probabilities for the citation classification, i.e. a vector of zeros expect with a one at the index of the class of the reference. We compute a Pearson correlation coefficient between classes $k$ (in semantic) and $k'$ (in citation) as
-\[
-\rho_{k,k'} = \frac{Cov \left[ (p^{(Sem)}_{ik})_i , (p^{(Cit)}_{ik'})_i \right]}{\sqrt{\sigma\left[(p^{(Sem)}_{ik})_i\right]\sigma\left[(p^{(Sem)}_{ik})_i\right]}}
-\]
+\begin{equation}
+\rho_{k,k'} = \frac{\Cov \left[ (p^{(Sem)}_{ik})_i , (p^{(Cit)}_{ik'})_i \right]}{\sqrt{\Var\left[(p^{(Sem)}_{ik})_i\right]\Var\left[(p^{(Sem)}_{ik})_i\right]}}
+\end{equation}
 
 \noindent where the covariance is estimated with the unbiased estimator.
 
 
-The structure of the correlation matrix recalls the conclusions obtained when studying the semantic composition of citation communities, such as GIS being strongly correlated with GIS ($\rho=0.26$), or Sociology with Political Science ($\rho=0.16$). More importantly for our question are summary statistics of the overall matrix. It has a minimum of $-0.16$ (Ecology (citation) against Political Sciences (semantic)), an average of $-0.002$ and a maximum of $0.33$ (Social geography (citation) and Spatial Analysis (semantic)). The ``high'' values are highly skewed, as the first decile is at $-0.06$ and the last at $0.09$, what means that 80\% of coefficient lie within that interval, corresponding to low correlations. In a nutshell, classifications are consistent as highest correlations are observed where one can expect them, but most of classes are uncorrelated, meaning that the classifications are quite orthogonal and therefore complementary.
+The structure of the correlation matrix recalls the conclusions obtained when studying the semantic composition of citation communities, such as GIS having a relatively high correlation with GIS ($\rho=0.26$), or Sociology with Political Science ($\rho=0.16$). These correlations are high regarding other values in the matrix, but remain low values in absolute.
 
-
-
-
-%summary(as.numeric(rho))
-%      Min.    1st Qu.     Median       Mean    3rd Qu.       Max. 
-%-0.1631820 -0.0397953 -0.0187894 -0.0003216  0.0089678  0.3262073 
-
-%summary(as.numeric(rho[,2:ncol(rho)]))
-%     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-% -0.157525 -0.039676 -0.018789 -0.001669  0.008007  0.326207 
-
-
-% correlation matrix between classifications
-
-%                                                NA Complex Networks      Ecology Social Geography
-%health                                 0.084217277      0.015642565 -0.031280002    -0.0304122878
-%crime                                 -0.034264269     -0.027466263 -0.030184851    -0.0109058566
-%statistical methods                   -0.045196471     -0.009985336  0.134773697    -0.0427562039
-%remote sensing                         0.008677423     -0.039616065  0.004274342    -0.0001037131
-%political sciences/critical geography -0.163182024     -0.063553835 -0.157524519     0.0103925609
-%traffic modeling                       0.135493504     -0.025760072 -0.053805346    -0.0401532076
-%microbiology                           0.005013388      0.069833747  0.175721643    -0.0428300111
-%cognitive sciences                    -0.057904751      0.021390559 -0.008878000    -0.0183249948
-%spatial analysis                      -0.028954136     -0.040284497  0.038681879     0.3262073464
-%GIS                                   -0.068226509     -0.025851971 -0.027627123    -0.0355896609
-%biogeography                           0.157670367     -0.065793131  0.155044018    -0.0622661875
-%environnment/climate                   0.146864511     -0.016857698  0.081698376    -0.0499190937
-%economic geography                    -0.036386086     -0.088454740 -0.131327817    -0.0516875579
-%physical geography                     0.155877876     -0.050479420  0.044855501    -0.0342161549
-%                                         Sociology          GIS Spatial Analysis         ABMS Socio-ecology
-%health                                -0.035281096 -0.027390702    -0.0092406664 -0.028471411  -0.039977735
-%crime                                 -0.003511700 -0.016330983    -0.0034925253 -0.026372584  -0.016182744
-%statistical methods                    0.006204335  0.009875529     0.0006603197  0.016162014  -0.048901119
-%remote sensing                        -0.022526140 -0.008140740     0.0161506994  0.051559757   0.009078915
-%political sciences/critical geography  0.164538990  0.070441824    -0.0099431496 -0.070547880   0.092456547
-%traffic modeling                       0.006759964  0.003892643    -0.0200454337  0.004937954   0.009572245
-%microbiology                          -0.010887689 -0.004926871    -0.0256598780  0.032859898  -0.025374219
-%cognitive sciences                     0.189133684  0.021302626    -0.0233197884 -0.012683768  -0.039854983
-%spatial analysis                      -0.039550918 -0.026571766    -0.0200352507 -0.019253896  -0.036900317
-%GIS                                   -0.044445811  0.266230113    -0.0196994093  0.008379501  -0.048098115
-%biogeography                          -0.090286092 -0.047362187    -0.0314376536  0.118217762   0.063732285
-%environnment/climate                  -0.061530547 -0.043172212    -0.0228268820 -0.010868666   0.042866717
-%economic geography                    -0.007205760 -0.080607481     0.1107474038 -0.087310233  -0.080743040
-%physical geography                    -0.077603719 -0.024403758    -0.0309332281 -0.007944706   0.177918682
-%                                      Urban Networks Urban Simulation Urban Studies Economic Geography
-%health                                   0.227985960      0.003101104  -0.011951445       -0.029092421
-%crime                                   -0.007323995      0.151779291   0.037625633        0.007882492
-%statistical methods                      0.002304641      0.074944283  -0.047068353       -0.019986633
-%remote sensing                           0.011034168     -0.007373975   0.009064606       -0.008777581
-%political sciences/critical geography    0.024982340     -0.129188848   0.250087262        0.123687818
-%traffic modeling                        -0.026107672     -0.016873541  -0.020788824       -0.056640509
-%microbiology                            -0.031639788     -0.015875901  -0.048817564       -0.039139437
-%cognitive sciences                      -0.024141333      0.006168384  -0.017845169       -0.051689224
-%spatial analysis                        -0.022931057      0.004936436  -0.048686678       -0.027250467
-%GIS                                     -0.031369284      0.107217335  -0.059539768       -0.055057115
-%biogeography                            -0.038744405     -0.019857075  -0.093015237       -0.081157234
-%environnment/climate                    -0.003931271     -0.009427780  -0.061113194       -0.052661932
-%economic geography                       0.035747109      0.070533726   0.036039127        0.154483917
-%physical geography                      -0.013960728     -0.003533876  -0.058702622       -0.064289131
-%                                      Accessibility/Land-Use Time Geography
-%health                                          -0.020422023   -0.026027683
-%crime                                           -0.009526164   -0.019419266
-%statistical methods                             -0.008130459   -0.008458811
-%remote sensing                                  -0.009152899   -0.023371493
-%political sciences/critical geography           -0.073794569   -0.017737603
-%traffic modeling                                 0.035398096   -0.020400327
-%microbiology                                    -0.055066210   -0.003858738
-%cognitive sciences                              -0.049222763    0.141081799
-%spatial analysis                                 0.007710532   -0.009041103
-%GIS                                             -0.033615280    0.237580646
-%biogeography                                    -0.029578349   -0.062363162
-%environnment/climate                             0.012457860   -0.055488257
-%economic geography                               0.213283602   -0.087410630
-%physical geography                              -0.069686740   -0.037465822
-%
-
-
-
-
-
+More important for our question are summary statistics of the overall matrix. It has a minimum of $-0.16$ (Ecology (citation) against Political Sciences (semantic)), an average of $-0.002$ and a maximum of $0.33$ (Social geography (citation) and Spatial Analysis (semantic)). The ``high'' values are highly skewed, as the first decile is at $-0.06$ and the last at $0.09$, what means that 80\% of coefficient lie within that interval, corresponding to low correlations. In a nutshell, classifications are consistent as highest correlations are observed where one can expect them, but most of classes are uncorrelated, meaning that the classifications are quite orthogonal and therefore complementary.
 
 
 
@@ -842,39 +558,37 @@ The structure of the correlation matrix recalls the conclusions obtained when st
 We have this way shown the complementarity of classifications in the qualitative patterns they unveil, but also quantitatively in terms of interdisciplinarity measures and quantitatively in terms of correlations. Our work can be extended regarding several aspects, of which we give some suggestions below.
 
 
-\subsection*{Further Developments}
 
-%\subsubsection*{Comparison of journals}
+\subsection*{Developments}
+
 
 A first development consists in the comparison of journals. The starting point for construction of the scientific environment, the journal \textit{Cybergeo}, was the entry point but not the subject of our study. A development more focused on journals, trying for example to answer comparative issues, or to classify journals according to their effective level of interdisciplinarity regarding different dimensions, would be potentially interesting. The collection of precise data on the origin of references is however a first step that need to be solved first.
 
 
-%\subsubsection*{Performance of the semantic classification}
-
 The performance of the semantic classification was also not quantified here. A further validation of the relevance of using complementary information contained in both classifications could be done by the analysis of modularities within the citation network, as done in~\cite{bergeaud2017classifying}. This would however require a baseline classification to compare with, which is not available in the type of data we use. Open repository such as arXiv (for physics mainly) or Repec (for Economics) provide API to access metadata including abstracts, and could be starting points for such targeted case studies.
 
+
+An other aspect on which our work could shed an interesting light is the univocity of scientific keywords between disciplines. Indeed, the same word can relate to different concepts in different disciplines. Co-occurrences patterns of specific words within the different citation communities should give information on the underlying concepts in each. For example, in the fields we studied, the word ``model'' will correspond to totally different concepts in Quantitative Geography and in Urbanism.
 
 
 
 \subsection*{Applications}
 
-%\subsubsection*{Quantification of Knowledge domains}
 
 A first potential application of our methodology relies on the facts that both classifications unveils thematic domains (objects of study), classical disciplines, methodological communities. These different types of communities can indeed be understood as different \emph{Knowledge Domains}. \cite{raimbault2017applied} postulates co-evolving Knowledge Domains in every process of scientific knowledge production, that are Theoretical, Empirical, Modeling, Methodology, Tools and Data domains. Most of them are necessary for any process, and investigations within one conditions the advances in others. A refinement of classifications, associated with supervised classification to associate knowledge domains to some communities (potentially using full texts to have more precise information on the proportion of each knowledge domains involved in each), would allow to quantify relations between domains. Furthermore, using temporal data with the date of publications, would yield an effective quantification of the \emph{co-evolution} of domains in the sense of patterns of temporal correlations (e.g. Granger causality).
 
-An other interesting direction is the application of our classifications to the quantification of spatial diffusion of knowledge, as \cite{maisonobe2013diffusion} does for the diffusion of a specific question in genetics. It is not clear if different dimensions of knowledge diffuse the same way: for example citation practices can be correlated to social networks and thus exhibit different patterns than effective research contents. Therefore, our work would allow to study such questions from complementary point of views.
-
-\comment{remark Marion : localisation of authors ? $\rightarrow$ we could then do spatialized networks.}
-% Cointet Cambrosio https://scholar.google.fr/scholar?hl=fr&as_sdt=0%2C5&q=Cointet+cambrosio&btnG=
+Our work furthermore suggests that the different types of communities each unveil a different structure of science. This has implications for the construction of science maps, which refinement may go towards different maps for each dimension (which can more or less be associated to Knowledge Domains). \cite{wen2017mapping} has for example introduced such specific complementary maps as a new method of ``bibliometric triangulation'' in the case of water research.
 
 
-Finally, we believe the tool we developed can contribute to an increased empowerment of authors and to the development of open science practices. Among the various visions of Open Science~\citep{fecher2014open}, the opening of data is always an important aspect, together with a development of reflexivity in all disciplines, beyond the sole Social Sciences to which it is classically associated. The first point is dealt with by our open tools for dataset construction, whereas the second is implied by the new knowledge of the different dimensions of the scientific environment we studied.
-
-
-\comment{\cite{roth2010social} : coevolution socio-semantique}
+An other interesting direction is the application of our classifications to the quantification of spatial diffusion of knowledge, as \cite{maisonobe2013diffusion} does for the diffusion of a specific question in molecular biology. It is not clear if different dimensions of knowledge diffuse the same way: for example citation practices can be correlated to social networks and thus exhibit different patterns than effective research contents. This phenomenon is suggested in terms of a co-evolution for semantics and social networks by \cite{roth2010social}. Therefore, our work would allow to study such questions from complementary point of views.
 
 
 
+\subsection*{Positioning}
+
+We finally discuss the positioning of our paper. The analysis developed did not pretend to construct maps of a given discipline, but indeed to allow authors and readers of the journal to better situate their work in their scientific neighborhood. As our approach is fully reproducible and does not require access to restricted databases, we argue that our contribution could foster open science and reflexivity.
+
+We therefore believe the tool we developed can contribute to an increased empowerment of authors and to the development of open science practices. Among the various visions of Open Science~\citep{fecher2014open}, the opening of data is always an important aspect, together with a development of reflexivity in all disciplines, beyond the sole Social Sciences to which it is classically associated. The first point is dealt with by our open tools for dataset construction, whereas the second is implied by the  knowledge of the different dimensions of the scientific environment we studied, allowed by the multilayer methodology introduced. Using other dimensions and methodologies, \cite{banos2018spatialised} illustrates this approach through an interactive application to analyse the corpus of the Cybergeo journal.
 
 
 
@@ -891,97 +605,452 @@ We have introduced a multi-dimensional approach to the understanding of interdis
 
 
 
-%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%
-
 \begin{acknowledgements}
-The author would like to thank the editorial board of Cybergeo, and more particularly Denise Pumain and Christine Kosmopoulos, for having offered the opportunity to work on that subject and provided the production database of the journal. 
+The author would like to thank the editorial board of Cybergeo, and more particularly Denise Pumain and Christine Kosmopoulos, for having offered the opportunity to work on that subject and provided the production database of the journal. The author thanks Denise Pumain for helping with expert geographical knowledge in the naming of communities. The author also thanks two anonymous reviewers which comments were of great value for the paper.
 \end{acknowledgements}
 
 
+\begin{thebibliography}{84}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{DOI~\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{DOI~\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+\providecommand{\eprint}[2][]{\url{#2}}
 
+\bibitem[{Akerlof and Michaillat(2018)}]{Akerlof13228}
+Akerlof GA, Michaillat P (2018) Persistence of false paradigms in low-power
+  sciences. Proceedings of the National Academy of Sciences
+  115(52):13,228--13,233
 
+\bibitem[{Austin et~al(1996)Austin, Rauch, Blau, Yudice, van Den~Berg,
+  Robinson, Henkel, Murray, Schoenfield, Traub et~al}]{austin1996defining}
+Austin TR, Rauch A, Blau H, Yudice G, van Den~Berg S, Robinson LS, Henkel J,
+  Murray T, Schoenfield M, Traub V, et~al (1996) Defining interdisciplinarity.
+  Publications of the Modern Language Association of America pp 271--282
 
-%%%%%%%%%%%%%%%%%%%%%
-% Biblio
-%%%%%%%%%%%%%%%%%%%%%
+\bibitem[{Bais(2010)}]{bais2010praise}
+Bais S (2010) In Praise of Science: Curiosity, Understanding, and Progress. MIT
+  Press
 
+\bibitem[{Baldwin and Lui(2010)}]{baldwin2010language}
+Baldwin T, Lui M (2010) Language identification: The long and the short of the
+  matter. In: Human Language Technologies: The 2010 Annual Conference of the
+  North American Chapter of the Association for Computational Linguistics,
+  Association for Computational Linguistics, pp 229--237
 
-% BibTeX users please use one of
-\bibliographystyle{spbasic}      % basic style, author-year citations
-\bibliography{biblio}   % name your BibTeX data base
+\bibitem[{Banos(2013)}]{banos2013pour}
+Banos A (2013) Pour des pratiques de mod{\'e}lisation et de simulation
+  lib{\'e}r{\'e}es en g{\'e}ographies et shs. HDR Universit{\'e} Paris 1
 
+\bibitem[{Banos et~al(2018)Banos, Chasset, Commenges, Cottineau, Pumain, and
+  Raimbault}]{banos2018spatialised}
+Banos A, Chasset PO, Commenges H, Cottineau C, Pumain D, Raimbault J (2018) A
+  spatialised bibliometrics approach of a scientific journal production. arXiv
+  preprint arXiv:180807282
 
+\bibitem[{Barab{\'a}si and Albert(1999)}]{Barabasi509}
+Barab{\'a}si AL, Albert R (1999) Emergence of scaling in random networks.
+  Science 286(5439):509--512, \doi{10.1126/science.286.5439.509},
+  \urlprefix\url{http://science.sciencemag.org/content/286/5439/509},
+  \eprint{http://science.sciencemag.org/content/286/5439/509.full.pdf}
 
+\bibitem[{{Battiston} et~al(2015){Battiston}, {Iacovacci}, {Nicosia},
+  {Bianconi}, and {Latora}}]{2015arXiv150601280B}
+{Battiston} F, {Iacovacci} J, {Nicosia} V, {Bianconi} G, {Latora} V (2015)
+  {Emergence of multiplex communities in collaboration networks}. ArXiv
+  e-prints \eprint{1506.01280}
 
+\bibitem[{Bergeaud et~al(2017)Bergeaud, Potiron, and
+  Raimbault}]{bergeaud2017classifying}
+Bergeaud A, Potiron Y, Raimbault J (2017) Classifying patents based on their
+  semantic content. PloS one 12(4):e0176,310
 
+\bibitem[{Bird(2006)}]{bird2006nltk}
+Bird S (2006) Nltk: the natural language toolkit. In: Proceedings of the
+  COLING/ACL on Interactive presentation sessions, Association for
+  Computational Linguistics, pp 69--72
 
-%\section*{Supplementary Material}
+\bibitem[{Blondel et~al(2008)Blondel, Guillaume, Lambiotte, and
+  Lefebvre}]{blondel2008fast}
+Blondel VD, Guillaume JL, Lambiotte R, Lefebvre E (2008) Fast unfolding of
+  communities in large networks. Journal of statistical mechanics: theory and
+  experiment 2008(10):P10,008
 
-%\subsection*{Zoomable file of semantic network example}
+\bibitem[{Bohannon(2014)}]{bohannon2014scientific}
+Bohannon J (2014) Scientific publishing. google scholar wins raves--but can it
+  be trusted? Science (New York, NY) 343(6166):14
 
-%Available at \texttt{}.
+\bibitem[{Bonaccorsi and Vargas(2010)}]{bonaccorsi2010proliferation}
+Bonaccorsi A, Vargas J (2010) Proliferation dynamics in new sciences. Research
+  Policy 39(8):1034--1050
 
+\bibitem[{B{\"o}rner et~al(2003)B{\"o}rner, Chen, and
+  Boyack}]{borner2003visualizing}
+B{\"o}rner K, Chen C, Boyack KW (2003) Visualizing knowledge domains. Annual
+  review of information science and technology 37(1):179--255
 
-%\subsection*{Precisions on Application Architecture}
+\bibitem[{B{\"o}rner et~al(2011)B{\"o}rner, Gl{\"a}nzel, Scharnhorst, and
+  Van~den Besselaar}]{borner2011modeling}
+B{\"o}rner K, Gl{\"a}nzel W, Scharnhorst A, Van~den Besselaar P (2011) Modeling
+  science: studying the structure and dynamics of science. Scientometrics
+  89(1):347--348
 
+\bibitem[{B{\"o}rner et~al(2012)B{\"o}rner, Klavans, Patek, Zoss, Biberstine,
+  Light, Larivi{\`e}re, and Boyack}]{borner2012design}
+B{\"o}rner K, Klavans R, Patek M, Zoss AM, Biberstine JR, Light RP,
+  Larivi{\`e}re V, Boyack KW (2012) Design and update of a classification
+  system: The ucsd map of science. PloS one 7(7):e39,464
 
+\bibitem[{{Bourgine} et~al(2009){Bourgine}, {Chavalarias}, and
+  al.}]{2009arXiv0907.2221B}
+{Bourgine} P, {Chavalarias} D, al (2009) {French Roadmap for complex Systems
+  2008-2009}. ArXiv e-prints \eprint{0907.2221}
 
+\bibitem[{Bouveyron et~al(2016)Bouveyron, Latouche, and
+  Zreik}]{bouveyron2016stochastic}
+Bouveyron C, Latouche P, Zreik R (2016) The stochastic topic block model for
+  the clustering of vertices in networks with textual edges. Statistics and
+  Computing pp 1--21
 
+\bibitem[{Boyack(2017)}]{boyack2017thesaurus}
+Boyack KW (2017) Thesaurus-based methods for mapping contents of publication
+  sets. Scientometrics 111(2):1141--1155
 
-%%%%%%%%%%%%%%%%%%%%%
-%%   Templates
-%%%%%%%%%%%%%%%%%%%%%
+\bibitem[{Boyack et~al(2005)Boyack, Klavans, and
+  B{\"o}rner}]{boyack2005mapping}
+Boyack KW, Klavans R, B{\"o}rner K (2005) Mapping the backbone of science.
+  Scientometrics 64(3):351--374
 
+\bibitem[{Boyack et~al(2011)Boyack, Newman, Duhon, Klavans, Patek, Biberstine,
+  Schijvenaars, Skupin, Ma, and Börner}]{10.1371/journal.pone.0018029}
+Boyack KW, Newman D, Duhon RJ, Klavans R, Patek M, Biberstine JR, Schijvenaars
+  B, Skupin A, Ma N, Börner K (2011) Clustering more than two million
+  biomedical publications: Comparing the accuracies of nine text-based
+  similarity approaches. PLOS ONE 6(3):1--11,
+  \doi{10.1371/journal.pone.0018029},
+  \urlprefix\url{https://doi.org/10.1371/journal.pone.0018029}
 
-%
-%% For one-column wide figures use
-%\begin{figure}
-%% Use the relevant command to insert your figure file.
-%% For example, with the graphicx package use
-%  \includegraphics{example.eps}
-%% figure caption is below the figure
-%\caption{Please write your figure caption here}
-%\label{fig:1}       % Give a unique label
-%\end{figure}
-%%
-%% For two-column wide figures use
-%\begin{figure*}
-%% Use the relevant command to insert your figure file.
-%% For example, with the graphicx package use
-%  \includegraphics[width=0.75\textwidth]{example.eps}
-%% figure caption is below the figure
-%\caption{Please write your figure caption here}
-%\label{fig:2}       % Give a unique label
-%\end{figure*}
-%%
-%% For tables use
-%\begin{table}
-%% table caption is above the table
-%\caption{Please write your table caption here}
-%\label{tab:1}       % Give a unique label
-%% For LaTeX tables use
-%\begin{tabular}{lll}
-%\hline\noalign{\smallskip}
-%first & second & third  \\
-%\noalign{\smallskip}\hline\noalign{\smallskip}
-%number & number & number \\
-%number & number & number \\
-%\noalign{\smallskip}\hline
-%\end{tabular}
-%\end{table}
-%
+\bibitem[{Bracken(2016)}]{bracken2016interdisciplinarity}
+Bracken LJ (2016) Interdisciplinarity and Geography. Wiley Online Library
 
+\bibitem[{Br{\'a}s et~al(2017)Br{\'a}s, Cointet, Cambrosio, David, Nunes,
+  Cardoso, and Jer{\'o}nimo}]{bras2017oncology}
+Br{\'a}s OR, Cointet JP, Cambrosio A, David L, Nunes JA, Cardoso F,
+  Jer{\'o}nimo C (2017) Oncology research in late twentieth century and turn of
+  the century portugal: a scientometric approach to its institutional and
+  semantic dimensions. Scientometrics 113(2):867--888
 
+\bibitem[{Cardie and Pierce(1998)}]{cardie1998error}
+Cardie C, Pierce D (1998) Error-driven pruning of treebank grammars for base
+  noun phrase identification. In: Proceedings of the 17th international
+  conference on Computational linguistics-Volume 1, Association for
+  Computational Linguistics, pp 218--224
 
+\bibitem[{Chavalarias and Cointet(2013)}]{chavalarias2013phylomemetic}
+Chavalarias D, Cointet JP (2013) Phylomemetic patterns in science
+  evolution---the rise and fall of scientific fields. Plos One 8(2):e54,847
 
+\bibitem[{Chen(2004)}]{chen2004searching}
+Chen C (2004) Searching for intellectual turning points: Progressive knowledge
+  domain visualization. Proceedings of the National Academy of Sciences
+  101(suppl 1):5303--5310
 
+\bibitem[{Chen(2006)}]{chen2006citespace}
+Chen C (2006) Citespace ii: Detecting and visualizing emerging trends and
+  transient patterns in scientific literature. Journal of the American Society
+  for information Science and Technology 57(3):359--377
 
+\bibitem[{Chen et~al(2015)Chen, Arsenault, and Larivière}]{CHEN20151034}
+Chen S, Arsenault C, Larivière V (2015) Are top-cited papers more
+  interdisciplinary? Journal of Informetrics 9(4):1034 -- 1046,
+  \doi{https://doi.org/10.1016/j.joi.2015.09.003},
+  \urlprefix\url{http://www.sciencedirect.com/science/article/pii/S1751157715300201}
 
+\bibitem[{Choi and Hwang(2014)}]{choi2014patent}
+Choi J, Hwang YS (2014) Patent keyword network analysis for improving
+  technology development efficiency. Technological Forecasting and Social
+  Change 83:170--182
 
+\bibitem[{Cronin and Sugimoto(2014)}]{cronin2014beyond}
+Cronin B, Sugimoto CR (2014) Beyond bibliometrics: Harnessing multidimensional
+  indicators of scholarly impact. MIT Press
 
+\bibitem[{Dupuy and Benguigui(2015)}]{dupuy2015sciences}
+Dupuy G, Benguigui LG (2015) Sciences urbaines: interdisciplinarit{\'e}s
+  passive, na{\"\i}ve, transitive, offensive. M{\'e}tropoles (16)
+
+\bibitem[{Edmonds et~al(2011)Edmonds, Gilbert, Ahrweiler, and
+  Scharnhorst}]{edmonds2011simulating}
+Edmonds B, Gilbert N, Ahrweiler P, Scharnhorst A (2011) Simulating the social
+  processes of science. Journal of Artificial Societies and Social Simulation
+  14(4):14
+
+\bibitem[{Fecher and Friesike(2014)}]{fecher2014open}
+Fecher B, Friesike S (2014) Open science: one term, five schools of thought.
+  In: Opening science, Springer, pp 17--47
+
+\bibitem[{Gaumont et~al(2017)Gaumont, Panahi, and
+  Chavalarias}]{gaumont2017methods}
+Gaumont N, Panahi M, Chavalarias D (2017) Methods for the reconstruction of the
+  socio-semantic dynamics of political activist twitter networks
+
+\bibitem[{Gerow et~al(2018)Gerow, Hu, Boyd-Graber, Blei, and
+  Evans}]{gerow2018measuring}
+Gerow A, Hu Y, Boyd-Graber J, Blei DM, Evans JA (2018) Measuring discursive
+  influence across scholarship. Proceedings of the National Academy of Sciences
+  p 201719792
+
+\bibitem[{{Gurciullo} et~al(2015){Gurciullo}, {Smallegan}, {Pereda},
+  {Battiston}, {Patania}, {Poledna}, {Hedblom}, {Tolga Oztan}, {Herzog},
+  {John}, and {Mikhaylov}}]{2015arXiv151003797G}
+{Gurciullo} S, {Smallegan} M, {Pereda} M, {Battiston} F, {Patania} A, {Poledna}
+  S, {Hedblom} D, {Tolga Oztan} B, {Herzog} A, {John} P, {Mikhaylov} S (2015)
+  {Complex Politics: A Quantitative Semantic and Topological Analysis of UK
+  House of Commons Debates}. ArXiv e-prints \eprint{1510.03797}
+
+\bibitem[{Hall et~al(2008)Hall, Stokols, Moser, Taylor, Thornquist, Nebeling,
+  Ehret, Barnett, McTiernan, Berger et~al}]{hall2008collaboration}
+Hall KL, Stokols D, Moser RP, Taylor BK, Thornquist MD, Nebeling LC, Ehret CC,
+  Barnett MJ, McTiernan A, Berger NA, et~al (2008) The collaboration readiness
+  of transdisciplinary research teams and centers: findings from the national
+  cancer institute's trec year-one evaluation study. American journal of
+  preventive medicine 35(2):S161--S172
+
+\bibitem[{Huutoniemi et~al(2010)Huutoniemi, Klein, Bruun, and
+  Hukkinen}]{huutoniemi2010analyzing}
+Huutoniemi K, Klein JT, Bruun H, Hukkinen J (2010) Analyzing
+  interdisciplinarity: Typology and indicators. Research Policy 39(1):79--88
+
+\bibitem[{Jacomy et~al(2014)Jacomy, Venturini, Heymann, and
+  Bastian}]{jacomy2014forceatlas2}
+Jacomy M, Venturini T, Heymann S, Bastian M (2014) Forceatlas2, a continuous
+  graph layout algorithm for handy network visualization designed for the gephi
+  software. PloS one 9(6):e98,679
+
+\bibitem[{Kumar and Srinathan(2008)}]{kumar2008automatic}
+Kumar N, Srinathan K (2008) Automatic keyphrase extraction from scientific
+  documents using n-gram filtration technique. In: Proceedings of the eighth
+  ACM symposium on Document engineering, ACM, pp 199--208
+
+\bibitem[{Larivi{\`e}re and Gingras(2010)}]{lariviere2010relationship}
+Larivi{\`e}re V, Gingras Y (2010) On the relationship between
+  interdisciplinarity and scientific impact. Journal of the Association for
+  Information Science and Technology 61(1):126--131
+
+\bibitem[{Larivi{\`e}re and Gingras(2014)}]{lariviere201410}
+Larivi{\`e}re V, Gingras Y (2014) Measuring interdisciplinarity. In: Beyond
+  bibliometrics: Harnessing multidimensional indicators of scholarly impact,
+  MIT Press, p 187
+
+\bibitem[{Leydesdorff(2007)}]{leydesdorff2007betweenness}
+Leydesdorff L (2007) Betweenness centrality as an indicator of the
+  interdisciplinarity of scientific journals. Journal of the Association for
+  Information Science and Technology 58(9):1303--1319
+
+\bibitem[{Leydesdorff and Rafols(2009)}]{leydesdorff2009global}
+Leydesdorff L, Rafols I (2009) A global map of science based on the isi subject
+  categories. Journal of the American Society for Information Science and
+  Technology 60(2):348--362
+
+\bibitem[{Leydesdorff and Rafols(2011)}]{leydesdorff2011indicators}
+Leydesdorff L, Rafols I (2011) Indicators of the interdisciplinarity of
+  journals: Diversity, centrality, and citations. Journal of Informetrics
+  5(1):87--100
+
+\bibitem[{Light et~al(2014)Light, Polley, and B{\"o}rner}]{light2014open}
+Light RP, Polley DE, B{\"o}rner K (2014) Open data and open code for big
+  science of science studies. Scientometrics 101(2):1535--1551
+
+\bibitem[{Maisonobe(2013)}]{maisonobe2013diffusion}
+Maisonobe M (2013) Diffusion et structuration spatiale d'une question de
+  recherche en biologie mol{\'e}culaire. Mappe Monde 110(2):13,202
+
+\bibitem[{Malliaros and Vazirgiannis(2013)}]{malliaros2013clustering}
+Malliaros FD, Vazirgiannis M (2013) Clustering and community detection in
+  directed networks: A survey. Physics Reports 533(4):95--142
+
+\bibitem[{Mendeley(2015)}]{mendeley}
+Mendeley (2015) Mendeley reference manager. http://www.mendeley.com/
+
+\bibitem[{Moreno et~al(2016)Moreno, Auzinger, and
+  Werthner}]{moreno2016uncertainty}
+Moreno MdCC, Auzinger T, Werthner H (2016) On the uncertainty of
+  interdisciplinarity measurements due to incomplete bibliographic data.
+  Scientometrics 107(1):213--232
+
+\bibitem[{Mugabushaka et~al(2016)Mugabushaka, Kyriakou, and
+  Papazoglou}]{mugabushaka2016bibliometric}
+Mugabushaka AM, Kyriakou A, Papazoglou T (2016) Bibliometric indicators of
+  interdisciplinarity: the potential of the leinster--cobbold diversity indices
+  to study disciplinary diversity. Scientometrics 107(2):593--607
+
+\bibitem[{Nature(2015)}]{natureInterdisc}
+Nature (2015) Interdisciplinarity, nature special issue. Nature
+  525(7569):289--418
+
+\bibitem[{Newman(2014)}]{2013arXiv1310.8220N}
+Newman M (2014) Prediction of highly cited papers. EPL (Europhysics Letters)
+  105(2):28,002
+
+\bibitem[{Newman(2003)}]{newman2003structure}
+Newman ME (2003) The structure and function of complex networks. SIAM review
+  45(2):167--256
+
+\bibitem[{Newman(2006)}]{newman2006modularity}
+Newman ME (2006) Modularity and community structure in networks. Proceedings of
+  the national academy of sciences 103(23):8577--8582
+
+\bibitem[{Nichols(2014)}]{nichols2014topic}
+Nichols LG (2014) A topic model approach to measuring interdisciplinarity at
+  the national science foundation. Scientometrics 100(3):741--754
+
+\bibitem[{Noruzi(2005)}]{noruzi2005google}
+Noruzi A (2005) Google scholar: The new generation of citation indexes. Libri
+  55(4):170--180
+
+\bibitem[{Omodei et~al(2017)Omodei, De~Domenico, and
+  Arenas}]{omodei2017evaluating}
+Omodei E, De~Domenico M, Arenas A (2017) Evaluating the impact of
+  interdisciplinary research: A multilayer network approach. Network Science
+  5(2):235--246
+
+\bibitem[{Palchykov et~al(2016)Palchykov, Gemmetto, Boyarsky, and
+  Garlaschelli}]{palchykov2016ground}
+Palchykov V, Gemmetto V, Boyarsky A, Garlaschelli D (2016) Ground truth?
+  concept-based communities versus the external classification of physics
+  manuscripts. EPJ Data Science 5(1):28
+
+\bibitem[{Porter and Rafols(2009)}]{porter2009science}
+Porter A, Rafols I (2009) Is science becoming more interdisciplinary? measuring
+  and mapping six research fields over time. Scientometrics 81(3):719--745
+
+\bibitem[{Porter et~al(2007)Porter, Cohen, Roessner, and
+  Perreault}]{porter2007measuring}
+Porter AL, Cohen AS, Roessner JD, Perreault M (2007) Measuring researcher
+  interdisciplinarity. Scientometrics 72(1):117--147
+
+\bibitem[{Pumain(2005)}]{pumain2005cumulativite}
+Pumain D (2005) Cumulativit{\'e} des connaissances. Revue europ{\'e}enne des
+  sciences sociales European Journal of Social Sciences (XLIII-131):5--12
+
+\bibitem[{Pumain(2015)}]{pumain2015adapting}
+Pumain D (2015) Adapting the model of scientific publishing. Cybergeo: European
+  Journal of Geography
+
+\bibitem[{Rafols and Meyer(2009)}]{rafols2009diversity}
+Rafols I, Meyer M (2009) Diversity and network coherence as indicators of
+  interdisciplinarity: case studies in bionanoscience. Scientometrics
+  82(2):263--287
+
+\bibitem[{Raimbault(2016)}]{torpool}
+Raimbault J (2016) Torpool v1.0, doi : 10.5281/zenodo.53739
+
+\bibitem[{Raimbault(2017)}]{raimbault2017applied}
+Raimbault J (2017) An applied knowledge framework to study complex systems. In:
+  Complex Systems Design \& Management, pp 31--45
+
+\bibitem[{Redner(1998)}]{redner1998popular}
+Redner S (1998) How popular is your paper? an empirical study of the citation
+  distribution. The European Physical Journal B-Condensed Matter and Complex
+  Systems 4(2):131--134
+
+\bibitem[{Rinia et~al(2002)Rinia, van Leeuwen, and van Raan}]{rinia2002impact}
+Rinia E, van Leeuwen T, van Raan A (2002) Impact measures of interdisciplinary
+  research in physics. Scientometrics 53(2):241--248
+
+\bibitem[{Rodr{\'\i}guez(2017)}]{rodriguez2017disciplinarity}
+Rodr{\'\i}guez JM (2017) Disciplinarity and interdisciplinarity in citation and
+  reference dimensions: knowledge importation and exportation taxonomy of
+  journals. Scientometrics 110(2):617--642
+
+\bibitem[{Roth and Cointet(2010)}]{roth2010social}
+Roth C, Cointet JP (2010) Social and semantic coevolution in knowledge
+  networks. Social Networks 32(1):16--29
+
+\bibitem[{Rouse et~al(2018)Rouse, Lombardi, and Craig}]{Rouse12582}
+Rouse WB, Lombardi JV, Craig DD (2018) Modeling research universities:
+  Predicting probable futures of public vs. private and large vs. small
+  research universities. Proceedings of the National Academy of Sciences
+  115(50):12,582--12,589
+
+\bibitem[{Sarig{\"o}l et~al(2014)Sarig{\"o}l, Pfitzner, Scholtes, Garas, and
+  Schweitzer}]{2014arXiv1402.7268S}
+Sarig{\"o}l E, Pfitzner R, Scholtes I, Garas A, Schweitzer F (2014) Predicting
+  scientific success based on coauthorship networks. EPJ Data Science 3(1):9
+
+\bibitem[{Scharnhorst et~al(2012)Scharnhorst, B{\"o}rner, and van~den
+  Besselaar}]{scharnhorst2012models}
+Scharnhorst A, B{\"o}rner K, van~den Besselaar P (2012) Models of science
+  dynamics: Encounters between complexity theory and information sciences.
+  Springer Science \& Business Media
+
+\bibitem[{Schmid(1994)}]{schmid1994probabilistic}
+Schmid H (1994) Probabilistic part-of-speech tagging using decision trees. In:
+  Proceedings of the international conference on new methods in language
+  processing, Citeseer, vol~12, pp 44--49
+
+\bibitem[{Shibata et~al(2008)Shibata, Kajikawa, Takeda, and
+  Matsushima}]{shibata2008detecting}
+Shibata N, Kajikawa Y, Takeda Y, Matsushima K (2008) Detecting emerging
+  research fronts based on topological measures in citation networks of
+  scientific publications. Technovation 28(11):758--775
+
+\bibitem[{Szell et~al(2018)Szell, Ma, and Sinatra}]{szell2018nobel}
+Szell M, Ma Y, Sinatra R (2018) A nobel opportunity for interdisciplinarity.
+  Nature Physics 14(11):1075--1078
+
+\bibitem[{Trajanovski et~al(2013)Trajanovski, Mart{\'\i}n-Hern{\'a}ndez,
+  Winterbach, and Van~Mieghem}]{trajanovski2013robustness}
+Trajanovski S, Mart{\'\i}n-Hern{\'a}ndez J, Winterbach W, Van~Mieghem P (2013)
+  Robustness envelopes of networks. Journal of Complex Networks 1(1):44--62
+
+\bibitem[{Vugteveen et~al(2014)Vugteveen, Lenders, and Van
+  Den~Besselaar}]{vugteveen2014dynamics}
+Vugteveen P, Lenders R, Van Den~Besselaar P (2014) The dynamics of
+  interdisciplinary research fields: the case of river research. Scientometrics
+  100(1):73--96
+
+\bibitem[{Wagner et~al(2011)Wagner, Roessner, Bobb, Klein, Boyack, Keyton,
+  Rafols, and B{\"o}rner}]{wagner2011approaches}
+Wagner CS, Roessner JD, Bobb K, Klein JT, Boyack KW, Keyton J, Rafols I,
+  B{\"o}rner K (2011) Approaches to understanding and measuring
+  interdisciplinary scientific research (idr): A review of the literature.
+  Journal of informetrics 5(1):14--26
+
+\bibitem[{Wen et~al(2017)Wen, Horlings, van~der Zouwen, and Van~den
+  Besselaar}]{wen2017mapping}
+Wen B, Horlings E, van~der Zouwen M, Van~den Besselaar P (2017) Mapping science
+  through bibliometric triangulation: An experimental approach applied to water
+  research. Journal of the Association for Information Science and Technology
+  68(3):724--738
+
+\bibitem[{West(2017)}]{west2017scale}
+West G (2017) Scale: The Universal Laws of Growth, Innovation, Sustainability,
+  and the Pace of Life in Organisms, Cities, Economies, and Companies. Penguin
+
+\bibitem[{Wicherts(2016)}]{10.1371/journal.pone.0147913}
+Wicherts JM (2016) Peer review quality and transparency of the peer-review
+  process in open access and subscription journals. PLoS ONE 11(1):e0147,913,
+  \doi{10.1371/journal.pone.0147913}
+
+\bibitem[{Zhang et~al(2010)Zhang, Janssens, Liang, and
+  Gl{\"a}nzel}]{zhang2010journal}
+Zhang L, Janssens F, Liang L, Gl{\"a}nzel W (2010) Journal cross-citation
+  analysis for validation and improvement of journal-based subject
+  classification in bibliometric research. Scientometrics 82(3):687--706
+
+\bibitem[{Zhang et~al(2016)Zhang, Rousseau, and
+  Gl{\"a}nzel}]{zhang2016diversity}
+Zhang L, Rousseau R, Gl{\"a}nzel W (2016) Diversity of references as an
+  indicator of the interdisciplinarity of journals: Taking similarity between
+  subject fields into account. Journal of the Association for Information
+  Science and Technology 67(5):1257--1265
+
+\end{thebibliography}
 
 
 \end{document}
-% end of file template.tex
 

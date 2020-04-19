@@ -61,8 +61,9 @@ public class TorPool {
 		initPool(9050, 9050+nPorts, nPorts);
 		runPool();
 		
-		// switch the port to the first working
-		switchPort(false);
+		//switch the port to the first working
+		// -> API side
+		//switchPort(false);
 	}
 	
 	
@@ -71,8 +72,8 @@ public class TorPool {
 	/**
 	 * Start a new pool of tor threads given a port range (included) and thread number
 	 * 
-	 * @param r1
-	 * @param r2
+	 * @param p1
+	 * @param p2
 	 */
 	public static void initPool(int p1,int p2,int nThreads){
 		//fill available range table
@@ -100,6 +101,7 @@ public class TorPool {
 	 * [0.5 sucess rate, may need many ?]
 	 * 
 	 */
+	/*
 	public static void switchPort(boolean createNew){
 		
 		try{
@@ -130,7 +132,8 @@ public class TorPool {
 		}catch(Exception e){e.printStackTrace();}
 			
 	}
-	
+	*/
+
 	
 	
 	/**
@@ -153,7 +156,10 @@ public class TorPool {
 		 */
 		
 		int sleepingTime = initialThreadSleepingTime*torthreads.size();
-		for(int t=0;t<torthreads.size();t++){Thread.sleep(initialThreadSleepingTime);System.out.println("Sleeping : rem. "+(sleepingTime-t*initialThreadSleepingTime)/1000+"sec");}
+		for(int t=0;t<torthreads.size();t++){
+			Thread.sleep(initialThreadSleepingTime);
+			System.out.println("Sleeping : rem. "+(sleepingTime-t*initialThreadSleepingTime)/1000+"sec");
+		}
 		}catch(Exception e){e.printStackTrace();}
 	}
 	

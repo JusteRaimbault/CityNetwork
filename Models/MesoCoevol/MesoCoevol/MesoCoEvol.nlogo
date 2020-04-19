@@ -378,7 +378,7 @@ population-growth-rate
 population-growth-rate
 0
 3000
-1796
+0
 1
 1
 NIL
@@ -615,7 +615,7 @@ INPUTBOX
 732
 160
 seed
-3
+20
 1
 0
 Number
@@ -988,7 +988,7 @@ CHOOSER
 density-setup-method
 density-setup-method
 "synthetic" "empty" "real"
-0
+2
 
 CHOOSER
 855
@@ -998,7 +998,7 @@ CHOOSER
 network-setup-method
 network-setup-method
 "synthetic" "real"
-0
+1
 
 TEXTBOX
 688
@@ -1079,7 +1079,7 @@ cost-tradeoff
 cost-tradeoff
 0
 0.1
-0.009
+0.018
 0.001
 1
 NIL

@@ -1,0 +1,339 @@
+\documentclass[11pt]{article}
+
+\usepackage{times}
+
+% general packages without options
+\usepackage{amsmath,amssymb,bbm}
+% graphics
+\usepackage{graphicx}
+% text formatting
+\usepackage[document]{ragged2e}
+\usepackage{pagecolor,color}
+
+\newcommand{\noun}[1]{\textsc{#1}}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+% geometry
+\usepackage[margin=1.5cm]{geometry}
+
+\usepackage{multicol}
+\usepackage{setspace}
+
+\usepackage{natbib}
+\setlength{\bibsep}{0.0pt}
+
+\usepackage[french]{babel}
+
+% layout : use fancyhdr package
+%\usepackage{fancyhdr}
+%\pagestyle{fancy}
+
+% variable to include comments or not in the compilation ; set to 1 to include
+\def \draft {1}
+
+
+% writing utilities
+
+% comments and responses
+%  -> use this comment to ask questions on what other wrote/answer questions with optional arguments (up to 4 answers)
+\usepackage{xparse}
+\usepackage{ifthen}
+\DeclareDocumentCommand{\comment}{m o o o o}
+{\ifthenelse{\draft=1}{
+    \textcolor{red}{\textbf{C : }#1}
+    \IfValueT{#2}{\textcolor{blue}{\textbf{A1 : }#2}}
+    \IfValueT{#3}{\textcolor{ForestGreen}{\textbf{A2 : }#3}}
+    \IfValueT{#4}{\textcolor{red!50!blue}{\textbf{A3 : }#4}}
+    \IfValueT{#5}{\textcolor{Aquamarine}{\textbf{A4 : }#5}}
+ }{}
+}
+
+% todo
+\newcommand{\todo}[1]{
+\ifthenelse{\draft=1}{\textcolor{red!50!blue}{\textbf{TODO : \textit{#1}}}}{}
+}
+
+
+\makeatletter
+
+
+\makeatother
+
+
+\linespread{1.25}
+
+\begin{document}
+
+
+
+
+
+
+
+\title{\vspace{-2cm}
+Modélisation des interactions entre réseaux de transport et territoires : une approche par la co-évolution
+\bigskip\\
+\textit{Journée d'étude Pacte-Citeres 2018\\
+}
+}
+\author{\noun{Juste Raimbault}\medskip\\
+(UPS CNRS 3611 ISC-PIF et UMR CNRS 8504 Géographie-cités)\\
+}
+\date{}
+
+\maketitle
+
+\justify
+
+%\pagenumbering{gobble}
+
+
+
+
+\medskip
+
+
+\renewcommand{\abstractname}{}
+\begin{abstract}
+	\begin{center}
+	\textbf{Résumé}
+	\end{center}
+	
+	\medskip
+	
+	Les interactions entre réseaux de transports et territoires sont l'objet de débats scientifiques ouverts, notamment au regard de la possible existence d'effets structurants des réseaux, et liés à des enjeux pratiques cruciaux de développement territorial. Nous proposons une entrée sur celles-ci par la co-évolution, et plus particulièrement par la modélisation des processus de co-évolution entre réseaux de transport et territoires. Nous construisons une définition multi-disciplinaire de la co-évolution propre aux systèmes territoriaux et pouvant être testée empiriquement. Nous développons alors les leçons tirées par le développement de deux types de modèles, des modèles macroscopiques d'interaction dans les systèmes de villes et des modèles mesoscopiques de morphogenèse par co-évolution. Cette recherche ouvre la perspective de modèles multi-échelles pouvant être appliqués à la prospective territoriale.
+	
+	\medskip
+	
+	\textbf{Mots-clés : }\textit{Réseaux de transport ; territoire ; co-évolution ; modélisation}
+	
+	\bigskip
+	
+	\begin{center}
+	\textbf{Abstract}
+	\end{center}
+	
+	\medskip
+	
+	Interactions between transportation networks and territories are the subject of open scientific debates, in particular regarding the possible existence of structuring effects of networks, and linked to crucial practical issues of territorial development. We propose an entry on these through co-evolution, and more particularly by the modeling of co-evolution processes between transportation networks and territories. We construct a multi-disciplinary definition of co-evolution which is proper to territorial systems and which can be tested empirically. We then develop the lessons learnt from the development of two types of models, macroscopic interaction models in systems of cities and mesoscopic morphogenesis models through co-evolution. This research opens the perspective of multi-scale models that could be applied to territorial prospective.
+	
+	\medskip
+	
+	\textbf{Keywords: }\textit{Transportation networks ; territory ; co-evolution ; modeling}
+	
+\end{abstract}
+
+
+
+% Review
+% La proposition est parfaitement dans le champ de l’appel à communication, dans l’axe sur les réseaux « physiques ». Le sujet est très bien positionné dans le résumé par rapport aux recherches antérieures sur les interactions entre réseaux de transport et territoires. Les sources bibliographiques indiquées sont pertinentes (JM Offner, A Bretagnolle, A Banos…) au regard de l’angle d’approche de la modélisation proposée. Nous suggérons néanmoins, lors de la présentation, de préciser quelques éléments de définition, situés au cœur de la démarche, en particulier celle de « co-évolution », par rapport par exemple à celle de congruence empruntée à JM Offner. Ensuite, il semble important de clarifier les échelles spatiales (et les types de réseaux) mobilisés et surtout la manière dont l’auteur articulent ces échelles : le résumé parle ainsi successivement de la calibration du modèle macro à partir du système de villes françaises et le réseau ferroviaire puis à l’échelle méso, de la calibration sur l’ensemble de l’Europe avec le réseau routier. Enfin, tout en considérant parfaitement intéressant et judicieux d’aborder également l’échelle métropolitaine, il semble utile lors de la présentation de montrer comment là encore s’articule cette échelle avec les 2 autres et in fine, comment sont intégrés les résultats obtenus à chaque échelle dans le modèle multi-échelles développé.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+
+Les potentiels effets des réseaux techniques sur les territoires, et plus particulièrement des réseaux de transport, ont alimenté des débats scientifiques qui restent aujourd'hui relativement ouverts, comme la question de l'identification d'effets structurants des infrastructures \citep{offner1993effets}. Ceux-ci peuvent être observés sur du temps long, mais de nombreux travaux rappellent qu'il faut rester prudent quant à la contingence de chaque situation et aux dangers d'une instrumentalisation politique du concept~\citep{espacegeo2014effets}.
+
+Une entrée pertinente pour cette question, explorée par \cite{raimbault2018caracterisation} dont nous faisons ici une synthèse partielle, est de comprendre les territoires et les réseaux de transport comme étant en co-évolution, c'est-à-dire exhibant des dynamiques couplées fortement qu'il est difficile d'isoler \citep{bretagnolle:tel-00459720}. La construction du concept de territoire par \cite{raimbault2018caracterisation} à la croisée d'une lecture Raffestinienne et d'une lecture Pumanienne, c'est-à-dire en croisant le concept de territoire humain \citep{raffestin1988reperes} avec celui de territoire comme espace d'insertion des systèmes de villes \citep{pumain2018evolutionary}, montre que celui-ci implique des relations potentielles entre objets géographiques et par induction des réseaux techniques par concrétisation de projets transactionnels~\citep{dupuy1987vers}. Ainsi, l'interaction réseau-territoire peut intrinsèquement être lue comme endogène au concept de territoire lui-même. Nous allons plus loin en postulant l'existence potentielle d'une \emph{co-évolution} entre réseaux de transports et territoires, que nous tâcherons de définir de manière interdisciplinaire dans une section dédiée ci-dessous. Nous étudions dans notre travail plus particulièrement les \emph{réseaux de transport}, notamment car ceux-ci sont particulièrement représentatifs des potentialités de façonner les territoires qu'on prête aux réseaux techniques par le transport effectif des flux en particulier \citep{bavoux2005geographie}.
+
+
+Le travail de recherche présenté propose d'explorer cette perspective de co-évolution en l'explorant par l'intermédiaire de la modélisation et de la simulation, considérant le modèle comme un instrument de connaissance à part entière \citep{banos2013pour} complémentaire aux aspects théoriques et empiriques \citep{raimbault2017applied}, et dont l'impact est amplifié par l'utilisation des méthodes et outils d'exploration des modèles et de calcul intensif \citep{pumain2017urban}. L'utilisation de modèles de simulation génératifs pour les systèmes considérés permet de construire une connaissance indirecte sur les processus impliqués et par exemple de directement tester et comparer des hypothèses dans ce laboratoire virtuel \citep{epstein1996growing}.
+
+
+Suivant \cite{raimbault2017invisible} qui établit une cartographie scientifique, les domaines s'étant intéressé à la modélisation des interactions entre réseaux de transport et territoires sont très variés, de la géographie à la planification ou l'économie urbaine et plus récemment la physique, mais ceux-ci semblent être très cloisonnés \citep{raimbault2017models}. Suivant une revue systématique de la littérature et une modélographie menée par \cite{raimbault2018caracterisation}, ainsi qu'une typologie des processus d'interaction, deux échelles apparaissent pertinentes pour saisir l'existence possible de processus de co-évolution: l'échelle mesoscopique, qui s'apparentera typiquement à une échelle spatiale métropolitaine, et l'échelle macroscopique, qui correspond à celle du système de villes.
+
+Deux directions complémentaires de modélisation correspondant à ces deux échelles ont alors été développées, étendant les travaux antérieurs de modélisation de cette co-évolution à l'échelle macroscopique \citep{baptistemodeling,schmitt2014modelisation} et mesoscopique \citep{raimbault2014hybrid}. Ces deux axes correspondent à des entrées thématiques distinctes, celle de la théorie évolutive urbaine pour le macroscopique \citep{pumain2018evolutionary} et celle de la morphogenèse urbaine pour le mesoscopique, comprise comme la relation émergente entre forme et fonction \citep{doursat2012morphogenetic}.
+
+
+Cette contribution se veut comme une synthèse de ces travaux de recherche, et s'organise de la façon suivante: nous définissons dans un premier temps le concept de co-évolution à partir d'une vue multi-disciplinaire. Nous détaillons ensuite les résultats obtenus pour la modélisation à l'échelle macroscopique, puis ceux pour l'échelle mesoscopique. Nous discutons finalement les perspectives ouvertes et les développements futurs dans le cadre de la modélisation de la co-évolution entre réseaux de transports et territoires.
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Définition de la co-évolution}
+
+
+% Ce positionnement sur les systèmes biologiques et sociaux trouve un écho immédiat pour le concept de co-évolution. Il provient en effet de la biologie, où il a été développé à la suite de celui d'évolution, pour être utilisé plus récemment en sciences humaines et sociales. Dans quelle mesure le concept a-t-il été transféré ? Retrouve-t-on un parallèle similaire à celui entre évolution biologique et évolution culturelle ? Nous proposons pour répondre à ces questions d'apporter un bref point de vue multidisciplinaire sur la co-évolution\footnote{La démarche ici est légèrement différente de celle que nous mènerons en~\ref{sec:interdiscmorphogenesis} dans le cas de la morphogenèse, qui sera \emph{interdisciplinaire} au sens où elle cherchera à intégrer les approches, tandis que nous restons ici dans un aperçu des concepts et donc plutôt dans du \emph{multidisciplinaire}. Le concept de \emph{co-évolution} étant clé pour notre travail empirique par la suite, nous en donnerons alors une caractérisation originale et prenons le parti de ne pas tomber dans le syncrétisme intégrateur pour ce concept, mais bien de l'approcher d'un \emph{point de vue géographique}, et même plus précisément dans le cadre des systèmes territoriaux. On pourrait postuler une congruence entre la spécialisation empirique/de modélisation et celle théorique, plaçant notre processus de production de connaissance dans un profil particulier de dynamiques de domaines de connaissance (voir~\ref{sec:knowledgeframework}).}. Nous passons par la suite en revue un large spectre de disciplines, partant de la biologie où le concept a initialement trouvé son origine pour arriver progressivement à des disciplines en relation avec les sciences du territoire.
+
+Le transfert de concepts entre disciplines étant toujours délicat, nous prenons ici le parti de construire une définition de la co-évolution inspirée par les nombreuses disciplines dans lesquelles il a été décliné.
+
+\subsection{Biologie}
+
+Le concept de co-évolution en biologie est une extension de celui bien connu d'\emph{évolution}, qui remonte à \noun{Darwin}. \cite{durham1991coevolution} (p.~22) rappelle les composantes et structure systémiques nécessaires pour qu'il y ait évolution
+%\footnote{Et dans ce contexte général l'évolution n'est pas réservée à la biologie du vivant et la présence de gènes, mais aussi à des systèmes physiques vérifiant ces conditions. Nous y reviendrons plus loin.}.
+\begin{enumerate}
+	\item Processus de \emph{transmission}, impliquant des unités de transmission et des mécanismes de transmission.
+	\item Processus de \emph{transformation}, nécessitant des sources de variation.
+	\item Isolation de sous-systèmes pour que les effets des processus précédents soient observables dans des différentiations.
+\end{enumerate}
+
+Ainsi, une population soumise à des contraintes (souvent synthétisées conceptuellement comme une \emph{fitness}) qui conditionnent la transmission du patrimoine génétique des individus (transmission), et à des mutation génétiques aléatoires (transformation), sera bien en évolution dans les territoires spatiaux qu'elle occupe (isolation), et par extension l'espèce à laquelle on peut l'associer. La co-évolution est alors définie comme un changement évolutionnaire dans une caractéristique des individus d'une population, en réponse à un changement dans une deuxième population qui à son tour répond évolutionnairement au changement de la première, comme synthétisé par~\cite{janzen1980coevolution}, qui appuie par ailleurs la subtilité du concept et alerte contre ses utilisations injustifiées : la présence d'une congruence de deux caractéristiques qui semblent adaptées l'une à l'autre n'implique pas l'existence d'une co-évolution, l'une des deux espèces ayant pu s'adapter seule à une caractéristique déjà présente de l'autre. Il faut dans ce contexte garder en tête toute la complexité des systèmes écologiques: les populations s'insèrent dans des réseaux trophiques et des environnements, et les interactions co-évolutionnaires impliqueraient des communautés de populations d'espèces diverses, comme présenté par \cite{strauss2005toward} sous l'appellation de co-évolution diffuse.
+%De même, les dynamiques spatio-temporelles sont cruciales dans la réalisation de ces processus : \cite{dybdahl1996geography} étudient par exemple l'influence de la distribution spatiale sur les motifs de co-évolution pour un escargot et son parasite, et montrent qu'une vitesse de diffusion génétique dans l'espace plus grande pour le parasite conduit les dynamiques de co-évolution.
+%Les concepts essentiels à retenir du point de vue biologique sont ainsi : (i) existence de processus d'évolution, en particulier transmission et transformation ; (ii) dans des schémas circulaires entre populations dans le cas de la co-évolution ; et (iii) dans un cadre territorial (spatio-temporel et environnemental au sens du reste de l'éco-système) complexe.
+
+
+\subsection{Evolution culturelle}
+
+Un parallèle entre systèmes biologiques et systèmes sociaux peut dans certains cas être pertinent. L'évolution de la culture est théorisée est explorée par un champ propre, et n'est pas en reste de dynamiques co-évolutives. \cite{Mesoudi25072017} rappelle l'état des connaissances sur le sujet et les défis à venir, comme la relation avec la nature cumulative de la culture, l'influence de la démographie dans les processus d'évolution, ou la construction de méthodes phylogénétiques permettant de reconstruire des arbres des branchements passés. Pour donner un exemple, \cite{carrignon2015modelling} introduit un cadre conceptuel pour la co-évolution de la culture et du commerce dans le cas de sociétés anciennes sur lesquelles on dispose de données archéologiques, et propose son implémentation par un modèle multi-agents dont les dynamiques sont partiellement validées par l'étude des faits stylisés produits par le modèle. La co-évolution est bien prise ici au sens d'adaptation mutuelle de structures socio-spatiales, à des échelles de temps comparables, dans ce cadre plus général d'évolution culturelle. L'évolution culturelle serait même indissociable de l'évolution génétique, puisque \cite{durham1991coevolution} postule et illustre un lien fort entre les deux, qui seraient eux-mêmes en co-évolution. \cite{bull2000meme} explorent un modèle stylisé impliquant deux populations de répliquants (les gènes et les memes) et montre l'existence de transitions de phase pour les résultats du processus d'évolution génétique lorsque l'interaction avec le répliquant culturel est forte.
+
+
+\subsection{Sociologie}
+
+Le concept a été utilisé en sociologie et disciplines apparentées comme les études de l'organisation, de façon analogue à celle de l'évolution culturelle. Dans le domaine de l'étude des organisations, \cite{volberda2003co} développent un cadre conceptuel de la co-évolution inter-organisationnelle en relations avec les processus de management internes, mais déplore l'absence d'études empiriques cherchant à quantifier cette co-évolution. Dans le cadre de la gestion des systèmes de production, \cite{tolio2010species} conceptualisent un chaine de production intelligente où produit, processus et système de production doivent être en co-évolution.
+
+\subsection{Economie géographique}
+
+En économie géographique, le concept de co-évolution a également largement été mobilisée. L'idée d'entités évolutionnaires en économie vient à contre-courant du courant néoclassique qui reste majoritaire, mais trouve un écho de plus en plus pertinent~\citep{nelson2009evolutionary}. \cite{schamp201020} procède à une analyse épistémologique de l'utilisation de la co-évolution, et oppose une approche néo-schumpeterienne de l'économie qui considère l'émergence de populations qui évoluent à partir de règles micro-économiques (qui correspondrait à une lecture directe et relativement isolationniste de l'évolution biologique) à une approche systémique qui considérerait l'économie comme un système évolutif de manière globale (qui correspondrait à l'évolution diffuse que nous avons développé précédemment), pour proposer une caractérisation précise tombant dans le premier cas, qui suppose des \emph{institutions} qui co-évoluent. Le plus important pour notre propos est qu'il souligne l'aspect crucial du choix des population et des entités considérées, de la zone géographique, et appuie l'importance de l'existence de relations causales circulaires.
+
+Il est possible de donner divers exemples d'application. \cite{doi:10.1080/00343400802662658} introduisent un cadre conceptuel pour permettre de concilier nature évolutionnaire des entreprises, théorie des clusters et réseaux de connaissance, dans lequel la co-évolution entre réseaux et entreprises est centrale, et qui est définie comme une causalité circulaire entre différentes caractéristiques de ces sous-systèmes. \cite{colletis2010co} introduit un cadre de co-évolution des territoires et de la technologie (questionnant par exemple le rôle de la proximité pour les innovations), qui révèle l'importance à nouveau de l'aspect institutionnel. 
+
+
+En économie environnementale, \cite{kallis2007coevolution} montre que des approches ``larges'' (pouvant considérer la majorité des co-dynamiques comme co-évolutives) s'opposent à des approches plus strictes (dans l'esprit de la définition donnée par \cite{schamp201020}), et que dans tous les cas une définition précise, ne venant pas forcément de la biologie, doit être donnée, en particulier pour la recherche d'une caractérisation empirique.
+
+\subsection{Géographie}
+
+Pour la géographie, comme nous l'avons déjà présenté en introduction, les travaux les plus proches empiriquement et théoriquement des notions de co-évolution sont étroitement liés à la théorie évolutive des villes. Il n'est pas évident de tracer dans la littérature à quel moment la notion a été clairement formalisée, mais il est évident qu'elle était présente dès les fondements de la théorie \citep{pumain1997pour}: le système complexe adaptatif est composé de sous-systèmes en interdépendances complexes, souvent circulairement causales. Les premiers modèles incluent bien cette vision de manière implicite, mais la co-évolution n'est pas appuyée explicitement ou définie précisément, en termes qui seraient quantifiables ou identifiables structurellement. \cite{paulus2004coevolution} amène des indices empiriques de mécanismes de co-évolution par l'étude de l'évolution des profils économiques des villes françaises. L'interprétation utilisée par~\cite{schmitt2014modelisation} repose sur une entrée par la théorie évolutive des villes, et consiste fondamentalement en une lecture des systèmes de villes comme entités fortement interdépendantes.
+
+
+% Geographie physique
+%En étude des paysages, \cite{sheeren2015coevolution} parlent de co-évolution du paysage et des activités agricoles, mais ne considèrent en fait pas d'effet circulaires de l'un sur l'autre. A priori, leurs résultats montrent que l'évolution des pratiques agricoles entraine une évolution du paysage, et il n'est ainsi pas clair dans quelle mesure le cadre conceptuel de la co-évolution, mentionné sans plus de détails, est mobilisé.
+
+% Physics
+% Enfin, on peut noter de manière anecdotique que le terme de co-évolution a également été utilisé par la physique. L'utilisation pour des systèmes physiques peut porter à débat, selon que l'on suppose ou non que la transmission suppose une transmission d'\emph{information}\footnote{L'information est définie dans la théorie shanonienne comme une probabilité d'occurrence d'une chaîne de caractère. \cite{morin1976methode} montre que le concept d'information est en fait bien plus complexe, et qu'il doit être pensé conjointement à un contexte donné de génération d'un système auto-organisateur néguentropique, i.e. réalisant des diminutions locales d'entropie notamment grâce à cette information. Ce type de système est nécessairement vivant. Nous prendrons ici cette vision complexe de l'information.}. Dans le cas d'une transmission ontologique uniquement physique (\emph{êtres physiques}), alors une grande partie des systèmes physiques sont évolutifs. \cite{hopkins2008cosmological} développent un cadre cosmologique pour la co-évolution d'objets cosmiques hétérogènes dont la présence et les dynamiques sont difficilement expliquées par des théories plus classiques (certains types de galaxies, quasars, trous noirs supermassifs). \cite{antonioni2017coevolution} étudient la co-évolution entre des propriétés de synchronisation et de coopération au sein d'un réseau d'oscillateurs de Kuramoto\footnote{Le modèle de Kuramoto s'intéresse à la synchronisation au sein de systèmes complexes, en étudiant l'évolution de phases $\theta_i$ couplée par les équations d'interaction $\dot{\vec{\theta}} = \vec{\omega} + \vec{W}\left[\vec{\theta}\right] + \mathbf{B}$ où $\vec{\omega}$ sont les phases propres de forçage et la force de couplage entre $i$ et $j$ est donnée par $\vec{W}_{i} = \sum_j w_{ij} \sin\left(\theta_i - \theta_j\right)$ et $\vec{B}$ du bruit.}, montrant d'une part que le concept peut être appliqué à des objets abstraits, et d'autre part qu'un réseau de relations complexes entre variables peut être à l'origine de dynamiques présentant des causalités circulaires, c'est-à-dire d'une co-évolution en ce sens.
+
+\subsection{Synthèse}
+
+La plupart de ces approches rentrent dans la théorie des systèmes complexes adaptatifs développée par~\cite{holland2012signals} : il voit tout système comme une imbrication de systèmes de limites, filtrant des signaux ou des objets. Au sein d'une limite donnée, le sous-système correspondant est relativement autonome de l'extérieur, est est appelé \emph{niche écologique}, en correspondance directe avec les communautés fortement connectées au sein des réseaux trophiques ou écologiques. Ainsi, des entités interdépendantes au sein d'une niche sont dites en co-évolution. 
+
+Nous retenons de cet aperçu multidisciplinaire de la co-évolution les points fondamentaux suivants précurseurs à une définition propre de la co-évolution.
+
+\begin{enumerate}
+	\item La présence de \emph{processus d'évolution} est primaire, et leur définition se ramène presque toujours à l'existence de processus de transmission et de transformation.
+	\item La co-évolution suppose des entités ou systèmes, appartenant à des classes distinctes, dont les dynamiques évolutives sont couplées de manière circulaire causale. Les approches peuvent différer selon l'hypothèse de populations de ces entités, d'objets singuliers, ou de composantes d'un système global alors en interdépendance mutuelle sans qu'il y ait circularité directe. % rq : dit-on qu'il y a coevol dans les cas spurieux
+	\item La délimitation des systèmes ou des sous-systèmes, à la fois dans l'espace ontologique (définition des objets étudiés), mais aussi dans l'espace et le temps, ainsi que leur distribution dans ces espaces, est fondamental pour l'existence de dynamiques co-évolutives, et a priori dans un grand nombre de cas, pour leur caractérisation empirique.
+\end{enumerate}
+
+
+Nous proposons ainsi la définition suivante pour le cas spécifique des réseaux de transport et des territoires, qui fait écho au trois points essentiels (existence de processus évolutifs, définition des entités ou des populations, isolation de sous-systèmes dans le temps et l'espace) ci-dessous. Celle-ci vérifie les trois spécifications suivantes.
+
+\begin{enumerate}
+    \item Dans un premier temps, les processus évolutifs correspondent aux transformations des composantes du système territorial aux différentes échelles : transformation sur le temps long des villes, de leurs réseaux, transmission entre villes des caractéristiques socio-économiques portées par les agents microscopiques mais aussi transmission culturelle, reproduction et transformation des agents eux-mêmes (firmes, ménages, opérateurs).%\footnote{Cette liste s'appuie sur les hypothèses de la théorie évolutive des villes que nous avons déjà introduite brièvement et que nous développerons à part entière en Chapitre~\ref{ch:evolutiveurban}. Elle ne peut être exhaustive, puisque ce qui ferait ``l'ADN d'une ville'' reste une question ouverte comme nous le rappelle \noun{Denise Pumain} dans un entretien dédié~\ref{app:sec:interviews}.}.
+	\item Ces processus évolutifs peuvent impliquer une co-évolution. Au sein d'un système territorial, pourront être en co-évolution à la fois : (i) des entités données (telle infrastructure et telles caractéristiques de tel territoire par exemple, c'est-à-dire des individus), lorsque leur influence mutuelle sera circulairement causale (à l'échelle leur correspondant) ; (ii) des populations d'entités, ce qui se traduira par exemple par tel type d'infrastructure et telle composante territoriale co-évoluent au niveau statistique dans une région géographique donnée ; (iii) l'ensemble des composantes d'un système à petite échelle géographique lorsqu'il existe de fortes interdépendances globales. Notre vision est donc fondamentalement \emph{multi-échelles} et articule différentes significations à différentes échelles.
+	\item Enfin, la contrainte d'une isolation implique, en lien avec le point précédent, que la co-évolution et l'articulation des significations auront un sens s'il existe des isolations spatio-temporelles de sous-systèmes où s'effectuent les différentes co-évolutions, ce qui est en accord direct avec un vision en \emph{Systèmes de systèmes multi-échelles}.
+\end{enumerate}
+
+
+% a mettre en lien avec Congruence d'Offner
+
+Notre définition est résolument ancrée dans une vision dynamique des processus, dans l'esprit initial de l'introduction du concept en biologie. L'ouverture sur les niveaux à laquelle co-évolution peut s'opérer permet une généralité mais aussi une précision et la mise en place de méthodes de caractérisation empiriques, comme celle introduite pour le deuxième niveau (co-évolution de population) par \cite{raimbault2017identification}. De plus, l'intégration implicite du concept de niche permet un accord avec la territorialité et sa déclinaison à plusieurs échelles dans des sous-systèmes territoriaux à la fois indépendants et interdépendants. Notre approche est plus générale que la notion de congruence proposée par \cite{offner1993effets}, qui reste floue dans les relations d'interdépendance entre entités concernées, et pourrait être apparentée au troisième niveau d'interdépendances systémiques.
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Echelle macroscopique}
+
+Le premier axe de modélisation se situe à l'échelle macroscopique et se base sur les principes de la théorie évolutive des villes \citep{pumain1997pour}. La famille des modèles Simpop se place majoritairement dans les ontologies et échelles correspondantes, c'est-à-dire des entités élémentaires constituées par les villes elles-mêmes, à l'échelle spatial du système de ville (régionale à continentale) et sur des échelles temporelles relativement longues (au dessus de la cinquantaine d'années) \citep{pumain2012multi}.
+
+
+\subsection{Effets de réseau}
+
+Un premier modèle de contrôle au sein duquel le réseau est statique mais ayant une retroaction sur les villes, suggère indirectement des effets de réseau. Ce travail préliminaire est détaillé par \cite{raimbault2018indirect} qui détaille le modèle et l'applique au système de ville français sur le temps long (1830-1999). Le modèle travaille sur des populations attendues et capture la complexité par les interactions non-linéaires entre villes et portées par le réseau. Trois processus se superposent pour déterminer le taux de croissance des villes: (i) une croissance endogène fixée par un paramètre, correspondant au modèle de Gibrat; (ii) des processus d'interaction directe exprimés sous la forme d'un potentiel gravitaire influençant le taux de croissance; (iii) une retroaction des flux circulant dans le réseau sur les villes traversées. Le modèle est initialisé avec les populations réelles au début d'une période, puis évalué par comparaison avec les populations simulées sur l'ensemble de la période, sur deux objectifs permettant de prendre en compte l'ajustement total des populations ou l'ajustement de leur logarithme. L'obtention de fronts de Pareto montre qu'il n'est pas possible d'ajuster le modèle uniformément pour l'ensemble du spectre de tailles de villes. On montre que l'ajout de la composante réseau permet une amélioration effective de l'ajustement, ce qui suggère l'existence d'effets de réseaux.
+
+
+\subsection{Modèle de co-évolution}
+
+
+Ce modèle est ensuite étendu à un modèle co-évolutif par \cite{raimbault2018modeling}, au sein duquel villes et liens du réseau de transport sont tous les deux dynamiques et en dépendance réciproque. Ce modèle est proche de~\cite{schmitt2014modelisation} pour les règles d'évolution des populations, et de~\cite{baptistemodeling} pour l'évolution du réseau. Plus précisément, il opère de manière itérative suivant les étapes suivantes: (i) les populations des villes évoluent suivant la spécification du modèle statique décrit ci-dessus; (ii) le réseau évolue, suivant une implémentation abstraite telle que les distances entre villes sont mises à jour par une fonction d'auto-renforcement en fonction des flux entre chaque ville, avec paramètre de seuil. Cette version du modèle est strictement macroscopique et n'inclut pas la forme spatiale du réseau puisqu'elle agit sur la matrice des distances uniquement.
+
+
+L'exploration systématique de ce modèle par l'intermédiaire du logiciel OpenMOLE \citep{reuillon2013openmole} et l'application d'une méthode empirique de caractérisation de la co-évolution \cite{raimbault2017identification} permettent de montrer qu'il capture une grande variété de dynamiques couplées, incluant effectivement des dynamiques co-évolutives: parmi la grande richesse de régimes d'interaction entre variables de réseau et variables de population (au sens de \cite{raimbault2017identification}, par classification des motifs de corrélations retardées), plus de la moitié des régimes sont effectivement co-évolutifs, c'est-à-dire présentant des causalités circulaires. Cet aspect pourrait paraître évident pour un modèle conçu pour intégrer une co-évolution, mais il faut réaliser que les processus intégrés dans les modèles le sont à l'échelle microscopique tandis que la caractérisation est quantifiée à l'échelle macroscopique: il s'agit bien d'une capacité du modèle à faire émerger la co-évolution. Par exemple pour le modèle SimpopNet, \cite{raimbault2018unveiling} montre que les régimes de co-évolution sont beaucoup plus rares et que cet autre modèle produit plus souvent des configurations de type effet structurant ou sans aucune relation. Par ailleurs, l'exploration révèle l'existence d'une valeur optimale pour un paramètre de portée des interactions, à laquelle le système présente une complexité maximale des trajectoires des villes. Cette portée correspond à l'apparition de niches territoriales, au sein desquelles les population sont en co-évolution, correspondant au troisième point de notre définition.
+
+La calibration sur le système de ville français sur la même durée que le modèle statique, avec données de population et réseaux ferroviaire dynamique pris en compte par matrices de distance dynamiques construite à partir des données de \cite{thevenin2013mapping}, révèle des fronts de Pareto entre objectif pour la distance entre villes et objectif de population, suggérant une impossibilité de calibrer ce type de modèle simultanément pour la composante réseau et pour celle territoriale. Par ailleurs, l'ajustement pour la population est amélioré par ce modèle pour un certain nombre de périodes, par rapport au modèle avec réseau statique, suggérant la pertinence de la prise en compte des dynamiques co-évolutives. L'évolution du paramètre de seuil calibré suggère la capture d'un ``effet TGV'' par le modèle, c'est-à-dire l'amélioration de la distance effective pour les métropoles concernées mais une perte de vitesse pour les territoires laissés pour compte.
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Echelle mesoscopique}
+
+Le deuxième axe, à l'échelle mesoscopique, considère l'entrée par la morphogenèse urbaine, comprise comme l'émergence simultanée de la forme et de la fonction d'un système \citep{doursat2012morphogenetic}. Celle-ci permet de considérer une description plus fine des territoires, à l'échelle de grilles fines de population (résolution 500m) et de représentation vectorielle du réseau à la même échelle. 
+
+\subsection{Morphogenèse par agrégation-diffusion}
+
+Les systèmes territoriaux produits sont quantifiés par indicateurs morphologiques pour la population \citep{le2015forme}. Un premier modèle préliminaire, intégrant la population uniquement, montre que les processus d'agrégation et diffusion sont suffisant pour expliquer la grande majorité des formes urbaines existantes en Europe \citep{raimbault2018calibration}. Ce résultat suggère que la prise en compte de la forme seule peut être effectuée de manière autonome, mais que les processus fonctionnels ne seront alors pas pris en compte au coeur des dynamiques. Afin d'appréhender les processus de morphogenèse, c'est-à-dire le lien fort entre forme et fonction lors de l'émergence de celles-ci, nous prenons le parti d'utiliser le réseau de transport comme proxy des propriétés fonctionnelles des territoires, notamment par les propriétés de centralités. Cela nous amène à introduire un modèle de morphogenèse par co-évolution à l'échelle mesoscopique.
+
+
+\subsection{Morphogenèse par co-évolution}
+
+
+Les indicateurs de forme urbaine calculés sur fenêtres glissante de taille 50km pour l'ensemble de l'Europe sont complétés par des indicateurs structurels du réseau routiers, calculés à partir des données OpenStreetMap après un algorithme spécifique de simplification conservant les propriétés topologiques \citep{raimbault2018urban}. Ces indicateurs et leur corrélations spatiales statiques sont ainsi calculés sur des fenêtres de taille équivalente couvrant l'ensemble de l'Europe. Nous montrons par l'étude de la distribution spatiale de ces corrélations la non-stationnarité des processus d'interaction au second ordre, confirmant la pertinence de la notion de niche en tant que sous-système territorial cohérent.
+
+Nous introduisons alors dans \cite{raimbault2018urban} un modèle de morphogenèse capturant la co-évolution de la distribution spatiale de la population et du réseau routier. Ce modèle combine la logique de \cite{raimbault2018calibration} pour la complémentarité des processus d'agrégation et de diffusion à celle de \cite{raimbault2014hybrid} pour la structure hybride en grille et réseau vectoriel ainsi l'influence de variables explicatives locales sur l'évolution territoriale. Ce modèle fonctionne de la façon suivante: (i) les propriétés morphologiques et fonctionnelles locales, intégrées comme variables explicatives locales normalisées (incluant population, distance au réseau, centralité de chemin, centralité de proximité, accessibilité), déterminent la valeur d'une fonction d'utilité à partir de laquelle est ajoutée la nouvelle population par attachement préférentiel, puis une diffusion des populations est effectuée; (ii) le réseau routier évolue suivant des règles dépendant de différentes heuristiques (approche par multi-modélisation), qui incluent, après l'ajout de noeuds préférentiellement à la nouvelle population et leur connection directe au réseau existant, un ajout de liens par réseau aléatoire, rupture de potentiel aléatoire \citep{schmitt2014modelisation}, rupture de potentiel déterministe \citep{raimbault2016generation}, réseau biologique auto-organisé \citep{tero2010rules}, compromis coût-bénéfices \citep{louf2013emergence}.
+
+Le calcul d'indicateurs topologiques pour le réseau routier permet de calibrer le modèle, et \cite{raimbault2018multi} montre que les différents processus de croissance de réseau qui ont été inclus suivant un processus de multi-modélisation sont complémentaires pour se rapprocher du maximum de configurations réelles en termes de réseau. Par ailleurs, le modèle est calibré simultanément sur indicators morphologiques, indicateurs topologiques, et leur matrices de corrélation, et les relativement faibles distances aux données pour un nombre non négligeable de points suggèrent que le modèle est capable de reproduire les résultats des processus au premier ordre (indicateurs) mais aussi au second ordre (interactions entre indicateurs). Concernant les régimes de causalité produits par le modèle, nous obtenons des configurations correspondant à une co-évolution, mais une diversité beaucoup plus faible que pour le modèle plus simple de \cite{raimbault2014hybrid} qui a servi de modèle jouet pour la démonstration de la pertinence de la méthode des régimes de causalité dans \cite{raimbault2017identification}, suggérant une tension entre performance statique (reproduction des résultats des processus) et performance dynamique (reproduction des processus eux-mêmes) pour ce type de modèles.
+ 
+
+\subsection{Gouvernance des transports}
+ 
+Enfin, un dernier modèle métropolitain (modèle Lutecia) est décrit dans \cite{raimbault2018caracterisation}, étendant celui proposé par \citep{lenechet:halshs-01272236}, explore le rôle des processus de gouvernance dans la croissance du réseau de transport, au sein d'un modèle de co-évolution. Ici, l'échelle métropolitaine correspond bien à celle mesoscopique. La collaboration entre acteurs locaux pour la construction des infrastructures de transport est prise en compte par l'intermédiaire de théorie des jeux. Cela permet de simuler l'émergence du réseau de transport et son interaction avec la forme urbaine quantifiée par les motifs spatiaux d'accessibilité. Ce modèle permet par exemple de montrer que les dynamiques co-évolutives peuvent être amenées à inverser le comportement des gains d'accessibilité en comparaison à une configuration sans évolution de l'usage du sol, c'est-à-dire changer qualitativement le régime du système métropolitain. La calibration de ce modèle sur le cas stylisé de la méga-région urbaine du Delta de la Rivière des Perles en Chine permet d'extrapoler sur les processus de gouvernance, et suggère que la forme du réseau actuel est plus probablement due soit à des décisions totalement régionales soit totalement locales, mais pas de configuration intermédiaire, en contradiction avec la vision du contexte politique Chinois comme système de décision multi-niveau \citep{liao2017ouverture}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Perspectives}
+
+Cette recherche a ainsi développé des approches complémentaires à différentes échelles des interactions entre réseaux de transport et territoires en modélisant leur co-évolution. Nous détaillons finalement des perspectives de développement immédiats ouverts par ce travail.
+
+
+\subsection{Développements à l'échelle macroscopique}
+
+Nos modèles macroscopiques n'ont pas encore été testés sur d'autres systèmes urbains et d'autres étendues temporelles, et les développements futurs devront étudier quelles conclusions obtenues ici sont spécifiques au système de villes français sur ces périodes, et lesquelles sont plus générales et pourraient être plus génériques dans les systèmes de villes. L'application du modèle à d'autres systèmes de villes rappelle également la difficulté de définir les systèmes urbains. Dans notre cas, un fort biais doit être induit par le fait de considérer la France seule, puisque l'insertion de son système urbain dans un système européen est une réalité que nous avons dû négliger. L'étendue et l'échelle de tels modèles est toujours un sujet délicat. Nous reposons ici sur la cohérence administrative et celle de la base de données \citep{pumain1986fichier}, mais la sensibilité à la définition du système et à son étendue doivent encore être testés.
+
+Par ailleurs, la calibration a utilisé le réseau ferré uniquement pour les distances entre villes. La considération d'un seul mode de transport est bien sûr réductrice, et une direction immediate de développement est le test du modèle avec des matrices de distance réelles pour d'autres types de réseaux, comme le réseau autoroutier qui a connu un essor considerable en France dans la seconde moitié du 20ème siècle. Cette application nécessite la mise en place d'une base dynamique pour la croissance du réseau autoroutier couvrant 1950 à 2015, les bases classiques (IGN ou OpenStreetMap) n'intégrant pas la date d'ouverture des tronçons. Une extension naturelle du modele consisterait alors en la mise en place d'un réseau multi-couches, approche typique pour représenter des systèmes de transport multi-modaux~\citep{gallotti2014anatomy}. Chaque couche du réseau de transport devrait avoir une dynamique co-évolutive avec les populations, avec possiblement l'existence d'une dynamique inter-couches.
+
+
+
+\subsection{Développements à l'échelle mesoscopique}
+
+La question du caractère générique du modèle de morphogenèse par co-évolution est également ouverte, c'est-à-dire s'il fonctionnerait de la même manière pour reproduire des formes urbaines sur des systèmes très différents comme les États-Unis ou la Chine. Un premier développement intéressant serait de le tester sur ces systèmes et à des échelles légèrement différentes (cellules de taille 1km par exemple).
+
+Par ailleurs, le modèle Lutecia est également une contribution fondamentale vers la prise en compte de processus plus complexes impliqués dans la co-évolution, comme la gouvernance du système de transport.
+%Comme nous l'avons déjà indiqué, \cite{Xie2011} introduit un modèle économique théorique s'intéressant à une problématique similaire, et \cite{xie2011governance} développe une application simplifiée sur réseau synthétique. Nous allons plus loin en considérant une intégration à un modèle entièrement dynamique d'interaction entre transport et usage du sol, et implémentons une application stylisée au cas réel du Delta de la Rivière des Perles.
+ Ce modèle ouvre la porte à une nouvelle génération de modèles, pouvant être potentiellement opérationnels dans le cas de systèmes régionaux à très grande vitesse d'évolution comme dans le cas Chinois.
+
+
+\subsection{Vers des modèles multi-échelles}
+
+
+Notre travail ouvre enfin des perspectives d'approches intégrées, vers des modèles multi-échelles de ces interactions, qui s'avèrent de plus en plus nécessaires pour l'élaboration de modèles opérationnels pouvant être appliqués à l'élaboration de politiques de planification soutenables \citep{rozenblat2018conclusion}.
+
+
+Une première entrée vers des modèles multi-scalaires est la prise en compte plus fine du réseau physique dans les modèles macroscopiques, qui est par exemple l'objet de~\cite{mimeur:tel-01451164}, qui produit des résultats intéressants quant à l'influence de la centralisation de la décision d'investissement dans le réseau sur les formes finales, mais garde des populations statiques et ne produit pas de modèle de co-évolution. De même, le choix des indicateurs pour quantifier la distance du réseau simulé à un réseau réel est un problème délicat dans ce contexte : des indicateurs comme le nombre d'intersections pris par~\cite{mimeur:tel-01451164} relève de la modélisation procédurale et non d'indicateurs de structure. C'est probablement pour la même raison que~\cite{schmitt2014modelisation} ne s'intéresse qu'aux trajectoires de population et pas aux indicateurs de réseau : la conjonction et l'ajustage des dynamiques de population et de réseau à des échelles différentes reste un problème ouvert.
+
+Une seconde entrée consiste en l'intégration du modèle de morphogenèse mesoscopique au sein de population de modèles en interaction. Cette approche permettrait une prise en compte de la non-stationnarité des systèmes territoriaux que nous avons par ailleurs montré empiriquement.
+%Enfin, nous pensons qu'un gain de connaissance important concernant la non-stationnarité des systèmes urbains serait rendu possible par son intégration dans un modèle de croissance multi-échelle. Les motifs de croissance urbaine ont été prouvés empiriquement exhibant un comportement multi-échelle~\cite{zhang2013identifying}.
+ Ici à l'échelle mesoscopique, la population totale et le taux de croissance sont fixés par les conditions exogènes de processus se produisant à l'échelle macroscopique. C'est particulièrement le but des modèles spatiaux de croissance comme le modèle macroscopique introduit par ailleurs de déterminer de tels paramètres par les relations entre villes comme agents. Il serait alors possible de conditionner le développement morphologique de chaque zone aux valeurs des paramètres déterminés au niveau supérieur. Dans ce contexte, il faudrait être prudent sur le rôle de l'émergence : la forme urbaine émergente devrait-elle influencer le comportement macroscopique à son tour ? De tels modèles complexes multi-scalaires sont prometteurs mais doivent être considérés avec précaution pour le niveau de complexité requis et la manière de coupler les échelles.
+
+
+\section{Conclusion}
+
+Nous avons ici fait une synthèse des principaux résultats de \cite{raimbault2018caracterisation}, confirmant la pertinence de l'approche par co-évolution dans l'appréhension des interactions entre réseaux de transport et territoires, en particulier pour la modélisation de ces interactions. Nous avons développé une définition précise de la co-évolution, par ailleurs associée à une méthode de caractérisation empirique. Les modèles à différentes échelles, et la perspective de modèles multi-échelles, pourront devenir des outils précieux de prospective territoriale dans le cadre des transitions durables sur le temps long, permettant de quantifier les systèmes territoriaux possibles et ceux souhaitables au regard de la soutenabilité, en prenant en compte des processus et des échelles relativement délaissés dans la littérature.
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+%% Biblio
+%%%%%%%%%%%%%%%%%%%%
+%\tiny
+
+%\begin{multicols}{2}
+
+%\setstretch{0.3}
+%\setlength{\parskip}{-0.4em}
+
+
+\bibliographystyle{apalike}
+\bibliography{biblio}
+%\end{multicols}
+
+
+
+\end{document}
