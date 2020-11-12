@@ -8,7 +8,12 @@ source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/MacroCoevol/Exploration'))
 
-res <- as.tbl(read.csv('20170926_GRID_VIRTUAL/data/20170926_102630_GRID_VIRTUAL.csv',stringsAsFactors = FALSE,header=F,skip = 1))
+file='20170926_GRID_VIRTUAL/data/20170926_102630_GRID_VIRTUAL.csv'
+res <- as.tbl(read.csv(
+  ifelse(file.exists(file),
+         file,
+         read.csv(paste0(file,'.source'),header=F,stringsAsFactors = F)[1,1]) # get file from source if does not exists locally
+  ,stringsAsFactors = FALSE,header=F,skip = 1))
 resdir='20170926_GRID_VIRTUAL/';
 
 
@@ -112,7 +117,14 @@ g+geom_point()+geom_smooth()+facet_wrap(~gravityGamma)+
   ggtitle(bquote(w[G]*"="*.(gravityWeight)*" ; "*d[G]*"="*.(gravityDecay)*" ; "*alpha[S]*"="*.(synthRankSize)))+
   xlab(expression(t))+ylab(expression(bar(c[i])(t)))+scale_color_continuous(name=expression(phi[0]))+
   stdtheme
-ggsave(paste0(resdir,'targeted/',var,'_synthRankSize',synthRankSize,'_gravityWeight',gravityWeight,"_gravityDecay",gravityDecay,'.png'),width=20,height=14,units='cm')
+ggsave(paste0(resdir,'targeted/',var,'_synthRankSize',synthRankSize,'_gravityWeight',parstr(gravityWeight),"_gravityDecay",gravityDecay,'.png'),width=20,height=14,units='cm')
+
+# greyscale figure
+g+geom_point()+geom_smooth()+facet_wrap(~gravityGamma)+
+  ggtitle(bquote(w[G]*"="*.(gravityWeight)*" ; "*d[G]*"="*.(gravityDecay)*" ; "*alpha[S]*"="*.(synthRankSize)))+
+  xlab(expression(t))+ylab(expression(bar(c[i])(t)))+scale_colour_gradient(low='#333333',high='#CCCCCC',name=expression(phi[0]))+
+  stdtheme
+ggsave(paste0(resdir,'targeted/',var,'_synthRankSize',synthRankSize,'_gravityWeight',parstr(gravityWeight),"_gravityDecay",gravityDecay,'_GREYSCSALE.png'),width=20,height=14,units='cm')
 
 
 nwGmax=0.05;synthRankSize=1.0;gravityGamma=0.5;gravityWeight=0.001;gravityDecays=c(10,110)
@@ -126,6 +138,11 @@ g+geom_point()+geom_smooth()+facet_wrap(~gravityDecay)+
   stdtheme
 ggsave(paste0(resdir,'targeted/',var,'_synthRankSize',synthRankSize,'_gravityWeight',gravityWeight,"_gravityGamma",gravityGamma,'.png'),width=20,height=14,units='cm')
 
+g+geom_point()+geom_smooth()+facet_wrap(~gravityDecay)+
+  ggtitle(bquote(w[G]*"="*.(gravityWeight)*" ; "*gamma[G]*"="*.(gravityGamma)*" ; "*alpha[S]*"="*.(synthRankSize)))+
+  xlab(expression(t))+ylab(expression(epsilon*"["*mu[i]*"]"*(t)))+scale_colour_gradient(low='#333333',high='#CCCCCC',name=expression(phi[0]))+
+  stdtheme
+ggsave(paste0(resdir,'targeted/',var,'_synthRankSize',synthRankSize,'_gravityWeight',parstr(gravityWeight),"_gravityGamma",parstr(gravityGamma),'_GREYSCALE.png'),width=20,height=14,units='cm')
 
 
 
@@ -169,6 +186,13 @@ g+geom_point()+geom_smooth()+facet_wrap(~nwThreshold,scales="free")+ggtitle(bquo
   stdtheme
 ggsave(paste0(resdir,'targeted/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',parstr(nwGmax),'_gravityWeight',parstr(gravityWeight),'.png'),width=30,height=15,units='cm')
 
+g+geom_point()+geom_smooth()+facet_wrap(~nwThreshold,scales="free")+ggtitle(bquote(w[G]*"="*.(gravityWeight)*" ; "*alpha[S]*"="*.(synthRankSize)))+
+  xlab(expression(d[G]))+ylab(expression(C*"["*Z[i]*"]"))+scale_colour_gradient(low='#333333',high='#CCCCCC',name=expression(gamma[G]))+
+  stdtheme
+ggsave(paste0(resdir,'targeted/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',parstr(nwGmax),'_gravityWeight',parstr(gravityWeight),'_GREYSCALE.png'),width=30,height=15,units='cm')
+
+
+
 
 synthrankSize = 1;nwGmax=0.05
 gravityWeight=0.001;networkThresholds = c(0.5,1.0,2.0)
@@ -179,6 +203,10 @@ g+geom_point()+geom_smooth()+facet_wrap(~nwThreshold,scales="free")+ggtitle(bquo
   stdtheme
 ggsave(paste0(resdir,'targeted/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',parstr(nwGmax),'_gravityWeight',parstr(gravityWeight),'.png'),width=30,height=15,units='cm')
 
+g+geom_point()+geom_smooth()+facet_wrap(~nwThreshold,scales="free")+ggtitle(bquote(w[G]*"="*.(gravityWeight)*" ; "*alpha[S]*"="*.(synthRankSize)))+
+  xlab(expression(d[G]))+ylab(expression(p*"["*Z[i]*"]"))+scale_colour_gradient(low='#333333',high='#CCCCCC',name=expression(gamma[G]))+
+  stdtheme
+ggsave(paste0(resdir,'targeted/',mes,var,'_synthrankSize',synthrankSize,'_nwGmax',parstr(nwGmax),'_gravityWeight',parstr(gravityWeight),'_GREYSCALE.png'),width=30,height=15,units='cm')
 
 
 
@@ -365,5 +393,9 @@ g+geom_point(pch='.')+geom_smooth()+facet_wrap(~reg,scales="free")+
   theme(legend.justification=c(1,0), legend.position=c(0.9,0.1))+scale_colour_discrete(name="Variables")
 ggsave(paste0(resdir,'targeted/laggedregimes_absrho_nwGmax',parstr(nwGmax),'.png'),width=30,height=30,units='cm')
 
+g+geom_point(pch='.')+geom_smooth()+facet_wrap(~reg,scales="free")+
+  xlab(expression(tau))+ylab(expression(rho[tau]))+stdtheme+
+  theme(legend.justification=c(1,0), legend.position=c(0.9,0.1))+scale_color_grey(name="Variables")
+ggsave(paste0(resdir,'targeted/laggedregimes_absrho_nwGmax',parstr(nwGmax),'_GREYSCALE.png'),width=30,height=30,units='cm')
 
 

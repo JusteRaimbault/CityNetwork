@@ -47,6 +47,10 @@ for(param in params){
   #plots[[param]]=g+geom_point()+scale_colour_gradient(low="blue",high="red",name=param)+facet_wrap(~period,scales = "free")+xlab("log MSE population")+ylab("log MSE distance")
   g+geom_point()+scale_colour_gradient(low="blue",high="red",name=paramnames[[param]])+facet_wrap(~period,scales = "free")+xlab(expression(epsilon[G]))+ylab(expression(epsilon[D]))+stdtheme
   ggsave(paste0(figdir,"pareto_",param,"_filt",filtered,".pdf"),width=30,height=20,units='cm')
+  
+  g=ggplot(data.frame(logmsepop=logmsepop,logmsedist=logmsedist,param=cparam,period=cperiods),aes_string(x="logmsepop",y="logmsedist",colour="param"))
+  g+geom_point()+scale_colour_gradient(low='#333333',high='#CCCCCC',name=paramnames[[param]])+facet_wrap(~period,scales = "free")+xlab(expression(epsilon[G]))+ylab(expression(epsilon[D]))+stdtheme
+  ggsave(paste0(figdir,"pareto_",param,"_filt",filtered,"_GREYSCALE.pdf"),width=30,height=20,units='cm')
 }
 #multiplot(plotlist = plots,cols=3)
 
@@ -78,6 +82,11 @@ for(param in params){
   g=ggplot(data.frame(decay=decays,sd=sdDecay,type=types,time=ctimes),aes(x=time,y=decay,colour=type,group=type))
   g+geom_point()+geom_line()+geom_errorbar(aes(ymin=decay-sd,ymax=decay+sd))+ylab(paramnames[[param]])+xlab(expression(t))+stdtheme
   ggsave(file=paste0(figdir,'param_',param,'_filt',as.numeric(filtered),'.png'),width=20,height=15,units='cm')
+
+  g=ggplot(data.frame(decay=decays,sd=sdDecay,type=types,time=ctimes),aes(x=time,y=decay,colour=type,group=type))
+  g+geom_point()+geom_line()+geom_errorbar(aes(ymin=decay-sd,ymax=decay+sd))+ylab(paramnames[[param]])+xlab(expression(t))+stdtheme+scale_color_grey()
+  ggsave(file=paste0(figdir,'param_',param,'_filt',as.numeric(filtered),'_GREYSCALE.png'),width=20,height=15,units='cm')
+  
 }
 
 

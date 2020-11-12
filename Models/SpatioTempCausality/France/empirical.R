@@ -6,17 +6,17 @@ library(dplyr)
 library(ggplot2)
 
 source('../functions.R')
-source(paste0(Sys.getenv('CN_HOME'),'/Models/NetworkNecessity/InteractionGibrat/functions.R'))
+source(paste0(Sys.getenv('CN_HOME'),'/Models/InteractionGibrat/functions.R'))
 source(paste0(Sys.getenv('CN_HOME'),'/Models/Utils/R/plots.R'))
 
 
 resdir = paste0(Sys.getenv('CN_HOME'),'/Results/SpatioTempCausality/France/')
 dir.create(resdir)
 
-#Ncities = 50
-Ncities = 300
+Ncities = 50
+#Ncities = 300
 
-load(paste0('data/distmats_cities',Ncities,'.RData'))
+if(Ncities == 50){load(paste0('data/distmats.RData'))}else{load(paste0('data/distmats_cities',Ncities,'.RData'))}
 
 citydata = data.frame(loadData(Ncities)$cities)
 rownames(citydata)<-citydata$NCCU
@@ -43,6 +43,7 @@ popdiff=getDiffs(populations,"pop")
 #x= popdiff;y= deltaAccessibilities(d0,distmats=distmats,years=years,mode=mode)
 #getLaggedCorrs(x,y,Tw,taumax=0)
 
+if(!file.exists(paste0(resdir,'laggedcorrs_Ncities',Ncities,'.RData'))){
 res=data.frame()
 d0s = c(1,10,100,500,1000,2000,4000)
 for(mode in c('time')){#,'weighteddest','weightedboth')){
@@ -58,14 +59,25 @@ for(mode in c('time')){#,'weighteddest','weightedboth')){
     } 
   }
 }
+save(res,file=paste0(resdir,'laggedcorrs_Ncities',Ncities,'.RData'))
+}else{
+  load(paste0(resdir,'laggedcorrs_Ncities',Ncities,'.RData'))
+}
 
 mode='time'
 for(Tw in 1:10){
   g=ggplot(res[res$Tw==Tw&res$mode==mode,],aes(x=tau,y=rho,ymin=rhomin,ymax=rhomax,color=d0,group=d0))
-  #g+geom_point()+geom_line()+geom_errorbar()+facet_grid(mode~span)+stdtheme
   g+geom_point()+geom_line()+geom_errorbar()+facet_wrap(~span,ncol = 7)+stdtheme
   ggsave(paste0(resdir,'laggedCorrs_',mode,'_Ncities',Ncities,'_Tw',Tw,'.pdf'),width=30,height=20,units='cm')
 }
+
+# greyscale for paper (Tw=4)
+Tw=4
+g=ggplot(res[res$Tw==Tw&res$mode==mode,],aes(x=tau,y=rho,ymin=rhomin,ymax=rhomax,color=d0,group=d0))
+g+geom_point()+geom_line()+geom_errorbar()+facet_wrap(~span,ncol = 7)+
+  stdtheme+scale_colour_gradient(low='#333333',high='#CCCCCC',name=expression(d[0]))+
+  xlab('Delay')+ylab('Lagged correlations')
+ggsave(paste0(resdir,'laggedCorrs_',mode,'_Ncities',Ncities,'_Tw',Tw,'_GREYSCALE.pdf'),width=30,height=20,units='cm')
 
 
 sres = data.frame()
@@ -77,9 +89,18 @@ g=ggplot(sres,aes(x=Tw,y=signcorrs,color=d0,group=d0))
 g+geom_point()+geom_line()+stdtheme+ylab("% Significant Correlations")+xlab(expression(T[w]))
 ggsave(paste0(resdir,'significantcorrs_Ncities',Ncities,'_Tw.pdf'),width=15,height=12,units='cm')
 
+g=ggplot(sres,aes(x=Tw,y=signcorrs,color=d0,group=d0))
+g+geom_point()+geom_line()+stdtheme+ylab("% Significant Correlations")+xlab(expression(T[w]))+scale_colour_gradient(low='#333333',high='#CCCCCC',name=expression(d[0]))
+ggsave(paste0(resdir,'significantcorrs_Ncities',Ncities,'_Tw_GREYSCALE.pdf'),width=15,height=12,units='cm')
+
+
 g=ggplot(sres,aes(x=d0,y=signcorrs,color=Tw,group=Tw))
 g+geom_point()+geom_line()+stdtheme+ylab("% Significant Correlations")+xlab(expression(d[0]))+scale_x_log10()
 ggsave(paste0(resdir,'significantcorrs_Ncities',Ncities,'_d0.pdf'),width=15,height=12,units='cm')
+
+g=ggplot(sres,aes(x=d0,y=signcorrs,color=Tw,group=Tw))
+g+geom_point()+geom_line()+stdtheme+ylab("% Significant Correlations")+xlab(expression(d[0]))+scale_x_log10()+scale_colour_gradient(low='#333333',high='#CCCCCC',name=expression(T[w]))
+ggsave(paste0(resdir,'significantcorrs_Ncities',Ncities,'_d0_GREYSCALE.pdf'),width=15,height=12,units='cm')
 
 
 # -> correlations become less significant with distance -> spatial stationarity effect.
