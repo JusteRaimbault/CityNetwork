@@ -459,11 +459,11 @@ breed[ghost-transportation-nodes ghost-transportation-node]
 GRAPHICS-WINDOW
 371
 10
-846
-506
-6
-6
-35.833333333333336
+810
+470
+7
+7
+28.666666666666668
 1
 10
 1
@@ -473,10 +473,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--6
-6
--6
-6
+-7
+7
+-7
+7
 0
 0
 1
@@ -492,7 +492,7 @@ SLIDER
 #-initial-territories
 0
 5
-2
+5
 1
 1
 NIL
@@ -983,7 +983,7 @@ CHOOSER
 setup-type
 setup-type
 "random" "from-file" "gis-synthetic" "gis"
-2
+3
 
 BUTTON
 471
@@ -1068,7 +1068,7 @@ world-size
 world-size
 0
 50
-12
+15
 1
 1
 NIL
@@ -1080,7 +1080,7 @@ INPUTBOX
 365
 70
 conf-file
-setup/conf/synth_unbalanced_close.conf
+setup/conf/real_nonw.conf
 1
 0
 String

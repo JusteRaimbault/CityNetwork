@@ -4,6 +4,8 @@ library(ggplot2)
 
 setwd(paste0(Sys.getenv('CN_HOME'),'/Results/Governance/'))
 
+source(paste0(Sys.getenv('CN_HOME'),'/Models/Governance/Lutecia/Lutecia/analysis/functions.R'))
+
 #resdir = '20170508_lhs/'
 resdir = '20170528_real/'
 #res <- as.tbl(read.csv(file = '20170508_lhs/data/20170508_190418_lhs.csv',sep=',',header=T))
