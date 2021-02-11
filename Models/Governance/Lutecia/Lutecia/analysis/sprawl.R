@@ -136,25 +136,42 @@ res[res$cumreldiffactives==min(res$cumreldiffactives),params]
 #######
 ## metropolisation
 
-#res$evolveLanduse = ifelse(res$evolveLanduse==1,"Avec usage du sol","Sans usage du sol")
-res$evolveLanduse = ifelse(res$evolveLanduse==1,"With land-use","Without land-use")
+
+resdir='20180205_localsynth/'
+res <- as.tbl(read.csv(file = '20180205_localsynth/data/20180205_113455_local_synth.csv',sep=',',header=T,stringsAsFactors = F))
+finalTime = 20
+
+
+res$evolveLanduseF = ifelse(res$evolveLanduse==1,"With land-use","Without land-use")
 
 g=ggplot(res,aes(x=regionalproba,y=accessibilityBalanceTS19/accessibilityBalanceTS0,colour = synthConfFile,group=synthConfFile))
-g+geom_point(pch='.')+geom_smooth()+facet_wrap(~evolveLanduse,scales = 'free')+xlab(expression(xi))+
-  ylab(expression(frac(X[0](t[f]),X[1](t[f]))%.%frac(X[1](t[0]),X[0](t[0]))))+
-  #scale_color_discrete(name='Configuration',labels=c('Proche','Distante'))+stdtheme
+g+geom_point(pch='.')+geom_smooth()+facet_wrap(~evolveLanduseF,scales = 'free')+
+  #xlab(expression(xi))+ylab(expression(frac(X[0](t[f]),X[1](t[f]))%.%frac(X[1](t[0]),X[0](t[0]))))+
+  xlab(expression(xi*' (% regional decisions)'))+ylab('Relative accessibility between centres')+
   scale_color_discrete(name='Configuration',labels=c('Close','Distant'))+stdtheme
-#ggsave(file=paste0(resdir,'accessbalance.png'),width=30,height=15,units='cm')
 ggsave(file=paste0(resdir,'accessbalance_en.png'),width=30,height=15,units='cm')
 
 g=ggplot(res,aes(x=regionalproba,y=accessibilityTS19/accessibilityTS0,colour = synthConfFile,group=synthConfFile))
-g+geom_point(pch='.')+geom_smooth()+facet_wrap(~evolveLanduse,scales = 'free')+xlab(expression(xi))+
-  ylab(expression(frac(X(t[f]),X(t[0]))))+
-  #scale_color_discrete(name='Configuration',labels=c('Proche','Distante'))+stdtheme
+g+geom_point(pch='.')+geom_smooth()+facet_wrap(~evolveLanduseF,scales = 'free')+
+  #xlab(expression(xi))+ylab(expression(frac(X(t[f]),X(t[0]))))+
+  xlab(expression(xi*' (% regional decisions)'))+ylab('Total accessibility gain')+
   scale_color_discrete(name='Configuration',labels=c('Close','Distant'))+stdtheme
-#ggsave(file=paste0(resdir,'accesstot.png'),width=30,height=15,units='cm')
 ggsave(file=paste0(resdir,'accesstot_en.png'),width=30,height=15,units='cm')
 
+
+res$evolveLanduseF = ifelse(res$evolveLanduse==1,"Avec usage du sol","Sans usage du sol")
+
+g=ggplot(res,aes(x=regionalproba,y=accessibilityBalanceTS19/accessibilityBalanceTS0,colour = synthConfFile,group=synthConfFile))
+g+geom_point(pch='.')+geom_smooth()+facet_wrap(~evolveLanduseF,scales = 'free')+xlab(expression(xi))+
+  ylab(expression(frac(X[0](t[f]),X[1](t[f]))%.%frac(X[1](t[0]),X[0](t[0]))))+
+  scale_color_discrete(name='Configuration',labels=c('Proche','Distante'))+stdtheme
+ggsave(file=paste0(resdir,'accessbalance.png'),width=30,height=15,units='cm')
+
+g=ggplot(res,aes(x=regionalproba,y=accessibilityTS19/accessibilityTS0,colour = synthConfFile,group=synthConfFile))
+g+geom_point(pch='.')+geom_smooth()+facet_wrap(~evolveLanduseF,scales = 'free')+xlab(expression(xi))+
+  ylab(expression(frac(X(t[f]),X(t[0]))))+
+  scale_color_discrete(name='Configuration',labels=c('Proche','Distante'))+stdtheme
+ggsave(file=paste0(resdir,'accesstot.png'),width=30,height=15,units='cm')
 
 
 
