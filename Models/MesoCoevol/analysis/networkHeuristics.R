@@ -88,6 +88,10 @@ sdata = realres[selectedpoints,]
 sdata=sdata[apply(sdata,1,function(r){prod(as.numeric(!is.na(r)))>0}),]
 cdata=sdata[,c("meanBetweenness","meanPathLength","meanCloseness","networkPerf","diameter")]
 
+# specific export for nwgrowth pse
+names(cdata)<-c("meanBwCentrality","meanPathLength","meanClosenessCentrality","meanRelativeSpeed","nwDiameter")
+write.csv(cdata[,c("meanBwCentrality","meanClosenessCentrality","meanPathLength","meanRelativeSpeed","nwDiameter")],file=paste0(Sys.getenv('CS_HOME'),'/NetworkGrowth/Models/analysis/data/real.csv'))
+
 for(j in 1:ncol(cdata)){cdata[,j]<-(cdata[,j]-min(cdata[,j]))/(max(cdata[,j])-min(cdata[,j]))}
 
 # pca real data
