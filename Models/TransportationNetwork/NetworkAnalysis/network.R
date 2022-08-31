@@ -118,8 +118,10 @@ addTransportationLayer<-function(stations_layer=NULL,
                                  e_attr_names=NULL,
                                  reprojection=NULL
                                  ){
-  show(paste0('Adding transportation network : stations = ',stations_layer,' ; links = ',link_layer))
-  
+  if (is.character(stations_layer)&&is.character(link_layer)){
+    show(paste0('Adding transportation network : stations = ',stations_layer,' ; links = ',link_layer))
+  }else {show('Adding transportation network layer')}
+    
   # construct vertex set
   vertexes = data.frame()
   if(length(V(g))>0){
